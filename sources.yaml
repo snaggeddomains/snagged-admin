@@ -109,12 +109,11 @@ sources:
 
   - source_id: atom_daily
     product: snap
-    kind: drive_file
-    schedule_utc: "*/10 10-14 * * *"  # every 10 min, ~6:00-10:59 ET window
+    kind: csv_dump
+    schedule_utc: "0 14 * * *"     # ~10:00 AM ET (after Atom updates the feed)
     enabled: true
     fetch:
-      drive_folder_id: "1FFB8_8aTii5YQJheIQsJI0SqYRmFMg_4"
-      filename_pattern: "{m}-{d}-{yy} Atom Dump.csv"
+      url: "http://atom.com/public/feeds/partner.csv"
     filters_profile: standard_listings
     sheet_destinations:
       - tab: "Today's New Listings"
@@ -122,6 +121,11 @@ sources:
       - tab: "Running Good Deals"
         mode: append_if_missing
     slack_channel_for: snap
+    notes: |
+      Direct partner feed fetch replaces the previous laptop-based flow that
+      downloaded the CSV and uploaded it to the Atom Dumps Drive folder
+      (1FFB8_8aTii5YQJheIQsJI0SqYRmFMg_4). That folder can be retired once
+      this source has run cleanly for a few days.
 
   - source_id: atom_wholesale
     product: snap

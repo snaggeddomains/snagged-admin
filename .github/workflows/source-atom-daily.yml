@@ -1,0 +1,40 @@
+name: 'Source: atom_daily'
+
+# Schedule will be enabled once the source's first manual run is verified.
+# Target schedule: '0 14 * * *' UTC == ~10:00 AM ET (after Atom feed updates).
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: source-atom_daily
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup
+
+      - name: Run atom_daily
+        env:
+          SLACK_BOT_TOKEN:             ${{ secrets.SLACK_BOT_TOKEN }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          SLACK_CHANNEL_SNAP:          ${{ vars.SLACK_CHANNEL_SNAP }}
+        run: pipeline run atom_daily
+
+      - name: Commit state changes
+        if: success()
+        run: |
+          git add state/
+          if git diff --cached --quiet; then
+            echo "No state changes."
+          else
+            git commit -m "atom_daily: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git push
+          fi
