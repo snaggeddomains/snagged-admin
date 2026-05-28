@@ -1,0 +1,36 @@
+name: 'Source: efty_partner'
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: source-efty_partner
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Run efty_partner
+        env:
+          SLACK_BOT_TOKEN:             ${{ secrets.SLACK_BOT_TOKEN }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          SLACK_CHANNEL_SNAP:          ${{ vars.SLACK_CHANNEL_SNAP }}
+          EFTY_PARTNER_TOKEN:          ${{ secrets.EFTY_PARTNER_TOKEN }}
+        run: pipeline run efty_partner
+      - name: Commit state changes
+        if: success()
+        run: |
+          git add state/
+          if git diff --cached --quiet; then
+            echo "No state changes."
+          else
+            git commit -m "efty_partner: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git push
+          fi
