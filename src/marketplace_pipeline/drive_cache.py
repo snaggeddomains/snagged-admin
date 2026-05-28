@@ -57,14 +57,24 @@ def _root_folder_id() -> str | None:
 
 
 def _ensure_subfolder(service, parent_id: str, name: str) -> str:
-    """Return the ID of <parent>/<name>, creating it if missing."""
-    # Escape single quotes in folder names by doubling them per Drive query syntax
+    """Return the ID of <parent>/<name>, creating it if missing.
+
+    Shared-Drive-safe: passes supportsAllDrives + includeItemsFromAllDrives
+    so this works for both My Drive folders and Shared Drive folders.
+    """
+    # Escape single quotes per Drive query syntax
     safe = name.replace("'", "\\'")
     q = (
         f"'{parent_id}' in parents and name='{safe}' "
         f"and mimeType='application/vnd.google-apps.folder' and trashed=false"
     )
-    res = service.files().list(q=q, fields="files(id,name)", pageSize=10).execute()
+    res = service.files().list(
+        q=q,
+        fields="files(id,name)",
+        pageSize=10,
+        supportsAllDrives=True,
+        includeItemsFromAllDrives=True,
+    ).execute()
     files = res.get("files", [])
     if files:
         return files[0]["id"]
@@ -75,6 +85,7 @@ def _ensure_subfolder(service, parent_id: str, name: str) -> str:
             "parents": [parent_id],
         },
         fields="id",
+        supportsAllDrives=True,
     ).execute()
     return file["id"]
 
@@ -92,6 +103,8 @@ def cache_raw(
     Returns the Drive file ID on success. Returns None (and logs) if the cache
     folder ID is not configured — intentionally non-fatal so the pipeline
     continues without Tier 2 storage.
+
+    Shared-Drive-safe via supportsAllDrives=True.
     """
     root = _root_folder_id()
     if not root:
@@ -109,11 +122,14 @@ def cache_raw(
 
     ext = os.path.splitext(filename)[1].lower()
     mime = EXT_MIME.get(ext, DEFAULT_MIME)
-    media = MediaIoBaseUpload(io.BytesIO(content), mimetype=mime, resumable=False)
+    # resumable=True is needed for files >5 MB to avoid timeouts; Namecheap
+    # CSV is typically ~10-50 MB.
+    media = MediaIoBaseUpload(io.BytesIO(content), mimetype=mime, resumable=True)
 
     file = svc.files().create(
         body={"name": filename, "parents": [date_folder]},
         media_body=media,
         fields="id",
+        supportsAllDrives=True,
     ).execute()
     return file["id"]
