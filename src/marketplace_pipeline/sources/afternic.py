@@ -134,6 +134,10 @@ class Entry:
 
 # ---------- pure helpers (testable) ----------
 
+ZIP_MAGIC = b"PK\x03\x04"
+GZIP_MAGIC = b"\x1f\x8b"
+
+
 def extract_csv_from_zip(zip_bytes: bytes) -> bytes:
     """Open the zip in memory and return the first .csv member's contents."""
     with zipfile.ZipFile(io.BytesIO(zip_bytes)) as zf:
@@ -142,6 +146,35 @@ def extract_csv_from_zip(zip_bytes: bytes) -> bytes:
             raise RuntimeError(f"No .csv inside zip; members: {zf.namelist()}")
         with zf.open(csv_names[0]) as fh:
             return fh.read()
+
+
+def csv_bytes_from_response(content: bytes) -> bytes:
+    """Return CSV bytes from whatever Afternic returned.
+
+    The endpoint with compress=1 has been observed to return either:
+      - a zip wrapper containing a single .csv (legacy behavior), or
+      - gzip-encoded CSV that `requests` auto-decompresses to raw CSV bytes
+        before we see it, or
+      - raw CSV bytes directly.
+
+    We probe the magic bytes and dispatch.
+    """
+    if content[:4] == ZIP_MAGIC:
+        return extract_csv_from_zip(content)
+    if content[:2] == GZIP_MAGIC:
+        # Should be rare — requests usually auto-decompresses gzip — but
+        # handle it just in case (e.g., if response asked for raw bytes).
+        import gzip
+        return gzip.decompress(content)
+    # Plausibly raw CSV. Sanity check: first 200 bytes should look text-y and
+    # plausibly contain "domain" as a column name.
+    head = content[:2048].decode("utf-8", errors="replace").lower()
+    if "domain" not in head:
+        raise RuntimeError(
+            f"Afternic response is neither zip nor gzip nor recognizable CSV. "
+            f"First 100 bytes: {content[:100]!r}"
+        )
+    return content
 
 
 def parse_csv_rows(csv_bytes: bytes) -> list[dict[str, str]]:
@@ -259,9 +292,9 @@ def run() -> int:
     except Exception as e:
         print(f"       WARN raw cache write failed (non-fatal): {e}")
 
-    print("[3/10] Extracting CSV from zip")
-    csv_bytes = extract_csv_from_zip(zip_bytes)
-    print(f"       extracted {len(csv_bytes):,} bytes")
+    print("[3/10] Extracting CSV (zip / gzip / raw auto-detected)")
+    csv_bytes = csv_bytes_from_response(zip_bytes)
+    print(f"       got {len(csv_bytes):,} CSV bytes")
 
     print("[4/10] Parsing CSV")
     rows = parse_csv_rows(csv_bytes)
