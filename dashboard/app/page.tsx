@@ -4,6 +4,13 @@ import {
   type Reference,
   type SourceWithStatus,
 } from "../lib/sources";
+import {
+  editFile,
+  viewFile,
+  sourceModulePathFor,
+  workflowPathFor,
+  runWorkflowPage,
+} from "../lib/github-links";
 
 export const revalidate = 60;
 
@@ -37,12 +44,31 @@ function relativeTime(iso: string): string {
   return `${Math.round(ageSec / 86400)}d ago`;
 }
 
+function LinkOut({ href, label }: { href: string; label: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        fontSize: 12,
+        color: "#3b82f6",
+        textDecoration: "none",
+        marginLeft: 8,
+        whiteSpace: "nowrap",
+      }}
+    >
+      {label} →
+    </a>
+  );
+}
+
 function SourceRow({ s }: { s: SourceWithStatus }) {
   const info = statusInfo(s);
   const dim = info.key === "todo" || info.key === "disabled";
   return (
     <tr style={{ borderTop: "1px solid #f3f4f6", opacity: dim ? 0.65 : 1 }}>
-      <td style={{ padding: "10px 0" }}>
+      <td style={{ padding: "10px 0", width: 24 }}>
         <span
           title={info.label}
           style={{
@@ -103,9 +129,22 @@ function SourceRow({ s }: { s: SourceWithStatus }) {
           padding: "10px 0",
           textAlign: "right",
           fontVariantNumeric: "tabular-nums",
+          whiteSpace: "nowrap",
         }}
       >
         {s.runStatus?.new_count ?? "—"}
+      </td>
+      <td style={{ padding: "10px 0", textAlign: "right", whiteSpace: "nowrap" }}>
+        {s.wired && <LinkOut href={runWorkflowPage(s.source_id)} label="run" />}
+        {s.wired && (
+          <LinkOut href={viewFile(sourceModulePathFor(s.source_id))} label="code" />
+        )}
+        {!s.wired && (
+          <LinkOut
+            href={editFile("sources.yaml")}
+            label="edit registry"
+          />
+        )}
       </td>
     </tr>
   );
@@ -122,6 +161,7 @@ function SourceTable({ items }: { items: SourceWithStatus[] }) {
           <th style={{ padding: "8px 0" }}>schedule (UTC)</th>
           <th style={{ padding: "8px 0" }}>last run</th>
           <th style={{ padding: "8px 0", textAlign: "right" }}>new&nbsp;today</th>
+          <th style={{ padding: "8px 0", textAlign: "right" }}></th>
         </tr>
       </thead>
       <tbody>
@@ -186,7 +226,7 @@ function ReferencesSection({ refs }: { refs: Reference[] }) {
   );
 }
 
-export default async function Home() {
+export default async function SourcesPage() {
   const hasToken = !!process.env.GITHUB_TOKEN;
   const [sources, refs] = hasToken
     ? await Promise.all([loadAllSourcesWithStatus(), loadReferences()])
@@ -197,8 +237,6 @@ export default async function Home() {
     (byProduct[s.product] ||= []).push(s);
   }
 
-  // Stable sort within each product: ok first, then stale/failed, then
-  // never_run, then todo last (visual progress bar feel).
   const ORDER: Record<StatusKey, number> = {
     ok: 0,
     stale: 1,
@@ -208,41 +246,18 @@ export default async function Home() {
     todo: 5,
   };
   for (const p of Object.keys(byProduct)) {
-    byProduct[p].sort(
-      (a, b) => ORDER[statusInfo(a).key] - ORDER[statusInfo(b).key],
-    );
+    byProduct[p].sort((a, b) => ORDER[statusInfo(a).key] - ORDER[statusInfo(b).key]);
   }
 
   const counts: Record<StatusKey, number> = {
-    ok: 0,
-    stale: 0,
-    failed: 0,
-    never_run: 0,
-    todo: 0,
-    disabled: 0,
+    ok: 0, stale: 0, failed: 0, never_run: 0, todo: 0, disabled: 0,
   };
   for (const s of sources) counts[statusInfo(s).key]++;
   const total = sources.length;
   const wiredCount = sources.filter((s) => s.wired && s.enabled !== false).length;
-  const todoCount = counts.todo;
 
   return (
-    <main
-      style={{
-        padding: "2.5rem 2rem",
-        maxWidth: 1100,
-        margin: "0 auto",
-        color: "#111",
-        fontFamily: "system-ui, sans-serif",
-      }}
-    >
-      <header style={{ marginBottom: 32 }}>
-        <h1 style={{ fontSize: 28, margin: 0 }}>snagged-admin</h1>
-        <p style={{ color: "#666", marginTop: 6, marginBottom: 0 }}>
-          Marketplace pipeline source health · build checklist
-        </p>
-      </header>
-
+    <>
       {!hasToken && (
         <div
           style={{
@@ -274,10 +289,7 @@ export default async function Home() {
           }}
         >
           <span>
-            <strong>
-              {wiredCount} / {total}
-            </strong>{" "}
-            wired
+            <strong>{wiredCount} / {total}</strong> wired
           </span>
           <span style={{ color: "#10b981" }}>
             ● <strong>{counts.ok}</strong> ok
@@ -303,7 +315,7 @@ export default async function Home() {
                 marginRight: 4,
               }}
             />
-            <strong>{todoCount}</strong> todo
+            <strong>{counts.todo}</strong> todo
           </span>
           <span style={{ color: "#9ca3af" }}>
             ● <strong>{counts.disabled}</strong> disabled
@@ -339,11 +351,15 @@ export default async function Home() {
           color: "#9ca3af",
         }}
       >
-        Page revalidates every 60 seconds · sources from{" "}
-        <code>sources.yaml</code> · status from <code>state/&lt;id&gt;/</code> ·
-        wired-detection by presence of{" "}
-        <code>src/marketplace_pipeline/sources/&lt;id&gt;.py</code>
+        Page revalidates every 60 seconds · <a
+          href={editFile("sources.yaml")}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: "#3b82f6", textDecoration: "none" }}
+        >
+          Edit sources.yaml on GitHub →
+        </a>
       </footer>
-    </main>
+    </>
   );
 }

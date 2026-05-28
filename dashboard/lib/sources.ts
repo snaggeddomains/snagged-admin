@@ -6,6 +6,12 @@ import { getFile, listDirectory } from "./github";
 
 export type Product = "snap" | "auctions" | "aux";
 
+export interface SheetDestination {
+  tab: string;
+  mode: string;
+  sheet_id_override?: string;
+}
+
 export interface Source {
   source_id: string;
   product: Product;
@@ -13,6 +19,9 @@ export interface Source {
   schedule_utc?: string;
   enabled?: boolean;
   reason?: string;
+  sheet_destinations?: SheetDestination[];
+  slack_channel_for?: string;
+  filters_profile?: string;
 }
 
 export interface RunStatus {
@@ -58,6 +67,77 @@ export async function loadReferences(): Promise<Reference[]> {
     | undefined;
   const refs = parsed?.references ?? {};
   return Object.entries(refs).map(([ref_id, body]) => ({ ref_id, ...body }));
+}
+
+export interface FilterProfile {
+  name: string;
+  allowed_tlds?: string[];
+  sld_length_min?: number;
+  sld_length_max?: number;
+  allow_digits?: boolean;
+  allow_hyphens?: boolean;
+  require_vowel?: boolean;
+  max_consecutive_consonants?: number;
+  dedup_by_domain?: boolean;
+  zipf_min?: number;
+  zipf_overrides_by_tld?: Record<string, number>;
+  allow_three_letter_com?: boolean;
+  legacy_module?: string;
+}
+
+export interface Storage {
+  pipeline_raw_cache_folder_id?: string;
+  pipeline_raw_cache_retention_days?: number;
+}
+
+export interface Products {
+  snap?: { sheet_id?: string; sheet_title?: string; atom_wholesale_sheet_id?: string; atom_wholesale_sheet_title?: string; slack_channel_env?: string; do_not_write_tabs?: string[] };
+  auctions?: { sheet_id?: string; sheet_title?: string; slack_channel_env?: string };
+}
+
+export interface FullRegistry {
+  storage: Storage;
+  products: Products;
+  filter_profiles: FilterProfile[];
+  sources: Source[];
+  references: Reference[];
+}
+
+export async function loadFullRegistry(): Promise<FullRegistry> {
+  const text = await getFile("sources.yaml");
+  if (!text) {
+    return {
+      storage: {},
+      products: {},
+      filter_profiles: [],
+      sources: [],
+      references: [],
+    };
+  }
+  const parsed = yaml.load(text) as
+    | {
+        storage?: Storage;
+        products?: Products;
+        filter_profiles?: Record<string, Omit<FilterProfile, "name">>;
+        sources?: Source[];
+        references?: Record<string, Omit<Reference, "ref_id">>;
+      }
+    | undefined;
+  const profilesObj = parsed?.filter_profiles ?? {};
+  const refsObj = parsed?.references ?? {};
+  return {
+    storage: parsed?.storage ?? {},
+    products: parsed?.products ?? {},
+    filter_profiles: Object.entries(profilesObj).map(([name, body]) => ({
+      name,
+      ...body,
+    })),
+    sources: parsed?.sources ?? [],
+    references: Object.entries(refsObj).map(([ref_id, body]) => ({
+      ref_id,
+      ...body,
+    })),
+  };
 }
 
 /** Return the set of source_ids that have a Python module under
