@@ -1,9 +1,9 @@
 name: 'Source: namecheap_bin'
 
-# Schedule will be enabled once the source implementation lands.
-# Until then, this workflow is manual-trigger only.
-# Target schedule: '25 9 * * *' UTC == ~5:25 AM ET.
+# Schedule in UTC. 25 9 * * * == ~5:25 AM ET (drifts ~1 hr across DST).
 on:
+  schedule:
+    - cron: '25 9 * * *'
   workflow_dispatch: {}
 
 permissions:
