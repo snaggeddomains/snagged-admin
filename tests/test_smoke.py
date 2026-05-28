@@ -11,7 +11,8 @@ def test_package_imports():
     from marketplace_pipeline.publishers import slack, sheets
     from marketplace_pipeline.universe import duckdb_store
     from marketplace_pipeline.references import supabase_master
-    from marketplace_pipeline.sources import namecheap_bin
+    from marketplace_pipeline.sources import namecheap_bin, afternic
+    assert afternic.SOURCE_ID == "afternic"
     from marketplace_pipeline.tools import auth_check, slack_check
 
     assert marketplace_pipeline.__version__

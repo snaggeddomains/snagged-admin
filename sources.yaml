@@ -96,6 +96,9 @@ sources:
     kind: csv_dump
     schedule_utc: "15 9 * * *"     # ~5:15 AM ET
     enabled: true
+    fetch:
+      url: "https://search.afternic.com/broker/all?id=zt5nchodbseszkp&compress=1"
+      format: zip
     filters_profile: standard_listings
     sheet_destinations:
       - tab: "Today's New Listings"
