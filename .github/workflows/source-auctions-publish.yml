@@ -22,6 +22,10 @@ jobs:
 
       - uses: ./.github/actions/setup
 
+      - name: Install Playwright Chromium
+        # Required by dropcatch_auctions + namejet_lastchance producers.
+        run: python -m playwright install --with-deps chromium
+
       - name: Run auctions_publish
         env:
           SLACK_BOT_TOKEN:             ${{ secrets.SLACK_BOT_TOKEN }}

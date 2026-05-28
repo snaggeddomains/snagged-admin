@@ -22,6 +22,11 @@ jobs:
 
       - uses: ./.github/actions/setup
 
+      - name: Install Playwright Chromium
+        # Required if the watchdog needs to retry dropcatch_auctions or
+        # namejet_lastchance.
+        run: python -m playwright install --with-deps chromium
+
       - name: Run auctions_watchdog
         env:
           SLACK_BOT_TOKEN:             ${{ secrets.SLACK_BOT_TOKEN }}
