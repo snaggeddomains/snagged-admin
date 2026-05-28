@@ -8,7 +8,6 @@ import {
   editFile,
   viewFile,
   sourceModulePathFor,
-  workflowPathFor,
   runWorkflowPage,
 } from "../lib/github-links";
 
@@ -22,18 +21,18 @@ const PRODUCT_LABEL: Record<string, string> = {
 
 type StatusKey = "ok" | "stale" | "failed" | "never_run" | "todo" | "disabled";
 
-function statusInfo(s: SourceWithStatus): { key: StatusKey; color: string; label: string } {
-  if (s.enabled === false) return { key: "disabled", color: "#9ca3af", label: "disabled" };
-  if (!s.wired) return { key: "todo", color: "#e5e7eb", label: "TODO — not wired" };
-  if (!s.runStatus) return { key: "never_run", color: "#cbd5e1", label: "wired · never run" };
-  if (s.runStatus.status === "failed") return { key: "failed", color: "#dc2626", label: "failed" };
+function statusInfo(s: SourceWithStatus): { key: StatusKey; label: string } {
+  if (s.enabled === false) return { key: "disabled", label: "disabled" };
+  if (!s.wired) return { key: "todo", label: "TODO — not wired" };
+  if (!s.runStatus) return { key: "never_run", label: "wired · never run" };
+  if (s.runStatus.status === "failed") return { key: "failed", label: "failed" };
   if (s.runStatus.status === "ok") {
     const ageHours =
       (Date.now() - new Date(s.runStatus.generated_at).getTime()) / 1000 / 3600;
-    if (ageHours < 26) return { key: "ok", color: "#10b981", label: "ok" };
-    return { key: "stale", color: "#f59e0b", label: `stale (${Math.round(ageHours)}h)` };
+    if (ageHours < 26) return { key: "ok", label: "ok" };
+    return { key: "stale", label: `stale (${Math.round(ageHours)}h)` };
   }
-  return { key: "never_run", color: "#9ca3af", label: s.runStatus.status };
+  return { key: "never_run", label: s.runStatus.status };
 }
 
 function relativeTime(iso: string): string {
@@ -46,18 +45,7 @@ function relativeTime(iso: string): string {
 
 function LinkOut({ href, label }: { href: string; label: string }) {
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      style={{
-        fontSize: 12,
-        color: "#3b82f6",
-        textDecoration: "none",
-        marginLeft: 8,
-        whiteSpace: "nowrap",
-      }}
-    >
+    <a href={href} target="_blank" rel="noopener noreferrer" className="link-out">
       {label} →
     </a>
   );
@@ -67,84 +55,26 @@ function SourceRow({ s }: { s: SourceWithStatus }) {
   const info = statusInfo(s);
   const dim = info.key === "todo" || info.key === "disabled";
   return (
-    <tr style={{ borderTop: "1px solid #f3f4f6", opacity: dim ? 0.65 : 1 }}>
-      <td style={{ padding: "10px 0", width: 24 }}>
-        <span
-          title={info.label}
-          style={{
-            display: "inline-block",
-            width: 10,
-            height: 10,
-            borderRadius: "50%",
-            background: info.color,
-            border:
-              info.key === "todo" || info.key === "never_run"
-                ? "1px solid #9ca3af"
-                : "none",
-            boxSizing: "border-box",
-          }}
-        />
+    <tr className={dim ? "dim" : undefined}>
+      <td style={{ width: 24 }}>
+        <span title={info.label} className={`dot dot--${info.key}`} />
       </td>
-      <td
-        style={{
-          padding: "10px 0",
-          fontFamily: "ui-monospace, Menlo, monospace",
-        }}
-      >
+      <td className="mono">
         {s.source_id}
-        {info.key === "todo" && (
-          <span
-            style={{
-              marginLeft: 8,
-              padding: "1px 6px",
-              fontSize: 10,
-              border: "1px solid #d1d5db",
-              borderRadius: 4,
-              color: "#6b7280",
-              fontFamily: "system-ui, sans-serif",
-              fontWeight: 600,
-              letterSpacing: 0.4,
-              textTransform: "uppercase",
-            }}
-          >
-            todo
-          </span>
-        )}
+        {info.key === "todo" && <span className="todo-badge">todo</span>}
       </td>
-      <td style={{ padding: "10px 0", color: "#6b7280" }}>{s.kind}</td>
-      <td
-        style={{
-          padding: "10px 0",
-          color: "#6b7280",
-          fontFamily: "ui-monospace, Menlo, monospace",
-        }}
-      >
-        {s.schedule_utc ?? "—"}
-      </td>
-      <td style={{ padding: "10px 0", color: "#6b7280" }}>
+      <td className="muted">{s.kind}</td>
+      <td className="muted mono">{s.schedule_utc ?? "—"}</td>
+      <td className="muted">
         {s.runStatus ? relativeTime(s.runStatus.generated_at) : "—"}
       </td>
-      <td
-        style={{
-          padding: "10px 0",
-          textAlign: "right",
-          fontVariantNumeric: "tabular-nums",
-          whiteSpace: "nowrap",
-        }}
-      >
-        {s.runStatus?.new_count ?? "—"}
-      </td>
-      <td style={{ padding: "10px 0", textAlign: "right", whiteSpace: "nowrap" }}>
+      <td className="num">{s.runStatus?.new_count ?? "—"}</td>
+      <td className="right" style={{ whiteSpace: "nowrap" }}>
         {s.wired && <LinkOut href={runWorkflowPage(s.source_id)} label="run" />}
         {s.wired && (
           <LinkOut href={viewFile(sourceModulePathFor(s.source_id))} label="code" />
         )}
-        {!s.wired && (
-          <LinkOut
-            href={editFile("sources.yaml")}
-            label="edit registry"
-          />
-        )}
+        {!s.wired && <LinkOut href={editFile("sources.yaml")} label="edit registry" />}
       </td>
     </tr>
   );
@@ -152,16 +82,16 @@ function SourceRow({ s }: { s: SourceWithStatus }) {
 
 function SourceTable({ items }: { items: SourceWithStatus[] }) {
   return (
-    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+    <table className="dash">
       <thead>
-        <tr style={{ textAlign: "left", color: "#6b7280", fontSize: 12 }}>
-          <th style={{ padding: "8px 0", width: 24 }}></th>
-          <th style={{ padding: "8px 0" }}>source_id</th>
-          <th style={{ padding: "8px 0" }}>kind</th>
-          <th style={{ padding: "8px 0" }}>schedule (UTC)</th>
-          <th style={{ padding: "8px 0" }}>last run</th>
-          <th style={{ padding: "8px 0", textAlign: "right" }}>new&nbsp;today</th>
-          <th style={{ padding: "8px 0", textAlign: "right" }}></th>
+        <tr>
+          <th style={{ width: 24 }}></th>
+          <th>source_id</th>
+          <th>kind</th>
+          <th>schedule (UTC)</th>
+          <th>last run</th>
+          <th className="right">new&nbsp;today</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -176,48 +106,30 @@ function SourceTable({ items }: { items: SourceWithStatus[] }) {
 function ReferencesSection({ refs }: { refs: Reference[] }) {
   if (!refs.length) return null;
   return (
-    <section style={{ marginBottom: 36 }}>
-      <h2 style={{ fontSize: 18, marginBottom: 12, fontWeight: 600 }}>
-        References{" "}
-        <span style={{ color: "#9ca3af", fontWeight: 400 }}>· {refs.length}</span>
+    <section>
+      <h2>
+        References<span className="count">· {refs.length}</span>
       </h2>
-      <p style={{ color: "#6b7280", fontSize: 13, marginTop: 0, marginBottom: 12 }}>
+      <p className="section-blurb">
         Read-only data stores queried ad-hoc during naming workflows. Not on a
         schedule.
       </p>
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+      <table className="dash">
         <thead>
-          <tr style={{ textAlign: "left", color: "#6b7280", fontSize: 12 }}>
-            <th style={{ padding: "8px 0" }}>ref_id</th>
-            <th style={{ padding: "8px 0" }}>kind</th>
-            <th style={{ padding: "8px 0" }}>table / endpoint</th>
-            <th style={{ padding: "8px 0" }}>cadence</th>
+          <tr>
+            <th>ref_id</th>
+            <th>kind</th>
+            <th>table / endpoint</th>
+            <th>cadence</th>
           </tr>
         </thead>
         <tbody>
           {refs.map((r) => (
-            <tr key={r.ref_id} style={{ borderTop: "1px solid #f3f4f6" }}>
-              <td
-                style={{
-                  padding: "10px 0",
-                  fontFamily: "ui-monospace, Menlo, monospace",
-                }}
-              >
-                {r.ref_id}
-              </td>
-              <td style={{ padding: "10px 0", color: "#6b7280" }}>{r.kind}</td>
-              <td
-                style={{
-                  padding: "10px 0",
-                  color: "#6b7280",
-                  fontFamily: "ui-monospace, Menlo, monospace",
-                }}
-              >
-                {r.table ?? "—"}
-              </td>
-              <td style={{ padding: "10px 0", color: "#6b7280" }}>
-                {r.cadence ?? "—"}
-              </td>
+            <tr key={r.ref_id}>
+              <td className="mono">{r.ref_id}</td>
+              <td className="muted">{r.kind}</td>
+              <td className="muted mono">{r.table ?? "—"}</td>
+              <td className="muted">{r.cadence ?? "—"}</td>
             </tr>
           ))}
         </tbody>
@@ -238,12 +150,7 @@ export default async function SourcesPage() {
   }
 
   const ORDER: Record<StatusKey, number> = {
-    ok: 0,
-    stale: 1,
-    failed: 2,
-    never_run: 3,
-    disabled: 4,
-    todo: 5,
+    ok: 0, stale: 1, failed: 2, never_run: 3, disabled: 4, todo: 5,
   };
   for (const p of Object.keys(byProduct)) {
     byProduct[p].sort((a, b) => ORDER[statusInfo(a).key] - ORDER[statusInfo(b).key]);
@@ -259,68 +166,24 @@ export default async function SourcesPage() {
   return (
     <>
       {!hasToken && (
-        <div
-          style={{
-            background: "#fef3c7",
-            border: "1px solid #f59e0b",
-            padding: 16,
-            borderRadius: 6,
-            marginBottom: 24,
-            fontSize: 14,
-          }}
-        >
+        <div className="warn-callout">
           <strong>GITHUB_TOKEN not set.</strong> Set GITHUB_TOKEN as an env var
           (fine-grained PAT with Contents: Read on this repo) to see live data.
         </div>
       )}
 
       {hasToken && (
-        <section
-          style={{
-            display: "flex",
-            gap: 24,
-            marginBottom: 32,
-            padding: "12px 16px",
-            background: "#f9fafb",
-            border: "1px solid #e5e7eb",
-            borderRadius: 6,
-            fontSize: 14,
-            flexWrap: "wrap",
-          }}
-        >
+        <div className="counter-strip">
           <span>
             <strong>{wiredCount} / {total}</strong> wired
           </span>
-          <span style={{ color: "#10b981" }}>
-            ● <strong>{counts.ok}</strong> ok
-          </span>
-          <span style={{ color: "#f59e0b" }}>
-            ● <strong>{counts.stale}</strong> stale
-          </span>
-          <span style={{ color: "#dc2626" }}>
-            ● <strong>{counts.failed}</strong> failed
-          </span>
-          <span style={{ color: "#9ca3af" }}>
-            ● <strong>{counts.never_run}</strong> never run
-          </span>
-          <span style={{ color: "#9ca3af" }}>
-            <span
-              style={{
-                display: "inline-block",
-                width: 8,
-                height: 8,
-                borderRadius: "50%",
-                background: "#e5e7eb",
-                border: "1px solid #9ca3af",
-                marginRight: 4,
-              }}
-            />
-            <strong>{counts.todo}</strong> todo
-          </span>
-          <span style={{ color: "#9ca3af" }}>
-            ● <strong>{counts.disabled}</strong> disabled
-          </span>
-        </section>
+          <span><span className="dot dot--ok" /> <strong>{counts.ok}</strong> ok</span>
+          <span><span className="dot dot--stale" /> <strong>{counts.stale}</strong> stale</span>
+          <span><span className="dot dot--failed" /> <strong>{counts.failed}</strong> failed</span>
+          <span><span className="dot dot--never" /> <strong>{counts.never_run}</strong> never run</span>
+          <span><span className="dot dot--todo" /> <strong>{counts.todo}</strong> todo</span>
+          <span><span className="dot dot--disabled" /> <strong>{counts.disabled}</strong> disabled</span>
+        </div>
       )}
 
       {(["snap", "auctions", "aux"] as const).map((product) => {
@@ -328,12 +191,10 @@ export default async function SourcesPage() {
         if (!items.length) return null;
         const wired = items.filter((s) => s.wired && s.enabled !== false).length;
         return (
-          <section key={product} style={{ marginBottom: 36 }}>
-            <h2 style={{ fontSize: 18, marginBottom: 12, fontWeight: 600 }}>
-              {PRODUCT_LABEL[product]}{" "}
-              <span style={{ color: "#9ca3af", fontWeight: 400 }}>
-                · {wired}/{items.length} wired
-              </span>
+          <section key={product}>
+            <h2>
+              {PRODUCT_LABEL[product]}
+              <span className="count">· {wired}/{items.length} wired</span>
             </h2>
             <SourceTable items={items} />
           </section>
@@ -342,21 +203,9 @@ export default async function SourcesPage() {
 
       <ReferencesSection refs={refs} />
 
-      <footer
-        style={{
-          marginTop: 48,
-          paddingTop: 16,
-          borderTop: "1px solid #e5e7eb",
-          fontSize: 12,
-          color: "#9ca3af",
-        }}
-      >
-        Page revalidates every 60 seconds · <a
-          href={editFile("sources.yaml")}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: "#3b82f6", textDecoration: "none" }}
-        >
+      <footer className="page-footer">
+        Page revalidates every 60 seconds ·{" "}
+        <a href={editFile("sources.yaml")} target="_blank" rel="noopener noreferrer">
           Edit sources.yaml on GitHub →
         </a>
       </footer>

@@ -1,0 +1,121 @@
+/* ============================================================================
+   Snagged brand kit — drop-in design system (tokens + base + components).
+   Matches Snagged.com / SnaggedReviews.com. Plain CSS, no build step.
+
+   Usage:
+     <link rel="stylesheet" href="/snagged-brand.css">
+   Keep /fonts/ next to this file (the @font-face paths are relative).
+   Then use the CSS variables (var(--coral) …) and component classes
+   (.btn, .card, .field, .pill, .chip, .wordmark).
+   ========================================================================== */
+
+@font-face { font-family: "Gasoek One"; font-style: normal; font-weight: 400 900; font-display: swap; src: url("/fonts/gasoekone.woff2") format("woff2"); }
+@font-face { font-family: "Bricolage Grotesque"; font-style: normal; font-weight: 200 800; font-display: swap; src: url("/fonts/bricolagegrotesque.woff2") format("woff2"); }
+
+:root {
+  /* ---- palette ---- */
+  --cream: #f4eee1;        /* page background */
+  --cream-2: #fbf7ec;      /* cards / raised surfaces */
+  --paper: #ffffff;
+  --sky: #afd8e0;
+  --sky-soft: #cfeaef;
+  --teal: #3aa7bb;
+  --teal-deep: #25749c;    /* links */
+  --deep: #0a527a;         /* dark section */
+  --deep-2: #083f5e;       /* darkest / footer */
+  --navy: #254254;         /* primary ink + headings */
+  --navy-2: #3a5a6e;       /* muted ink */
+  --navy-3: #5e7c8d;       /* subtle ink */
+  --coral: #e48069;        /* primary accent */
+  --coral-deep: #c75f45;
+  --line: #e4dac6;         /* warm hairline on cream */
+  --line-2: #ece4d3;
+  --star: #e48069;
+
+  /* ---- shape ---- */
+  --radius: 20px;
+  --radius-sm: 14px;
+  --shadow-sm: 0 2px 4px rgba(37,66,84,.06), 0 1px 2px rgba(37,66,84,.08);
+  --shadow-md: 0 14px 34px -16px rgba(37,66,84,.34);
+  --shadow-lg: 0 30px 70px -24px rgba(8,40,60,.5);
+  --maxw: 1180px;
+
+  /* ---- type ---- */
+  --display: "Gasoek One", system-ui, sans-serif;        /* headings only */
+  --body: "Bricolage Grotesque", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--cream); color: var(--navy); font-family: var(--body); font-size: 17px; line-height: 1.62; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+img { max-width: 100%; display: block; }
+a { color: var(--teal-deep); text-decoration: none; }
+a:hover { text-decoration: underline; }
+h1, h2, h3 { font-family: var(--display); font-weight: 400; line-height: 1.06; margin: 0 0 .4em; color: var(--navy); }
+p { margin: 0 0 1em; }
+:focus-visible { outline: 3px solid rgba(228,128,105,.6); outline-offset: 3px; border-radius: 8px; }
+
+/* ---- layout utilities ---- */
+.wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 22px; }
+.center { text-align: center; }
+.muted { color: var(--navy-2); }
+
+/* ---- wordmark ---- */
+.wordmark, .brand { display: inline-flex; align-items: center; gap: 11px; font-family: var(--body); font-weight: 800; font-size: 1.42rem; color: var(--navy); letter-spacing: -.01em; }
+.wordmark .wm-a, .brand__a { color: var(--navy); }
+.wordmark .wm-b, .brand__sub { color: var(--coral); }
+.brand-mark { width: 38px; height: 38px; flex: none; border-radius: 50%; }
+
+/* ---- buttons (sticker style: 2px border + offset shadow that lifts) ---- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .55em;
+  font-family: var(--body); font-weight: 700; font-size: 1.04rem; line-height: 1;
+  padding: 14px 24px; border-radius: var(--radius-sm); border: 2px solid var(--navy);
+  cursor: pointer; text-decoration: none; white-space: nowrap;
+  transition: transform .12s ease, box-shadow .18s ease, background .18s ease;
+}
+.btn:hover { text-decoration: none; transform: translateY(-2px); }
+.btn:active { transform: translateY(2px); }
+.btn--primary { background: var(--coral); color: var(--navy); box-shadow: 0 4px 0 var(--coral-deep); }
+.btn--primary:hover { background: #ec8d77; box-shadow: 0 6px 0 var(--coral-deep); }
+.btn--primary:active { box-shadow: 0 2px 0 var(--coral-deep); }
+.btn--navy { background: var(--navy); color: var(--cream-2); box-shadow: 0 4px 0 #16303f; }
+.btn--navy:hover { background: #2d4f64; box-shadow: 0 6px 0 #16303f; }
+.btn--ghost { background: transparent; color: var(--navy); box-shadow: 0 4px 0 rgba(37,66,84,.18); }
+.btn--ghost:hover { background: rgba(37,66,84,.05); box-shadow: 0 6px 0 rgba(37,66,84,.18); }
+.btn--lg { padding: 16px 30px; font-size: 1.16rem; }
+.btn:disabled { opacity: .55; cursor: progress; transform: none; }
+
+/* ---- form fields ---- */
+.field {
+  width: 100%; padding: 13px 16px; background: var(--paper);
+  border: 2px solid var(--line); border-radius: var(--radius-sm);
+  color: var(--navy); font-size: 1rem; font-family: var(--body);
+}
+.field::placeholder { color: var(--navy-3); }
+.field:focus { outline: none; border-color: var(--coral); }
+
+/* ---- cards ---- */
+.card { background: var(--cream-2); border: 2px solid var(--line); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow-md); }
+.card--flat { box-shadow: var(--shadow-sm); }
+
+/* ---- pills / chips ---- */
+.pill, .eyebrow {
+  display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: .82rem;
+  letter-spacing: .04em; text-transform: uppercase; color: var(--coral-deep);
+  background: rgba(228,128,105,.14); border: 1.5px solid rgba(228,128,105,.4);
+  padding: 8px 15px; border-radius: 999px;
+}
+.chip {
+  font-family: var(--body); font-size: .96rem; font-weight: 700; cursor: pointer;
+  padding: 9px 17px; border-radius: 999px; border: 2px solid var(--line);
+  background: var(--cream-2); color: var(--navy); display: inline-flex; align-items: center; gap: 7px;
+  transition: all .15s ease;
+}
+.chip:hover { border-color: var(--coral); }
+.chip[aria-pressed="true"] { background: var(--coral); color: var(--navy); border-color: var(--coral); }
+
+/* ---- stars ---- */
+.stars { display: inline-flex; gap: 4px; color: var(--star); }
+
+@media (max-width: 560px) { body { font-size: 16px; } .wrap { padding: 0 16px; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

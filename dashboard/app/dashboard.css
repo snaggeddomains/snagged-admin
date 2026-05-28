@@ -1,0 +1,182 @@
+/* Dashboard-specific layout/components on top of snagged-brand.css. Use
+ * brand tokens (var(--cream-2), var(--line), etc.) rather than introducing
+ * new colors. Status dots keep their semantic colors (green/amber/red). */
+
+/* Wordmark sizing for the page header */
+.wordmark { font-size: 1.8rem; }
+.wordmark .brand-mark { width: 44px; height: 44px; }
+
+/* Tab nav — replaces the inline-styled bar in nav.tsx */
+.tab-nav {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 28px;
+}
+.tab-nav a {
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--navy-2);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  font-weight: 500;
+}
+.tab-nav a:hover {
+  color: var(--navy);
+  text-decoration: none;
+}
+.tab-nav a.active {
+  color: var(--navy);
+  border-bottom-color: var(--coral);
+  font-weight: 700;
+}
+
+/* Counter strip — surfaces the at-a-glance state */
+.counter-strip {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 32px;
+  padding: 14px 18px;
+  background: var(--cream-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.counter-strip strong { font-weight: 700; }
+
+/* Section heading */
+section { margin-bottom: 36px; }
+section h2 {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 22px;
+  margin: 0 0 12px;
+  color: var(--navy);
+}
+section h2 .count {
+  color: var(--navy-3);
+  font-size: 14px;
+  font-family: var(--body);
+  font-weight: 400;
+  margin-left: 8px;
+}
+section p.section-blurb {
+  color: var(--navy-3);
+  font-size: 13px;
+  margin: 4px 0 16px;
+}
+
+/* Tables shared across pages */
+table.dash {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+table.dash thead tr {
+  color: var(--navy-3);
+  font-size: 12px;
+}
+table.dash thead th {
+  text-align: left;
+  padding: 8px 0;
+  font-weight: 600;
+}
+table.dash thead th.right { text-align: right; }
+table.dash tbody td { padding: 10px 0; vertical-align: middle; }
+table.dash tbody tr { border-top: 1px solid var(--line-2); }
+table.dash .mono { font-family: ui-monospace, Menlo, monospace; }
+table.dash .muted { color: var(--navy-3); }
+table.dash .right { text-align: right; }
+table.dash .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Status dots */
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+.dot--ok       { background: #10b981; }
+.dot--stale    { background: #f59e0b; }
+.dot--failed   { background: #dc2626; }
+.dot--never    { background: #e2e8f0; border: 1px solid var(--navy-3); }
+.dot--todo     { background: var(--cream); border: 1px dashed var(--navy-3); }
+.dot--disabled { background: var(--navy-3); }
+
+/* TODO badge */
+.todo-badge {
+  margin-left: 8px;
+  padding: 1px 6px;
+  font-size: 10px;
+  border: 1px solid var(--coral);
+  color: var(--coral-deep);
+  background: var(--paper);
+  border-radius: 4px;
+  font-family: var(--body);
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+/* Inline "Edit on GitHub →" / "run →" links */
+.link-out {
+  font-size: 12px;
+  color: var(--teal-deep);
+  text-decoration: none;
+  margin-left: 10px;
+  white-space: nowrap;
+}
+.link-out:hover { text-decoration: underline; }
+
+/* Amber callout for missing GITHUB_TOKEN */
+.warn-callout {
+  background: var(--cream-2);
+  border: 1px solid var(--coral);
+  border-left: 4px solid var(--coral);
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 24px;
+  font-size: 14px;
+  color: var(--navy);
+}
+
+/* Page footer */
+.page-footer {
+  margin-top: 48px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--navy-3);
+}
+
+/* Filter-profile cards */
+.profile-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  background: var(--cream-2);
+}
+.profile-card h3 {
+  margin: 0 0 12px;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--navy);
+}
+.kv {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  padding: 6px 0;
+  font-size: 14px;
+  border-bottom: 1px solid var(--line-2);
+}
+.kv:last-child { border-bottom: none; }
+.kv-key { color: var(--navy-3); }
+
+/* Mute opacity for TODO/disabled rows */
+tr.dim { opacity: 0.6; }
