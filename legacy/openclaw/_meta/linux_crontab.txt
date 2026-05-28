@@ -1,0 +1,53 @@
+TZ=America/New_York
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Hourly workspave backup
+0 6,14,22 * * * /root/bin/workspace-backup-with-whatsapp.sh
+
+# Daily workspace cleanup (keep last 2 days)
+# Daily workspace cleanup, narrowed to disposable paths only (protect .secrets and durable workspace files)
+0 3 * * * find /root/.openclaw/workspace/tmp /root/.openclaw/workspace/logs -mindepth 1 -mtime +2 -exec rm -rf {} +
+
+# X watch report (3x daily)
+
+# Disk usage warning (every 15 min)
+*/15 * * * * df -P / | awk 'NR==2 {gsub("%","",$5); if ($5 >= 90) print strftime("\\%Y-\\%m-\\%d \\%H:\\%M:\\%S"), "WARNING root filesystem at", $5 "%"}' >> /root/logs/diskwarn.log
+
+
+# OpenClaw health check (every 15 min)
+*/15 * * * * /root/bin/openclaw-check >> /root/logs/openclaw-check.log 2>&1
+
+# Auction pipeline
+0 6 * * * /bin/bash -lc 'flock -n /tmp/auction_publish.lock timeout 45m /root/.openclaw/workspace/scripts/publish_auction_shortlist.sh >> /root/logs/auction_publish.log 2>&1'
+
+35 6 * * * /bin/bash -lc '/root/.openclaw/workspace/scripts/check_auction_publish.sh >> /root/logs/auction_watchdog.log 2>&1'
+
+# Optional operator loop (disabled)
+# */15 * * * * flock -n /tmp/operator_loop.lock /root/.openclaw/workspace/scripts/operator_loop.sh >> /root/logs/operator_loop.log 2>&1
+# LinkedIn lead watch
+0 9 * * * /root/.openclaw/workspace/scripts/run_linkedin_watch_report.sh >> /root/logs/linkedin_watch.log 2>&1
+0 15 * * * /root/.openclaw/workspace/scripts/run_linkedin_watch_report.sh >> /root/logs/linkedin_watch.log 2>&1
+5 0 * * * /root/bin/ensure-daily-memory.sh >> /root/logs/daily-memory.log 2>&1
+0 12 * * * /root/bin/check-daily-memory.sh >> /root/logs/daily-memory.log 2>&1
+15 8 * * * /root/bin/check-yesterday-memory.sh >> /root/logs/daily-memory.log 2>&1
+# Restored domain/contact refresh jobs
+0 0 * * * /bin/bash -lc 'cd /root/.openclaw/workspace && python3 scripts/domainscout_fetch.py >> /root/logs/domainscout_refresh.log 2>&1 && python3 scripts/build_domain_contact_sheet.py >> /root/logs/domain_contact_refresh.log 2>&1'
+0 9,21 * * * /bin/bash -lc 'cd /root/.openclaw/workspace && python3 scripts/build_domain_contact_sheet.py >> /root/logs/domain_contact_refresh.log 2>&1'
+# Restored Afternic + follow-up sheet jobs
+15 5 * * * /bin/bash -lc 'cd /root/.openclaw/workspace && flock -n /tmp/afternic-diff.lock bash scripts/run_afternic_diff.sh >> /root/logs/afternic_diff_cron.log 2>&1'
+5 7 * * * /bin/bash -lc 'cd /root/.openclaw/workspace && flock -n /tmp/refresh_sublist.lock python3 scripts/refresh_sublist_sheet.py >> /root/logs/refresh_sublist.log 2>&1'
+0 7 * * * /bin/bash -lc 'cd /root/.openclaw/workspace && flock -n /tmp/client-overlap.lock python3 scripts/build_client_overlap.py >> /root/logs/client_overlap.log 2>&1 && python3 scripts/post_client_overlap_slack.py >> /root/logs/client_overlap.log 2>&1'
+# Restored Atom ingest watcher
+*/10 6-10 * * * /bin/bash -lc 'cd /root/.openclaw/workspace && flock -n /tmp/atom-ingest.lock python3 scripts/process_daily_atom_folder.py >> /root/logs/atom_ingest.log 2>&1'
+# Restored X watch cadence
+# disabled old system X watch cron, moved to OpenClaw X API cron
+# 0 9,15,21 * * * /bin/bash -lc 'cd /root/.openclaw/workspace && bash scripts/run_x_watch_report.sh >> /root/logs/x_watch.log 2>&1'
+# Sedo net-new watcher
+0 6,13,19 * * * /bin/bash -lc 'cd /root/.openclaw/workspace && flock -n /tmp/sedo-net-new.lock bash scripts/run_sedo_net_new.sh >> /root/logs/sedo_net_new.log 2>&1'
+30 5 * * * flock -n /tmp/secrets-backup.lock /root/bin/secrets-backup.sh >> /root/logs/secrets-backup.log 2>&1
+15 5 * * * flock -n /tmp/secrets-healthcheck.lock /root/bin/secrets-healthcheck.sh >> /root/logs/secrets-healthcheck.log 2>&1
+45 5 * * * flock -n /tmp/secrets-restore-smoke-test.lock /root/bin/secrets-restore-smoke-test.sh >> /root/logs/secrets-restore-smoke-test.log 2>&1
+
+# Efty partner morning ingest + diff
+0 17 * * * /bin/bash -lc 'cd /root/.openclaw/workspace && flock -n /tmp/efty-partner.lock bash scripts/run_efty_partner_daily.sh >> /root/logs/efty_partner_daily.log 2>&1'
