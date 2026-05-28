@@ -2,7 +2,7 @@
 // state files, returning a unified view for the dashboard.
 
 import yaml from "js-yaml";
-import { getFile } from "./github";
+import { getFile, listDirectory } from "./github";
 
 export type Product = "snap" | "auctions" | "aux";
 
@@ -29,7 +29,17 @@ export interface RunStatus {
   slack_posted?: boolean;
 }
 
+export interface Reference {
+  ref_id: string;
+  kind: string;
+  table?: string;
+  cadence?: string;
+  notes?: string;
+}
+
 export interface SourceWithStatus extends Source {
+  /** True if a Python module exists at src/marketplace_pipeline/sources/<id>.py */
+  wired: boolean;
   runStatus: RunStatus | null;
 }
 
@@ -38,6 +48,32 @@ export async function loadSources(): Promise<Source[]> {
   if (!text) return [];
   const parsed = yaml.load(text) as { sources?: Source[] } | undefined;
   return parsed?.sources ?? [];
+}
+
+export async function loadReferences(): Promise<Reference[]> {
+  const text = await getFile("sources.yaml");
+  if (!text) return [];
+  const parsed = yaml.load(text) as
+    | { references?: Record<string, Omit<Reference, "ref_id">> }
+    | undefined;
+  const refs = parsed?.references ?? {};
+  return Object.entries(refs).map(([ref_id, body]) => ({ ref_id, ...body }));
+}
+
+/** Return the set of source_ids that have a Python module under
+ * src/marketplace_pipeline/sources/. Filename mapping: source_id directly
+ * (no hyphen substitution — modules use underscores).
+ */
+export async function loadWiredSourceIds(): Promise<Set<string>> {
+  const entries = await listDirectory("src/marketplace_pipeline/sources");
+  const wired = new Set<string>();
+  for (const e of entries) {
+    if (e.type !== "file") continue;
+    if (!e.name.endsWith(".py")) continue;
+    if (e.name === "__init__.py") continue;
+    wired.add(e.name.replace(/\.py$/, ""));
+  }
+  return wired;
 }
 
 export async function loadRunStatus(sourceId: string): Promise<RunStatus | null> {
@@ -51,10 +87,14 @@ export async function loadRunStatus(sourceId: string): Promise<RunStatus | null>
 }
 
 export async function loadAllSourcesWithStatus(): Promise<SourceWithStatus[]> {
-  const sources = await loadSources();
+  const [sources, wiredIds] = await Promise.all([
+    loadSources(),
+    loadWiredSourceIds(),
+  ]);
   return Promise.all(
     sources.map(async (s) => ({
       ...s,
+      wired: wiredIds.has(s.source_id),
       runStatus: await loadRunStatus(s.source_id),
     })),
   );

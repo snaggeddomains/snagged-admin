@@ -1,4 +1,9 @@
-import { loadAllSourcesWithStatus, type SourceWithStatus } from "../lib/sources";
+import {
+  loadAllSourcesWithStatus,
+  loadReferences,
+  type Reference,
+  type SourceWithStatus,
+} from "../lib/sources";
 
 export const revalidate = 60;
 
@@ -8,17 +13,20 @@ const PRODUCT_LABEL: Record<string, string> = {
   aux: "Aux feeds",
 };
 
-function statusInfo(s: SourceWithStatus): { color: string; label: string } {
-  if (s.enabled === false) return { color: "#9ca3af", label: "disabled" };
-  if (!s.runStatus) return { color: "#d1d5db", label: "never run" };
-  if (s.runStatus.status === "failed") return { color: "#dc2626", label: "failed" };
+type StatusKey = "ok" | "stale" | "failed" | "never_run" | "todo" | "disabled";
+
+function statusInfo(s: SourceWithStatus): { key: StatusKey; color: string; label: string } {
+  if (s.enabled === false) return { key: "disabled", color: "#9ca3af", label: "disabled" };
+  if (!s.wired) return { key: "todo", color: "#e5e7eb", label: "TODO — not wired" };
+  if (!s.runStatus) return { key: "never_run", color: "#cbd5e1", label: "wired · never run" };
+  if (s.runStatus.status === "failed") return { key: "failed", color: "#dc2626", label: "failed" };
   if (s.runStatus.status === "ok") {
     const ageHours =
       (Date.now() - new Date(s.runStatus.generated_at).getTime()) / 1000 / 3600;
-    if (ageHours < 26) return { color: "#10b981", label: "ok" };
-    return { color: "#f59e0b", label: `stale (${Math.round(ageHours)}h)` };
+    if (ageHours < 26) return { key: "ok", color: "#10b981", label: "ok" };
+    return { key: "stale", color: "#f59e0b", label: `stale (${Math.round(ageHours)}h)` };
   }
-  return { color: "#9ca3af", label: s.runStatus.status };
+  return { key: "never_run", color: "#9ca3af", label: s.runStatus.status };
 }
 
 function relativeTime(iso: string): string {
@@ -29,22 +37,194 @@ function relativeTime(iso: string): string {
   return `${Math.round(ageSec / 86400)}d ago`;
 }
 
+function SourceRow({ s }: { s: SourceWithStatus }) {
+  const info = statusInfo(s);
+  const dim = info.key === "todo" || info.key === "disabled";
+  return (
+    <tr style={{ borderTop: "1px solid #f3f4f6", opacity: dim ? 0.65 : 1 }}>
+      <td style={{ padding: "10px 0" }}>
+        <span
+          title={info.label}
+          style={{
+            display: "inline-block",
+            width: 10,
+            height: 10,
+            borderRadius: "50%",
+            background: info.color,
+            border:
+              info.key === "todo" || info.key === "never_run"
+                ? "1px solid #9ca3af"
+                : "none",
+            boxSizing: "border-box",
+          }}
+        />
+      </td>
+      <td
+        style={{
+          padding: "10px 0",
+          fontFamily: "ui-monospace, Menlo, monospace",
+        }}
+      >
+        {s.source_id}
+        {info.key === "todo" && (
+          <span
+            style={{
+              marginLeft: 8,
+              padding: "1px 6px",
+              fontSize: 10,
+              border: "1px solid #d1d5db",
+              borderRadius: 4,
+              color: "#6b7280",
+              fontFamily: "system-ui, sans-serif",
+              fontWeight: 600,
+              letterSpacing: 0.4,
+              textTransform: "uppercase",
+            }}
+          >
+            todo
+          </span>
+        )}
+      </td>
+      <td style={{ padding: "10px 0", color: "#6b7280" }}>{s.kind}</td>
+      <td
+        style={{
+          padding: "10px 0",
+          color: "#6b7280",
+          fontFamily: "ui-monospace, Menlo, monospace",
+        }}
+      >
+        {s.schedule_utc ?? "—"}
+      </td>
+      <td style={{ padding: "10px 0", color: "#6b7280" }}>
+        {s.runStatus ? relativeTime(s.runStatus.generated_at) : "—"}
+      </td>
+      <td
+        style={{
+          padding: "10px 0",
+          textAlign: "right",
+          fontVariantNumeric: "tabular-nums",
+        }}
+      >
+        {s.runStatus?.new_count ?? "—"}
+      </td>
+    </tr>
+  );
+}
+
+function SourceTable({ items }: { items: SourceWithStatus[] }) {
+  return (
+    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+      <thead>
+        <tr style={{ textAlign: "left", color: "#6b7280", fontSize: 12 }}>
+          <th style={{ padding: "8px 0", width: 24 }}></th>
+          <th style={{ padding: "8px 0" }}>source_id</th>
+          <th style={{ padding: "8px 0" }}>kind</th>
+          <th style={{ padding: "8px 0" }}>schedule (UTC)</th>
+          <th style={{ padding: "8px 0" }}>last run</th>
+          <th style={{ padding: "8px 0", textAlign: "right" }}>new&nbsp;today</th>
+        </tr>
+      </thead>
+      <tbody>
+        {items.map((s) => (
+          <SourceRow key={s.source_id} s={s} />
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+function ReferencesSection({ refs }: { refs: Reference[] }) {
+  if (!refs.length) return null;
+  return (
+    <section style={{ marginBottom: 36 }}>
+      <h2 style={{ fontSize: 18, marginBottom: 12, fontWeight: 600 }}>
+        References{" "}
+        <span style={{ color: "#9ca3af", fontWeight: 400 }}>· {refs.length}</span>
+      </h2>
+      <p style={{ color: "#6b7280", fontSize: 13, marginTop: 0, marginBottom: 12 }}>
+        Read-only data stores queried ad-hoc during naming workflows. Not on a
+        schedule.
+      </p>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+        <thead>
+          <tr style={{ textAlign: "left", color: "#6b7280", fontSize: 12 }}>
+            <th style={{ padding: "8px 0" }}>ref_id</th>
+            <th style={{ padding: "8px 0" }}>kind</th>
+            <th style={{ padding: "8px 0" }}>table / endpoint</th>
+            <th style={{ padding: "8px 0" }}>cadence</th>
+          </tr>
+        </thead>
+        <tbody>
+          {refs.map((r) => (
+            <tr key={r.ref_id} style={{ borderTop: "1px solid #f3f4f6" }}>
+              <td
+                style={{
+                  padding: "10px 0",
+                  fontFamily: "ui-monospace, Menlo, monospace",
+                }}
+              >
+                {r.ref_id}
+              </td>
+              <td style={{ padding: "10px 0", color: "#6b7280" }}>{r.kind}</td>
+              <td
+                style={{
+                  padding: "10px 0",
+                  color: "#6b7280",
+                  fontFamily: "ui-monospace, Menlo, monospace",
+                }}
+              >
+                {r.table ?? "—"}
+              </td>
+              <td style={{ padding: "10px 0", color: "#6b7280" }}>
+                {r.cadence ?? "—"}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  );
+}
+
 export default async function Home() {
   const hasToken = !!process.env.GITHUB_TOKEN;
-  const sources = hasToken ? await loadAllSourcesWithStatus() : [];
+  const [sources, refs] = hasToken
+    ? await Promise.all([loadAllSourcesWithStatus(), loadReferences()])
+    : [[] as SourceWithStatus[], [] as Reference[]];
 
   const byProduct: Record<string, SourceWithStatus[]> = {};
   for (const s of sources) {
     (byProduct[s.product] ||= []).push(s);
   }
 
-  const counts = {
-    total: sources.length,
-    green: sources.filter((s) => statusInfo(s).color === "#10b981").length,
-    failed: sources.filter((s) => statusInfo(s).color === "#dc2626").length,
-    stale: sources.filter((s) => statusInfo(s).color === "#f59e0b").length,
-    never: sources.filter((s) => s.enabled !== false && !s.runStatus).length,
+  // Stable sort within each product: ok first, then stale/failed, then
+  // never_run, then todo last (visual progress bar feel).
+  const ORDER: Record<StatusKey, number> = {
+    ok: 0,
+    stale: 1,
+    failed: 2,
+    never_run: 3,
+    disabled: 4,
+    todo: 5,
   };
+  for (const p of Object.keys(byProduct)) {
+    byProduct[p].sort(
+      (a, b) => ORDER[statusInfo(a).key] - ORDER[statusInfo(b).key],
+    );
+  }
+
+  const counts: Record<StatusKey, number> = {
+    ok: 0,
+    stale: 0,
+    failed: 0,
+    never_run: 0,
+    todo: 0,
+    disabled: 0,
+  };
+  for (const s of sources) counts[statusInfo(s).key]++;
+  const total = sources.length;
+  const wiredCount = sources.filter((s) => s.wired && s.enabled !== false).length;
+  const todoCount = counts.todo;
 
   return (
     <main
@@ -53,12 +233,13 @@ export default async function Home() {
         maxWidth: 1100,
         margin: "0 auto",
         color: "#111",
+        fontFamily: "system-ui, sans-serif",
       }}
     >
       <header style={{ marginBottom: 32 }}>
         <h1 style={{ fontSize: 28, margin: 0 }}>snagged-admin</h1>
         <p style={{ color: "#666", marginTop: 6, marginBottom: 0 }}>
-          Marketplace pipeline source health
+          Marketplace pipeline source health · build checklist
         </p>
       </header>
 
@@ -73,10 +254,8 @@ export default async function Home() {
             fontSize: 14,
           }}
         >
-          <strong>GITHUB_TOKEN not set.</strong> The dashboard reads source state
-          from the snagged-admin repo via the GitHub Contents API. Set
-          GITHUB_TOKEN as an env var (fine-grained PAT with read access) to see
-          live data.
+          <strong>GITHUB_TOKEN not set.</strong> Set GITHUB_TOKEN as an env var
+          (fine-grained PAT with Contents: Read on this repo) to see live data.
         </div>
       )}
 
@@ -91,13 +270,17 @@ export default async function Home() {
             border: "1px solid #e5e7eb",
             borderRadius: 6,
             fontSize: 14,
+            flexWrap: "wrap",
           }}
         >
           <span>
-            <strong>{counts.total}</strong> sources
+            <strong>
+              {wiredCount} / {total}
+            </strong>{" "}
+            wired
           </span>
           <span style={{ color: "#10b981" }}>
-            ● <strong>{counts.green}</strong> ok
+            ● <strong>{counts.ok}</strong> ok
           </span>
           <span style={{ color: "#f59e0b" }}>
             ● <strong>{counts.stale}</strong> stale
@@ -106,7 +289,24 @@ export default async function Home() {
             ● <strong>{counts.failed}</strong> failed
           </span>
           <span style={{ color: "#9ca3af" }}>
-            ● <strong>{counts.never}</strong> never run
+            ● <strong>{counts.never_run}</strong> never run
+          </span>
+          <span style={{ color: "#9ca3af" }}>
+            <span
+              style={{
+                display: "inline-block",
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                background: "#e5e7eb",
+                border: "1px solid #9ca3af",
+                marginRight: 4,
+              }}
+            />
+            <strong>{todoCount}</strong> todo
+          </span>
+          <span style={{ color: "#9ca3af" }}>
+            ● <strong>{counts.disabled}</strong> disabled
           </span>
         </section>
       )}
@@ -114,95 +314,21 @@ export default async function Home() {
       {(["snap", "auctions", "aux"] as const).map((product) => {
         const items = byProduct[product] ?? [];
         if (!items.length) return null;
+        const wired = items.filter((s) => s.wired && s.enabled !== false).length;
         return (
           <section key={product} style={{ marginBottom: 36 }}>
             <h2 style={{ fontSize: 18, marginBottom: 12, fontWeight: 600 }}>
               {PRODUCT_LABEL[product]}{" "}
               <span style={{ color: "#9ca3af", fontWeight: 400 }}>
-                · {items.length}
+                · {wired}/{items.length} wired
               </span>
             </h2>
-            <table
-              style={{
-                width: "100%",
-                borderCollapse: "collapse",
-                fontSize: 14,
-              }}
-            >
-              <thead>
-                <tr style={{ textAlign: "left", color: "#6b7280", fontSize: 12 }}>
-                  <th style={{ padding: "8px 0", width: 24 }}></th>
-                  <th style={{ padding: "8px 0" }}>source_id</th>
-                  <th style={{ padding: "8px 0" }}>kind</th>
-                  <th style={{ padding: "8px 0" }}>schedule (UTC)</th>
-                  <th style={{ padding: "8px 0" }}>last run</th>
-                  <th style={{ padding: "8px 0", textAlign: "right" }}>
-                    new&nbsp;today
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((s) => {
-                  const info = statusInfo(s);
-                  return (
-                    <tr
-                      key={s.source_id}
-                      style={{ borderTop: "1px solid #f3f4f6" }}
-                    >
-                      <td style={{ padding: "10px 0" }}>
-                        <span
-                          title={info.label}
-                          style={{
-                            display: "inline-block",
-                            width: 10,
-                            height: 10,
-                            borderRadius: "50%",
-                            background: info.color,
-                          }}
-                        />
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px 0",
-                          fontFamily: "ui-monospace, Menlo, monospace",
-                        }}
-                      >
-                        {s.source_id}
-                      </td>
-                      <td style={{ padding: "10px 0", color: "#6b7280" }}>
-                        {s.kind}
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px 0",
-                          color: "#6b7280",
-                          fontFamily: "ui-monospace, Menlo, monospace",
-                        }}
-                      >
-                        {s.schedule_utc ?? "—"}
-                      </td>
-                      <td style={{ padding: "10px 0", color: "#6b7280" }}>
-                        {s.runStatus
-                          ? relativeTime(s.runStatus.generated_at)
-                          : "never"}
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px 0",
-                          textAlign: "right",
-                          fontVariantNumeric: "tabular-nums",
-                        }}
-                      >
-                        {s.runStatus?.new_count ?? "—"}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            <SourceTable items={items} />
           </section>
         );
       })}
+
+      <ReferencesSection refs={refs} />
 
       <footer
         style={{
@@ -213,8 +339,10 @@ export default async function Home() {
           color: "#9ca3af",
         }}
       >
-        Page revalidates every 60 seconds. Source registry:{" "}
-        <code>sources.yaml</code>. State: <code>state/&lt;source_id&gt;/</code>.
+        Page revalidates every 60 seconds · sources from{" "}
+        <code>sources.yaml</code> · status from <code>state/&lt;id&gt;/</code> ·
+        wired-detection by presence of{" "}
+        <code>src/marketplace_pipeline/sources/&lt;id&gt;.py</code>
       </footer>
     </main>
   );
