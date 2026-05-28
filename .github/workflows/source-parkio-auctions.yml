@@ -1,0 +1,40 @@
+name: 'Source: parkio_auctions'
+
+# Schedule will be enabled once the source's first manual run is verified.
+# Target schedule: '0 10 * * *' UTC == ~6:00 AM ET (matches auctions cadence).
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: source-parkio_auctions
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup
+
+      - name: Run parkio_auctions
+        env:
+          SLACK_BOT_TOKEN:             ${{ secrets.SLACK_BOT_TOKEN }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          SLACK_CHANNEL_AUCTIONS:      ${{ vars.SLACK_CHANNEL_AUCTIONS }}
+        run: pipeline run parkio_auctions
+
+      - name: Commit state changes
+        if: success()
+        run: |
+          git add state/
+          if git diff --cached --quiet; then
+            echo "No state changes."
+          else
+            git commit -m "parkio_auctions: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git push
+          fi

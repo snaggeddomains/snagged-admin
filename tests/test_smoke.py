@@ -11,9 +11,16 @@ def test_package_imports():
     from marketplace_pipeline.publishers import slack, sheets
     from marketplace_pipeline.universe import duckdb_store
     from marketplace_pipeline.references import supabase_master
-    from marketplace_pipeline.sources import namecheap_bin, afternic, atom_daily
+    from marketplace_pipeline.sources import (
+        namecheap_bin, afternic, atom_daily, parkio_auctions,
+    )
+    from marketplace_pipeline.auctions import sheet as auctions_sheet
+    from marketplace_pipeline.auctions import slack as auctions_slack
     assert afternic.SOURCE_ID == "afternic"
     assert atom_daily.SOURCE_ID == "atom_daily"
+    assert parkio_auctions.SOURCE_ID == "parkio_auctions"
+    assert auctions_sheet.SHEET_COLUMNS[0] == "end_time_utc"
+    assert auctions_slack  # noqa: B015 — touched to suppress unused-import lint
     from marketplace_pipeline.tools import auth_check, slack_check
 
     assert marketplace_pipeline.__version__
