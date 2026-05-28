@@ -1,0 +1,50 @@
+name: 'Maintenance: Pipeline Raw Cache retention'
+
+# Daily at 04:00 UTC (~00:00 ET) — well before any source workflow runs
+# so today's just-uploaded files are never at risk.
+on:
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Print actions without trashing anything'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: raw-cache-retention
+  cancel-in-progress: false
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup
+
+      - name: Run retention
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            pipeline raw-cache-retention --dry-run
+          else
+            pipeline raw-cache-retention
+          fi
+
+      - name: Commit state changes
+        if: success() || failure()
+        run: |
+          git add state/
+          if git diff --cached --quiet; then
+            echo "No state changes."
+          else
+            git commit -m "raw_cache_retention: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git push
+          fi

@@ -62,6 +62,16 @@ def cmd_doctor(args: argparse.Namespace) -> int:
     return _run(extra)
 
 
+def cmd_raw_cache_retention(args: argparse.Namespace) -> int:
+    from .tools.raw_cache_retention import main as _run
+    argv: list[str] = []
+    if args.days is not None:
+        argv += ["--days", str(args.days)]
+    if args.dry_run:
+        argv.append("--dry-run")
+    return _run(argv)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="pipeline")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -92,6 +102,16 @@ def main(argv: list[str] | None = None) -> int:
     p_doc.add_argument("--probe", action="store_true",
                        help="also run live Google + Slack auth probes")
     p_doc.set_defaults(func=cmd_doctor)
+
+    p_ret = sub.add_parser(
+        "raw-cache-retention",
+        help="Trash Pipeline Raw Cache date subfolders older than N days",
+    )
+    p_ret.add_argument("--days", type=int, default=None,
+                       help="override retention horizon (default from registry)")
+    p_ret.add_argument("--dry-run", action="store_true",
+                       help="print actions without trashing anything")
+    p_ret.set_defaults(func=cmd_raw_cache_retention)
 
     args = parser.parse_args(argv)
     return args.func(args)
