@@ -12,8 +12,10 @@ def test_package_imports():
     from marketplace_pipeline.universe import duckdb_store
     from marketplace_pipeline.references import supabase_master
     from marketplace_pipeline.sources import (
-        namecheap_bin, afternic, atom_daily, parkio_auctions,
+        namecheap_bin, afternic, atom_daily,
+        parkio_auctions, namecheap_auctions,
     )
+    assert namecheap_auctions.SOURCE_ID == "namecheap_auctions"
     from marketplace_pipeline.auctions import sheet as auctions_sheet
     from marketplace_pipeline.auctions import slack as auctions_slack
     assert afternic.SOURCE_ID == "afternic"

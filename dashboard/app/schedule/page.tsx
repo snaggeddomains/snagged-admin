@@ -44,29 +44,34 @@ function parseCron(raw: string | undefined): ParsedCron | null {
   return { raw, minute: m, hour: h, human, hourSortKey };
 }
 
-function approxEtLabel(utcHour: number, minute: string): string {
-  const minN = /^\d+$/.test(minute) ? minute.padStart(2, "0") : minute;
-  const edt = (utcHour - 4 + 24) % 24;
-  const est = (utcHour - 5 + 24) % 24;
-  return `~${edt.toString().padStart(2, "0")}:${minN} EDT · ${est
-    .toString()
-    .padStart(2, "0")}:${minN} EST`;
+/** Format a UTC time as Eastern Time, picking EDT or EST automatically
+ *  based on whether NY is currently observing DST at render time. */
+function etTimeLabel(cron: ParsedCron): string {
+  // For multi-fire crons we still render only the first occurrence's time
+  // here — the human-readable cron expression below shows the full set.
+  const utcHour = cron.hourSortKey;
+  if (utcHour == null) return cron.human;
+  const minN = /^\d+$/.test(cron.minute) ? Number(cron.minute) : 0;
+  const today = new Date();
+  const utcDate = new Date(
+    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), utcHour, minN, 0),
+  );
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZoneName: "short",
+  }).format(utcDate);
 }
 
 function ScheduleRow({ s }: { s: Source }) {
   const cron = parseCron(s.schedule_utc);
   if (!cron) return null;
-  const et =
-    cron.hourSortKey != null ? approxEtLabel(cron.hourSortKey, cron.minute) : "—";
+  const et = etTimeLabel(cron);
   return (
     <tr>
-      <td className="muted mono" style={{ width: 110, whiteSpace: "nowrap" }}>
-        {cron.raw}
-      </td>
-      <td style={{ width: 220 }}>{cron.human}</td>
-      <td className="muted" style={{ fontSize: 12 }}>
-        {et}
-      </td>
+      <td style={{ width: 140, whiteSpace: "nowrap", fontWeight: 600 }}>{et}</td>
       <td className="mono">{s.source_id}</td>
       <td className="muted">{s.kind}</td>
       <td className="right" style={{ whiteSpace: "nowrap" }}>
@@ -124,9 +129,9 @@ export default async function SchedulePage() {
   return (
     <>
       <p style={{ color: "var(--navy-3)", fontSize: 14, marginTop: 0, marginBottom: 24 }}>
-        Schedules live in <code>.github/workflows/source-&lt;id&gt;.yml</code>.
-        Cron expressions are UTC (GitHub Actions does not support local TZs);
-        ET equivalents are approximate and drift one hour at DST boundaries.
+        Times shown in Eastern Time (auto-adjusted for EDT/EST). Schedules
+        live in <code>.github/workflows/source-&lt;id&gt;.yml</code> — cron
+        expressions there are UTC.
       </p>
 
       <section>
@@ -143,9 +148,7 @@ export default async function SchedulePage() {
           <table className="dash">
             <thead>
               <tr>
-                <th>cron</th>
-                <th>when (UTC)</th>
-                <th>ET (approx)</th>
+                <th>time (ET)</th>
                 <th>source_id</th>
                 <th>kind</th>
                 <th className="right"></th>
