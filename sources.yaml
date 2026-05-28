@@ -3,6 +3,13 @@
 
 version: 1
 
+storage:
+  # Tier 2: raw dump archive. Last few raw fetches per URL/API source, for
+  # replay/debugging/re-ingest. Drive-native sources (atom_daily,
+  # drive_auction_uploads, atom_wholesale) read in place, NOT cached here.
+  pipeline_raw_cache_folder_id: "1aE87YNbXPwbQiO-0FqoOjB6jpZcpOTbS"
+  pipeline_raw_cache_retention_days: 7
+
 products:
   snap:
     sheet_id: "1FVgWVZMKDCVMXbkY0_SSfU73LCN29uyly7Tn6dUp8R8"
