@@ -12,11 +12,12 @@ def test_package_imports():
     from marketplace_pipeline.universe import duckdb_store
     from marketplace_pipeline.references import supabase_master
     from marketplace_pipeline.sources import (
-        namecheap_bin, afternic, atom_daily,
+        namecheap_bin, afternic, atom_daily, atom_wholesale,
         parkio_auctions, namecheap_auctions, sedo_expired_auctions,
         godaddy_auctions, drive_auction_uploads, sedo_net_new,
         auctions_publish, auctions_watchdog,
     )
+    assert atom_wholesale.SOURCE_ID == "atom_wholesale"
     from marketplace_pipeline.auctions import orchestrator, watchdog
     assert namecheap_auctions.SOURCE_ID == "namecheap_auctions"
     assert sedo_expired_auctions.SOURCE_ID == "sedo_expired_auctions"

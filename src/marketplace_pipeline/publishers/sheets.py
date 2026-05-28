@@ -367,8 +367,73 @@ def write_rows(
             key_column=key_column,
         )
 
+    if mode == OwnershipMode.PREPEND_NEW_ROWS:
+        final, stats = _prepend_new_rows_impl(
+            existing=existing,
+            new_rows=rows,
+            default_header=default_header,
+            key_column=key_column,
+        )
+        _clear_and_write(svc, spreadsheet_id, tab, final)
+        return stats
+
     raise NotImplementedError(
         f"OwnershipMode.{mode.name} lands when a source needs it. "
         f"Currently implemented: REPLACE_SOURCE_ROWS, REBUILD_OWNED_SLICE, "
-        f"APPEND_IF_MISSING"
+        f"APPEND_IF_MISSING, PREPEND_NEW_ROWS"
     )
+
+
+def _prepend_new_rows_impl(
+    *,
+    existing: list[list[Any]],
+    new_rows: list[dict[str, Any]],
+    default_header: list[str] | None,
+    key_column: str,
+) -> tuple[list[list[Any]], dict[str, int]]:
+    """Pure transform — prepend new rows under the header, push existing rows
+    down. Dedups against existing rows by key_column (legacy parity for the
+    Atom Wholesale 'append above existing' pattern).
+    """
+    if existing:
+        header = existing[0]
+        data = existing[1:]
+    elif default_header:
+        header = list(default_header)
+        data = []
+    elif new_rows:
+        header = list(new_rows[0].keys())
+        data = []
+    else:
+        return [], {"added": 0, "skipped": 0, "total_after": 0}
+
+    try:
+        key_idx = header.index(key_column)
+    except ValueError as e:
+        raise ValueError(
+            f"Sheet header missing required '{key_column}' column: {header}"
+        ) from e
+
+    existing_keys: set[str] = set()
+    for row in data:
+        if row and len(row) > key_idx:
+            k = str(row[key_idx]).strip().lower()
+            if k:
+                existing_keys.add(k)
+
+    new_lists: list[list[Any]] = []
+    skipped = 0
+    for d in new_rows:
+        k = str(d.get(key_column, "")).strip().lower()
+        if not k or k in existing_keys:
+            skipped += 1
+            continue
+        new_lists.append([d.get(col, "") for col in header])
+        existing_keys.add(k)
+
+    final = [list(header)] + new_lists + data
+    return final, {
+        "added": len(new_lists),
+        "skipped": skipped,
+        "total_after": len(final) - 1,
+    }

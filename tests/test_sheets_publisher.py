@@ -236,16 +236,98 @@ def test_report_date_required():
         )
 
 
-def test_only_prepend_new_rows_remains_unimplemented():
+def test_all_modes_implemented_now():
+    """As of the atom_wholesale port, every OwnershipMode value is implemented."""
     svc = FakeSheetsService(initial_rows=[HEADER])
-    with pytest.raises(NotImplementedError):
+    for mode in OwnershipMode:
+        # Just call; should not raise NotImplementedError. Some modes need
+        # specific args (report_date for REPLACE_SOURCE_ROWS) so we provide.
+        kwargs = dict(
+            spreadsheet_id="S1",
+            tab="Tab",
+            mode=mode,
+            source="Namecheap",
+            rows=[],
+            report_date="2026-05-28",
+            service=svc,
+        )
+        # Should not raise NotImplementedError for any mode
+        pub.write_rows(**kwargs)
+
+
+# ---------- PREPEND_NEW_ROWS ----------
+
+ATOM_HEADER = ["domain", "tld", "price", "source", "date_added"]
+
+
+def test_prepend_new_rows_writes_above_existing():
+    initial = [
+        ATOM_HEADER,
+        ["old.com", "com", 100, "Atom", "2026-05-27"],
+    ]
+    svc = FakeSheetsService(initial_rows=initial)
+    stats = pub.write_rows(
+        spreadsheet_id="S1",
+        tab="Tab",
+        mode=OwnershipMode.PREPEND_NEW_ROWS,
+        source="Atom",
+        rows=[{"domain": "new.com", "tld": "com", "price": 200, "source": "Atom", "date_added": "2026-05-28"}],
+        service=svc,
+    )
+    assert stats["added"] == 1
+    domains = [r[0] for r in svc.rows[1:]]
+    assert domains == ["new.com", "old.com"]
+
+
+def test_prepend_new_rows_skips_existing_domain():
+    initial = [
+        ATOM_HEADER,
+        ["dup.com", "com", 100, "Atom", "2026-05-27"],
+    ]
+    svc = FakeSheetsService(initial_rows=initial)
+    stats = pub.write_rows(
+        spreadsheet_id="S1",
+        tab="Tab",
+        mode=OwnershipMode.PREPEND_NEW_ROWS,
+        source="Atom",
+        rows=[
+            {"domain": "dup.com", "price": 500},  # already there
+            {"domain": "new.com", "price": 999},
+        ],
+        service=svc,
+    )
+    assert stats["added"] == 1
+    assert stats["skipped"] == 1
+    domains = [r[0] for r in svc.rows[1:]]
+    assert domains == ["new.com", "dup.com"]
+
+
+def test_prepend_new_rows_bootstraps_empty_sheet():
+    svc = FakeSheetsService(initial_rows=[])
+    stats = pub.write_rows(
+        spreadsheet_id="S1",
+        tab="Tab",
+        mode=OwnershipMode.PREPEND_NEW_ROWS,
+        source="Atom",
+        rows=[{"domain": "first.com", "tld": "com", "price": 100, "source": "Atom", "date_added": "2026-05-28"}],
+        default_header=ATOM_HEADER,
+        service=svc,
+    )
+    assert stats["added"] == 1
+    assert svc.rows[0] == ATOM_HEADER
+    assert svc.rows[1][0] == "first.com"
+
+
+def test_prepend_new_rows_raises_when_key_column_missing():
+    bad = ["price", "tld"]  # no 'domain'
+    svc = FakeSheetsService(initial_rows=[bad])
+    with pytest.raises(ValueError, match="domain"):
         pub.write_rows(
             spreadsheet_id="S1",
             tab="Tab",
             mode=OwnershipMode.PREPEND_NEW_ROWS,
-            source="Namecheap",
-            rows=[],
-            report_date="2026-05-28",
+            source="Atom",
+            rows=[{"domain": "a.com"}],
             service=svc,
         )
 
