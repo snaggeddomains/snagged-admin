@@ -39,7 +39,7 @@ def test_package_imports():
     assert parkio_auctions.SOURCE_ID == "parkio_auctions"
     assert auctions_sheet.SHEET_COLUMNS[0] == "end_time_utc"
     assert auctions_slack  # noqa: B015 — touched to suppress unused-import lint
-    from marketplace_pipeline.tools import auth_check, slack_check
+    from marketplace_pipeline.tools import auth_check, slack_check, doctor
 
     assert marketplace_pipeline.__version__
     assert namecheap_bin.SOURCE_ID == "namecheap_bin"

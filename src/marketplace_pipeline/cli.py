@@ -56,6 +56,12 @@ def cmd_slack_check(args: argparse.Namespace) -> int:
     return _run(post_all=args.post, post_to=args.post_to)
 
 
+def cmd_doctor(args: argparse.Namespace) -> int:
+    from .tools.doctor import main as _run
+    extra = ["--probe"] if args.probe else []
+    return _run(extra)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="pipeline")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -81,6 +87,11 @@ def main(argv: list[str] | None = None) -> int:
     p_slack.add_argument("--post-to", metavar="CHANNEL_ID", default=None,
                          help="post a test message to a single specific channel")
     p_slack.set_defaults(func=cmd_slack_check)
+
+    p_doc = sub.add_parser("doctor", help="Diagnose env vars, imports, and registry")
+    p_doc.add_argument("--probe", action="store_true",
+                       help="also run live Google + Slack auth probes")
+    p_doc.set_defaults(func=cmd_doctor)
 
     args = parser.parse_args(argv)
     return args.func(args)

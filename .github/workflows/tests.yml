@@ -1,0 +1,33 @@
+name: 'Tests'
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install package + dev deps
+        run: pip install -e ".[dev]"
+
+      - name: Run pytest
+        run: python -m pytest tests/ -v
+
+      - name: Run smoke tests separately (catches missing-import regressions early)
+        run: python -m pytest tests/test_smoke.py -v
