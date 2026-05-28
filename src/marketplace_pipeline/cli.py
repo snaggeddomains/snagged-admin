@@ -45,6 +45,11 @@ def cmd_auth_check(args: argparse.Namespace) -> int:
     return _run()
 
 
+def cmd_slack_check(args: argparse.Namespace) -> int:
+    from .tools.slack_check import run as _run
+    return _run(post_all=args.post, post_to=args.post_to)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="pipeline")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -63,6 +68,13 @@ def main(argv: list[str] | None = None) -> int:
 
     p_auth = sub.add_parser("auth-check", help="Verify Google service account auth")
     p_auth.set_defaults(func=cmd_auth_check)
+
+    p_slack = sub.add_parser("slack-check", help="Verify Slack bot auth and channel access")
+    p_slack.add_argument("--post", action="store_true",
+                         help="post a test message to BOTH configured channels")
+    p_slack.add_argument("--post-to", metavar="CHANNEL_ID", default=None,
+                         help="post a test message to a single specific channel")
+    p_slack.set_defaults(func=cmd_slack_check)
 
     args = parser.parse_args(argv)
     return args.func(args)

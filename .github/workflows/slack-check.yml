@@ -1,0 +1,28 @@
+name: 'Auth check: Slack bot'
+
+on:
+  workflow_dispatch:
+    inputs:
+      post_to_channel:
+        description: 'Optional: channel ID to post a "test" message to (leave blank to skip posting)'
+        required: false
+        default: ''
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Run Slack check
+        env:
+          SLACK_BOT_TOKEN:        ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_SNAP:     ${{ vars.SLACK_CHANNEL_SNAP }}
+          SLACK_CHANNEL_AUCTIONS: ${{ vars.SLACK_CHANNEL_AUCTIONS }}
+        run: |
+          if [ -n "${{ inputs.post_to_channel }}" ]; then
+            pipeline slack-check --post-to "${{ inputs.post_to_channel }}"
+          else
+            pipeline slack-check
+          fi
