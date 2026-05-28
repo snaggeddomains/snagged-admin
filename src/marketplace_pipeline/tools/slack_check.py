@@ -37,6 +37,15 @@ def _check_auth(client) -> None:
         f"Authenticated as: {auth['user']} (bot id {auth['user_id']}) "
         f"in workspace '{auth['team']}'"
     )
+    # Slack returns the token's granted scopes in the X-OAuth-Scopes response
+    # header. Surfacing this makes 'missing_scope' errors immediately diagnosable.
+    raw = auth.headers.get("x-oauth-scopes", "") if hasattr(auth, "headers") else ""
+    scopes = sorted(s.strip() for s in raw.split(",") if s.strip())
+    print(f"Granted scopes ({len(scopes)}): {', '.join(scopes) or '(none reported)'}")
+    expected = {"chat:write", "chat:write.public", "channels:read"}
+    missing = expected - set(scopes)
+    if missing:
+        print(f"  WARN missing expected scope(s): {', '.join(sorted(missing))}")
 
 
 def _check_channels(client, channels: dict[str, str]) -> int:
