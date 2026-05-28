@@ -38,6 +38,24 @@ filter_profiles:
       ".net": 5.5
     allow_three_letter_com: true
 
+# Reference data stores. Not scheduled — queried ad-hoc, typically during
+# naming-exercise workflows. The dashboard's name browser joins these with
+# the R2 + Parquet universe on `domain`.
+references:
+  supabase_master:
+    kind: postgres_supabase
+    project_url_env: SUPABASE_URL
+    service_key_env: SUPABASE_SERVICE_ROLE_KEY
+    table: 'public."Master Domain List"'
+    primary_key: domain
+    cadence: ad_hoc
+    notes: |
+      Curated brand-candidate domains with rich metadata (category, emotions,
+      keywords, root_words, dictionary_word, syllables, sld_length,
+      number_of_words, is_single_word) plus pricing/ownership.
+      Trigram + tsvector indexes on `keywords` and `root_words` enable
+      full-text and fuzzy search server-side; do not denormalize.
+
 # Schedules are in UTC (GitHub Actions requirement). ET conversion:
 #   winter ET = UTC-5    summer ET = UTC-4
 # For now we use a single UTC time that's a tolerable fit year-round; revisit

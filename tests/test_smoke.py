@@ -9,6 +9,7 @@ def test_package_imports():
     from marketplace_pipeline import schemas, config, state
     from marketplace_pipeline.publishers import slack, sheets
     from marketplace_pipeline.universe import duckdb_store
+    from marketplace_pipeline.references import supabase_master
 
     assert marketplace_pipeline.__version__
 
