@@ -192,8 +192,12 @@ sources:
   - source_id: namejet_lastchance
     product: auctions
     kind: scrape_json
-    enabled: false
-    reason: "Replaced by drive_auction_uploads ingestion path."
+    enabled: true
+    notes: "Direct Playwright scrape of NameJet's exclusive storefront last-chance
+            rows (status In Auction, <24h to close). Falls back to a clear
+            error if NameJet returns a Cloudflare challenge page — at that
+            point we'd need CF_BROWSER_ACCOUNT_ID + CF_BROWSER_API_TOKEN
+            for Cloudflare Browser Rendering API."
 
   - source_id: namejet_email_digest
     product: auctions
@@ -223,6 +227,7 @@ sources:
       - godaddy_auctions
       - namesilo_auctions
       - sedo_expired_auctions
+      - namejet_lastchance
     failure_policy: continue_on_partial_failure
 
   - source_id: auctions_watchdog

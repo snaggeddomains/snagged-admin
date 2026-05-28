@@ -15,12 +15,13 @@ def test_package_imports():
         namecheap_bin, afternic, atom_daily, atom_wholesale,
         parkio_auctions, namecheap_auctions, sedo_expired_auctions,
         godaddy_auctions, drive_auction_uploads, sedo_net_new,
-        efty_partner, dropcatch_auctions,
+        efty_partner, dropcatch_auctions, namejet_lastchance,
         auctions_publish, auctions_watchdog,
     )
     assert atom_wholesale.SOURCE_ID == "atom_wholesale"
     assert efty_partner.SOURCE_ID == "efty_partner"
     assert dropcatch_auctions.SOURCE_ID == "dropcatch_auctions"
+    assert namejet_lastchance.SOURCE_ID == "namejet_lastchance"
     from marketplace_pipeline.auctions import orchestrator, watchdog
     assert namecheap_auctions.SOURCE_ID == "namecheap_auctions"
     assert sedo_expired_auctions.SOURCE_ID == "sedo_expired_auctions"
