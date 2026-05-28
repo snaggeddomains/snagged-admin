@@ -36,7 +36,20 @@ function ProfileCard({ p }: { p: FilterProfile }) {
   return (
     <article className="profile-card">
       <h3>
-        {p.name}
+        {p.label ?? p.name}
+        {p.label && (
+          <span
+            style={{
+              marginLeft: 8,
+              color: "var(--navy-3)",
+              fontWeight: 400,
+              fontSize: 12,
+              fontFamily: "ui-monospace, Menlo, monospace",
+            }}
+          >
+            {p.name}
+          </span>
+        )}
         <EditLink path="sources.yaml" />
       </h3>
       <Kv k="Allowed TLDs" v={<code>{tlds || "—"}</code>} />

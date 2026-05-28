@@ -71,6 +71,7 @@ export async function loadReferences(): Promise<Reference[]> {
 
 export interface FilterProfile {
   name: string;
+  label?: string;
   allowed_tlds?: string[];
   sld_length_min?: number;
   sld_length_max?: number;

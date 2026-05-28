@@ -34,6 +34,7 @@ products:
 #     because we want a wider candidate pool for future brand-naming workflows.
 filter_profiles:
   universe_ingest:
+    label: "Universal Naming Parameters"
     allowed_tlds: [".com", ".ai", ".io", ".co", ".net", ".org", ".xyz", ".app", ".dev"]
     sld_length_min: 2
     sld_length_max: 14
@@ -44,6 +45,7 @@ filter_profiles:
     dedup_by_domain: true
 
   standard_listings:
+    label: "Auction Parameters"
     legacy_module: legacy/openclaw/scripts/domain_filters.py
     allowed_tlds: [".com", ".org", ".net", ".io", ".ai", ".co"]
     zipf_min: 2.8
