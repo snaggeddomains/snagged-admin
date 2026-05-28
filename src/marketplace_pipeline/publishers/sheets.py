@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 import os
 from enum import Enum
-from typing import Any
+from typing import Any, Callable
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
@@ -175,6 +175,117 @@ def _replace_source_rows_impl(
 # Public entry point
 # ---------------------------------------------------------------------------
 
+def _rebuild_owned_slice_impl(
+    *,
+    existing: list[list[Any]],
+    new_rows: list[dict[str, Any]],
+    owner_predicate: Callable[[dict[str, Any]], bool],
+    default_header: list[str] | None,
+) -> tuple[list[list[Any]], dict[str, int]]:
+    """Pure transform — drop rows the owner_predicate identifies as ours,
+    keep everything else, prepend our new rows."""
+    if existing:
+        header = existing[0]
+        data = existing[1:]
+    elif default_header:
+        header = list(default_header)
+        data = []
+    elif new_rows:
+        header = list(new_rows[0].keys())
+        data = []
+    else:
+        return [], {"removed": 0, "added": 0, "preserved": 0, "total_after": 0}
+
+    preserved: list[list[Any]] = []
+    removed = 0
+    for row in data:
+        if not row:
+            continue
+        padded = list(row) + [""] * (len(header) - len(row))
+        row_dict = dict(zip(header, padded))
+        if owner_predicate(row_dict):
+            removed += 1
+        else:
+            preserved.append(padded[: len(header)])
+
+    new_lists = [[d.get(col, "") for col in header] for d in new_rows]
+    final = [list(header)] + new_lists + preserved
+    return final, {
+        "removed": removed,
+        "added": len(new_lists),
+        "preserved": len(preserved),
+        "total_after": len(final) - 1,
+    }
+
+
+def _append_if_missing_impl(
+    service,
+    spreadsheet_id: str,
+    tab: str,
+    *,
+    existing: list[list[Any]],
+    new_rows: list[dict[str, Any]],
+    default_header: list[str] | None,
+    key_column: str,
+) -> dict[str, int]:
+    """Append only rows whose `key_column` value isn't already in the tab.
+    Uses spreadsheets.values.append rather than clear+update."""
+    if not existing:
+        if default_header:
+            header = list(default_header)
+        elif new_rows:
+            header = list(new_rows[0].keys())
+        else:
+            return {"added": 0, "skipped": 0, "total_after": 0}
+        # Write header first so the append below targets row 2
+        service.spreadsheets().values().update(
+            spreadsheetId=spreadsheet_id,
+            range=f"'{tab}'!A1",
+            valueInputOption="USER_ENTERED",
+            body={"values": [header]},
+        ).execute()
+        existing_keys: set[str] = set()
+    else:
+        header = existing[0]
+        try:
+            key_idx = header.index(key_column)
+        except ValueError as e:
+            raise ValueError(
+                f"Sheet header missing required '{key_column}' column: {header}"
+            ) from e
+        existing_keys = set()
+        for row in existing[1:]:
+            if row and len(row) > key_idx:
+                k = str(row[key_idx]).strip().lower()
+                if k:
+                    existing_keys.add(k)
+
+    to_append: list[list[Any]] = []
+    skipped = 0
+    for d in new_rows:
+        k = str(d.get(key_column, "")).strip().lower()
+        if not k or k in existing_keys:
+            skipped += 1
+            continue
+        to_append.append([d.get(col, "") for col in header])
+        existing_keys.add(k)
+
+    if to_append:
+        service.spreadsheets().values().append(
+            spreadsheetId=spreadsheet_id,
+            range=f"'{tab}'!A2",
+            valueInputOption="USER_ENTERED",
+            insertDataOption="INSERT_ROWS",
+            body={"values": to_append},
+        ).execute()
+
+    return {
+        "added": len(to_append),
+        "skipped": skipped,
+        "total_after": (len(existing) - 1 if existing else 0) + len(to_append),
+    }
+
+
 def write_rows(
     *,
     spreadsheet_id: str,
@@ -184,8 +295,10 @@ def write_rows(
     rows: list[dict[str, Any]],
     source_column: str = "source",
     date_column: str = "date_added",
+    key_column: str = "domain",
     report_date: str | None = None,
     default_header: list[str] | None = None,
+    owner_predicate: Callable[[dict[str, Any]], bool] | None = None,
     service: Any = None,
 ) -> dict[str, int]:
     """Write rows to a sheet tab according to the declared ownership mode.
@@ -194,20 +307,23 @@ def write_rows(
         spreadsheet_id: Google Sheet ID.
         tab: Tab name (no quoting needed).
         mode: One of the OwnershipMode values.
-        source: Source label (used to identify "owned" rows in modes that
-            preserve foreign rows).
+        source: Source label.
         rows: List of dicts; each dict's keys must include the sheet's header
             column names. Missing columns become "".
         source_column: Header name of the column that records the source.
+            Used as the default predicate for owned rows (case-insensitive
+            equality) when owner_predicate is not supplied.
         date_column: Header name of the column that records the row date.
-        report_date: ISO date string (YYYY-MM-DD). Required for
-            REPLACE_SOURCE_ROWS.
-        default_header: Optional header to use if the tab is empty. If omitted
-            and the tab is empty, the keys of rows[0] are used.
+        key_column: Header name of the column whose values must be unique
+            (used by APPEND_IF_MISSING for the membership check).
+        report_date: ISO date (YYYY-MM-DD). Required for REPLACE_SOURCE_ROWS.
+        default_header: Header to use if the tab is empty.
+        owner_predicate: Optional function `(row_dict) -> bool` returning True
+            for rows that this source owns. Used by REBUILD_OWNED_SLICE when
+            the source is identified by something other than equality on the
+            source_column (e.g. legacy Running Good Deals identifies Afternic
+            rows by a link prefix).
         service: Optional pre-built Google Sheets v4 service (for tests).
-
-    Returns:
-        Stats dict: {removed, kept_today, added, total_after}
     """
     svc = service or _service()
     existing = _read_tab(svc, spreadsheet_id, tab)
@@ -227,7 +343,32 @@ def write_rows(
         _clear_and_write(svc, spreadsheet_id, tab, final)
         return stats
 
+    if mode == OwnershipMode.REBUILD_OWNED_SLICE:
+        pred = owner_predicate
+        if pred is None:
+            src_lc = source.lower()
+            def pred(row: dict[str, Any]) -> bool:
+                return str(row.get(source_column, "")).strip().lower() == src_lc
+        final, stats = _rebuild_owned_slice_impl(
+            existing=existing,
+            new_rows=rows,
+            owner_predicate=pred,
+            default_header=default_header,
+        )
+        _clear_and_write(svc, spreadsheet_id, tab, final)
+        return stats
+
+    if mode == OwnershipMode.APPEND_IF_MISSING:
+        return _append_if_missing_impl(
+            svc, spreadsheet_id, tab,
+            existing=existing,
+            new_rows=rows,
+            default_header=default_header,
+            key_column=key_column,
+        )
+
     raise NotImplementedError(
         f"OwnershipMode.{mode.name} lands when a source needs it. "
-        f"Currently implemented: REPLACE_SOURCE_ROWS"
+        f"Currently implemented: REPLACE_SOURCE_ROWS, REBUILD_OWNED_SLICE, "
+        f"APPEND_IF_MISSING"
     )

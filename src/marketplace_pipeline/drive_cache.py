@@ -90,6 +90,41 @@ def _ensure_subfolder(service, parent_id: str, name: str) -> str:
     return file["id"]
 
 
+def list_files_in_folder(
+    folder_id: str,
+    *,
+    service: Any = None,
+    page_size: int = 100,
+) -> list[dict[str, Any]]:
+    """List files in a Drive folder (Shared-Drive-safe).
+    Returns a list of file metadata dicts with at least id, name, modifiedTime.
+    """
+    svc = service or _drive_service()
+    res = svc.files().list(
+        q=f"'{folder_id}' in parents and trashed=false",
+        fields="files(id,name,modifiedTime,mimeType,size)",
+        pageSize=page_size,
+        orderBy="name",
+        supportsAllDrives=True,
+        includeItemsFromAllDrives=True,
+    ).execute()
+    return res.get("files", [])
+
+
+def download_file(file_id: str, *, service: Any = None) -> bytes:
+    """Download a Drive file's contents as bytes (Shared-Drive-safe)."""
+    from googleapiclient.http import MediaIoBaseDownload
+
+    svc = service or _drive_service()
+    request = svc.files().get_media(fileId=file_id, supportsAllDrives=True)
+    buf = io.BytesIO()
+    downloader = MediaIoBaseDownload(buf, request)
+    done = False
+    while not done:
+        _status, done = downloader.next_chunk()
+    return buf.getvalue()
+
+
 def cache_raw(
     *,
     source: str,

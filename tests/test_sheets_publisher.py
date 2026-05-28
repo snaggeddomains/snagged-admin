@@ -236,23 +236,211 @@ def test_report_date_required():
         )
 
 
-def test_unimplemented_modes_raise_not_implemented():
+def test_only_prepend_new_rows_remains_unimplemented():
     svc = FakeSheetsService(initial_rows=[HEADER])
-    for mode in (
-        OwnershipMode.PREPEND_NEW_ROWS,
-        OwnershipMode.APPEND_IF_MISSING,
-        OwnershipMode.REBUILD_OWNED_SLICE,
-    ):
-        with pytest.raises(NotImplementedError):
-            pub.write_rows(
-                spreadsheet_id="S1",
-                tab="Tab",
-                mode=mode,
-                source="Namecheap",
-                rows=[],
-                report_date="2026-05-28",
-                service=svc,
-            )
+    with pytest.raises(NotImplementedError):
+        pub.write_rows(
+            spreadsheet_id="S1",
+            tab="Tab",
+            mode=OwnershipMode.PREPEND_NEW_ROWS,
+            source="Namecheap",
+            rows=[],
+            report_date="2026-05-28",
+            service=svc,
+        )
+
+
+# ---------------------------------------------------------------------------
+# REBUILD_OWNED_SLICE
+# ---------------------------------------------------------------------------
+
+RUNNING_HEADER = [
+    "domain", "price", "tld", "zipf_score", "fast_transfer",
+    "quality_score", "deal_score", "link", "date_added",
+]
+
+
+def test_rebuild_owned_slice_default_predicate_uses_source_column():
+    # Tab has a "source" column; default predicate matches on it
+    header = ["domain", "price", "source"]
+    initial = [
+        header,
+        ["af1.com", 100, "Afternic"],
+        ["af-old.com", 200, "Afternic"],
+        ["nc1.com", 150, "Namecheap"],
+    ]
+    svc = FakeSheetsService(initial_rows=initial)
+    stats = pub.write_rows(
+        spreadsheet_id="S1",
+        tab="Tab",
+        mode=OwnershipMode.REBUILD_OWNED_SLICE,
+        source="Afternic",
+        rows=[{"domain": "af-new.com", "price": 999, "source": "Afternic"}],
+        service=svc,
+    )
+    assert stats["removed"] == 2  # both af1 and af-old dropped
+    assert stats["added"] == 1
+    assert stats["preserved"] == 1  # nc1.com kept
+
+    written = [r[0] for r in svc.rows[1:]]
+    assert "af-new.com" in written
+    assert "nc1.com" in written
+    assert "af1.com" not in written
+    assert "af-old.com" not in written
+    # new row appears before preserved foreign rows
+    assert written.index("af-new.com") < written.index("nc1.com")
+
+
+def test_rebuild_owned_slice_custom_predicate_link_contains():
+    """Legacy Running Good Deals: identify Afternic rows by link, no source column."""
+    initial = [
+        RUNNING_HEADER,
+        ["a.com", 100, "com", 5.5, "YES", 5.5, 100.0, "https://www.afternic.com/domain/a.com", "2026-05-28"],
+        ["b.com", 200, "com", 4.0, "NO",  4.0, 50.0,  "https://atom.com/name/b",                 "2026-05-28"],
+    ]
+    svc = FakeSheetsService(initial_rows=initial)
+    stats = pub.write_rows(
+        spreadsheet_id="S1",
+        tab="Running Good Deals",
+        mode=OwnershipMode.REBUILD_OWNED_SLICE,
+        source="Afternic",
+        rows=[{
+            "domain": "c.com", "price": 300, "tld": "com", "zipf_score": 6.0,
+            "fast_transfer": "YES", "quality_score": 6.0, "deal_score": 200.0,
+            "link": "https://www.afternic.com/domain/c.com", "date_added": "2026-05-28",
+        }],
+        owner_predicate=lambda r: "afternic.com/domain/" in str(r.get("link", "")).lower(),
+        service=svc,
+    )
+    assert stats["removed"] == 1   # a.com (Afternic-link) dropped
+    assert stats["added"] == 1     # c.com inserted
+    assert stats["preserved"] == 1 # b.com (Atom-link) preserved
+
+
+def test_rebuild_owned_slice_empty_sheet_uses_default_header():
+    svc = FakeSheetsService(initial_rows=[])
+    stats = pub.write_rows(
+        spreadsheet_id="S1",
+        tab="Tab",
+        mode=OwnershipMode.REBUILD_OWNED_SLICE,
+        source="Afternic",
+        rows=[{"domain": "a.com", "source": "Afternic"}],
+        default_header=["domain", "source"],
+        service=svc,
+    )
+    assert stats["added"] == 1
+    assert svc.rows[0] == ["domain", "source"]
+
+
+# ---------------------------------------------------------------------------
+# APPEND_IF_MISSING
+# ---------------------------------------------------------------------------
+
+
+class _ValuesWithAppend(_Values):
+    def append(self, **kwargs):
+        self._s.append_calls.append(kwargs)
+        # Reflect the append into our reads: extend rows with appended values
+        appended_values = kwargs.get("body", {}).get("values", [])
+        self._s.rows = list(self._s.rows) + list(appended_values)
+        return _Executable({})
+
+
+class FakeSheetsServiceWithAppend(FakeSheetsService):
+    def __init__(self, initial_rows=None):
+        super().__init__(initial_rows=initial_rows)
+        self.append_calls = []
+
+    def spreadsheets(self):
+        s = self
+
+        class _SP:
+            def values(self_inner):
+                return _ValuesWithAppend(s)
+        return _SP()
+
+
+def test_append_if_missing_only_appends_new_domains():
+    initial = [
+        RUNNING_HEADER,
+        ["a.com", 100, "com", 5.0, "NO", 5.0, 50.0, "https://x", "2026-05-28"],
+    ]
+    svc = FakeSheetsServiceWithAppend(initial_rows=initial)
+    stats = pub.write_rows(
+        spreadsheet_id="S1",
+        tab="Running Good Deals",
+        mode=OwnershipMode.APPEND_IF_MISSING,
+        source="Atom",
+        rows=[
+            {"domain": "a.com", "price": 999},  # duplicate -> skip
+            {"domain": "b.com", "price": 200, "tld": "com", "zipf_score": 4.0,
+             "fast_transfer": "NO", "quality_score": 4.0, "deal_score": 20.0,
+             "link": "https://atom.com/name/b", "date_added": "2026-05-28"},
+        ],
+        service=svc,
+    )
+    assert stats["added"] == 1
+    assert stats["skipped"] == 1
+    assert len(svc.append_calls) == 1
+    appended_domains = [r[0] for r in svc.append_calls[0]["body"]["values"]]
+    assert appended_domains == ["b.com"]
+
+
+def test_append_if_missing_skips_when_all_present():
+    initial = [
+        RUNNING_HEADER,
+        ["a.com", 100, "com", 5.0, "NO", 5.0, 50.0, "https://x", "2026-05-28"],
+    ]
+    svc = FakeSheetsServiceWithAppend(initial_rows=initial)
+    stats = pub.write_rows(
+        spreadsheet_id="S1",
+        tab="Running Good Deals",
+        mode=OwnershipMode.APPEND_IF_MISSING,
+        source="Atom",
+        rows=[{"domain": "a.com"}],
+        service=svc,
+    )
+    assert stats["added"] == 0
+    assert stats["skipped"] == 1
+    assert len(svc.append_calls) == 0  # nothing to append
+
+
+def test_append_if_missing_empty_sheet_writes_header_then_appends():
+    svc = FakeSheetsServiceWithAppend(initial_rows=[])
+    stats = pub.write_rows(
+        spreadsheet_id="S1",
+        tab="Running Good Deals",
+        mode=OwnershipMode.APPEND_IF_MISSING,
+        source="Atom",
+        rows=[{"domain": "a.com", "price": 100}],
+        default_header=["domain", "price"],
+        service=svc,
+    )
+    assert stats["added"] == 1
+    # header written via update, then row appended
+    assert len(svc.update_calls) == 1
+    assert svc.update_calls[0]["body"]["values"] == [["domain", "price"]]
+    assert len(svc.append_calls) == 1
+
+
+def test_append_if_missing_dedupes_within_batch():
+    """Two new rows with same domain key in one call → only one is appended."""
+    initial = [RUNNING_HEADER]
+    svc = FakeSheetsServiceWithAppend(initial_rows=initial)
+    stats = pub.write_rows(
+        spreadsheet_id="S1",
+        tab="Running Good Deals",
+        mode=OwnershipMode.APPEND_IF_MISSING,
+        source="Atom",
+        rows=[
+            {"domain": "a.com", "price": 100},
+            {"domain": "a.com", "price": 200},  # dup within batch
+            {"domain": "b.com", "price": 300},
+        ],
+        service=svc,
+    )
+    assert stats["added"] == 2
+    assert stats["skipped"] == 1
 
 
 def test_clear_and_update_actually_called():
