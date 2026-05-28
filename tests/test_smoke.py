@@ -15,12 +15,18 @@ def test_package_imports():
         namecheap_bin, afternic, atom_daily,
         parkio_auctions, namecheap_auctions, sedo_expired_auctions,
         godaddy_auctions, drive_auction_uploads, sedo_net_new,
+        auctions_publish, auctions_watchdog,
     )
+    from marketplace_pipeline.auctions import orchestrator, watchdog
     assert namecheap_auctions.SOURCE_ID == "namecheap_auctions"
     assert sedo_expired_auctions.SOURCE_ID == "sedo_expired_auctions"
     assert godaddy_auctions.SOURCE_ID == "godaddy_auctions"
     assert drive_auction_uploads.SOURCE_ID == "drive_auction_uploads"
     assert sedo_net_new.SOURCE_ID == "sedo_net_new"
+    assert auctions_publish.SOURCE_ID == "auctions_publish"
+    assert auctions_watchdog.SOURCE_ID == "auctions_watchdog"
+    assert orchestrator.ORCHESTRATOR_ID == "auctions_publish"
+    assert watchdog.WATCHDOG_ID == "auctions_watchdog"
     from marketplace_pipeline.auctions import sheet as auctions_sheet
     from marketplace_pipeline.auctions import slack as auctions_slack
     assert afternic.SOURCE_ID == "afternic"

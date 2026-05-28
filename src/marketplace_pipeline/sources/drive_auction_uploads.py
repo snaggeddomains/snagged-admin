@@ -25,7 +25,7 @@ import re
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from .. import config, drive_cache, state
+from .. import auctions, config, drive_cache, state
 from ..auctions import sheet as auctions_sheet
 from ..auctions import slack as auctions_slack
 from ..filters import standard as flt
@@ -321,14 +321,18 @@ def run() -> int:
             "time_left": auctions_sheet.format_time_left(end_dt, now=now),
         })
 
-    section = auctions_slack.format_section(label=SOURCE_LABEL, listings=slack_listings)
-    posted = auctions_slack.post_consolidated(
-        channel=slack_channel,
-        source=SOURCE_ID,
-        sections=[section],
-        sheet_url=sheet_url,
-    )
-    print(f"      slack posted: {posted}")
+    if auctions.orchestrator_mode_active():
+        print("      Slack post deferred to orchestrator")
+        posted = False
+    else:
+        section = auctions_slack.format_section(label=SOURCE_LABEL, listings=slack_listings)
+        posted = auctions_slack.post_consolidated(
+            channel=slack_channel,
+            source=SOURCE_ID,
+            sections=[section],
+            sheet_url=sheet_url,
+        )
+        print(f"      slack posted: {posted}")
 
     state.write_json(SOURCE_ID, "run_status.json", {
         "source": SOURCE_ID,

@@ -1,0 +1,44 @@
+name: 'Source: auctions_watchdog'
+
+# 35 min after the orchestrator (~6:35 AM ET).
+on:
+  schedule:
+    - cron: '35 10 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: source-auctions_watchdog
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup
+
+      - name: Run auctions_watchdog
+        env:
+          SLACK_BOT_TOKEN:             ${{ secrets.SLACK_BOT_TOKEN }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          SLACK_CHANNEL_AUCTIONS:      ${{ vars.SLACK_CHANNEL_AUCTIONS }}
+          DYNADOT_API_KEY:             ${{ secrets.DYNADOT_API_KEY }}
+          DYNADOT_API_SECRET:          ${{ secrets.DYNADOT_API_SECRET }}
+          NAMESILO_API_KEY:            ${{ secrets.NAMESILO_API_KEY }}
+        run: pipeline run auctions_watchdog
+
+      - name: Commit state changes
+        if: success() || failure()
+        run: |
+          git add state/
+          if git diff --cached --quiet; then
+            echo "No state changes."
+          else
+            git commit -m "auctions_watchdog: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git push
+          fi
