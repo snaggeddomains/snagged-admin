@@ -6,10 +6,17 @@ version: 1
 products:
   snap:
     sheet_id: "1FVgWVZMKDCVMXbkY0_SSfU73LCN29uyly7Tn6dUp8R8"
+    sheet_title: "Top Names (Stimpy)"
     slack_channel_env: SLACK_CHANNEL_SNAP        # default C09B1P21YQ0
     atom_wholesale_sheet_id: "1vrBxktnZ6cK5pY_w5EZa6DOA0E4OLU_Qs6x-fztDclw"
+    atom_wholesale_sheet_title: "Atom Wholesale RUNNING"
+    # Observed tabs: KEY (user legend -- DO NOT WRITE),
+    #                Today's New Listings, Running Good Deals, Sedo Net-New
+    do_not_write_tabs:
+      - "KEY"
   auctions:
     sheet_id: "1-k9SNFNm6ontOC6_P8wW3PTMk65YYpSAx7kM4rmKjks"
+    sheet_title: "Auction and Good Deal Domains"
     slack_channel_env: SLACK_CHANNEL_AUCTIONS    # default C096AT8BECS
 
 # Filter profiles applied per-source. Two separate jobs:
@@ -139,6 +146,7 @@ sources:
     fetch:
       drive_folder_id: "1vCnJb4iJeVJnLiRk4BwO7TEbRY16-Gta"
       window_hours: 36
+      filename_pattern: "{d}-{m}-{yy}.csv"  # observed: 28-5-26.csv (D-M-YY, opposite of atom_daily)
 
   - source_id: dropcatch_auctions
     product: auctions
@@ -214,6 +222,9 @@ sources:
     kind: api_export
     schedule_utc: "0 10,17,23 * * *"
     enabled: true
+    sheet_destinations:
+      - tab: "Sedo Net-New"   # owned tab on the SNAP sheet
+        mode: rebuild_owned_slice
     slack_channel_for: snap
 
   - source_id: efty_partner
