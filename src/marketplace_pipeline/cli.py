@@ -40,6 +40,11 @@ def cmd_status(args: argparse.Namespace) -> int:
     raise NotImplementedError("status command lands with the first source port")
 
 
+def cmd_auth_check(args: argparse.Namespace) -> int:
+    from .tools.auth_check import main as _run
+    return _run()
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="pipeline")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -55,6 +60,9 @@ def main(argv: list[str] | None = None) -> int:
 
     p_status = sub.add_parser("status", help="Print current run status across all sources")
     p_status.set_defaults(func=cmd_status)
+
+    p_auth = sub.add_parser("auth-check", help="Verify Google service account auth")
+    p_auth.set_defaults(func=cmd_auth_check)
 
     args = parser.parse_args(argv)
     return args.func(args)
