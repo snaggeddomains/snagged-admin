@@ -1,8 +1,10 @@
 name: 'Source: atom_daily'
 
-# Schedule will be enabled once the source's first manual run is verified.
-# Target schedule: '0 14 * * *' UTC == ~10:00 AM ET (after Atom feed updates).
+# 0 14 * * * == ~10:00 AM ET (drifts ~1 hr across DST). Atom feed updates
+# earlier in the morning so 14:00 UTC is well after.
 on:
+  schedule:
+    - cron: '0 14 * * *'
   workflow_dispatch: {}
 
 permissions:

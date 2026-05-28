@@ -1,8 +1,9 @@
 name: 'Source: afternic'
 
-# Schedule will be enabled once the source's first manual run is verified.
-# Target schedule: '15 9 * * *' UTC == ~5:15 AM ET.
+# 15 9 * * * == ~5:15 AM ET (drifts ~1 hr across DST).
 on:
+  schedule:
+    - cron: '15 9 * * *'
   workflow_dispatch: {}
 
 permissions:
