@@ -1,0 +1,179 @@
+# Source registry — single source of truth for what runs and where outputs go.
+# See docs/domain-dumps-and-platform-workflows-spec.md §4.1 for the schema.
+
+version: 1
+
+products:
+  snap:
+    sheet_id: "1FVgWVZMKDCVMXbkY0_SSfU73LCN29uyly7Tn6dUp8R8"
+    slack_channel_env: SLACK_CHANNEL_SNAP        # default C09B1P21YQ0
+    atom_wholesale_sheet_id: "1vrBxktnZ6cK5pY_w5EZa6DOA0E4OLU_Qs6x-fztDclw"
+  auctions:
+    sheet_id: "1-k9SNFNm6ontOC6_P8wW3PTMk65YYpSAx7kM4rmKjks"
+    slack_channel_env: SLACK_CHANNEL_AUCTIONS    # default C096AT8BECS
+
+# Schedules are in UTC (GitHub Actions requirement). ET conversion:
+#   winter ET = UTC-5    summer ET = UTC-4
+# For now we use a single UTC time that's a tolerable fit year-round; revisit
+# if ET-precision matters.
+
+sources:
+  # ===== SNAP producers =====
+
+  - source_id: namecheap_bin
+    product: snap
+    kind: csv_dump
+    schedule_utc: "25 9 * * *"     # ~5:25 AM ET
+    enabled: true
+    fetch:
+      url: "https://d3ry1h4w5036x1.cloudfront.net/reports/Namecheap_Market_Sales_Buy_Now.csv"
+    filters_profile: standard_listings
+    sheet_destinations:
+      - tab: "Today's New Listings"
+        mode: replace_source_rows
+    slack_channel_for: snap
+
+  - source_id: afternic
+    product: snap
+    kind: csv_dump
+    schedule_utc: "15 9 * * *"     # ~5:15 AM ET
+    enabled: true
+    filters_profile: standard_listings
+    sheet_destinations:
+      - tab: "Today's New Listings"
+        mode: replace_source_rows
+      - tab: "Running Good Deals"
+        mode: rebuild_owned_slice
+    slack_channel_for: snap
+
+  - source_id: atom_daily
+    product: snap
+    kind: drive_file
+    schedule_utc: "*/10 10-14 * * *"  # every 10 min, ~6:00-10:59 ET window
+    enabled: true
+    fetch:
+      drive_folder_id: "1FFB8_8aTii5YQJheIQsJI0SqYRmFMg_4"
+      filename_pattern: "{m}-{d}-{yy} Atom Dump.csv"
+    filters_profile: standard_listings
+    sheet_destinations:
+      - tab: "Today's New Listings"
+        mode: replace_source_rows
+      - tab: "Running Good Deals"
+        mode: append_if_missing
+    slack_channel_for: snap
+
+  - source_id: atom_wholesale
+    product: snap
+    kind: google_doc
+    schedule_utc: "5 14 * * *"     # ~10:05 AM ET
+    enabled: true
+    fetch:
+      doc_id: "1-n-fiAOfTf9e5NaVSHCdgyNRTKdPuPBRx2A9XqwzczU"
+    parser: llm_assisted            # Atom Wholesale doc is unstructured; uses Claude API
+    sheet_destinations:
+      - sheet_id_override: "1vrBxktnZ6cK5pY_w5EZa6DOA0E4OLU_Qs6x-fztDclw"
+        tab: "Running"
+        mode: prepend_new_rows
+    slack_channel_for: snap
+
+  # ===== Auctions producers (consumed by auctions_publish orchestrator) =====
+
+  - source_id: dynadot_auctions
+    product: auctions
+    kind: scrape_json
+    enabled: true
+
+  - source_id: namecheap_auctions
+    product: auctions
+    kind: api_export
+    enabled: true
+
+  - source_id: drive_auction_uploads
+    product: auctions
+    kind: drive_file
+    enabled: true
+    fetch:
+      drive_folder_id: "1vCnJb4iJeVJnLiRk4BwO7TEbRY16-Gta"
+      window_hours: 36
+
+  - source_id: dropcatch_auctions
+    product: auctions
+    kind: scrape_json
+    enabled: true
+
+  - source_id: parkio_auctions
+    product: auctions
+    kind: scrape_json
+    enabled: true
+
+  - source_id: godaddy_auctions
+    product: auctions
+    kind: api_export
+    enabled: true
+
+  - source_id: namesilo_auctions
+    product: auctions
+    kind: api_export
+    enabled: true
+
+  - source_id: sedo_expired_auctions
+    product: auctions
+    kind: api_export
+    enabled: true
+
+  - source_id: namejet_lastchance
+    product: auctions
+    kind: scrape_json
+    enabled: false
+    reason: "Replaced by drive_auction_uploads ingestion path."
+
+  - source_id: namejet_email_digest
+    product: auctions
+    kind: api_export
+    enabled: false
+    reason: "Replaced by drive_auction_uploads ingestion path."
+
+  - source_id: namejet_exclusive_storefront
+    product: auctions
+    kind: scrape_json
+    enabled: false
+    reason: "Replaced by drive_auction_uploads ingestion path."
+
+  # ===== Auctions orchestrator =====
+
+  - source_id: auctions_publish
+    product: auctions
+    kind: orchestrator
+    schedule_utc: "0 10 * * *"     # ~6:00 AM ET
+    enabled: true
+    orchestrates:
+      - dynadot_auctions
+      - namecheap_auctions
+      - drive_auction_uploads
+      - dropcatch_auctions
+      - parkio_auctions
+      - godaddy_auctions
+      - namesilo_auctions
+      - sedo_expired_auctions
+    failure_policy: continue_on_partial_failure
+
+  - source_id: auctions_watchdog
+    product: auctions
+    kind: orchestrator
+    schedule_utc: "35 10 * * *"    # ~6:35 AM ET
+    enabled: true
+
+  # ===== Aux feeds =====
+
+  - source_id: sedo_net_new
+    product: aux
+    kind: api_export
+    schedule_utc: "0 10,17,23 * * *"
+    enabled: true
+    slack_channel_for: snap
+
+  - source_id: efty_partner
+    product: aux
+    kind: api_export
+    schedule_utc: "0 21 * * *"     # ~5:00 PM ET
+    enabled: true

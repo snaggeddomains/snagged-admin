@@ -1,0 +1,21 @@
+name: 'Setup pipeline'
+description: 'Python toolchain, dependencies, and git identity for state commits'
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install package
+      shell: bash
+      run: pip install -e .
+
+    - name: Configure git for state commits
+      shell: bash
+      run: |
+        git config user.name "marketplace-pipeline-bot"
+        git config user.email "marketplace-pipeline-bot@users.noreply.github.com"
