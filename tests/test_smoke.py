@@ -6,13 +6,16 @@ from __future__ import annotations
 
 def test_package_imports():
     import marketplace_pipeline
-    from marketplace_pipeline import schemas, config, state
+    from marketplace_pipeline import schemas, config, state, scoring, drive_cache
+    from marketplace_pipeline.filters import standard as flt  # noqa: F401
     from marketplace_pipeline.publishers import slack, sheets
     from marketplace_pipeline.universe import duckdb_store
     from marketplace_pipeline.references import supabase_master
+    from marketplace_pipeline.sources import namecheap_bin
     from marketplace_pipeline.tools import auth_check, slack_check
 
     assert marketplace_pipeline.__version__
+    assert namecheap_bin.SOURCE_ID == "namecheap_bin"
 
 
 def test_sources_yaml_loads_and_has_known_sources():

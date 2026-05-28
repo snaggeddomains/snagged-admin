@@ -29,11 +29,17 @@ def cmd_list(args: argparse.Namespace) -> int:
 
 
 def cmd_run(args: argparse.Namespace) -> int:
-    source = config.get_source(args.source_id)
-    raise NotImplementedError(
-        f"Source '{source['source_id']}' has no implementation yet. "
-        f"First port lands as a separate commit."
-    )
+    import importlib
+
+    config.get_source(args.source_id)  # validates source exists in registry
+    try:
+        mod = importlib.import_module(f"marketplace_pipeline.sources.{args.source_id}")
+    except ImportError as e:
+        raise NotImplementedError(
+            f"Source '{args.source_id}' has no implementation yet "
+            f"(no module marketplace_pipeline.sources.{args.source_id})"
+        ) from e
+    return mod.run()
 
 
 def cmd_status(args: argparse.Namespace) -> int:
