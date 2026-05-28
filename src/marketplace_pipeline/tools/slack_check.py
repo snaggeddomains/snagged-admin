@@ -49,26 +49,32 @@ def _check_auth(client) -> None:
 
 
 def _check_channels(client, channels: dict[str, str]) -> int:
+    """Best-effort introspection via conversations.info. Failures here are NOT
+    fatal — the pipeline only needs chat:write + invited-to-channel (for
+    private channels) or chat:write.public (for public). Real verification
+    that posting works happens via --post / --post-to.
+    """
     from slack_sdk.errors import SlackApiError
 
-    failures = 0
     for label, channel_id in channels.items():
         try:
             info = client.conversations_info(channel=channel_id)
             chan = info["channel"]
             member = chan.get("is_member", False)
-            marker = "OK  " if member else "WARN"
+            privacy = "private" if chan.get("is_private") else "public"
             print(
-                f"  {marker} channel {label:<10} #{chan['name']:<20} ({channel_id})  "
-                f"bot_is_member={member}"
+                f"  INFO channel {label:<10} #{chan['name']:<20} ({channel_id})  "
+                f"{privacy}  bot_is_member={member}"
             )
-            if not member:
-                print(f"       -> /invite the bot to #{chan['name']} so it can post")
-                failures += 1
         except SlackApiError as e:
-            print(f"  FAIL channel {label:<10} ({channel_id})  {e.response['error']}")
-            failures += 1
-    return failures
+            err = e.response["error"]
+            print(f"  WARN channel {label:<10} ({channel_id})  introspect failed: {err}")
+            if err == "missing_scope":
+                print(
+                    "       (typically means the channel is private and groups:read "
+                    "is not granted; posting still works if the bot is invited)"
+                )
+    return 0  # never fatal
 
 
 def _post_test(client, channel_id: str) -> int:
@@ -95,9 +101,9 @@ def run(post_all: bool = False, post_to: str | None = None) -> int:
         print(f"FAIL: {e}")
         return 1
 
-    print("Channel reachability:")
+    print("Channel introspection (best-effort, never fatal):")
     channels = _channels_to_check()
-    chan_fail = _check_channels(client, channels)
+    _check_channels(client, channels)
     print()
 
     post_fail = 0
@@ -111,13 +117,17 @@ def run(post_all: bool = False, post_to: str | None = None) -> int:
             post_fail += _post_test(client, cid)
         print()
 
-    total = chan_fail + post_fail
-    if total == 0:
-        suffix = " + post(s) successful" if (post_all or post_to) else ""
-        print(f"PASS -- Slack auth + all channels reachable{suffix}")
+    if post_fail:
+        print(f"FAIL -- {post_fail} channel post(s) failed")
+        return 1
+    if post_all or post_to:
+        print("PASS -- Slack auth + posting verified")
         return 0
-    print(f"FAIL -- {total} issue(s)")
-    return 1
+    print(
+        "PASS -- Slack auth + scopes look good. "
+        "Run with --post-to <CHANNEL_ID> to verify posting end-to-end."
+    )
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:
