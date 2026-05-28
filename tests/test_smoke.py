@@ -13,9 +13,10 @@ def test_package_imports():
     from marketplace_pipeline.references import supabase_master
     from marketplace_pipeline.sources import (
         namecheap_bin, afternic, atom_daily,
-        parkio_auctions, namecheap_auctions,
+        parkio_auctions, namecheap_auctions, sedo_expired_auctions,
     )
     assert namecheap_auctions.SOURCE_ID == "namecheap_auctions"
+    assert sedo_expired_auctions.SOURCE_ID == "sedo_expired_auctions"
     from marketplace_pipeline.auctions import sheet as auctions_sheet
     from marketplace_pipeline.auctions import slack as auctions_slack
     assert afternic.SOURCE_ID == "afternic"
