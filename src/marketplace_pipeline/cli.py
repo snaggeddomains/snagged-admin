@@ -72,6 +72,16 @@ def cmd_raw_cache_retention(args: argparse.Namespace) -> int:
     return _run(argv)
 
 
+def cmd_universe_sync(args: argparse.Namespace) -> int:
+    from .tools.universe_sync import main as _run
+    argv: list[str] = []
+    if args.output is not None:
+        argv += ["--output", str(args.output)]
+    if args.dry_run:
+        argv.append("--dry-run")
+    return _run(argv)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="pipeline")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -112,6 +122,16 @@ def main(argv: list[str] | None = None) -> int:
     p_ret.add_argument("--dry-run", action="store_true",
                        help="print actions without trashing anything")
     p_ret.set_defaults(func=cmd_raw_cache_retention)
+
+    p_uni = sub.add_parser(
+        "universe-sync",
+        help="Build today's universe Parquet partition from per-source snapshots",
+    )
+    p_uni.add_argument("--output", default=None,
+                       help="local Parquet output path (default under data/universe/)")
+    p_uni.add_argument("--dry-run", action="store_true",
+                       help="collect + filter but skip the actual write")
+    p_uni.set_defaults(func=cmd_universe_sync)
 
     args = parser.parse_args(argv)
     return args.func(args)
