@@ -1,0 +1,13 @@
+{
+  "cutoff_date": "2026-05-22",
+  "dry_run": false,
+  "generated_at": "2026-05-29T07:59:00.203113+00:00",
+  "kept": 12,
+  "label": "Pipeline Raw Cache retention",
+  "retention_days": 7,
+  "scanned": 12,
+  "source": "raw_cache_retention",
+  "status": "ok",
+  "trashed": [],
+  "trashed_count": 0
+}
