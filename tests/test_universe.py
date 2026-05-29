@@ -14,28 +14,64 @@ from marketplace_pipeline.tools import universe_sync
 # ---------- filter ----------
 
 @pytest.mark.parametrize("domain,expected", [
+    # ----- pass: single dictionary words -----
     ("table.com",   True),
     ("brand.ai",    True),
     ("hello.xyz",   True),
-    ("brand.dev",   True),
-    ("hello.co",    True),
-    ("xyz.com",     True),     # 3-letter SLD allowed
-    ("trash.tv",    False),    # disallowed TLD
-    ("ocean.io",    False),    # .io was dropped from universe
-    ("brand.app",   False),    # .app was dropped from universe
-    ("a.com",       False),    # SLD too short (1 char)
-    ("abcdefghijklmno.com", False),  # SLD too long (15 chars)
-    ("table7.com",  False),    # digit in SLD
-    ("foo-bar.com", False),    # hyphen
-    ("ystrmchk.com", True),    # 7-consonant run allowed now (broad universe)
+    ("ocean.co",    True),
+    ("fresh.dev",   True),
+    # ----- pass: two concatenated dictionary words -----
+    ("freshcoffee.com",  True),
+    ("bluebird.com",     True),
+    ("cloudkitchen.com", True),
+    # ----- reject: TLD -----
+    ("table.tv",     False),    # disallowed TLD
+    ("table.io",     False),    # .io was dropped from universe
+    ("table.app",    False),    # .app was dropped from universe
+    # ----- reject: structural -----
+    ("a.com",                False),  # SLD too short (1 char)
+    ("abcdefghijklmno.com", False),   # SLD too long (15 chars)
+    ("table7.com",          False),   # digit
+    ("foo-bar.com",         False),   # hyphen
+    ("brnk.com",            False),   # no vowel
+    # ----- reject: not a dictionary word (or 2-word combo) -----
+    ("xyz.com",       False),   # not a real word
+    ("cirro.com",     False),   # rare term, below zipf 3.0 floor
+    ("ystrmchk.com",  False),   # gibberish
+    ("qrtyz.com",     False),   # gibberish (and no vowel)
 ])
 def test_passes_universe_filter(domain, expected):
     assert univ.passes_universe_filter(domain) is expected
 
 
-def test_filter_requires_vowel():
-    # all-consonant SLD should fail "require_vowel"
-    assert univ.passes_universe_filter("brnk.com") is False
+def test_is_one_or_two_dictionary_words_single():
+    assert univ.is_one_or_two_dictionary_words("table") is True
+    assert univ.is_one_or_two_dictionary_words("ocean") is True
+    assert univ.is_one_or_two_dictionary_words("queue") is True
+
+
+def test_is_one_or_two_dictionary_words_two_word():
+    assert univ.is_one_or_two_dictionary_words("freshcoffee") is True
+    assert univ.is_one_or_two_dictionary_words("bluebird") is True
+    assert univ.is_one_or_two_dictionary_words("cloudkitchen") is True
+
+
+def test_is_one_or_two_dictionary_words_rejects_coined():
+    assert univ.is_one_or_two_dictionary_words("cirro") is False
+    assert univ.is_one_or_two_dictionary_words("xpqzr") is False
+    assert univ.is_one_or_two_dictionary_words("qxwfb") is False
+
+
+def test_is_one_or_two_dictionary_words_rejects_non_alpha():
+    assert univ.is_one_or_two_dictionary_words("table7") is False
+    assert univ.is_one_or_two_dictionary_words("") is False
+
+
+def test_is_one_or_two_dictionary_words_respects_threshold():
+    # 'cirro' has zipf ~1.1; default threshold 3.0 rejects, but a very low
+    # threshold should pass it as a single-word match.
+    assert univ.is_one_or_two_dictionary_words("cirro", min_zipf=0.5) is True
+    assert univ.is_one_or_two_dictionary_words("cirro", min_zipf=3.0) is False
 
 
 def test_max_consonant_run_helper():

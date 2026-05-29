@@ -40,8 +40,14 @@ DEFAULT_OUTPUT_DIR = Path("data/universe")
 
 
 def collect_snapshots(today: str) -> tuple[list[dict], dict[str, int]]:
-    """Walk state/<source>/snapshot.json for every wired source and normalize
-    each listing into a universe row. Returns (rows, per-source counts)."""
+    """Walk every wired source's snapshot file and normalize each listing
+    into a universe row. Returns (rows, per-source counts).
+
+    Prefers `universe_snapshot.json` (broader, structural+dict-word filter
+    applied at source-write time, contains everything universe should
+    consider) when present. Falls back to `snapshot.json` (which is the
+    SNAP-filtered output used for Slack/Sheets) for sources that haven't
+    been migrated to write a separate universe snapshot yet."""
     reg = config.load_registry()
     counts: dict[str, int] = {}
     all_rows: list[dict] = []
@@ -50,7 +56,10 @@ def collect_snapshots(today: str) -> tuple[list[dict], dict[str, int]]:
         if not s.get("enabled", True):
             continue
         sid = s["source_id"]
-        snapshot = state.read_json(sid, "snapshot.json", default=None)
+        # Prefer the broader universe snapshot when the source writes one.
+        snapshot = state.read_json(sid, "universe_snapshot.json", default=None)
+        if snapshot is None:
+            snapshot = state.read_json(sid, "snapshot.json", default=None)
         if not snapshot:
             continue
         # snapshot might be a list of dicts (listings) or a dict with 'items'.
