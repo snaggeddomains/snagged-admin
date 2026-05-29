@@ -289,11 +289,50 @@ def fetch_html_via_cf_browser_rendering(url: str) -> str:
     )
 
 
+def fetch_html_via_scrape_do(url: str) -> str:
+    """Fetch via scrape.do. Uses render=true (JS) + super=true (residential
+    super proxies) since NameJet is JS-heavy + CF-protected. Returns the
+    rendered HTML directly. Requires SCRAPE_DO_TOKEN."""
+    import requests as _r
+
+    token = os.environ.get("SCRAPE_DO_TOKEN")
+    if not token:
+        raise RuntimeError("SCRAPE_DO_TOKEN not set")
+    params = {
+        "token": token,
+        "url": url,
+        "render": "true",
+        "super": "true",
+        "geoCode": "us",
+    }
+    resp = _r.get("https://api.scrape.do/", params=params, timeout=180)
+    resp.raise_for_status()
+    return resp.text
+
+
 def fetch_html(url: str, *, timeout_ms: int = 60_000) -> str:
-    """Two-stage fetch: direct Playwright first, CF Browser Rendering as
-    automatic fallback if the direct response shows the Cloudflare
-    challenge markers.
+    """Tiered fetch:
+
+      1. scrape.do (if SCRAPE_DO_TOKEN set) — purpose-built for CF bypass.
+         Tried first when available; no Playwright cost when this works.
+      2. Direct Playwright from the GH Actions runner — fastest if NameJet
+         hasn't tightened its rules.
+      3. Cloudflare Browser Rendering — proxies through CF's own browser
+         (if CF_BROWSER_ACCOUNT_ID + CF_BROWSER_API_TOKEN are set).
+
+    Returns the first non-challenge HTML response. Raises
+    CloudflareChallengeError if every available path was challenged.
     """
+    if os.environ.get("SCRAPE_DO_TOKEN"):
+        print("        attempting via scrape.do (super proxies)")
+        try:
+            html = fetch_html_via_scrape_do(url)
+            if not is_cloudflare_challenge(html):
+                return html
+            print("        scrape.do returned a challenge page; falling back")
+        except Exception as e:
+            print(f"        scrape.do attempt failed: {e}; falling back")
+
     html = fetch_html_via_playwright(url, timeout_ms=timeout_ms)
     if is_cloudflare_challenge(html):
         print("        WARN direct Playwright got Cloudflare challenge; "
