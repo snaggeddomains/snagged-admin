@@ -1,0 +1,18 @@
+[
+  {
+    "currency": "USD",
+    "domain": "rudolph.com",
+    "end_time_utc": "2026-05-28T22:36:43+00:00",
+    "price": 380000.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=rudolph.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "candid.ai",
+    "end_time_utc": "2026-05-28T19:02:21+00:00",
+    "price": 175000.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=candid.ai"
+  }
+]
