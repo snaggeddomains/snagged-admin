@@ -263,6 +263,6 @@ sources:
 
   - source_id: efty_partner
     product: snap
-    kind: api_export
+    kind: csv_dump
     schedule_utc: "0 21 * * *"     # ~5:00 PM ET
     enabled: true
