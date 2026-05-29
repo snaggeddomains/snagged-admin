@@ -41,8 +41,8 @@ BASE_TARGET = (
     "&bidorbuyinclude=1"
 )
 DEFAULT_ROWS_PER_PAGE = 250
-MAX_PAGES = 6  # safety cap; 250 * 6 = 1500 listings, well over last-chance set
-HOURS_AHEAD = 24  # last-chance means closing within 24h
+MAX_PAGES = 12  # safety cap; 250 * 12 = 3000 listings, well over the 72h window
+HOURS_AHEAD = 72  # everything closing within 72h
 
 # Statuses the legacy filter accepted (from domain_filters.ALLOWED_STATUSES)
 ALLOWED_STATUSES = {"In Auction", "Pre-Release", "Available Soon"}
@@ -122,8 +122,16 @@ def parse_countdown(text: str, *, now_utc: datetime) -> datetime | None:
     return None
 
 
-def parse_rows(html: str, *, now: datetime | None = None) -> list[dict[str, Any]]:
-    """Extract auction rows from a NameJet exclusive-storefront page."""
+def parse_rows(html: str, *, now: datetime | None = None) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Extract auction rows from a NameJet exclusive-storefront page.
+
+    Returns (qualifying_rows, meta) where meta has:
+      - raw_rows: total tbody rows on the page (0 means end of pagination)
+      - last_closing_dt: closing datetime of the latest row on the page,
+        or None if we couldn't parse it. Pagination uses this to decide
+        when we've covered the horizon.
+      - drops: per-stage counts for diagnostics.
+    """
     from bs4 import BeautifulSoup
 
     if is_cloudflare_challenge(html):
@@ -138,52 +146,34 @@ def parse_rows(html: str, *, now: datetime | None = None) -> list[dict[str, Any]
     soup = BeautifulSoup(html, "lxml")
     now = now or datetime.now(timezone.utc)
     out: list[dict[str, Any]] = []
-    drop_no_link = 0
-    drop_filter = 0
-    drop_status = 0
-    drop_no_closing = 0
-    drop_out_of_horizon = 0
-    seen_statuses: dict[str, int] = {}
+    drops = {"no_link": 0, "filter": 0, "bad_status": 0, "no_closing": 0, "out_of_horizon": 0}
+    last_closing_dt: datetime | None = None
     rows = soup.select("#searchTable tbody tr")
-    print(f"        selector '#searchTable tbody tr' matched {len(rows)} rows")
-    first_row_sample_dumped = False
     for tr in rows:
         a = tr.find("a")
         if not a:
-            drop_no_link += 1
+            drops["no_link"] += 1
             continue
         domain = a.get_text(strip=True).lower()
         if not flt.allow_domain(domain):
-            if not first_row_sample_dumped:
-                anchors = [
-                    (x.get_text(strip=True), x.get("href"))
-                    for x in tr.find_all("a")[:6]
-                ]
-                tds = [
-                    (td.get("class"), td.get_text(" ", strip=True)[:60])
-                    for td in tr.find_all("td")[:8]
-                ]
-                print(f"        SAMPLE row 1 first_a_text={domain!r}")
-                print(f"        SAMPLE row 1 anchors (text, href): {anchors}")
-                print(f"        SAMPLE row 1 td classes+text: {tds}")
-                first_row_sample_dumped = True
-            drop_filter += 1
+            drops["filter"] += 1
             continue
         status_cell = tr.find("td", class_="status")
         status = status_cell.get_text(strip=True) if status_cell else ""
-        seen_statuses[status] = seen_statuses.get(status, 0) + 1
         if status not in ALLOWED_STATUSES:
-            drop_status += 1
+            drops["bad_status"] += 1
             continue
         closing_cell = tr.find("td", class_="dtOrderBy")
         closing_text = closing_cell.get_text(" ", strip=True) if closing_cell else ""
         closing_dt = parse_countdown(closing_text, now_utc=now)
         if closing_dt is None:
-            drop_no_closing += 1
+            drops["no_closing"] += 1
             continue
+        if last_closing_dt is None or closing_dt > last_closing_dt:
+            last_closing_dt = closing_dt
         hours_to_close = (closing_dt - now).total_seconds() / 3600
         if hours_to_close < 0 or hours_to_close > HOURS_AHEAD:
-            drop_out_of_horizon += 1
+            drops["out_of_horizon"] += 1
             continue
         min_bid_el = tr.find("span", class_="resultsMinimumBid")
         bidders_el = tr.find("div", class_="biddersCount")
@@ -196,16 +186,9 @@ def parse_rows(html: str, *, now: datetime | None = None) -> list[dict[str, Any]
             "link": f"https://www.namejet.com/domain/{domain}.action",
             "status": status,
         })
-    print(
-        f"        drops: no_link={drop_no_link} "
-        f"filter={drop_filter} bad_status={drop_status} "
-        f"no_closing={drop_no_closing} out_of_horizon={drop_out_of_horizon}"
-    )
-    if seen_statuses:
-        statuses_str = ", ".join(f"{s!r}={c}" for s, c in sorted(seen_statuses.items()))
-        print(f"        statuses seen: {statuses_str}")
     out.sort(key=lambda x: x["end_time_utc"])
-    return out
+    meta = {"raw_rows": len(rows), "last_closing_dt": last_closing_dt, "drops": drops}
+    return out, meta
 
 
 # ---------- Playwright fetch ----------
@@ -418,29 +401,36 @@ def run() -> int:
         except Exception as e:
             print(f"        WARN raw cache write failed (non-fatal): {e}")
 
-        page_rows = parse_rows(html)
-        if not page_rows and page_idx == 0:
-            # Sanity check: did the fetched HTML actually contain the table
-            # markup at all? If not, the renderer returned before hydration.
-            table_present = "id=\"searchTable\"" in html or "id='searchTable'" in html
-            row_count_hint = html.count("<tr")
-            print(
-                f"        WARN page 1 parsed to 0 rows. "
-                f"searchTable in HTML: {table_present}, raw <tr count: {row_count_hint}. "
-                f"If the table is absent, the renderer returned pre-hydration; "
-                f"if it's present, the row schema may have changed."
-            )
+        page_rows, meta = parse_rows(html)
+        drops = meta["drops"]
+        print(
+            f"        raw rows: {meta['raw_rows']}  qualifying: {len(page_rows)}  "
+            f"drops: filter={drops['filter']} bad_status={drops['bad_status']} "
+            f"no_closing={drops['no_closing']} out_of_horizon={drops['out_of_horizon']}"
+        )
         # Dedupe across pages (results overlap sometimes)
         new_on_page = [r for r in page_rows if r["domain"] not in seen_domains]
         for r in new_on_page:
             seen_domains.add(r["domain"])
         all_rows.extend(new_on_page)
-        print(f"        page rows: {len(page_rows):,}  new this page: {len(new_on_page):,}  total: {len(all_rows):,}")
 
-        # Stop early if this page produced no new rows
-        if not new_on_page:
-            print(f"        no new rows; stopping pagination")
+        # Stop when (a) no raw rows came back (end of paginated results) or
+        # (b) the latest row on the page is already past our horizon — since
+        # NameJet sorts by closing date ascending, subsequent pages would all
+        # be beyond the horizon too. We do NOT early-stop on "0 qualifying"
+        # because the SLD-quality filter is uncorrelated with closing date.
+        if meta["raw_rows"] == 0:
+            print(f"        end of results; stopping pagination")
             break
+        last_close = meta["last_closing_dt"]
+        if last_close is not None:
+            hours_to_last = (last_close - datetime.now(timezone.utc)).total_seconds() / 3600
+            if hours_to_last > HOURS_AHEAD:
+                print(
+                    f"        page's latest closing is {hours_to_last:.1f}h out "
+                    f"(> {HOURS_AHEAD}h horizon); stopping pagination"
+                )
+                break
 
     print(f"[parse] Total qualifying last-chance auctions: {len(all_rows):,}")
     all_rows.sort(key=lambda r: r["end_time_utc"])
