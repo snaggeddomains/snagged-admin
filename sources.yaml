@@ -262,7 +262,7 @@ sources:
     slack_channel_for: snap
 
   - source_id: efty_partner
-    product: aux
+    product: snap
     kind: api_export
     schedule_utc: "0 21 * * *"     # ~5:00 PM ET
     enabled: true
