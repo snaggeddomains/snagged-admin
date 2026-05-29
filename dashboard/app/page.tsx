@@ -10,6 +10,8 @@ import {
   sourceModulePathFor,
   runWorkflowPage,
 } from "../lib/github-links";
+import { parseCron, etTimeLabel } from "../lib/cron";
+import KindPill from "./kind-pill";
 
 export const revalidate = 60;
 
@@ -63,8 +65,13 @@ function SourceRow({ s }: { s: SourceWithStatus }) {
         {s.source_id}
         {info.key === "todo" && <span className="todo-badge">todo</span>}
       </td>
-      <td className="muted">{s.kind}</td>
-      <td className="muted mono">{s.schedule_utc ?? "—"}</td>
+      <td><KindPill kind={s.kind} /></td>
+      <td className="muted">
+        {(() => {
+          const c = parseCron(s.schedule_utc);
+          return c ? etTimeLabel(c) : "—";
+        })()}
+      </td>
       <td className="muted">
         {s.runStatus ? relativeTime(s.runStatus.generated_at) : "—"}
       </td>
@@ -88,7 +95,7 @@ function SourceTable({ items }: { items: SourceWithStatus[] }) {
           <th style={{ width: 24 }}></th>
           <th>source_id</th>
           <th>kind</th>
-          <th>schedule (UTC)</th>
+          <th>schedule (ET)</th>
           <th>last run</th>
           <th className="right">new&nbsp;today</th>
           <th></th>
@@ -127,7 +134,7 @@ function ReferencesSection({ refs }: { refs: Reference[] }) {
           {refs.map((r) => (
             <tr key={r.ref_id}>
               <td className="mono">{r.ref_id}</td>
-              <td className="muted">{r.kind}</td>
+              <td><KindPill kind={r.kind} /></td>
               <td className="muted mono">{r.table ?? "—"}</td>
               <td className="muted">{r.cadence ?? "—"}</td>
             </tr>

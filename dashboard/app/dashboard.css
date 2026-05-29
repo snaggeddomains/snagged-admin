@@ -180,3 +180,25 @@ table.dash .num { text-align: right; font-variant-numeric: tabular-nums; white-s
 
 /* Mute opacity for TODO/disabled rows */
 tr.dim { opacity: 0.6; }
+
+/* Kind pills — colored chips that visually distinguish source kinds. */
+.pill {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.2px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.pill--csv          { background: #e0f2fe; color: #075985; border-color: #bae6fd; }
+.pill--api          { background: #dcfce7; color: #14532d; border-color: #bbf7d0; }
+.pill--doc          { background: #fef3c7; color: #78350f; border-color: #fde68a; }
+.pill--scrape       { background: #ffe4d3; color: #9a3412; border-color: #fed7aa; }
+.pill--drive        { background: #ede9fe; color: #4c1d95; border-color: #ddd6fe; }
+.pill--orchestrator { background: #e0e7ff; color: #1e1b4b; border-color: #c7d2fe; }
+.pill--postgres     { background: #ccfbf1; color: #115e59; border-color: #99f6e4; }
+.pill--default      { background: #f3f4f6; color: #374151; border-color: #e5e7eb; }

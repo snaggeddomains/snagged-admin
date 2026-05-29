@@ -1,5 +1,6 @@
 import { loadFullRegistry, type FilterProfile } from "../../lib/sources";
 import { editFile, viewFile, sourceModulePathFor } from "../../lib/github-links";
+import KindPill from "../kind-pill";
 
 export const revalidate = 60;
 
@@ -238,7 +239,7 @@ export default async function ConfigPage() {
               <tr key={s.source_id}>
                 <td className="mono">{s.source_id}</td>
                 <td className="muted">{PRODUCT_LABEL[s.product] ?? s.product}</td>
-                <td className="muted">{s.kind}</td>
+                <td><KindPill kind={s.kind} /></td>
                 <td className="right">
                   <a
                     href={viewFile(sourceModulePathFor(s.source_id))}

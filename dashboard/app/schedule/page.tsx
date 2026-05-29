@@ -1,69 +1,9 @@
 import { loadFullRegistry, type Source } from "../../lib/sources";
 import { editFile, workflowPathFor, runWorkflowPage } from "../../lib/github-links";
+import { parseCron, etTimeLabel, type ParsedCron } from "../../lib/cron";
+import KindPill from "../kind-pill";
 
 export const revalidate = 60;
-
-interface ParsedCron {
-  raw: string;
-  minute: string;
-  hour: string;
-  human: string;
-  hourSortKey: number | null;
-}
-
-function parseCron(raw: string | undefined): ParsedCron | null {
-  if (!raw) return null;
-  const parts = raw.trim().split(/\s+/);
-  if (parts.length < 5)
-    return { raw, minute: "?", hour: "?", human: raw, hourSortKey: null };
-  const [m, h] = parts;
-
-  let human: string;
-  let hourSortKey: number | null = null;
-
-  if (/^\*\/\d+$/.test(m) && /^\d+-\d+$/.test(h)) {
-    const step = m.match(/^\*\/(\d+)$/)?.[1] ?? "?";
-    const range = h.match(/^(\d+)-(\d+)$/);
-    const hStart = range ? Number(range[1]) : null;
-    const hEnd = range ? range[2] : "?";
-    human = `every ${step} min, ${hStart ?? "?"}:00–${hEnd}:59 UTC`;
-    hourSortKey = hStart;
-  } else if (h.includes(",")) {
-    const hours = h.split(",").map((x) => x.trim());
-    const minN = m === "0" ? "00" : m.padStart(2, "0");
-    human = hours.map((hh) => `${hh.padStart(2, "0")}:${minN} UTC`).join(", ");
-    const firstHour = Number(hours[0]);
-    hourSortKey = Number.isFinite(firstHour) ? firstHour : null;
-  } else if (/^\d+$/.test(m) && /^\d+$/.test(h)) {
-    human = `${h.padStart(2, "0")}:${m.padStart(2, "0")} UTC`;
-    hourSortKey = Number(h);
-  } else {
-    human = raw;
-  }
-
-  return { raw, minute: m, hour: h, human, hourSortKey };
-}
-
-/** Format a UTC time as Eastern Time, picking EDT or EST automatically
- *  based on whether NY is currently observing DST at render time. */
-function etTimeLabel(cron: ParsedCron): string {
-  // For multi-fire crons we still render only the first occurrence's time
-  // here — the human-readable cron expression below shows the full set.
-  const utcHour = cron.hourSortKey;
-  if (utcHour == null) return cron.human;
-  const minN = /^\d+$/.test(cron.minute) ? Number(cron.minute) : 0;
-  const today = new Date();
-  const utcDate = new Date(
-    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), utcHour, minN, 0),
-  );
-  return new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/New_York",
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-    timeZoneName: "short",
-  }).format(utcDate);
-}
 
 function ScheduleRow({ s }: { s: Source }) {
   const cron = parseCron(s.schedule_utc);
@@ -73,7 +13,7 @@ function ScheduleRow({ s }: { s: Source }) {
     <tr>
       <td style={{ width: 140, whiteSpace: "nowrap", fontWeight: 600 }}>{et}</td>
       <td className="mono">{s.source_id}</td>
-      <td className="muted">{s.kind}</td>
+      <td><KindPill kind={s.kind} /></td>
       <td className="right" style={{ whiteSpace: "nowrap" }}>
         <a
           href={runWorkflowPage(s.source_id)}
@@ -187,7 +127,7 @@ export default async function SchedulePage() {
                 <tr key={s.source_id}>
                   <td className="mono">{s.source_id}</td>
                   <td className="muted">{s.product}</td>
-                  <td className="muted">{s.kind}</td>
+                  <td><KindPill kind={s.kind} /></td>
                 </tr>
               ))}
             </tbody>
