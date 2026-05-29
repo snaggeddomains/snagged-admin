@@ -1,5 +1,6 @@
 // Shared cron parsing + ET formatting for the dashboard.
-// Cron expressions in sources.yaml are UTC; users want to see ET.
+// Cron expressions in sources.yaml are UTC; users want to see ET
+// (EDT/EST is resolved automatically via Intl.DateTimeFormat).
 
 export interface ParsedCron {
   raw: string;
