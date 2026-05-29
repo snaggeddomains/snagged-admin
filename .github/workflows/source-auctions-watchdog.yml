@@ -35,6 +35,8 @@ jobs:
           DYNADOT_API_KEY:             ${{ secrets.DYNADOT_API_KEY }}
           DYNADOT_API_SECRET:          ${{ secrets.DYNADOT_API_SECRET }}
           NAMESILO_API_KEY:            ${{ secrets.NAMESILO_API_KEY }}
+          CF_BROWSER_ACCOUNT_ID:       ${{ secrets.CF_BROWSER_ACCOUNT_ID }}
+          CF_BROWSER_API_TOKEN:        ${{ secrets.CF_BROWSER_API_TOKEN }}
         run: pipeline run auctions_watchdog
 
       - name: Commit state changes

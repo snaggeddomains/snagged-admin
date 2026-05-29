@@ -1,17 +1,18 @@
-"""NameJet last-chance auctions (direct Playwright scrape).
+"""NameJet last-chance auctions (Playwright -> Cloudflare Browser Rendering fallback).
 
-Port of legacy/openclaw/scripts/namejet_lastchance_scraper.py, replacing
-the legacy Cloudflare Browser Rendering API path with a direct Playwright
-fetch from GitHub Actions runners. NameJet sits behind Cloudflare bot
-management; if the request gets challenged, we detect the
-'Just a moment...' / challenges.cloudflare.com markers in the response
-and fail with a clear error, instead of silently writing a junk snapshot.
+Port of legacy/openclaw/scripts/namejet_lastchance_scraper.py. NameJet sits
+behind Cloudflare bot management, so we try two paths in order:
 
-If direct scraping is blocked, the user has two options:
-  (a) Wire CF_BROWSER_ACCOUNT_ID + CF_BROWSER_API_TOKEN as secrets and we
-      add a fallback path that proxies through Cloudflare Browser Rendering.
-  (b) Continue using drive_auction_uploads as the NameJet ingestion path
-      (currently doing the same job via manual exports).
+  1. Direct Playwright fetch from the GH Actions runner (free, fast when
+     it works).
+  2. If the response contains Cloudflare's challenge markers
+     ('Just a moment...' + 'challenges.cloudflare.com') AND
+     CF_BROWSER_ACCOUNT_ID + CF_BROWSER_API_TOKEN are set, fall back to
+     the Cloudflare Browser Rendering API which proxies through their
+     own infrastructure (Cloudflare can't block itself).
+
+If both fail, raise CloudflareChallengeError with a clear next-step
+message instead of silently writing a junk snapshot.
 """
 from __future__ import annotations
 
@@ -173,8 +174,8 @@ def parse_rows(html: str, *, now: datetime | None = None) -> list[dict[str, Any]
 
 # ---------- Playwright fetch ----------
 
-def fetch_html(url: str, *, timeout_ms: int = 60_000) -> str:
-    """Render one NameJet page via headless Chromium."""
+def fetch_html_via_playwright(url: str, *, timeout_ms: int = 60_000) -> str:
+    """Render one NameJet page via headless Chromium (direct, free path)."""
     from playwright.sync_api import sync_playwright
 
     with sync_playwright() as p:
@@ -182,16 +183,83 @@ def fetch_html(url: str, *, timeout_ms: int = 60_000) -> str:
         try:
             page = browser.new_page()
             page.goto(url, wait_until="domcontentloaded", timeout=timeout_ms)
-            # Try to wait for the search table; if Cloudflare challenge, this
-            # will timeout and we'll handle below.
             try:
                 page.wait_for_selector("#searchTable tbody tr", timeout=20_000)
             except Exception:
+                # Probably challenged; let parse_rows surface the markers.
                 pass
             page.wait_for_timeout(3000)
             html = page.content()
         finally:
             browser.close()
+    return html
+
+
+def fetch_html_via_cf_browser_rendering(url: str) -> str:
+    """Proxy the request through Cloudflare's Browser Rendering API.
+
+    Requires CF_BROWSER_ACCOUNT_ID + CF_BROWSER_API_TOKEN env vars.
+    Endpoint: api.cloudflare.com/client/v4/accounts/<id>/browser-rendering/content
+    Free tier (Workers Free) covers ~333 sessions/day — plenty for a daily run.
+    """
+    import requests as _r
+
+    account_id = os.environ.get("CF_BROWSER_ACCOUNT_ID")
+    api_token = os.environ.get("CF_BROWSER_API_TOKEN")
+    if not (account_id and api_token):
+        raise CloudflareChallengeError(
+            "Direct Playwright was challenged AND CF_BROWSER_ACCOUNT_ID / "
+            "CF_BROWSER_API_TOKEN are not set. Add the Cloudflare Browser "
+            "Rendering secrets to fall back automatically."
+        )
+    endpoint = (
+        f"https://api.cloudflare.com/client/v4/accounts/{account_id}"
+        f"/browser-rendering/content"
+    )
+    body = {
+        "url": url,
+        "waitForSelector": {"selector": "#searchTable tbody tr", "timeout": 45000},
+        "gotoOptions": {"waitUntil": "domcontentloaded"},
+        "waitForTimeout": 5000,
+        "bestAttempt": True,
+    }
+    resp = _r.post(
+        endpoint,
+        headers={
+            "Authorization": f"Bearer {api_token}",
+            "Content-Type": "application/json",
+        },
+        json=body,
+        timeout=120,
+    )
+    if resp.status_code >= 400:
+        raise RuntimeError(
+            f"Cloudflare Browser Rendering HTTP {resp.status_code}: "
+            f"{resp.text[:500]}"
+        )
+    payload = resp.json()
+    if not payload.get("success"):
+        raise RuntimeError(
+            f"Cloudflare Browser Rendering returned error: {payload.get('errors')}"
+        )
+    return payload["result"]
+
+
+def fetch_html(url: str, *, timeout_ms: int = 60_000) -> str:
+    """Two-stage fetch: direct Playwright first, CF Browser Rendering as
+    automatic fallback if the direct response shows the Cloudflare
+    challenge markers.
+    """
+    html = fetch_html_via_playwright(url, timeout_ms=timeout_ms)
+    if is_cloudflare_challenge(html):
+        print("        WARN direct Playwright got Cloudflare challenge; "
+              "falling back to CF Browser Rendering")
+        html = fetch_html_via_cf_browser_rendering(url)
+        if is_cloudflare_challenge(html):
+            raise CloudflareChallengeError(
+                "Cloudflare Browser Rendering also returned a challenge page. "
+                "Token may need broader scope or the endpoint may be down."
+            )
     return html
 
 

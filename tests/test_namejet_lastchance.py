@@ -161,3 +161,75 @@ def test_parse_rows_handles_pre_release_status():
     out = src.parse_rows(html, now=now)
     assert len(out) == 1
     assert out[0]["status"] == "Pre-Release"
+
+
+# ---------- Cloudflare Browser Rendering fallback ----------
+
+def test_fetch_via_cf_raises_when_creds_missing(monkeypatch):
+    monkeypatch.delenv("CF_BROWSER_ACCOUNT_ID", raising=False)
+    monkeypatch.delenv("CF_BROWSER_API_TOKEN", raising=False)
+    with pytest.raises(src.CloudflareChallengeError, match="CF_BROWSER"):
+        src.fetch_html_via_cf_browser_rendering("https://x")
+
+
+def test_fetch_via_cf_posts_to_account_endpoint(monkeypatch):
+    captured = {}
+
+    class _Resp:
+        status_code = 200
+        text = ""
+        def json(_self):
+            return {"success": True, "result": "<html>OK</html>"}
+
+    def _post(url, *, headers, json, timeout):
+        captured["url"] = url
+        captured["headers"] = headers
+        captured["body"] = json
+        return _Resp()
+
+    monkeypatch.setenv("CF_BROWSER_ACCOUNT_ID", "acc123")
+    monkeypatch.setenv("CF_BROWSER_API_TOKEN", "tok456")
+    import requests as r
+    monkeypatch.setattr(r, "post", _post)
+
+    out = src.fetch_html_via_cf_browser_rendering("https://target")
+    assert out == "<html>OK</html>"
+    assert "acc123" in captured["url"]
+    assert "browser-rendering/content" in captured["url"]
+    assert captured["headers"]["Authorization"] == "Bearer tok456"
+    assert captured["body"]["url"] == "https://target"
+
+
+def test_fetch_via_cf_raises_on_unsuccessful_response(monkeypatch):
+    class _Resp:
+        status_code = 200
+        text = ""
+        def json(_self):
+            return {"success": False, "errors": ["denied"]}
+
+    monkeypatch.setenv("CF_BROWSER_ACCOUNT_ID", "acc")
+    monkeypatch.setenv("CF_BROWSER_API_TOKEN", "tok")
+    import requests as r
+    monkeypatch.setattr(r, "post", lambda *_a, **_kw: _Resp())
+
+    with pytest.raises(RuntimeError, match="error"):
+        src.fetch_html_via_cf_browser_rendering("https://x")
+
+
+def test_fetch_html_falls_back_to_cf_on_challenge(monkeypatch):
+    """fetch_html sees CF challenge from Playwright, falls back to CF API."""
+    challenge_html = "<html>Just a moment...<script src='challenges.cloudflare.com'></script></html>"
+    good_html = "<html><body>real content</body></html>"
+
+    monkeypatch.setattr(src, "fetch_html_via_playwright", lambda *_a, **_kw: challenge_html)
+    monkeypatch.setattr(src, "fetch_html_via_cf_browser_rendering", lambda *_a, **_kw: good_html)
+
+    out = src.fetch_html("https://x")
+    assert out == good_html
+
+
+def test_fetch_html_returns_playwright_html_when_no_challenge(monkeypatch):
+    good_html = "<html><body>real content</body></html>"
+    monkeypatch.setattr(src, "fetch_html_via_playwright", lambda *_a, **_kw: good_html)
+    out = src.fetch_html("https://x")
+    assert out == good_html

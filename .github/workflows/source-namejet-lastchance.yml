@@ -28,6 +28,8 @@ jobs:
           SLACK_BOT_TOKEN:             ${{ secrets.SLACK_BOT_TOKEN }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           SLACK_CHANNEL_AUCTIONS:      ${{ vars.SLACK_CHANNEL_AUCTIONS }}
+          CF_BROWSER_ACCOUNT_ID:       ${{ secrets.CF_BROWSER_ACCOUNT_ID }}
+          CF_BROWSER_API_TOKEN:        ${{ secrets.CF_BROWSER_API_TOKEN }}
         run: pipeline run namejet_lastchance
 
       - name: Commit state changes
