@@ -1,0 +1,20 @@
+{
+  "dry_run": true,
+  "generated_at": "2026-05-29T19:38:31.728851+00:00",
+  "label": "Universe sync",
+  "merged_rows": 2712,
+  "observed_date": "2026-05-29",
+  "output_path": "data/universe/observations_2026-05-29.parquet",
+  "per_source_counts": {
+    "afternic": 475,
+    "atom_daily": 1926,
+    "efty_partner": 245,
+    "namecheap_auctions": 43,
+    "namecheap_bin": 89
+  },
+  "r2_target": null,
+  "raw_rows": 2778,
+  "rows_written": 0,
+  "source": "universe_sync",
+  "status": "ok"
+}

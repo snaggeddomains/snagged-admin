@@ -1,33 +1,40 @@
 """Universe ingest filter.
 
-Looser than the daily SNAP filter (standard_listings) — picks what enters
-the Tier 3 name universe used for brand-naming workflows. Mirrors the
-universe_ingest profile in sources.yaml so the YAML stays the operational
-truth and this module enforces it.
+The broad filter that decides which names are admitted into the Tier 3
+name universe — the searchable pool the brand-naming workflows query
+against. Intentionally permissive: we only reject structural junk
+(numbers, hyphens, no vowel at all). All quality-based ranking
+(zipf, length, category fit, price) is applied later by the naming
+exercise, not here.
 
-Rules (from sources.yaml):
-  - TLDs in {.com .ai .io .co .net .org .xyz .app .dev}
+Mirrors the universe_ingest profile in sources.yaml so YAML stays the
+operational truth and this module enforces it.
+
+Rules:
+  - TLDs in {.com .co .ai .net .xyz .dev .org}
   - SLD length 2-14
   - No digits in SLD
   - No hyphens in SLD
-  - At least one vowel
-  - Max 4 consecutive consonants
+  - At least one vowel (rejects pure keyboard-mash)
 """
 from __future__ import annotations
 
 from . import standard as flt
 
 ALLOWED_TLDS: tuple[str, ...] = (
-    ".com", ".ai", ".io", ".co", ".net", ".org", ".xyz", ".app", ".dev",
+    ".com", ".co", ".ai", ".net", ".xyz", ".dev", ".org",
 )
 SLD_LEN_MIN = 2
 SLD_LEN_MAX = 14
 VOWELS = frozenset("aeiouy")
-MAX_CONSONANT_RUN = 4
 
 
 def max_consonant_run(sld: str) -> int:
-    """Return the longest run of consecutive consonants in sld."""
+    """Return the longest run of consecutive consonants in sld.
+
+    Retained as a utility (used by some downstream scoring) but no longer
+    enforced as a filter rule — the universe is meant to be broad.
+    """
     run = 0
     longest = 0
     for c in sld.lower():
@@ -51,7 +58,5 @@ def passes_universe_filter(domain: str) -> bool:
     if "-" in sld:
         return False
     if not any(c in VOWELS for c in sld.lower()):
-        return False
-    if max_consonant_run(sld) > MAX_CONSONANT_RUN:
         return False
     return True

@@ -15,17 +15,19 @@ from marketplace_pipeline.tools import universe_sync
 
 @pytest.mark.parametrize("domain,expected", [
     ("table.com",   True),
-    ("ocean.io",    True),
+    ("brand.ai",    True),
     ("hello.xyz",   True),
-    ("brand.app",   True),
+    ("brand.dev",   True),
+    ("hello.co",    True),
     ("xyz.com",     True),     # 3-letter SLD allowed
     ("trash.tv",    False),    # disallowed TLD
-    ("foo.app",     True),
+    ("ocean.io",    False),    # .io was dropped from universe
+    ("brand.app",   False),    # .app was dropped from universe
     ("a.com",       False),    # SLD too short (1 char)
     ("abcdefghijklmno.com", False),  # SLD too long (15 chars)
     ("table7.com",  False),    # digit in SLD
     ("foo-bar.com", False),    # hyphen
-    ("xyz.com",     True),     # short enough
+    ("ystrmchk.com", True),    # 7-consonant run allowed now (broad universe)
 ])
 def test_passes_universe_filter(domain, expected):
     assert univ.passes_universe_filter(domain) is expected
@@ -34,11 +36,6 @@ def test_passes_universe_filter(domain, expected):
 def test_filter_requires_vowel():
     # all-consonant SLD should fail "require_vowel"
     assert univ.passes_universe_filter("brnk.com") is False
-
-
-def test_filter_max_consonant_run():
-    # "schtrm" has 6 consecutive consonants — fails max 4 rule
-    assert univ.passes_universe_filter("schtrmp.com") is False
 
 
 def test_max_consonant_run_helper():
