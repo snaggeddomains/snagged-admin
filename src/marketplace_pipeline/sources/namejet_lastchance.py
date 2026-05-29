@@ -291,8 +291,9 @@ def fetch_html_via_cf_browser_rendering(url: str) -> str:
 
 def fetch_html_via_scrape_do(url: str) -> str:
     """Fetch via scrape.do. Uses render=true (JS) + super=true (residential
-    super proxies) since NameJet is JS-heavy + CF-protected. Returns the
-    rendered HTML directly. Requires SCRAPE_DO_TOKEN."""
+    super proxies) since NameJet is JS-heavy + CF-protected. waitSelector
+    holds the response until #searchTable tbody tr is in the DOM so we
+    don't get the pre-hydration shell back. Requires SCRAPE_DO_TOKEN."""
     import requests as _r
 
     token = os.environ.get("SCRAPE_DO_TOKEN")
@@ -304,6 +305,9 @@ def fetch_html_via_scrape_do(url: str) -> str:
         "render": "true",
         "super": "true",
         "geoCode": "us",
+        "waitUntil": "networkidle0",
+        "waitSelector": "#searchTable tbody tr",
+        "customWait": "5000",
     }
     resp = _r.get("https://api.scrape.do/", params=params, timeout=180)
     resp.raise_for_status()
@@ -379,6 +383,17 @@ def run() -> int:
             print(f"        WARN raw cache write failed (non-fatal): {e}")
 
         page_rows = parse_rows(html)
+        if not page_rows and page_idx == 0:
+            # Sanity check: did the fetched HTML actually contain the table
+            # markup at all? If not, the renderer returned before hydration.
+            table_present = "id=\"searchTable\"" in html or "id='searchTable'" in html
+            row_count_hint = html.count("<tr")
+            print(
+                f"        WARN page 1 parsed to 0 rows. "
+                f"searchTable in HTML: {table_present}, raw <tr count: {row_count_hint}. "
+                f"If the table is absent, the renderer returned pre-hydration; "
+                f"if it's present, the row schema may have changed."
+            )
         # Dedupe across pages (results overlap sometimes)
         new_on_page = [r for r in page_rows if r["domain"] not in seen_domains]
         for r in new_on_page:
