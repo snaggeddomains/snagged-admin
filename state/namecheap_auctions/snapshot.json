@@ -16,12 +16,20 @@
     "price": 400.0
   },
   {
-    "bid_count": 15,
+    "bid_count": 17,
     "domain": "gush.ai",
     "end_time_utc": "2026-05-29T15:00:00+00:00",
     "link": "https://www.namecheap.com/market/sale/9purc7mFobJp8nhMKjZkBP/",
     "platform": "Namecheap",
-    "price": 610.0
+    "price": 630.0
+  },
+  {
+    "bid_count": 1,
+    "domain": "kafka.co",
+    "end_time_utc": "2026-05-29T15:00:00+00:00",
+    "link": "https://www.namecheap.com/market/sale/rEFHu2hwkBfjhbrTsSN7bL/",
+    "platform": "Namecheap",
+    "price": 15.0
   },
   {
     "bid_count": 0,
@@ -76,14 +84,6 @@
     "domain": "coercive.co",
     "end_time_utc": "2026-05-29T15:00:00+00:00",
     "link": "https://www.namecheap.com/market/sale/ofwu6bTkhV7SbwkTuCKqva/",
-    "platform": "Namecheap",
-    "price": 15.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "kafka.co",
-    "end_time_utc": "2026-05-29T15:00:00+00:00",
-    "link": "https://www.namecheap.com/market/sale/rEFHu2hwkBfjhbrTsSN7bL/",
     "platform": "Namecheap",
     "price": 15.0
   },
@@ -160,12 +160,12 @@
     "price": 505.0
   },
   {
-    "bid_count": 9,
+    "bid_count": 11,
     "domain": "earning.ai",
     "end_time_utc": "2026-05-31T15:00:00+00:00",
     "link": "https://www.namecheap.com/market/sale/2dGCTfS53dYqHRpggBuGw3/",
     "platform": "Namecheap",
-    "price": 23.0
+    "price": 26.0
   },
   {
     "bid_count": 0,

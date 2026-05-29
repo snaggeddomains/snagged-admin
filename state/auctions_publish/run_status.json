@@ -1,9 +1,9 @@
 {
-  "detail": "6 ok, 1 failed",
-  "failed_count": 1,
-  "generated_at": "2026-05-29T00:55:00.559126+00:00",
+  "detail": "all ok",
+  "failed_count": 0,
+  "generated_at": "2026-05-29T12:53:16.002451+00:00",
   "label": "Auctions publish",
-  "ok_count": 6,
+  "ok_count": 9,
   "producers_run": 9,
   "slack_posted": true,
   "source": "auctions_publish",

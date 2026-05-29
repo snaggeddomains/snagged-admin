@@ -1,59 +1,56 @@
 [
   {
-    "detail": "not wired: No module named 'marketplace_pipeline.sources.dynadot_auctions'",
-    "generated_at": "2026-05-29T00:53:09.396771+00:00",
-    "label": "Dynadot Auctions",
-    "source": "dynadot_auctions",
-    "status": "skipped"
-  },
-  {
-    "generated_at": "2026-05-29T00:53:36.564253+00:00",
-    "label": "Namecheap",
-    "source": "namecheap_auctions",
-    "status": "ok"
-  },
-  {
-    "generated_at": "2026-05-29T00:53:40.850112+00:00",
-    "label": "Drive Uploads",
-    "source": "drive_auction_uploads",
-    "status": "ok"
-  },
-  {
-    "generated_at": "2026-05-29T00:53:59.693889+00:00",
-    "label": "DropCatch",
-    "source": "dropcatch_auctions",
-    "status": "ok"
-  },
-  {
-    "generated_at": "2026-05-29T00:54:07.886479+00:00",
+    "generated_at": "2026-05-29T12:47:11.476020+00:00",
     "label": "Park.io",
     "source": "parkio_auctions",
     "status": "ok"
   },
   {
-    "generated_at": "2026-05-29T00:54:21.279983+00:00",
+    "generated_at": "2026-05-29T12:47:30.057891+00:00",
+    "label": "Namecheap",
+    "source": "namecheap_auctions",
+    "status": "ok"
+  },
+  {
+    "generated_at": "2026-05-29T12:48:12.873793+00:00",
+    "label": "Dynadot",
+    "source": "dynadot_auctions",
+    "status": "ok"
+  },
+  {
+    "generated_at": "2026-05-29T12:48:29.769475+00:00",
+    "label": "DropCatch",
+    "source": "dropcatch_auctions",
+    "status": "ok"
+  },
+  {
+    "generated_at": "2026-05-29T12:48:41.062289+00:00",
     "label": "GoDaddy",
     "source": "godaddy_auctions",
     "status": "ok"
   },
   {
-    "detail": "not wired: No module named 'marketplace_pipeline.sources.namesilo_auctions'",
-    "generated_at": "2026-05-29T00:54:21.293848+00:00",
-    "label": "Namesilo Auctions",
+    "generated_at": "2026-05-29T12:49:14.411976+00:00",
+    "label": "NameSilo",
     "source": "namesilo_auctions",
-    "status": "skipped"
+    "status": "ok"
   },
   {
-    "generated_at": "2026-05-29T00:54:31.290849+00:00",
+    "generated_at": "2026-05-29T12:49:22.524549+00:00",
     "label": "Sedo Expired",
     "source": "sedo_expired_auctions",
     "status": "ok"
   },
   {
-    "detail": "NameJet returned a Cloudflare challenge page \u2014 direct scraping is blocked. Options: (a) add CF_BROWSER_ACCOUNT_ID + CF_BROWSER_API_TOKEN secrets and we'll add the CF Browser Rendering fallback, or (b) keep drive_auction_uploads as the NameJet ingestion path.",
-    "generated_at": "2026-05-29T00:55:00.224686+00:00",
+    "generated_at": "2026-05-29T12:49:26.424993+00:00",
+    "label": "Drive Uploads",
+    "source": "drive_auction_uploads",
+    "status": "ok"
+  },
+  {
+    "generated_at": "2026-05-29T12:53:15.606671+00:00",
     "label": "NameJet Last Chance",
     "source": "namejet_lastchance",
-    "status": "failed"
+    "status": "ok"
   }
 ]

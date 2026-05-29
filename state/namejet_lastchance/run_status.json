@@ -1,9 +1,9 @@
 {
   "deduped_against_existing": 0,
-  "generated_at": "2026-05-29T02:23:04.208842+00:00",
+  "generated_at": "2026-05-29T12:53:15.605908+00:00",
   "label": "NameJet Last Chance",
-  "new_count": 0,
-  "sheet_total_after": 11867,
+  "new_count": 1696,
+  "sheet_total_after": 13612,
   "slack_posted": false,
   "source": "namejet_lastchance",
   "status": "ok"
