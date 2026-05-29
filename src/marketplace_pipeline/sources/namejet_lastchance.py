@@ -138,24 +138,38 @@ def parse_rows(html: str, *, now: datetime | None = None) -> list[dict[str, Any]
     soup = BeautifulSoup(html, "lxml")
     now = now or datetime.now(timezone.utc)
     out: list[dict[str, Any]] = []
-    for tr in soup.select("#searchTable tbody tr"):
+    drop_no_link = 0
+    drop_filter = 0
+    drop_status = 0
+    drop_no_closing = 0
+    drop_out_of_horizon = 0
+    seen_statuses: dict[str, int] = {}
+    rows = soup.select("#searchTable tbody tr")
+    print(f"        selector '#searchTable tbody tr' matched {len(rows)} rows")
+    for tr in rows:
         a = tr.find("a")
         if not a:
+            drop_no_link += 1
             continue
         domain = a.get_text(strip=True).lower()
         if not flt.allow_domain(domain):
+            drop_filter += 1
             continue
         status_cell = tr.find("td", class_="status")
         status = status_cell.get_text(strip=True) if status_cell else ""
+        seen_statuses[status] = seen_statuses.get(status, 0) + 1
         if status not in ALLOWED_STATUSES:
+            drop_status += 1
             continue
         closing_cell = tr.find("td", class_="dtOrderBy")
         closing_text = closing_cell.get_text(" ", strip=True) if closing_cell else ""
         closing_dt = parse_countdown(closing_text, now_utc=now)
         if closing_dt is None:
+            drop_no_closing += 1
             continue
         hours_to_close = (closing_dt - now).total_seconds() / 3600
         if hours_to_close < 0 or hours_to_close > HOURS_AHEAD:
+            drop_out_of_horizon += 1
             continue
         min_bid_el = tr.find("span", class_="resultsMinimumBid")
         bidders_el = tr.find("div", class_="biddersCount")
@@ -168,6 +182,14 @@ def parse_rows(html: str, *, now: datetime | None = None) -> list[dict[str, Any]
             "link": f"https://www.namejet.com/domain/{domain}.action",
             "status": status,
         })
+    print(
+        f"        drops: no_link={drop_no_link} "
+        f"filter={drop_filter} bad_status={drop_status} "
+        f"no_closing={drop_no_closing} out_of_horizon={drop_out_of_horizon}"
+    )
+    if seen_statuses:
+        statuses_str = ", ".join(f"{s!r}={c}" for s, c in sorted(seen_statuses.items()))
+        print(f"        statuses seen: {statuses_str}")
     out.sort(key=lambda x: x["end_time_utc"])
     return out
 
