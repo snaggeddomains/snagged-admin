@@ -88,6 +88,22 @@ references:
       steady state; Phase 2 will add a vector(512) embedding column with
       HNSW index for semantic search.
 
+      Operational notes:
+        - The FDW server `snagged_master` MUST have
+          `use_remote_estimate 'true'` set, otherwise JOIN queries time
+          out because the planner assumes the remote table has no indexes
+          and chooses a sequential scan instead of a primary-key lookup.
+          Run after creating the foreign server:
+            ALTER SERVER snagged_master
+              OPTIONS (ADD use_remote_estimate 'true', ADD fetch_size '500');
+            ALTER FOREIGN TABLE master_domain_list
+              OPTIONS (ADD use_remote_estimate 'true');
+        - Foreign-table column types must match the source: `keywords`,
+          `emotions`, `root_words` are stored as comma-separated TEXT
+          in the source, not as text[]. Use `text` in the foreign DDL
+          and split with `string_to_array(col, ', ')` at query time
+          if you need array semantics.
+
 # Schedules are in UTC (GitHub Actions requirement). ET conversion:
 #   winter ET = UTC-5    summer ET = UTC-4
 # For now we use a single UTC time that's a tolerable fit year-round; revisit
