@@ -252,14 +252,13 @@ sources:
   # ===== Aux feeds =====
 
   - source_id: sedo_net_new
-    product: aux
+    product: snap
     kind: api_export
     schedule_utc: "0 10,17,23 * * *"
     enabled: true
     sheet_destinations:
       - tab: "Sedo Net-New"   # owned tab on the SNAP sheet
         mode: rebuild_owned_slice
-    slack_channel_for: snap
 
   - source_id: efty_partner
     product: snap
