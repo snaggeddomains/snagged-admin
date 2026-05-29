@@ -1,9 +1,9 @@
 {
   "dry_run": false,
-  "generated_at": "2026-05-29T20:39:11.900594+00:00",
+  "generated_at": "2026-05-29T20:42:02.134937+00:00",
   "label": "Universe sync",
   "merged_rows": 2712,
-  "new_count": 0,
+  "new_count": 2712,
   "observed_date": "2026-05-29",
   "output_path": "data/universe/observations_2026-05-29.parquet",
   "per_source_counts": {
@@ -18,6 +18,6 @@
   "rows_written": 2712,
   "source": "universe_sync",
   "status": "ok",
-  "supabase_rows_sent": 0,
-  "supabase_status": "skipped"
+  "supabase_rows_sent": 2712,
+  "supabase_status": "ok"
 }
