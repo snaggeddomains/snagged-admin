@@ -22,6 +22,7 @@ export interface Source {
   sheet_destinations?: SheetDestination[];
   slack_channel_for?: string;
   filters_profile?: string;
+  orchestrates?: string[];
 }
 
 export interface RunStatus {

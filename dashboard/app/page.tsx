@@ -53,12 +53,39 @@ function LinkOut({ href, label }: { href: string; label: string }) {
   );
 }
 
-function SourceRow({ s }: { s: SourceWithStatus }) {
+function scheduleCell(
+  s: SourceWithStatus,
+  orchestratorById: Map<string, SourceWithStatus>,
+): React.ReactNode {
+  const own = parseCron(s.schedule_utc);
+  if (own) return etTimeLabel(own);
+  const parent = orchestratorById.get(s.source_id);
+  const parentCron = parent && parseCron(parent.schedule_utc);
+  if (parent && parentCron) {
+    return (
+      <span title={`Triggered by ${parent.source_id}`}>
+        {etTimeLabel(parentCron)}
+        <span style={{ color: "var(--navy-3)", marginLeft: 6, fontSize: 12 }}>
+          via {parent.source_id}
+        </span>
+      </span>
+    );
+  }
+  return "—";
+}
+
+function SourceRow({
+  s,
+  orchestratorById,
+}: {
+  s: SourceWithStatus;
+  orchestratorById: Map<string, SourceWithStatus>;
+}) {
   const info = statusInfo(s);
   const dim = info.key === "todo" || info.key === "disabled";
   return (
     <tr className={dim ? "dim" : undefined}>
-      <td style={{ width: 24 }}>
+      <td>
         <span title={info.label} className={`dot dot--${info.key}`} />
       </td>
       <td className="mono">
@@ -66,12 +93,7 @@ function SourceRow({ s }: { s: SourceWithStatus }) {
         {info.key === "todo" && <span className="todo-badge">todo</span>}
       </td>
       <td><KindPill kind={s.kind} /></td>
-      <td className="muted">
-        {(() => {
-          const c = parseCron(s.schedule_utc);
-          return c ? etTimeLabel(c) : "—";
-        })()}
-      </td>
+      <td className="muted">{scheduleCell(s, orchestratorById)}</td>
       <td className="muted">
         {s.runStatus ? relativeTime(s.runStatus.generated_at) : "—"}
       </td>
@@ -87,12 +109,27 @@ function SourceRow({ s }: { s: SourceWithStatus }) {
   );
 }
 
-function SourceTable({ items }: { items: SourceWithStatus[] }) {
+function SourceTable({
+  items,
+  orchestratorById,
+}: {
+  items: SourceWithStatus[];
+  orchestratorById: Map<string, SourceWithStatus>;
+}) {
   return (
-    <table className="dash">
+    <table className="dash" style={{ tableLayout: "fixed", width: "100%" }}>
+      <colgroup>
+        <col style={{ width: 30 }} />
+        <col style={{ width: "22%" }} />
+        <col style={{ width: 130 }} />
+        <col style={{ width: "26%" }} />
+        <col style={{ width: 100 }} />
+        <col style={{ width: 110 }} />
+        <col />
+      </colgroup>
       <thead>
         <tr>
-          <th style={{ width: 24 }}></th>
+          <th></th>
           <th>source_id</th>
           <th>kind</th>
           <th>schedule (ET)</th>
@@ -103,7 +140,7 @@ function SourceTable({ items }: { items: SourceWithStatus[] }) {
       </thead>
       <tbody>
         {items.map((s) => (
-          <SourceRow key={s.source_id} s={s} />
+          <SourceRow key={s.source_id} s={s} orchestratorById={orchestratorById} />
         ))}
       </tbody>
     </table>
@@ -156,6 +193,17 @@ export default async function SourcesPage() {
     (byProduct[s.product] ||= []).push(s);
   }
 
+  // Map every orchestrated child source -> its orchestrator entry so the
+  // schedule column can inherit the orchestrator's cron.
+  const orchestratorById = new Map<string, SourceWithStatus>();
+  for (const parent of sources) {
+    if (parent.orchestrates?.length) {
+      for (const childId of parent.orchestrates) {
+        orchestratorById.set(childId, parent);
+      }
+    }
+  }
+
   const ORDER: Record<StatusKey, number> = {
     ok: 0, stale: 1, failed: 2, never_run: 3, disabled: 4, todo: 5,
   };
@@ -203,7 +251,7 @@ export default async function SourcesPage() {
               {PRODUCT_LABEL[product]}
               <span className="count">· {wired}/{items.length} wired</span>
             </h2>
-            <SourceTable items={items} />
+            <SourceTable items={items} orchestratorById={orchestratorById} />
           </section>
         );
       })}
