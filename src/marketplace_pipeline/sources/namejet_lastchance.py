@@ -146,6 +146,7 @@ def parse_rows(html: str, *, now: datetime | None = None) -> list[dict[str, Any]
     seen_statuses: dict[str, int] = {}
     rows = soup.select("#searchTable tbody tr")
     print(f"        selector '#searchTable tbody tr' matched {len(rows)} rows")
+    first_row_sample_dumped = False
     for tr in rows:
         a = tr.find("a")
         if not a:
@@ -153,6 +154,19 @@ def parse_rows(html: str, *, now: datetime | None = None) -> list[dict[str, Any]
             continue
         domain = a.get_text(strip=True).lower()
         if not flt.allow_domain(domain):
+            if not first_row_sample_dumped:
+                anchors = [
+                    (x.get_text(strip=True), x.get("href"))
+                    for x in tr.find_all("a")[:6]
+                ]
+                tds = [
+                    (td.get("class"), td.get_text(" ", strip=True)[:60])
+                    for td in tr.find_all("td")[:8]
+                ]
+                print(f"        SAMPLE row 1 first_a_text={domain!r}")
+                print(f"        SAMPLE row 1 anchors (text, href): {anchors}")
+                print(f"        SAMPLE row 1 td classes+text: {tds}")
+                first_row_sample_dumped = True
             drop_filter += 1
             continue
         status_cell = tr.find("td", class_="status")
