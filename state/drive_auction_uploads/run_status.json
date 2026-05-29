@@ -1,0 +1,19 @@
+{
+  "deduped_against_existing": 0,
+  "files": [
+    {
+      "modifiedTime": "2026-05-28T13:26:57.470Z",
+      "name": "28-5-26.csv",
+      "qualified_rows": 0
+    }
+  ],
+  "files_scanned": 1,
+  "generated_at": "2026-05-29T00:53:40.849129+00:00",
+  "label": "Drive Uploads",
+  "new_count": 0,
+  "rows_after_dedup": 0,
+  "sheet_total_after": 11867,
+  "slack_posted": false,
+  "source": "drive_auction_uploads",
+  "status": "ok"
+}
