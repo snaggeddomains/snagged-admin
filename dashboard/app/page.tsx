@@ -83,6 +83,7 @@ function SourceRow({
 }) {
   const info = statusInfo(s);
   const dim = info.key === "todo" || info.key === "disabled";
+  const showReason = (info.key === "todo" || info.key === "disabled") && s.reason;
   return (
     <tr className={dim ? "dim" : undefined}>
       <td>
@@ -91,6 +92,21 @@ function SourceRow({
       <td className="mono">
         {s.source_id}
         {info.key === "todo" && <span className="todo-badge">todo</span>}
+        {showReason && (
+          <div
+            style={{
+              fontFamily: "var(--font-body, system-ui)",
+              fontSize: 11,
+              color: "var(--navy-3)",
+              marginTop: 4,
+              maxWidth: 360,
+              whiteSpace: "normal",
+              lineHeight: 1.35,
+            }}
+          >
+            {s.reason}
+          </div>
+        )}
       </td>
       <td><KindPill kind={s.kind} /></td>
       <td className="muted">{scheduleCell(s, orchestratorById)}</td>
