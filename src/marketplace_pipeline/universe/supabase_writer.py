@@ -1,0 +1,87 @@
+"""Bulk upsert into the snagged-naming-universe Supabase `name_universe`
+table.
+
+Calls the `upsert_universe_rows(jsonb)` RPC function on the server side
+so the merge semantics (preserve `first_seen`, replace today's snapshot
+for everything else) happen in a single SQL statement per batch instead
+of N round-trips.
+
+Read SUPABASE_NAMING_URL + SUPABASE_NAMING_SERVICE_KEY from env. If
+either is missing, the upsert is skipped with a clear message — this
+lets local development still write Parquet without needing Supabase
+credentials.
+"""
+from __future__ import annotations
+
+import os
+from typing import Any
+
+BATCH_SIZE = 1_000
+
+
+def _client_or_none():
+    url = os.environ.get("SUPABASE_NAMING_URL")
+    key = os.environ.get("SUPABASE_NAMING_SERVICE_KEY")
+    if not (url and key):
+        return None
+    from supabase import create_client
+
+    return create_client(url, key)
+
+
+def merged_to_universe_row(merged: dict[str, Any]) -> dict[str, Any]:
+    """Convert a writer.merge_observations() row into the wire format
+    expected by the upsert_universe_rows RPC.
+
+    The RPC's input schema collapses the per-source price map into a
+    single (best_price, best_price_source) pair — we don't store the
+    full map server-side, only the cheapest current observation.
+    """
+    prices: dict[str, float] = merged.get("prices") or {}
+    if prices:
+        best_source, best_price = min(prices.items(), key=lambda kv: kv[1])
+    else:
+        best_source, best_price = None, None
+    return {
+        "domain": merged["domain"],
+        "sld": merged["sld"],
+        "tld": merged["tld"],
+        "sld_length": int(merged["sld_length"]),
+        "zipf_score": merged.get("zipf_score"),
+        "observed_date": merged["observed_date"],
+        "sources": list(merged.get("sources") or []),
+        "best_price": best_price,
+        "best_price_source": best_source,
+    }
+
+
+def upsert(merged_rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """Upsert merged universe rows into Supabase. Returns a stats dict.
+
+    No-op (with a `skipped` status) when credentials aren't configured —
+    `universe-sync` should keep working for local dry-runs and Parquet
+    writes without Supabase set up.
+    """
+    client = _client_or_none()
+    if client is None:
+        return {
+            "status": "skipped",
+            "reason": "SUPABASE_NAMING_URL / SUPABASE_NAMING_SERVICE_KEY not set",
+            "rows_sent": 0,
+            "batches": 0,
+        }
+
+    wire_rows = [merged_to_universe_row(r) for r in merged_rows]
+    sent = 0
+    batches = 0
+    for i in range(0, len(wire_rows), BATCH_SIZE):
+        batch = wire_rows[i : i + BATCH_SIZE]
+        # The RPC takes a jsonb input named 'rows'.
+        client.rpc("upsert_universe_rows", {"rows": batch}).execute()
+        sent += len(batch)
+        batches += 1
+    return {
+        "status": "ok",
+        "rows_sent": sent,
+        "batches": batches,
+    }

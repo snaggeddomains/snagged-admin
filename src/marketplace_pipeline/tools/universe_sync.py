@@ -1,15 +1,27 @@
 """Universe sync — read all per-source snapshot.json files, apply the
-universe_ingest filter, write today's Parquet partition.
+universe_ingest filter, upsert into Supabase, and (optionally) write a
+Parquet partition for historical archive.
 
-Idempotent: re-running on the same day overwrites the day's partition.
-If R2 env vars are set, also uploads. Without them, writes only to a
-local path (default: data/universe/observations_<YYYY-MM-DD>.parquet)
-which is useful for local development.
+Order of operations:
+  1. Walk state/<source>/snapshot.json and apply universe filter
+  2. Merge per-source rows so each domain is one row with a sources[]
+     and per-source price map
+  3. Upsert into the Supabase `name_universe` table via the
+     `upsert_universe_rows` RPC (preserves first_seen, refreshes
+     last_seen + sources + best_price for each domain seen today)
+  4. Write today's Parquet partition for historical archive (Tier 3
+     R2 storage). Skipped on --dry-run.
+
+Idempotent: re-running on the same day is safe — the Supabase upsert
+overwrites the day's snapshot fields cleanly, and the Parquet write
+overwrites the day's partition.
 
 Run via:
-    pipeline universe-sync                      # use defaults
+    pipeline universe-sync                      # full run
     pipeline universe-sync --output PATH        # custom local path
-    pipeline universe-sync --dry-run            # build but don't write
+    pipeline universe-sync --dry-run            # collect + merge only,
+                                                # skip Supabase + Parquet
+    pipeline universe-sync --skip-supabase      # write Parquet only
 """
 from __future__ import annotations
 
@@ -21,7 +33,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from .. import config, state
-from ..universe import writer
+from ..universe import supabase_writer, writer
 
 STATE_NAMESPACE = "universe_sync"
 DEFAULT_OUTPUT_DIR = Path("data/universe")
@@ -70,7 +82,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="collect + filter but skip the actual Parquet/R2 write",
+        help="collect + filter but skip the Supabase upsert and Parquet write",
+    )
+    parser.add_argument(
+        "--skip-supabase",
+        action="store_true",
+        help="don't upsert to Supabase (Parquet only)",
     )
     args = parser.parse_args(argv)
 
@@ -80,22 +97,36 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Universe sync for {today}")
     print("=" * 50)
 
-    print("[1/3] Collecting per-source snapshots")
+    print("[1/4] Collecting per-source snapshots")
     raw_rows, per_source = collect_snapshots(today)
     for sid, n in sorted(per_source.items()):
         print(f"      {sid:<26} {n:>6} rows pass universe filter")
     print(f"      total: {len(raw_rows):,} rows from {len(per_source)} sources")
 
-    print("[2/3] Merging by domain (dedup across sources)")
+    print("[2/4] Merging by domain (dedup across sources)")
     merged = writer.merge_observations(raw_rows)
     print(f"      after merge: {len(merged):,} unique domains")
 
     if args.dry_run:
-        print("[3/3] --dry-run: skipping Parquet write")
-        r2_target = None
+        print("[3/4] --dry-run: skipping Supabase upsert")
+        print("[4/4] --dry-run: skipping Parquet write")
+        upsert_stats = {"status": "skipped", "reason": "dry-run", "rows_sent": 0, "batches": 0}
         rows_written = 0
+        r2_target = None
     else:
-        print(f"[3/3] Writing Parquet to {output}")
+        if args.skip_supabase:
+            print("[3/4] --skip-supabase: skipping Supabase upsert")
+            upsert_stats = {"status": "skipped", "reason": "--skip-supabase", "rows_sent": 0, "batches": 0}
+        else:
+            print("[3/4] Upserting into Supabase name_universe")
+            upsert_stats = supabase_writer.upsert(merged)
+            if upsert_stats["status"] == "ok":
+                print(f"      upserted {upsert_stats['rows_sent']:,} rows in "
+                      f"{upsert_stats['batches']} batch(es)")
+            else:
+                print(f"      skipped: {upsert_stats.get('reason')}")
+
+        print(f"[4/4] Writing Parquet to {output}")
         rows_written = writer.write_parquet(merged, output)
         print(f"      wrote {rows_written:,} rows")
         r2_target = writer.upload_to_r2(output, observed_date=today)
@@ -112,11 +143,14 @@ def main(argv: list[str] | None = None) -> int:
         "observed_date": today,
         "raw_rows": len(raw_rows),
         "merged_rows": len(merged),
+        "supabase_status": upsert_stats["status"],
+        "supabase_rows_sent": upsert_stats["rows_sent"],
         "rows_written": rows_written,
         "output_path": str(output),
         "r2_target": r2_target,
         "per_source_counts": per_source,
         "dry_run": args.dry_run,
+        "new_count": upsert_stats["rows_sent"],
     })
 
     print("DONE")

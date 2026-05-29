@@ -79,6 +79,8 @@ def cmd_universe_sync(args: argparse.Namespace) -> int:
         argv += ["--output", str(args.output)]
     if args.dry_run:
         argv.append("--dry-run")
+    if args.skip_supabase:
+        argv.append("--skip-supabase")
     return _run(argv)
 
 
@@ -125,12 +127,14 @@ def main(argv: list[str] | None = None) -> int:
 
     p_uni = sub.add_parser(
         "universe-sync",
-        help="Build today's universe Parquet partition from per-source snapshots",
+        help="Walk per-source snapshots, upsert to Supabase, write Parquet archive",
     )
     p_uni.add_argument("--output", default=None,
                        help="local Parquet output path (default under data/universe/)")
     p_uni.add_argument("--dry-run", action="store_true",
-                       help="collect + filter but skip the actual write")
+                       help="collect + filter but skip Supabase upsert + Parquet write")
+    p_uni.add_argument("--skip-supabase", action="store_true",
+                       help="don't upsert to Supabase (Parquet only)")
     p_uni.set_defaults(func=cmd_universe_sync)
 
     args = parser.parse_args(argv)

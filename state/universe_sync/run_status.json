@@ -1,8 +1,9 @@
 {
-  "dry_run": true,
-  "generated_at": "2026-05-29T19:38:31.728851+00:00",
+  "dry_run": false,
+  "generated_at": "2026-05-29T20:39:11.900594+00:00",
   "label": "Universe sync",
   "merged_rows": 2712,
+  "new_count": 0,
   "observed_date": "2026-05-29",
   "output_path": "data/universe/observations_2026-05-29.parquet",
   "per_source_counts": {
@@ -14,7 +15,9 @@
   },
   "r2_target": null,
   "raw_rows": 2778,
-  "rows_written": 0,
+  "rows_written": 2712,
   "source": "universe_sync",
-  "status": "ok"
+  "status": "ok",
+  "supabase_rows_sent": 0,
+  "supabase_status": "skipped"
 }

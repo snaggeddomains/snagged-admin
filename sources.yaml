@@ -72,6 +72,22 @@ references:
       Trigram + tsvector indexes on `keywords` and `root_words` enable
       full-text and fuzzy search server-side; do not denormalize.
 
+  supabase_naming:
+    kind: postgres_supabase
+    project_url_env: SUPABASE_NAMING_URL
+    service_key_env: SUPABASE_NAMING_SERVICE_KEY
+    table: 'public.name_universe'
+    primary_key: domain
+    cadence: daily
+    notes: |
+      The broad name universe — every domain ever observed across all wired
+      sources that passes the universe_ingest filter. Populated by the
+      universe_sync maintenance workflow (22:00 UTC daily). Has FDW back to
+      Master Domain Name List so naming-exercise queries can JOIN against
+      curated metadata in a single SQL statement. Will hold 5-15M rows at
+      steady state; Phase 2 will add a vector(512) embedding column with
+      HNSW index for semantic search.
+
 # Schedules are in UTC (GitHub Actions requirement). ET conversion:
 #   winter ET = UTC-5    summer ET = UTC-4
 # For now we use a single UTC time that's a tolerable fit year-round; revisit
@@ -261,3 +277,16 @@ sources:
     kind: csv_dump
     schedule_utc: "0 21 * * *"     # ~5:00 PM ET
     enabled: true
+
+  # ===== Maintenance =====
+
+  - source_id: universe_sync
+    product: aux
+    kind: orchestrator
+    schedule_utc: "0 22 * * *"     # ~6:00 PM ET — after efty_partner
+    enabled: true
+    notes: |
+      Daily ingest into the supabase_naming reference. Walks every wired
+      source's snapshot.json, applies the universe_ingest filter, merges
+      across sources, and upserts into Supabase. Parquet partition is
+      also written for historical archive (R2 if configured).

@@ -1,0 +1,42 @@
+name: 'Maintenance: universe_sync'
+
+# Runs daily after the last producer of the day (efty_partner at 21:00 UTC).
+# Walks every source's snapshot.json, applies the universe_ingest filter,
+# upserts unique domains into Supabase, and writes a Parquet archive
+# partition (R2 if configured).
+on:
+  schedule:
+    - cron: '0 22 * * *'   # 22:00 UTC = ~6 PM ET
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: maintenance-universe-sync
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup
+
+      - name: Run universe-sync
+        env:
+          SUPABASE_NAMING_URL:          ${{ secrets.SUPABASE_NAMING_URL }}
+          SUPABASE_NAMING_SERVICE_KEY:  ${{ secrets.SUPABASE_NAMING_SERVICE_KEY }}
+          R2_ACCESS_KEY_ID:             ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY:         ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET:                    ${{ secrets.R2_BUCKET }}
+          R2_ENDPOINT:                  ${{ secrets.R2_ENDPOINT }}
+        run: pipeline universe-sync
+
+      - name: Commit state changes
+        if: success() || failure()
+        uses: ./.github/actions/commit-state
+        with:
+          message: "universe_sync: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
