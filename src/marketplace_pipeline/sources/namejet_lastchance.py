@@ -25,7 +25,7 @@ from zoneinfo import ZoneInfo
 from .. import auctions, config, drive_cache, state
 from ..auctions import sheet as auctions_sheet
 from ..auctions import slack as auctions_slack
-from ..filters import standard as flt
+from ..filters.auction import passes_auction_filter
 
 SOURCE_ID = "namejet_lastchance"
 SOURCE_LABEL = "NameJet Last Chance"
@@ -155,7 +155,7 @@ def parse_rows(html: str, *, now: datetime | None = None) -> tuple[list[dict[str
             drops["no_link"] += 1
             continue
         domain = a.get_text(strip=True).lower()
-        if not flt.allow_domain(domain):
+        if not passes_auction_filter(domain):
             drops["filter"] += 1
             continue
         status_cell = tr.find("td", class_="status")

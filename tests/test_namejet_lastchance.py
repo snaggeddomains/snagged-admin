@@ -106,37 +106,47 @@ def _wrap(rows_html: str) -> str:
 def test_parse_rows_picks_clean_row():
     now = datetime(2026, 5, 28, 12, 0, tzinfo=timezone.utc)
     html = _wrap(_row_html("table.com", "In Auction", "3h 0m", "$50", "2"))
-    out = src.parse_rows(html, now=now)
-    assert len(out) == 1
-    assert out[0]["domain"] == "table.com"
-    assert out[0]["price"] == 50.0
-    assert out[0]["bid_count"] == 2
-    assert out[0]["status"] == "In Auction"
-    assert out[0]["platform"] == "NameJet"
+    rows, meta = src.parse_rows(html, now=now)
+    assert len(rows) == 1
+    assert rows[0]["domain"] == "table.com"
+    assert rows[0]["price"] == 50.0
+    assert rows[0]["bid_count"] == 2
+    assert rows[0]["status"] == "In Auction"
+    assert rows[0]["platform"] == "NameJet"
+    assert meta["raw_rows"] == 1
 
 
 def test_parse_rows_skips_disallowed_status():
     now = datetime(2026, 5, 28, 12, 0, tzinfo=timezone.utc)
     html = _wrap(_row_html("table.com", "Closed", "3h 0m"))
-    assert src.parse_rows(html, now=now) == []
+    rows, meta = src.parse_rows(html, now=now)
+    assert rows == []
+    assert meta["drops"]["bad_status"] == 1
 
 
 def test_parse_rows_skips_disallowed_tld():
     now = datetime(2026, 5, 28, 12, 0, tzinfo=timezone.utc)
     html = _wrap(_row_html("trash.xyz", "In Auction", "3h 0m"))
-    assert src.parse_rows(html, now=now) == []
+    rows, meta = src.parse_rows(html, now=now)
+    assert rows == []
+    assert meta["drops"]["filter"] == 1
 
 
-def test_parse_rows_skips_beyond_24h():
+def test_parse_rows_skips_beyond_horizon():
     now = datetime(2026, 5, 28, 12, 0, tzinfo=timezone.utc)
-    html = _wrap(_row_html("table.com", "In Auction", "25h 0m"))  # over horizon
-    assert src.parse_rows(html, now=now) == []
+    # HOURS_AHEAD is 72; 73h is just past the cutoff.
+    html = _wrap(_row_html("table.com", "In Auction", "73h 0m"))
+    rows, meta = src.parse_rows(html, now=now)
+    assert rows == []
+    assert meta["drops"]["out_of_horizon"] == 1
 
 
 def test_parse_rows_skips_when_no_countdown():
     now = datetime(2026, 5, 28, 12, 0, tzinfo=timezone.utc)
     html = _wrap(_row_html("table.com", "In Auction", "unknown"))
-    assert src.parse_rows(html, now=now) == []
+    rows, meta = src.parse_rows(html, now=now)
+    assert rows == []
+    assert meta["drops"]["no_closing"] == 1
 
 
 def test_parse_rows_raises_on_cloudflare_challenge():
@@ -151,16 +161,37 @@ def test_parse_rows_sorts_by_end_time():
         _row_html("later.com", "In Auction", "10h 0m")
         + _row_html("sooner.com", "In Auction", "1h 0m")
     )
-    domains = [r["domain"] for r in src.parse_rows(html, now=now)]
-    assert domains == ["sooner.com", "later.com"]
+    rows, _ = src.parse_rows(html, now=now)
+    assert [r["domain"] for r in rows] == ["sooner.com", "later.com"]
 
 
 def test_parse_rows_handles_pre_release_status():
     now = datetime(2026, 5, 28, 12, 0, tzinfo=timezone.utc)
     html = _wrap(_row_html("table.com", "Pre-Release", "5h 0m"))
-    out = src.parse_rows(html, now=now)
-    assert len(out) == 1
-    assert out[0]["status"] == "Pre-Release"
+    rows, _ = src.parse_rows(html, now=now)
+    assert len(rows) == 1
+    assert rows[0]["status"] == "Pre-Release"
+
+
+def test_parse_rows_meta_reports_last_closing_dt():
+    now = datetime(2026, 5, 28, 12, 0, tzinfo=timezone.utc)
+    html = _wrap(
+        _row_html("sooner.com", "In Auction", "1h 0m")
+        + _row_html("later.com", "In Auction", "10h 0m")
+    )
+    _, meta = src.parse_rows(html, now=now)
+    assert meta["last_closing_dt"] == now + timedelta(hours=10)
+
+
+def test_parse_rows_meta_last_closing_dt_includes_out_of_horizon_rows():
+    """Pagination uses last_closing_dt to decide stop, so it must include
+    rows even when they exceed the horizon — otherwise we'd never see the
+    'all later pages are out of horizon' signal."""
+    now = datetime(2026, 5, 28, 12, 0, tzinfo=timezone.utc)
+    html = _wrap(_row_html("table.com", "In Auction", "100h 0m"))
+    rows, meta = src.parse_rows(html, now=now)
+    assert rows == []
+    assert meta["last_closing_dt"] == now + timedelta(hours=100)
 
 
 # ---------- Cloudflare Browser Rendering fallback ----------
