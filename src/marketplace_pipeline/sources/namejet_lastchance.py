@@ -195,15 +195,42 @@ def fetch_html_via_playwright(url: str, *, timeout_ms: int = 60_000) -> str:
     return html
 
 
+def _cf_post(account_id: str, api_token: str, body: dict[str, Any]) -> tuple[int, dict[str, Any]]:
+    """Single POST to CF Browser Rendering /content endpoint. Returns
+    (status_code, decoded_json)."""
+    import requests as _r
+
+    endpoint = (
+        f"https://api.cloudflare.com/client/v4/accounts/{account_id}"
+        f"/browser-rendering/content"
+    )
+    resp = _r.post(
+        endpoint,
+        headers={
+            "Authorization": f"Bearer {api_token}",
+            "Content-Type": "application/json",
+        },
+        json=body,
+        timeout=150,
+    )
+    try:
+        return resp.status_code, resp.json()
+    except ValueError:
+        return resp.status_code, {"success": False, "errors": [{"message": resp.text[:500]}]}
+
+
 def fetch_html_via_cf_browser_rendering(url: str) -> str:
     """Proxy the request through Cloudflare's Browser Rendering API.
 
-    Requires CF_BROWSER_ACCOUNT_ID + CF_BROWSER_API_TOKEN env vars.
-    Endpoint: api.cloudflare.com/client/v4/accounts/<id>/browser-rendering/content
-    Free tier (Workers Free) covers ~333 sessions/day — plenty for a daily run.
-    """
-    import requests as _r
+    Tries two configs in sequence:
+      1. Strict — waits for the search table selector specifically.
+      2. Lenient — drops the selector wait, just lets the page settle.
+         NameJet sometimes takes longer than the strict timeout to fully
+         hydrate, but the page body is usually usable before that.
 
+    Requires CF_BROWSER_ACCOUNT_ID + CF_BROWSER_API_TOKEN.
+    Endpoint: api.cloudflare.com/client/v4/accounts/<id>/browser-rendering/content
+    """
     account_id = os.environ.get("CF_BROWSER_ACCOUNT_ID")
     api_token = os.environ.get("CF_BROWSER_API_TOKEN")
     if not (account_id and api_token):
@@ -212,37 +239,54 @@ def fetch_html_via_cf_browser_rendering(url: str) -> str:
             "CF_BROWSER_API_TOKEN are not set. Add the Cloudflare Browser "
             "Rendering secrets to fall back automatically."
         )
-    endpoint = (
-        f"https://api.cloudflare.com/client/v4/accounts/{account_id}"
-        f"/browser-rendering/content"
-    )
-    body = {
-        "url": url,
-        "waitForSelector": {"selector": "#searchTable tbody tr", "timeout": 45000},
-        "gotoOptions": {"waitUntil": "domcontentloaded"},
-        "waitForTimeout": 5000,
-        "bestAttempt": True,
-    }
-    resp = _r.post(
-        endpoint,
-        headers={
-            "Authorization": f"Bearer {api_token}",
-            "Content-Type": "application/json",
+
+    attempts = [
+        {
+            "label": "strict (waits for #searchTable)",
+            "body": {
+                "url": url,
+                "gotoOptions": {"waitUntil": "domcontentloaded", "timeout": 90000},
+                "waitForSelector": {"selector": "#searchTable tbody tr", "timeout": 30000},
+                "waitForTimeout": 5000,
+                "bestAttempt": True,
+            },
         },
-        json=body,
-        timeout=120,
+        {
+            "label": "lenient (no selector wait, longer settle)",
+            "body": {
+                "url": url,
+                "gotoOptions": {"waitUntil": "domcontentloaded", "timeout": 90000},
+                "waitForTimeout": 15000,
+                "bestAttempt": True,
+            },
+        },
+    ]
+
+    last_err: str | None = None
+    for attempt in attempts:
+        print(f"        CF attempt: {attempt['label']}")
+        status, payload = _cf_post(account_id, api_token, attempt["body"])
+        if status >= 400:
+            errors_text = (
+                str(payload.get("errors") or payload)[:400]
+                if isinstance(payload, dict) else str(payload)[:400]
+            )
+            last_err = f"HTTP {status}: {errors_text}"
+            print(f"        CF returned {last_err}")
+            continue
+        if not payload.get("success"):
+            last_err = f"success=false: {payload.get('errors')}"
+            print(f"        CF returned {last_err}")
+            continue
+        html = payload.get("result") or ""
+        if not html:
+            last_err = "empty HTML"
+            continue
+        return html
+
+    raise RuntimeError(
+        f"Cloudflare Browser Rendering exhausted attempts. Last error: {last_err}"
     )
-    if resp.status_code >= 400:
-        raise RuntimeError(
-            f"Cloudflare Browser Rendering HTTP {resp.status_code}: "
-            f"{resp.text[:500]}"
-        )
-    payload = resp.json()
-    if not payload.get("success"):
-        raise RuntimeError(
-            f"Cloudflare Browser Rendering returned error: {payload.get('errors')}"
-        )
-    return payload["result"]
 
 
 def fetch_html(url: str, *, timeout_ms: int = 60_000) -> str:
