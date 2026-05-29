@@ -1,23 +1,23 @@
 {
   "dry_run": false,
-  "generated_at": "2026-05-29T20:42:02.134937+00:00",
+  "generated_at": "2026-05-29T23:08:50.709187+00:00",
   "label": "Universe sync",
-  "merged_rows": 2712,
-  "new_count": 2712,
+  "merged_rows": 16796,
+  "new_count": 16796,
   "observed_date": "2026-05-29",
   "output_path": "data/universe/observations_2026-05-29.parquet",
   "per_source_counts": {
-    "afternic": 475,
-    "atom_daily": 1926,
+    "afternic": 440,
+    "atom_daily": 1615,
     "efty_partner": 245,
-    "namecheap_auctions": 43,
-    "namecheap_bin": 89
+    "namecheap_auctions": 33,
+    "namecheap_bin": 14526
   },
   "r2_target": null,
-  "raw_rows": 2778,
-  "rows_written": 2712,
+  "raw_rows": 16859,
+  "rows_written": 16796,
   "source": "universe_sync",
   "status": "ok",
-  "supabase_rows_sent": 2712,
+  "supabase_rows_sent": 16796,
   "supabase_status": "ok"
 }
