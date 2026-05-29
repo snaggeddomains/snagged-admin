@@ -49,8 +49,8 @@ def test_check_source_imports_no_failures(capsys):
     # Known wired sources should appear with OK
     assert "OK   namecheap_bin" in out
     assert "OK   atom_daily" in out
-    # Known unwired (dynadot/namesilo) should appear as TODO, not FAIL
-    assert "TODO dynadot_auctions" in out
+    assert "OK   dynadot_auctions" in out
+    assert "OK   namesilo_auctions" in out
 
 
 def test_main_returns_zero_when_only_optional_env_missing(monkeypatch, capsys):

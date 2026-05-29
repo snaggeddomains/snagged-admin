@@ -219,14 +219,14 @@ sources:
     schedule_utc: "0 10 * * *"     # ~6:00 AM ET
     enabled: true
     orchestrates:
-      - dynadot_auctions
-      - namecheap_auctions
-      - drive_auction_uploads
-      - dropcatch_auctions
       - parkio_auctions
+      - namecheap_auctions
+      - dynadot_auctions
+      - dropcatch_auctions
       - godaddy_auctions
       - namesilo_auctions
       - sedo_expired_auctions
+      - drive_auction_uploads
       - namejet_lastchance
     failure_policy: continue_on_partial_failure
 

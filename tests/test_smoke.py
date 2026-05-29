@@ -16,12 +16,15 @@ def test_package_imports():
         parkio_auctions, namecheap_auctions, sedo_expired_auctions,
         godaddy_auctions, drive_auction_uploads, sedo_net_new,
         efty_partner, dropcatch_auctions, namejet_lastchance,
+        dynadot_auctions, namesilo_auctions,
         auctions_publish, auctions_watchdog,
     )
     assert atom_wholesale.SOURCE_ID == "atom_wholesale"
     assert efty_partner.SOURCE_ID == "efty_partner"
     assert dropcatch_auctions.SOURCE_ID == "dropcatch_auctions"
     assert namejet_lastchance.SOURCE_ID == "namejet_lastchance"
+    assert dynadot_auctions.SOURCE_ID == "dynadot_auctions"
+    assert namesilo_auctions.SOURCE_ID == "namesilo_auctions"
     from marketplace_pipeline.auctions import orchestrator, watchdog
     assert namecheap_auctions.SOURCE_ID == "namecheap_auctions"
     assert sedo_expired_auctions.SOURCE_ID == "sedo_expired_auctions"
