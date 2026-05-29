@@ -75,6 +75,19 @@ def test_parse_countdown_returns_none_for_empty_or_garbage():
     assert src.parse_countdown("unknown", now_utc=now) is None
 
 
+def test_parse_countdown_rejects_h_m_letters_without_digits():
+    """NameJet 'Available Soon' rows show text like 'Available Soon' or
+    'Coming Soon' that contains stray h/m letters. Before this fix,
+    parse_countdown returned now+0 for these, polluting the snapshot with
+    hundreds of rows pinned at the exact-same end_time."""
+    now = datetime(2026, 5, 28, 12, 0, tzinfo=timezone.utc)
+    assert src.parse_countdown("Available Soon", now_utc=now) is None
+    assert src.parse_countdown("Coming soon", now_utc=now) is None
+    assert src.parse_countdown("Auctions held here", now_utc=now) is None
+    # But real countdown text still parses:
+    assert src.parse_countdown("5h 30m", now_utc=now) == now + timedelta(hours=5, minutes=30)
+
+
 # ---------- build_page_url ----------
 
 def test_build_page_url_includes_pagination_params():

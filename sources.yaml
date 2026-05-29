@@ -26,14 +26,12 @@ products:
     sheet_title: "Auction and Good Deal Domains"
     slack_channel_env: SLACK_CHANNEL_AUCTIONS    # default C096AT8BECS
 
-# Filter profiles applied per-source. Three separate jobs:
-#   - standard_listings: aggressive daily filter that picks names for the SNAP
-#     Slack/Sheets feed. Word-frequency (zipf) based. Mirrors
+# Filter profiles applied per-source. Two separate jobs:
+#   - standard_listings: strict daily filter that picks single English
+#     dictionary words for the SNAP Slack/Sheets feed AND the auctions
+#     watchlist. Word-frequency (zipf) based. Mirrors
 #     legacy/openclaw/scripts/domain_filters.py.
-#   - auction_listings: structural filter for the auctions watchlist. Looser
-#     than SNAP (no zipf gate) but enforces length, no digits/hyphens, and
-#     light pronounceability rules.
-#   - universe_ingest: broadest filter, for the Tier 3 name universe (R2). Wider
+#   - universe_ingest: broader filter, for the Tier 3 name universe (R2). Wider
 #     candidate pool for future brand-naming workflows.
 filter_profiles:
   universe_ingest:
@@ -48,7 +46,7 @@ filter_profiles:
     dedup_by_domain: true
 
   standard_listings:
-    label: "SNAP Parameters"
+    label: "SNAP + Auction Parameters"
     legacy_module: legacy/openclaw/scripts/domain_filters.py
     allowed_tlds: [".com", ".org", ".net", ".io", ".ai", ".co"]
     zipf_min: 2.8
@@ -56,16 +54,6 @@ filter_profiles:
       ".io": 3.8
       ".net": 5.5
     allow_three_letter_com: true
-
-  auction_listings:
-    label: "Auction Parameters"
-    allowed_tlds: [".com", ".org", ".net", ".io", ".ai", ".co"]
-    sld_length_min: 3
-    sld_length_max: 14
-    allow_digits: false
-    allow_hyphens: false
-    require_vowel: true
-    max_consecutive_consonants: 4
 
 # Reference data stores. Not scheduled — queried ad-hoc, typically during
 # naming-exercise workflows. The dashboard's name browser joins these with

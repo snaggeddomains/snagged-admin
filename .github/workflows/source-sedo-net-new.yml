@@ -25,11 +25,6 @@ jobs:
         run: pipeline run sedo_net_new
       - name: Commit state changes
         if: success()
-        run: |
-          git add state/
-          if git diff --cached --quiet; then
-            echo "No state changes."
-          else
-            git commit -m "sedo_net_new: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            git push
-          fi
+        uses: ./.github/actions/commit-state
+        with:
+          message: "sedo_net_new: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"

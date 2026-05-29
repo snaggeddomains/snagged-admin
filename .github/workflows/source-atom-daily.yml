@@ -32,11 +32,6 @@ jobs:
 
       - name: Commit state changes
         if: success()
-        run: |
-          git add state/
-          if git diff --cached --quiet; then
-            echo "No state changes."
-          else
-            git commit -m "atom_daily: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            git push
-          fi
+        uses: ./.github/actions/commit-state
+        with:
+          message: "atom_daily: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"

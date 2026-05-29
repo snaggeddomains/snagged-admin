@@ -25,11 +25,6 @@ jobs:
         run: pipeline run drive_auction_uploads
       - name: Commit state changes
         if: success()
-        run: |
-          git add state/
-          if git diff --cached --quiet; then
-            echo "No state changes."
-          else
-            git commit -m "drive_auction_uploads: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            git push
-          fi
+        uses: ./.github/actions/commit-state
+        with:
+          message: "drive_auction_uploads: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"

@@ -26,11 +26,6 @@ jobs:
         run: pipeline run efty_partner
       - name: Commit state changes
         if: success()
-        run: |
-          git add state/
-          if git diff --cached --quiet; then
-            echo "No state changes."
-          else
-            git commit -m "efty_partner: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            git push
-          fi
+        uses: ./.github/actions/commit-state
+        with:
+          message: "efty_partner: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"

@@ -25,7 +25,7 @@ from zoneinfo import ZoneInfo
 from .. import auctions, config, drive_cache, state
 from ..auctions import sheet as auctions_sheet
 from ..auctions import slack as auctions_slack
-from ..filters.auction import passes_auction_filter
+from ..filters import standard as flt
 
 SOURCE_ID = "namejet_lastchance"
 SOURCE_LABEL = "NameJet Last Chance"
@@ -92,7 +92,13 @@ def parse_int_str(text: str | None) -> int | None:
 
 
 def parse_countdown(text: str, *, now_utc: datetime) -> datetime | None:
-    """Convert NameJet countdown text like '5h 30m' into a UTC datetime."""
+    """Convert NameJet countdown text like '5h 30m' into a UTC datetime.
+
+    Requires an actual numeric match — '5h', '30m', '5h 30m' all work.
+    Returns None for non-countdown text like 'Available Soon' even if it
+    contains stray 'h' or 'm' letters, so junk rows don't land with
+    end_time=now.
+    """
     if not text:
         return None
     text = " ".join(text.split())
@@ -103,23 +109,23 @@ def parse_countdown(text: str, *, now_utc: datetime) -> datetime | None:
         lower.replace("hours", "h").replace("hour", "h").replace("hrs", "h")
              .replace("mins", "m").replace("min", "m")
     )
-    if "h" in normalized or "m" in normalized:
-        hours = 0.0
-        minutes = 0.0
-        hm = re.search(r"(\d+(?:\.\d+)?)\s*h", normalized)
-        mm = re.search(r"(\d+(?:\.\d+)?)\s*m", normalized)
-        if hm:
-            try:
-                hours = float(hm.group(1))
-            except ValueError:
-                pass
-        if mm:
-            try:
-                minutes = float(mm.group(1))
-            except ValueError:
-                pass
-        return now_utc + timedelta(hours=hours, minutes=minutes)
-    return None
+    hm = re.search(r"(\d+(?:\.\d+)?)\s*h", normalized)
+    mm = re.search(r"(\d+(?:\.\d+)?)\s*m", normalized)
+    if not (hm or mm):
+        return None
+    hours = 0.0
+    minutes = 0.0
+    if hm:
+        try:
+            hours = float(hm.group(1))
+        except ValueError:
+            pass
+    if mm:
+        try:
+            minutes = float(mm.group(1))
+        except ValueError:
+            pass
+    return now_utc + timedelta(hours=hours, minutes=minutes)
 
 
 def parse_rows(html: str, *, now: datetime | None = None) -> tuple[list[dict[str, Any]], dict[str, Any]]:
@@ -155,7 +161,7 @@ def parse_rows(html: str, *, now: datetime | None = None) -> tuple[list[dict[str
             drops["no_link"] += 1
             continue
         domain = a.get_text(strip=True).lower()
-        if not passes_auction_filter(domain):
+        if not flt.allow_domain(domain):
             drops["filter"] += 1
             continue
         status_cell = tr.find("td", class_="status")

@@ -147,11 +147,12 @@ export default async function ConfigPage() {
       <section>
         <h2>Filter profiles</h2>
         <p className="section-blurb">
-          Three profiles coexist: <code>standard_listings</code> is the strict
-          word-frequency filter for the SNAP Slack/Sheets feed;{" "}
-          <code>auction_listings</code> is the looser structural filter for the
-          auctions watchlist; <code>universe_ingest</code> is the broadest, used
-          to ingest names into the R2 universe for the brand-naming workflow.
+          Two profiles coexist: <code>standard_listings</code> is the strict
+          word-frequency filter used for both the SNAP Slack/Sheets feed and
+          the auctions watchlist (single English dictionary words plus a
+          3-letter .com bypass); <code>universe_ingest</code> is the broader
+          filter that ingests names into the R2 universe for the brand-naming
+          workflow.
         </p>
         {reg.filter_profiles.map((p) => (
           <ProfileCard key={p.name} p={p} />

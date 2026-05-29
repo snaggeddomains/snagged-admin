@@ -191,7 +191,7 @@ def test_write_clear_and_update_called():
         service=svc,
     )
     assert len(svc.clear_calls) == 1
-    assert svc.clear_calls[0]["range"] == "Sheet1!A2:E"
+    assert svc.clear_calls[0]["range"] == "Sheet1!A2:F"
     assert len(svc.update_calls) == 1
     assert svc.update_calls[0]["range"] == "Sheet1!A2"
     assert svc.update_calls[0]["valueInputOption"] == "USER_ENTERED"

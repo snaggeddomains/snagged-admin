@@ -1,0 +1,47 @@
+name: 'Commit state with rebase-retry'
+description: |
+  Adds state/, commits with the given message, and pushes — retrying on
+  push rejection by rebasing onto the latest origin/main. Prevents race
+  failures when multiple scheduled workflows finish near-simultaneously.
+
+inputs:
+  message:
+    description: 'Commit message'
+    required: true
+  max_attempts:
+    description: 'Maximum push attempts before giving up'
+    required: false
+    default: '6'
+
+runs:
+  using: composite
+  steps:
+    - name: Commit and push state with retry
+      shell: bash
+      run: |
+        set -euo pipefail
+        git add state/
+        if git diff --cached --quiet; then
+          echo "No state changes to commit."
+          exit 0
+        fi
+        git commit -m "${{ inputs.message }}"
+        attempt=1
+        max=${{ inputs.max_attempts }}
+        # Exponential backoff between rebase retries: 2s, 4s, 8s, 16s, 32s.
+        delays=(0 2 4 8 16 32)
+        while true; do
+          if git push origin HEAD; then
+            echo "Push succeeded on attempt $attempt."
+            exit 0
+          fi
+          if [ "$attempt" -ge "$max" ]; then
+            echo "Push failed after $attempt attempts; giving up."
+            exit 1
+          fi
+          delay=${delays[$attempt]:-32}
+          echo "Push rejected on attempt $attempt; sleeping ${delay}s, rebasing, and retrying."
+          sleep "$delay"
+          git pull --rebase origin "$(git rev-parse --abbrev-ref HEAD)"
+          attempt=$((attempt + 1))
+        done

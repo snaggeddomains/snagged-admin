@@ -1,15 +1,18 @@
 """Auctions sheet writer.
 
-Writes consolidated auction rows to the auctions sheet (5-column layout:
-end_time_utc, time_left, domain, price, platform). Behavior matches the
-legacy push_auctions_to_sheet.py:
+Writes consolidated auction rows to the auctions sheet (6-column layout:
+end_time_utc, time_left, domain, price, platform, link). Behavior:
 
   - Existing rows below A2 are read.
   - New rows are prepended; the sheet acts as a growing log.
-  - We additionally dedup by (domain, end_time_utc) so re-running a
-    workflow doesn't duplicate the same auction. Legacy did not dedup;
-    this is a strict improvement.
+  - We dedup by (domain, end_time_utc) so re-running a workflow doesn't
+    duplicate the same auction.
   - Rows are written back via clear + update at A2.
+
+The writer owns columns A-F. Older versions stopped at E (no link column)
+which caused the per-row Auction URL in F to misalign whenever new rows
+prepended. F is now writer-managed so every row's URL stays aligned with
+its domain.
 
 Header row (row 1) is NOT touched by this writer — the user manages it.
 """
@@ -21,10 +24,10 @@ from datetime import datetime, timezone
 from typing import Any
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
-SHEET_RANGE = "Sheet1!A2:E"
+SHEET_RANGE = "Sheet1!A2:F"
 WRITE_RANGE = "Sheet1!A2"
 
-SHEET_COLUMNS = ("end_time_utc", "time_left", "domain", "price", "platform")
+SHEET_COLUMNS = ("end_time_utc", "time_left", "domain", "price", "platform", "link")
 
 
 def _credentials():
@@ -77,7 +80,7 @@ def format_time_left(end_utc: datetime, *, now: datetime | None = None) -> str:
 
 
 def row_from_listing(listing: dict[str, Any], *, now: datetime | None = None) -> list[Any]:
-    """Normalize a single AuctionListing-shaped dict into the 5-column row."""
+    """Normalize a single AuctionListing-shaped dict into the 6-column row."""
     end = listing["end_time_utc"]
     if isinstance(end, str):
         end_dt = datetime.fromisoformat(end.replace("Z", "+00:00"))
@@ -95,6 +98,7 @@ def row_from_listing(listing: dict[str, Any], *, now: datetime | None = None) ->
         listing["domain"],
         listing.get("price") if listing.get("price") is not None else "",
         listing.get("platform", ""),
+        listing.get("link", ""),
     ]
 
 

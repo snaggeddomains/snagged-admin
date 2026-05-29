@@ -31,14 +31,9 @@ jobs:
 
       - name: Commit state changes
         if: success()
-        run: |
-          git add state/
-          if git diff --cached --quiet; then
-            echo "No state changes."
-          else
-            git commit -m "namecheap_bin: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            git push
-          fi
+        uses: ./.github/actions/commit-state
+        with:
+          message: "namecheap_bin: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
       - name: Upload raw artifact (debug)
         if: always()
