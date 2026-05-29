@@ -245,7 +245,7 @@ def fetch_html_via_cf_browser_rendering(url: str) -> str:
             "label": "strict (waits for #searchTable)",
             "body": {
                 "url": url,
-                "gotoOptions": {"waitUntil": "domcontentloaded", "timeout": 90000},
+                "gotoOptions": {"waitUntil": "domcontentloaded"},
                 "waitForSelector": {"selector": "#searchTable tbody tr", "timeout": 30000},
                 "waitForTimeout": 5000,
                 "bestAttempt": True,
@@ -255,7 +255,7 @@ def fetch_html_via_cf_browser_rendering(url: str) -> str:
             "label": "lenient (no selector wait, longer settle)",
             "body": {
                 "url": url,
-                "gotoOptions": {"waitUntil": "domcontentloaded", "timeout": 90000},
+                "gotoOptions": {"waitUntil": "domcontentloaded"},
                 "waitForTimeout": 15000,
                 "bestAttempt": True,
             },
