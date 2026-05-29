@@ -184,6 +184,22 @@ sources:
       for brand-naming exercises once we figure out how Spaceship exposes
       marketplace inventory (partner API vs. scrape).
 
+  - source_id: dynadot_aftermarket
+    product: snap
+    kind: api_export
+    enabled: false
+    reason: |
+      Distinct from dynadot_auctions (which uses the legacy v1 API for live
+      auction watchlist). This source would pull Dynadot's full aftermarket
+      catalog via the v2 RESTful endpoint
+      (GET https://api.dynadot.com/restful/v2/aftermarket/listings) — much
+      bigger dataset, perfect for universe_ingest plus a daily new/dropped
+      diff to Slack. Blocked on Dynadot v2 API access: existing
+      DYNADOT_API_KEY and DYNADOT_API_SECRET both 401 against v2. Need to
+      either generate a v2-specific token from Dynadot account settings or
+      email Dynadot support to enable v2 access. Add new GH Secret
+      DYNADOT_V2_API_TOKEN once obtained.
+
   # ===== Auctions producers (consumed by auctions_publish orchestrator) =====
 
   - source_id: dynadot_auctions
