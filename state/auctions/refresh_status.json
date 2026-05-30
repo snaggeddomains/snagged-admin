@@ -48,10 +48,10 @@
     "status": "ok"
   },
   {
-    "detail": "Cloudflare Browser Rendering also returned a challenge page. Token may need broader scope or the endpoint may be down.",
-    "generated_at": "2026-05-30T11:24:09.477329+00:00",
+    "generated_at": "2026-05-30T12:00:38.313766+00:00",
     "label": "NameJet Last Chance",
+    "retried": true,
     "source": "namejet_lastchance",
-    "status": "failed"
+    "status": "ok"
   }
 ]
