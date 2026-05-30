@@ -1,0 +1,35 @@
+name: 'Source: dynadot_dump'
+
+on:
+  schedule:
+    - cron: '45 21 * * *'   # 21:45 UTC = ~5:45 PM ET — after spaceship (21:30) and before universe_sync (22:00)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: source-dynadot-dump
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    # No horizon → may paginate hundreds of pages. 60min headroom.
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Run dynadot_dump
+        env:
+          DYNADOT_API_KEY:             ${{ secrets.DYNADOT_API_KEY }}
+          DYNADOT_API_SECRET:          ${{ secrets.DYNADOT_API_SECRET }}
+          SUPABASE_NAMING_URL:         ${{ secrets.SUPABASE_NAMING_URL }}
+          SUPABASE_NAMING_SERVICE_KEY: ${{ secrets.SUPABASE_NAMING_SERVICE_KEY }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: pipeline run dynadot_dump
+      - name: Commit state changes
+        if: success()
+        uses: ./.github/actions/commit-state
+        with:
+          message: "dynadot_dump: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"

@@ -196,21 +196,37 @@ sources:
       kept enabled because that handful is real and goes into the
       universe correctly.
 
+  - source_id: dynadot_dump
+    product: snap
+    kind: api_export
+    schedule_utc: "45 21 * * *"   # ~5:45 PM ET
+    enabled: true
+    notes: |
+      Full-inventory Dynadot daily dump for the universe pool, distinct
+      from dynadot_auctions (24h time-sensitive watchlist for the
+      auctions Slack/Sheets).
+
+      Uses the same v1 /api3.json endpoint + get_open_auctions command +
+      query-string key+secret auth — but with NO time horizon, so we
+      paginate every open auction across the inventory rather than just
+      ones ending within 24h. Matches the legacy openclaw flow described
+      in dynadot_open_fetch.py, except the diff step is now implicit via
+      Supabase's upsert merge (first_seen/last_seen/best_price tracked
+      across days naturally).
+
   - source_id: dynadot_aftermarket
     product: snap
     kind: api_export
     enabled: false
     reason: |
-      Distinct from dynadot_auctions (which uses the legacy v1 API for live
-      auction watchlist). This source would pull Dynadot's full aftermarket
-      catalog via the v2 RESTful endpoint
-      (GET https://api.dynadot.com/restful/v2/aftermarket/listings) — much
-      bigger dataset, perfect for universe_ingest plus a daily new/dropped
-      diff to Slack. Blocked on Dynadot v2 API access: existing
-      DYNADOT_API_KEY and DYNADOT_API_SECRET both 401 against v2. Need to
-      either generate a v2-specific token from Dynadot account settings or
-      email Dynadot support to enable v2 access. Add new GH Secret
-      DYNADOT_V2_API_TOKEN once obtained.
+      Distinct from dynadot_dump (which uses the legacy v1 get_open_auctions
+      command). This would pull Dynadot's full aftermarket catalog via the
+      v2 RESTful endpoint (GET /restful/v2/aftermarket/listings) — likely
+      a richer / different dataset than v1's auctions-only view. Blocked
+      on Dynadot v2 API access: existing DYNADOT_API_KEY and DYNADOT_API_SECRET
+      both 401 against v2. Need to either generate a v2-specific token or
+      email Dynadot support to enable v2 access. Keep dynadot_dump running
+      as the working v1-based feeder until v2 is unlocked.
 
   - source_id: sedo_dump
     product: snap
