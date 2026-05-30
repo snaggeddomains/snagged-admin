@@ -157,11 +157,24 @@ def upsert_from_source(
     """
     from ..filters import standard as flt
 
+    # Dedupe by domain within a single source's payload. Postgres's
+    # ON CONFLICT DO UPDATE can't affect the same row twice in one
+    # statement, so duplicates in the source data (Braden's sheet had
+    # several) make the whole batch fail with code 21000. Take the
+    # first occurrence per domain — later occurrences from the same
+    # source within the same run would just be redundant identical
+    # upserts anyway.
+    seen_domains: set[str] = set()
     merged_rows: list[dict[str, Any]] = []
+    duplicates_dropped = 0
     for L in listings:
         domain = (L.get("domain") or "").strip().lower()
         if not domain:
             continue
+        if domain in seen_domains:
+            duplicates_dropped += 1
+            continue
+        seen_domains.add(domain)
         sld, tld = flt.extract_sld_tld(domain)
         if not sld:
             continue
@@ -182,4 +195,5 @@ def upsert_from_source(
     stats = upsert(merged_rows)
     stats["input_count"] = len(listings)
     stats["normalized_count"] = len(merged_rows)
+    stats["duplicates_dropped"] = duplicates_dropped
     return stats
