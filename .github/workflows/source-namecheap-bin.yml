@@ -27,6 +27,9 @@ jobs:
           SLACK_BOT_TOKEN:             ${{ secrets.SLACK_BOT_TOKEN }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           SLACK_CHANNEL_SNAP:          ${{ vars.SLACK_CHANNEL_SNAP }}
+          SUPABASE_NAMING_URL:         ${{ secrets.SUPABASE_NAMING_URL }}
+          SUPABASE_NAMING_SERVICE_KEY: ${{ secrets.SUPABASE_NAMING_SERVICE_KEY }}
+
         run: pipeline run namecheap_bin
 
       - name: Commit state changes

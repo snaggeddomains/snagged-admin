@@ -121,3 +121,51 @@ def upsert(merged_rows: list[dict[str, Any]]) -> dict[str, Any]:
         "rows_sent": sent,
         "batches": batches,
     }
+
+
+def upsert_from_source(
+    source_id: str,
+    listings: list[dict[str, Any]],
+    observed_date: str,
+) -> dict[str, Any]:
+    """Bulk upsert universe rows directly from a single source's run.
+
+    Input shape (what sources have in hand after their universe filter):
+        [{"domain": "table.com", "price": 99.0}, ...]
+
+    Each listing is normalized into the merged-row shape (computing
+    sld/tld/sld_length, looking up zipf, etc.) and bulk-upserted via
+    the RPC. Used by source modules to land their universe data
+    directly into Supabase instead of going through giant local
+    universe_snapshot.json files + a separate universe-sync workflow
+    (which fails at scale: Afternic's snapshot is ~360 MB).
+
+    Returns the same stats dict as upsert() plus an `input_count`.
+    """
+    from ..filters import standard as flt
+
+    merged_rows: list[dict[str, Any]] = []
+    for L in listings:
+        domain = (L.get("domain") or "").strip().lower()
+        if not domain:
+            continue
+        sld, tld = flt.extract_sld_tld(domain)
+        if not sld:
+            continue
+        price = L.get("price")
+        prices = {source_id: float(price)} if price is not None else {}
+        merged_rows.append({
+            "domain": domain,
+            "sld": sld,
+            "tld": tld,
+            "sld_length": len(sld),
+            "observed_date": observed_date,
+            "zipf_score": float(flt.freq(sld)) if sld.isalpha() else None,
+            "sources": [source_id],
+            "prices": prices,
+        })
+
+    stats = upsert(merged_rows)
+    stats["input_count"] = len(listings)
+    stats["normalized_count"] = len(merged_rows)
+    return stats

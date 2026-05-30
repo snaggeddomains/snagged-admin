@@ -45,3 +45,9 @@ data/
 .DS_Store
 Thumbs.db
 *.zip
+
+# Universe snapshots — written locally during source runs for inspection,
+# but at full scale (Afternic has ~7M rows / 360MB) they exceed GitHub's
+# 100MB file limit. Universe data lands in Supabase directly via each
+# source's own Supabase upsert call, not via a committed state file.
+state/**/universe_snapshot.json

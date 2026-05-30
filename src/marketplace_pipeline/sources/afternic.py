@@ -326,6 +326,14 @@ def run() -> int:
     state.write_json(SOURCE_ID, UNIVERSE_SNAPSHOT_FILE, universe_entries)
     print(f"       universe entries: {len(universe_entries):,}")
 
+    print("[4c/10] Upserting universe entries to Supabase name_universe")
+    from ..universe import supabase_writer as _sw
+    uni_stats = _sw.upsert_from_source(SOURCE_ID, universe_entries, today)
+    if uni_stats["status"] == "ok":
+        print(f"       upserted {uni_stats['rows_sent']:,} rows in {uni_stats['batches']} batch(es)")
+    else:
+        print(f"       skipped: {uni_stats.get('reason')}")
+
     print("[5/10] Filtering + scoring (strict SNAP filter for Slack/Sheets)")
     entries: list[Entry] = []
     for i, row in enumerate(rows, start=1):

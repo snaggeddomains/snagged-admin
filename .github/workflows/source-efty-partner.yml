@@ -23,6 +23,9 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           SLACK_CHANNEL_SNAP:          ${{ vars.SLACK_CHANNEL_SNAP }}
           EFTY_PARTNER_TOKEN:          ${{ secrets.EFTY_PARTNER_TOKEN }}
+          SUPABASE_NAMING_URL:         ${{ secrets.SUPABASE_NAMING_URL }}
+          SUPABASE_NAMING_SERVICE_KEY: ${{ secrets.SUPABASE_NAMING_SERVICE_KEY }}
+
         run: pipeline run efty_partner
       - name: Commit state changes
         if: success()
