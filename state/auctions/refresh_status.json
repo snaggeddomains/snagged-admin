@@ -1,56 +1,57 @@
 [
   {
-    "generated_at": "2026-05-29T12:47:11.476020+00:00",
+    "generated_at": "2026-05-30T11:18:29.707815+00:00",
     "label": "Park.io",
     "source": "parkio_auctions",
     "status": "ok"
   },
   {
-    "generated_at": "2026-05-29T12:47:30.057891+00:00",
+    "generated_at": "2026-05-30T11:18:50.431065+00:00",
     "label": "Namecheap",
     "source": "namecheap_auctions",
     "status": "ok"
   },
   {
-    "generated_at": "2026-05-29T12:48:12.873793+00:00",
+    "generated_at": "2026-05-30T11:19:38.147910+00:00",
     "label": "Dynadot",
     "source": "dynadot_auctions",
     "status": "ok"
   },
   {
-    "generated_at": "2026-05-29T12:48:29.769475+00:00",
+    "generated_at": "2026-05-30T11:19:52.441798+00:00",
     "label": "DropCatch",
     "source": "dropcatch_auctions",
     "status": "ok"
   },
   {
-    "generated_at": "2026-05-29T12:48:41.062289+00:00",
+    "generated_at": "2026-05-30T11:20:05.004288+00:00",
     "label": "GoDaddy",
     "source": "godaddy_auctions",
     "status": "ok"
   },
   {
-    "generated_at": "2026-05-29T12:49:14.411976+00:00",
+    "generated_at": "2026-05-30T11:20:40.897904+00:00",
     "label": "NameSilo",
     "source": "namesilo_auctions",
     "status": "ok"
   },
   {
-    "generated_at": "2026-05-29T12:49:22.524549+00:00",
+    "generated_at": "2026-05-30T11:20:50.005039+00:00",
     "label": "Sedo Expired",
     "source": "sedo_expired_auctions",
     "status": "ok"
   },
   {
-    "generated_at": "2026-05-29T12:49:26.424993+00:00",
+    "generated_at": "2026-05-30T11:20:52.216750+00:00",
     "label": "Drive Uploads",
     "source": "drive_auction_uploads",
     "status": "ok"
   },
   {
-    "generated_at": "2026-05-29T12:53:15.606671+00:00",
+    "detail": "Cloudflare Browser Rendering also returned a challenge page. Token may need broader scope or the endpoint may be down.",
+    "generated_at": "2026-05-30T11:24:09.477329+00:00",
     "label": "NameJet Last Chance",
     "source": "namejet_lastchance",
-    "status": "ok"
+    "status": "failed"
   }
 ]

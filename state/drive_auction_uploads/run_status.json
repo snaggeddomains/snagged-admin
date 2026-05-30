@@ -1,18 +1,12 @@
 {
   "deduped_against_existing": 0,
-  "files": [
-    {
-      "modifiedTime": "2026-05-28T13:26:57.470Z",
-      "name": "28-5-26.csv",
-      "qualified_rows": 0
-    }
-  ],
-  "files_scanned": 1,
-  "generated_at": "2026-05-29T12:49:26.424788+00:00",
+  "files": [],
+  "files_scanned": 0,
+  "generated_at": "2026-05-30T11:20:52.216553+00:00",
   "label": "Drive Uploads",
   "new_count": 0,
   "rows_after_dedup": 0,
-  "sheet_total_after": 11916,
+  "sheet_total_after": 11967,
   "slack_posted": false,
   "source": "drive_auction_uploads",
   "status": "ok"
