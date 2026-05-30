@@ -317,32 +317,61 @@ def run() -> int:
     csv_bytes = csv_bytes_from_response(zip_bytes)
     print(f"       got {len(csv_bytes):,} CSV bytes")
 
-    print("[4/10] Parsing CSV")
-    rows = parse_csv_rows(csv_bytes)
-    print(f"       raw rows: {len(rows):,}")
-
-    print("[4b/10] Writing universe snapshot (broader filter for naming universe)")
-    universe_entries = _universe_entries_from_rows(rows)
-    state.write_json(SOURCE_ID, UNIVERSE_SNAPSHOT_FILE, universe_entries)
-    print(f"       universe entries: {len(universe_entries):,}")
-
-    print("[4c/10] Upserting universe entries to Supabase name_universe")
+    print("[4/10] Streaming CSV through universe + SNAP filters in a single pass")
+    # Afternic publishes ~7M rows daily. Loading them all into a Python
+    # list[dict] takes ~2-3 GB of overhead and blows past the 7 GB
+    # GitHub-hosted runner cap when combined with the JSON serialization
+    # buffer for state writes. Streaming the CSV in a single pass with
+    # bounded buffers (universe upserted in 50K chunks, SNAP entries kept
+    # in a list since they're tiny post-filter) keeps memory under 1 GB.
     from ..universe import supabase_writer as _sw
-    uni_stats = _sw.upsert_from_source(SOURCE_ID, universe_entries, today)
-    if uni_stats["status"] == "ok":
-        print(f"       upserted {uni_stats['rows_sent']:,} rows in {uni_stats['batches']} batch(es)")
-    else:
-        print(f"       skipped: {uni_stats.get('reason')}")
 
-    print("[5/10] Filtering + scoring (strict SNAP filter for Slack/Sheets)")
+    UNIVERSE_FLUSH_SIZE = 50_000
+    universe_buffer: list[dict[str, Any]] = []
+    universe_total = 0
+    universe_batches_total = 0
+    raw_count = 0
     entries: list[Entry] = []
-    for i, row in enumerate(rows, start=1):
+
+    csv_text = csv_bytes.decode("utf-8", errors="replace")
+    for row in csv.DictReader(io.StringIO(csv_text)):
+        raw_count += 1
+
+        # Universe path — stream into a bounded buffer
+        domain = (row.get("domain") or "").strip().lower()
+        if domain and univ.passes_universe_filter(domain):
+            price_raw = row.get("price") or ""
+            try:
+                price = float(str(price_raw).replace(",", "")) if price_raw else None
+            except ValueError:
+                price = None
+            universe_buffer.append({"domain": domain, "price": price})
+            universe_total += 1
+
+            if len(universe_buffer) >= UNIVERSE_FLUSH_SIZE:
+                stats = _sw.upsert_from_source(SOURCE_ID, universe_buffer, today)
+                if stats.get("status") == "ok":
+                    universe_batches_total += stats.get("batches", 0)
+                universe_buffer.clear()
+
+        # SNAP path — keep filtered entries (small list, ~hundreds to low thousands)
         e = entry_from_row(row)
         if e:
             entries.append(e)
-        if i % 50000 == 0:
-            print(f"       processed {i:,} rows, kept {len(entries):,}...")
-    print(f"       qualifying entries: {len(entries):,}")
+
+        if raw_count % 250_000 == 0:
+            print(f"       processed {raw_count:,} rows  |  universe so far: {universe_total:,}  |  SNAP so far: {len(entries):,}")
+
+    # Flush final universe batch
+    if universe_buffer:
+        stats = _sw.upsert_from_source(SOURCE_ID, universe_buffer, today)
+        if stats.get("status") == "ok":
+            universe_batches_total += stats.get("batches", 0)
+        universe_buffer.clear()
+
+    print(f"       raw rows: {raw_count:,}")
+    print(f"       universe entries upserted: {universe_total:,} in {universe_batches_total} batch(es)")
+    print(f"       SNAP qualifying entries: {len(entries):,}")
 
     print("[6/10] Building combined shortlist")
     ranked = build_shortlist(entries)
