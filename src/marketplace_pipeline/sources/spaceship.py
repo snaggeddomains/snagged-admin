@@ -62,7 +62,12 @@ def _headers() -> dict[str, str]:
 
 
 def _fetch_page(skip: int, take: int = PAGE_SIZE) -> dict[str, Any]:
-    """One paginated GET against /v1/sellerhub/domains with retry/backoff."""
+    """One paginated GET against /v1/sellerhub/domains with retry/backoff.
+
+    On 4xx errors (auth, bad request, etc.) the response body is included
+    in the raised error so workflow logs surface the actual problem instead
+    of just an HTTP code.
+    """
     url = f"{BASE_URL}{LISTINGS_PATH}"
     params = {"take": str(take), "skip": str(skip)}
     last_err: Exception | None = None
@@ -82,8 +87,18 @@ def _fetch_page(skip: int, take: int = PAGE_SIZE) -> dict[str, Any]:
         if resp.status_code >= 500:
             wait = RETRY_BACKOFF_BASE ** attempt
             print(f"        attempt {attempt} got HTTP {resp.status_code}; sleeping {wait:.0f}s")
+            print(f"        body: {resp.text[:400]}")
             time.sleep(wait)
             continue
+        if 400 <= resp.status_code < 500:
+            # Auth / bad request / scope error — body usually explains the
+            # actual cause. Don't retry these (4xx == client error).
+            body = resp.text.strip()[:600]
+            raise requests.HTTPError(
+                f"Spaceship API returned HTTP {resp.status_code} on "
+                f"{LISTINGS_PATH}?take={take}&skip={skip}. Response body: {body}",
+                response=resp,
+            )
         resp.raise_for_status()
         return resp.json()
     raise RuntimeError(
