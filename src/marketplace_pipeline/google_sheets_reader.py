@@ -46,6 +46,43 @@ def list_tabs(spreadsheet_id: str) -> list[str]:
     return [s["properties"]["title"] for s in meta.get("sheets", [])]
 
 
+def read_public_csv_as_dicts(
+    spreadsheet_id: str, gid: int = 0,
+) -> list[dict[str, str]]:
+    """Read a Google Sheet tab via its public CSV export URL.
+
+    For sheets shared with the service account, use read_tab_as_dicts()
+    instead. This helper is for external sheets owned by people who
+    can't / won't add our service-account email, but who HAVE flipped
+    'Anyone with the link → Viewer' on the sheet. No auth required.
+
+    The URL pattern works for any tab GID, not just the first tab:
+        https://docs.google.com/spreadsheets/d/<id>/export?format=csv&gid=<gid>
+
+    Returns rows as list[dict] keyed by header row, same shape as
+    read_tab_as_dicts(). Empty rows are skipped.
+    """
+    import csv
+    import io
+
+    import requests
+
+    url = (
+        f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}"
+        f"/export?format=csv&gid={gid}"
+    )
+    resp = requests.get(url, timeout=60, allow_redirects=True)
+    resp.raise_for_status()
+    text = resp.content.decode("utf-8-sig", errors="replace")
+    reader = csv.DictReader(io.StringIO(text))
+    out: list[dict[str, str]] = []
+    for row in reader:
+        cleaned = {(k or "").strip(): (v or "").strip() for k, v in row.items() if k}
+        if any(v for v in cleaned.values()):
+            out.append(cleaned)
+    return out
+
+
 def read_tab_as_dicts(spreadsheet_id: str, tab_name: str) -> list[dict[str, str]]:
     """Read every row from a tab; return as list of dicts keyed by header row.
 
