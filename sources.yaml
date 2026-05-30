@@ -181,11 +181,20 @@ sources:
     schedule_utc: "30 21 * * *"   # ~5:30 PM ET — after efty_partner at 5:00 PM ET
     enabled: true
     notes: |
-      Spaceship SellerHub aftermarket inventory via the v1 REST API.
-      Paginates GET /v1/sellerhub/domains, applies the universe filter,
-      and direct-upserts qualifying domains into Supabase name_universe.
-      Auth: SPACESHIP_API_KEY + SPACESHIP_API_SECRET (two-header pattern,
-      both required).
+      Spaceship SellerHub via the v1 REST API
+      (GET /v1/sellerhub/domains, X-API-Key + X-API-Secret auth).
+      Currently only returns OUR account's listings, not the full
+      Spaceship marketplace — that's all the v1 public API exposes
+      today (verified via 20-endpoint probe 2026-05-30: every
+      plausible marketplace / aftermarket / partnership / discovery
+      path returned 404). Emailed Spaceship support 2026-05-30 to ask
+      about a partner endpoint that returns other sellers' listings;
+      will widen this source once they respond.
+
+      So this source today contributes only handful-to-dozens of rows
+      per run (whatever we've personally listed on SellerHub) — but
+      kept enabled because that handful is real and goes into the
+      universe correctly.
 
   - source_id: dynadot_aftermarket
     product: snap
