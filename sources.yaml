@@ -203,6 +203,34 @@ sources:
       email Dynadot support to enable v2 access. Add new GH Secret
       DYNADOT_V2_API_TOKEN once obtained.
 
+  - source_id: sedo_dump
+    product: snap
+    kind: scrape_json
+    enabled: false
+    reason: |
+      Full-inventory Sedo marketplace pull, distinct from the existing
+      sedo_net_new + sedo_expired_auctions sources (which only capture the
+      delta of new listings every 12h). Sedo is the only platform that
+      lets us request "new since last run" via its filter API; that's
+      great for SNAP/Slack signal but it means we never see the long
+      tail of older listings sitting in the marketplace. A periodic full
+      dump would catch them all.
+
+      Blocked on access pattern: Sedo's public marketplace is millions of
+      domains and there's no documented bulk-export endpoint. Options to
+      investigate:
+        (a) Sedo's MLS (Multiple Listing Service) feed for partners —
+            may give us a periodic CSV / XML dump
+        (b) Scraping the marketplace search pages (heavy, CF-protected,
+            and likely against ToS)
+        (c) Pulling via Spaceship's SellerHub integration since Spaceship
+            cross-lists to Sedo MLS — would give us the Sedo overlap for
+            free via the existing spaceship source
+
+      Likely run cadence once wired: weekly full pull (the inventory is
+      relatively stable; daily would be redundant given sedo_net_new
+      already catches the new arrivals).
+
   # ===== Auctions producers (consumed by auctions_publish orchestrator) =====
 
   - source_id: dynadot_auctions
