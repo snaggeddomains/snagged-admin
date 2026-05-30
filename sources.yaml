@@ -110,6 +110,46 @@ references:
 # if ET-precision matters.
 
 sources:
+  # ===== Tier-1 sources (owned / near-owned inventory — playbook §3.4) =====
+  # Queried FIRST in every naming exercise per the playbook order-of-
+  # operations. Naming queries should: search tier=1 first, only widen
+  # to tier=2 (broad market) if the first pass returns < ~30 candidates.
+
+  - source_id: snagged_snap_sheet
+    product: snap
+    kind: google_doc
+    schedule_utc: "0 12 * * *"   # ~8 AM ET
+    enabled: true
+    notes: |
+      Snagged-owned SNAP inventory. Reads tab 'SNAP' from the team's
+      primary inventory sheet (1KaxYUgBFALe...). Filters to rows where
+      'Still Owned?' is truthy. Price column: 'Internal Price'.
+      Upserts as source_tier=1.
+
+  - source_id: rob_purchases_sheet
+    product: snap
+    kind: google_doc
+    schedule_utc: "0 12 * * *"   # ~8 AM ET
+    enabled: true
+    notes: |
+      Rob-owned domain inventory. Reads tab 'Rob Purchases' from the
+      team's primary inventory sheet (1KaxYUgBFALe...). Filters to rows
+      where 'Still Owned?' is truthy. Price column: 'Atom Current Price'
+      (Rob's domains are often priced via Atom listings).
+      Upserts as source_tier=1.
+
+  - source_id: snagged_marketplace_sheet
+    product: snap
+    kind: google_doc
+    schedule_utc: "0 12 * * *"   # ~8 AM ET
+    enabled: true
+    notes: |
+      Snagged Marketplace — domains brokered by Snagged on behalf of
+      various owners. Reads tab 'Complete List' from the 'Snagged Names
+      Under Representation' sheet (1hL_F0e3...). Filters to rows where
+      'Active' is truthy. Price column: 'BIN'.
+      Upserts as source_tier=1.
+
   # ===== SNAP producers =====
 
   - source_id: namecheap_bin

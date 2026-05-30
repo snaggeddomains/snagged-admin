@@ -91,6 +91,7 @@ def merged_to_universe_row(merged: dict[str, Any]) -> dict[str, Any]:
         "is_dictionary_word": num_words == 1 if num_words is not None else None,
         "quality_score": quality,
         "deal_score": deal,
+        "source_tier": merged.get("source_tier", 2),
     }
 
 
@@ -130,6 +131,7 @@ def upsert_from_source(
     source_id: str,
     listings: list[dict[str, Any]],
     observed_date: str,
+    source_tier: int = 2,
 ) -> dict[str, Any]:
     """Bulk upsert universe rows directly from a single source's run.
 
@@ -142,6 +144,14 @@ def upsert_from_source(
     directly into Supabase instead of going through giant local
     universe_snapshot.json files + a separate universe-sync workflow
     (which fails at scale: Afternic's snapshot is ~360 MB).
+
+    `source_tier` is the playbook's source priority:
+      - 1: owned / near-owned inventory (Rob, Snagged, Snagged Marketplace,
+           Oxley). Naming queries search tier-1 FIRST per playbook §4.1.
+      - 2: broad market (Afternic, Atom, Namecheap, etc.). Default.
+    The RPC's merge logic takes LEAST(existing_tier, incoming_tier) so a
+    domain that's both owned AND on the open market correctly inherits
+    tier=1.
 
     Returns the same stats dict as upsert() plus an `input_count`.
     """
@@ -166,6 +176,7 @@ def upsert_from_source(
             "zipf_score": float(flt.freq(sld)) if sld.isalpha() else None,
             "sources": [source_id],
             "prices": prices,
+            "source_tier": source_tier,
         })
 
     stats = upsert(merged_rows)

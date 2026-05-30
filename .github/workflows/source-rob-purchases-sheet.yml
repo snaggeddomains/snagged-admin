@@ -1,0 +1,32 @@
+name: 'Source: rob_purchases_sheet'
+
+on:
+  schedule:
+    - cron: '0 12 * * *'   # 12:00 UTC = ~8 AM ET (well before tier-2 sources)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: source-rob-purchases-sheet
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Run rob_purchases_sheet
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          SUPABASE_NAMING_URL:         ${{ secrets.SUPABASE_NAMING_URL }}
+          SUPABASE_NAMING_SERVICE_KEY: ${{ secrets.SUPABASE_NAMING_SERVICE_KEY }}
+        run: pipeline run rob_purchases_sheet
+      - name: Commit state changes
+        if: success()
+        uses: ./.github/actions/commit-state
+        with:
+          message: "rob_purchases_sheet: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
