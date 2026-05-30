@@ -1,10 +1,13 @@
-name: 'Probe: oxley.com structure'
+name: 'Probe: oxley.com catalog discovery'
 
-# One-off diagnostic to see what oxley.com returns when fetched through
-# scrape.do (its CF tier blocks plain curl / WebFetch). Captures the
-# rendered HTML body so we can identify selectors and pagination for
-# the eventual oxley source module. Delete this file once the source is
-# wired.
+# Second-pass probe. The first one confirmed scrape.do works against
+# oxley.com (Efty-powered marketplace) and saw ~30 domains on the
+# homepage, but didn't surface the full catalog URL. This probe:
+#   1. Fetches the homepage
+#   2. Extracts every internal link (href) on the page
+#   3. Tries Efty-standard catalog paths
+#   4. Reports the URL with the most domain-looking strings (probably
+#      the full inventory page or first paginated page)
 
 on:
   workflow_dispatch: {}
@@ -15,9 +18,9 @@ permissions:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
-      - name: Fetch oxley.com via scrape.do (super proxies, render)
+      - name: Discover oxley.com catalog structure
         env:
           SCRAPE_DO_TOKEN: ${{ secrets.SCRAPE_DO_TOKEN }}
         run: |
@@ -27,45 +30,79 @@ jobs:
             exit 1
           fi
 
-          # Try the homepage first, then a few likely inventory paths.
+          fetch() {
+            local url="$1"
+            local outfile="$2"
+            local encoded
+            encoded=$(python3 -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1], safe=''))" "$url")
+            curl -s -o "$outfile" -w '%{http_code}' \
+              "https://api.scrape.do/?token=${SCRAPE_DO_TOKEN}&url=${encoded}&render=true&super=true&geoCode=us"
+          }
+
+          count_domains() {
+            grep -oE '[a-z][a-z0-9-]{2,30}\.(com|net|org|io|ai|co|xyz|app|dev)' "$1" \
+              | grep -ivE '(jquery|bootstrapcdn|jsdelivr|google-analytics|googleapis|efty\.com|oxley\.com|cloudflare|fontawesome|altcha)' \
+              | sort -u | wc -l
+          }
+
+          echo "============================================="
+          echo "STEP 1: Fetch homepage + extract internal nav links"
+          echo "============================================="
+          STATUS=$(fetch "https://oxley.com/" /tmp/home.html)
+          echo "Homepage HTTP ${STATUS}, $(wc -c < /tmp/home.html) bytes"
+          echo ""
+          echo "--- Internal hrefs found (unique, non-CSS/JS): ---"
+          grep -oE 'href="[^"]+"' /tmp/home.html \
+            | sed -E 's/href="([^"]+)"/\1/' \
+            | grep -E '^(/|https?://(www\.)?oxley\.com)' \
+            | grep -vE '\.(css|js|png|jpg|svg|ico|woff|woff2|ttf)([?#]|$)' \
+            | sort -u \
+            | head -40
+          echo ""
+          echo "--- Domain count on homepage: $(count_domains /tmp/home.html) ---"
+          echo ""
+          echo "--- Pagination-looking URL params anywhere on page: ---"
+          grep -oE '[?&](page|p|start|offset|skip)=[0-9]+' /tmp/home.html | sort -u | head -10
+
+          echo ""
+          echo "============================================="
+          echo "STEP 2: Try common Efty catalog paths"
+          echo "============================================="
           PATHS=(
-            "/"
-            "/inventory"
-            "/domains"
-            "/marketplace"
-            "/sale"
-            "/sitemap.xml"
-            "/robots.txt"
+            "/buy-a-domain"
+            "/buy-domain"
+            "/browse"
+            "/all"
+            "/all-names"
+            "/all-domains"
+            "/catalog"
+            "/list"
+            "/category/all"
+            "/page/1"
+            "/?page=1"
+            "/?p=1"
+            "/?start=0"
           )
 
           for path in "${PATHS[@]}"; do
             url="https://oxley.com${path}"
-            encoded_url=$(python3 -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1], safe=''))" "$url")
-            echo ""
-            echo "============================================="
-            echo "GET ${url}"
-
-            STATUS=$(curl -s -o /tmp/body.html -w '%{http_code}' \
-              "https://api.scrape.do/?token=${SCRAPE_DO_TOKEN}&url=${encoded_url}&render=true&super=true&geoCode=us")
-
+            STATUS=$(fetch "$url" /tmp/body.html)
             SIZE=$(wc -c < /tmp/body.html)
-            echo "HTTP ${STATUS}, body ${SIZE} bytes"
-
-            # Quick structural fingerprinting
-            echo "--- title: ---"
-            grep -ioE '<title[^>]*>[^<]*</title>' /tmp/body.html | head -1 || echo "(no title)"
-            echo "--- domain-looking strings (first 30): ---"
-            grep -oE '[a-z][a-z0-9-]{2,30}\.(com|net|org|io|ai|co|xyz|app|dev)' /tmp/body.html | sort -u | head -30
-            echo "--- pagination hints (first 5): ---"
-            grep -oE '(href|action|src)="[^"]*(page|p=|offset|start)[^"]*"' /tmp/body.html | head -5
-            echo "--- 'sale' / 'inventory' / 'marketplace' mentions: ---"
-            grep -ciE 'for sale|inventory|marketplace|buy now|available' /tmp/body.html
-            echo "--- script src origins (first 5): ---"
-            grep -oE 'src="https?://[^"]+\.js"' /tmp/body.html | head -5
-
-            sleep 1
+            if [ "$STATUS" = "200" ]; then
+              DOMAINS=$(count_domains /tmp/body.html)
+              echo "  ${path} → HTTP ${STATUS}, ${SIZE} bytes, ${DOMAINS} unique domains"
+              if [ "$DOMAINS" -gt 50 ]; then
+                echo "    ✓ Looks like the inventory page. Sample domains:"
+                grep -oE '[a-z][a-z0-9-]{2,30}\.(com|net|org|io|ai|co|xyz|app|dev)' /tmp/body.html \
+                  | grep -ivE '(jquery|bootstrapcdn|jsdelivr|google-analytics|googleapis|efty\.com|oxley\.com|cloudflare|fontawesome|altcha)' \
+                  | sort -u | head -15
+              fi
+            else
+              echo "  ${path} → HTTP ${STATUS}"
+            fi
+            sleep 0.5
           done
 
           echo ""
           echo "============================================="
-          echo "Done. Use the domain-looking strings + pagination hints to plan the source."
+          echo "Done. The URL with the highest domain count is the catalog entry point."
