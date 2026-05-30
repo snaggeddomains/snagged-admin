@@ -177,12 +177,15 @@ sources:
 
   - source_id: spaceship
     product: snap
-    kind: scrape_json
-    enabled: false
-    reason: |
-      Ingestion path TBD. Will feed SNAP daily listings AND universe_ingest
-      for brand-naming exercises once we figure out how Spaceship exposes
-      marketplace inventory (partner API vs. scrape).
+    kind: api_export
+    schedule_utc: "30 21 * * *"   # ~5:30 PM ET — after efty_partner at 5:00 PM ET
+    enabled: true
+    notes: |
+      Spaceship SellerHub aftermarket inventory via the v1 REST API.
+      Paginates GET /v1/sellerhub/domains, applies the universe filter,
+      and direct-upserts qualifying domains into Supabase name_universe.
+      Auth: SPACESHIP_API_KEY + SPACESHIP_API_SECRET (two-header pattern,
+      both required).
 
   - source_id: dynadot_aftermarket
     product: snap

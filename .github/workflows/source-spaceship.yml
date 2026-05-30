@@ -1,0 +1,34 @@
+name: 'Source: spaceship'
+
+on:
+  schedule:
+    - cron: '30 21 * * *'   # 21:30 UTC = ~5:30 PM ET
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: source-spaceship
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Run spaceship
+        env:
+          SPACESHIP_API_KEY:           ${{ secrets.SPACESHIP_API_KEY }}
+          SPACESHIP_API_SECRET:        ${{ secrets.SPACESHIP_API_SECRET }}
+          SUPABASE_NAMING_URL:         ${{ secrets.SUPABASE_NAMING_URL }}
+          SUPABASE_NAMING_SERVICE_KEY: ${{ secrets.SUPABASE_NAMING_SERVICE_KEY }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: pipeline run spaceship
+      - name: Commit state changes
+        if: success()
+        uses: ./.github/actions/commit-state
+        with:
+          message: "spaceship: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
