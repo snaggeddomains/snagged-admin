@@ -38,6 +38,14 @@ def _service():
     return build("sheets", "v4", credentials=_credentials(), cache_discovery=False)
 
 
+def list_tabs(spreadsheet_id: str) -> list[str]:
+    """Return the visible tab titles in this workbook. Useful for diagnosing
+    'tab not found' errors and for fuzzy lookups."""
+    svc = _service()
+    meta = svc.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
+    return [s["properties"]["title"] for s in meta.get("sheets", [])]
+
+
 def read_tab_as_dicts(spreadsheet_id: str, tab_name: str) -> list[dict[str, str]]:
     """Read every row from a tab; return as list of dicts keyed by header row.
 
@@ -49,14 +57,35 @@ def read_tab_as_dicts(spreadsheet_id: str, tab_name: str) -> list[dict[str, str]
     whole sheet. Single-quoting is only required for explicit A1-notation
     ranges with embedded spaces (e.g., "'Rob Purchases'!A1:Z"). Passing
     the bare name handles both 'SNAP' and 'Rob Purchases' correctly.
+
+    On a 'range parse' error we raise with the list of actual tab names
+    in the workbook so it's obvious whether we have the name wrong vs
+    a real auth / sharing issue.
     """
+    from googleapiclient.errors import HttpError
+
     svc = _service()
-    res = (
-        svc.spreadsheets()
-        .values()
-        .get(spreadsheetId=spreadsheet_id, range=tab_name)
-        .execute()
-    )
+    try:
+        res = (
+            svc.spreadsheets()
+            .values()
+            .get(spreadsheetId=spreadsheet_id, range=tab_name)
+            .execute()
+        )
+    except HttpError as e:
+        # Range-parse errors usually mean the tab doesn't exist (or has a
+        # different name than expected). Surface the actual list of tabs so
+        # the caller can correct the config without round-tripping.
+        try:
+            available = list_tabs(spreadsheet_id)
+        except Exception:
+            available = ["<unable to list tabs>"]
+        raise RuntimeError(
+            f"Could not read tab {tab_name!r} from sheet {spreadsheet_id}. "
+            f"Available tabs: {available}. "
+            f"Original Sheets API error: {e}"
+        ) from e
+
     values = res.get("values", [])
     if not values:
         return []
