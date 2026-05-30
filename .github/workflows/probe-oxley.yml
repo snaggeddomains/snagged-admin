@@ -1,0 +1,105 @@
+name: 'Probe: oxley.com pagination / sitemap discovery'
+
+# The first probe found only ~30 domains on the rendered homepage —
+# turns out Oxley has 1,412 listings paginated behind a "Show more"
+# AJAX button. This probe hunts for:
+#   - sitemap.xml (likely lists all 1412 /domain/<name>/ URLs in one fetch)
+#   - the AJAX endpoint that "Show more" calls
+#   - any data-* attributes on the button revealing the endpoint
+#   - inline JS hinting at the load-more URL
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Hunt for the catalog endpoint
+        env:
+          SCRAPE_DO_TOKEN: ${{ secrets.SCRAPE_DO_TOKEN }}
+        run: |
+          set -uo pipefail
+          if [ -z "${SCRAPE_DO_TOKEN:-}" ]; then echo "SCRAPE_DO_TOKEN not set."; exit 1; fi
+
+          fetch() {
+            local url="$1" outfile="$2"
+            local encoded
+            encoded=$(python3 -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1], safe=''))" "$url")
+            curl -s -o "$outfile" -w '%{http_code}' \
+              "https://api.scrape.do/?token=${SCRAPE_DO_TOKEN}&url=${encoded}&render=true&super=true&geoCode=us"
+          }
+
+          # ---- Sitemap probe ----
+          echo "============================================="
+          echo "STEP 1: Try sitemap.xml — might list all 1412 in one shot"
+          echo "============================================="
+          for sm in "/sitemap.xml" "/sitemap_index.xml" "/sitemap-domains.xml" "/sitemap1.xml"; do
+            url="https://oxley.com${sm}"
+            STATUS=$(fetch "$url" /tmp/sitemap.xml)
+            SIZE=$(wc -c < /tmp/sitemap.xml)
+            DOMAINS=$(grep -oE '<loc>[^<]*</loc>' /tmp/sitemap.xml 2>/dev/null | wc -l || echo 0)
+            echo "  ${sm} → HTTP ${STATUS}, ${SIZE} bytes, ${DOMAINS} <loc> entries"
+            if [ "$DOMAINS" -gt 100 ]; then
+              echo "  Sample <loc> entries:"
+              grep -oE '<loc>[^<]*</loc>' /tmp/sitemap.xml | head -5
+            fi
+            sleep 0.5
+          done
+
+          # ---- Homepage AJAX endpoint hunt ----
+          echo ""
+          echo "============================================="
+          echo "STEP 2: Inspect homepage for 'Show more' AJAX hints"
+          echo "============================================="
+          fetch "https://oxley.com/" /tmp/home.html >/dev/null
+          echo "Homepage: $(wc -c < /tmp/home.html) bytes"
+          echo ""
+          echo "--- Lines mentioning 'show more' / 'load more': ---"
+          grep -niE 'show.?more|load.?more|see.?more|more-button|loadmore|show_more' /tmp/home.html | head -10
+          echo ""
+          echo "--- data-* attributes on buttons near 'more': ---"
+          grep -oE '<(a|button)[^>]*data-[a-z-]+="[^"]*"[^>]*>(\s|[^<])*more[^<]*<' /tmp/home.html | head -5
+          echo ""
+          echo "--- Inline script blocks containing URL-like strings near 'more' / 'page' / 'offset': ---"
+          grep -oE "['\"]/(api|ajax|json|domains|marketplace|browse|list|more|page)[^'\"]*['\"]" /tmp/home.html | sort -u | head -20
+          echo ""
+          echo "--- AJAX-style fetch / \$.get / \$.post / XMLHttpRequest URLs: ---"
+          grep -oE "\\\$\\.(get|post|ajax)\([^)]+\)|fetch\([^)]+\)|XMLHttpRequest" /tmp/home.html | head -10
+          echo ""
+          echo "--- Any URL with 'page', 'start', 'offset', 'limit', or 'skip' params: ---"
+          grep -oE "['\"][^'\"]*[?&](page|start|offset|limit|skip|p)=[^'\"&]*['\"]" /tmp/home.html | sort -u | head -20
+
+          # ---- Try common Efty AJAX endpoints ----
+          echo ""
+          echo "============================================="
+          echo "STEP 3: Try common Efty load-more / API endpoints"
+          echo "============================================="
+          for ep in \
+              "/ajax/load_more" \
+              "/ajax/domains" \
+              "/load_more" \
+              "/api/domains" \
+              "/api/marketplace" \
+              "/api/v1/domains" \
+              "/json/domains" \
+              "/?ajax=domains&page=2" \
+              "/?action=load_more&page=2" \
+              "/page/2" \
+              "/page/2/" \
+              "/?p=2"; do
+            url="https://oxley.com${ep}"
+            STATUS=$(fetch "$url" /tmp/body.html)
+            SIZE=$(wc -c < /tmp/body.html)
+            DCOUNT=$(grep -oE '[a-z][a-z0-9-]{2,30}\.(com|net|org|io|ai|co)' /tmp/body.html | grep -ivE '(efty|oxley|jquery|bootstrap|google|cloudflare)\.com' | sort -u | wc -l)
+            echo "  ${ep} → HTTP ${STATUS}, ${SIZE} bytes, ${DCOUNT} unique non-cdn domains"
+            sleep 0.5
+          done
+
+          echo ""
+          echo "============================================="
+          echo "Done."
