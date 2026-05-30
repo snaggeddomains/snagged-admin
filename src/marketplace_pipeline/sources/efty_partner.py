@@ -23,6 +23,7 @@ import requests
 
 from .. import config, drive_cache, scoring, state
 from ..filters import standard as flt
+from ..filters import universe as univ
 from ..publishers import slack
 
 SOURCE_ID = "efty_partner"
@@ -42,7 +43,24 @@ URL_KEYS = ("url", "link", "landing_page", "landing_page_url", "permalink")
 
 FEED_URL_TEMPLATE = "https://efty.com/partner/feed/token/{token}/"
 SNAPSHOT_FILE = "snapshot.json"
+UNIVERSE_SNAPSHOT_FILE = "universe_snapshot.json"
 RAW_FILENAME = "efty_partner.csv"
+
+
+def _universe_entries_from_rows(rows: list[dict[str, str]]) -> list[dict[str, Any]]:
+    """Apply ONLY the universe filter to Efty raw CSV rows. Efty uses
+    flexible domain/price column names — match via DOMAIN_KEYS / PRICE_KEYS."""
+    out: list[dict[str, Any]] = []
+    for row in rows:
+        domain = _first_value(row, DOMAIN_KEYS).strip().lower()
+        if not domain or not univ.passes_universe_filter(domain):
+            continue
+        price_raw = _first_value(row, PRICE_KEYS)
+        price = _parse_price(price_raw) if price_raw else None
+        if price is not None and price <= 0:
+            price = None
+        out.append({"domain": domain, "price": price})
+    return out
 
 
 @dataclass
@@ -264,6 +282,12 @@ def run() -> int:
 
     print("[3/7] Decoding CSV + scoring")
     rows = decode_csv(raw)
+
+    print("[3b/7] Writing universe snapshot (broader filter for naming universe)")
+    universe_entries = _universe_entries_from_rows(rows)
+    state.write_json(SOURCE_ID, UNIVERSE_SNAPSHOT_FILE, universe_entries)
+    print(f"      universe entries: {len(universe_entries):,}")
+
     scored = [r for r in (score_row(row) for row in rows) if r is not None]
     print(f"      raw rows: {len(rows):,}  scored: {len(scored):,}")
 

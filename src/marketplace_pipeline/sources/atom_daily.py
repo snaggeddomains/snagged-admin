@@ -28,11 +28,32 @@ import requests
 
 from .. import config, drive_cache, state
 from ..filters import standard as flt
+from ..filters import universe as univ
 from ..publishers import sheets, slack
 from ..publishers.sheets import OwnershipMode
 
 SOURCE_ID = "atom_daily"
 SOURCE_LABEL = "Atom"
+
+UNIVERSE_SNAPSHOT_FILE = "universe_snapshot.json"
+
+
+def _universe_entries_from_rows(rows: list[dict[str, str]]) -> list[dict[str, Any]]:
+    """Apply ONLY the universe filter to Atom raw rows. Atom uses 'title' as
+    the domain column (or 'domain' as fallback) and 'price' or
+    'discount_price' for price — match both."""
+    out: list[dict[str, Any]] = []
+    for row in rows:
+        domain = (row.get("title") or row.get("domain") or "").strip().lower()
+        if not domain or not univ.passes_universe_filter(domain):
+            continue
+        price_raw = row.get("price") or row.get("discount_price") or ""
+        try:
+            price = float(str(price_raw).replace(",", "")) if price_raw else None
+        except ValueError:
+            price = None
+        out.append({"domain": domain, "price": price})
+    return out
 
 MIN_LIST_PRICE = 99.0
 
@@ -248,7 +269,12 @@ def run() -> int:
     rows = parse_csv_rows(raw)
     print(f"      raw rows: {len(rows):,}")
 
-    print("[4/9] Filtering + scoring")
+    print("[3b/9] Writing universe snapshot (broader filter for naming universe)")
+    universe_entries = _universe_entries_from_rows(rows)
+    state.write_json(SOURCE_ID, UNIVERSE_SNAPSHOT_FILE, universe_entries)
+    print(f"      universe entries: {len(universe_entries):,}")
+
+    print("[4/9] Filtering + scoring (strict SNAP filter for Slack/Sheets)")
     entries: list[Entry] = []
     for row in rows:
         e = entry_from_row(row)

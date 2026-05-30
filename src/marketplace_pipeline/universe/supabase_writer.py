@@ -36,15 +36,27 @@ def merged_to_universe_row(merged: dict[str, Any]) -> dict[str, Any]:
     The RPC's input schema collapses the per-source price map into a
     single (best_price, best_price_source) pair — we don't store the
     full map server-side, only the cheapest current observation.
+
+    Cheap deterministic enrichment fields (num_words, num_syllables,
+    is_dictionary_word) are computed here at ingest time so they're
+    indexable in Postgres without per-query LLM/wordfreq calls.
+    Expensive LLM-based fields (category, emotions, keywords, industries)
+    are populated separately by a Phase 2 enrichment worker.
     """
+    from ..filters.universe import classify_dict_word, count_syllables
+
     prices: dict[str, float] = merged.get("prices") or {}
     if prices:
         best_source, best_price = min(prices.items(), key=lambda kv: kv[1])
     else:
         best_source, best_price = None, None
+
+    sld = merged["sld"]
+    num_words = classify_dict_word(sld)  # 1, 2, or None (None is rare since
+    # only universe-filter-passing rows reach here, but defend anyway)
     return {
         "domain": merged["domain"],
-        "sld": merged["sld"],
+        "sld": sld,
         "tld": merged["tld"],
         "sld_length": int(merged["sld_length"]),
         "zipf_score": merged.get("zipf_score"),
@@ -52,6 +64,9 @@ def merged_to_universe_row(merged: dict[str, Any]) -> dict[str, Any]:
         "sources": list(merged.get("sources") or []),
         "best_price": best_price,
         "best_price_source": best_source,
+        "num_words": num_words,
+        "num_syllables": count_syllables(sld),
+        "is_dictionary_word": num_words == 1 if num_words is not None else None,
     }
 
 

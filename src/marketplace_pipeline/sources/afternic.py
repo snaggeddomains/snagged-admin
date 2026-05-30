@@ -29,11 +29,32 @@ import requests
 
 from .. import config, drive_cache, state
 from ..filters import standard as flt
+from ..filters import universe as univ
 from ..publishers import sheets, slack
 from ..publishers.sheets import OwnershipMode
 
 SOURCE_ID = "afternic"
 SOURCE_LABEL = "Afternic"
+
+UNIVERSE_SNAPSHOT_FILE = "universe_snapshot.json"
+
+
+def _universe_entries_from_rows(rows: list[dict[str, str]]) -> list[dict[str, Any]]:
+    """Apply ONLY the universe filter (structural + 1-or-2 dict words) to
+    raw CSV rows. Populates state/<source>/universe_snapshot.json — what
+    universe_sync reads — independent of the strict SNAP-filtered output."""
+    out: list[dict[str, Any]] = []
+    for row in rows:
+        domain = (row.get("domain") or "").strip().lower()
+        if not domain or not univ.passes_universe_filter(domain):
+            continue
+        price_raw = row.get("price") or ""
+        try:
+            price = float(str(price_raw).replace(",", "")) if price_raw else None
+        except ValueError:
+            price = None
+        out.append({"domain": domain, "price": price})
+    return out
 
 MIN_BIN_PRICE = 99.0
 TOP_N = 250
@@ -300,7 +321,12 @@ def run() -> int:
     rows = parse_csv_rows(csv_bytes)
     print(f"       raw rows: {len(rows):,}")
 
-    print("[5/10] Filtering + scoring")
+    print("[4b/10] Writing universe snapshot (broader filter for naming universe)")
+    universe_entries = _universe_entries_from_rows(rows)
+    state.write_json(SOURCE_ID, UNIVERSE_SNAPSHOT_FILE, universe_entries)
+    print(f"       universe entries: {len(universe_entries):,}")
+
+    print("[5/10] Filtering + scoring (strict SNAP filter for Slack/Sheets)")
     entries: list[Entry] = []
     for i, row in enumerate(rows, start=1):
         e = entry_from_row(row)

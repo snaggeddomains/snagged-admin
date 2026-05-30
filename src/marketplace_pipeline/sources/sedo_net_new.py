@@ -29,6 +29,7 @@ import requests
 
 from .. import config, drive_cache, state
 from ..filters import standard as flt
+from ..filters import universe as univ
 from ..publishers import sheets, slack
 from ..publishers.sheets import OwnershipMode
 
@@ -68,6 +69,20 @@ SHEET_HEADER = ["Domain", "Auction End (ET)", "Price", "Link"]
 
 SNAPSHOT_FILE = "snapshot.json"
 SLACK_STATE_FILE = "slack_state.json"
+UNIVERSE_SNAPSHOT_FILE = "universe_snapshot.json"
+
+
+def _universe_entries_from_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Apply ONLY the universe filter to Sedo raw API records. Sedo uses
+    field key '0' for domain and '4000' for price."""
+    out: list[dict[str, Any]] = []
+    for row in records:
+        domain = str(row.get("0") or "").strip().lower()
+        if not domain or not univ.passes_universe_filter(domain):
+            continue
+        price = _parse_float(row.get("4000"))
+        out.append({"domain": domain, "price": price})
+    return out
 
 EASTERN = ZoneInfo("America/New_York")
 
@@ -324,6 +339,11 @@ def run() -> int:
         print(f"      drive file id: {file_id}")
     except Exception as e:
         print(f"      WARN raw cache write failed (non-fatal): {e}")
+
+    print("[2b/6] Writing universe snapshot (broader filter for naming universe)")
+    universe_entries = _universe_entries_from_records(records)
+    state.write_json(SOURCE_ID, UNIVERSE_SNAPSHOT_FILE, universe_entries)
+    print(f"      universe entries: {len(universe_entries):,}")
 
     print("[3/6] Filtering through standard SNAP filter")
     listings = parse_results(records)

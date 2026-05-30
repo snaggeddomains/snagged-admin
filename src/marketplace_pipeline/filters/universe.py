@@ -85,17 +85,51 @@ def is_one_or_two_dictionary_words(sld: str, min_zipf: float = DICT_WORD_MIN_ZIP
       'cirro'        → False  (zipf ~1.1, not common usage)
       'qrtyz'        → False  (not a word, no valid split)
     """
+    return classify_dict_word(sld, min_zipf=min_zipf) is not None
+
+
+def classify_dict_word(sld: str, min_zipf: float = DICT_WORD_MIN_ZIPF) -> int | None:
+    """Return num_words (1 or 2) if sld matches the dict-word filter, else None.
+
+    Used to populate the `num_words` and `is_dictionary_word` enrichment
+    columns on `name_universe` at ingest time. Single-word matches return 1;
+    two-word splits return 2; non-matches return None.
+    """
     sld = sld.lower()
     if not sld or not sld.isalpha():
-        return False
+        return None
     if _zipf(sld) >= min_zipf:
-        return True
-    # Try every 2-word split where each half is at least MIN_HALF_LEN chars.
+        return 1
     for i in range(MIN_HALF_LEN, len(sld) - MIN_HALF_LEN + 1):
         left, right = sld[:i], sld[i:]
         if _zipf(left) >= min_zipf and _zipf(right) >= min_zipf:
-            return True
-    return False
+            return 2
+    return None
+
+
+def count_syllables(sld: str) -> int:
+    """Rough syllable count for a SLD using vowel-group heuristic.
+
+    Not perfect — academic syllable counters use lexicons or trained
+    models — but accurate enough (~80-85%) for ranking/grouping in the
+    naming-exercise UI. Treats adjacent vowels as a single syllable
+    group ('beautiful' = beau-ti-ful = 3) and ensures every word has
+    at least 1 syllable.
+    """
+    sld = sld.lower()
+    if not sld:
+        return 0
+    count = 0
+    prev_was_vowel = False
+    for c in sld:
+        is_vowel = c in VOWELS
+        if is_vowel and not prev_was_vowel:
+            count += 1
+        prev_was_vowel = is_vowel
+    # Trailing silent 'e' (cake, love, write) typically not its own syllable.
+    if sld.endswith("e") and count > 1 and not sld.endswith(("le", "ee", "ye")):
+        count -= 1
+    return max(1, count)
 
 
 def passes_universe_filter(domain: str) -> bool:

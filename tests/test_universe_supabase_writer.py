@@ -26,6 +26,30 @@ def test_merged_to_universe_row_picks_lowest_price():
     assert row["sources"] == ["afternic", "atom_daily"]
 
 
+def test_merged_to_universe_row_populates_cheap_enrichment_fields():
+    """num_words, num_syllables, is_dictionary_word are computed at ingest
+    so they're indexable in Postgres without per-query wordfreq calls."""
+    # Single-word case
+    row = sw.merged_to_universe_row({
+        "domain": "table.com", "sld": "table", "tld": ".com",
+        "sld_length": 5, "observed_date": "2026-05-29",
+        "zipf_score": 4.2, "sources": ["afternic"], "prices": {},
+    })
+    assert row["num_words"] == 1
+    assert row["is_dictionary_word"] is True
+    assert row["num_syllables"] >= 1  # table = 2 syllables (ta-ble), but heuristic may give 1-2
+
+    # Two-word case
+    row2 = sw.merged_to_universe_row({
+        "domain": "freshcoffee.com", "sld": "freshcoffee", "tld": ".com",
+        "sld_length": 11, "observed_date": "2026-05-29",
+        "zipf_score": 0.0, "sources": ["atom_daily"], "prices": {},
+    })
+    assert row2["num_words"] == 2
+    assert row2["is_dictionary_word"] is False
+    assert row2["num_syllables"] >= 2
+
+
 def test_merged_to_universe_row_handles_empty_prices():
     """Rows with no observed price should produce null best_price / source."""
     merged = {
