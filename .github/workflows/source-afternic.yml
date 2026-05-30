@@ -16,7 +16,9 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # Afternic publishes ~7M qualifying rows; upserting in 5K batches takes
+    # ~25-40 min depending on Supabase latency. Bumped to 90 min headroom.
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
 

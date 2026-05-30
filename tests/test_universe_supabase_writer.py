@@ -155,7 +155,7 @@ def test_upsert_batches_and_calls_rpc(monkeypatch):
     fake_client.rpc.return_value.execute.return_value = MagicMock()
     monkeypatch.setattr(sw, "_client_or_none", lambda: fake_client)
 
-    # 2,500 rows → 3 batches at default BATCH_SIZE=1000
+    # 12,000 rows → 3 batches at BATCH_SIZE=5000 (5000+5000+2000)
     merged = [
         {
             "domain": f"d{i}.com",
@@ -167,12 +167,12 @@ def test_upsert_batches_and_calls_rpc(monkeypatch):
             "sources": ["afternic"],
             "prices": {"afternic": float(i)},
         }
-        for i in range(2500)
+        for i in range(12000)
     ]
     stats = sw.upsert(merged)
 
     assert stats["status"] == "ok"
-    assert stats["rows_sent"] == 2500
+    assert stats["rows_sent"] == 12000
     assert stats["batches"] == 3
     # Verify the RPC was called 3 times with the right function name
     assert fake_client.rpc.call_count == 3

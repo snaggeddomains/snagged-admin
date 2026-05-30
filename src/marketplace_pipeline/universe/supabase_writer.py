@@ -16,7 +16,10 @@ from __future__ import annotations
 import os
 from typing import Any
 
-BATCH_SIZE = 1_000
+# 5K rows per batch keeps each RPC payload under ~1MB (well under Supabase's
+# 6MB limit) while dramatically cutting the round-trip count for big sources
+# like Afternic (7M rows = 1,400 calls at 5K vs 7,000 at 1K).
+BATCH_SIZE = 5_000
 
 
 def _client_or_none():
