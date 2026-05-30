@@ -50,6 +50,56 @@ def test_merged_to_universe_row_populates_cheap_enrichment_fields():
     assert row2["num_syllables"] >= 2
 
 
+def test_merged_to_universe_row_computes_quality_and_deal_scores():
+    """quality_score = zipf * tld_weight (2 decimals, ~0-7 range).
+    deal_score = (zipf * tld_weight) / price * 10000, rounded to integer
+    so it reads cleanly in sheets (typical range 1-1000)."""
+    # .com (weight 1.0), zipf 5.0, price $50 → quality 5.0, deal 1000
+    row = sw.merged_to_universe_row({
+        "domain": "table.com", "sld": "table", "tld": ".com",
+        "sld_length": 5, "observed_date": "2026-05-29",
+        "zipf_score": 5.0, "sources": ["afternic"],
+        "prices": {"afternic": 50.0},
+    })
+    assert row["quality_score"] == 5.0
+    assert row["deal_score"] == 1000
+    assert isinstance(row["deal_score"], int)
+
+    # .org (weight 0.6), zipf 4.0, price $200 → quality 2.4, deal 120
+    row2 = sw.merged_to_universe_row({
+        "domain": "ocean.org", "sld": "ocean", "tld": ".org",
+        "sld_length": 5, "observed_date": "2026-05-29",
+        "zipf_score": 4.0, "sources": ["namecheap_bin"],
+        "prices": {"namecheap_bin": 200.0},
+    })
+    assert row2["quality_score"] == 2.4
+    assert row2["deal_score"] == 120
+
+
+def test_merged_to_universe_row_nullifies_scores_when_inputs_missing():
+    """If zipf or price is unknown, quality / deal should be NULL so
+    ranking queries don't conflate 'missing' with 'bad'."""
+    row = sw.merged_to_universe_row({
+        "domain": "xyz.com", "sld": "xyz", "tld": ".com",
+        "sld_length": 3, "observed_date": "2026-05-29",
+        "zipf_score": None,  # non-alpha SLD
+        "sources": ["namecheap_bin"],
+        "prices": {"namecheap_bin": 100.0},
+    })
+    assert row["quality_score"] is None
+    assert row["deal_score"] is None
+
+    row2 = sw.merged_to_universe_row({
+        "domain": "table.com", "sld": "table", "tld": ".com",
+        "sld_length": 5, "observed_date": "2026-05-29",
+        "zipf_score": 5.0,
+        "sources": ["afternic"],
+        "prices": {},  # no price
+    })
+    assert row2["quality_score"] == 5.0  # still has zipf+weight
+    assert row2["deal_score"] is None  # but no price → no deal score
+
+
 def test_merged_to_universe_row_handles_empty_prices():
     """Rows with no observed price should produce null best_price / source."""
     merged = {

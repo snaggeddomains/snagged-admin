@@ -37,12 +37,17 @@ def merged_to_universe_row(merged: dict[str, Any]) -> dict[str, Any]:
     single (best_price, best_price_source) pair — we don't store the
     full map server-side, only the cheapest current observation.
 
-    Cheap deterministic enrichment fields (num_words, num_syllables,
-    is_dictionary_word) are computed here at ingest time so they're
-    indexable in Postgres without per-query LLM/wordfreq calls.
+    Cheap deterministic enrichment fields computed here at ingest time so
+    they're indexable in Postgres without per-query LLM/wordfreq calls:
+      - num_words, num_syllables, is_dictionary_word (structural)
+      - quality_score = zipf * tld_weight (bounded ~0-7)
+      - deal_score    = (zipf * tld_weight) / price * 10000, rounded to int
+        (typical range 1-1000 — reads as a clean integer in sheets / UI)
+
     Expensive LLM-based fields (category, emotions, keywords, industries)
     are populated separately by a Phase 2 enrichment worker.
     """
+    from .. import scoring
     from ..filters.universe import classify_dict_word, count_syllables
 
     prices: dict[str, float] = merged.get("prices") or {}
@@ -52,14 +57,28 @@ def merged_to_universe_row(merged: dict[str, Any]) -> dict[str, Any]:
         best_source, best_price = None, None
 
     sld = merged["sld"]
-    num_words = classify_dict_word(sld)  # 1, 2, or None (None is rare since
-    # only universe-filter-passing rows reach here, but defend anyway)
+    tld = merged["tld"]
+    zipf = merged.get("zipf_score")
+
+    num_words = classify_dict_word(sld)  # 1, 2, or None (rare since only
+    # universe-filter-passing rows reach here, but defend anyway)
+
+    # Quality + deal scoring. Null when zipf or price is missing — keeps
+    # ranking queries honest instead of treating zero as a valid signal.
+    weight = scoring.tld_weight(tld)
+    quality = round(scoring.quality_score(zipf, weight), 2) if zipf is not None else None
+    deal = (
+        int(round(scoring.deal_score(zipf, best_price, weight)))
+        if zipf is not None and best_price is not None and best_price > 0
+        else None
+    )
+
     return {
         "domain": merged["domain"],
         "sld": sld,
-        "tld": merged["tld"],
+        "tld": tld,
         "sld_length": int(merged["sld_length"]),
-        "zipf_score": merged.get("zipf_score"),
+        "zipf_score": zipf,
         "observed_date": merged["observed_date"],
         "sources": list(merged.get("sources") or []),
         "best_price": best_price,
@@ -67,6 +86,8 @@ def merged_to_universe_row(merged: dict[str, Any]) -> dict[str, Any]:
         "num_words": num_words,
         "num_syllables": count_syllables(sld),
         "is_dictionary_word": num_words == 1 if num_words is not None else None,
+        "quality_score": quality,
+        "deal_score": deal,
     }
 
 
