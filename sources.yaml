@@ -246,14 +246,32 @@ sources:
     schedule_utc: "15 12 * * *"   # ~8:15 AM ET — after tier-1 sheets
     enabled: true
     notes: |
-      Oxley.com — Efty-themed boutique marketplace, ~100 curated
-      single-word .coms. Scraped via scrape.do (CF-protected; plain
-      curl 403s). Homepage IS the catalog; no pagination needed.
-      Extracts domains from /domain/<name>/ hrefs.
+      Oxley.com — Efty-themed boutique marketplace, ~1,400 curated
+      single-word .coms. Paginates the Efty AJAX endpoint
+      (/ajax/market_themes/domain_overview_table) via scrape.do
+      super-proxies, ~142 calls per run (10 items per page).
 
       Tier 2 (brokered third-party inventory, not Snagged-owned).
-      Prices not captured in v1 — they live on individual /domain/
-      pages which would require N+1 scrape.do calls. Defer to v2.
+      Prices not captured — they live on individual /domain/ pages.
+
+  - source_id: braden_pollack_portfolio
+    product: snap
+    kind: google_doc
+    schedule_utc: "20 12 * * *"   # ~8:20 AM ET
+    enabled: true
+    notes: |
+      Braden Pollack's domain portfolio — fetched as public CSV from
+      a 'Anyone with the link → Viewer' mirror sheet that uses
+      IMPORTRANGE from his private master. We can't add our service
+      account to his sheet, so this uses the no-auth CSV export URL
+      (read_public_csv_as_dicts helper) rather than the Sheets API.
+
+      Ownership registry, not a marketplace listing — most rows are
+      Sub Category = 'Not For Sale' (in-house use). Ingested with
+      price = NULL; naming exercise treats these as 'owned by Braden,
+      may be acquirable through negotiation'.
+
+      Tier 2 (external inventory, not Snagged-owned).
 
   - source_id: dynadot_dump
     product: snap

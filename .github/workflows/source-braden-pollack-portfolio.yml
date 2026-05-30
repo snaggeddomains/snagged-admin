@@ -1,0 +1,32 @@
+name: 'Source: braden_pollack_portfolio'
+
+on:
+  schedule:
+    - cron: '20 12 * * *'   # 12:20 UTC = ~8:20 AM ET (after the tier-1 sheets at 12:00)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: source-braden-pollack-portfolio
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Run braden_pollack_portfolio
+        env:
+          # No GOOGLE_SERVICE_ACCOUNT_JSON needed — fetches public CSV directly.
+          SUPABASE_NAMING_URL:         ${{ secrets.SUPABASE_NAMING_URL }}
+          SUPABASE_NAMING_SERVICE_KEY: ${{ secrets.SUPABASE_NAMING_SERVICE_KEY }}
+        run: pipeline run braden_pollack_portfolio
+      - name: Commit state changes
+        if: success()
+        uses: ./.github/actions/commit-state
+        with:
+          message: "braden_pollack_portfolio: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
