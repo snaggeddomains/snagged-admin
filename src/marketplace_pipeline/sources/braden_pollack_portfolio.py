@@ -15,6 +15,15 @@ best_price = NULL. The downstream naming UI should treat these as
 "known to be owned by Braden, may be acquirable through negotiation"
 rather than as priced-for-sale listings.
 
+UNIVERSE FILTER BYPASS: Unlike marketplace sources, we deliberately
+skip the 1-or-2-dictionary-word filter for Braden's portfolio. His
+portfolio is industry-specific (a lot of legal / DUI / insurance
+multi-word brands like DUIAttorneys.com, LegalReferrals.com,
+1800DWILaw.com) — those names get rejected by the universe filter but
+are exactly what a client in those industries would want. For an
+ownership registry, the right semantics are 'capture everything owned;
+let the naming-exercise query layer filter for quality when needed.'
+
 Tier-2 source (external inventory, not Snagged-owned).
 """
 from __future__ import annotations
@@ -23,7 +32,6 @@ from datetime import datetime, timezone
 from typing import Any
 
 from .. import config, google_sheets_reader as gsr, state
-from ..filters import universe as univ
 from ..universe import supabase_writer
 
 SOURCE_ID = "braden_pollack_portfolio"
@@ -43,23 +51,18 @@ def run() -> int:
     rows = gsr.read_public_csv_as_dicts(SPREADSHEET_ID, gid=GID)
     print(f"      raw rows: {len(rows):,}")
 
-    print("[2/3] Filtering: domain present + universe filter")
+    print("[2/3] Filtering: domain present (universe filter BYPASSED)")
     universe_entries: list[dict[str, Any]] = []
     skipped_bad_domain = 0
-    skipped_filter = 0
     for row in rows:
         domain = (row.get(DOMAIN_COL) or "").strip().lower()
+        # Only drop genuinely malformed rows. Universe-filter quality
+        # checks are intentionally skipped — see module docstring.
         if not domain or "." not in domain:
             skipped_bad_domain += 1
             continue
-        if not univ.passes_universe_filter(domain):
-            skipped_filter += 1
-            continue
         universe_entries.append({"domain": domain, "price": None})
-    print(
-        f"      drops — bad_domain: {skipped_bad_domain} "
-        f"universe_filter: {skipped_filter}"
-    )
+    print(f"      drops — bad_domain: {skipped_bad_domain}")
     print(f"      universe entries: {len(universe_entries):,}")
 
     print(f"[3/3] Upserting to Supabase name_universe (tier={SOURCE_TIER})")
