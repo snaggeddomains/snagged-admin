@@ -110,10 +110,14 @@ references:
 # if ET-precision matters.
 
 sources:
-  # ===== Tier-1 sources (owned / near-owned inventory — playbook §3.4) =====
-  # Queried FIRST in every naming exercise per the playbook order-of-
-  # operations. Naming queries should: search tier=1 first, only widen
-  # to tier=2 (broad market) if the first pass returns < ~30 candidates.
+  # ===== Tier-1 sources (owned inventory) =====
+  # Domains WE control (Snagged-owned, Rob-owned, or Snagged-brokered).
+  # The naming exercise gives these preference but does NOT exclude
+  # tier-2 results. Query pattern is:
+  #   ORDER BY quality_score DESC, source_tier ASC, deal_score DESC
+  # — high-quality tier-2 names still surface near the top; tier-1 wins
+  # only when quality is equal or close. Oxley and other brokered
+  # third-party inventories stay in tier-2.
 
   - source_id: snagged_snap_sheet
     product: snap

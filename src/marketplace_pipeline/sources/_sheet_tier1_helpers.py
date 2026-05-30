@@ -1,5 +1,11 @@
 """Shared helpers for the tier-1 Google-Sheet-backed sources.
 
+Tier-1 means OWNED inventory: Snagged-owned (SNAP), Rob-owned, and
+Snagged-brokered (Marketplace). The naming exercise gives these
+preference but never excludes tier-2 results — high-quality tier-2
+names still surface near the top. See sources.yaml header comment for
+the exact query ordering.
+
 The three sources (snagged_snap_sheet, rob_purchases_sheet,
 snagged_marketplace_sheet) all follow the same pattern:
 
