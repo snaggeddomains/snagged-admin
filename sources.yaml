@@ -240,6 +240,21 @@ sources:
       kept enabled because that handful is real and goes into the
       universe correctly.
 
+  - source_id: oxley
+    product: snap
+    kind: scrape_json
+    schedule_utc: "15 12 * * *"   # ~8:15 AM ET — after tier-1 sheets
+    enabled: true
+    notes: |
+      Oxley.com — Efty-themed boutique marketplace, ~100 curated
+      single-word .coms. Scraped via scrape.do (CF-protected; plain
+      curl 403s). Homepage IS the catalog; no pagination needed.
+      Extracts domains from /domain/<name>/ hrefs.
+
+      Tier 2 (brokered third-party inventory, not Snagged-owned).
+      Prices not captured in v1 — they live on individual /domain/
+      pages which would require N+1 scrape.do calls. Defer to v2.
+
   - source_id: dynadot_dump
     product: snap
     kind: api_export
