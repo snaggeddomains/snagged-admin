@@ -63,8 +63,13 @@ DEFAULT_FILTERS: dict[str, str] = {
     "": "",  # trailing empty key — Efty includes this; preserve for fidelity
 }
 
-PAGE_SIZE = 20
-MAX_PAGES = 200          # safety cap — would cover ~4000 domains
+PAGE_SIZE = 10           # the AJAX endpoint returns 10 items per call,
+                         # NOT 20 — verified empirically: stepping by 20
+                         # silently skipped every other batch, capping us
+                         # at ~half the catalog. Step matches the actual
+                         # response size.
+MAX_PAGES = 300          # safety cap — would cover 3,000 domains, way
+                         # over Oxley's ~1,400
 REQUEST_TIMEOUT = 120
 SCRAPE_DO_BASE = "https://api.scrape.do/"
 
