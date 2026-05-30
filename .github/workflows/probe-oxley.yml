@@ -1,12 +1,18 @@
-name: 'Probe: oxley.com pagination / sitemap discovery'
+name: 'Probe: oxley.com data location (JSON blob vs AJAX endpoint)'
 
-# The first probe found only ~30 domains on the rendered homepage —
-# turns out Oxley has 1,412 listings paginated behind a "Show more"
-# AJAX button. This probe hunts for:
-#   - sitemap.xml (likely lists all 1412 /domain/<name>/ URLs in one fetch)
-#   - the AJAX endpoint that "Show more" calls
-#   - any data-* attributes on the button revealing the endpoint
-#   - inline JS hinting at the load-more URL
+# Last probe ruled out sitemap.xml. This one answers a binary question:
+# does the homepage HTML contain all 1,412 domain references (just
+# hidden by CSS until "Show more" is clicked), or are the missing 1,401
+# fetched via a separate API call?
+#
+#   - count of /domain/<name>/ links in the raw homepage HTML
+#   - count of bare 'sld.tld' strings in the homepage (would catch
+#     domain names embedded in JSON without the URL wrapper)
+#   - hunt for inline JSON blobs (window.__INITIAL_STATE__, var domains
+#     = [...], etc.)
+#   - inspect robots.txt for a sitemap clue (sometimes Efty puts it
+#     in a non-standard path)
+#   - try /robots.txt + a few specific Efty AJAX patterns
 
 on:
   workflow_dispatch: {}
@@ -19,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Hunt for the catalog endpoint
+      - name: Determine homepage data location
         env:
           SCRAPE_DO_TOKEN: ${{ secrets.SCRAPE_DO_TOKEN }}
         run: |
@@ -34,69 +40,65 @@ jobs:
               "https://api.scrape.do/?token=${SCRAPE_DO_TOKEN}&url=${encoded}&render=true&super=true&geoCode=us"
           }
 
-          # ---- Sitemap probe ----
-          echo "============================================="
-          echo "STEP 1: Try sitemap.xml — might list all 1412 in one shot"
-          echo "============================================="
-          for sm in "/sitemap.xml" "/sitemap_index.xml" "/sitemap-domains.xml" "/sitemap1.xml"; do
-            url="https://oxley.com${sm}"
-            STATUS=$(fetch "$url" /tmp/sitemap.xml)
-            SIZE=$(wc -c < /tmp/sitemap.xml)
-            DOMAINS=$(grep -oE '<loc>[^<]*</loc>' /tmp/sitemap.xml 2>/dev/null | wc -l || echo 0)
-            echo "  ${sm} → HTTP ${STATUS}, ${SIZE} bytes, ${DOMAINS} <loc> entries"
-            if [ "$DOMAINS" -gt 100 ]; then
-              echo "  Sample <loc> entries:"
-              grep -oE '<loc>[^<]*</loc>' /tmp/sitemap.xml | head -5
-            fi
-            sleep 0.5
-          done
+          STATUS=$(fetch "https://oxley.com/" /tmp/home.html)
+          echo "Homepage HTTP ${STATUS}, $(wc -c < /tmp/home.html) bytes"
+          echo ""
 
-          # ---- Homepage AJAX endpoint hunt ----
-          echo ""
+          # ---- Are there 1412 domain refs hidden in the HTML? ----
           echo "============================================="
-          echo "STEP 2: Inspect homepage for 'Show more' AJAX hints"
+          echo "Q1: Are all 1,412 domains in the static HTML or not?"
           echo "============================================="
-          fetch "https://oxley.com/" /tmp/home.html >/dev/null
-          echo "Homepage: $(wc -c < /tmp/home.html) bytes"
-          echo ""
-          echo "--- Lines mentioning 'show more' / 'load more': ---"
-          grep -niE 'show.?more|load.?more|see.?more|more-button|loadmore|show_more' /tmp/home.html | head -10
-          echo ""
-          echo "--- data-* attributes on buttons near 'more': ---"
-          grep -oE '<(a|button)[^>]*data-[a-z-]+="[^"]*"[^>]*>(\s|[^<])*more[^<]*<' /tmp/home.html | head -5
-          echo ""
-          echo "--- Inline script blocks containing URL-like strings near 'more' / 'page' / 'offset': ---"
-          grep -oE "['\"]/(api|ajax|json|domains|marketplace|browse|list|more|page)[^'\"]*['\"]" /tmp/home.html | sort -u | head -20
-          echo ""
-          echo "--- AJAX-style fetch / \$.get / \$.post / XMLHttpRequest URLs: ---"
-          grep -oE "\\\$\\.(get|post|ajax)\([^)]+\)|fetch\([^)]+\)|XMLHttpRequest" /tmp/home.html | head -10
-          echo ""
-          echo "--- Any URL with 'page', 'start', 'offset', 'limit', or 'skip' params: ---"
-          grep -oE "['\"][^'\"]*[?&](page|start|offset|limit|skip|p)=[^'\"&]*['\"]" /tmp/home.html | sort -u | head -20
+          DOMAIN_LINKS=$(grep -oE 'oxley\.com/domain/[a-z0-9][a-z0-9.-]+/' /tmp/home.html | sort -u | wc -l)
+          echo "  Unique /domain/<name>/ links: ${DOMAIN_LINKS}"
 
-          # ---- Try common Efty AJAX endpoints ----
+          BARE_DOMAINS=$(grep -oiE '\b[a-z][a-z0-9-]{2,30}\.(com|net|org|io|ai|co|xyz|app|dev)\b' /tmp/home.html \
+            | grep -ivE '(jquery|bootstrapcdn|jsdelivr|google-analytics|googleapis|efty\.com|oxley\.com|cloudflare|fontawesome|altcha|maxcdn|jsdelivr)' \
+            | sort -u | wc -l)
+          echo "  Unique bare 'sld.tld' strings (non-CDN): ${BARE_DOMAINS}"
+          echo "  --> if either is ~1400, all data is in the HTML (just hidden)"
+          echo "  --> if both are ~30, the rest comes from a separate API call"
+
           echo ""
+          # ---- Look for inline JSON blobs ----
           echo "============================================="
-          echo "STEP 3: Try common Efty load-more / API endpoints"
+          echo "Q2: Is there a JSON blob with domain data inline?"
           echo "============================================="
-          for ep in \
-              "/ajax/load_more" \
-              "/ajax/domains" \
-              "/load_more" \
-              "/api/domains" \
-              "/api/marketplace" \
-              "/api/v1/domains" \
-              "/json/domains" \
-              "/?ajax=domains&page=2" \
-              "/?action=load_more&page=2" \
-              "/page/2" \
-              "/page/2/" \
-              "/?p=2"; do
-            url="https://oxley.com${ep}"
-            STATUS=$(fetch "$url" /tmp/body.html)
-            SIZE=$(wc -c < /tmp/body.html)
-            DCOUNT=$(grep -oE '[a-z][a-z0-9-]{2,30}\.(com|net|org|io|ai|co)' /tmp/body.html | grep -ivE '(efty|oxley|jquery|bootstrap|google|cloudflare)\.com' | sort -u | wc -l)
-            echo "  ${ep} → HTTP ${STATUS}, ${SIZE} bytes, ${DCOUNT} unique non-cdn domains"
+          echo "  Looking for window.__... / window._ ... assignments:"
+          grep -oE 'window\.[A-Z_a-z]+ ?= ?[\{\[]' /tmp/home.html | sort -u | head -10 || true
+          echo "  Looking for 'var domains' / 'let domains' / 'const domains':"
+          grep -nE '(var|let|const) +[a-z_]*[Dd]omain' /tmp/home.html | head -10 || true
+          echo "  Looking for large JSON arrays in <script> tags (>5K chars):"
+          python3 - <<'PY' || true
+          import re, sys
+          html = open('/tmp/home.html').read()
+          for m in re.finditer(r'<script[^>]*>(.*?)</script>', html, re.DOTALL | re.IGNORECASE):
+              body = m.group(1)
+              if len(body) > 5000 and ('domain' in body.lower() or '"name"' in body.lower() or 'sld' in body.lower()):
+                  print(f"  Large script block ({len(body)} chars), first 300 chars:")
+                  print("  " + body[:300].replace("\n"," ") + " ...")
+                  print()
+          PY
+
+          echo ""
+          # ---- robots.txt for sitemap hint ----
+          echo "============================================="
+          echo "Q3: robots.txt — does it point to a sitemap or block paths?"
+          echo "============================================="
+          STATUS=$(fetch "https://oxley.com/robots.txt" /tmp/robots.txt)
+          echo "  HTTP ${STATUS}"
+          cat /tmp/robots.txt 2>/dev/null | head -20 || true
+
+          echo ""
+          # ---- Try the 'Show more' button via per_page hack ----
+          echo "============================================="
+          echo "Q4: Does oxley.com accept ?per_page=N or similar to render everything?"
+          echo "============================================="
+          for q in "?per_page=2000" "?limit=2000" "?show=all" "?all=1" "?page_size=2000" "?count=2000"; do
+            url="https://oxley.com/${q}"
+            STATUS=$(fetch "$url" /tmp/qbody.html)
+            SIZE=$(wc -c < /tmp/qbody.html)
+            DCOUNT=$(grep -oE 'oxley\.com/domain/[a-z0-9][a-z0-9.-]+/' /tmp/qbody.html | sort -u | wc -l)
+            echo "  ${q} → HTTP ${STATUS}, ${SIZE} bytes, ${DCOUNT} /domain/ refs"
             sleep 0.5
           done
 
