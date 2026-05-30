@@ -228,6 +228,27 @@ sources:
       email Dynadot support to enable v2 access. Keep dynadot_dump running
       as the working v1-based feeder until v2 is unlocked.
 
+  - source_id: spaceship_marketplace
+    product: snap
+    kind: api_export
+    enabled: false
+    reason: |
+      Distinct from the existing `spaceship` source, which uses the v1
+      /sellerhub/domains endpoint and returns ONLY our own account's
+      SellerHub listings (~5 rows). This would pull the full Spaceship
+      marketplace — other sellers' inventory — for universe ingestion.
+
+      Blocked: no buyer/discovery endpoint exists in the public v1 API.
+      Probed ~20 plausible paths under /api/v1/ (marketplace/*,
+      aftermarket/*, sellerhub/*, partnership/*, discovery/*, etc.) on
+      2026-05-30; all returned 404. Emailed Spaceship support that day
+      asking whether a Partner-tier endpoint exists or is on roadmap.
+      Same shape as Atom's `partnership-search` or Dynadot's v2
+      `aftermarket/listings`.
+
+      Wire as a separate source once they enable / document it. Keep
+      `spaceship` running in the meantime for our own SellerHub data.
+
   - source_id: sedo_dump
     product: snap
     kind: scrape_json
