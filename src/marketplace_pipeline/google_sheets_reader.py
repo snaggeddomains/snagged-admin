@@ -44,12 +44,17 @@ def read_tab_as_dicts(spreadsheet_id: str, tab_name: str) -> list[dict[str, str]
     Empty rows (where every cell is blank) are skipped. Headers are
     stripped of whitespace. Trailing columns missing from a row are
     treated as empty strings, so dict access by header is always safe.
+
+    The Sheets API accepts bare tab names as a range when you want the
+    whole sheet. Single-quoting is only required for explicit A1-notation
+    ranges with embedded spaces (e.g., "'Rob Purchases'!A1:Z"). Passing
+    the bare name handles both 'SNAP' and 'Rob Purchases' correctly.
     """
     svc = _service()
     res = (
         svc.spreadsheets()
         .values()
-        .get(spreadsheetId=spreadsheet_id, range=f"'{tab_name}'")
+        .get(spreadsheetId=spreadsheet_id, range=tab_name)
         .execute()
     )
     values = res.get("values", [])
