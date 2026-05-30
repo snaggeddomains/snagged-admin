@@ -19,7 +19,7 @@ SOURCE_ID = "snagged_snap_sheet"
 SOURCE_LABEL = "Snagged SNAP (sheet)"
 
 SPREADSHEET_ID = "1KaxYUgBFALe_T0F8-6D0kb7mWy-eU5CkIbX6BGmyK4g"
-TAB_NAME = "SNAP"
+TAB_NAME = "SNAP Domains"
 DOMAIN_COL = "Domain"
 PRICE_COL = "Internal Price"
 ACTIVE_COL = "Still Owned?"
