@@ -1,21 +1,20 @@
-name: 'Probe: sedo.com tail-page composition (does the cheap long tail justify a full dump?)'
+name: 'Probe: sedo.com pagination depth cap (where does hitsTotal go to 0?)'
 
-# Follow-up to the initial sizing probe. We learned:
-#   - hitsTotal = 263,993 for the universe-scoped filter set
-#   - results are sorted price-desc — first 500 are headline names like
-#     services.ai @ $15M, group.ai @ $995K, etc., 61% with NULL price
-#   - Only .com / .ai surface in the first 500; .org/.co/.xyz/.io are
-#     buried deeper
+# Last probe found that pages 264 + 528 both return 0 rows AND
+# hitsTotal: 0, while page 1 had hitsTotal: 263,993. So either:
+#   (a) Sedo caps deep pagination — only the top N rows are reachable
+#       via page=N regardless of how many documents matched, OR
+#   (b) Search state is bound to something fragile (session cookie,
+#       search token) and a deep page= jump invalidates the query.
 #
-# Open question before committing to a 9-minute / 264K-row dump source:
-# does the BOTTOM of the catalog actually contain interesting names, or
-# is it nothing but parked-domain dross we'd waste storage on?
+# This probe walks a SINGLE session from page 1 outward, doubling the
+# page index each step until we hit the empty-result wall. That bounds
+# the actual reachable inventory and tells us how to design sedo_dump
+# (or whether to abandon the broad dump and stick with focused
+# narrow-keyword scrapes).
 #
-# This probe fetches page 528 (the last page) PLUS page 264 (midpoint)
-# for comparison, and reports the same TLD / price / sample breakdown
-# we got from page 1. Decision: if midpoint + tail show real domains in
-# the .co/.org/.xyz/.io space at $100-2K prices, build the dump source.
-# If they're all $0 unknown-price junk, narrow our scope.
+# Strategy: page 1, 2, 5, 10, 20, 50, 100, 200. Log rows + hitsTotal
+# at each. The page where rows drops to 0 is our cap.
 
 on:
   workflow_dispatch: {}
@@ -30,11 +29,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-      - name: Hit Sedo search backend at head / midpoint / tail
+      - name: Find Sedo's pagination depth cap
         run: |
           python3 - <<'PY'
           import requests
-          from collections import Counter
+          import time
 
           BASE_URL = "https://sedo.com/service/common.php"
           SEARCH_URL = "https://sedo.com/search/"
@@ -84,55 +83,30 @@ jobs:
           def fetch(page: int):
               resp = sess.post(BASE_URL, data=build_payload(page), headers=headers, timeout=60)
               resp.raise_for_status()
-              return resp.json()
-
-          def bucket_price(p):
-              if p is None: return "unknown"
-              if p < 100: return "<$100"
-              if p < 500: return "$100-499"
-              if p < 2000: return "$500-1999"
-              if p < 10000: return "$2k-9.9k"
-              return ">=$10k"
-
-          def parse_price(v):
-              if v in (None, ""): return None
-              try: return float(str(v).replace("$","").replace(",","").strip())
-              except (TypeError, ValueError): return None
-
-          def summarize(page_num: int):
-              print("=" * 60)
-              print(f"PAGE {page_num}")
-              print("=" * 60)
-              data = fetch(page_num)
+              data = resp.json()
               sr = data.get("b", {}).get("general", {}).get("searchRequest", {}) or {}
-              rows = sr.get("resultList") or []
-              print(f"  rows returned: {len(rows)}  (hitsTotal: {sr.get('hitsTotal')})")
-              tld_c = Counter()
-              price_c = Counter()
-              samples = []
-              for row in rows:
-                  d = str(row.get("0") or "").lower()
-                  t = str(row.get("4002") or "").lower().lstrip(".")
-                  p = parse_price(row.get("4000"))
-                  tld_c[t] += 1
-                  price_c[bucket_price(p)] += 1
-                  if len(samples) < 20:
-                      samples.append((d, p))
-              print("  TLD distribution:")
-              for t, n in tld_c.most_common():
-                  print(f"    .{t}: {n}")
-              print("  Price buckets:")
-              for b in ("<$100","$100-499","$500-1999","$2k-9.9k",">=$10k","unknown"):
-                  if price_c.get(b): print(f"    {b}: {price_c[b]}")
-              print("  First 20 sample (domain, price):")
-              for d, p in samples:
-                  print(f"    {d}  ({p})")
-              print()
-              return rows
+              return len(sr.get("resultList") or []), sr.get("hitsTotal")
 
-          # Page 264 = midpoint, page 528 = last page
-          summarize(264)
-          summarize(528)
+          print("Walking pages on a single session at pagesize=500.")
+          print("Cumulative rows assumes no overlap (the page1-page2 probe confirmed that).")
+          print()
+          print(f"{'page':>6}  {'rows':>5}  {'hitsTotal':>10}  {'cumulative':>10}")
+          print(f"{'----':>6}  {'----':>5}  {'---------':>10}  {'----------':>10}")
+          cumulative = 0
+          for page in [1, 2, 5, 10, 20, 50, 100, 200]:
+              try:
+                  rows, hits = fetch(page)
+              except Exception as e:
+                  print(f"{page:>6}  ERROR: {e}")
+                  break
+              cumulative += rows
+              print(f"{page:>6}  {rows:>5}  {str(hits):>10}  {cumulative:>10}")
+              if rows == 0:
+                  print(f"  --> empty result at page {page}; stopping walk")
+                  break
+              time.sleep(0.5)
 
-          print("Done.")
+          # Bisect between last non-empty and first empty page to find
+          # the exact cap (or close to it). Skip if walk completed all
+          # pages without hitting zero.
           PY
