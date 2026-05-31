@@ -535,8 +535,11 @@ def run() -> int:
                 return False
             except Exception as e:  # noqa: BLE001 — Postgres timeout etc.
                 msg = str(e)
-                transient = ("57014" in msg or "timeout" in msg.lower()
-                             or "statement" in msg.lower())
+                low = msg.lower()
+                # Retry transient Postgres errors: statement timeout (57014)
+                # and deadlock (40P01) are both load-induced and idempotent-safe.
+                transient = ("57014" in low or "40p01" in low or "deadlock" in low
+                             or "timeout" in low or "statement" in low)
                 if attempt < UPSERT_RETRIES - 1 and transient:
                     backoff = UPSERT_BACKOFF_BASE * (2 ** attempt)
                     print(f"      upsert chunk timeout (attempt {attempt + 1}); "
