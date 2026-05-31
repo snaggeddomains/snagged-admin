@@ -1,0 +1,15 @@
+{
+  "current_partition": "tld=co len=1-\u221e words=1-\u221e price=25000-\u221e",
+  "elapsed_sec": 42.5,
+  "failed_partitions": 0,
+  "final": false,
+  "flushes": 2,
+  "leaves_harvested": 1,
+  "queries": 11,
+  "report_date": "2026-05-31",
+  "requests": 11,
+  "rows_upserted": 1600,
+  "unique_domains": 4511,
+  "universe_qualifying": 2258,
+  "updated_at": "2026-05-31T08:13:28.890015+00:00"
+}
