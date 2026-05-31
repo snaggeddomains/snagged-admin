@@ -1,15 +1,15 @@
 {
-  "current_partition": "tld=co len=1-\u221e words=1-\u221e price=25000-\u221e",
-  "elapsed_sec": 42.5,
+  "current_partition": "tld=co len=13-\u221e words=1-\u221e price=5000-25000",
+  "elapsed_sec": 53.9,
   "failed_partitions": 0,
   "final": false,
-  "flushes": 2,
-  "leaves_harvested": 1,
-  "queries": 11,
+  "flushes": 3,
+  "leaves_harvested": 2,
+  "queries": 14,
   "report_date": "2026-05-31",
-  "requests": 11,
-  "rows_upserted": 1600,
-  "unique_domains": 4511,
-  "universe_qualifying": 2258,
-  "updated_at": "2026-05-31T08:13:28.890015+00:00"
+  "requests": 14,
+  "rows_upserted": 2400,
+  "unique_domains": 5342,
+  "universe_qualifying": 2564,
+  "updated_at": "2026-05-31T08:13:40.266101+00:00"
 }
