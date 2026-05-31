@@ -276,20 +276,25 @@ sources:
   - source_id: dynadot_dump
     product: snap
     kind: api_export
-    schedule_utc: "45 21 * * *"   # ~5:45 PM ET
-    enabled: true
-    notes: |
-      Full-inventory Dynadot daily dump for the universe pool, distinct
-      from dynadot_auctions (24h time-sensitive watchlist for the
-      auctions Slack/Sheets).
+    enabled: false
+    reason: |
+      DISABLED 2026-05-30. This source uses Dynadot's legacy v1
+      /api3.json get_open_auctions endpoint, which returns AUCTIONS
+      only — not the BIN / buy-it-now aftermarket catalog we actually
+      want for the universe pool.
 
-      Uses the same v1 /api3.json endpoint + get_open_auctions command +
-      query-string key+secret auth — but with NO time horizon, so we
-      paginate every open auction across the inventory rather than just
-      ones ending within 24h. Matches the legacy openclaw flow described
-      in dynadot_open_fetch.py, except the diff step is now implicit via
-      Supabase's upsert merge (first_seen/last_seen/best_price tracked
-      across days naturally).
+      Auction inventory is time-limited (auctions end on specific dates
+      and the names drop or transfer), so it's not great signal for a
+      stable naming-exercise pool. The BIN catalog is the right target.
+
+      Waiting on Dynadot to unlock v2 RESTful API access (see
+      dynadot_aftermarket placeholder); once that lands we wire the
+      proper BIN feed and retire dynadot_dump. Code stays around in
+      case we ever want auction-only data, but scheduled cron is off.
+
+      Note: dynadot_auctions (the 24h time-sensitive watchlist for
+      Slack/Sheets) is unrelated and stays enabled — that's served
+      by the same v1 endpoint but constrained to ending-within-24h.
 
   - source_id: dynadot_aftermarket
     product: snap
@@ -469,10 +474,21 @@ sources:
   - source_id: universe_sync
     product: aux
     kind: orchestrator
-    schedule_utc: "0 22 * * *"     # ~6:00 PM ET — after efty_partner
-    enabled: true
-    notes: |
-      Daily ingest into the supabase_naming reference. Walks every wired
-      source's snapshot.json, applies the universe_ingest filter, merges
-      across sources, and upserts into Supabase. Parquet partition is
-      also written for historical archive (R2 if configured).
+    enabled: false
+    reason: |
+      DISABLED 2026-05-30. Originally designed to walk every source's
+      snapshot.json, merge them all, and upsert centrally to Supabase.
+      Made redundant when each source moved to inline direct-upsert
+      (started with Afternic when its 360MB snapshot.json blew past
+      GitHub's 100MB file limit).
+
+      Now every source upserts its own rows at the end of its own
+      workflow — universe_sync was just re-processing the same data.
+      Last run also timed out on Postgres 'statement timeout' at 5K-row
+      batches because the RPC's complex merge logic (array_agg DISTINCT,
+      LEAST, CASE) × 341K rows exceeded the default 8s per-statement
+      budget.
+
+      Code stays around as a batch-reprocessing tool if we ever need
+      to bulk-rebuild from local snapshots, but the scheduled cron is
+      off. Workflow file is also disabled.

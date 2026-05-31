@@ -1,8 +1,12 @@
-name: 'Source: dynadot_dump'
+name: 'Source: dynadot_dump (DISABLED — auctions-only; awaiting v2 BIN access)'
 
+# Disabled 2026-05-30 — v1 get_open_auctions returns auction-only data,
+# not the buy-it-now aftermarket catalog we want for the universe pool.
+# Waiting on Dynadot to unlock v2 RESTful API. See dynadot_aftermarket
+# placeholder in sources.yaml. Re-enable by uncommenting `schedule:` below.
 on:
-  schedule:
-    - cron: '45 21 * * *'   # 21:45 UTC = ~5:45 PM ET — after spaceship (21:30) and before universe_sync (22:00)
+  # schedule:
+  #   - cron: '45 21 * * *'
   workflow_dispatch: {}
 
 permissions:

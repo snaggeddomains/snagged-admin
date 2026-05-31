@@ -1,12 +1,18 @@
-name: 'Maintenance: universe_sync'
+name: 'Maintenance: universe_sync (DISABLED — sources direct-upsert now)'
 
-# Runs daily after the last producer of the day (efty_partner at 21:00 UTC).
-# Walks every source's snapshot.json, applies the universe_ingest filter,
-# upserts unique domains into Supabase, and writes a Parquet archive
-# partition (R2 if configured).
+# Disabled 2026-05-30. Each source workflow now upserts its own rows
+# directly to Supabase at the end of its own run (moved to that pattern
+# when Afternic's snapshot.json hit GitHub's 100MB file limit).
+# This workflow was re-processing the same data and recently timed out
+# on Postgres statement timeout when batching 341K merged rows through
+# the RPC's complex array-union merge logic.
+#
+# The pipeline universe-sync CLI command stays around as a manual batch-
+# reprocessing tool if we ever need to bulk-rebuild from local snapshots.
+# Re-enable the scheduled cron by uncommenting `schedule:` below.
 on:
-  schedule:
-    - cron: '0 22 * * *'   # 22:00 UTC = ~6 PM ET
+  # schedule:
+  #   - cron: '0 22 * * *'
   workflow_dispatch: {}
 
 permissions:

@@ -3,29 +3,36 @@
 Distinct from dynadot_auctions (the time-sensitive 24h auctions
 watchlist published to Slack/Sheets). This source paginates the FULL
 Dynadot open-auctions inventory with no time horizon, applies the
-universe filter, and direct-upserts qualifying domains into Supabase
-name_universe for the naming-exercise pool.
+universe filter per-page, and stream-upserts qualifying domains into
+Supabase name_universe.
 
-Architecture mirrors the legacy openclaw `dynadot_open_fetch.py` +
-`dynadot_filter.py` + (missing) `dynadot_nameclub_diff.py` flow.
-The diff step is implicit now — Supabase's upsert merge maintains
-first_seen / last_seen / sources / best_price across days, so the
-"net-new" / "dropped" / "price changed" facts fall out of the data
-without a separate diff script.
+Architecture notes (learned the hard way 2026-05-30):
+
+  * Dynadot's get_open_auctions returns hundreds of thousands of
+    expired-auction rows when there's no horizon filter — a previous
+    run pulled 225K rows in 4.5 min before hitting their rate limit.
+  * Rate limit error: 'Too many requests. Please try again in 1 minute
+    after.' — caught specifically here and retried after sleeping 70s.
+  * Naive 'accumulate everything in memory, upsert at end' loses all
+    progress on a single error. We now stream-upsert in 5K-row chunks
+    so partial runs persist what they got.
+  * MAX_PAGES capped at 1500 (~148K rows) so daily runs stay tractable
+    even when Dynadot's expired queue swells. Bump if needed.
+  * 250 ms sleep between requests keeps us under ~240 req/min, well
+    below the threshold that triggered the 429.
 
 Reuses the API fetcher + auth from dynadot_auctions.py to stay
 consistent on the v1 /api3.json endpoint (get_open_auctions, type=
-expired, key+secret query auth). The v2 RESTful aftermarket API is
-still gated to our account, so v1 remains the working path.
+expired, key+secret query auth).
 
-Requires DYNADOT_API_KEY + DYNADOT_API_SECRET + the SUPABASE_NAMING_*
-secrets.
+Requires DYNADOT_API_KEY + DYNADOT_API_SECRET + SUPABASE_NAMING_*.
 """
 from __future__ import annotations
 
 import os
+import time
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, Callable
 
 import requests
 
@@ -36,21 +43,18 @@ from .dynadot_auctions import _fetch_page, AUCTION_TYPES, PAGE_SIZE
 
 SOURCE_ID = "dynadot_dump"
 SOURCE_LABEL = "Dynadot full dump"
+SOURCE_TIER = 2
 
-# No time-horizon. Cap pages high so we never silently truncate at scale.
-# Dynadot's open-auctions inventory is in the tens of thousands of rows
-# at any given time; at 99/page that's a few hundred pages.
-MAX_PAGES = 5_000
-
-UNIVERSE_SNAPSHOT_FILE = "universe_snapshot.json"
-SNAPSHOT_FILE = "snapshot.json"
-RAW_FILENAME = "dynadot_dump.json"
+MAX_PAGES = 1500
+FLUSH_SIZE = 5_000              # rows per Supabase upsert chunk
+INTER_REQUEST_SLEEP = 0.25      # 250 ms politeness between API calls
+RATE_LIMIT_BACKOFF_SECS = 70    # Dynadot says "try again in 1 minute"
 
 
 def _row_to_universe_listing(row: dict[str, Any]) -> dict[str, Any] | None:
     """Pull domain + price out of a raw Dynadot row in the universe-snapshot
-    shape ({domain, price}). Skips malformed rows. NO filter applied here —
-    that happens in the caller via passes_universe_filter()."""
+    shape ({domain, price}). Skips malformed rows. NO universe filter
+    applied here — caller decides via passes_universe_filter()."""
     domain = (row.get("utf_name") or row.get("domain") or "").strip().lower()
     if not domain or "." not in domain:
         return None
@@ -62,36 +66,100 @@ def _row_to_universe_listing(row: dict[str, Any]) -> dict[str, Any] | None:
     return {"domain": domain, "price": price}
 
 
-def fetch_all(*, api_key: str, api_secret: str) -> list[dict[str, Any]]:
-    """Paginate through every page of get_open_auctions with no horizon cap.
+def _stream_paginate(
+    api_key: str,
+    api_secret: str,
+    on_chunk: Callable[[list[dict[str, Any]]], dict[str, Any]],
+) -> dict[str, int]:
+    """Paginate through get_open_auctions, applying the universe filter
+    per-page and calling on_chunk(rows) every FLUSH_SIZE entries.
 
-    Stops when a page comes back empty (end of inventory) or MAX_PAGES is hit.
+    Handles Dynadot's rate limit by sleeping RATE_LIMIT_BACKOFF_SECS
+    and retrying the same page. Stops cleanly on empty response or
+    MAX_PAGES. Returns counts for run_status.
     """
     sess = requests.Session()
-    listings: list[dict[str, Any]] = []
     auction_types = list(AUCTION_TYPES)
+    universe_buffer: list[dict[str, Any]] = []
+    seen_domains: set[str] = set()
+
+    raw_seen = 0
+    universe_kept = 0
+    upserted = 0
+    batches = 0
     page_index = 1
+    rate_limit_hits = 0
+
     while page_index <= MAX_PAGES:
-        data = _fetch_page(
-            sess,
-            api_key=api_key,
-            api_secret=api_secret,
-            page_index=page_index,
-            count_per_page=PAGE_SIZE,
-            auction_types=auction_types,
-        )
+        try:
+            data = _fetch_page(
+                sess,
+                api_key=api_key,
+                api_secret=api_secret,
+                page_index=page_index,
+                count_per_page=PAGE_SIZE,
+                auction_types=auction_types,
+            )
+        except RuntimeError as e:
+            if "Too many requests" in str(e):
+                rate_limit_hits += 1
+                print(
+                    f"      page {page_index}: rate limited "
+                    f"(hit #{rate_limit_hits}); sleeping {RATE_LIMIT_BACKOFF_SECS}s"
+                )
+                time.sleep(RATE_LIMIT_BACKOFF_SECS)
+                continue  # retry same page
+            raise
+
         rows = data.get("auction_list") or []
         if not rows:
-            print(f"      page {page_index}: empty — stopping")
+            print(f"      page {page_index}: empty, stopping")
             break
+
+        raw_seen += len(rows)
         for row in rows:
-            normalized = _row_to_universe_listing(row)
-            if normalized:
-                listings.append(normalized)
-        if page_index % 25 == 0:
-            print(f"      page {page_index}: collected {len(listings):,} so far")
+            listing = _row_to_universe_listing(row)
+            if not listing:
+                continue
+            d = listing["domain"]
+            if d in seen_domains:
+                continue
+            seen_domains.add(d)
+            if univ.passes_universe_filter(d):
+                universe_buffer.append(listing)
+                universe_kept += 1
+
+        if len(universe_buffer) >= FLUSH_SIZE:
+            stats = on_chunk(universe_buffer)
+            if stats.get("status") == "ok":
+                upserted += stats.get("rows_sent", 0)
+                batches += stats.get("batches", 0)
+            universe_buffer = []
+
+        if page_index % 50 == 0:
+            print(
+                f"      page {page_index}: raw {raw_seen:,}  "
+                f"universe {universe_kept:,}  upserted {upserted:,}"
+            )
+
+        time.sleep(INTER_REQUEST_SLEEP)
         page_index += 1
-    return listings
+
+    # Flush remainder
+    if universe_buffer:
+        stats = on_chunk(universe_buffer)
+        if stats.get("status") == "ok":
+            upserted += stats.get("rows_sent", 0)
+            batches += stats.get("batches", 0)
+
+    return {
+        "raw_seen": raw_seen,
+        "universe_kept": universe_kept,
+        "upserted": upserted,
+        "batches": batches,
+        "pages_fetched": page_index - 1,
+        "rate_limit_hits": rate_limit_hits,
+    }
 
 
 def run() -> int:
@@ -103,34 +171,36 @@ def run() -> int:
 
     today = datetime.now(timezone.utc).date().isoformat()
 
-    print("[1/4] Paginating Dynadot open auctions (no horizon)")
-    all_listings = fetch_all(api_key=api_key, api_secret=api_secret)
-    print(f"      collected {len(all_listings):,} raw rows")
+    print("[1/2] Streaming Dynadot open auctions through universe filter")
 
-    print("[2/4] Applying universe filter")
-    universe_entries = [L for L in all_listings if univ.passes_universe_filter(L["domain"])]
-    print(f"      universe entries: {len(universe_entries):,}")
-    state.write_json(SOURCE_ID, UNIVERSE_SNAPSHOT_FILE, universe_entries)
+    def flush(batch: list[dict[str, Any]]) -> dict[str, Any]:
+        return supabase_writer.upsert_from_source(
+            SOURCE_ID, batch, today, source_tier=SOURCE_TIER,
+        )
 
-    print("[3/4] Upserting universe entries to Supabase name_universe")
-    uni_stats = supabase_writer.upsert_from_source(SOURCE_ID, universe_entries, today)
-    if uni_stats["status"] == "ok":
-        print(f"      upserted {uni_stats['rows_sent']:,} rows in {uni_stats['batches']} batch(es)")
-    else:
-        print(f"      skipped: {uni_stats.get('reason')}")
+    counts = _stream_paginate(api_key, api_secret, flush)
+    print(
+        f"      done. raw rows: {counts['raw_seen']:,}  "
+        f"universe kept: {counts['universe_kept']:,}  "
+        f"upserted: {counts['upserted']:,}  "
+        f"in {counts['batches']} batch(es) across "
+        f"{counts['pages_fetched']:,} pages"
+    )
+    if counts["rate_limit_hits"]:
+        print(f"      rate-limit retries: {counts['rate_limit_hits']}")
 
-    print("[4/4] Saving raw snapshot for diff tracking")
-    state.write_json(SOURCE_ID, SNAPSHOT_FILE, all_listings)
-
+    print("[2/2] Saving run_status")
     state.write_json(SOURCE_ID, "run_status.json", {
         "source": SOURCE_ID,
         "label": SOURCE_LABEL,
         "status": "ok",
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "raw_count": len(all_listings),
-        "universe_count": len(universe_entries),
-        "new_count": uni_stats.get("rows_sent", 0),
-        "supabase_status": uni_stats.get("status"),
+        "raw_count": counts["raw_seen"],
+        "universe_count": counts["universe_kept"],
+        "new_count": counts["upserted"],
+        "pages_fetched": counts["pages_fetched"],
+        "rate_limit_hits": counts["rate_limit_hits"],
+        "supabase_status": "ok",
     })
 
     print("DONE")
