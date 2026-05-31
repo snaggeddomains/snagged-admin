@@ -42,7 +42,7 @@ from typing import Any, Callable
 
 import requests
 
-from .. import config, drive_cache, state
+from .. import config, state
 from ..filters import universe as univ
 
 SOURCE_ID = "sedo_dump"
@@ -96,7 +96,13 @@ BACKOFF_BASE = 4.0       # seconds; doubles each retry
 DEFAULT_MAX_REQUESTS = 5_000
 DEFAULT_TIME_BUDGET_SEC = 6_000  # 100 min; workflow timeout is higher
 
+# Resilience / observability.
+FLUSH_EVERY = 25_000             # upsert to Supabase every N new universe domains
+CHECKPOINT_EVERY_PARTITIONS = 25  # write+push progress.json every N partitions
+CHECKPOINT_EVERY_SEC = 120        # ...or at least this often
+
 SNAPSHOT_FILE = "snapshot.json"  # compact summary only — never the full dump
+PROGRESS_FILE = "progress.json"  # live checkpoint, pushed mid-crawl
 
 
 # ---------- partition model ----------
@@ -316,22 +322,31 @@ def crawl(
     max_requests: int = DEFAULT_MAX_REQUESTS,
     time_budget_sec: float = DEFAULT_TIME_BUDGET_SEC,
     on_records: Callable[[list[dict[str, Any]]], None] | None = None,
+    on_progress: Callable[[dict[str, Any]], None] | None = None,
 ) -> dict[str, Any]:
     """Walk the partition tree, harvesting every leaf under the 10k cap.
 
-    Returns stats. Harvested raw rows are passed to `on_records` as they
-    arrive (so the caller can dedupe/stream without holding everything).
+    Resilient by design: a fetch failure on any single partition is
+    recorded and skipped — it never aborts the whole crawl (critical for a
+    multi-hour run where Sedo may throttle a runner IP partway through).
+    Harvested rows stream to `on_records` as they arrive; `on_progress` is
+    invoked after each partition with the live stats dict so the caller can
+    checkpoint.
     """
     started = time.monotonic()
     stack: list[Partition] = [root]
-    stats = {
+    stats: dict[str, Any] = {
         "queries": 0,
+        "request_count": 0,
         "leaves_harvested": 0,
         "leaves_truncated": 0,
         "rows_seen": 0,
         "max_hits_total": 0,
         "stopped_early": None,
         "truncated_partitions": [],
+        "failed_partitions": [],
+        "current_partition": None,
+        "elapsed_sec": 0.0,
     }
 
     def budget_exhausted(reason_label: str) -> bool:
@@ -343,63 +358,83 @@ def crawl(
             return True
         return False
 
+    def harvest_pages(part: Partition, first_rows: list[dict[str, Any]], max_page: int) -> list[dict[str, Any]]:
+        """Page a leaf from 2..max_page, tolerating a mid-leaf fetch error
+        (keep whatever we got)."""
+        harvested = list(first_rows)
+        for page in range(2, max_page + 1):
+            if budget_exhausted(f"{part.label()} page {page}"):
+                print(f"  STOP EARLY: {stats['stopped_early']}")
+                stack.clear()
+                break
+            try:
+                more, _ = fetcher.page(part, page=page)
+            except Exception as e:  # noqa: BLE001
+                print(f"  WARN fetch failed at {part.label()} page {page}: {e} — keeping partial leaf")
+                stats["failed_partitions"].append(f"{part.label()} page {page}: {e}")
+                break
+            stats["queries"] += 1
+            if not more:
+                break
+            harvested.extend(more)
+        return harvested
+
     while stack:
         if budget_exhausted("partition pop"):
             print(f"  STOP EARLY: {stats['stopped_early']}")
             break
         part = stack.pop()
-        rows, hits = fetcher.page(part, page=1)
-        stats["queries"] += 1
+        stats["current_partition"] = part.label()
+        stats["request_count"] = fetcher.request_count
+
+        try:
+            rows, hits = fetcher.page(part, page=1)
+            stats["queries"] += 1
+        except Exception as e:  # noqa: BLE001 — isolate, don't abort the crawl
+            print(f"  WARN partition probe failed at {part.label()}: {e} — skipping")
+            stats["failed_partitions"].append(f"{part.label()} probe: {e}")
+            if on_progress:
+                on_progress(stats)
+            continue
+
         stats["max_hits_total"] = max(stats["max_hits_total"], hits)
         print(f"  [{part.label()}] hitsTotal={hits:,} rows={len(rows)}")
 
         if hits == 0:
+            if on_progress:
+                on_progress(stats)
             continue
 
         if hits <= REACHABLE_CAP:
-            harvested = list(rows)
             total_pages = min(MAX_PAGE, -(-min(hits, REACHABLE_CAP) // PAGE_SIZE))
-            for page in range(2, total_pages + 1):
-                if budget_exhausted(f"{part.label()} page {page}"):
-                    print(f"  STOP EARLY: {stats['stopped_early']}")
-                    stack.clear()
-                    break
-                more, _ = fetcher.page(part, page=page)
-                stats["queries"] += 1
-                if not more:
-                    break
-                harvested.extend(more)
+            harvested = harvest_pages(part, rows, total_pages)
             stats["leaves_harvested"] += 1
             stats["rows_seen"] += len(harvested)
             if on_records:
                 on_records(harvested)
-            continue
-
-        # Over the cap — try to split further.
-        children = subdivide(part)
-        if children:
-            stack.extend(children)
         else:
-            # Irreducible leaf still over 10k: harvest the reachable top
-            # and flag it. (With the default dimensions this is rare.)
-            print(f"  WARN irreducible leaf over cap ({hits:,}); harvesting top {REACHABLE_CAP:,}")
-            harvested = list(rows)
-            for page in range(2, MAX_PAGE + 1):
-                if budget_exhausted(f"{part.label()} trunc page {page}"):
-                    break
-                more, _ = fetcher.page(part, page=page)
-                stats["queries"] += 1
-                if not more:
-                    break
-                harvested.extend(more)
-            stats["leaves_truncated"] += 1
-            stats["rows_seen"] += len(harvested)
-            stats["truncated_partitions"].append(part.label())
-            if on_records:
-                on_records(harvested)
+            children = subdivide(part)
+            if children:
+                stack.extend(children)
+            else:
+                # Irreducible leaf still over 10k: harvest the reachable top
+                # and flag it. (With the default dimensions this is rare.)
+                print(f"  WARN irreducible leaf over cap ({hits:,}); harvesting top {REACHABLE_CAP:,}")
+                harvested = harvest_pages(part, rows, MAX_PAGE)
+                stats["leaves_truncated"] += 1
+                stats["rows_seen"] += len(harvested)
+                stats["truncated_partitions"].append(part.label())
+                if on_records:
+                    on_records(harvested)
+
+        stats["request_count"] = fetcher.request_count
+        stats["elapsed_sec"] = round(time.monotonic() - started, 1)
+        if on_progress:
+            on_progress(stats)
 
     stats["request_count"] = fetcher.request_count
     stats["elapsed_sec"] = round(time.monotonic() - started, 1)
+    stats["current_partition"] = None
     return stats
 
 
@@ -414,14 +449,33 @@ def _root_partition() -> Partition:
     return Partition(tlds=tlds)
 
 
-def _universe_entries(records_by_domain: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
-    """Apply the universe filter to the deduped raw rows."""
-    out: list[dict[str, Any]] = []
-    for domain, row in records_by_domain.items():
-        if not domain or not univ.passes_universe_filter(domain):
-            continue
-        out.append({"domain": domain, "price": _parse_float(row.get("4000"))})
-    return out
+def _checkpoint_push(branch: str | None) -> None:
+    """Commit + push progress.json mid-crawl so progress is observable via
+    the contents API. Best-effort: any git failure is swallowed (the final
+    commit-state step is the durable safety net)."""
+    if not branch:
+        return
+    import subprocess
+    try:
+        subprocess.run(["git", "add", f"state/{SOURCE_ID}/{PROGRESS_FILE}"],
+                       check=True, capture_output=True)
+        committed = subprocess.run(
+            ["git", "commit", "-m", "sedo_dump: progress checkpoint [skip ci]"],
+            capture_output=True, text=True,
+        )
+        if committed.returncode != 0:
+            return  # nothing new to commit
+        push = subprocess.run(["git", "push", "origin", f"HEAD:{branch}"],
+                              capture_output=True, text=True, timeout=90)
+        if push.returncode != 0:
+            # Remote advanced (e.g. concurrent push) — rebase once and retry.
+            subprocess.run(["git", "pull", "--rebase", "origin", branch],
+                           capture_output=True, text=True, timeout=90)
+            subprocess.run(["git", "push", "origin", f"HEAD:{branch}"],
+                           capture_output=True, text=True, timeout=90)
+        print("      checkpoint pushed")
+    except Exception as e:  # noqa: BLE001
+        print(f"      checkpoint push failed (non-fatal): {e}")
 
 
 # ---------- main entrypoint ----------
@@ -430,85 +484,143 @@ def run() -> int:
     config.load_registry()
     config.get_source(SOURCE_ID)  # validate registered
     today = datetime.now(timezone.utc).date().isoformat()
+    branch = os.environ.get("GITHUB_REF_NAME")
 
     max_requests = int(os.environ.get("SEDO_DUMP_MAX_REQUESTS", DEFAULT_MAX_REQUESTS))
     time_budget = float(os.environ.get("SEDO_DUMP_TIME_BUDGET_SEC", DEFAULT_TIME_BUDGET_SEC))
+    flush_every = int(os.environ.get("SEDO_DUMP_FLUSH_EVERY", FLUSH_EVERY))
+    ckpt_every = int(os.environ.get("SEDO_DUMP_CHECKPOINT_PARTITIONS", CHECKPOINT_EVERY_PARTITIONS))
     root = _root_partition()
 
-    print(f"[1/4] Crawling Sedo (partitioned) from root: {root.label()}")
+    print(f"[1/2] Crawling Sedo (partitioned, streaming) from root: {root.label()}")
     print(f"      caps: max_requests={max_requests} time_budget={time_budget:.0f}s "
-          f"pacing≈{REQUEST_DELAY}-{REQUEST_DELAY + REQUEST_JITTER}s/req")
+          f"pacing≈{REQUEST_DELAY}-{REQUEST_DELAY + REQUEST_JITTER}s/req "
+          f"flush_every={flush_every:,}")
 
-    # Dedupe across partition boundaries by domain, keeping the first seen.
-    records_by_domain: dict[str, dict[str, Any]] = {}
+    from ..universe import supabase_writer as _sw
+
+    seen: set[str] = set()                  # all domains seen (dedupe + unique count)
+    buffer: list[dict[str, Any]] = []       # universe entries pending upsert
+    totals = {
+        "universe_qualifying": 0, "rows_sent": 0, "batches": 0,
+        "flushes": 0, "upsert_status": "ok", "upsert_error": None,
+    }
+
+    def flush() -> None:
+        if not buffer:
+            return
+        res = _sw.upsert_from_source(SOURCE_ID, list(buffer), today)
+        totals["flushes"] += 1
+        if res.get("status") == "ok":
+            totals["rows_sent"] += res.get("rows_sent", 0)
+            totals["batches"] += res.get("batches", 0)
+        else:
+            totals["upsert_status"] = res.get("status", "error")
+            totals["upsert_error"] = res.get("reason")
+        print(f"      flush #{totals['flushes']}: upsert {res.get('status')} "
+              f"(+{res.get('rows_sent', 0):,}); cumulative {totals['rows_sent']:,}")
+        buffer.clear()
 
     def collect(rows: list[dict[str, Any]]) -> None:
         for row in rows:
             d = _record_domain(row)
-            if d and d not in records_by_domain:
-                records_by_domain[d] = row
+            if not d or d in seen:
+                continue
+            seen.add(d)
+            if univ.passes_universe_filter(d):
+                buffer.append({"domain": d, "price": _parse_float(row.get("4000"))})
+                totals["universe_qualifying"] += 1
+                if len(buffer) >= flush_every:
+                    flush()
+
+    ckpt = {"n": 0, "t": time.monotonic()}
+
+    def write_progress(stats: dict[str, Any], *, final: bool = False) -> None:
+        state.write_json(SOURCE_ID, PROGRESS_FILE, {
+            "report_date": today,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "final": final,
+            "unique_domains": len(seen),
+            "universe_qualifying": totals["universe_qualifying"],
+            "rows_upserted": totals["rows_sent"],
+            "flushes": totals["flushes"],
+            "queries": stats.get("queries"),
+            "requests": stats.get("request_count"),
+            "leaves_harvested": stats.get("leaves_harvested"),
+            "failed_partitions": len(stats.get("failed_partitions", [])),
+            "current_partition": stats.get("current_partition"),
+            "elapsed_sec": stats.get("elapsed_sec"),
+        })
+
+    def on_progress(stats: dict[str, Any]) -> None:
+        n = stats.get("queries", 0)
+        if (n - ckpt["n"] >= ckpt_every
+                or time.monotonic() - ckpt["t"] >= CHECKPOINT_EVERY_SEC):
+            ckpt["n"], ckpt["t"] = n, time.monotonic()
+            write_progress(stats)
+            _checkpoint_push(branch)
 
     fetcher = SedoFetcher()
-    stats = crawl(
-        fetcher, root,
-        max_requests=max_requests,
-        time_budget_sec=time_budget,
-        on_records=collect,
-    )
-    unique = len(records_by_domain)
-    print(f"      done: {stats['queries']} queries, {stats['request_count']} requests, "
-          f"{stats['rows_seen']:,} rows, {unique:,} unique domains, "
-          f"elapsed {stats['elapsed_sec']}s")
-    if stats["stopped_early"]:
-        print(f"      NOTE: {stats['stopped_early']}")
-    if stats["truncated_partitions"]:
-        print(f"      NOTE: {len(stats['truncated_partitions'])} partition(s) truncated at cap")
-
-    print("[2/4] Caching raw dump to Drive (Tier 2)")
+    status, error = "ok", None
+    stats: dict[str, Any] = {"queries": 0, "request_count": 0, "leaves_harvested": 0,
+                             "failed_partitions": [], "elapsed_sec": 0.0}
     try:
-        import json as _json
-        raw = _json.dumps(list(records_by_domain.values()), default=str).encode("utf-8")
-        file_id = drive_cache.cache_raw(
-            source=SOURCE_ID, report_date=today,
-            filename="sedo_dump.json", content=raw,
+        stats = crawl(
+            fetcher, root,
+            max_requests=max_requests, time_budget_sec=time_budget,
+            on_records=collect, on_progress=on_progress,
         )
-        print(f"      drive file id: {file_id} ({len(raw):,} bytes)")
-    except Exception as e:  # noqa: BLE001 — non-fatal
-        print(f"      WARN raw cache write failed (non-fatal): {e}")
+        if stats.get("stopped_early") or stats.get("failed_partitions"):
+            status = "partial"
+    except Exception as e:  # noqa: BLE001 — preserve everything streamed so far
+        status, error = "failed", f"{type(e).__name__}: {e}"
+        print(f"  CRAWL ERROR (data gathered so far is preserved): {error}")
+    finally:
+        flush()  # land any buffered universe entries
 
-    print("[3/4] Filtering to universe + upserting to Supabase name_universe")
-    universe_entries = _universe_entries(records_by_domain)
-    print(f"      universe-qualifying: {len(universe_entries):,} of {unique:,}")
-    from ..universe import supabase_writer as _sw
-    uni_stats = _sw.upsert_from_source(SOURCE_ID, universe_entries, today)
-    if uni_stats["status"] == "ok":
-        print(f"      upserted {uni_stats['rows_sent']:,} rows in {uni_stats['batches']} batch(es)")
-    else:
-        print(f"      skipped: {uni_stats.get('reason')}")
+    unique = len(seen)
+    print(f"[2/2] Finalizing: status={status} unique={unique:,} "
+          f"universe_qualifying={totals['universe_qualifying']:,} "
+          f"upserted={totals['rows_sent']:,} elapsed={stats.get('elapsed_sec')}s")
+    if stats.get("stopped_early"):
+        print(f"      NOTE: {stats['stopped_early']}")
+    if stats.get("failed_partitions"):
+        print(f"      NOTE: {len(stats['failed_partitions'])} partition(s) failed and were skipped")
 
-    print("[4/4] Writing run status")
+    write_progress(stats, final=True)
     state.write_json(SOURCE_ID, SNAPSHOT_FILE, {
         "report_date": today,
+        "status": status,
         "unique_domains": unique,
-        "universe_qualifying": len(universe_entries),
+        "universe_qualifying": totals["universe_qualifying"],
         "crawl": stats,
     })
     state.write_json(SOURCE_ID, "run_status.json", {
         "source": SOURCE_ID,
         "label": SOURCE_LABEL,
-        "status": "ok",
+        "status": status,
+        "error": error,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "unique_domains": unique,
-        "universe_qualifying": len(universe_entries),
-        "universe_upsert": uni_stats,
-        "queries": stats["queries"],
-        "requests": stats["request_count"],
-        "rows_seen": stats["rows_seen"],
-        "leaves_harvested": stats["leaves_harvested"],
-        "leaves_truncated": stats["leaves_truncated"],
-        "stopped_early": stats["stopped_early"],
-        "elapsed_sec": stats["elapsed_sec"],
+        "universe_qualifying": totals["universe_qualifying"],
+        "universe_upsert": {
+            "status": totals["upsert_status"],
+            "rows_sent": totals["rows_sent"],
+            "batches": totals["batches"],
+            "flushes": totals["flushes"],
+            "error": totals["upsert_error"],
+        },
+        "queries": stats.get("queries"),
+        "requests": stats.get("request_count"),
+        "rows_seen": stats.get("rows_seen"),
+        "leaves_harvested": stats.get("leaves_harvested"),
+        "leaves_truncated": stats.get("leaves_truncated"),
+        "failed_partitions": stats.get("failed_partitions"),
+        "stopped_early": stats.get("stopped_early"),
+        "elapsed_sec": stats.get("elapsed_sec"),
     })
 
     print("DONE")
-    return 0
+    # Non-fatal: a partial run still committed its data; only a hard crawl
+    # exception with zero progress is worth a non-zero exit.
+    return 0 if status != "failed" or totals["rows_sent"] > 0 else 1

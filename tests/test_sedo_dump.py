@@ -134,6 +134,36 @@ def test_irreducible_leaf_over_cap_is_truncated_not_dropped():
     assert stats["truncated_partitions"]
 
 
+class FlakyFetcher(FakeFetcher):
+    """Raises on the probe of any partition whose only TLD is in `bad`."""
+
+    def __init__(self, inventory: dict[str, int], bad: set[str]) -> None:
+        super().__init__(inventory)
+        self.bad = bad
+
+    def page(self, part: src.Partition, page: int, size: int = src.PAGE_SIZE):
+        if page == 1 and len(part.tlds) == 1 and part.tlds[0] in self.bad:
+            self.request_count += 1
+            raise RuntimeError(f"simulated throttle on .{part.tlds[0]}")
+        return super().page(part, page, size)
+
+
+def test_failed_partition_is_isolated_not_fatal():
+    # .net probe always throws; .com harvests fine. The crawl must skip .net,
+    # record it, and still harvest .com — not abort.
+    fetcher = FlakyFetcher({"com": 800, "net": 600}, bad={"net"})
+    store: dict[str, dict[str, Any]] = {}
+    # Root has both TLDs (1,400 < cap) so it harvests as one leaf without
+    # ever probing single-TLD .net — force the TLD split by going over cap:
+    fetcher.inventory = {"com": 12_000, "net": 600}
+    stats = src.crawl(fetcher, src.Partition(tlds=("com", "net")), on_records=_collect(store))
+    assert stats["failed_partitions"], "expected the .net probe failure to be recorded"
+    assert any("net" in f for f in stats["failed_partitions"])
+    # .com still harvested despite .net failing
+    assert stats["leaves_harvested"] >= 1
+    assert any(k.startswith("com") for k in store)
+
+
 def test_max_requests_budget_stops_crawl():
     fetcher = FakeFetcher({"com": 30_000})
     stats = src.crawl(

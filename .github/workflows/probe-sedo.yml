@@ -41,7 +41,7 @@ jobs:
           SEDO_DUMP_MAX_REQUESTS: "25000"
         run: pipeline run sedo_dump
       - name: Commit state changes
-        if: success()
+        if: always()   # capture partial/failed state too — the crawler streams progress
         uses: ./.github/actions/commit-state
         with:
           message: "sedo_dump: full-crawl state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
