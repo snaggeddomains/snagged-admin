@@ -19,7 +19,7 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 330        # under GitHub's 360-min hard cap
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
@@ -28,9 +28,10 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           SUPABASE_NAMING_URL:         ${{ secrets.SUPABASE_NAMING_URL }}
           SUPABASE_NAMING_SERVICE_KEY: ${{ secrets.SUPABASE_NAMING_SERVICE_KEY }}
-          # Crawl budget: generous enough to capture the full ~280k inventory.
-          SEDO_DUMP_TIME_BUDGET_SEC: "9000"
-          SEDO_DUMP_MAX_REQUESTS: "12000"
+          # Crawl budget: generous enough to capture the full ~280k inventory
+          # in one run; self-stops at the budget well before the job hard cap.
+          SEDO_DUMP_TIME_BUDGET_SEC: "18000"   # 300 min
+          SEDO_DUMP_MAX_REQUESTS: "25000"
         run: pipeline run sedo_dump
       - name: Commit state changes
         if: success()

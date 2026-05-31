@@ -25,7 +25,7 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 330        # under GitHub's 360-min hard cap
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
@@ -34,13 +34,14 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           SUPABASE_NAMING_URL:         ${{ secrets.SUPABASE_NAMING_URL }}
           SUPABASE_NAMING_SERVICE_KEY: ${{ secrets.SUPABASE_NAMING_SERVICE_KEY }}
-          # ---- SMOKE config (validate live path first) ----
-          SEDO_DUMP_TLDS: "co"
-          SEDO_DUMP_MAX_REQUESTS: "15"
-          SEDO_DUMP_TIME_BUDGET_SEC: "600"
+          # ---- FULL capture: default 7-TLD universe scope, generous budget
+          #      so the whole inventory lands in one run. Self-stops at the
+          #      time budget (well before the job hard cap) and commits.
+          SEDO_DUMP_TIME_BUDGET_SEC: "18000"   # 300 min
+          SEDO_DUMP_MAX_REQUESTS: "25000"
         run: pipeline run sedo_dump
       - name: Commit state changes
         if: success()
         uses: ./.github/actions/commit-state
         with:
-          message: "sedo_dump: smoke state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          message: "sedo_dump: full-crawl state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
