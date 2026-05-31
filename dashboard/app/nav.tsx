@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+// Admin module sections. Cross-module switching (Research/Admin) lives in the
+// global TopBar; this is just the admin sub-nav.
 const TABS = [
   { href: "/admin", label: "Sources" },
   { href: "/admin/config", label: "Configuration" },
@@ -10,13 +12,7 @@ const TABS = [
   { href: "/admin/users", label: "Users" },
 ];
 
-export default function Nav({
-  canResearch = false,
-  researchHref = "/research",
-}: {
-  canResearch?: boolean;
-  researchHref?: string;
-}) {
+export default function Nav() {
   const pathname = usePathname();
   return (
     <nav className="tab-nav">
@@ -29,11 +25,6 @@ export default function Nav({
           </Link>
         );
       })}
-      {canResearch && (
-        // Cross-module link. Points at the research deployment for now; becomes
-        // an in-umbrella /research path once Phase 3 (proxy nesting) lands.
-        <a href={researchHref}>Research ↗</a>
-      )}
     </nav>
   );
 }

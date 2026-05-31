@@ -202,3 +202,49 @@ tr.dim { opacity: 0.6; }
 .pill--orchestrator { background: #e0e7ff; color: #1e1b4b; border-color: #c7d2fe; }
 .pill--postgres     { background: #ccfbf1; color: #115e59; border-color: #99f6e4; }
 .pill--default      { background: #f3f4f6; color: #374151; border-color: #e5e7eb; }
+
+/* Global top bar — shared chrome across hub + admin (mirrored by research). */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-bottom: 14px;
+  margin-bottom: 28px;
+  border-bottom: 1px solid var(--line);
+}
+.topbar__brand { font-size: 1.4rem; text-decoration: none; }
+.topbar__nav { display: flex; gap: 6px; }
+.topbar__nav a {
+  padding: 6px 13px; border-radius: 999px; font-size: 14px; font-weight: 600;
+  color: var(--navy-2); text-decoration: none;
+}
+.topbar__nav a:hover { background: var(--cream-2); color: var(--navy); }
+.topbar__nav a.active { background: var(--navy); color: var(--cream-2); }
+.topbar__account { margin-left: auto; display: flex; align-items: center; gap: 14px; font-size: 14px; }
+.topbar__account .muted { color: var(--navy-3); }
+.topbar__account a { color: var(--teal-deep); font-weight: 700; text-decoration: none; }
+
+/* Hub landing */
+.hub-hero { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 28px; }
+.hub-hero h1 { font-family: var(--display); font-weight: 400; font-size: 2rem; margin: 6px 0 4px; color: var(--navy); }
+.hub-hero img { width: 150px; height: auto; flex: none; }
+.hub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.hub-card { transition: transform .12s ease, box-shadow .12s ease; }
+.hub-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.hub-card h2 { font-family: var(--display); font-weight: 400; font-size: 1.4rem; margin: 0 0 6px; }
+.hub-card h2 a { color: var(--coral-deep); text-decoration: none; }
+.hub-card h2 a:hover { text-decoration: underline; }
+.hub-tasks { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+.hub-tasks a {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 14px; border-radius: 10px; background: var(--paper);
+  border: 1px solid var(--line); color: var(--navy); text-decoration: none;
+  font-weight: 600; font-size: 14px;
+}
+.hub-tasks a::after { content: "→"; color: var(--navy-3); }
+.hub-tasks a:hover { border-color: var(--coral); color: var(--coral-deep); }
+.hub-tasks a:hover::after { color: var(--coral); }
+@media (max-width: 640px) { .hub-hero img { display: none; } }
+
+/* Brand the form controls used in /admin/users */
+input[type="checkbox"] { accent-color: var(--coral); }

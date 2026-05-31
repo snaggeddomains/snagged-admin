@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import { userCan } from "@/lib/permissions";
+import TopBar from "./top-bar";
 
 export const dynamic = "force-dynamic";
 
@@ -22,47 +23,28 @@ export default async function Hub() {
   const canAdmin = userCan(user, "admin");
 
   return (
-    <main style={{ maxWidth: 760, margin: "0 auto" }}>
-      <header
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 16,
-          marginBottom: 28,
-        }}
-      >
-        <div className="wordmark">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="brand-mark" src="/brand/logomark-round.svg" alt="" />
-          <span className="wm-a">Snagged</span>
+    <main>
+      <TopBar user={user} />
+
+      <div className="hub-hero">
+        <div>
+          <h1>Your workspaces</h1>
+          <p className="muted" style={{ margin: 0 }}>
+            Jump into a tool or manage the pipeline.
+          </p>
         </div>
-        <span style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <span className="muted" style={{ fontSize: 14 }}>{user.email}</span>
-          <a href="/api/logout" style={{ color: "var(--teal-deep)", fontWeight: 700, fontSize: 14 }}>
-            Log out
-          </a>
-        </span>
-      </header>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/brand/mascot-hero.png" alt="" />
+      </div>
 
-      <h1 style={{ fontSize: "1.4rem", marginBottom: 18 }}>Your workspaces</h1>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-          gap: 18,
-        }}
-      >
+      <div className="hub-grid">
         {canResearch && (
-          <section className="card">
-            <h2 style={{ marginTop: 0, fontSize: "1.15rem" }}>
-              <Link href="/research">Research</Link>
-            </h2>
+          <section className="card hub-card">
+            <h2><Link href="/research">Research</Link></h2>
             <p className="muted" style={{ marginTop: 0, fontSize: 14 }}>
               Domain ownership, trademark, appraisal &amp; naming research.
             </p>
-            <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.9 }}>
+            <ul className="hub-tasks">
               {researchTasks.map((t) => (
                 <li key={t.key}>
                   <Link href={t.href}>{t.label}</Link>
@@ -73,14 +55,12 @@ export default async function Hub() {
         )}
 
         {canAdmin && (
-          <section className="card">
-            <h2 style={{ marginTop: 0, fontSize: "1.15rem" }}>
-              <Link href="/admin">Admin</Link>
-            </h2>
+          <section className="card hub-card">
+            <h2><Link href="/admin">Admin</Link></h2>
             <p className="muted" style={{ marginTop: 0, fontSize: 14 }}>
               Marketplace pipeline dashboard — sources, schedule, configuration &amp; users.
             </p>
-            <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.9 }}>
+            <ul className="hub-tasks">
               <li><Link href="/admin">Sources</Link></li>
               <li><Link href="/admin/schedule">Schedule</Link></li>
               <li><Link href="/admin/users">Users</Link></li>
