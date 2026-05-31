@@ -1,6 +1,8 @@
 name: 'Source: sedo_net_new'
 
 on:
+  schedule:
+    - cron: '0 10,17,23 * * *'   # 3x daily — 6 AM, 1 PM, 7 PM ET; matches sources.yaml
   workflow_dispatch: {}
 
 permissions:

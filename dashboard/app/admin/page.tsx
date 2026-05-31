@@ -23,15 +23,57 @@ const PRODUCT_LABEL: Record<string, string> = {
 
 type StatusKey = "ok" | "stale" | "failed" | "never_run" | "todo" | "disabled";
 
-function statusInfo(s: SourceWithStatus): { key: StatusKey; label: string } {
+const GRACE_HOURS = 3; // GitHub cron delay/jitter buffer
+
+// Largest gap (hours) between consecutive firings within a day, from a cron
+// HOUR field. "*"->hourly, "A-B"->overnight gap, "H" or "H,H2,.."->computed.
+function maxGapFromHours(hourField: string): number {
+  if (hourField === "*") return 1;
+  const range = hourField.match(/^(\d+)-(\d+)$/);
+  if (range) return Math.max(1, 24 - (Number(range[2]) - Number(range[1])));
+  if (/^\d+(,\d+)*$/.test(hourField)) {
+    const hrs = hourField.split(",").map(Number).sort((a, b) => a - b);
+    if (hrs.length === 1) return 24;
+    let max = 0;
+    for (let i = 0; i < hrs.length; i++) {
+      const next = i + 1 < hrs.length ? hrs[i + 1] : hrs[0] + 24;
+      max = Math.max(max, next - hrs[i]);
+    }
+    return max;
+  }
+  return 24;
+}
+
+// Hours after which an "ok" source should be considered stale, derived from
+// its schedule. Returns null when staleness shouldn't be assessed on age:
+//   - no/un-parseable schedule ("manual") — nothing drives a cadence
+//   - less-than-daily (restricted day-of-month/week/month) — the light cron
+//     parser can't model the real interval, so don't false-flag (e.g. biweekly)
+function staleThresholdHours(raw: string | undefined): number | null {
+  if (!raw) return null;
+  const parts = raw.trim().split(/\s+/);
+  if (parts.length < 5) return null; // "manual" / non-cron
+  const [, hour, dom, mon, dow] = parts;
+  if (dom !== "*" || mon !== "*" || dow !== "*") return null; // < daily
+  return maxGapFromHours(hour) + GRACE_HOURS;
+}
+
+function statusInfo(
+  s: SourceWithStatus,
+  orchestratorById: Map<string, SourceWithStatus>,
+): { key: StatusKey; label: string } {
   if (s.enabled === false) return { key: "disabled", label: "disabled" };
   if (!s.wired) return { key: "todo", label: "TODO — not wired" };
   if (!s.runStatus) return { key: "never_run", label: "wired · never run" };
   if (s.runStatus.status === "failed") return { key: "failed", label: "failed" };
   if (s.runStatus.status === "ok") {
+    // Effective schedule: the source's own cron, else its orchestrator's.
+    const raw = s.schedule_utc || orchestratorById.get(s.source_id)?.schedule_utc;
+    const threshold = staleThresholdHours(raw);
+    if (threshold === null) return { key: "ok", label: "ok" }; // manual / infrequent
     const ageHours =
       (Date.now() - new Date(s.runStatus.generated_at).getTime()) / 1000 / 3600;
-    if (ageHours < 26) return { key: "ok", label: "ok" };
+    if (ageHours < threshold) return { key: "ok", label: "ok" };
     return { key: "stale", label: `stale (${Math.round(ageHours)}h)` };
   }
   return { key: "never_run", label: s.runStatus.status };
@@ -81,7 +123,7 @@ function SourceRow({
   s: SourceWithStatus;
   orchestratorById: Map<string, SourceWithStatus>;
 }) {
-  const info = statusInfo(s);
+  const info = statusInfo(s, orchestratorById);
   const dim = info.key === "todo" || info.key === "disabled";
   const showReason = (info.key === "todo" || info.key === "disabled") && s.reason;
   return (
@@ -224,13 +266,17 @@ export default async function SourcesPage() {
     ok: 0, stale: 1, failed: 2, never_run: 3, disabled: 4, todo: 5,
   };
   for (const p of Object.keys(byProduct)) {
-    byProduct[p].sort((a, b) => ORDER[statusInfo(a).key] - ORDER[statusInfo(b).key]);
+    byProduct[p].sort(
+      (a, b) =>
+        ORDER[statusInfo(a, orchestratorById).key] -
+        ORDER[statusInfo(b, orchestratorById).key],
+    );
   }
 
   const counts: Record<StatusKey, number> = {
     ok: 0, stale: 0, failed: 0, never_run: 0, todo: 0, disabled: 0,
   };
-  for (const s of sources) counts[statusInfo(s).key]++;
+  for (const s of sources) counts[statusInfo(s, orchestratorById).key]++;
   const total = sources.length;
   const wiredCount = sources.filter((s) => s.wired && s.enabled !== false).length;
 

@@ -1,6 +1,8 @@
 name: 'Source: efty_partner'
 
 on:
+  schedule:
+    - cron: '0 21 * * *'   # daily 5 PM ET; matches sources.yaml
   workflow_dispatch: {}
 
 permissions:
