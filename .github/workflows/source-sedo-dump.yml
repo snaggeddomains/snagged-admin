@@ -1,13 +1,16 @@
 name: 'Source: sedo_dump'
 
-# Weekly full-inventory Sedo crawl (partitioned to beat the 10k deep-page
-# cap). Feeds name_universe (Supabase). Runs on GitHub-hosted runners
-# because Sedo's edge IP-allowlists GH runner ranges (it 403s other IPs).
+# Full-inventory Sedo crawl (partitioned to beat the 10k deep-page cap).
+# Feeds name_universe (Supabase). Runs on GitHub-hosted runners because
+# Sedo's edge IP-allowlists GH runner ranges (it 403s other IPs).
+#
+# Manual / on-demand only (no cron): the daily sedo_net_new feed covers new
+# arrivals; this full dump is run by hand when we want to refresh the long
+# tail — re-observe staleness (sold/delisted), pick up price drift, and
+# catch org/xyz/dev coverage. Dispatch from the Actions tab when needed.
 
 on:
   workflow_dispatch: {}
-  schedule:
-    - cron: "0 8 * * 0"   # weekly, Sunday 08:00 UTC (~4 AM ET)
 
 permissions:
   contents: write

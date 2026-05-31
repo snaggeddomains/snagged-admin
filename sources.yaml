@@ -334,7 +334,8 @@ sources:
   - source_id: sedo_dump
     product: aux                    # feeds name_universe (Supabase), not the SNAP sheet/Slack
     kind: scrape_json
-    schedule_utc: "0 8 * * 0"       # weekly, Sunday ~4 AM ET
+    schedule_utc: manual            # on-demand only; daily sedo_net_new covers new arrivals.
+                                    # Run by hand to refresh the long tail (staleness/price/coverage).
     enabled: true
     reason: |
       Full-inventory Sedo marketplace pull, distinct from the existing
