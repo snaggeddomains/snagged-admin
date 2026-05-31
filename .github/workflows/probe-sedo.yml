@@ -1,24 +1,21 @@
-name: 'Probe: sedo.com universe-scoped search (sizing for a dump source)'
+name: 'Probe: sedo.com tail-page composition (does the cheap long tail justify a full dump?)'
 
-# We already know Sedo's search backend (POST common.php, JSON response)
-# works anonymously — sedo_net_new.py hits it daily. What we DON'T know
-# is what a full universe-scoped pull would look like:
+# Follow-up to the initial sizing probe. We learned:
+#   - hitsTotal = 263,993 for the universe-scoped filter set
+#   - results are sorted price-desc — first 500 are headline names like
+#     services.ai @ $15M, group.ai @ $995K, etc., 61% with NULL price
+#   - Only .com / .ai surface in the first 500; .org/.co/.xyz/.io are
+#     buried deeper
 #
-#   Q1: With the user's preferred filter set (TLDs com/ai/org/co/xyz/io,
-#       1-word max, no special chars, all 4 listing types), how many
-#       total results does Sedo report? This sets the upper bound on
-#       what a sedo_dump source would ingest.
-#   Q2: Does the response include a total/numFound field so we can plan
-#       pagination, or do we have to walk pages until we get an empty
-#       result list?
-#   Q3: Does pagination actually work? sedo_net_new only fetches page=1;
-#       confirm that page=2 returns DIFFERENT domains and that pagesize=
-#       500 isn't capped server-side.
-#   Q4: What's the typical price + TLD distribution in the first 500?
-#       Gives us a feel for what we'd be ingesting before committing to
-#       the dump source build.
+# Open question before committing to a 9-minute / 264K-row dump source:
+# does the BOTTOM of the catalog actually contain interesting names, or
+# is it nothing but parked-domain dross we'd waste storage on?
 #
-# Output is just printed to the job log — no commits, no Slack, no Supabase.
+# This probe fetches page 528 (the last page) PLUS page 264 (midpoint)
+# for comparison, and reports the same TLD / price / sample breakdown
+# we got from page 1. Decision: if midpoint + tail show real domains in
+# the .co/.org/.xyz/.io space at $100-2K prices, build the dump source.
+# If they're all $0 unknown-price junk, narrow our scope.
 
 on:
   workflow_dispatch: {}
@@ -33,10 +30,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-      - name: Hit Sedo search backend with universe-scoped filters
+      - name: Hit Sedo search backend at head / midpoint / tail
         run: |
           python3 - <<'PY'
-          import json
           import requests
           from collections import Counter
 
@@ -46,76 +42,42 @@ jobs:
               "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) "
               "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Mobile Safari/537.36"
           )
-
-          # User-specified filter set from sedo.com/search/?cc[0]=com&cc[1]=ai&
-          # cc[2]=org&cc[3]=co&cc[4]=xyz&cc[5]=io&number_of_words_max=1
-          # Plus all 4 listing types (BIN/Negotiable/Marketplace auctions/Expiring)
-          # and no special characters (no hyphens, no digits, no IDN).
           TLDS = ["com", "ai", "org", "co", "xyz", "io"]
           PAGE_SIZE = 500
 
           def build_payload(page: int):
               payload = [
-                  ("safe_search", 2),
-                  ("synonyms", "true"),
-                  ("listing_type[]", 1),  # Buy now
-                  ("listing_type[]", 2),  # Negotiable
-                  ("listing_type[]", 3),  # Marketplace auctions
-                  ("listing_type[]", 5),  # Expiring Domain Auctions
-                  ("auction_group[]", 62),
-                  ("auction_event", ""),
-                  ("price_start", 0),
-                  ("price_end", 0),
-                  ("price_currency", 3),
-                  ("traffic_start", 0),
-                  ("traffic_end", 0),
-                  ("number_of_words_min", 1),
-                  ("number_of_words_max", 1),
-                  ("len_min", 1),
-                  ("len_max", 0),
-                  # special_characters values 1/2/3 = no-hyphen / no-numerals
-                  # / no-IDN (these are EXCLUDE flags — having them ON means
-                  # "exclude special chars")
-                  ("special_characters[]", 3),
-                  ("special_characters[]", 1),
+                  ("safe_search", 2), ("synonyms", "true"),
+                  ("listing_type[]", 1), ("listing_type[]", 2),
+                  ("listing_type[]", 3), ("listing_type[]", 5),
+                  ("auction_group[]", 62), ("auction_event", ""),
+                  ("price_start", 0), ("price_end", 0), ("price_currency", 3),
+                  ("traffic_start", 0), ("traffic_end", 0),
+                  ("number_of_words_min", 1), ("number_of_words_max", 1),
+                  ("len_min", 1), ("len_max", 0),
+                  ("special_characters[]", 3), ("special_characters[]", 1),
                   ("special_characters[]", 2),
-                  ("cat[]", 0),
-                  ("cat[]", 0),
-                  ("cat[]", 0),
-                  ("type", 0),
-                  ("special_inventory", 4),
-                  ("kws", "contains"),
-                  ("age_min", 0),
-                  ("age_max", 0),
-                  ("keyword", ""),
-                  ("page", page),
-                  ("rel", 6),
-                  ("orderdirection", 2),
-                  ("domainIds", ""),
+                  ("cat[]", 0), ("cat[]", 0), ("cat[]", 0),
+                  ("type", 0), ("special_inventory", 4),
+                  ("kws", "contains"), ("age_min", 0), ("age_max", 0),
+                  ("keyword", ""), ("page", page), ("rel", 6),
+                  ("orderdirection", 2), ("domainIds", ""),
               ]
               for tld in TLDS:
                   payload.append(("cc[]", tld))
               payload.extend([
-                  ("member", ""),
-                  ("v", "0.1"),
-                  ("o", "json"),
-                  ("m", "search"),
-                  ("f", "requestSearch"),
-                  ("pagesize", PAGE_SIZE),
-                  ("keywords_join", "AND"),
-                  ("loadListingFeatured", "true"),
-                  ("language", "us"),
+                  ("member", ""), ("v", "0.1"), ("o", "json"),
+                  ("m", "search"), ("f", "requestSearch"),
+                  ("pagesize", PAGE_SIZE), ("keywords_join", "AND"),
+                  ("loadListingFeatured", "true"), ("language", "us"),
               ])
               return payload
 
           headers = {
               "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-              "origin": "https://sedo.com",
-              "referer": SEARCH_URL,
-              "x-requested-with": "XMLHttpRequest",
-              "user-agent": USER_AGENT,
+              "origin": "https://sedo.com", "referer": SEARCH_URL,
+              "x-requested-with": "XMLHttpRequest", "user-agent": USER_AGENT,
           }
-
           sess = requests.Session()
           sess.get(SEARCH_URL, timeout=30, headers={"user-agent": USER_AGENT})
 
@@ -124,112 +86,53 @@ jobs:
               resp.raise_for_status()
               return resp.json()
 
-          # ---- Q1+Q2: total results, response structure ----
-          print("=" * 60)
-          print("Q1+Q2: Page 1 fetch — total result count + response shape")
-          print("=" * 60)
-          data = fetch(1)
-          general = data.get("b", {}).get("general", {})
-          search_req = general.get("searchRequest", {}) or {}
-          result_list = search_req.get("resultList") or []
-          print(f"  page 1 result count: {len(result_list)}")
-          print()
-          print("  searchRequest top-level keys:")
-          for k, v in search_req.items():
-              if isinstance(v, (str, int, float, bool)) or v is None:
-                  print(f"    {k}: {v}")
-              elif isinstance(v, list):
-                  print(f"    {k}: <list len={len(v)}>")
-              elif isinstance(v, dict):
-                  print(f"    {k}: <dict keys={list(v.keys())[:8]}>")
-              else:
-                  print(f"    {k}: <{type(v).__name__}>")
-          print()
-          print("  Other 'general' keys (looking for totals):")
-          for k, v in general.items():
-              if k == "searchRequest":
-                  continue
-              if isinstance(v, (str, int, float, bool)) or v is None:
-                  print(f"    {k}: {v}")
-              elif isinstance(v, dict):
-                  print(f"    {k}: <dict keys={list(v.keys())[:8]}>")
-              else:
-                  print(f"    {k}: <{type(v).__name__} len={len(v) if hasattr(v, '__len__') else '?'}>")
-          print()
+          def bucket_price(p):
+              if p is None: return "unknown"
+              if p < 100: return "<$100"
+              if p < 500: return "$100-499"
+              if p < 2000: return "$500-1999"
+              if p < 10000: return "$2k-9.9k"
+              return ">=$10k"
 
-          # Hunt for any numeric "total" / "count" / "numFound" field anywhere
-          # in the response — Sedo's JSON is nested.
-          def walk(obj, path=""):
-              if isinstance(obj, dict):
-                  for k, v in obj.items():
-                      kl = k.lower()
-                      if any(t in kl for t in ("total", "count", "found", "numresults", "hits")):
-                          if isinstance(v, (int, str)):
-                              print(f"    {path}.{k} = {v}")
-                      walk(v, f"{path}.{k}")
-              elif isinstance(obj, list) and obj and isinstance(obj[0], dict):
-                  walk(obj[0], f"{path}[0]")
+          def parse_price(v):
+              if v in (None, ""): return None
+              try: return float(str(v).replace("$","").replace(",","").strip())
+              except (TypeError, ValueError): return None
 
-          print("  Candidate total/count fields anywhere in response:")
-          walk(data, "data")
-          print()
+          def summarize(page_num: int):
+              print("=" * 60)
+              print(f"PAGE {page_num}")
+              print("=" * 60)
+              data = fetch(page_num)
+              sr = data.get("b", {}).get("general", {}).get("searchRequest", {}) or {}
+              rows = sr.get("resultList") or []
+              print(f"  rows returned: {len(rows)}  (hitsTotal: {sr.get('hitsTotal')})")
+              tld_c = Counter()
+              price_c = Counter()
+              samples = []
+              for row in rows:
+                  d = str(row.get("0") or "").lower()
+                  t = str(row.get("4002") or "").lower().lstrip(".")
+                  p = parse_price(row.get("4000"))
+                  tld_c[t] += 1
+                  price_c[bucket_price(p)] += 1
+                  if len(samples) < 20:
+                      samples.append((d, p))
+              print("  TLD distribution:")
+              for t, n in tld_c.most_common():
+                  print(f"    .{t}: {n}")
+              print("  Price buckets:")
+              for b in ("<$100","$100-499","$500-1999","$2k-9.9k",">=$10k","unknown"):
+                  if price_c.get(b): print(f"    {b}: {price_c[b]}")
+              print("  First 20 sample (domain, price):")
+              for d, p in samples:
+                  print(f"    {d}  ({p})")
+              print()
+              return rows
 
-          # ---- Q4: TLD + price distribution in page 1 ----
-          print("=" * 60)
-          print("Q4: TLD + price distribution in first 500 results")
-          print("=" * 60)
-          tld_counter = Counter()
-          price_buckets = Counter()
-          sample_domains = []
-          for row in result_list:
-              domain = str(row.get("0") or "").lower()
-              tld = str(row.get("4002") or "").lower().lstrip(".")
-              price_raw = row.get("4000")
-              try:
-                  price = float(str(price_raw).replace("$", "").replace(",", "").strip()) if price_raw else None
-              except (TypeError, ValueError):
-                  price = None
-              tld_counter[tld] += 1
-              if price is None:
-                  price_buckets["unknown"] += 1
-              elif price < 100:
-                  price_buckets["<$100"] += 1
-              elif price < 500:
-                  price_buckets["$100-499"] += 1
-              elif price < 2000:
-                  price_buckets["$500-1999"] += 1
-              elif price < 10000:
-                  price_buckets["$2k-9.9k"] += 1
-              else:
-                  price_buckets[">=$10k"] += 1
-              if len(sample_domains) < 12:
-                  sample_domains.append(f"{domain} ({price})")
-          print("  TLD distribution:")
-          for tld, n in tld_counter.most_common():
-              print(f"    .{tld}: {n}")
-          print()
-          print("  Price buckets:")
-          for b, n in sorted(price_buckets.items()):
-              print(f"    {b}: {n}")
-          print()
-          print("  First 12 sample (domain, price):")
-          for s in sample_domains:
-              print(f"    {s}")
-          print()
+          # Page 264 = midpoint, page 528 = last page
+          summarize(264)
+          summarize(528)
 
-          # ---- Q3: pagination — does page 2 return DIFFERENT rows? ----
-          print("=" * 60)
-          print("Q3: Pagination — does page 2 return different domains?")
-          print("=" * 60)
-          page1_domains = {str(r.get("0") or "").lower() for r in result_list}
-          data2 = fetch(2)
-          result_list_2 = data2.get("b", {}).get("general", {}).get("searchRequest", {}).get("resultList") or []
-          page2_domains = {str(r.get("0") or "").lower() for r in result_list_2}
-          overlap = page1_domains & page2_domains
-          print(f"  page 2 result count: {len(result_list_2)}")
-          print(f"  page1 ∩ page2 overlap: {len(overlap)}  (expect 0 if pagination works)")
-          if overlap:
-              print(f"    overlap sample: {list(overlap)[:5]}")
-          print()
           print("Done.")
           PY
