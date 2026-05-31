@@ -26,7 +26,8 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   const canResearch = MODULES.some(
     (m) => m.startsWith("research.") && userCan(user, m),
   );
-  const researchHref = process.env.RESEARCH_ORIGIN || "https://research.snagged.com";
+  // Phase 3: research is now nested under the umbrella at /research.
+  const researchHref = "/research";
 
   return (
     <>
