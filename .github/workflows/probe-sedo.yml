@@ -34,12 +34,12 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           SUPABASE_NAMING_URL:         ${{ secrets.SUPABASE_NAMING_URL }}
           SUPABASE_NAMING_SERVICE_KEY: ${{ secrets.SUPABASE_NAMING_SERVICE_KEY }}
-          # ---- SMOKE: validate streaming flush + checkpoint push live ----
-          SEDO_DUMP_TLDS: "co"
-          SEDO_DUMP_MAX_REQUESTS: "30"
-          SEDO_DUMP_TIME_BUDGET_SEC: "900"
-          SEDO_DUMP_FLUSH_EVERY: "800"          # force >=1 mid-crawl Supabase flush
-          SEDO_DUMP_CHECKPOINT_PARTITIONS: "3"  # force >=1 mid-crawl progress push
+          # ---- FULL capture: default 7-TLD universe scope, generous budget.
+          #      Resilient + streaming: flushes to Supabase as it goes, isolates
+          #      failed partitions, self-stops at the budget and commits. Live
+          #      progress at state/sedo_dump/progress.json.
+          SEDO_DUMP_TIME_BUDGET_SEC: "18000"   # 300 min (job hard cap 330)
+          SEDO_DUMP_MAX_REQUESTS: "25000"
         run: pipeline run sedo_dump
       - name: Commit state changes
         if: always()   # capture partial/failed state too — the crawler streams progress
