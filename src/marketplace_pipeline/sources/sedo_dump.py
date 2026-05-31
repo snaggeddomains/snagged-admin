@@ -500,6 +500,7 @@ def run() -> int:
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "unique_domains": unique,
         "universe_qualifying": len(universe_entries),
+        "universe_upsert": uni_stats,
         "queries": stats["queries"],
         "requests": stats["request_count"],
         "rows_seen": stats["rows_seen"],
