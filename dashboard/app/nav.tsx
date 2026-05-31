@@ -7,6 +7,7 @@ const TABS = [
   { href: "/admin", label: "Sources" },
   { href: "/admin/config", label: "Configuration" },
   { href: "/admin/schedule", label: "Schedule" },
+  { href: "/admin/users", label: "Users" },
 ];
 
 export default function Nav({

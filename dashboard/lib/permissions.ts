@@ -32,25 +32,46 @@ export const ACTIONS = [
 ] as const;
 export type ActionKey = (typeof ACTIONS)[number];
 
-// Legacy flat keys research stores today: domain_owner, trademark, appraisal,
-// naming, report_deep, report_shallow. A namespaced "research.<x>" key falls
-// back to the flat "<x>" key so existing rows keep working unchanged.
-function permGranted(perms: Record<string, unknown>, key: string): boolean {
+// The key as it is STORED in the permissions JSONB. Research reads flat keys
+// today (domain_owner, trademark, …), so a "research.<x>" catalog key maps to
+// the flat "<x>" on disk; umbrella-only keys (admin*) store as-is. This is the
+// single mapping used by both reads (isGranted) and writes (the editor), so the
+// two never diverge — and existing research rows keep working unchanged.
+export function storageKey(key: string): string {
+  return key.startsWith("research.") ? key.slice("research.".length) : key;
+}
+
+export function isGranted(perms: Record<string, unknown>, key: string): boolean {
   if (!perms) return false;
-  if (perms[key] === true) return true;
-  if (key.startsWith("research.")) {
-    const flat = key.slice("research.".length);
-    if (perms[flat] === true) return true;
-  }
-  return false;
+  return perms[key] === true || perms[storageKey(key)] === true;
 }
 
 export function userCan(user: AppUser | null, moduleKey: ModuleKey): boolean {
   if (!user) return false;
-  return user.is_admin || permGranted(user.permissions, moduleKey);
+  return user.is_admin || isGranted(user.permissions, moduleKey);
 }
 
 export function userCanAction(user: AppUser | null, actionKey: ActionKey): boolean {
   if (!user) return false;
-  return user.is_admin || permGranted(user.permissions, actionKey);
+  return user.is_admin || isGranted(user.permissions, actionKey);
 }
+
+// UI descriptor for the /admin/users permission editor. Adding a future module
+// is a one-line addition here (kept in sync with MODULES/ACTIONS above).
+export interface CatalogEntry {
+  key: ModuleKey | ActionKey;
+  label: string;
+  group: string;
+  kind: "module" | "action";
+}
+
+export const CATALOG: CatalogEntry[] = [
+  { key: "admin", label: "Admin dashboard", group: "Admin", kind: "module" },
+  { key: "admin.users.manage", label: "Manage users & permissions", group: "Admin", kind: "action" },
+  { key: "admin.sources.edit", label: "Edit sources & schedules", group: "Admin", kind: "action" },
+  { key: "research.domain_owner", label: "Domain Owner research", group: "Research", kind: "module" },
+  { key: "research.trademark", label: "Trademark", group: "Research", kind: "module" },
+  { key: "research.appraisal", label: "Appraisal", group: "Research", kind: "module" },
+  { key: "research.naming", label: "Naming Exercise", group: "Research", kind: "module" },
+  { key: "research.report_deep", label: "Deep reports", group: "Research", kind: "action" },
+];
