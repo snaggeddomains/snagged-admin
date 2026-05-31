@@ -72,6 +72,6 @@ export const CATALOG: CatalogEntry[] = [
   { key: "research.domain_owner", label: "Domain Owner research", group: "Research", kind: "module" },
   { key: "research.trademark", label: "Trademark", group: "Research", kind: "module" },
   { key: "research.appraisal", label: "Appraisal", group: "Research", kind: "module" },
-  { key: "research.naming", label: "Naming Exercise", group: "Research", kind: "module" },
-  { key: "research.report_deep", label: "Deep reports", group: "Research", kind: "action" },
+  { key: "research.naming", label: "Naming Exercise — Free Reports", group: "Research", kind: "module" },
+  { key: "research.report_deep", label: "Naming Exercise — Deep Research", group: "Research", kind: "action" },
 ];

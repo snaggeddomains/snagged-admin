@@ -124,7 +124,7 @@ function LoginForm() {
               className="btn btn--primary btn--lg"
               type="submit"
               disabled={busy}
-              style={{ width: "100%", justifyContent: "center" }}
+              style={{ width: "100%", justifyContent: "center", boxShadow: "0 2px 6px rgba(37, 66, 84, 0.15)" }}
             >
               {busy ? "Signing in…" : "Sign in"}
             </button>
@@ -147,7 +147,7 @@ function LoginForm() {
               className="btn btn--primary btn--lg"
               type="submit"
               disabled={busy}
-              style={{ width: "100%", justifyContent: "center" }}
+              style={{ width: "100%", justifyContent: "center", boxShadow: "0 2px 6px rgba(37, 66, 84, 0.15)" }}
             >
               {busy ? "Sending…" : "Send reset link"}
             </button>
