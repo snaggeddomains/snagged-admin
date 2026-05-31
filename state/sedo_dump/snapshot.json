@@ -1,6 +1,6 @@
 {
   "crawl": {
-    "elapsed_sec": 51.7,
+    "elapsed_sec": 51.8,
     "leaves_harvested": 3,
     "leaves_truncated": 0,
     "max_hits_total": 241469,
@@ -11,6 +11,6 @@
     "truncated_partitions": []
   },
   "report_date": "2026-05-31",
-  "unique_domains": 5836,
+  "unique_domains": 5834,
   "universe_qualifying": 2887
 }

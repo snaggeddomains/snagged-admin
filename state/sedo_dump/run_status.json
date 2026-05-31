@@ -1,6 +1,6 @@
 {
-  "elapsed_sec": 51.7,
-  "generated_at": "2026-05-31T05:14:05.753779+00:00",
+  "elapsed_sec": 51.8,
+  "generated_at": "2026-05-31T05:16:48.928080+00:00",
   "label": "Sedo Dump",
   "leaves_harvested": 3,
   "leaves_truncated": 0,
@@ -10,6 +10,14 @@
   "source": "sedo_dump",
   "status": "ok",
   "stopped_early": "max_requests (15) reached at tld=co len=9-12 words=1-\u221e price=5000-25000 page 2",
-  "unique_domains": 5836,
-  "universe_qualifying": 2887
+  "unique_domains": 5834,
+  "universe_qualifying": 2887,
+  "universe_upsert": {
+    "batches": 1,
+    "duplicates_dropped": 0,
+    "input_count": 2887,
+    "normalized_count": 2887,
+    "rows_sent": 2887,
+    "status": "ok"
+  }
 }
