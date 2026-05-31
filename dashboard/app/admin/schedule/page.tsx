@@ -1,7 +1,7 @@
-import { loadFullRegistry, type Source } from "../../lib/sources";
-import { editFile, workflowPathFor, runWorkflowPage } from "../../lib/github-links";
-import { parseCron, etTimeLabel, type ParsedCron } from "../../lib/cron";
-import KindPill from "../kind-pill";
+import { loadFullRegistry, type Source } from "@/lib/sources";
+import { editFile, workflowPathFor, runWorkflowPage } from "@/lib/github-links";
+import { parseCron, etTimeLabel, type ParsedCron } from "@/lib/cron";
+import KindPill from "@/app/kind-pill";
 
 export const revalidate = 60;
 

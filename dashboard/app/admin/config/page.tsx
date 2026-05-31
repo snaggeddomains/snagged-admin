@@ -1,6 +1,6 @@
-import { loadFullRegistry, type FilterProfile } from "../../lib/sources";
-import { editFile, viewFile, sourceModulePathFor } from "../../lib/github-links";
-import KindPill from "../kind-pill";
+import { loadFullRegistry, type FilterProfile } from "@/lib/sources";
+import { editFile, viewFile, sourceModulePathFor } from "@/lib/github-links";
+import KindPill from "@/app/kind-pill";
 
 export const revalidate = 60;
 
