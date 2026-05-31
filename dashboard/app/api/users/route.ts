@@ -1,0 +1,55 @@
+// User/permission administration API. Gated by the `admin.users.manage` action.
+// Reads/writes domain_research_users via the service-role client.
+
+import { NextResponse, type NextRequest } from "next/server";
+import { getCurrentUser } from "@/lib/session";
+import { userCanAction, type AppUser } from "@/lib/permissions";
+import { listUsers, updateUserAccess } from "@/lib/users";
+
+export const runtime = "nodejs";
+
+type Gate =
+  | { ok: false; error: string; status: 401 | 403 }
+  | { ok: true; me: AppUser };
+
+async function requireManager(): Promise<Gate> {
+  const me = await getCurrentUser();
+  if (!me) return { ok: false, error: "Not authenticated", status: 401 };
+  if (!userCanAction(me, "admin.users.manage")) {
+    return { ok: false, error: "Forbidden", status: 403 };
+  }
+  return { ok: true, me };
+}
+
+export async function GET() {
+  const gate = await requireManager();
+  if (!gate.ok) return NextResponse.json({ error: gate.error }, { status: gate.status });
+  return NextResponse.json({ users: await listUsers() });
+}
+
+export async function PATCH(req: NextRequest) {
+  const gate = await requireManager();
+  if (!gate.ok) return NextResponse.json({ error: gate.error }, { status: gate.status });
+
+  const body = (await req.json().catch(() => null)) as {
+    id?: string;
+    is_admin?: boolean;
+    permissions?: Record<string, unknown>;
+  } | null;
+  if (!body?.id) return NextResponse.json({ error: "Missing user id" }, { status: 400 });
+
+  // Footgun guard: don't let an admin strip their own admin and lock themselves out.
+  if (body.id === gate.me.id && body.is_admin === false) {
+    return NextResponse.json(
+      { error: "You can't remove your own admin access." },
+      { status: 400 },
+    );
+  }
+
+  const updated = await updateUserAccess(body.id, {
+    is_admin: body.is_admin,
+    permissions: body.permissions,
+  });
+  if (!updated) return NextResponse.json({ error: "Update failed" }, { status: 500 });
+  return NextResponse.json({ user: updated });
+}
