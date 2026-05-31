@@ -144,23 +144,57 @@ New files in `dashboard/`:
   if lacking).
 
 ### Phase 3 — Nest research under `/research`
-- `dashboard/vercel.json` (new) — proxy rewrite:
-  ```json
-  { "rewrites": [
-      { "source": "/research/:path*", "destination": "https://<research-prod-host>/:path*" }
-  ]}
-  ```
-  (Use research's stable prod URL or its `.vercel.app`; forwards cookies.)
 
-⟶R **research** — re-path the SPA under `/research` (the 4 spots from recon):
-1. `vercel.json` rewrites — prefix the SPA shell routes with `/research`.
-2. `public/app.js` `currentToolRoute()` regex — accept `/research/(trademark|appraisal|naming)…`.
-3. Client `/api` fetch base — prefix so calls resolve under `/research/api/*`.
-4. Hardcoded `https://research.snagged.com` defaults in `lib/auth.js`,
-   `api/login.js`, `api/users.js` — point at `app.snagged.com/research` (email links).
+**Contract: keep-prefix proxy.** Research becomes an app served at base path
+`/research` — SPA, assets, AND api all carry the `/research` prefix. The umbrella
+proxies the prefix through unchanged. This keeps browser URL, asset URLs, and api
+URLs all consistent (a strip-prefix proxy would break root-relative asset/api
+resolution against `app.snagged.com`).
 
-*Shippable result:* `app.snagged.com/research/...` serves the full research app;
-`research.snagged.com` can remain as a transitional alias.
+Target URL shape:
+```
+research.snagged.com/appraisal/Orbie.ai   →   app.snagged.com/research/appraisal/Orbie.ai
+research.snagged.com/api/lookup           →   app.snagged.com/research/api/lookup
+```
+
+**Umbrella (this repo) — done at cutover, after research re-paths:**
+1. `next.config.mjs` rewrite (keep-prefix):
+   ```js
+   async rewrites() {
+     const r = process.env.RESEARCH_ORIGIN || "https://research.snagged.com";
+     return [{ source: "/research/:path*", destination: `${r}/research/:path*` }];
+   }
+   ```
+2. `app/nav.tsx` — flip the Research link from the research subdomain to `/research`.
+3. `app/api/login/route.ts` — update the proxy target from `${RESEARCH_ORIGIN}/api/login`
+   to `${RESEARCH_ORIGIN}/research/api/login` (research's auth endpoints move under
+   the prefix too).
+
+⟶R **research** — re-path the whole app under `/research`:
+1. `vercel.json` rewrites — serve the SPA shell, assets, and api under `/research/*`.
+2. `index.html` — make asset/script/img `src`/`href` `/research`-prefixed (or set a
+   `<base href="/research/">`).
+3. `public/app.js` `currentToolRoute()` regex — accept `/research/(trademark|appraisal|naming)…`.
+4. Client `/api` fetch base — prefix so calls resolve under `/research/api/*`.
+5. Hardcoded `https://research.snagged.com` defaults in `lib/auth.js`, `api/login.js`,
+   `api/users.js` (email links etc.) — point at `https://app.snagged.com/research`.
+6. **Old-link redirects (required):** `vercel.json` `redirects` (301) from the old
+   root paths to the new canonical URLs, so bookmarks/shared links survive:
+   ```json
+   { "redirects": [
+       { "source": "/", "destination": "https://app.snagged.com/research", "permanent": true },
+       { "source": "/:tool(trademark|appraisal|naming)/:rest*",
+         "destination": "https://app.snagged.com/research/:tool/:rest*", "permanent": true }
+   ]}
+   ```
+
+**Cutover sequence (avoid a broken window):** research ships the re-path + redirects
+first (so `research.snagged.com/research/*` works and old paths 301 out) → then the
+umbrella merges the 3 umbrella changes above. The Research nav link and login proxy
+flip in the same umbrella deploy.
+
+*Shippable result:* `app.snagged.com/research/appraisal/Orbie.ai` serves the app;
+old `research.snagged.com/appraisal/Orbie.ai` links 301 to the new URL.
 
 ### Phase 4 — Two-tier RBAC catalog
 - Land `lib/permissions.ts` catalog as the canonical key set; enforce on
