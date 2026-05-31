@@ -4,13 +4,18 @@ name: 'Source: sedo_dump'
 # Feeds name_universe (Supabase). Runs on GitHub-hosted runners because
 # Sedo's edge IP-allowlists GH runner ranges (it 403s other IPs).
 #
-# Manual / on-demand only (no cron): the daily sedo_net_new feed covers new
-# arrivals; this full dump is run by hand when we want to refresh the long
-# tail — re-observe staleness (sold/delisted), pick up price drift, and
-# catch org/xyz/dev coverage. Dispatch from the Actions tab when needed.
+# Biweekly full crawl: the daily sedo_net_new feed only ADDS new arrivals, so
+# the full dump is what refreshes the long tail — re-observe staleness
+# (sold/delisted), pick up price drift, and catch org/xyz/dev coverage the
+# daily job misses. Also dispatchable on demand from the Actions tab.
+#
+# Cron has no native "every two weeks"; 1st + 15th @ 08:00 UTC (~4 AM ET) is
+# the standard biweekly approximation and avoids week-number drift.
 
 on:
   workflow_dispatch: {}
+  schedule:
+    - cron: "0 8 1,15 * *"   # biweekly: 1st & 15th, 08:00 UTC (~4 AM ET)
 
 permissions:
   contents: write
