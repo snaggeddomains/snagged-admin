@@ -1,16 +1,19 @@
 {
   "crawl": {
-    "elapsed_sec": 51.8,
-    "leaves_harvested": 3,
+    "current_partition": null,
+    "elapsed_sec": 113.8,
+    "failed_partitions": [],
+    "leaves_harvested": 7,
     "leaves_truncated": 0,
     "max_hits_total": 241469,
-    "queries": 15,
-    "request_count": 15,
-    "rows_seen": 5866,
-    "stopped_early": "max_requests (15) reached at tld=co len=9-12 words=1-\u221e price=5000-25000 page 2",
+    "queries": 30,
+    "request_count": 30,
+    "rows_seen": 12143,
+    "stopped_early": "max_requests (30) reached at tld=co len=5-5 words=1-\u221e price=5000-25000 page 2",
     "truncated_partitions": []
   },
   "report_date": "2026-05-31",
-  "unique_domains": 5834,
-  "universe_qualifying": 2887
+  "status": "partial",
+  "unique_domains": 12022,
+  "universe_qualifying": 6363
 }
