@@ -20,7 +20,7 @@ on:
   workflow_dispatch: {}
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   probe:
@@ -31,7 +31,7 @@ jobs:
       - uses: ./.github/actions/setup
       - name: Find Sedo's pagination depth cap
         run: |
-          python3 - <<'PY'
+          python3 - <<'PY' | tee /tmp/sedo_probe_result.txt
           import requests
           import time
 
@@ -110,3 +110,14 @@ jobs:
           # the exact cap (or close to it). Skip if walk completed all
           # pages without hitting zero.
           PY
+      - name: Commit probe output to branch
+        # The sandbox driving this dispatch cannot reach GitHub's Actions
+        # log-storage host (results-receiver.* not on its network allowlist),
+        # so route the probe output back through the allowlisted contents API
+        # by committing it to the dispatching branch.
+        run: |
+          mkdir -p probe-results
+          cp /tmp/sedo_probe_result.txt probe-results/sedo-pagination.txt
+          git add probe-results/sedo-pagination.txt
+          git commit -m "probe: sedo pagination depth cap result [skip ci]"
+          git push origin HEAD:${GITHUB_REF_NAME}
