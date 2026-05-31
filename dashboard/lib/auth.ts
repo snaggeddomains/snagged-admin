@@ -90,7 +90,12 @@ export async function verifyCookie(
   return { u: String(payload.u ?? ""), exp: payload.exp };
 }
 
-/** The signing secret, matching research's `AUTH_SECRET || APP_PASSWORD` fallback. */
+/**
+ * The signing secret. MUST match research lib/auth.js `authSecret()` exactly,
+ * including the `.trim()` and the fallback string — a mismatch (e.g. a trailing
+ * newline pasted into one env var but not the other) means every cookie fails
+ * to verify.
+ */
 export function authSecret(): string {
-  return process.env.AUTH_SECRET || process.env.APP_PASSWORD || "";
+  return (process.env.AUTH_SECRET || process.env.APP_PASSWORD || "dr-fallback-secret").trim();
 }
