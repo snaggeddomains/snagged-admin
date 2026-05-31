@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "bid_count": 0,
+    "domain": "panasonic.co",
+    "end_time_utc": "2026-05-31T19:29:59+00:00",
+    "link": "https://www.dynadot.com/market/auction/39149424.html",
+    "platform": "Dynadot",
+    "price": 7.99
+  }
+]
