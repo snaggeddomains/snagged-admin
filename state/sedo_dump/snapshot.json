@@ -1,0 +1,16 @@
+{
+  "crawl": {
+    "elapsed_sec": 51.7,
+    "leaves_harvested": 3,
+    "leaves_truncated": 0,
+    "max_hits_total": 241469,
+    "queries": 15,
+    "request_count": 15,
+    "rows_seen": 5866,
+    "stopped_early": "max_requests (15) reached at tld=co len=9-12 words=1-\u221e price=5000-25000 page 2",
+    "truncated_partitions": []
+  },
+  "report_date": "2026-05-31",
+  "unique_domains": 5836,
+  "universe_qualifying": 2887
+}
