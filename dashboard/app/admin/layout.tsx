@@ -31,15 +31,29 @@ export default async function AdminLayout({ children }: { children: ReactNode })
 
   return (
     <>
-      <header style={{ marginBottom: 20 }}>
-        <div className="wordmark">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="brand-mark" src="/brand/logomark-round.svg" alt="" />
-          <span className="wm-a">Snagged</span> <span className="wm-b">Admin</span>
+      <header
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: 16,
+          marginBottom: 20,
+        }}
+      >
+        <div>
+          <div className="wordmark">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="brand-mark" src="/brand/logomark-round.svg" alt="" />
+            <span className="wm-a">Snagged</span> <span className="wm-b">Admin</span>
+          </div>
+          <p className="muted" style={{ marginTop: 6, marginBottom: 0, fontSize: 14 }}>
+            Marketplace pipeline dashboard
+          </p>
         </div>
-        <p className="muted" style={{ marginTop: 6, marginBottom: 0, fontSize: 14 }}>
-          Marketplace pipeline dashboard
-        </p>
+        <span style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 14 }}>
+          <a href="/" style={{ color: "var(--teal-deep)", fontWeight: 700 }}>Hub</a>
+          <a href="/api/logout" style={{ color: "var(--teal-deep)", fontWeight: 700 }}>Log out</a>
+        </span>
       </header>
       <Nav canResearch={canResearch} researchHref={researchHref} />
       {children}

@@ -4,9 +4,26 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { userCanAction, type AppUser } from "@/lib/permissions";
-import { listUsers, updateUserAccess } from "@/lib/users";
+import { listUsers, updateUserAccess, createUser, deleteUser } from "@/lib/users";
 
 export const runtime = "nodejs";
+
+// Best-effort: ask research to email a set-password link to a freshly created
+// user. Research owns the real password hashing (scrypt) + email, so we never
+// reimplement it here. Failure is non-fatal — the user can use "Forgot password".
+async function sendInvite(email: string): Promise<boolean> {
+  const origin = (process.env.RESEARCH_ORIGIN || "https://research.snagged.com").replace(/\/$/, "");
+  try {
+    const res = await fetch(`${origin}/api/login`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ action: "reset-request", email }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
 
 type Gate =
   | { ok: false; error: string; status: 401 | 403 }
@@ -52,4 +69,41 @@ export async function PATCH(req: NextRequest) {
   });
   if (!updated) return NextResponse.json({ error: "Update failed" }, { status: 500 });
   return NextResponse.json({ user: updated });
+}
+
+export async function POST(req: NextRequest) {
+  const gate = await requireManager();
+  if (!gate.ok) return NextResponse.json({ error: gate.error }, { status: gate.status });
+
+  const body = (await req.json().catch(() => null)) as {
+    email?: string;
+    is_admin?: boolean;
+    permissions?: Record<string, unknown>;
+  } | null;
+  if (!body?.email) return NextResponse.json({ error: "Missing email" }, { status: 400 });
+
+  const { user, error } = await createUser({
+    email: body.email,
+    is_admin: body.is_admin,
+    permissions: body.permissions,
+  });
+  if (error || !user) return NextResponse.json({ error: error || "Create failed" }, { status: 400 });
+
+  const invited = await sendInvite(user.email);
+  return NextResponse.json({ user, invited });
+}
+
+export async function DELETE(req: NextRequest) {
+  const gate = await requireManager();
+  if (!gate.ok) return NextResponse.json({ error: gate.error }, { status: gate.status });
+
+  const body = (await req.json().catch(() => null)) as { id?: string } | null;
+  if (!body?.id) return NextResponse.json({ error: "Missing user id" }, { status: 400 });
+  if (body.id === gate.me.id) {
+    return NextResponse.json({ error: "You can't delete your own account." }, { status: 400 });
+  }
+
+  const ok = await deleteUser(body.id);
+  if (!ok) return NextResponse.json({ error: "Delete failed" }, { status: 500 });
+  return NextResponse.json({ ok: true });
 }

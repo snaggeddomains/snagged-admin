@@ -20,12 +20,14 @@ function draftFor(u: AppUser): Draft {
 }
 
 export default function UsersEditor({
-  users,
+  users: initialUsers,
   currentUserId,
 }: {
   users: AppUser[];
   currentUserId: string;
 }) {
+  const [users, setUsers] = useState<AppUser[]>(initialUsers);
+
   return (
     <main>
       <h1 style={{ fontSize: "1.25rem", marginBottom: 4 }}>Users &amp; permissions</h1>
@@ -33,9 +35,17 @@ export default function UsersEditor({
         Module access and per-action permissions. Admins pass every check
         automatically.
       </p>
+
+      <AddUser onAdded={(u) => setUsers((list) => [...list, u].sort((a, b) => a.email.localeCompare(b.email)))} />
+
       <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 20 }}>
         {users.map((u) => (
-          <UserCard key={u.id} user={u} isSelf={u.id === currentUserId} />
+          <UserCard
+            key={u.id}
+            user={u}
+            isSelf={u.id === currentUserId}
+            onDeleted={() => setUsers((list) => list.filter((x) => x.id !== u.id))}
+          />
         ))}
         {users.length === 0 && <p className="muted">No users found.</p>}
       </div>
@@ -43,9 +53,77 @@ export default function UsersEditor({
   );
 }
 
-function UserCard({ user, isSelf }: { user: AppUser; isSelf: boolean }) {
+function AddUser({ onAdded }: { onAdded: (u: AppUser) => void }) {
+  const [email, setEmail] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  async function add(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setMsg(null);
+    try {
+      const res = await fetch("/api/users", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setMsg({ ok: false, text: data.error || "Couldn't add user" });
+        return;
+      }
+      onAdded(data.user);
+      setEmail("");
+      setMsg({
+        ok: true,
+        text: data.invited
+          ? "Added — a set-password email is on its way."
+          : "Added — couldn't send the email; have them use “Forgot password”.",
+      });
+    } catch {
+      setMsg({ ok: false, text: "Network error" });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <form
+      onSubmit={add}
+      style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 18, flexWrap: "wrap" }}
+    >
+      <input
+        className="field"
+        type="email"
+        placeholder="new.user@email.com"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+        style={{ maxWidth: 320 }}
+      />
+      <button className="btn btn--navy" type="submit" disabled={busy}>
+        {busy ? "Adding…" : "Add user"}
+      </button>
+      {msg && (
+        <span style={{ fontSize: 13, color: msg.ok ? "#2a7" : "var(--coral-deep)" }}>{msg.text}</span>
+      )}
+    </form>
+  );
+}
+
+function UserCard({
+  user,
+  isSelf,
+  onDeleted,
+}: {
+  user: AppUser;
+  isSelf: boolean;
+  onDeleted: () => void;
+}) {
   const [draft, setDraft] = useState<Draft>(() => draftFor(user));
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   function setGrant(key: string, value: boolean) {
@@ -55,7 +133,6 @@ function UserCard({ user, isSelf }: { user: AppUser; isSelf: boolean }) {
   async function save() {
     setSaving(true);
     setMsg(null);
-    // Preserve unknown keys; overwrite catalog keys at their storage key.
     const permissions: Record<string, unknown> = { ...user.permissions };
     for (const c of CATALOG) permissions[storageKey(c.key)] = draft.grants[c.key];
     try {
@@ -65,12 +142,34 @@ function UserCard({ user, isSelf }: { user: AppUser; isSelf: boolean }) {
         body: JSON.stringify({ id: user.id, is_admin: draft.is_admin, permissions }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) setMsg({ ok: false, text: data.error || "Save failed" });
-      else setMsg({ ok: true, text: "Saved" });
+      setMsg(res.ok ? { ok: true, text: "Saved" } : { ok: false, text: data.error || "Save failed" });
     } catch {
       setMsg({ ok: false, text: "Network error" });
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function remove() {
+    if (!confirm(`Delete ${user.email}? This can't be undone.`)) return;
+    setDeleting(true);
+    setMsg(null);
+    try {
+      const res = await fetch("/api/users", {
+        method: "DELETE",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ id: user.id }),
+      });
+      if (res.ok) {
+        onDeleted();
+        return;
+      }
+      const data = await res.json().catch(() => ({}));
+      setMsg({ ok: false, text: data.error || "Delete failed" });
+    } catch {
+      setMsg({ ok: false, text: "Network error" });
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -123,11 +222,20 @@ function UserCard({ user, isSelf }: { user: AppUser; isSelf: boolean }) {
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 12 }}>
-        <button onClick={save} disabled={saving}>
+        <button onClick={save} disabled={saving || deleting}>
           {saving ? "Saving…" : "Save"}
         </button>
+        {!isSelf && (
+          <button
+            onClick={remove}
+            disabled={saving || deleting}
+            style={{ color: "var(--coral-deep)" }}
+          >
+            {deleting ? "Deleting…" : "Delete"}
+          </button>
+        )}
         {msg && (
-          <span style={{ fontSize: 13, color: msg.ok ? "#2a7" : "#b00" }}>{msg.text}</span>
+          <span style={{ fontSize: 13, color: msg.ok ? "#2a7" : "var(--coral-deep)" }}>{msg.text}</span>
         )}
       </div>
     </div>
