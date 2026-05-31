@@ -332,32 +332,30 @@ sources:
       `spaceship` running in the meantime for our own SellerHub data.
 
   - source_id: sedo_dump
-    product: snap
+    product: aux                    # feeds name_universe (Supabase), not the SNAP sheet/Slack
     kind: scrape_json
-    enabled: false
+    schedule_utc: "0 8 * * 0"       # weekly, Sunday ~4 AM ET
+    enabled: true
     reason: |
       Full-inventory Sedo marketplace pull, distinct from the existing
       sedo_net_new + sedo_expired_auctions sources (which only capture the
-      delta of new listings every 12h). Sedo is the only platform that
-      lets us request "new since last run" via its filter API; that's
-      great for SNAP/Slack signal but it means we never see the long
-      tail of older listings sitting in the marketplace. A periodic full
-      dump would catch them all.
+      delta of new listings every 12h). Sedo's filter API is great for the
+      net-new SNAP/Slack signal but never surfaces the long tail of older
+      listings sitting in the marketplace; this weekly dump catches them
+      and lands them in the Tier 3 name universe.
 
-      Blocked on access pattern: Sedo's public marketplace is millions of
-      domains and there's no documented bulk-export endpoint. Options to
-      investigate:
-        (a) Sedo's MLS (Multiple Listing Service) feed for partners —
-            may give us a periodic CSV / XML dump
-        (b) Scraping the marketplace search pages (heavy, CF-protected,
-            and likely against ToS)
-        (c) Pulling via Spaceship's SellerHub integration since Spaceship
-            cross-lists to Sedo MLS — would give us the Sedo overlap for
-            free via the existing spaceship source
-
-      Likely run cadence once wired: weekly full pull (the inventory is
-      relatively stable; daily would be redundant given sedo_net_new
-      already catches the new arrivals).
+      Access pattern (resolved 2026-05-31): no bulk-export endpoint exists,
+      and Sedo caps deep pagination at the first 10,000 results of any
+      single query (Elasticsearch max_result_window — a probe confirmed a
+      264k-hit query goes empty past offset 10k). So sedo_dump uses the
+      same anonymous search backend as sedo_net_new but runs a PARTITIONED
+      crawl: it recursively splits the search space (TLD -> price band ->
+      length -> word count) until every leaf query reports < 10k hits,
+      pages each leaf to the floor, and unions/dedupes by domain. Pacing is
+      conservative (~1 req/s + jitter, backoff on 429/403) to avoid getting
+      a runner egress IP throttled. TLD scope defaults to the universe
+      allow-list; tunable via SEDO_DUMP_TLDS / SEDO_DUMP_MAX_REQUESTS /
+      SEDO_DUMP_TIME_BUDGET_SEC.
 
   # ===== Auctions producers (consumed by auctions_publish orchestrator) =====
 
