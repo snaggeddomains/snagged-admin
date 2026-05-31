@@ -97,9 +97,20 @@ DEFAULT_MAX_REQUESTS = 5_000
 DEFAULT_TIME_BUDGET_SEC = 6_000  # 100 min; workflow timeout is higher
 
 # Resilience / observability.
-FLUSH_EVERY = 25_000             # upsert to Supabase every N new universe domains
+FLUSH_EVERY = 5_000              # upsert to Supabase every N new universe domains
 CHECKPOINT_EVERY_PARTITIONS = 25  # write+push progress.json every N partitions
 CHECKPOINT_EVERY_SEC = 120        # ...or at least this often
+
+# Supabase upsert resilience. The shared `upsert_universe_rows` RPC has
+# expensive merge logic (array_agg DISTINCT, LEAST, CASE) and intermittently
+# exceeds Postgres's 8s statement_timeout even at 5k batches (this is the
+# documented failure that disabled universe_sync). So sedo_dump upserts in
+# SMALL chunks, retries on a statement timeout (transient/load-dependent),
+# and treats a persistently-failing chunk as non-fatal — a later flush /
+# re-run (the RPC is idempotent) catches anything skipped.
+UPSERT_CHUNK = 1_000
+UPSERT_RETRIES = 5
+UPSERT_BACKOFF_BASE = 2.0  # seconds; doubles each retry
 
 SNAPSHOT_FILE = "snapshot.json"  # compact summary only — never the full dump
 PROGRESS_FILE = "progress.json"  # live checkpoint, pushed mid-crawl
@@ -503,23 +514,56 @@ def run() -> int:
     buffer: list[dict[str, Any]] = []       # universe entries pending upsert
     totals = {
         "universe_qualifying": 0, "rows_sent": 0, "batches": 0,
-        "flushes": 0, "upsert_status": "ok", "upsert_error": None,
+        "flushes": 0, "chunks_failed": 0, "rows_failed": 0,
+        "upsert_status": "ok", "upsert_error": None,
     }
+
+    def _upsert_chunk(chunk: list[dict[str, Any]]) -> bool:
+        """Upsert one small chunk with retry on statement timeout. Returns
+        True on success. Never raises — a persistently failing chunk is
+        counted and skipped so the crawl keeps going."""
+        for attempt in range(UPSERT_RETRIES):
+            try:
+                res = _sw.upsert_from_source(SOURCE_ID, chunk, today)
+                if res.get("status") == "ok":
+                    totals["rows_sent"] += res.get("rows_sent", 0)
+                    totals["batches"] += res.get("batches", 0)
+                    return True
+                # creds missing / non-error skip — not retryable
+                totals["upsert_status"] = res.get("status", "error")
+                totals["upsert_error"] = res.get("reason")
+                return False
+            except Exception as e:  # noqa: BLE001 — Postgres timeout etc.
+                msg = str(e)
+                transient = ("57014" in msg or "timeout" in msg.lower()
+                             or "statement" in msg.lower())
+                if attempt < UPSERT_RETRIES - 1 and transient:
+                    backoff = UPSERT_BACKOFF_BASE * (2 ** attempt)
+                    print(f"      upsert chunk timeout (attempt {attempt + 1}); "
+                          f"backing off {backoff:.0f}s")
+                    time.sleep(backoff)
+                    continue
+                totals["upsert_status"] = "error"
+                totals["upsert_error"] = msg[:300]
+                return False
+        return False
 
     def flush() -> None:
         if not buffer:
             return
-        res = _sw.upsert_from_source(SOURCE_ID, list(buffer), today)
         totals["flushes"] += 1
-        if res.get("status") == "ok":
-            totals["rows_sent"] += res.get("rows_sent", 0)
-            totals["batches"] += res.get("batches", 0)
-        else:
-            totals["upsert_status"] = res.get("status", "error")
-            totals["upsert_error"] = res.get("reason")
-        print(f"      flush #{totals['flushes']}: upsert {res.get('status')} "
-              f"(+{res.get('rows_sent', 0):,}); cumulative {totals['rows_sent']:,}")
+        pending = list(buffer)
         buffer.clear()
+        ok_rows = 0
+        for i in range(0, len(pending), UPSERT_CHUNK):
+            chunk = pending[i : i + UPSERT_CHUNK]
+            if _upsert_chunk(chunk):
+                ok_rows += len(chunk)
+            else:
+                totals["chunks_failed"] += 1
+                totals["rows_failed"] += len(chunk)
+        print(f"      flush #{totals['flushes']}: +{ok_rows:,} ok "
+              f"(cumulative {totals['rows_sent']:,}; failed {totals['rows_failed']:,})")
 
     def collect(rows: list[dict[str, Any]]) -> None:
         for row in rows:
@@ -543,6 +587,7 @@ def run() -> int:
             "unique_domains": len(seen),
             "universe_qualifying": totals["universe_qualifying"],
             "rows_upserted": totals["rows_sent"],
+            "rows_failed": totals["rows_failed"],
             "flushes": totals["flushes"],
             "queries": stats.get("queries"),
             "requests": stats.get("request_count"),
@@ -577,6 +622,8 @@ def run() -> int:
         print(f"  CRAWL ERROR (data gathered so far is preserved): {error}")
     finally:
         flush()  # land any buffered universe entries
+    if status == "ok" and totals["rows_failed"]:
+        status = "partial"  # crawl finished but some upserts couldn't land
 
     unique = len(seen)
     print(f"[2/2] Finalizing: status={status} unique={unique:,} "
@@ -608,6 +655,8 @@ def run() -> int:
             "rows_sent": totals["rows_sent"],
             "batches": totals["batches"],
             "flushes": totals["flushes"],
+            "chunks_failed": totals["chunks_failed"],
+            "rows_failed": totals["rows_failed"],
             "error": totals["upsert_error"],
         },
         "queries": stats.get("queries"),
@@ -620,6 +669,9 @@ def run() -> int:
         "elapsed_sec": stats.get("elapsed_sec"),
     })
 
+    if totals["rows_failed"]:
+        print(f"      NOTE: {totals['rows_failed']:,} rows in {totals['chunks_failed']} "
+              f"chunk(s) failed to upsert (idempotent re-run will catch them)")
     print("DONE")
     # Non-fatal: a partial run still committed its data; only a hard crawl
     # exception with zero progress is worth a non-zero exit.
