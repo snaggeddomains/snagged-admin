@@ -1,0 +1,16 @@
+{
+  "current_partition": null,
+  "elapsed_sec": 10942.3,
+  "failed_partitions": 0,
+  "final": true,
+  "flushes": 80,
+  "leaves_harvested": 228,
+  "queries": 3019,
+  "report_date": "2026-05-31",
+  "requests": 3019,
+  "rows_failed": 1000,
+  "rows_upserted": 397876,
+  "unique_domains": 1173179,
+  "universe_qualifying": 398876,
+  "updated_at": "2026-05-31T11:35:00.108115+00:00"
+}

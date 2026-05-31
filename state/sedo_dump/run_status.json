@@ -1,0 +1,26 @@
+{
+  "elapsed_sec": 10942.3,
+  "error": null,
+  "failed_partitions": [],
+  "generated_at": "2026-05-31T11:35:00.108698+00:00",
+  "label": "Sedo Dump",
+  "leaves_harvested": 228,
+  "leaves_truncated": 68,
+  "queries": 3019,
+  "requests": 3019,
+  "rows_seen": 1398331,
+  "source": "sedo_dump",
+  "status": "partial",
+  "stopped_early": null,
+  "unique_domains": 1173179,
+  "universe_qualifying": 398876,
+  "universe_upsert": {
+    "batches": 398,
+    "chunks_failed": 1,
+    "error": "{'message': 'deadlock detected', 'code': '40P01', 'hint': 'See server log for query details.', 'details': 'Process 131924 waits for ShareLock on transaction 4068; blocked by process 133177.\\nProcess 133177 waits for ShareLock on transaction 4067; blocked by process 131924.'}",
+    "flushes": 80,
+    "rows_failed": 1000,
+    "rows_sent": 397876,
+    "status": "error"
+  }
+}

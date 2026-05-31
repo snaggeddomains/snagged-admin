@@ -1,0 +1,12 @@
+Walking pages on a single session at pagesize=500.
+Cumulative rows assumes no overlap (the page1-page2 probe confirmed that).
+
+  page   rows   hitsTotal  cumulative
+  ----   ----   ---------  ----------
+     1    500      263993         500
+     2    500      263993        1000
+     5    500      263993        1500
+    10    500      263993        2000
+    20    500      263993        2500
+    50      0           0        2500
+  --> empty result at page 50; stopping walk
