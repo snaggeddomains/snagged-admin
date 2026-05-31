@@ -49,8 +49,9 @@
   },
   {
     "detail": "Cloudflare Browser Rendering also returned a challenge page. Token may need broader scope or the endpoint may be down.",
-    "generated_at": "2026-05-31T11:48:12.529972+00:00",
+    "generated_at": "2026-05-31T12:08:23.758170+00:00",
     "label": "NameJet Last Chance",
+    "retried": true,
     "source": "namejet_lastchance",
     "status": "failed"
   }
