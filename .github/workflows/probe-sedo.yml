@@ -34,12 +34,12 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           SUPABASE_NAMING_URL:         ${{ secrets.SUPABASE_NAMING_URL }}
           SUPABASE_NAMING_SERVICE_KEY: ${{ secrets.SUPABASE_NAMING_SERVICE_KEY }}
-          # ---- SMOKE: validate chunked upsert path lands rows ----
-          SEDO_DUMP_TLDS: "co"
-          SEDO_DUMP_MAX_REQUESTS: "30"
-          SEDO_DUMP_TIME_BUDGET_SEC: "900"
-          SEDO_DUMP_FLUSH_EVERY: "2500"         # each flush splits into 1k chunks
-          SEDO_DUMP_CHECKPOINT_PARTITIONS: "3"
+          # ---- FULL capture: 7-TLD universe scope, generous budget.
+          #      Resilient end to end: isolates failed partitions, streams to
+          #      Supabase in retried 1k chunks, self-stops at the budget.
+          #      Live progress at state/sedo_dump/progress.json.
+          SEDO_DUMP_TIME_BUDGET_SEC: "18000"   # 300 min (job hard cap 330)
+          SEDO_DUMP_MAX_REQUESTS: "25000"
         run: pipeline run sedo_dump
       - name: Commit state changes
         if: always()   # capture partial/failed state too — the crawler streams progress
