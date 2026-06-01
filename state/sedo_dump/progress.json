@@ -1,16 +1,16 @@
 {
-  "current_partition": "tld=org len=9-12 words=2-2 price=500-1000",
-  "elapsed_sec": 3789.2,
+  "current_partition": "tld=org len=4-4 words=1-\u221e price=500-1000",
+  "elapsed_sec": 3886.1,
   "failed_partitions": 0,
   "final": false,
-  "flushes": 32,
-  "leaves_harvested": 112,
-  "queries": 1087,
+  "flushes": 33,
+  "leaves_harvested": 118,
+  "queries": 1115,
   "report_date": "2026-06-01",
-  "requests": 1087,
+  "requests": 1115,
   "rows_failed": 0,
-  "rows_upserted": 160000,
-  "unique_domains": 428844,
-  "universe_qualifying": 164069,
-  "updated_at": "2026-06-01T14:39:12.735242+00:00"
+  "rows_upserted": 165000,
+  "unique_domains": 440615,
+  "universe_qualifying": 166062,
+  "updated_at": "2026-06-01T14:40:49.700256+00:00"
 }
