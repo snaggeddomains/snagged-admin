@@ -29,15 +29,19 @@ function ghHeaders(token: string): HeadersInit {
   };
 }
 
-/** Fire workflow_dispatch for the orchestrator on main. */
-export async function dispatchOrchestrator(): Promise<{ ok: boolean; status: number; error?: string }> {
+/** Fire workflow_dispatch for the orchestrator on main.
+ *  mode "ping" triggers a real dispatch that no-ops (connectivity test only);
+ *  "full" (default) runs every source. */
+export async function dispatchOrchestrator(
+  mode: "full" | "ping" = "full",
+): Promise<{ ok: boolean; status: number; error?: string }> {
   const token = dispatchToken();
   if (!token) return { ok: false, status: 0, error: "No GH_DISPATCH_TOKEN configured." };
 
   const res = await fetch(`${API}/actions/workflows/${WORKFLOW_FILE}/dispatches`, {
     method: "POST",
     headers: { ...ghHeaders(token), "content-type": "application/json" },
-    body: JSON.stringify({ ref: REF }),
+    body: JSON.stringify({ ref: REF, inputs: { mode } }),
     cache: "no-store",
   });
   // 204 No Content == accepted.

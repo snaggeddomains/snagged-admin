@@ -7,7 +7,13 @@ name: SNAP Orchestrator
 # flags the run as failed at the end (so the auto-fix workflow + watchdog see
 # it). State is committed even on partial failure.
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "full = run every source; ping = no-op connectivity test"
+        type: choice
+        options: [full, ping]
+        default: full
 
 permissions:
   contents: write
@@ -22,9 +28,19 @@ jobs:
     timeout-minutes: 180   # afternic alone can take ~1h; whole batch well under this
     steps:
       - uses: actions/checkout@v4
+
+      # `mode: ping` is a connectivity test: it proves the dispatch chain
+      # (Vercel Cron -> CRON_SECRET -> GH_DISPATCH_TOKEN -> workflow_dispatch)
+      # works end-to-end without running any source. It exits here.
+      - name: Ping (no-op connectivity test)
+        if: ${{ inputs.mode == 'ping' }}
+        run: echo "ping ok — dispatch chain works; skipping all sources."
+
       - uses: ./.github/actions/setup
+        if: ${{ inputs.mode != 'ping' }}
 
       - name: Run SNAP + auction sources (sequential; continue on failure)
+        if: ${{ inputs.mode != 'ping' }}
         id: runsources
         env:
           SLACK_BOT_TOKEN:             ${{ secrets.SLACK_BOT_TOKEN }}
@@ -66,13 +82,13 @@ jobs:
           [ -n "$failed" ] && echo "Sources that failed:$failed" || echo "All sources completed."
 
       - name: Commit state changes
-        if: always()
+        if: ${{ always() && inputs.mode != 'ping' }}
         uses: ./.github/actions/commit-state
         with:
           message: "snap-orchestrator: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
       - name: Flag run failed if any source failed
-        if: always()
+        if: ${{ always() && inputs.mode != 'ping' }}
         run: |
           failed="${{ steps.runsources.outputs.failed }}"
           if [ -n "$failed" ]; then

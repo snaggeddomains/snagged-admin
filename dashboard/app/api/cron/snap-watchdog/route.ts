@@ -33,7 +33,12 @@ export async function GET(req: NextRequest) {
   if (!authorizedCron(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  if (!isEtHour(TARGET_ET_HOUR)) {
+  // `?force=1` bypasses the ET-hour gate for on-demand testing. The watchdog
+  // is read-only when a run already exists today (it only dispatches if NONE
+  // ran), so this is a safe, non-destructive way to verify auth + token + the
+  // GitHub Actions read path without triggering the orchestrator.
+  const force = new URL(req.url).searchParams.get("force") === "1";
+  if (!force && !isEtHour(TARGET_ET_HOUR)) {
     return NextResponse.json({ ok: true, skipped: "not 7 AM ET" });
   }
 
