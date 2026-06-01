@@ -124,7 +124,37 @@ function UserCard({
   const [draft, setDraft] = useState<Draft>(() => draftFor(user));
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [pw, setPw] = useState("");
+  const [settingPw, setSettingPw] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  async function setPassword() {
+    if (pw.length < 8) {
+      setMsg({ ok: false, text: "Password must be at least 8 characters." });
+      return;
+    }
+    if (!confirm(`Set a new password for ${user.email}? They can sign in with it immediately.`)) return;
+    setSettingPw(true);
+    setMsg(null);
+    try {
+      const res = await fetch("/api/users/password", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ id: user.id, password: pw }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setPw("");
+        setMsg({ ok: true, text: "Password set — they can sign in now." });
+      } else {
+        setMsg({ ok: false, text: data.error || "Couldn't set password" });
+      }
+    } catch {
+      setMsg({ ok: false, text: "Network error" });
+    } finally {
+      setSettingPw(false);
+    }
+  }
 
   function setGrant(key: string, value: boolean) {
     setDraft((d) => ({ ...d, grants: { ...d.grants, [key]: value } }));
@@ -221,6 +251,35 @@ function UserCard({
             ))}
           </fieldset>
         ))}
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          marginTop: 14,
+          paddingTop: 12,
+          borderTop: "1px solid #f0eadc",
+          flexWrap: "wrap",
+        }}
+      >
+        <span className="muted" style={{ fontSize: 13 }}>Set password</span>
+        <input
+          className="field"
+          type="password"
+          placeholder="New password (8+ characters)"
+          value={pw}
+          autoComplete="new-password"
+          onChange={(e) => setPw(e.target.value)}
+          style={{ maxWidth: 240, fontSize: 14 }}
+        />
+        <button onClick={setPassword} disabled={settingPw || pw.length < 8}>
+          {settingPw ? "Setting…" : "Set password"}
+        </button>
+        <span className="muted" style={{ fontSize: 12 }}>
+          Sets it directly — no email needed.
+        </span>
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 12 }}>

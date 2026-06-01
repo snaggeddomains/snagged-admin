@@ -45,6 +45,36 @@ export async function createUser(input: {
   return { user: rowToUser(data) };
 }
 
+/** Hash a password EXACTLY like research's lib/auth.js hashPassword():
+ *  scrypt with a 16-byte salt and 64-byte key, stored as scrypt$saltHex$keyHex.
+ *  Must stay byte-compatible with research's verifyPassword(). */
+function hashPassword(pw: string): string {
+  const salt = crypto.randomBytes(16);
+  const key = crypto.scryptSync(String(pw), salt, 64);
+  return `scrypt$${salt.toString("hex")}$${key.toString("hex")}`;
+}
+
+/** Admin-set a user's password directly (no email round-trip). Verifies a row
+ * was updated so a no-op/constraint error surfaces instead of looking like
+ * success. The hash format matches research, so the user can sign in immediately. */
+export async function setUserPassword(
+  id: string,
+  password: string,
+): Promise<{ ok: boolean; error?: string }> {
+  if (!id) return { ok: false, error: "Missing user id." };
+  if (!password || password.length < 8) {
+    return { ok: false, error: "Password must be at least 8 characters." };
+  }
+  const { data, error } = await getDb()
+    .from(TABLE)
+    .update({ password_hash: hashPassword(password), updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .select("id");
+  if (error) return { ok: false, error: error.message };
+  if (!data || data.length === 0) return { ok: false, error: "No matching user row." };
+  return { ok: true };
+}
+
 /** Delete a user. Related rows (runs, naming, lessons) FK to ON DELETE SET NULL.
  * Returns the real Postgres error and verifies a row was actually removed — a
  * delete that silently affects 0 rows (or hits a constraint) surfaces here
