@@ -1,26 +1,18 @@
 [
   {
-    "bid_count": 6,
-    "domain": "aden.co",
-    "end_time_utc": "2026-05-31T19:40:00+00:00",
-    "link": "https://www.godaddy.com/domain-auctions/aden-co-704640128?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 55.0
-  },
-  {
     "bid_count": 0,
-    "domain": "revisionist.co",
-    "end_time_utc": "2026-05-31T20:58:00+00:00",
-    "link": "https://www.godaddy.com/domain-auctions/revisionist-co-704088977?isc=json_ending_tomorrow",
+    "domain": "rebuilt.co",
+    "end_time_utc": "2026-06-01T17:23:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/rebuilt-co-704746865?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
     "price": 1.0
   },
   {
-    "bid_count": 1,
-    "domain": "collaborator.co",
-    "end_time_utc": "2026-05-31T21:23:00+00:00",
-    "link": "https://www.godaddy.com/domain-auctions/collaborator-co-703881385?isc=json_ending_tomorrow",
+    "bid_count": 30,
+    "domain": "immersion.org",
+    "end_time_utc": "2026-06-01T20:45:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/immersion-org-704620862?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 1.0
+    "price": 830.0
   }
 ]
