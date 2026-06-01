@@ -36,7 +36,13 @@ export async function middleware(req: NextRequest) {
   const isResearchAsset =
     p.startsWith("/research/") &&
     /\.(js|mjs|css|map|svg|png|jpe?g|gif|ico|webp|avif|woff2?|ttf|otf|json|txt)$/i.test(p);
-  if (isResetPage || isResearchAsset) {
+  // research's auth endpoint (login / forgot-password / reset-confirm) and the
+  // session probe must work WITHOUT a session — they're how a logged-out user
+  // signs in or finishes a reset. The SPA posts reset-confirm here; gating it
+  // bounced the POST to /login and returned 405. Everything else under
+  // /research/api/* stays gated.
+  const isResearchAuthApi = p === "/research/api/login" || p === "/research/api/me";
+  if (isResetPage || isResearchAsset || isResearchAuthApi) {
     return NextResponse.next();
   }
 
