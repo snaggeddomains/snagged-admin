@@ -10,6 +10,7 @@ export const TABS = [
   { href: "/admin/config", label: "Configuration" },
   { href: "/admin/schedule", label: "Schedule" },
   { href: "/admin/users", label: "Users" },
+  { href: "/admin/imports", label: "Imports" },
   // Playbook Lessons curation is admin-only; it lives in the research SPA but is
   // surfaced here so it's an Admin function. Opens the research /research/admin view.
   { href: "/research/admin", label: "Lessons" },
