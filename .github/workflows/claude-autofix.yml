@@ -1,0 +1,89 @@
+name: Claude Auto-Fix (pipeline failures)
+
+# When a scheduled SNAP/auction source run FAILS on main, spin up Claude Code to:
+#   1. read the failed run's logs (this job has actions:read + gh),
+#   2. diagnose the cause in src/marketplace_pipeline/,
+#   3. open a PR with a fix  — OR an issue if it's transient / needs a human.
+# Claude never pushes to main or merges; a human reviews the PR.
+#
+# SETUP (one-time): add a repo secret  ANTHROPIC_API_KEY  with an Anthropic API
+# key. Until that's set, this workflow no-ops (the action fails closed).
+
+on:
+  workflow_run:
+    # The triggering workflows' `name:` values (not filenames).
+    workflows:
+      - "Source: afternic"
+      - "Source: namecheap_bin"
+      - "Source: atom_daily"
+      - "Source: oxley"
+      - "Source: braden_pollack_portfolio"
+      - "Source: efty_partner"
+      - "Source: sedo_net_new"
+      - "Source: sedo_dump"
+      - "Source: rob_purchases_sheet"
+      - "Source: snagged_snap_sheet"
+      - "Source: snagged_marketplace_sheet"
+      - "Source: spaceship"
+      - "Source: auctions_publish (orchestrator)"
+      - "Source: auctions_watchdog"
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: write        # create the fix branch + commit
+  pull-requests: write   # open the PR
+  issues: write          # open a tracking issue for transient/uncertain failures
+  actions: read          # read the failed run's logs
+
+concurrency:
+  # Don't pile up auto-fix runs for the same source; let an in-flight one finish.
+  group: claude-autofix-${{ github.event.workflow_run.name }}
+  cancel-in-progress: false
+
+jobs:
+  autofix:
+    # workflow_run fires on success too — only act on actual failures.
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}   # so `gh` is authenticated in Claude's Bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history so Claude can branch + diff
+
+      - name: Claude auto-fix
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            The scheduled pipeline workflow "${{ github.event.workflow_run.name }}"
+            FAILED on main (run id ${{ github.event.workflow_run.id }},
+            ${{ github.event.workflow_run.html_url }}, commit
+            ${{ github.event.workflow_run.head_sha }}).
+
+            Do this:
+            1. Read the failing logs:
+                 gh run view ${{ github.event.workflow_run.id }} --log-failed
+               (GH_TOKEN here has actions:read).
+            2. Diagnose the root cause in this repo. The pipeline lives under
+               src/marketplace_pipeline/ (sources/<id>.py, universe/, cli.py).
+               The source_id is the part of the workflow name after "Source: ".
+            3. ONLY if there is a clear, safe, well-scoped CODE fix: create a
+               branch  claude/autofix-<source_id>-<short_sha>, commit it with a
+               clear message, and open a PR against main. The PR body must state
+               the failing error, the root cause, and exactly what the fix
+               changes. DO NOT push to main and DO NOT merge — a human reviews it.
+            4. If the failure is transient/infra (one-off network error, an
+               upstream feed not ready yet, a rate limit, a load-induced DB
+               deadlock/timeout that the existing retry should absorb) OR it needs
+               human judgment OR you are not confident in a fix: DO NOT open a PR.
+               Instead open a concise GitHub issue with your diagnosis. First run
+               `gh issue list --search "<source_id> autofix"` and skip if a
+               matching open issue already exists (avoid duplicates).
+            Be conservative: a wrong fix to the production pipeline is worse than
+            no fix. When in doubt, open an issue, not a PR.
+          claude_args: |
+            --max-turns 25
+            --allowedTools Bash(gh run view:*),Bash(gh pr create:*),Bash(gh issue create:*),Bash(gh issue list:*),Bash(gh api:*),Bash(git:*),Edit,Read,Grep,Glob
