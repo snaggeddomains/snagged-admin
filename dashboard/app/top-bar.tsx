@@ -1,10 +1,15 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { userCan, MODULES, type AppUser } from "@/lib/permissions";
+import { TABS } from "./nav";
 
 // The global chrome shared across every umbrella surface (hub, admin) and
 // mirrored by research. Logo -> hub, permission-aware module switcher, account.
-// Module links only render for modules the user can access, so a Research-only
-// user sees no Admin link at all.
+// On mobile the account (and, in Admin, the section tabs) collapse into a
+// top-right hamburger menu so the bar matches the Research module exactly.
 export default function TopBar({
   user,
   current,
@@ -14,6 +19,9 @@ export default function TopBar({
 }) {
   const canResearch = MODULES.some((m) => m.startsWith("research.") && userCan(user, m));
   const canAdmin = userCan(user, "admin");
+  const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const showTabs = current === "admin"; // admin section tabs live in the menu on mobile
 
   return (
     <header className="topbar">
@@ -38,10 +46,48 @@ export default function TopBar({
         </nav>
       )}
 
+      {/* Desktop: account inline on the right. Hidden on mobile (moves to menu). */}
       <span className="topbar__account">
         <span className="muted">{user.email}</span>
         <a href="/api/logout">Log out</a>
       </span>
+
+      {/* Mobile-only hamburger, pinned top-right. */}
+      <button
+        type="button"
+        className="topbar__burger"
+        aria-label="Menu"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        &#9776;
+      </button>
+
+      {/* Mobile dropdown: admin section tabs (if any) + account. */}
+      <div className={"topbar__menu" + (open ? " open" : "")}>
+        {showTabs && (
+          <nav className="topbar__menu-nav">
+            {TABS.map((t) => {
+              const active =
+                t.href === "/admin" ? pathname === "/admin" : pathname.startsWith(t.href);
+              return (
+                <Link
+                  key={t.href}
+                  href={t.href}
+                  className={active ? "active" : ""}
+                  onClick={() => setOpen(false)}
+                >
+                  {t.label}
+                </Link>
+              );
+            })}
+          </nav>
+        )}
+        <div className="topbar__menu-account">
+          <span className="muted">{user.email}</span>
+          <a href="/api/logout">Log out</a>
+        </div>
+      </div>
     </header>
   );
 }

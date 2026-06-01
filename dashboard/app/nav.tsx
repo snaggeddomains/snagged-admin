@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 // Admin module sections. Cross-module switching (Research/Admin) lives in the
 // global TopBar; this is just the admin sub-nav.
-const TABS = [
+export const TABS = [
   { href: "/admin", label: "Sources" },
   { href: "/admin/config", label: "Configuration" },
   { href: "/admin/schedule", label: "Schedule" },

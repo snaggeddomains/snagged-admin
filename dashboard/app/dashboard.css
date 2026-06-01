@@ -228,17 +228,48 @@ tr.dim { opacity: 0.6; }
    their columns on narrow screens. */
 .table-scroll { overflow-x: auto; }
 
-/* Phone chrome: let the top bar wrap (so the wordmark, nav, and account stop
-   colliding) and give wide tables a scrollable min-width. Mirrors research's
-   mobile top-bar behavior so both surfaces stay consistent. */
+/* Mobile-only top-bar hamburger + dropdown (account, and Admin section tabs).
+   Hidden on desktop; revealed at <=640px so the bar matches the Research module. */
+.topbar__burger { display: none; }
+.topbar__menu { display: none; }
+
+/* Phone chrome: circle-only logo, and collapse the account + section tabs into a
+   top-right hamburger menu — identical to the Research module. */
 @media (max-width: 640px) {
   .topbar { flex-wrap: wrap; row-gap: 10px; }
-  .topbar__account { overflow-wrap: anywhere; }
-  /* Just the blue circle on phones — drop the "Snagged" wordmark and match
-     research's compact 34px mobile logomark so the two stay consistent. */
+  /* Just the blue circle on phones (drop the "Snagged" wordmark); 34px to match research. */
   .topbar .wm-a { display: none; }
   .topbar__brand .brand-mark { width: 34px; height: 34px; }
   .table-scroll > table.dash { min-width: 680px; }
+
+  /* Account + section tabs move into the hamburger menu. */
+  .topbar__account { display: none; }
+  .tab-nav { display: none; }
+  .topbar__burger {
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-left: auto; width: 44px; height: 34px; padding: 0;
+    font-size: 20px; line-height: 1; cursor: pointer;
+    background: var(--cream); color: var(--navy);
+    border: 2px solid var(--line); border-radius: 10px;
+  }
+  .topbar__menu.open {
+    display: flex; flex-direction: column; flex-basis: 100%; gap: 6px;
+    margin-top: 4px; padding: 12px 14px;
+    background: var(--cream-2); border: 1.5px solid var(--line); border-radius: 12px;
+    box-shadow: 0 14px 30px rgba(8, 40, 60, .14);
+  }
+  .topbar__menu-nav { display: flex; flex-direction: column; gap: 4px; }
+  .topbar__menu-nav a {
+    padding: 10px 12px; border-radius: 8px; font-size: 15px; font-weight: 600;
+    color: var(--navy-2); text-decoration: none;
+  }
+  .topbar__menu-nav a.active { background: var(--navy); color: var(--cream-2); }
+  .topbar__menu-account {
+    display: flex; flex-direction: column; gap: 8px;
+    margin-top: 6px; padding-top: 12px; border-top: 1.5px solid var(--line); font-size: 14px;
+  }
+  .topbar__menu-account .muted { color: var(--navy-3); overflow-wrap: anywhere; }
+  .topbar__menu-account a { color: var(--teal-deep); font-weight: 700; text-decoration: none; }
 }
 
 /* Hub landing */
