@@ -1,0 +1,81 @@
+name: SNAP Orchestrator
+
+# Single sequential runner for the daily SNAP + auction batch. Triggered by an
+# EXTERNAL scheduler (Vercel Cron -> workflow_dispatch) instead of GitHub's
+# best-effort `schedule:`, which delays/drops runs and broke the 7 AM ET SLA.
+# Runs each source in order, CONTINUING to the next even if one fails, then
+# flags the run as failed at the end (so the auto-fix workflow + watchdog see
+# it). State is committed even on partial failure.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: snap-orchestrator
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180   # afternic alone can take ~1h; whole batch well under this
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      - name: Run SNAP + auction sources (sequential; continue on failure)
+        id: runsources
+        env:
+          SLACK_BOT_TOKEN:             ${{ secrets.SLACK_BOT_TOKEN }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          SUPABASE_NAMING_URL:         ${{ secrets.SUPABASE_NAMING_URL }}
+          SUPABASE_NAMING_SERVICE_KEY: ${{ secrets.SUPABASE_NAMING_SERVICE_KEY }}
+          SCRAPE_DO_TOKEN:             ${{ secrets.SCRAPE_DO_TOKEN }}
+          EFTY_PARTNER_TOKEN:          ${{ secrets.EFTY_PARTNER_TOKEN }}
+          SPACESHIP_API_KEY:           ${{ secrets.SPACESHIP_API_KEY }}
+          SPACESHIP_API_SECRET:        ${{ secrets.SPACESHIP_API_SECRET }}
+          DYNADOT_API_KEY:             ${{ secrets.DYNADOT_API_KEY }}
+          DYNADOT_API_SECRET:          ${{ secrets.DYNADOT_API_SECRET }}
+          NAMESILO_API_KEY:            ${{ secrets.NAMESILO_API_KEY }}
+          CF_BROWSER_ACCOUNT_ID:       ${{ secrets.CF_BROWSER_ACCOUNT_ID }}
+          CF_BROWSER_API_TOKEN:        ${{ secrets.CF_BROWSER_API_TOKEN }}
+          R2_ACCESS_KEY_ID:            ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY:        ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_ENDPOINT:                 ${{ secrets.R2_ENDPOINT }}
+          R2_BUCKET:                   ${{ secrets.R2_BUCKET }}
+          SLACK_CHANNEL_SNAP:          ${{ vars.SLACK_CHANNEL_SNAP }}
+          SLACK_CHANNEL_AUCTIONS:      ${{ vars.SLACK_CHANNEL_AUCTIONS }}
+        run: |
+          set +e
+          # Order = the SLA cascade (afternic anchors at dispatch time; ATOM
+          # after afternic so its >4 AM feed is ready; auctions aggregate last).
+          SOURCES="afternic namecheap_bin atom_daily snagged_snap_sheet rob_purchases_sheet snagged_marketplace_sheet oxley braden_pollack_portfolio efty_partner auctions_publish auctions_watchdog"
+          failed=""
+          for s in $SOURCES; do
+            echo "::group::pipeline run $s"
+            if pipeline run "$s"; then
+              echo "OK: $s"
+            else
+              echo "::error title=$s failed::pipeline run $s exited non-zero (continuing to next source)"
+              failed="$failed $s"
+            fi
+            echo "::endgroup::"
+          done
+          { echo "failed=$failed"; } >> "$GITHUB_OUTPUT"
+          [ -n "$failed" ] && echo "Sources that failed:$failed" || echo "All sources completed."
+
+      - name: Commit state changes
+        if: always()
+        uses: ./.github/actions/commit-state
+        with:
+          message: "snap-orchestrator: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+      - name: Flag run failed if any source failed
+        if: always()
+        run: |
+          failed="${{ steps.runsources.outputs.failed }}"
+          if [ -n "$failed" ]; then
+            echo "::error::SNAP orchestrator: failed source(s):$failed"
+            exit 1
+          fi

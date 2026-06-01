@@ -1,9 +1,9 @@
 name: 'Source: auctions_publish (orchestrator)'
 
-# Schedule mirrors the legacy auction publish cadence (~6 AM ET).
+# Scheduling is owned by "SNAP Orchestrator" (snap-orchestrator.yml), which runs
+# this aggregation step after the upstream sources land. Only workflow_dispatch
+# remains so it can still be (re)run individually.
 on:
-  schedule:
-    - cron: '35 10 * * *'   # ~6:35 AM ET — aggregates after sources land
   workflow_dispatch: {}
 
 permissions:

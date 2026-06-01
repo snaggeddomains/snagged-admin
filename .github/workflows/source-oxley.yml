@@ -1,8 +1,8 @@
 name: 'Source: oxley'
 
+# Scheduling is owned by "SNAP Orchestrator" (snap-orchestrator.yml). Only
+# workflow_dispatch remains so this source can still be (re)run individually.
 on:
-  schedule:
-    - cron: '15 10 * * *'   # ~6:15 AM ET
   workflow_dispatch: {}
 
 permissions:

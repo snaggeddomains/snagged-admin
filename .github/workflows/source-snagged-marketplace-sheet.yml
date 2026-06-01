@@ -1,8 +1,8 @@
 name: 'Source: snagged_marketplace_sheet'
 
+# Scheduling is owned by "SNAP Orchestrator" (snap-orchestrator.yml). Only
+# workflow_dispatch remains so this source can still be (re)run individually.
 on:
-  schedule:
-    - cron: '10 10 * * *'   # ~6:10 AM ET (de-clustered)
   workflow_dispatch: {}
 
 permissions:

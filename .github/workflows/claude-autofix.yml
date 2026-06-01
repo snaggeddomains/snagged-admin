@@ -13,6 +13,7 @@ on:
   workflow_run:
     # The triggering workflows' `name:` values (not filenames).
     workflows:
+      - "SNAP Orchestrator"
       - "Source: afternic"
       - "Source: namecheap_bin"
       - "Source: atom_daily"
@@ -70,6 +71,9 @@ jobs:
             2. Diagnose the root cause in this repo. The pipeline lives under
                src/marketplace_pipeline/ (sources/<id>.py, universe/, cli.py).
                The source_id is the part of the workflow name after "Source: ".
+               For "SNAP Orchestrator", there is no such prefix — instead the
+               failed source ids are listed in the log's `::error::` line
+               ("SNAP orchestrator: failed source(s): ..."); diagnose each.
             3. ONLY if there is a clear, safe, well-scoped CODE fix: create a
                branch  claude/autofix-<source_id>-<short_sha>, commit it with a
                clear message, and open a PR against main. The PR body must state

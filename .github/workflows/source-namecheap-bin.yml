@@ -1,9 +1,8 @@
 name: 'Source: namecheap_bin'
 
-# Schedule in UTC. 25 9 * * * == ~5:25 AM ET (drifts ~1 hr across DST).
+# Scheduling is owned by "SNAP Orchestrator" (snap-orchestrator.yml). Only
+# workflow_dispatch remains so this source can still be (re)run individually.
 on:
-  schedule:
-    - cron: '10 9 * * *'   # ~5:10 AM ET — after afternic clears
   workflow_dispatch: {}
 
 permissions:

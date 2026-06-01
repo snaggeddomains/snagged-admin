@@ -1,8 +1,8 @@
 name: 'Source: efty_partner'
 
+# Scheduling is owned by "SNAP Orchestrator" (snap-orchestrator.yml). Only
+# workflow_dispatch remains so this source can still be (re)run individually.
 on:
-  schedule:
-    - cron: '30 10 * * *'   # ~6:30 AM ET — in the morning batch (before 7 AM ET)
   workflow_dispatch: {}
 
 permissions:

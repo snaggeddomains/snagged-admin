@@ -1,10 +1,9 @@
 name: 'Source: atom_daily'
 
-# 0 14 * * * == ~10:00 AM ET (drifts ~1 hr across DST). Atom feed updates
-# earlier in the morning so 14:00 UTC is well after.
+# Scheduling is owned by "SNAP Orchestrator" (snap-orchestrator.yml), which runs
+# ATOM after afternic so its >4 AM ET feed refresh is ready. Only
+# workflow_dispatch remains so this source can still be (re)run individually.
 on:
-  schedule:
-    - cron: '40 9 * * *'   # ~5:40 AM ET — after ATOM's >4 AM ET feed refresh + after namecheap
   workflow_dispatch: {}
 
 permissions:

@@ -1,9 +1,9 @@
 name: 'Source: auctions_watchdog'
 
-# 35 min after the orchestrator (~6:35 AM ET).
+# Scheduling is owned by "SNAP Orchestrator" (snap-orchestrator.yml), which runs
+# this watchdog last in the batch. Only workflow_dispatch remains so it can still
+# be (re)run individually.
 on:
-  schedule:
-    - cron: '45 10 * * *'   # ~6:45 AM ET — last, still inside the 7 AM ET SLA
   workflow_dispatch: {}
 
 permissions:
