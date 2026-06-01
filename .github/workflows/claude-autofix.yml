@@ -25,6 +25,7 @@ on:
       - "Source: rob_purchases_sheet"
       - "Source: snagged_snap_sheet"
       - "Source: snagged_marketplace_sheet"
+      - "Source: berserk_snap_sheet"
       - "Source: spaceship"
       - "Source: auctions_publish (orchestrator)"
       - "Source: auctions_watchdog"

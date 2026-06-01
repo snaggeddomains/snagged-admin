@@ -46,6 +46,27 @@ def list_tabs(spreadsheet_id: str) -> list[str]:
     return [s["properties"]["title"] for s in meta.get("sheets", [])]
 
 
+def tab_name_for_gid(spreadsheet_id: str, gid: int) -> str:
+    """Resolve a tab's title from its gid (the `gid=` in the sheet URL).
+
+    Lets a source target a tab by its stable gid instead of a title that can be
+    renamed out from under us. Raises with the available tabs if none match.
+    """
+    svc = _service()
+    meta = svc.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
+    for s in meta.get("sheets", []):
+        if s.get("properties", {}).get("sheetId") == int(gid):
+            return s["properties"]["title"]
+    available = [
+        f'{s["properties"]["title"]} (gid {s["properties"]["sheetId"]})'
+        for s in meta.get("sheets", [])
+    ]
+    raise RuntimeError(
+        f"No tab with gid {gid} in spreadsheet {spreadsheet_id}. "
+        f"Available: {', '.join(available)}"
+    )
+
+
 def read_public_csv_as_dicts(
     spreadsheet_id: str, gid: int = 0,
 ) -> list[dict[str, str]]:

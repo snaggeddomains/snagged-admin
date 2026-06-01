@@ -154,6 +154,18 @@ sources:
       'Active' is truthy. Price column: 'BIN'.
       Upserts as source_tier=1.
 
+  - source_id: berserk_snap_sheet
+    product: snap
+    kind: google_doc
+    schedule_utc: "12 10 * * *"   # ~6:12 AM ET (informational; orchestrator drives timing)
+    enabled: true
+    notes: |
+      Berserk SNAP tracker (Rob + Brian joint purchases). Reads tab gid
+      257551532 from sheet 1oHfG8FYlTTclnB-gi0IkkhbqnXXYfeewOBiZn9Hds4M
+      (targeted by stable gid, not title). Domain column: 'Asset Name';
+      price column: 'Purchase Price'; no active filter (ingest every row).
+      Upserts as source_tier=1.
+
   # ===== SNAP producers =====
 
   - source_id: namecheap_bin

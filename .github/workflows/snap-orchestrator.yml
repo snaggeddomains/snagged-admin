@@ -66,7 +66,7 @@ jobs:
           set +e
           # Order = the SLA cascade (afternic anchors at dispatch time; ATOM
           # after afternic so its >4 AM feed is ready; auctions aggregate last).
-          SOURCES="afternic namecheap_bin atom_daily snagged_snap_sheet rob_purchases_sheet snagged_marketplace_sheet oxley braden_pollack_portfolio efty_partner auctions_publish auctions_watchdog"
+          SOURCES="afternic namecheap_bin atom_daily snagged_snap_sheet rob_purchases_sheet snagged_marketplace_sheet berserk_snap_sheet oxley braden_pollack_portfolio efty_partner auctions_publish auctions_watchdog"
           failed=""
           for s in $SOURCES; do
             echo "::group::pipeline run $s"

@@ -51,14 +51,16 @@ def process_sheet_tier1(
     source_id: str,
     source_label: str,
     spreadsheet_id: str,
-    tab_name: str,
     domain_col: str,
     price_col: str,
     active_col: str | None,
+    tab_name: str | None = None,
+    gid: int | None = None,
 ) -> int:
     """One-shot ingest for a tier-1 sheet-backed source.
 
-    - Reads the tab
+    - Reads the tab (by `tab_name`, or by `gid` if the source targets a tab by
+      its stable URL gid instead of a renamable title)
     - Filters by `active_col` if specified (only rows where it's truthy)
     - Applies universe filter to the domain
     - Pulls price from `price_col` (TBD / blank → None)
@@ -69,6 +71,11 @@ def process_sheet_tier1(
     """
     config.get_source(source_id)
     today = datetime.now(timezone.utc).date().isoformat()
+
+    if tab_name is None:
+        if gid is None:
+            raise ValueError("process_sheet_tier1 needs either tab_name or gid")
+        tab_name = gsr.tab_name_for_gid(spreadsheet_id, gid)
 
     print(f"[1/3] Reading Google Sheet '{tab_name}' tab")
     rows = gsr.read_tab_as_dicts(spreadsheet_id, tab_name)
