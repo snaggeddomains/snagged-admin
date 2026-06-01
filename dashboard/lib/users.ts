@@ -45,10 +45,21 @@ export async function createUser(input: {
   return { user: rowToUser(data) };
 }
 
-/** Delete a user. Related rows (runs, naming, lessons) FK to ON DELETE SET NULL. */
-export async function deleteUser(id: string): Promise<boolean> {
-  const { error } = await getDb().from(TABLE).delete().eq("id", id);
-  return !error;
+/** Delete a user. Related rows (runs, naming, lessons) FK to ON DELETE SET NULL.
+ * Returns the real Postgres error and verifies a row was actually removed — a
+ * delete that silently affects 0 rows (or hits a constraint) surfaces here
+ * instead of looking like success. */
+export async function deleteUser(id: string): Promise<{ ok: boolean; error?: string }> {
+  const { data, error } = await getDb()
+    .from(TABLE)
+    .delete()
+    .eq("id", id)
+    .select("id");
+  if (error) return { ok: false, error: error.message };
+  if (!data || data.length === 0) {
+    return { ok: false, error: "No matching user row was deleted (already removed?)." };
+  }
+  return { ok: true };
 }
 
 /** Load a single user by id. Returns null if not found / not configured. */

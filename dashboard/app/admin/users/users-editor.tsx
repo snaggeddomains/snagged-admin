@@ -151,7 +151,9 @@ function UserCard({
   }
 
   async function remove() {
-    if (!confirm(`Delete ${user.email}? This can't be undone.`)) return;
+    // Double confirmation — deleting a user revokes access and is permanent.
+    if (!confirm(`Delete ${user.email}? This removes their account and revokes access.`)) return;
+    if (!confirm(`Are you sure you want to delete this user?\n\n${user.email} will be permanently removed. This can't be undone.`)) return;
     setDeleting(true);
     setMsg(null);
     try {

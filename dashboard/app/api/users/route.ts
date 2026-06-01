@@ -103,7 +103,9 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: "You can't delete your own account." }, { status: 400 });
   }
 
-  const ok = await deleteUser(body.id);
-  if (!ok) return NextResponse.json({ error: "Delete failed" }, { status: 500 });
+  const result = await deleteUser(body.id);
+  if (!result.ok) {
+    return NextResponse.json({ error: result.error || "Delete failed" }, { status: 500 });
+  }
   return NextResponse.json({ ok: true });
 }
