@@ -103,7 +103,10 @@ def merged_to_universe_row(merged: dict[str, Any]) -> dict[str, Any]:
     return {
         "domain": merged["domain"],
         "sld": sld,
-        "tld": tld,
+        # Store the bare TLD ("com", not ".com") — standardized across the DBs so
+        # filters/joins don't have to reconcile two conventions. (tld_weight above
+        # still uses the dotted form it's keyed on.)
+        "tld": (tld or "").lstrip("."),
         "sld_length": int(merged["sld_length"]),
         "zipf_score": zipf,
         "observed_date": merged["observed_date"],
