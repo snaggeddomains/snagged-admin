@@ -48,7 +48,8 @@ owner attributions only**: hand-uploaded CSV/portfolio imports + real-owner rows
 the broader `snagged` set. One row per `domain` with a single `source` text +
 `owner`. NOT written by this pipeline.
 - `is_single_word` / `dictionary_word` are TEXT `'Y'`/`'N'`; `emotions`/`keywords`
-  are TEXT (Universe uses arrays — aligning Master to `text[]` is planned).
+  are `text[]` (migrated 2026-06 to match Universe; Master emotions stored
+  Capitalized — the search title-cases the emotion filter).
 - **2026-06 cleanup:** removed ~3.75M marketplace placeholder dupes (sources
   sedo/afternic/atom where `owner` was null or a marketplace name
   Atom/Sedo/Afternic/Namecheap/BrandBucket). Real-owner rows kept. Backup in
