@@ -123,7 +123,7 @@ export default async function SchedulePage() {
         {scheduled.length === 0 ? (
           <p className="section-blurb">No directly-scheduled sources yet.</p>
         ) : (
-          <table className="dash" style={TABLE_STYLE}>
+          <div className="table-scroll"><table className="dash" style={TABLE_STYLE}>
             {COLGROUP}
             <thead>
               <tr>
@@ -145,7 +145,7 @@ export default async function SchedulePage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         )}
       </section>
 
@@ -163,7 +163,7 @@ export default async function SchedulePage() {
             ) that pulls them in sequence. "Run now" triggers the source
             directly via its own workflow_dispatch for ad-hoc testing.
           </p>
-          <table className="dash" style={TABLE_STYLE}>
+          <div className="table-scroll"><table className="dash" style={TABLE_STYLE}>
             {COLGROUP}
             <thead>
               <tr>
@@ -192,7 +192,7 @@ export default async function SchedulePage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </section>
       )}
 
@@ -206,7 +206,7 @@ export default async function SchedulePage() {
             No schedule defined and no parent orchestrator — fired only
             through the GitHub Actions "Run workflow" button.
           </p>
-          <table className="dash" style={TABLE_STYLE}>
+          <div className="table-scroll"><table className="dash" style={TABLE_STYLE}>
             {COLGROUP}
             <thead>
               <tr>
@@ -228,7 +228,7 @@ export default async function SchedulePage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table></div>
         </section>
       )}
 

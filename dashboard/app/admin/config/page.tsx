@@ -167,7 +167,7 @@ export default async function ConfigPage() {
         <p className="section-blurb">
           Per-source ownership semantics for shared destination tabs.
         </p>
-        <table className="dash">
+        <div className="table-scroll"><table className="dash">
           <thead>
             <tr>
               <th>source</th>
@@ -188,7 +188,7 @@ export default async function ConfigPage() {
               )),
             )}
           </tbody>
-        </table>
+        </table></div>
       </section>
 
       <section>
@@ -227,7 +227,7 @@ export default async function ConfigPage() {
           Scoring formulas, TLD-weight overrides, and source-specific minimums
           live in each source's Python module.
         </p>
-        <table className="dash">
+        <div className="table-scroll"><table className="dash">
           <thead>
             <tr>
               <th>source</th>
@@ -255,7 +255,7 @@ export default async function ConfigPage() {
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
       </section>
     </>
   );

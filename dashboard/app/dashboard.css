@@ -234,6 +234,9 @@ tr.dim { opacity: 0.6; }
 @media (max-width: 640px) {
   .topbar { flex-wrap: wrap; row-gap: 10px; }
   .topbar__account { overflow-wrap: anywhere; }
+  /* Just the blue circle on phones — drop the "Snagged" wordmark and match
+     research's compact 34px mobile logomark so the two stay consistent. */
+  .topbar .wm-a { display: none; }
   .topbar__brand .brand-mark { width: 34px; height: 34px; }
   .table-scroll > table.dash { min-width: 680px; }
 }
