@@ -17,6 +17,8 @@ export default async function Hub() {
     { key: "research.trademark", label: "Trademark", href: "/research/trademark" },
     { key: "research.appraisal", label: "Appraisal", href: "/research/appraisal" },
     { key: "research.naming", label: "Naming Exercise", href: "/research/naming" },
+    { key: "research.dbscreen", label: "Domain DB Screen", href: "/research/dbscreen" },
+    { key: "research.dbsearch", label: "Domain Name Search", href: "/research/dbsearch" },
   ].filter((t) => userCan(user, t.key as Parameters<typeof userCan>[1]));
 
   const canResearch = researchTasks.length > 0;
@@ -62,8 +64,11 @@ export default async function Hub() {
             </p>
             <ul className="hub-tasks">
               <li><Link href="/admin">Sources</Link></li>
+              <li><Link href="/admin/config">Configuration</Link></li>
               <li><Link href="/admin/schedule">Schedule</Link></li>
               <li><Link href="/admin/users">Users</Link></li>
+              <li><Link href="/admin/imports">Imports</Link></li>
+              <li><a href="/research/admin">Lessons</a></li>
             </ul>
           </section>
         )}
