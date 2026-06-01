@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- . || exit 1",
+  "ignoreCommand": "git diff --quiet ${VERCEL_GIT_PREVIOUS_SHA:-HEAD^} HEAD -- . || exit 1",
   "crons": [
     { "path": "/api/cron/snap-run", "schedule": "0 8,9 * * *" },
     { "path": "/api/cron/snap-watchdog", "schedule": "0 11,12 * * *" }
