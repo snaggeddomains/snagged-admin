@@ -20,6 +20,19 @@ export const config = {
 };
 
 export async function middleware(req: NextRequest) {
+  // Password-reset links land on /research/?reset=<token> while the user has NO
+  // session (they're locked out — that's the whole point of resetting). Let
+  // those through so research's set-password form can load instead of bouncing
+  // to /login. The token is verified server-side on submit (research's
+  // /api/login reset-confirm); merely loading the form grants no access, and
+  // this is scoped to /research so it can't bypass the gate elsewhere.
+  if (
+    req.nextUrl.pathname.startsWith("/research") &&
+    req.nextUrl.searchParams.has("reset")
+  ) {
+    return NextResponse.next();
+  }
+
   const token = req.cookies.get(COOKIE)?.value;
   const session = await verifyCookie(token, authSecret());
   if (!session) {
