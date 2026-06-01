@@ -155,7 +155,10 @@ def test_upsert_batches_and_calls_rpc(monkeypatch):
     fake_client.rpc.return_value.execute.return_value = MagicMock()
     monkeypatch.setattr(sw, "_client_or_none", lambda: fake_client)
 
-    # 12,000 rows → 3 batches at BATCH_SIZE=5000 (5000+5000+2000)
+    # Batch count is derived from sw.BATCH_SIZE so this test stays correct when
+    # the batch size is tuned (e.g. 1K batches for Postgres-timeout resilience).
+    n_rows = 12_000
+    expected_batches = -(-n_rows // sw.BATCH_SIZE)  # ceil division
     merged = [
         {
             "domain": f"d{i}.com",
@@ -167,15 +170,15 @@ def test_upsert_batches_and_calls_rpc(monkeypatch):
             "sources": ["afternic"],
             "prices": {"afternic": float(i)},
         }
-        for i in range(12000)
+        for i in range(n_rows)
     ]
     stats = sw.upsert(merged)
 
     assert stats["status"] == "ok"
-    assert stats["rows_sent"] == 12000
-    assert stats["batches"] == 3
-    # Verify the RPC was called 3 times with the right function name
-    assert fake_client.rpc.call_count == 3
+    assert stats["rows_sent"] == n_rows
+    assert stats["batches"] == expected_batches
+    # Verify the RPC was called once per batch with the right function name
+    assert fake_client.rpc.call_count == expected_batches
     for call in fake_client.rpc.call_args_list:
         args, _ = call
         assert args[0] == "upsert_universe_rows"
