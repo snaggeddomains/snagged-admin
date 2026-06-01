@@ -21,6 +21,7 @@ export const MODULES = [
   "research.trademark",
   "research.appraisal",
   "research.naming",
+  "research.dbsearch",
 ] as const;
 export type ModuleKey = (typeof MODULES)[number];
 
@@ -74,4 +75,5 @@ export const CATALOG: CatalogEntry[] = [
   { key: "research.appraisal", label: "Appraisal", group: "Research", kind: "module" },
   { key: "research.naming", label: "Naming Exercise — Free Reports", group: "Research", kind: "module" },
   { key: "research.report_deep", label: "Naming Exercise — Deep Research", group: "Research", kind: "action" },
+  { key: "research.dbsearch", label: "Domain DB Search", group: "Research", kind: "module" },
 ];
