@@ -22,7 +22,10 @@ export async function GET(req: NextRequest) {
   if (!authorizedCron(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  if (!isEtHour(TARGET_ET_HOUR)) {
+  // `?force=1` bypasses the ET-hour gate for on-demand testing / manual kicks.
+  // Still requires the CRON_SECRET above, so it's not publicly triggerable.
+  const force = new URL(req.url).searchParams.get("force") === "1";
+  if (!force && !isEtHour(TARGET_ET_HOUR)) {
     return NextResponse.json({ ok: true, skipped: "not 4 AM ET" });
   }
   const result = await dispatchOrchestrator();
