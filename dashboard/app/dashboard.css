@@ -224,6 +224,20 @@ tr.dim { opacity: 0.6; }
 .topbar__account .muted { color: var(--navy-3); }
 .topbar__account a { color: var(--teal-deep); font-weight: 700; text-decoration: none; }
 
+/* Wide data tables scroll horizontally inside this wrapper instead of crushing
+   their columns on narrow screens. */
+.table-scroll { overflow-x: auto; }
+
+/* Phone chrome: let the top bar wrap (so the wordmark, nav, and account stop
+   colliding) and give wide tables a scrollable min-width. Mirrors research's
+   mobile top-bar behavior so both surfaces stay consistent. */
+@media (max-width: 640px) {
+  .topbar { flex-wrap: wrap; row-gap: 10px; }
+  .topbar__account { overflow-wrap: anywhere; }
+  .topbar__brand .brand-mark { width: 34px; height: 34px; }
+  .table-scroll > table.dash { min-width: 680px; }
+}
+
 /* Hub landing */
 .hub-hero { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 28px; }
 .hub-hero h1 { font-family: var(--display); font-weight: 400; font-size: 2rem; margin: 6px 0 4px; color: var(--navy); }

@@ -175,6 +175,7 @@ function SourceTable({
   orchestratorById: Map<string, SourceWithStatus>;
 }) {
   return (
+    <div className="table-scroll">
     <table className="dash" style={{ tableLayout: "fixed", width: "100%" }}>
       <colgroup>
         <col style={{ width: 30 }} />
@@ -202,6 +203,7 @@ function SourceTable({
         ))}
       </tbody>
     </table>
+    </div>
   );
 }
 
@@ -216,6 +218,7 @@ function ReferencesSection({ refs }: { refs: Reference[] }) {
         Read-only data stores queried ad-hoc during naming workflows. Not on a
         schedule.
       </p>
+      <div className="table-scroll">
       <table className="dash">
         <thead>
           <tr>
@@ -236,6 +239,7 @@ function ReferencesSection({ refs }: { refs: Reference[] }) {
           ))}
         </tbody>
       </table>
+      </div>
     </section>
   );
 }
