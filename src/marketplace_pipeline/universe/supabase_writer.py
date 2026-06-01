@@ -14,12 +14,36 @@ credentials.
 from __future__ import annotations
 
 import os
+import time
 from typing import Any
 
-# 5K rows per batch keeps each RPC payload under ~1MB (well under Supabase's
-# 6MB limit) while dramatically cutting the round-trip count for big sources
-# like Afternic (7M rows = 1,400 calls at 5K vs 7,000 at 1K).
-BATCH_SIZE = 5_000
+# 1K rows/batch is the size proven (by sedo_dump) to stay under Postgres's ~8s
+# statement_timeout for the upsert_universe_rows merge RPC (array_agg DISTINCT,
+# LEAST, CASE). The old 5K batches intermittently 57014-timed-out under load —
+# the failure that disabled universe_sync and broke afternic/namecheap_bin.
+# Override via env for smoke runs.
+BATCH_SIZE = int(os.environ.get("UNIVERSE_UPSERT_BATCH") or 1_000)
+
+# The merge RPC hits two load-induced, idempotent-safe transient errors:
+#   57014 statement timeout  — a batch ran past the statement_timeout
+#   40P01 deadlock detected  — concurrent source runs (e.g. afternic +
+#                              namecheap) lock overlapping rows in opposite
+#                              orders and deadlock.
+# Both are safe to retry (the RPC is idempotent). Retry with exponential
+# backoff before giving up, instead of failing the whole scheduled run.
+UPSERT_RETRIES = 5
+UPSERT_BACKOFF_BASE = 2.0  # seconds; doubles each attempt
+
+
+def _is_transient(err: str) -> bool:
+    low = err.lower()
+    return (
+        "57014" in low
+        or "40p01" in low
+        or "deadlock" in low
+        or "statement timeout" in low
+        or "canceling statement" in low
+    )
 
 
 def _client_or_none():
@@ -112,12 +136,31 @@ def upsert(merged_rows: list[dict[str, Any]]) -> dict[str, Any]:
         }
 
     wire_rows = [merged_to_universe_row(r) for r in merged_rows]
+    # Sort by the conflict key (domain) so concurrent source runs acquire row
+    # locks in a consistent order — the standard mitigation for the 40P01
+    # deadlocks seen when two sources upsert overlapping rows at the same time.
+    wire_rows.sort(key=lambda r: r["domain"])
     sent = 0
     batches = 0
     for i in range(0, len(wire_rows), BATCH_SIZE):
         batch = wire_rows[i : i + BATCH_SIZE]
-        # The RPC takes a jsonb input named 'rows'.
-        client.rpc("upsert_universe_rows", {"rows": batch}).execute()
+        # The RPC takes a jsonb input named 'rows'. Retry transient Postgres
+        # errors (timeout / deadlock) with backoff — the RPC is idempotent.
+        for attempt in range(UPSERT_RETRIES):
+            try:
+                client.rpc("upsert_universe_rows", {"rows": batch}).execute()
+                break
+            except Exception as e:  # noqa: BLE001 — Postgres transient errors
+                if attempt < UPSERT_RETRIES - 1 and _is_transient(str(e)):
+                    backoff = UPSERT_BACKOFF_BASE * (2 ** attempt)
+                    print(
+                        f"      universe upsert transient error "
+                        f"(batch {batches + 1}, attempt {attempt + 1}); "
+                        f"backing off {backoff:.0f}s"
+                    )
+                    time.sleep(backoff)
+                    continue
+                raise
         sent += len(batch)
         batches += 1
     return {
