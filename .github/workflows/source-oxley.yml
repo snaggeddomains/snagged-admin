@@ -2,7 +2,7 @@ name: 'Source: oxley'
 
 on:
   schedule:
-    - cron: '15 12 * * *'   # 12:15 UTC = ~8:15 AM ET (after the tier-1 sheet sources)
+    - cron: '30 9 * * *'   # ~5:30 AM ET
   workflow_dispatch: {}
 
 permissions:

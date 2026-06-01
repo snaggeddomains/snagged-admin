@@ -4,7 +4,7 @@ name: 'Source: atom_daily'
 # earlier in the morning so 14:00 UTC is well after.
 on:
   schedule:
-    - cron: '0 14 * * *'
+    - cron: '30 8 * * *'   # ~4:30 AM ET — after ATOM's >4 AM ET feed refresh
   workflow_dispatch: {}
 
 permissions:

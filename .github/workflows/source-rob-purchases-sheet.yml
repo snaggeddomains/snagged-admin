@@ -2,7 +2,7 @@ name: 'Source: rob_purchases_sheet'
 
 on:
   schedule:
-    - cron: '0 12 * * *'   # 12:00 UTC = ~8 AM ET (well before tier-2 sources)
+    - cron: '5 9 * * *'   # ~5:05 AM ET (de-clustered from the other tier-1 sheets)
   workflow_dispatch: {}
 
 permissions:

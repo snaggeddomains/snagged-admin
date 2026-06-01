@@ -2,7 +2,7 @@ name: 'Source: braden_pollack_portfolio'
 
 on:
   schedule:
-    - cron: '20 12 * * *'   # 12:20 UTC = ~8:20 AM ET (after the tier-1 sheets at 12:00)
+    - cron: '45 9 * * *'   # ~5:45 AM ET
   workflow_dispatch: {}
 
 permissions:

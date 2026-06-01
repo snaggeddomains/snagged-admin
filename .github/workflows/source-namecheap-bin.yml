@@ -3,7 +3,7 @@ name: 'Source: namecheap_bin'
 # Schedule in UTC. 25 9 * * * == ~5:25 AM ET (drifts ~1 hr across DST).
 on:
   schedule:
-    - cron: '25 9 * * *'
+    - cron: '30 7 * * *'   # ~3:30 AM ET — after afternic clears
   workflow_dispatch: {}
 
 permissions:

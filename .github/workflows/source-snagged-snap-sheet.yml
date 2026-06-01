@@ -2,7 +2,7 @@ name: 'Source: snagged_snap_sheet'
 
 on:
   schedule:
-    - cron: '0 12 * * *'   # 12:00 UTC = ~8 AM ET (well before tier-2 sources)
+    - cron: '0 9 * * *'   # ~5:00 AM ET
   workflow_dispatch: {}
 
 permissions:
