@@ -20,16 +20,23 @@ export const config = {
 };
 
 export async function middleware(req: NextRequest) {
-  // Password-reset links land on /research/?reset=<token> while the user has NO
-  // session (they're locked out — that's the whole point of resetting). Let
-  // those through so research's set-password form can load instead of bouncing
-  // to /login. The token is verified server-side on submit (research's
-  // /api/login reset-confirm); merely loading the form grants no access, and
-  // this is scoped to /research so it can't bypass the gate elsewhere.
-  if (
-    req.nextUrl.pathname.startsWith("/research") &&
-    req.nextUrl.searchParams.has("reset")
-  ) {
+  const p = req.nextUrl.pathname;
+
+  // Password-reset / invite links land on /research?reset=<token> while the user
+  // has NO session (they're locked out — that's the whole point). Two things
+  // must load without a session for the set-password form to render:
+  //   1. the reset PAGE itself (carries ?reset=), and
+  //   2. research's static assets (app.js, styles.css, fonts, mascot) — these
+  //      are SEPARATE requests that do NOT carry ?reset=, so without this they'd
+  //      be redirected to /login and the SPA would never boot (blank page).
+  // Research's /api/* stays gated (no file extension), the reset form posts to
+  // /api/login (excluded), and the token is verified server-side — so this opens
+  // nothing sensitive; static bundles are public by nature.
+  const isResetPage = p.startsWith("/research") && req.nextUrl.searchParams.has("reset");
+  const isResearchAsset =
+    p.startsWith("/research/") &&
+    /\.(js|mjs|css|map|svg|png|jpe?g|gif|ico|webp|avif|woff2?|ttf|otf|json|txt)$/i.test(p);
+  if (isResetPage || isResearchAsset) {
     return NextResponse.next();
   }
 
