@@ -12,9 +12,11 @@ const nextConfig = {
     return [
       { source: "/research", destination: `${research}/research` },
       { source: "/research/:path*", destination: `${research}/research/:path*` },
-      // Vanity short URL for Domain DB Search: app.snagged.com/dbsearch (with
-      // ?domain=…) and /dbsearch/<domain> both land on the research SPA's
-      // dbsearch view. Query strings are forwarded by the rewrite.
+      // Vanity short URLs that land on the research SPA. Domain DB Screen
+      // (single-domain lookup) at /dbscreen[?domain=]; the filterable DB Search
+      // at /dbsearch. Query strings are forwarded by the rewrite.
+      { source: "/dbscreen", destination: `${research}/research/dbscreen` },
+      { source: "/dbscreen/:path*", destination: `${research}/research/dbscreen/:path*` },
       { source: "/dbsearch", destination: `${research}/research/dbsearch` },
       { source: "/dbsearch/:path*", destination: `${research}/research/dbsearch/:path*` },
     ];
