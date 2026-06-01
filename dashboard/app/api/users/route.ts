@@ -17,7 +17,9 @@ async function sendInvite(email: string): Promise<boolean> {
     const res = await fetch(`${origin}/api/login`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ action: "reset-request", email }),
+      // mode:"invite" → research sends invite-flavored copy + a 7-day link
+      // instead of the 1-hour "reset your password" email.
+      body: JSON.stringify({ action: "reset-request", email, mode: "invite" }),
     });
     return res.ok;
   } catch {
