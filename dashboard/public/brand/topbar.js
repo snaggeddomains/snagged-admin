@@ -1,27 +1,29 @@
 // ─────────────────────────────────────────────────────────────────────────
 // <snagged-topbar> — the ONE shared top bar for every Snagged surface.
 //
-// Single source of truth: this file is hosted by the umbrella at
-//   https://app.snagged.com/brand/topbar.js
-// and loaded by BOTH apps (the umbrella hub/admin AND the research SPA, which is
-// proxied at app.snagged.com/research — same origin, so a root-absolute
-// /brand/topbar.js URL hits this exact file). Edit here once; both update.
+// CANONICAL COPY lives here (umbrella). It is MIRRORED verbatim into the
+// research repo at domain-research/public/topbar.js so each app serves the file
+// from its OWN deployment (no cross-origin asset routing to depend on). The two
+// files must stay byte-identical — edit here, copy there. The only per-app
+// difference is the `logo-src` attribute passed in the markup.
 //
 // Styles live in this component's Shadow DOM, so they're fully encapsulated —
 // no cross-app source-order / specificity collisions. Brand color tokens
 // (--navy, --cream-2, …) are inherited from the host page through the shadow
-// boundary, so each app's palette still applies; hard fallbacks are provided so
-// the bar still renders if a token is missing.
+// boundary; hard fallbacks are provided so the bar still renders if a token is
+// missing.
 //
 // Usage:
 //   <script src="/brand/topbar.js" defer></script>
-//   <snagged-topbar current="research" email="you@x.com" show-research show-admin></snagged-topbar>
+//   <snagged-topbar current="research" email="you@x.com" show-research show-admin
+//                   logo-src="/brand/logomark-round.svg"></snagged-topbar>
 //
 // Attributes:
 //   current        "research" | "admin" | ""   — which switcher link is active
 //   email          signed-in email (account block); empty hides the account
 //   show-research  present → render the Research switch link
 //   show-admin     present → render the Admin switch link
+//   logo-src       logomark URL           (default "/brand/logomark-round.svg")
 //   home-href      logo target            (default "/")
 //   research-href  Research link target   (default "/research")
 //   admin-href     Admin link target      (default "/admin")
@@ -30,8 +32,7 @@
 // Mobile (≤760px): the wordmark drops to just the blue circle, the account
 // moves into a top-right hamburger menu, and any module sub-nav the app passes
 // via `slot="menu"` is shown in that same menu. On desktop the slotted menu is
-// hidden (apps render their own desktop sub-nav: research's sidebar, admin's
-// tabs).
+// hidden (apps render their own desktop sub-nav).
 // ─────────────────────────────────────────────────────────────────────────
 (function () {
   if (customElements.get('snagged-topbar')) return;
@@ -73,10 +74,8 @@
   .menu { display: none; }
 
   @media (max-width: 760px) {
-    /* Just the blue circle on phones, to free up nav space. */
     .wm { display: none; }
     .mark { width: 34px; height: 34px; }
-    /* Account moves into the hamburger menu. */
     .acct { display: none; }
     .burger {
       display: inline-flex; align-items: center; justify-content: center;
@@ -104,7 +103,7 @@
 </style>
 <header class="bar">
   <a class="brand" id="home">
-    <img class="mark" src="/brand/logomark-round.svg" alt="">
+    <img class="mark" id="mark" alt="">
     <span class="wm">Snagged</span>
   </a>
   <nav class="switch" id="switch"></nav>
@@ -124,18 +123,16 @@
 
   class SnaggedTopbar extends HTMLElement {
     static get observedAttributes() {
-      return ['current', 'email', 'show-research', 'show-admin', 'home-href', 'research-href', 'admin-href', 'logout-href'];
+      return ['current', 'email', 'show-research', 'show-admin', 'logo-src', 'home-href', 'research-href', 'admin-href', 'logout-href'];
     }
     constructor() {
       super();
-      this.attachShadow({ mode: 'open' }).appendChild(TPL.content.cloneNode(true));
-      const sr = this.shadowRoot;
-      this._burger = sr.getElementById('burger');
-      this._menu = sr.getElementById('menu');
+      const sr = this.attachShadow({ mode: 'open' });
+      sr.appendChild(TPL.content.cloneNode(true));
+      this._burger = sr.querySelector('#burger');
+      this._menu = sr.querySelector('#menu');
       this._burger.addEventListener('click', (e) => { e.stopPropagation(); this._toggle(); });
-      // Close after activating any link/button inside the menu (e.g. a sub-nav item).
       this._menu.addEventListener('click', (e) => { if (e.target.closest('a, button')) this._close(); });
-      // Close when tapping outside the component.
       this._onDocClick = (e) => { if (!e.composedPath().includes(this)) this._close(); };
       document.addEventListener('click', this._onDocClick);
     }
@@ -149,27 +146,28 @@
 
     _render() {
       const sr = this.shadowRoot;
+      if (!sr) return;
       const attr = (n, d) => this.getAttribute(n) || d;
       const cur = attr('current', '');
       const email = attr('email', '');
       const logout = attr('logout-href', '/api/logout');
 
-      sr.getElementById('home').setAttribute('href', attr('home-href', '/'));
+      sr.querySelector('#mark').setAttribute('src', attr('logo-src', '/brand/logomark-round.svg'));
+      sr.querySelector('#home').setAttribute('href', attr('home-href', '/'));
 
-      const sw = sr.getElementById('switch');
+      const sw = sr.querySelector('#switch');
       sw.textContent = '';
       if (this.hasAttribute('show-research')) sw.appendChild(this._link(attr('research-href', '/research'), 'Research', cur === 'research'));
       if (this.hasAttribute('show-admin')) sw.appendChild(this._link(attr('admin-href', '/admin'), 'Admin', cur === 'admin'));
 
-      sr.getElementById('email-d').textContent = email;
-      sr.getElementById('email-m').textContent = email;
-      sr.getElementById('logout-d').setAttribute('href', logout);
-      sr.getElementById('logout-m').setAttribute('href', logout);
+      sr.querySelector('#email-d').textContent = email;
+      sr.querySelector('#email-m').textContent = email;
+      sr.querySelector('#logout-d').setAttribute('href', logout);
+      sr.querySelector('#logout-m').setAttribute('href', logout);
 
-      // Hide the account entirely until we know who's signed in.
       const show = email ? '' : 'none';
-      sr.getElementById('acct').style.display = show;
-      sr.getElementById('menu-acct').style.display = show;
+      sr.querySelector('#acct').style.display = show;
+      sr.querySelector('#menu-acct').style.display = show;
     }
     _link(href, label, active) {
       const a = document.createElement('a');
