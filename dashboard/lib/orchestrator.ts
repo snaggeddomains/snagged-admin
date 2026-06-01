@@ -95,6 +95,24 @@ export async function slackAlert(text: string): Promise<boolean> {
   }
 }
 
+/** The current hour (0-23) in America/New_York, DST-aware. */
+export function etHourNow(): number {
+  const h = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    hour: "numeric",
+    hour12: false,
+  }).format(new Date());
+  // "24" can appear for midnight in some runtimes; normalize to 0.
+  return Number(h) % 24;
+}
+
+/** Vercel Cron is fixed-UTC, so to pin a job to an exact ET hour year-round we
+ *  schedule it at BOTH candidate UTC hours (EDT and EST) and only act when the
+ *  real ET hour matches. Returns true when now is `target` o'clock in ET. */
+export function isEtHour(target: number): boolean {
+  return etHourNow() === target;
+}
+
 /** Constant-time-ish check that a request carries the Vercel Cron secret.
  *  Vercel sends `Authorization: Bearer <CRON_SECRET>` to cron routes. */
 export function authorizedCron(req: Request): boolean {

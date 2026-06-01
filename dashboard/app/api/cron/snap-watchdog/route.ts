@@ -16,6 +16,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import {
   authorizedCron,
   dispatchOrchestrator,
+  isEtHour,
   latestRunToday,
   recentOrchestratorRuns,
   slackAlert,
@@ -24,9 +25,16 @@ import {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+// Pinned to exactly 7 AM ET year-round (the SLA deadline). vercel.json fires
+// this at both 11:00 and 12:00 UTC (EDT/EST); we no-op off the 7 AM ET hour.
+const TARGET_ET_HOUR = 7;
+
 export async function GET(req: NextRequest) {
   if (!authorizedCron(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  if (!isEtHour(TARGET_ET_HOUR)) {
+    return NextResponse.json({ ok: true, skipped: "not 7 AM ET" });
   }
 
   const runs = await recentOrchestratorRuns(15);
