@@ -84,6 +84,11 @@ def cmd_universe_sync(args: argparse.Namespace) -> int:
     return _run(argv)
 
 
+def cmd_backfill_structural(args: argparse.Namespace) -> int:
+    from .tools.backfill_structural import main as _run
+    return _run()
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="pipeline")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -136,6 +141,13 @@ def main(argv: list[str] | None = None) -> int:
     p_uni.add_argument("--skip-supabase", action="store_true",
                        help="don't upsert to Supabase (Parquet only)")
     p_uni.set_defaults(func=cmd_universe_sync)
+
+    p_bf = sub.add_parser(
+        "backfill-structural",
+        help="Fill missing wordfreq structural fields (num_words/syllables/dictionary/"
+             "zipf/scores) on name_universe rows where num_syllables IS NULL",
+    )
+    p_bf.set_defaults(func=cmd_backfill_structural)
 
     args = parser.parse_args(argv)
     return args.func(args)

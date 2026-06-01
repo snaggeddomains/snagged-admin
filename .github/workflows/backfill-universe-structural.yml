@@ -1,0 +1,29 @@
+name: Backfill universe structural fields
+
+# Fills wordfreq-derived structural fields (num_words, num_syllables,
+# is_dictionary_word, zipf_score, quality_score, deal_score) on name_universe
+# rows that are missing them — e.g. rows loaded by a direct SQL/CSV import
+# (BrandBucket) rather than the normal pipeline path. Idempotent + resumable
+# (gated on num_syllables IS NULL). Run on demand.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backfill-universe-structural
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Backfill structural fields
+        env:
+          SUPABASE_NAMING_URL:         ${{ secrets.SUPABASE_NAMING_URL }}
+          SUPABASE_NAMING_SERVICE_KEY: ${{ secrets.SUPABASE_NAMING_SERVICE_KEY }}
+        run: pipeline backfill-structural
