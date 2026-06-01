@@ -2,7 +2,7 @@ name: 'Source: braden_pollack_portfolio'
 
 on:
   schedule:
-    - cron: '45 9 * * *'   # ~5:45 AM ET
+    - cron: '25 10 * * *'   # ~6:25 AM ET
   workflow_dispatch: {}
 
 permissions:

@@ -3,7 +3,7 @@ name: 'Source: auctions_watchdog'
 # 35 min after the orchestrator (~6:35 AM ET).
 on:
   schedule:
-    - cron: '35 10 * * *'
+    - cron: '45 10 * * *'   # ~6:45 AM ET — last, still inside the 7 AM ET SLA
   workflow_dispatch: {}
 
 permissions:

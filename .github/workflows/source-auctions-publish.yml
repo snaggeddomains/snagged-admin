@@ -3,7 +3,7 @@ name: 'Source: auctions_publish (orchestrator)'
 # Schedule mirrors the legacy auction publish cadence (~6 AM ET).
 on:
   schedule:
-    - cron: '0 10 * * *'
+    - cron: '35 10 * * *'   # ~6:35 AM ET — aggregates after sources land
   workflow_dispatch: {}
 
 permissions:

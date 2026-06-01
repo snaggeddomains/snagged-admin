@@ -2,7 +2,7 @@ name: 'Source: snagged_marketplace_sheet'
 
 on:
   schedule:
-    - cron: '10 9 * * *'   # ~5:10 AM ET (de-clustered from the other tier-1 sheets)
+    - cron: '10 10 * * *'   # ~6:10 AM ET (de-clustered)
   workflow_dispatch: {}
 
 permissions:

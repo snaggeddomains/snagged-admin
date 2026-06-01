@@ -3,7 +3,7 @@ name: 'Source: afternic'
 # 15 9 * * * == ~5:15 AM ET (drifts ~1 hr across DST).
 on:
   schedule:
-    - cron: '30 5 * * *'   # ~1:30 AM ET — longest run (11M rows), starts first so it clears before the 7 AM ET SLA
+    - cron: '0 8 * * *'   # ~4:00 AM ET — start of the daily SLA window; <=1h run
   workflow_dispatch: {}
 
 permissions:

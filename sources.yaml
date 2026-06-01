@@ -122,7 +122,7 @@ sources:
   - source_id: snagged_snap_sheet
     product: snap
     kind: google_doc
-    schedule_utc: "0 9 * * *"   # ~5:00 AM ET
+    schedule_utc: "0 10 * * *"   # ~6:00 AM ET
     enabled: true
     notes: |
       Snagged-owned SNAP inventory. Reads tab 'SNAP' from the team's
@@ -133,7 +133,7 @@ sources:
   - source_id: rob_purchases_sheet
     product: snap
     kind: google_doc
-    schedule_utc: "5 9 * * *"   # ~5:05 AM ET (de-clustered from the other tier-1 sheets)
+    schedule_utc: "5 10 * * *"   # ~6:05 AM ET (de-clustered)
     enabled: true
     notes: |
       Rob-owned domain inventory. Reads tab 'Rob Purchases' from the
@@ -145,7 +145,7 @@ sources:
   - source_id: snagged_marketplace_sheet
     product: snap
     kind: google_doc
-    schedule_utc: "10 9 * * *"   # ~5:10 AM ET (de-clustered from the other tier-1 sheets)
+    schedule_utc: "10 10 * * *"   # ~6:10 AM ET (de-clustered)
     enabled: true
     notes: |
       Snagged Marketplace — domains brokered by Snagged on behalf of
@@ -159,7 +159,7 @@ sources:
   - source_id: namecheap_bin
     product: snap
     kind: csv_dump
-    schedule_utc: "30 7 * * *"   # ~3:30 AM ET — after afternic clears
+    schedule_utc: "10 9 * * *"   # ~5:10 AM ET — after afternic clears
     enabled: true
     fetch:
       url: "https://d3ry1h4w5036x1.cloudfront.net/reports/Namecheap_Market_Sales_Buy_Now.csv"
@@ -172,7 +172,7 @@ sources:
   - source_id: afternic
     product: snap
     kind: csv_dump
-    schedule_utc: "30 5 * * *"   # ~1:30 AM ET — longest run (11M rows), starts first so it clears before the 7 AM ET SLA
+    schedule_utc: "0 8 * * *"   # ~4:00 AM ET — start of the daily SLA window; <=1h run
     enabled: true
     fetch:
       url: "https://search.afternic.com/broker/all?id=zt5nchodbseszkp&compress=1"
@@ -188,7 +188,7 @@ sources:
   - source_id: atom_daily
     product: snap
     kind: csv_dump
-    schedule_utc: "30 8 * * *"   # ~4:30 AM ET — after ATOM's >4 AM ET feed refresh
+    schedule_utc: "40 9 * * *"   # ~5:40 AM ET — after ATOM's >4 AM ET feed refresh + after namecheap
     enabled: true
     fetch:
       url: "http://atom.com/public/feeds/partner.csv"
@@ -243,7 +243,7 @@ sources:
   - source_id: oxley
     product: snap
     kind: scrape_json
-    schedule_utc: "30 9 * * *"   # ~5:30 AM ET
+    schedule_utc: "15 10 * * *"   # ~6:15 AM ET
     enabled: true
     notes: |
       Oxley.com — Efty-themed boutique marketplace, ~1,400 curated
@@ -257,7 +257,7 @@ sources:
   - source_id: braden_pollack_portfolio
     product: snap
     kind: google_doc
-    schedule_utc: "45 9 * * *"   # ~5:45 AM ET
+    schedule_utc: "25 10 * * *"   # ~6:25 AM ET
     enabled: true
     notes: |
       Braden Pollack's domain portfolio — fetched as public CSV from
@@ -431,7 +431,7 @@ sources:
   - source_id: auctions_publish
     product: auctions
     kind: orchestrator
-    schedule_utc: "0 10 * * *"     # ~6:00 AM ET
+    schedule_utc: "35 10 * * *"   # ~6:35 AM ET — aggregates after sources land
     enabled: true
     orchestrates:
       - parkio_auctions
@@ -448,7 +448,7 @@ sources:
   - source_id: auctions_watchdog
     product: auctions
     kind: orchestrator
-    schedule_utc: "35 10 * * *"    # ~6:35 AM ET
+    schedule_utc: "45 10 * * *"   # ~6:45 AM ET — last, still inside the 7 AM ET SLA
     enabled: true
 
   # ===== Aux feeds =====
@@ -465,7 +465,7 @@ sources:
   - source_id: efty_partner
     product: snap
     kind: csv_dump
-    schedule_utc: "0 10 * * *"   # ~6:00 AM ET — moved into the morning batch to land before 7 AM ET
+    schedule_utc: "30 10 * * *"   # ~6:30 AM ET — in the morning batch (before 7 AM ET)
     enabled: true
 
   # ===== Maintenance =====

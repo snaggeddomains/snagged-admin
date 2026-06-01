@@ -2,7 +2,7 @@ name: 'Source: efty_partner'
 
 on:
   schedule:
-    - cron: '0 10 * * *'   # ~6:00 AM ET — moved into the morning batch to land before 7 AM ET
+    - cron: '30 10 * * *'   # ~6:30 AM ET — in the morning batch (before 7 AM ET)
   workflow_dispatch: {}
 
 permissions:
