@@ -169,13 +169,36 @@ realtime). All three paths (batch / skip / realtime) confirmed.
 For troubleshooting / confirming functionality, a least-privilege Postgres role
 `claude_ro` (SELECT-only + `BYPASSRLS`, so it still reads after RLS is on) exists
 in all three projects. Query via `python3 scripts/db.py <research|naming|master>
-"<sql>"`. Connection strings (shared **Session pooler**, IPv4-friendly) are env
-vars set in the Claude Code **web environment config** (NOT Vercel):
-`RESEARCH_PG_RO_URL` / `NAMING_PG_RO_URL` / `MASTERLIST_PG_RO_URL`. The role can
-read everything but **cannot write** (no INSERT/UPDATE/DELETE/DDL grants).
-Recreate/rotate: `alter role claude_ro with login bypassrls password '…';` then
-`grant usage on schema public … ; grant select on all tables in schema public …`.
-Needs the env's network policy to allow `*.pooler.supabase.com:5432`.
+"<sql>"`. The role can read everything but **cannot write** (no
+INSERT/UPDATE/DELETE/DDL grants). Recreate/rotate: `alter role claude_ro with
+login bypassrls password '…';` then `grant usage on schema public … ; grant
+select on all tables in schema public …`.
+
+**Primary transport — REST over HTTPS/443 (this is the web path; nothing else
+works on the web).** Claude Code on the web egresses through an HTTP proxy that
+allows **ports 80/443 only** — raw Postgres (5432/6543) never connects there, on
+*any* network policy including "Full" (the dropdown gates HTTP *domains*, not TCP
+ports), so the direct-pooler approach is a dead end for web sessions. Instead,
+lookups go through a token-gated PostgREST RPC `claude_ro_query(q, token)`
+(SECURITY DEFINER, owned by `claude_ro` → read-only by construction; the shared
+token stops the *public* anon key reading through it; the query is wrapped as a
+subquery so writes can't even parse). Setup SQL per project:
+`scripts/claude_ro_rest.sql`. `db.py` uses REST whenever a project's three vars
+are set in the Claude Code **web environment config** (NOT Vercel):
+`{RESEARCH,NAMING,MASTERLIST}_SUPABASE_REST_URL` (https://&lt;ref&gt;.supabase.co),
+`…_SUPABASE_ANON_KEY` (public anon key — gateway only), `…_SUPABASE_RO_TOKEN`
+(the shared token from the SQL). Rotate the token:
+`update public._claude_ro_auth set token = '…';`. **All three verified working
+2026-06-02.** (Why a token-RPC and not a `role: claude_ro` JWT: these projects
+use the **new asymmetric** Supabase JWT keys — no legacy HMAC secret to self-sign
+with.)
+
+**Fallback — direct Postgres (pooler) on 5432, local terminal only.** For a
+local shell that *does* have raw 5432 egress, `db.py` falls back to
+`RESEARCH_PG_RO_URL` / `NAMING_PG_RO_URL` / `MASTERLIST_PG_RO_URL` (shared
+**Session pooler**) when the REST vars aren't set. These were **removed from the
+web env config** (they never worked there — 5432 is unreachable) and remain only
+as a documented local-terminal option.
 
 # Security: enable RLS on Master + naming (no policies)
 
