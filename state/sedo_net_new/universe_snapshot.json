@@ -16,12 +16,24 @@
     "price": 40000.0
   },
   {
-    "domain": "buffers.net",
-    "price": 2395.0
+    "domain": "contracted.com",
+    "price": 9000.0
   },
   {
-    "domain": "weihai.net",
-    "price": 24811.0
+    "domain": "flung.ai",
+    "price": 18000.0
+  },
+  {
+    "domain": "catholicism.ai",
+    "price": 4248.0
+  },
+  {
+    "domain": "bounded.net",
+    "price": 4495.0
+  },
+  {
+    "domain": "buffers.net",
+    "price": 2395.0
   },
   {
     "domain": "recone.net",
@@ -36,7 +48,15 @@
     "price": 2795.0
   },
   {
-    "domain": "thrilling.co",
-    "price": 1538.0
+    "domain": "wessex.co",
+    "price": 2988.0
+  },
+  {
+    "domain": "wynne.co",
+    "price": 29888.0
+  },
+  {
+    "domain": "allrounder.co",
+    "price": 29888.0
   }
 ]
