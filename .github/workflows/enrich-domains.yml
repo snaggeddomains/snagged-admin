@@ -1,0 +1,61 @@
+name: Enrich domains (LLM)
+
+# Fills category/emotions/keywords/industries on rows that don't have them yet,
+# in either corpus. Dry-run by default — flip `commit` to true to actually call
+# the API and write. Resumable: re-run to continue (selection is
+# category IS NULL AND enriched_at IS NULL). See tools/enrich.py for the rails.
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Which corpus to enrich
+        type: choice
+        options: [universe, master]
+        default: universe
+      commit:
+        description: Actually call the API + write (otherwise dry-run preview)
+        type: boolean
+        default: false
+      max_rows:
+        description: Cap rows processed this run
+        default: "500"
+      batch:
+        description: Domains per LLM call
+        default: "25"
+      model:
+        description: Enrichment model (blank = default)
+        default: ""
+      retry_failed:
+        description: Revisit rows attempted before but still empty
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enrich-domains-${{ github.event.inputs.target }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Enrich
+        env:
+          ANTHROPIC_API_KEY:             ${{ secrets.ANTHROPIC_API_KEY }}
+          SUPABASE_NAMING_URL:           ${{ secrets.SUPABASE_NAMING_URL }}
+          SUPABASE_NAMING_SERVICE_KEY:   ${{ secrets.SUPABASE_NAMING_SERVICE_KEY }}
+          MASTERLIST_SUPABASE_URL:        ${{ secrets.MASTERLIST_SUPABASE_URL }}
+          MASTERLIST_SUPABASE_SECRET_KEY: ${{ secrets.MASTERLIST_SUPABASE_SECRET_KEY }}
+        run: |
+          pipeline enrich \
+            --target "${{ github.event.inputs.target }}" \
+            --max-rows "${{ github.event.inputs.max_rows }}" \
+            --batch "${{ github.event.inputs.batch }}" \
+            ${{ github.event.inputs.model != '' && format('--model {0}', github.event.inputs.model) || '' }} \
+            ${{ github.event.inputs.commit == 'true' && '--commit' || '' }} \
+            ${{ github.event.inputs.retry_failed == 'true' && '--retry-failed' || '' }}

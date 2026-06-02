@@ -89,6 +89,24 @@ def cmd_backfill_structural(args: argparse.Namespace) -> int:
     return _run()
 
 
+def cmd_enrich(args: argparse.Namespace) -> int:
+    from .tools.enrich import main as _run
+    argv: list[str] = ["--target", args.target]
+    if args.commit:
+        argv.append("--commit")
+    if args.max_rows is not None:
+        argv += ["--max-rows", str(args.max_rows)]
+    if args.batch is not None:
+        argv += ["--batch", str(args.batch)]
+    if args.model is not None:
+        argv += ["--model", args.model]
+    if args.no_copy_overlap:
+        argv.append("--no-copy-overlap")
+    if args.retry_failed:
+        argv.append("--retry-failed")
+    return _run(argv)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="pipeline")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -148,6 +166,23 @@ def main(argv: list[str] | None = None) -> int:
              "zipf/scores) on name_universe rows where num_syllables IS NULL",
     )
     p_bf.set_defaults(func=cmd_backfill_structural)
+
+    p_en = sub.add_parser(
+        "enrich",
+        help="LLM-fill category/emotions/keywords/industries on rows missing them "
+             "(dry-run unless --commit)",
+    )
+    p_en.add_argument("--target", choices=["universe", "master"], required=True)
+    p_en.add_argument("--commit", action="store_true",
+                      help="actually call the API + write (default: dry-run preview)")
+    p_en.add_argument("--max-rows", type=int, default=None, help="cap rows processed this run")
+    p_en.add_argument("--batch", type=int, default=None, help="domains per LLM call")
+    p_en.add_argument("--model", default=None, help="override enrichment model")
+    p_en.add_argument("--no-copy-overlap", action="store_true",
+                      help="skip the free cross-store copy of already-enriched domains")
+    p_en.add_argument("--retry-failed", action="store_true",
+                      help="revisit rows attempted before but still empty")
+    p_en.set_defaults(func=cmd_enrich)
 
     args = parser.parse_args(argv)
     return args.func(args)
