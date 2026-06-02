@@ -51,7 +51,7 @@ export default function TopBar({
           on mobile (moves to the hamburger menu). */}
       <span className="topbar__account" style={{ display: "flex", alignItems: "center", gap: 14 }}>
         <NotificationsBell />
-        <AccountAvatar email={user.email} />
+        <span className="topbar__avatar"><AccountAvatar email={user.email} /></span>
       </span>
 
       {/* Mobile-only hamburger, pinned top-right. */}

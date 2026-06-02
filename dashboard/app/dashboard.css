@@ -242,9 +242,11 @@ tr.dim { opacity: 0.6; }
   .topbar__brand .brand-mark { width: 34px; height: 34px; }
   .table-scroll > table.dash { min-width: 680px; }
 
-  /* Section tabs collapse into the hamburger, but keep the bell + profile
-     avatar visible on mobile (next to the hamburger), matching Research. */
+  /* Keep the notifications bell on the bar, but consolidate the profile chip
+     into the hamburger menu (which already carries email + Log out) so the bar
+     stays one tidy row instead of wrapping the hamburger to a second line. */
   .topbar__account { display: flex; }
+  .topbar__avatar { display: none; }
   .tab-nav { display: none; }
   .topbar__burger {
     display: inline-flex; align-items: center; justify-content: center;
