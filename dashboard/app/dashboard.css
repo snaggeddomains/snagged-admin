@@ -248,6 +248,12 @@ tr.dim { opacity: 0.6; }
   .topbar__account { display: flex; }
   .topbar__avatar { display: none; }
   .tab-nav { display: none; }
+  /* Dock the notifications dropdown as a right-anchored sheet on mobile so it
+     can't run off-screen (overrides the component's inline absolute styles). */
+  .notif-dropdown {
+    position: fixed !important; top: 56px !important; right: 8px !important; left: auto !important;
+    width: min(340px, calc(100vw - 16px)) !important; max-width: none !important;
+  }
   .topbar__burger {
     display: inline-flex; align-items: center; justify-content: center;
     margin-left: auto; width: 44px; height: 34px; padding: 0;
