@@ -1,10 +1,10 @@
 // Admin Imports endpoint. The client parses the CSV/paste and streams rows here
 // in chunks (action:"upsert"), then calls action:"finalize-replace" once at the
-// end for Replace mode. Gated by the `admin.sources.edit` action.
+// end for Replace mode. Gated by the `admin.imports` module permission.
 
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
-import { userCanAction } from "@/lib/permissions";
+import { userCan } from "@/lib/permissions";
 import {
   upsertUniverse,
   upsertMaster,
@@ -43,8 +43,8 @@ const UNIVERSE_EXTRA_SOURCES = ["brandbucket"];
 export async function GET() {
   const me = await getCurrentUser();
   if (!me) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  if (!userCanAction(me, "admin.sources.edit")) {
-    return NextResponse.json({ error: "Forbidden — needs admin.sources.edit" }, { status: 403 });
+  if (!userCan(me, "admin.imports")) {
+    return NextResponse.json({ error: "Forbidden — needs admin.imports" }, { status: 403 });
   }
   try {
     const [history, logSources, registry, masterSources] = await Promise.all([
@@ -71,8 +71,8 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const me = await getCurrentUser();
   if (!me) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  if (!userCanAction(me, "admin.sources.edit")) {
-    return NextResponse.json({ error: "Forbidden — needs admin.sources.edit" }, { status: 403 });
+  if (!userCan(me, "admin.imports")) {
+    return NextResponse.json({ error: "Forbidden — needs admin.imports" }, { status: 403 });
   }
 
   const body = (await req.json().catch(() => null)) as {

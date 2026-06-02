@@ -17,6 +17,7 @@ export interface AppUser {
 // Module keys — gate whether a user can ENTER a module.
 export const MODULES = [
   "admin", // the pipeline dashboard (this repo)
+  "admin.imports", // the domain import tool (/admin/imports)
   "research.domain_owner",
   "research.trademark",
   "research.appraisal",
@@ -71,6 +72,7 @@ export const CATALOG: CatalogEntry[] = [
   { key: "admin", label: "Admin dashboard", group: "Admin", kind: "module" },
   { key: "admin.users.manage", label: "Manage users & permissions", group: "Admin", kind: "action" },
   { key: "admin.sources.edit", label: "Edit sources & schedules", group: "Admin", kind: "action" },
+  { key: "admin.imports", label: "Imports", group: "Admin", kind: "module" },
   { key: "research.domain_owner", label: "Domain Owner research", group: "Research", kind: "module" },
   { key: "research.trademark", label: "Trademark", group: "Research", kind: "module" },
   { key: "research.appraisal", label: "Appraisal", group: "Research", kind: "module" },
