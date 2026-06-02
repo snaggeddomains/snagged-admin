@@ -24,7 +24,7 @@ jobs:
           SLACK_CHANNEL_AUCTIONS:      ${{ vars.SLACK_CHANNEL_AUCTIONS }}
         run: pipeline run drive_auction_uploads
       - name: Commit state changes
-        if: success()
+        if: ${{ !cancelled() }}
         uses: ./.github/actions/commit-state
         with:
           message: "drive_auction_uploads: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"

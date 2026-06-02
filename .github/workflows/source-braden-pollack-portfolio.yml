@@ -26,7 +26,7 @@ jobs:
           SUPABASE_NAMING_SERVICE_KEY: ${{ secrets.SUPABASE_NAMING_SERVICE_KEY }}
         run: pipeline run braden_pollack_portfolio
       - name: Commit state changes
-        if: success()
+        if: ${{ !cancelled() }}
         uses: ./.github/actions/commit-state
         with:
           message: "braden_pollack_portfolio: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"

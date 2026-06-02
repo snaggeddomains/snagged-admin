@@ -24,7 +24,7 @@ jobs:
           SLACK_CHANNEL_AUCTIONS:      ${{ vars.SLACK_CHANNEL_AUCTIONS }}
         run: pipeline run sedo_expired_auctions
       - name: Commit state changes
-        if: success()
+        if: ${{ !cancelled() }}
         uses: ./.github/actions/commit-state
         with:
           message: "sedo_expired_auctions: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"

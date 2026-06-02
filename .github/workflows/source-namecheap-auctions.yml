@@ -29,7 +29,7 @@ jobs:
         run: pipeline run namecheap_auctions
 
       - name: Commit state changes
-        if: success()
+        if: ${{ !cancelled() }}
         uses: ./.github/actions/commit-state
         with:
           message: "namecheap_auctions: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"

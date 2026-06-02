@@ -34,7 +34,7 @@ jobs:
         run: pipeline run namejet_lastchance
 
       - name: Commit state changes
-        if: success()
+        if: ${{ !cancelled() }}
         uses: ./.github/actions/commit-state
         with:
           message: "namejet_lastchance: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"

@@ -31,7 +31,7 @@ jobs:
 
         run: pipeline run sedo_net_new
       - name: Commit state changes
-        if: success()
+        if: ${{ !cancelled() }}
         uses: ./.github/actions/commit-state
         with:
           message: "sedo_net_new: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"

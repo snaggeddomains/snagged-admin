@@ -30,7 +30,7 @@ jobs:
 
         run: pipeline run efty_partner
       - name: Commit state changes
-        if: success()
+        if: ${{ !cancelled() }}
         uses: ./.github/actions/commit-state
         with:
           message: "efty_partner: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"

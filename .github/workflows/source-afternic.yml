@@ -36,7 +36,7 @@ jobs:
         run: pipeline run afternic
 
       - name: Commit state changes
-        if: success()
+        if: ${{ !cancelled() }}
         uses: ./.github/actions/commit-state
         with:
           message: "afternic: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"

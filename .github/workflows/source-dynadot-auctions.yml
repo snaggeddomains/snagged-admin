@@ -26,7 +26,7 @@ jobs:
           DYNADOT_API_SECRET:          ${{ secrets.DYNADOT_API_SECRET }}
         run: pipeline run dynadot_auctions
       - name: Commit state changes
-        if: success()
+        if: ${{ !cancelled() }}
         uses: ./.github/actions/commit-state
         with:
           message: "dynadot_auctions: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
