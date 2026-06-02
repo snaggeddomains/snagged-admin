@@ -58,13 +58,33 @@ RATES = {
 }
 DEFAULT_MODEL = "claude-haiku-4-5-20251001"
 
+# Controlled category vocabulary — the model must pick exactly one (verbatim);
+# anything else normalizes to "General & Other". Keeps buckets clean for the
+# DB Search category filter.
+CATEGORIES = [
+    "Technology & Software", "Internet & Web", "AI & Data", "Finance & Fintech",
+    "Crypto & Web3", "E-Commerce & Retail", "Business & Professional",
+    "Marketing & Advertising", "Media & Publishing", "Entertainment & Gaming",
+    "Social & Community", "Education & Learning", "Health & Wellness",
+    "Medical & Biotech", "Food & Drink", "Travel & Hospitality",
+    "Real Estate & Property", "Home & Living", "Fashion & Beauty",
+    "Sports & Fitness", "Automotive & Transport", "Energy & Environment",
+    "Legal & Government", "Nonprofit & Causes", "Family & Parenting",
+    "Arts & Design", "Science & Research", "Pets & Animals",
+    "Dating & Relationships", "Lifestyle", "General & Other",
+]
+CATEGORY_BY_LOWER = {c.lower(): c for c in CATEGORIES}
+FALLBACK_CATEGORY = "General & Other"
+
 SYSTEM_PROMPT = """You classify domain names for a domain marketplace.
 
 For each domain you are given, read the second-level name (the part before the
 TLD) and infer what it evokes — treat it as a potential brand. Output, per domain:
 
-- category:  ONE concise Title Case label for its primary theme
-             (e.g. "Tech", "Finance", "Health", "Travel", "Food & Drink").
+- category:  choose EXACTLY ONE label from this list, copied verbatim:
+""" + "\n".join("             " + c for c in CATEGORIES) + """
+             Pick the single best fit; use "General & Other" only if nothing
+             else applies.
 - connotation: the name's overall sentiment as a brand — exactly one of
              "positive", "somewhat positive", "neutral", "somewhat negative",
              or "negative" (lowercase). Most names are "neutral"; reserve the
@@ -160,7 +180,8 @@ def _norm_list(v, *, lower: bool) -> list[str]:
 
 def _clean(rec: dict) -> dict:
     """Normalize one model record into the column shape we write."""
-    cat = str(rec.get("category") or "").strip() or None
+    cat_raw = str(rec.get("category") or "").strip()
+    cat = CATEGORY_BY_LOWER.get(cat_raw.lower(), FALLBACK_CATEGORY if cat_raw else None)
     con = str(rec.get("connotation") or "").strip().lower()
     return {
         "category": cat,
