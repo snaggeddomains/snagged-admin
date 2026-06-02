@@ -48,7 +48,7 @@ from datetime import datetime, timezone
 
 from ..universe.supabase_writer import _client_or_none as _naming_client
 
-ENRICH_COLS = ("category", "emotions", "keywords", "industries")
+ENRICH_COLS = ("category", "connotation", "emotions", "keywords", "industries")
 
 # Per-model $/MTok (input, output) — rough, for the run-cost estimate only.
 RATES = {
@@ -65,6 +65,10 @@ TLD) and infer what it evokes — treat it as a potential brand. Output, per dom
 
 - category:  ONE concise Title Case label for its primary theme
              (e.g. "Tech", "Finance", "Health", "Travel", "Food & Drink").
+- connotation: the name's overall sentiment as a brand — exactly one of
+             "positive", "negative", or "neutral" (lowercase). Most names are
+             "neutral"; reserve "negative" for words with genuinely unfavorable
+             associations (e.g. divorce, scam, toxic, death).
 - emotions:  1-4 feelings the name evokes, each a single Capitalized word
              (e.g. "Trust", "Wonder", "Playful", "Bold"). [] if none fit.
 - keywords:  5-15 lowercase topical words/associations a buyer would search.
@@ -74,8 +78,10 @@ TLD) and infer what it evokes — treat it as a potential brand. Output, per dom
 Base everything on the name's meaning and sound, not on whether it's for sale.
 
 Return ONLY a JSON array — one object per input domain, in the SAME order, with
-keys exactly: domain, category, emotions, keywords, industries. No prose, no
-markdown fences."""
+keys exactly: domain, category, connotation, emotions, keywords, industries.
+No prose, no markdown fences."""
+
+VALID_CONNOTATION = {"positive", "negative", "neutral"}
 
 
 def _master_client():
@@ -92,6 +98,16 @@ def _master_client():
 TARGETS = {
     "universe": (_naming_client, "name_universe", True),
     "master": (_master_client, "Master Domain List", True),
+}
+
+# Columns echoed back unchanged on upsert. PostgREST upsert is INSERT-on-conflict,
+# so any NOT-NULL column without a default must be present or the INSERT branch
+# fails (23502) even though only existing rows are ever touched. Universe needs
+# its identity/date columns; Master's only NOT NULLs (id/created_at/updated_at)
+# have defaults, so domain alone suffices.
+PASSTHROUGH = {
+    "universe": ["domain", "sld", "tld", "sld_length", "first_seen", "last_seen", "sources", "source_tier"],
+    "master": ["domain"],
 }
 
 # Process the most valuable rows first so a budget-capped run spends on good
@@ -144,8 +160,10 @@ def _norm_list(v, *, lower: bool) -> list[str]:
 def _clean(rec: dict) -> dict:
     """Normalize one model record into the column shape we write."""
     cat = str(rec.get("category") or "").strip() or None
+    con = str(rec.get("connotation") or "").strip().lower()
     return {
         "category": cat,
+        "connotation": con if con in VALID_CONNOTATION else None,
         "emotions": _norm_list(rec.get("emotions"), lower=False),
         "keywords": _norm_list(rec.get("keywords"), lower=True),
         "industries": _norm_list(rec.get("industries"), lower=True),
@@ -201,7 +219,7 @@ def _copy_overlap(other_client, other_table, domains: list[str]) -> dict[str, di
         sub = domains[i : i + CHUNK]
         resp = (
             other_client.table(other_table)
-            .select("domain, category, emotions, keywords, industries")
+            .select("domain, category, connotation, emotions, keywords, industries")
             .in_("domain", sub)
             .not_.is_("category", "null")
             .execute()
@@ -211,6 +229,7 @@ def _copy_overlap(other_client, other_table, domains: list[str]) -> dict[str, di
             if d and r.get("category"):  # guard: only copy actually-enriched rows
                 found[d] = {
                     "category": r.get("category"),
+                    "connotation": r.get("connotation"),
                     "emotions": r.get("emotions") or [],
                     "keywords": r.get("keywords") or [],
                     "industries": r.get("industries") or [],
@@ -276,16 +295,18 @@ def main(argv: list[str] | None = None) -> int:
     tot = {"in": 0, "out": 0, "cache_read": 0, "cache_write": 0}
     now = datetime.now(timezone.utc).isoformat()
 
+    select_cols = ", ".join(PASSTHROUGH[args.target])
     while processed < args.max_rows:
         limit = min(args.batch, args.max_rows - processed)
-        q = client.table(table).select("domain").is_("category", "null")
+        q = client.table(table).select(select_cols).is_("category", "null")
         q = _apply_scope(q, args.target, args)
         q = q.not_.is_("enriched_at", "null") if args.retry_failed else q.is_("enriched_at", "null")
         q = q.order(order_col, desc=not order_asc, nullsfirst=False).limit(limit)
         rows = q.execute().data or []
         if not rows:
             break
-        domains = [r["domain"] for r in rows]
+        row_by_domain = {r["domain"]: r for r in rows}
+        domains = list(row_by_domain)
 
         # 1) free cross-store copy for any overlap
         results: dict[str, dict] = {}
@@ -307,25 +328,28 @@ def main(argv: list[str] | None = None) -> int:
                     tot[k] += usage[k]
                 for d in todo:
                     results[d] = by_domain.get(d) or {
-                        "category": None, "emotions": [], "keywords": [], "industries": []
+                        "category": None, "connotation": None,
+                        "emotions": [], "keywords": [], "industries": [],
                     }
                 llm_filled += sum(1 for d in todo if results[d]["category"])
                 failed += sum(1 for d in todo if not results[d]["category"])
 
-        # 3) write
+        # 3) write — echo back NOT-NULL identity columns, then enrichment.
         if args.commit:
             payload = []
             for d in domains:
                 rec = results.get(d) or {}
-                payload.append({
-                    "domain": d,
+                item = {c: row_by_domain[d][c] for c in PASSTHROUGH[args.target]}
+                item.update({
                     "category": rec.get("category"),
+                    "connotation": rec.get("connotation"),
                     "emotions": rec.get("emotions") or [],
                     "keywords": rec.get("keywords") or [],
                     "industries": rec.get("industries") or [],
                     "enriched_at": now,
                     "enrichment_model": model,
                 })
+                payload.append(item)
             client.table(table).upsert(payload, on_conflict="domain").execute()
 
         processed += len(domains)

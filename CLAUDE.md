@@ -39,8 +39,9 @@ Written **only** by this pipeline (`universe/supabase_writer.py` →
   `is_dictionary_word`) is computed at ingest via `wordfreq`
   (`filters/universe.classify_dict_word`). `num_words`/`is_dictionary_word` are NULL
   for non-dictionary SLDs.
-- **LLM enrichment** (`category` text, `emotions[]`, `keywords[]`, `industries[]`
-  arrays) is a separate paid pass run by `pipeline enrich --target universe|master`
+- **LLM enrichment** (`category` text, `connotation` text [`positive`/`negative`/
+  `neutral`], `emotions[]`, `keywords[]`, `industries[]` arrays) is a separate paid
+  pass run by `pipeline enrich --target universe|master`
   (tool: `tools/enrich.py`; workflow: `.github/workflows/enrich-domains.yml`).
   Dry-run by default; `--commit` to write. Selection is
   `category IS NULL AND enriched_at IS NULL`, so legacy-enriched rows are never
@@ -57,6 +58,7 @@ Written **only** by this pipeline (`universe/supabase_writer.py` →
   **One-time setup SQL** (run in each project):
   ```sql
   -- name_universe (naming project)
+  alter table name_universe add column if not exists connotation text;
   alter table name_universe add column if not exists enriched_at timestamptz;
   alter table name_universe add column if not exists enrichment_model text;
   create index if not exists idx_universe_enrich_queue on name_universe
@@ -64,6 +66,7 @@ Written **only** by this pipeline (`universe/supabase_writer.py` →
     where category is null and enriched_at is null;
   -- Master Domain List (masterlist project)
   alter table "Master Domain List" add column if not exists industries text[];
+  alter table "Master Domain List" add column if not exists connotation text;
   alter table "Master Domain List" add column if not exists enriched_at timestamptz;
   alter table "Master Domain List" add column if not exists enrichment_model text;
   create index if not exists idx_master_industries_gin
