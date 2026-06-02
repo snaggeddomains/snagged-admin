@@ -264,6 +264,20 @@ export default function ImportsClient({
     }
   }
 
+  // Re-dispatch the (idempotent) backfill + quality-banded enrich for a past
+  // import's source — the self-serve fix for an enrich that failed or was
+  // skipped at import time. Returns a status string for the card to show.
+  async function reenrich(r: HistoryRow): Promise<"ok" | "error"> {
+    const tgt: Target = r.target === "master" ? "master" : "universe";
+    if (!r.source) return "error";
+    try {
+      await post({ action: "post-backfill", target: tgt, source: r.source, enrich: true, qualityMin: ENRICH_QUALITY_MIN });
+      return "ok";
+    } catch {
+      return "error";
+    }
+  }
+
   const targetReady = target === "universe" ? universeReady : masterReady;
   const pct = progress ? Math.round((progress.done / progress.total) * 100) : 0;
   const hasInput = parseRows(text).length > 0;
@@ -495,7 +509,7 @@ export default function ImportsClient({
         </div>
       </section>
 
-      <PastJobs rows={history} onRefresh={loadHistory} onDelete={deleteJob} />
+      <PastJobs rows={history} onRefresh={loadHistory} onDelete={deleteJob} onReenrich={reenrich} />
     </main>
   );
 }
@@ -556,7 +570,11 @@ function Stat({ label, value, accent, warn }: { label: string; value: number; ac
   );
 }
 
-function PastJobs({ rows, onRefresh, onDelete }: { rows: HistoryRow[]; onRefresh: () => void; onDelete: (id?: string) => void }) {
+function PastJobs({
+  rows, onRefresh, onDelete, onReenrich,
+}: {
+  rows: HistoryRow[]; onRefresh: () => void; onDelete: (id?: string) => void; onReenrich: (r: HistoryRow) => Promise<"ok" | "error">;
+}) {
   return (
     <section style={{ marginTop: 28 }}>
       <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 4 }}>
@@ -572,20 +590,36 @@ function PastJobs({ rows, onRefresh, onDelete }: { rows: HistoryRow[]; onRefresh
         <p className="muted" style={{ fontSize: 13.5 }}>No imports logged yet.</p>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {rows.map((r, i) => <JobCard key={r.id || i} r={r} onDelete={onDelete} />)}
+          {rows.map((r, i) => <JobCard key={r.id || i} r={r} onDelete={onDelete} onReenrich={onReenrich} />)}
         </div>
       )}
     </section>
   );
 }
 
-function JobCard({ r, onDelete }: { r: HistoryRow; onDelete: (id?: string) => void }) {
+function JobCard({
+  r, onDelete, onReenrich,
+}: {
+  r: HistoryRow; onDelete: (id?: string) => void; onReenrich: (r: HistoryRow) => Promise<"ok" | "error">;
+}) {
+  const [state, setState] = useState<"idle" | "busy" | "ok" | "error">("idle");
   const counts = [
     `${(r.upserted ?? 0).toLocaleString()} upserted`,
     (r.removed ?? 0) > 0 ? `${(r.removed ?? 0).toLocaleString()} removed` : null,
     `${(r.parsed ?? 0).toLocaleString()} parsed`,
   ].filter(Boolean).join(" · ");
   const dbLabel = r.target === "master" ? "Master Domain List" : "name_universe";
+
+  async function reenrich() {
+    const ok = window.confirm(
+      `Re-enrich "${r.source}" in ${r.target}?\n\nRe-runs the quality backfill (idempotent), then submits a PAID LLM enrich ` +
+      `batch (quality_score > 1) for names from this source that aren’t enriched yet. Collected within ~4h.`,
+    );
+    if (!ok) return;
+    setState("busy");
+    setState(await onReenrich(r));
+  }
+
   return (
     <div className="card card--flat" style={{ padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
       <div style={{ minWidth: 0 }}>
@@ -602,14 +636,30 @@ function JobCard({ r, onDelete }: { r: HistoryRow; onDelete: (id?: string) => vo
           {r.user_email && <><span>·</span><span>{r.user_email.split("@")[0]}</span></>}
         </div>
       </div>
-      <button
-        onClick={() => onDelete(r.id)}
-        title="Remove from history"
-        aria-label="Remove from history"
-        style={{ border: "none", background: "none", cursor: "pointer", color: "var(--navy-3)", flex: "none", padding: 4 }}
-      >
-        <TrashIcon />
-      </button>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flex: "none" }}>
+        {state === "ok" ? (
+          <span style={{ fontSize: 12.5, color: "var(--navy-2)" }}>enrich dispatched ✓</span>
+        ) : state === "error" ? (
+          <span style={{ fontSize: 12.5, color: "var(--coral-deep)" }}>failed — retry</span>
+        ) : null}
+        <button
+          onClick={reenrich}
+          disabled={state === "busy" || !r.source}
+          title="Re-run the quality backfill + enrich for this source"
+          className="btn btn--ghost"
+          style={{ padding: "6px 13px", fontSize: 12.5, boxShadow: "0 2px 0 rgba(37,66,84,.18)" }}
+        >
+          {state === "busy" ? "Dispatching…" : "Re-enrich"}
+        </button>
+        <button
+          onClick={() => onDelete(r.id)}
+          title="Remove from history"
+          aria-label="Remove from history"
+          style={{ border: "none", background: "none", cursor: "pointer", color: "var(--navy-3)", padding: 4 }}
+        >
+          <TrashIcon />
+        </button>
+      </div>
     </div>
   );
 }
