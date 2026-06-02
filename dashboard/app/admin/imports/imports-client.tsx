@@ -737,7 +737,7 @@ function EnrichLine({
     <div style={{ display: "flex", gap: 26, marginTop: 12, flexWrap: "wrap", alignItems: "flex-end" }}>
       <StatBlock label="Inserted" value={inserted.toLocaleString()} />
       <StatBlock label="Net-new" value={netNew.toLocaleString()} />
-      <StatBlock label="Qualify q≥1" value={eligible.toLocaleString()} />
+      <StatBlock label="Quality q≥1" value={eligible.toLocaleString()} />
       <StatBlock
         label="Enriched"
         value={`${enriched.toLocaleString()}/${eligible.toLocaleString()}`}
