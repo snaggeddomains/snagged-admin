@@ -32,6 +32,7 @@ import argparse
 import json
 import os
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -57,6 +58,31 @@ COLLECT_UPSERT_CHUNK = 150  # rows per upsert on collect — small enough to sta
 
 def _iso_now() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def _upsert_resilient(client, table, payload, *, _attempt: int = 0) -> int:
+    """Upsert that survives DB statement timeouts (57014). name_universe is large
+    with GIN array indexes, so a given batch size can intermittently exceed the
+    statement timeout. On timeout we halve the payload and retry each half
+    (adaptively finding a size that fits); a lone row that still times out backs
+    off and retries a few times before giving up."""
+    if not payload:
+        return 0
+    try:
+        client.table(table).upsert(payload, on_conflict="domain").execute()
+        return len(payload)
+    except Exception as e:  # noqa: BLE001 — inspect message for the timeout code
+        msg = str(e)
+        if "57014" not in msg and "statement timeout" not in msg:
+            raise
+        if len(payload) > 1:
+            mid = len(payload) // 2
+            return _upsert_resilient(client, table, payload[:mid]) + \
+                _upsert_resilient(client, table, payload[mid:])
+        if _attempt < 4:
+            time.sleep(2 ** _attempt)
+            return _upsert_resilient(client, table, payload, _attempt=_attempt + 1)
+        raise
 
 
 def _env_name(target: str) -> str:
@@ -288,8 +314,7 @@ def _collect(args) -> int:
                 })
                 payload.append(item)
             if payload:
-                client.table(table).upsert(payload, on_conflict="domain").execute()
-                written += len(payload)
+                written += _upsert_resilient(client, table, payload)
 
         rec["status"] = "collected"
         print(f"  {batch_id}: ended — processed {len(domains):,} domains, "
