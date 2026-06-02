@@ -15,7 +15,7 @@ type Preview = {
   sourceTotal: number;
 };
 
-type EnrichStatus = { eligible: number; enriched: number };
+type EnrichStatus = { netNew: number; eligible: number; enriched: number };
 
 type HistoryRow = {
   id?: string;
@@ -713,45 +713,55 @@ function JobCard({
 }
 
 function EnrichLine({
-  status, ageH, backfilled, inserted,
+  status, ageH, inserted,
 }: {
   status: EnrichStatus | null | "loading"; ageH: number; backfilled: boolean; inserted: number;
 }) {
-  const base: React.CSSProperties = { fontSize: 12.5, marginTop: 6, display: "flex", alignItems: "center", gap: 7 };
-  const ins = `${inserted.toLocaleString()} inserted`;
-  if (status === "loading") return <div style={{ ...base, color: "var(--navy-3)" }}>{ins} · checking enrichment…</div>;
-  if (status === null) return <div style={{ ...base, color: "var(--navy-3)" }}>{ins} · enrichment status unavailable</div>;
-
-  const { eligible, enriched } = status;
-  if (eligible === 0) {
+  if (status === "loading") {
+    return <div style={{ fontSize: 13, marginTop: 12, color: "var(--navy-3)" }}>checking enrichment…</div>;
+  }
+  if (status === null) {
     return (
-      <div style={{ ...base, color: "var(--navy-3)" }}>
-        <Dot color="#cbd5e1" /> {ins} · 0 net-new qualify (q≥1){backfilled ? "" : " · backfill pending"}
+      <div style={{ display: "flex", gap: 26, marginTop: 12, flexWrap: "wrap" }}>
+        <StatBlock label="Inserted" value={inserted.toLocaleString()} />
+        <StatBlock label="Status" value="unavailable" muted />
       </div>
     );
   }
-  const done = enriched >= eligible;
-  const stalled = !done && enriched === 0 && ageH >= 24; // should've collected by now
-  const color = done ? "#1f9d55" : stalled ? "var(--coral-deep)" : "#caa300";
-  const icon = done ? "✓" : stalled ? "✗" : "⏳";
-  const label = done
-    ? "enriched ✓"
-    : stalled
-      ? "not enriched — re-enrich"
-      : "enriching…";
+  const { netNew, eligible, enriched } = status;
+  const done = eligible > 0 && enriched >= eligible;
+  const stalled = eligible > 0 && enriched === 0 && ageH >= 24;
+  const color = eligible === 0 ? "var(--navy-3)" : done ? "#1f9d55" : stalled ? "var(--coral-deep)" : "#b8860b";
+  const icon = eligible === 0 ? "" : done ? "✓" : stalled ? "✗" : "⏳";
   return (
-    <div style={{ ...base, color, fontWeight: 600 }}>
-      <span aria-hidden style={{ fontSize: 13 }}>{icon}</span>
-      <span>
-        {ins} · {eligible.toLocaleString()} qualify (net-new q≥1) ·
-        {" "}{enriched.toLocaleString()}/{eligible.toLocaleString()} {label}
-      </span>
+    <div style={{ display: "flex", gap: 26, marginTop: 12, flexWrap: "wrap", alignItems: "flex-end" }}>
+      <StatBlock label="Inserted" value={inserted.toLocaleString()} />
+      <StatBlock label="Net-new" value={netNew.toLocaleString()} />
+      <StatBlock label="Qualify q≥1" value={eligible.toLocaleString()} />
+      <StatBlock
+        label="Enriched"
+        value={`${enriched.toLocaleString()}/${eligible.toLocaleString()}`}
+        color={color}
+        icon={icon}
+      />
     </div>
   );
 }
 
-function Dot({ color }: { color: string }) {
-  return <span style={{ width: 9, height: 9, borderRadius: "50%", background: color, display: "inline-block" }} />;
+function StatBlock({ label, value, color, icon, muted }: {
+  label: string; value: string; color?: string; icon?: string; muted?: boolean;
+}) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <span style={{ fontSize: 10.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".05em", color: "var(--navy-3)" }}>
+        {label}
+      </span>
+      <span style={{ fontSize: 20, fontWeight: 800, lineHeight: 1.05, color: color || (muted ? "var(--navy-3)" : "var(--navy)"), display: "flex", alignItems: "center", gap: 6 }}>
+        {icon ? <span aria-hidden style={{ fontSize: 16 }}>{icon}</span> : null}
+        {value}
+      </span>
+    </div>
+  );
 }
 
 function fmtTime(iso?: string): string {

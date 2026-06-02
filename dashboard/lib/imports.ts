@@ -263,30 +263,33 @@ export async function countSourceRows(target: Target, source: string): Promise<n
 }
 
 export type EnrichStatus = {
-  eligible: number; // rows for this source with quality_score >= the enrich floor
+  netNew: number; // net-new names from this import (created at/after `since`)
+  eligible: number; // of those, how many qualify (quality_score >= floor)
   enriched: number; // of those, how many are LLM-enriched (category not null)
 };
 
-/** Live enrichment progress for a source: of the NET-NEW names from an import
- *  (created at/after `since`) that qualify (quality_score >= floor), how many
- *  are already enriched. Net-new mirrors the enrich selection — universe by
- *  first_seen (date), master by created_at — so pre-existing names are excluded. */
+/** Live enrichment funnel for a source's NET-NEW names from an import (created
+ *  at/after `since`): how many are net-new, how many qualify (quality_score >=
+ *  floor), and how many are enriched. Net-new mirrors the enrich selection —
+ *  universe by first_seen (date), master by created_at — so pre-existing names
+ *  are excluded. */
 export async function enrichStatus(target: Target, source: string, floor = 1, since?: string): Promise<EnrichStatus> {
   const table = target === "master" ? MASTER_TABLE : "name_universe";
   const db = target === "master" ? getMasterlistDb() : getNamingDb();
-  const scoped = () => {
-    let q = db.from(table).select("domain", { count: "exact", head: true }).gte("quality_score", floor);
+  // Base = this source's net-new rows (date-floored so the import's own rows count).
+  const base = () => {
+    let q = db.from(table).select("domain", { count: "exact", head: true });
     q = target === "master" ? q.eq("source", source) : q.contains("sources", [source]);
-    // Floor to the DATE (midnight): the import's rows are created slightly before
-    // the log entry, so an exact-timestamp >= would wrongly exclude them.
     if (since) q = q.gte(target === "master" ? "created_at" : "first_seen", since.slice(0, 10));
     return q;
   };
-  const { count: eligible, error: e1 } = await scoped();
+  const { count: netNew, error: e0 } = await base();
+  if (e0) throw new Error(`enrich status: ${e0.message || e0.code || "request failed"}`);
+  const { count: eligible, error: e1 } = await base().gte("quality_score", floor);
   if (e1) throw new Error(`enrich status: ${e1.message || e1.code || "request failed"}`);
-  const { count: enriched, error: e2 } = await scoped().not("category", "is", null);
+  const { count: enriched, error: e2 } = await base().gte("quality_score", floor).not("category", "is", null);
   if (e2) throw new Error(`enrich status: ${e2.message || e2.code || "request failed"}`);
-  return { eligible: eligible ?? 0, enriched: enriched ?? 0 };
+  return { netNew: netNew ?? 0, eligible: eligible ?? 0, enriched: enriched ?? 0 };
 }
 
 export type ImportLogRow = {
