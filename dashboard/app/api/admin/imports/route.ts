@@ -12,10 +12,12 @@ import {
   previewImport,
   logImport,
   listImports,
+  listImportSources,
   type ImportRow,
   type Target,
 } from "@/lib/imports";
 import { dispatchWorkflow } from "@/lib/orchestrator";
+import { loadSources } from "@/lib/sources";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -32,8 +34,17 @@ export async function GET() {
     return NextResponse.json({ error: "Forbidden — needs admin.sources.edit" }, { status: 403 });
   }
   try {
-    const history = await listImports(25);
-    return NextResponse.json({ ok: true, history });
+    const [history, logSources, registry] = await Promise.all([
+      listImports(25),
+      listImportSources(),
+      loadSources().catch(() => []),
+    ]);
+    // Typeahead pool: source IDs from the registry + every name ever imported,
+    // sorted + deduped, so people normalize to an existing name.
+    const sources = [...new Set([...registry.map((s) => s.source_id), ...logSources])]
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b));
+    return NextResponse.json({ ok: true, history, sources });
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500 });
   }

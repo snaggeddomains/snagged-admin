@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type Target = "universe" | "master";
 type Mode = "merge" | "replace";
@@ -79,6 +79,12 @@ export default function ImportsClient({
   const [previewing, setPreviewing] = useState(false);
   const [autoBackfill, setAutoBackfill] = useState(true);
   const [history, setHistory] = useState<HistoryRow[]>([]);
+  const [knownSources, setKnownSources] = useState<string[]>([]);
+  const [inputMode, setInputMode] = useState<"file" | "paste">("file");
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [dragOver, setDragOver] = useState(false);
+  const [confirmReplace, setConfirmReplace] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const add = (line: string) => setLog((l) => [...l, line]);
 
@@ -87,6 +93,7 @@ export default function ImportsClient({
       const res = await fetch("/api/admin/imports", { cache: "no-store" });
       const data = await res.json().catch(() => ({}));
       if (res.ok && Array.isArray(data.history)) setHistory(data.history as HistoryRow[]);
+      if (res.ok && Array.isArray(data.sources)) setKnownSources(data.sources as string[]);
     } catch {
       /* non-fatal */
     }
@@ -96,12 +103,23 @@ export default function ImportsClient({
     loadHistory();
   }, [loadHistory]);
 
-  async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0];
-    if (!f) return;
+  async function loadFile(f: File) {
     setText(await f.text());
+    setFileName(f.name);
     setPreview(null);
     add(`Loaded file: ${f.name} (${(f.size / 1024).toFixed(0)} KB)`);
+  }
+
+  async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (f) await loadFile(f);
+  }
+
+  async function onDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragOver(false);
+    const f = e.dataTransfer.files?.[0];
+    if (f) await loadFile(f);
   }
 
   async function post(payload: Record<string, unknown>) {
@@ -137,6 +155,24 @@ export default function ImportsClient({
     if (!src) { add("⚠️ Enter a source name first."); return; }
     const rows = parseRows(text);
     if (!rows.length) { add("⚠️ No valid domains found in the input."); return; }
+
+    // Replace mode deletes rows — double opt-in: the checkbox AND a typed/clicked
+    // confirm that spells out the consequence (with the previewed delete count
+    // when we have it).
+    if (mode === "replace") {
+      if (!confirmReplace) {
+        add("⚠️ Replace mode deletes rows. Tick the confirmation box to proceed.");
+        return;
+      }
+      const willRemove = preview && preview.removed > 0
+        ? `up to ${preview.removed.toLocaleString()} existing "${src}" row(s) not in this file`
+        : `existing "${src}" row(s) not present in this file`;
+      const ok = window.confirm(
+        `REPLACE "${src}" in ${target}.\n\nThis upserts the file, then DELETES ${willRemove}. ` +
+        `This cannot be undone.\n\nProceed?`,
+      );
+      if (!ok) { add("Replace cancelled."); return; }
+    }
 
     setBusy(true);
     setLog([]);
@@ -225,44 +261,143 @@ export default function ImportsClient({
             className="field"
             placeholder="e.g. brandbucket"
             value={source}
+            list="import-source-names"
+            autoComplete="off"
             onChange={(e) => { setSource(e.target.value); setPreview(null); }}
             style={{ maxWidth: 320 }}
           />
+          <datalist id="import-source-names">
+            {knownSources.map((s) => <option key={s} value={s} />)}
+          </datalist>
+          {(() => {
+            const q = source.trim().toLowerCase();
+            if (!q) return null;
+            const exact = knownSources.some((s) => s.toLowerCase() === q);
+            if (exact) {
+              return <span className="muted" style={{ fontSize: 12, marginLeft: 8, color: "var(--navy-3)" }}>↳ matches an existing source ✓</span>;
+            }
+            const near = knownSources.filter((s) => s.toLowerCase().includes(q)).slice(0, 4);
+            if (near.length) {
+              return (
+                <span style={{ fontSize: 12, marginLeft: 8 }}>
+                  <span className="muted">existing: </span>
+                  {near.map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => { setSource(s); setPreview(null); }}
+                      style={{ border: "none", background: "none", color: "var(--coral, #e08a6f)", cursor: "pointer", padding: 0, marginRight: 8, textDecoration: "underline" }}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </span>
+              );
+            }
+            return <span className="muted" style={{ fontSize: 12, marginLeft: 8 }}>new source — will be created</span>;
+          })()}
         </div>
 
         <div>
           <Label>Mode</Label>
           <Seg
             value={mode}
-            onChange={(v) => { setMode(v as Mode); setPreview(null); }}
+            onChange={(v) => { setMode(v as Mode); setConfirmReplace(false); setPreview(null); }}
             options={[
               { v: "merge", label: "Merge (add / update)" },
               { v: "replace", label: "Replace this source" },
             ]}
           />
           {mode === "replace" && (
-            <p className="muted" style={{ fontSize: 12.5, marginTop: 6 }}>
-              Upserts the file, then deletes rows of this source not in it. Use for full
-              snapshots (e.g. a monthly dump).
-            </p>
+            <div
+              style={{
+                marginTop: 8,
+                background: "#fdf1ec",
+                border: "1.5px solid var(--coral, #e08a6f)",
+                borderRadius: 10,
+                padding: "10px 14px",
+              }}
+            >
+              <p style={{ fontSize: 12.5, margin: "0 0 8px", color: "var(--coral-deep, #c2502f)", fontWeight: 600 }}>
+                ⚠️ Replace upserts the file, then <b>deletes</b> rows of this source not in it. Use only
+                for full snapshots (e.g. a monthly dump). This cannot be undone.
+              </p>
+              <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, cursor: "pointer", fontWeight: 600 }}>
+                <input type="checkbox" checked={confirmReplace} onChange={(e) => setConfirmReplace(e.target.checked)} />
+                I understand this deletes rows not present in the file.
+              </label>
+            </div>
           )}
         </div>
 
         <div>
-          <Label>Domains (paste) or upload CSV</Label>
-          <textarea
-            className="field"
-            rows={8}
-            placeholder={"example.com\nbobby.com, 1995\n…or upload a CSV below"}
-            value={text}
-            onChange={(e) => { setText(e.target.value); setPreview(null); }}
-            style={{ width: "100%", fontFamily: "monospace", fontSize: 13 }}
-          />
-          <input type="file" accept=".csv,.txt,text/csv,text/plain" onChange={onFile} style={{ marginTop: 8 }} />
-          <span className="muted" style={{ fontSize: 12, marginLeft: 8 }}>
+          <Label>Domains{target === "master" ? " (+ price, owner)" : " (+ price)"}</Label>
+          {inputMode === "file" ? (
+            <>
+              <div
+                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={onDrop}
+                onClick={() => fileInputRef.current?.click()}
+                style={{
+                  border: `2px dashed ${dragOver ? "var(--coral, #e08a6f)" : "#cdc6b6"}`,
+                  background: dragOver ? "#fdf1ec" : "var(--cream-2, #fbf7ee)",
+                  borderRadius: 12,
+                  padding: "28px 18px",
+                  textAlign: "center",
+                  cursor: "pointer",
+                  transition: "border-color .12s, background .12s",
+                }}
+              >
+                <div style={{ fontSize: 15, fontWeight: 600, color: "var(--navy)" }}>
+                  {fileName ? `📄 ${fileName}` : "Drag a CSV or .txt file here"}
+                </div>
+                <div className="muted" style={{ fontSize: 12.5, marginTop: 6 }}>
+                  {fileName ? "Drop another file to replace it, or " : "or "}
+                  <span style={{ color: "var(--coral, #e08a6f)", textDecoration: "underline" }}>choose a file</span>
+                </div>
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv,.txt,text/csv,text/plain"
+                onChange={onFile}
+                style={{ display: "none" }}
+              />
+              <div style={{ marginTop: 8 }}>
+                <button
+                  onClick={() => setInputMode("paste")}
+                  className="muted"
+                  style={{ border: "none", background: "none", cursor: "pointer", fontSize: 12.5, textDecoration: "underline" }}
+                >
+                  or paste domains instead
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <textarea
+                className="field"
+                rows={8}
+                placeholder={"example.com\nbobby.com, 1995\n…"}
+                value={text}
+                onChange={(e) => { setText(e.target.value); setFileName(null); setPreview(null); }}
+                style={{ width: "100%", fontFamily: "monospace", fontSize: 13 }}
+              />
+              <div style={{ marginTop: 4 }}>
+                <button
+                  onClick={() => setInputMode("file")}
+                  className="muted"
+                  style={{ border: "none", background: "none", cursor: "pointer", fontSize: 12.5, textDecoration: "underline" }}
+                >
+                  or upload a file instead
+                </button>
+              </div>
+            </>
+          )}
+          <p className="muted" style={{ fontSize: 12, marginTop: 6, marginBottom: 0 }}>
             One per line. A domain cell + optional price{target === "master" ? " + owner" : ""} are
             auto-detected; headers are ignored.
-          </span>
+          </p>
         </div>
 
         <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13.5, cursor: "pointer" }}>
@@ -275,8 +410,12 @@ export default function ImportsClient({
             style={{ border: "1.5px solid #d9d2c2", background: "#fff", color: "var(--navy)" }}>
             {previewing ? "Previewing…" : "Preview"}
           </button>
-          <button className="btn btn--navy" onClick={run} disabled={busy || !targetReady}>
-            {busy ? "Importing…" : "Import"}
+          <button
+            className="btn btn--navy"
+            onClick={run}
+            disabled={busy || !targetReady || (mode === "replace" && !confirmReplace)}
+          >
+            {busy ? "Importing…" : mode === "replace" ? "Replace import" : "Import"}
           </button>
           {progress && (
             <span className="muted" style={{ fontSize: 13 }}>

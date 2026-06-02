@@ -231,3 +231,21 @@ export async function listImports(limit = 25): Promise<Record<string, unknown>[]
   if (error) throw new Error(`listImports: ${error.message}`);
   return data ?? [];
 }
+
+/** Distinct source names ever used by an import (cheap — from the log, not the
+ *  corpora). Feeds the source-name typeahead so names normalize to prior use. */
+export async function listImportSources(): Promise<string[]> {
+  if (!isDbConfigured()) return [];
+  const { data, error } = await getDb()
+    .from(IMPORTS_TABLE)
+    .select("source")
+    .order("source", { ascending: true })
+    .limit(1000);
+  if (error) return [];
+  const set = new Set<string>();
+  for (const r of data ?? []) {
+    const s = String((r as { source?: unknown }).source || "").trim();
+    if (s) set.add(s);
+  }
+  return [...set];
+}
