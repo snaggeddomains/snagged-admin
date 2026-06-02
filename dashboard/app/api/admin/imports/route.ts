@@ -13,6 +13,7 @@ import {
   logImport,
   listImports,
   listImportSources,
+  listMasterSources,
   type ImportRow,
   type Target,
 } from "@/lib/imports";
@@ -34,17 +35,22 @@ export async function GET() {
     return NextResponse.json({ error: "Forbidden — needs admin.sources.edit" }, { status: 403 });
   }
   try {
-    const [history, logSources, registry] = await Promise.all([
+    const [history, logSources, registry, masterSources] = await Promise.all([
       listImports(25),
       listImportSources(),
       loadSources().catch(() => []),
+      listMasterSources(),
     ]);
-    // Typeahead pool: source IDs from the registry + every name ever imported,
-    // sorted + deduped, so people normalize to an existing name.
-    const sources = [...new Set([...registry.map((s) => s.source_id), ...logSources])]
-      .filter(Boolean)
-      .sort((a, b) => a.localeCompare(b));
-    return NextResponse.json({ ok: true, history, sources });
+    const sortUniq = (xs: string[]) =>
+      [...new Set(xs)].filter(Boolean).sort((a, b) => a.localeCompare(b));
+    const logFor = (t: string) => logSources.filter((r) => r.target === t).map((r) => r.source);
+    // Target-aware typeahead pools, so each DB only suggests names that belong
+    // in it: Universe = the pipeline registry IDs + anything imported to Universe;
+    // Master = the distinct curated `source` names already in the Master table +
+    // anything imported to Master.
+    const sourcesUniverse = sortUniq([...registry.map((s) => s.source_id), ...logFor("universe")]);
+    const sourcesMaster = sortUniq([...masterSources, ...logFor("master")]);
+    return NextResponse.json({ ok: true, history, sourcesUniverse, sourcesMaster });
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500 });
   }

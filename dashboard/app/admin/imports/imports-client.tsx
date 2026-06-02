@@ -79,12 +79,17 @@ export default function ImportsClient({
   const [previewing, setPreviewing] = useState(false);
   const [autoBackfill, setAutoBackfill] = useState(true);
   const [history, setHistory] = useState<HistoryRow[]>([]);
-  const [knownSources, setKnownSources] = useState<string[]>([]);
+  const [sourcesUniverse, setSourcesUniverse] = useState<string[]>([]);
+  const [sourcesMaster, setSourcesMaster] = useState<string[]>([]);
   const [inputMode, setInputMode] = useState<"file" | "paste">("file");
   const [fileName, setFileName] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [confirmReplace, setConfirmReplace] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Suggestions for the active target only — Universe shows pipeline/registry
+  // names, Master shows its own curated owner-sheet sources.
+  const knownSources = target === "universe" ? sourcesUniverse : sourcesMaster;
 
   const add = (line: string) => setLog((l) => [...l, line]);
 
@@ -93,7 +98,8 @@ export default function ImportsClient({
       const res = await fetch("/api/admin/imports", { cache: "no-store" });
       const data = await res.json().catch(() => ({}));
       if (res.ok && Array.isArray(data.history)) setHistory(data.history as HistoryRow[]);
-      if (res.ok && Array.isArray(data.sources)) setKnownSources(data.sources as string[]);
+      if (res.ok && Array.isArray(data.sourcesUniverse)) setSourcesUniverse(data.sourcesUniverse as string[]);
+      if (res.ok && Array.isArray(data.sourcesMaster)) setSourcesMaster(data.sourcesMaster as string[]);
     } catch {
       /* non-fatal */
     }
@@ -239,17 +245,27 @@ export default function ImportsClient({
 
       <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 18 }}>
         <div>
-          <Label>Target database</Label>
-          <Seg
-            value={target}
-            onChange={(v) => { setTarget(v as Target); setPreview(null); }}
-            options={[
-              { v: "universe", label: "Universe (name_universe)" },
-              { v: "master", label: "Master List" },
-            ]}
-          />
+          <Label>Where does this belong?</Label>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <TargetCard
+              active={target === "universe"}
+              onClick={() => { setTarget("universe"); setConfirmReplace(false); setPreview(null); }}
+              title="Universe"
+              subtitle="name_universe"
+              blurb="Automated marketplace scrapes & platform dumps — afternic, Sedo, Atom, Namecheap, Dynadot, NameJet, BrandBucket, etc. One row per domain with a sources[] array."
+              examples="Use for: sedo_dump, afternic, atom_daily, brandbucket"
+            />
+            <TargetCard
+              active={target === "master"}
+              onClick={() => { setTarget("master"); setConfirmReplace(false); setPreview(null); }}
+              title="Master List"
+              subtitle="Master Domain List"
+              blurb="Manual / curated owner attributions — one-off CSVs & portfolio sheets where you know the owner. One row per domain with a single source + owner."
+              examples="Use for: Digimedia, portfolio sheets, owner exports"
+            />
+          </div>
           {!targetReady && (
-            <p style={{ color: "var(--coral-deep)", fontSize: 13, marginTop: 6 }}>
+            <p style={{ color: "var(--coral-deep)", fontSize: 13, marginTop: 8 }}>
               Not configured — add {target === "universe" ? "SUPABASE_NAMING_*" : "MASTERLIST_SUPABASE_*"} env vars.
             </p>
           )}
@@ -468,6 +484,47 @@ export default function ImportsClient({
         <ImportHistory rows={history} onRefresh={loadHistory} />
       </div>
     </main>
+  );
+}
+
+function TargetCard({
+  active,
+  onClick,
+  title,
+  subtitle,
+  blurb,
+  examples,
+}: {
+  active: boolean;
+  onClick: () => void;
+  title: string;
+  subtitle: string;
+  blurb: string;
+  examples: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        textAlign: "left",
+        border: `2px solid ${active ? "var(--coral, #e08a6f)" : "#d9d2c2"}`,
+        background: active ? "#fdf1ec" : "#fff",
+        borderRadius: 12,
+        padding: "14px 16px",
+        cursor: "pointer",
+        display: "flex",
+        flexDirection: "column",
+        gap: 6,
+        transition: "border-color .12s, background .12s",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+        <span style={{ fontSize: 17, fontWeight: 800, color: "var(--navy)" }}>{title}</span>
+        <code style={{ fontSize: 11.5, color: "var(--navy-3)" }}>{subtitle}</code>
+      </div>
+      <div style={{ fontSize: 12.5, color: "var(--navy-2, #3a4256)", lineHeight: 1.4 }}>{blurb}</div>
+      <div style={{ fontSize: 11.5, color: "var(--navy-3)", fontStyle: "italic" }}>{examples}</div>
+    </button>
   );
 }
 

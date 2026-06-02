@@ -232,20 +232,39 @@ export async function listImports(limit = 25): Promise<Record<string, unknown>[]
   return data ?? [];
 }
 
-/** Distinct source names ever used by an import (cheap — from the log, not the
- *  corpora). Feeds the source-name typeahead so names normalize to prior use. */
-export async function listImportSources(): Promise<string[]> {
+/** Distinct source names ever used by an import, tagged by target (cheap — from
+ *  the log, not the corpora). Feeds the source-name typeahead. */
+export async function listImportSources(): Promise<{ source: string; target: string }[]> {
   if (!isDbConfigured()) return [];
   const { data, error } = await getDb()
     .from(IMPORTS_TABLE)
-    .select("source")
-    .order("source", { ascending: true })
-    .limit(1000);
+    .select("source, target")
+    .limit(2000);
   if (error) return [];
-  const set = new Set<string>();
+  const out: { source: string; target: string }[] = [];
   for (const r of data ?? []) {
-    const s = String((r as { source?: unknown }).source || "").trim();
-    if (s) set.add(s);
+    const row = r as { source?: unknown; target?: unknown };
+    const s = String(row.source || "").trim();
+    if (s) out.push({ source: s, target: String(row.target || "") });
   }
-  return [...set];
+  return out;
+}
+
+/** Distinct `source` values actually present in the Master Domain List, via the
+ *  distinct_master_sources() RPC (a full DISTINCT scan would be too heavy to do
+ *  client-side over ~435K rows). Returns [] if the RPC isn't installed yet. */
+export async function listMasterSources(): Promise<string[]> {
+  try {
+    const { data, error } = await getMasterlistDb().rpc("distinct_master_sources");
+    if (error || !Array.isArray(data)) return [];
+    const set = new Set<string>();
+    for (const r of data) {
+      // RPC returns table(source text) → [{ source }]; tolerate scalar rows too.
+      const s = String((r as { source?: unknown })?.source ?? r ?? "").trim();
+      if (s) set.add(s);
+    }
+    return [...set];
+  } catch {
+    return [];
+  }
 }
