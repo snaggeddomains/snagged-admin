@@ -174,6 +174,13 @@ def _apply_scope(q, target: str, args):
     src = getattr(args, "source", None)
     if src:
         q = q.contains("sources", [src]) if target == "universe" else q.eq("source", src)
+    # Net-new only: rows created at/after the import. We never re-enrich names that
+    # already existed in the DB (they're enriched on their own merit / rollout) —
+    # only genuinely new names from this import. Universe marks new rows with
+    # first_seen (a DATE); Master with created_at (timestamptz).
+    since = getattr(args, "new_since", None)
+    if since:
+        q = q.gte("first_seen", since[:10]) if target == "universe" else q.gte("created_at", since)
     return q
 
 
@@ -294,6 +301,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--quality-max", type=float, default=None, help="quality_score < (universe only)")
     ap.add_argument("--source", default=None,
                     help="restrict to one source (universe sources[] membership / master source text)")
+    ap.add_argument("--new-since", default=None,
+                    help="net-new only: rows created at/after this ISO time "
+                         "(universe first_seen date / master created_at)")
     ap.add_argument("--len-max", type=int, default=None, help="sld_length <=")
     ap.add_argument("--no-numbers", action="store_true", help="exclude names containing digits")
     ap.add_argument("--no-copy-overlap", action="store_true", help="skip the free cross-store copy step")

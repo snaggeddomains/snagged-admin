@@ -364,7 +364,9 @@ _EST_OUTPUT_TOK_PER_DOMAIN = 90
 
 def _count_eligible(args) -> int:
     """How many rows are in scope for enrichment right now (same selection as
-    _select_domains, but a head count)."""
+    _select_domains, but a head count). Returns -1 if the count can't be taken
+    (e.g. a statement timeout on a source-scoped scan without a sources GIN
+    index) so the caller can fall back to the safe async path."""
     factory, table, _ = TARGETS[args.target]
     client = factory()
     if client is None:
@@ -378,8 +380,12 @@ def _count_eligible(args) -> int:
     else:
         q = q.is_("category", "null").is_("enriched_at", "null")
     q = _apply_scope(q, args.target, args)
-    res = q.limit(1).execute()
-    return res.count or 0
+    try:
+        res = q.limit(1).execute()
+        return res.count or 0
+    except Exception as e:  # noqa: BLE001 — count is advisory; never fail the run
+        print(f"  (eligible count unavailable: {e}; defaulting to async batch)")
+        return -1
 
 
 def _est_batch_saving(n_domains: int, model: str, batch: int) -> float:
@@ -402,6 +408,11 @@ def _auto(args) -> int:
     if n == 0:
         print("enrich-auto: nothing eligible to enrich.")
         return 0
+    if n < 0:
+        # Count timed out — submit async (cheaper, no realtime cost surprise);
+        # the batch's own paged selection applies the same scope.
+        print("  → eligible count unknown: submitting async Batches API job.")
+        return _submit(args)
     saving = _est_batch_saving(n, model, args.batch)
     print(f"enrich-auto: {n:,} eligible (model={model}); est. batch saving "
           f"${saving:,.2f} vs realtime (threshold ${args.min_batch_saving:,.2f}).")
@@ -437,6 +448,8 @@ def _auto(args) -> int:
         argv.append("--reenrich")
     if args.source:
         argv += ["--source", args.source]
+    if getattr(args, "new_since", None):
+        argv += ["--new-since", args.new_since]
     return _enrich_main(argv)
 
 
@@ -459,6 +472,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--quality-max", type=float, default=None, help="quality_score < (universe)")
     ap.add_argument("--source", default=None,
                     help="restrict to one source (universe sources[] membership / master source text)")
+    ap.add_argument("--new-since", default=None,
+                    help="net-new only: rows created at/after this ISO time "
+                         "(universe first_seen date / master created_at)")
     ap.add_argument("--len-max", type=int, default=None, help="sld_length <=")
     ap.add_argument("--no-numbers", action="store_true", help="exclude names containing digits")
     ap.add_argument("--reenrich", action="store_true",

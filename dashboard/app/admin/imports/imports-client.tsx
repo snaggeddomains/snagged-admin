@@ -15,6 +15,8 @@ type Preview = {
   sourceTotal: number;
 };
 
+type EnrichStatus = { eligible: number; enriched: number };
+
 type HistoryRow = {
   id?: string;
   target?: string;
@@ -24,6 +26,7 @@ type HistoryRow = {
   upserted?: number;
   removed?: number;
   backfilled?: boolean;
+  import_ts?: string | null;
   user_email?: string | null;
   created_at?: string;
 };
@@ -241,7 +244,7 @@ export default function ImportsClient({
         try {
           await post({
             action: "post-backfill", target, source: src,
-            enrich: autoEnrich, qualityMin: ENRICH_QUALITY_MIN,
+            enrich: autoEnrich, qualityMin: ENRICH_QUALITY_MIN, newSince: importTs,
           });
           backfilled = true;
           add(target === "universe"
@@ -287,10 +290,23 @@ export default function ImportsClient({
     const tgt: Target = r.target === "master" ? "master" : "universe";
     if (!r.source) return "error";
     try {
-      await post({ action: "post-backfill", target: tgt, source: r.source, enrich: true, qualityMin: ENRICH_QUALITY_MIN });
+      await post({ action: "post-backfill", target: tgt, source: r.source, enrich: true, qualityMin: ENRICH_QUALITY_MIN, newSince: r.import_ts || r.created_at });
       return "ok";
     } catch {
       return "error";
+    }
+  }
+
+  // Live enrichment progress for a past import's source (eligible q>=floor +
+  // how many are enriched). Null on error so the card can degrade gracefully.
+  async function fetchStatus(r: HistoryRow): Promise<EnrichStatus | null> {
+    const tgt: Target = r.target === "master" ? "master" : "universe";
+    if (!r.source) return null;
+    try {
+      const data = await post({ action: "enrich-status", target: tgt, source: r.source, qualityMin: ENRICH_QUALITY_MIN, newSince: r.import_ts || r.created_at });
+      return data.status as EnrichStatus;
+    } catch {
+      return null;
     }
   }
 
@@ -526,7 +542,7 @@ export default function ImportsClient({
         </div>
       </section>
 
-      <PastJobs rows={history} onRefresh={loadHistory} onDelete={deleteJob} onReenrich={reenrich} />
+      <PastJobs rows={history} onRefresh={loadHistory} onDelete={deleteJob} onReenrich={reenrich} onStatus={fetchStatus} />
     </main>
   );
 }
@@ -588,9 +604,11 @@ function Stat({ label, value, accent, warn }: { label: string; value: number; ac
 }
 
 function PastJobs({
-  rows, onRefresh, onDelete, onReenrich,
+  rows, onRefresh, onDelete, onReenrich, onStatus,
 }: {
-  rows: HistoryRow[]; onRefresh: () => void; onDelete: (id?: string) => void; onReenrich: (r: HistoryRow) => Promise<"ok" | "error">;
+  rows: HistoryRow[]; onRefresh: () => void; onDelete: (id?: string) => void;
+  onReenrich: (r: HistoryRow) => Promise<"ok" | "error">;
+  onStatus: (r: HistoryRow) => Promise<EnrichStatus | null>;
 }) {
   return (
     <section style={{ marginTop: 28 }}>
@@ -607,7 +625,7 @@ function PastJobs({
         <p className="muted" style={{ fontSize: 13.5 }}>No imports logged yet.</p>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {rows.map((r, i) => <JobCard key={r.id || i} r={r} onDelete={onDelete} onReenrich={onReenrich} />)}
+          {rows.map((r, i) => <JobCard key={r.id || i} r={r} onDelete={onDelete} onReenrich={onReenrich} onStatus={onStatus} />)}
         </div>
       )}
     </section>
@@ -615,17 +633,25 @@ function PastJobs({
 }
 
 function JobCard({
-  r, onDelete, onReenrich,
+  r, onDelete, onReenrich, onStatus,
 }: {
-  r: HistoryRow; onDelete: (id?: string) => void; onReenrich: (r: HistoryRow) => Promise<"ok" | "error">;
+  r: HistoryRow; onDelete: (id?: string) => void;
+  onReenrich: (r: HistoryRow) => Promise<"ok" | "error">;
+  onStatus: (r: HistoryRow) => Promise<EnrichStatus | null>;
 }) {
   const [state, setState] = useState<"idle" | "busy" | "ok" | "error">("idle");
+  const [status, setStatus] = useState<EnrichStatus | null | "loading">("loading");
   const counts = [
-    `${(r.upserted ?? 0).toLocaleString()} upserted`,
+    `${(r.upserted ?? 0).toLocaleString()} inserted`,
     (r.removed ?? 0) > 0 ? `${(r.removed ?? 0).toLocaleString()} removed` : null,
-    `${(r.parsed ?? 0).toLocaleString()} parsed`,
   ].filter(Boolean).join(" · ");
   const dbLabel = r.target === "master" ? "Master Domain List" : "name_universe";
+
+  const loadStatus = useCallback(() => {
+    setStatus("loading");
+    onStatus(r).then((s) => setStatus(s));
+  }, [onStatus, r]);
+  useEffect(() => { loadStatus(); }, [loadStatus]);
 
   async function reenrich() {
     const ok = window.confirm(
@@ -634,8 +660,13 @@ function JobCard({
     );
     if (!ok) return;
     setState("busy");
-    setState(await onReenrich(r));
+    const res = await onReenrich(r);
+    setState(res);
+    if (res === "ok") setTimeout(loadStatus, 1500);
   }
+
+  // Age in hours, to distinguish "still processing" from "should be done by now".
+  const ageH = r.created_at ? (Date.now() - new Date(r.created_at).getTime()) / 3.6e6 : 0;
 
   return (
     <div className="card card--flat" style={{ padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
@@ -647,11 +678,11 @@ function JobCard({
           <span>{r.mode === "replace" ? "Replace" : "Merge"}</span>
           <span>·</span>
           <span>{counts}</span>
-          {r.backfilled && <><span>·</span><span style={{ color: "var(--navy-2)" }}>backfill dispatched</span></>}
           <span>·</span>
           <span>{fmtTime(r.created_at)}</span>
           {r.user_email && <><span>·</span><span>{r.user_email.split("@")[0]}</span></>}
         </div>
+        <EnrichLine status={status} ageH={ageH} backfilled={Boolean(r.backfilled)} />
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 10, flex: "none" }}>
         {state === "ok" ? (
@@ -679,6 +710,44 @@ function JobCard({
       </div>
     </div>
   );
+}
+
+function EnrichLine({
+  status, ageH, backfilled,
+}: {
+  status: EnrichStatus | null | "loading"; ageH: number; backfilled: boolean;
+}) {
+  const base: React.CSSProperties = { fontSize: 12.5, marginTop: 6, display: "flex", alignItems: "center", gap: 7 };
+  if (status === "loading") return <div style={{ ...base, color: "var(--navy-3)" }}>checking enrichment…</div>;
+  if (status === null) return <div style={{ ...base, color: "var(--navy-3)" }}>enrichment status unavailable</div>;
+
+  const { eligible, enriched } = status;
+  if (eligible === 0) {
+    return (
+      <div style={{ ...base, color: "var(--navy-3)" }}>
+        <Dot color="#cbd5e1" /> no net-new names ≥ q1 {backfilled ? "" : "(backfill pending)"}
+      </div>
+    );
+  }
+  const done = enriched >= eligible;
+  const stalled = !done && enriched === 0 && ageH >= 24; // should've collected by now
+  const color = done ? "#1f9d55" : stalled ? "var(--coral-deep)" : "#caa300";
+  const icon = done ? "✓" : stalled ? "✗" : "⏳";
+  const label = done
+    ? `enriched ${enriched.toLocaleString()}/${eligible.toLocaleString()}`
+    : stalled
+      ? `0/${eligible.toLocaleString()} — not enriched (check / re-enrich)`
+      : `${enriched.toLocaleString()}/${eligible.toLocaleString()} enriched (in progress)`;
+  return (
+    <div style={{ ...base, color, fontWeight: 600 }}>
+      <span aria-hidden style={{ fontSize: 13 }}>{icon}</span>
+      <span>Net-new q≥1: {eligible.toLocaleString()} · {label}</span>
+    </div>
+  );
+}
+
+function Dot({ color }: { color: string }) {
+  return <span style={{ width: 9, height: 9, borderRadius: "50%", background: color, display: "inline-block" }} />;
 }
 
 function fmtTime(iso?: string): string {

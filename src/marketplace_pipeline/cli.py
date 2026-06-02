@@ -141,6 +141,8 @@ def cmd_enrich(args: argparse.Namespace) -> int:
         argv.append("--reenrich")
     if getattr(args, "source", None):
         argv += ["--source", args.source]
+    if getattr(args, "new_since", None):
+        argv += ["--new-since", args.new_since]
     return _run(argv)
 
 
@@ -181,6 +183,8 @@ def cmd_enrich_batch(args: argparse.Namespace) -> int:
         argv += ["--batch-id", args.batch_id]
     if getattr(args, "source", None):
         argv += ["--source", args.source]
+    if getattr(args, "new_since", None):
+        argv += ["--new-since", args.new_since]
     if getattr(args, "min_batch_saving", None) is not None:
         argv += ["--min-batch-saving", str(args.min_batch_saving)]
     return _run(argv)
@@ -286,6 +290,8 @@ def main(argv: list[str] | None = None) -> int:
     p_en.add_argument("--source", default=None,
                       help="restrict to one source (universe sources[] membership / "
                            "master source text)")
+    p_en.add_argument("--new-since", default=None,
+                      help="net-new only: rows created at/after this ISO time")
     p_en.set_defaults(func=cmd_enrich)
 
     p_eb = sub.add_parser(
@@ -323,6 +329,8 @@ def main(argv: list[str] | None = None) -> int:
     p_eb.add_argument("--source", default=None,
                       help="restrict to one source (universe sources[] membership / "
                            "master source text)")
+    p_eb.add_argument("--new-since", default=None,
+                      help="net-new only: rows created at/after this ISO time")
     p_eb.add_argument("--min-batch-saving", type=float, default=None,
                       help="auto: only use the async batch when its estimated $ "
                            "saving clears this (else run realtime now; default 5)")

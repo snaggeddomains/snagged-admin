@@ -12,6 +12,7 @@ import {
   previewImport,
   countExisting,
   countSourceRows,
+  enrichStatus,
   logImport,
   listImports,
   listImportSources,
@@ -87,6 +88,7 @@ export async function POST(req: NextRequest) {
     // post-backfill options
     enrich?: boolean;
     qualityMin?: number | string;
+    newSince?: string;
     // log fields
     parsed?: number;
     upserted?: number;
@@ -131,6 +133,10 @@ export async function POST(req: NextRequest) {
       const count = await countSourceRows(target, source);
       return NextResponse.json({ ok: true, count });
     }
+    if (body.action === "enrich-status") {
+      const status = await enrichStatus(target, source, Number(body.qualityMin) || 1, body.newSince);
+      return NextResponse.json({ ok: true, status });
+    }
     if (body.action === "preview") {
       const rows = Array.isArray(body.rows) ? body.rows : [];
       const preview = await previewImport(target, source, rows, mode);
@@ -153,6 +159,9 @@ export async function POST(req: NextRequest) {
         inputs.then_enrich = "true";
         inputs.enrich_quality_min = floor;
         inputs.enrich_source = source;
+        // Net-new only: enrich rows created at/after the import (never re-enrich
+        // names that already existed). Falls back to all-eligible if absent.
+        if (body.newSince) inputs.enrich_new_since = String(body.newSince);
       }
       const r = await dispatchWorkflow(file, inputs);
       if (!r.ok) return NextResponse.json({ error: r.error || "dispatch failed" }, { status: 502 });
@@ -167,6 +176,7 @@ export async function POST(req: NextRequest) {
         upserted: Number(body.upserted) || 0,
         removed: Number(body.removed) || 0,
         backfilled: Boolean(body.backfilled),
+        import_ts: body.importTs ? String(body.importTs) : null,
         user_email: me.email ?? null,
       });
       return NextResponse.json({ ok: true });

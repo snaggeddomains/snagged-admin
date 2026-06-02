@@ -262,6 +262,31 @@ export async function countSourceRows(target: Target, source: string): Promise<n
   return count ?? 0;
 }
 
+export type EnrichStatus = {
+  eligible: number; // rows for this source with quality_score >= the enrich floor
+  enriched: number; // of those, how many are LLM-enriched (category not null)
+};
+
+/** Live enrichment progress for a source: of the NET-NEW names from an import
+ *  (created at/after `since`) that qualify (quality_score >= floor), how many
+ *  are already enriched. Net-new mirrors the enrich selection — universe by
+ *  first_seen (date), master by created_at — so pre-existing names are excluded. */
+export async function enrichStatus(target: Target, source: string, floor = 1, since?: string): Promise<EnrichStatus> {
+  const table = target === "master" ? MASTER_TABLE : "name_universe";
+  const db = target === "master" ? getMasterlistDb() : getNamingDb();
+  const scoped = () => {
+    let q = db.from(table).select("domain", { count: "exact", head: true }).gte("quality_score", floor);
+    q = target === "master" ? q.eq("source", source) : q.contains("sources", [source]);
+    if (since) q = target === "master" ? q.gte("created_at", since) : q.gte("first_seen", since.slice(0, 10));
+    return q;
+  };
+  const { count: eligible, error: e1 } = await scoped();
+  if (e1) throw new Error(`enrich status: ${e1.message || e1.code || "request failed"}`);
+  const { count: enriched, error: e2 } = await scoped().not("category", "is", null);
+  if (e2) throw new Error(`enrich status: ${e2.message || e2.code || "request failed"}`);
+  return { eligible: eligible ?? 0, enriched: enriched ?? 0 };
+}
+
 export type ImportLogRow = {
   target: Target;
   source: string;
@@ -270,6 +295,7 @@ export type ImportLogRow = {
   upserted: number;
   removed: number;
   backfilled?: boolean;
+  import_ts?: string | null;
   user_email?: string | null;
 };
 
@@ -287,6 +313,7 @@ export async function logImport(entry: ImportLogRow): Promise<void> {
         upserted: entry.upserted,
         removed: entry.removed,
         backfilled: entry.backfilled ?? false,
+        import_ts: entry.import_ts ?? null,
         user_email: entry.user_email ?? null,
       });
     if (error) console.warn(`logImport: ${error.message}`);

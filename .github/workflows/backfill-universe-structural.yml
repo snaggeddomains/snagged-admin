@@ -22,6 +22,9 @@ on:
       enrich_source:
         description: Limit the auto-enrich to this source (blank = all eligible)
         default: ""
+      enrich_new_since:
+        description: Net-new only — enrich rows created at/after this ISO time (blank = all)
+        default: ""
 
 permissions:
   contents: write
@@ -51,12 +54,14 @@ jobs:
       - name: Auto-enrich new names (quality-banded, Batches API)
         if: ${{ github.event.inputs.then_enrich == 'true' }}
         env:
-          ENRICH_QMIN: ${{ github.event.inputs.enrich_quality_min }}
-          ENRICH_SRC:  ${{ github.event.inputs.enrich_source }}
+          ENRICH_QMIN:  ${{ github.event.inputs.enrich_quality_min }}
+          ENRICH_SRC:   ${{ github.event.inputs.enrich_source }}
+          ENRICH_SINCE: ${{ github.event.inputs.enrich_new_since }}
         run: |
           args=(auto --commit --target universe --min-batch-saving 5)
-          [ -n "$ENRICH_QMIN" ] && args+=(--quality-min "$ENRICH_QMIN")
-          [ -n "$ENRICH_SRC" ]  && args+=(--source "$ENRICH_SRC")
+          [ -n "$ENRICH_QMIN" ]  && args+=(--quality-min "$ENRICH_QMIN")
+          [ -n "$ENRICH_SRC" ]   && args+=(--source "$ENRICH_SRC")
+          [ -n "$ENRICH_SINCE" ] && args+=(--new-since "$ENRICH_SINCE")
           pipeline enrich-batch "${args[@]}"
       - name: Commit enrich-batch state
         if: ${{ success() && github.event.inputs.then_enrich == 'true' }}
