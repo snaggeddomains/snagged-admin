@@ -32,6 +32,7 @@ export const ACTIONS = [
   "research.report_deep", // deep vs shallow report tier
   "admin.users.manage", // user + permission administration
   "admin.sources.edit", // edit source registry / schedules
+  "admin.lessons.approve", // curate (approve/edit/delete) playbook lessons
 ] as const;
 export type ActionKey = (typeof ACTIONS)[number];
 
@@ -73,6 +74,7 @@ export const CATALOG: CatalogEntry[] = [
   { key: "admin.users.manage", label: "Manage users & permissions", group: "Admin", kind: "action" },
   { key: "admin.sources.edit", label: "Edit sources & schedules", group: "Admin", kind: "action" },
   { key: "admin.imports", label: "Imports", group: "Admin", kind: "module" },
+  { key: "admin.lessons.approve", label: "Lesson Approval", group: "Admin", kind: "action" },
   { key: "research.domain_owner", label: "Domain Owner research", group: "Research", kind: "module" },
   { key: "research.trademark", label: "Trademark", group: "Research", kind: "module" },
   { key: "research.appraisal", label: "Appraisal", group: "Research", kind: "module" },
