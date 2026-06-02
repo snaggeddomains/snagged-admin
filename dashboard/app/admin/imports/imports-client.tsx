@@ -16,6 +16,7 @@ type Preview = {
 };
 
 type EnrichStatus = { netNew: number; eligible: number; enriched: number };
+type EnrichedDomain = { domain: string; quality_score: number | null; category: string | null; enriched: boolean };
 
 type HistoryRow = {
   id?: string;
@@ -310,6 +311,18 @@ export default function ImportsClient({
     }
   }
 
+  // The actual net-new qualifying domains for a past import + their enrich state.
+  async function fetchEnrichedList(r: HistoryRow): Promise<EnrichedDomain[] | null> {
+    const tgt: Target = r.target === "master" ? "master" : "universe";
+    if (!r.source) return null;
+    try {
+      const data = await post({ action: "enriched-list", target: tgt, source: r.source, qualityMin: ENRICH_QUALITY_MIN, newSince: r.import_ts || r.created_at });
+      return data.domains as EnrichedDomain[];
+    } catch {
+      return null;
+    }
+  }
+
   const targetReady = target === "universe" ? universeReady : masterReady;
   const pct = progress ? Math.round((progress.done / progress.total) * 100) : 0;
   const hasInput = parseRows(text).length > 0;
@@ -542,7 +555,7 @@ export default function ImportsClient({
         </div>
       </section>
 
-      <PastJobs rows={history} onRefresh={loadHistory} onDelete={deleteJob} onReenrich={reenrich} onStatus={fetchStatus} />
+      <PastJobs rows={history} onRefresh={loadHistory} onDelete={deleteJob} onReenrich={reenrich} onStatus={fetchStatus} onList={fetchEnrichedList} />
     </main>
   );
 }
@@ -604,11 +617,12 @@ function Stat({ label, value, accent, warn }: { label: string; value: number; ac
 }
 
 function PastJobs({
-  rows, onRefresh, onDelete, onReenrich, onStatus,
+  rows, onRefresh, onDelete, onReenrich, onStatus, onList,
 }: {
   rows: HistoryRow[]; onRefresh: () => void; onDelete: (id?: string) => void;
   onReenrich: (r: HistoryRow) => Promise<"ok" | "error">;
   onStatus: (r: HistoryRow) => Promise<EnrichStatus | null>;
+  onList: (r: HistoryRow) => Promise<EnrichedDomain[] | null>;
 }) {
   return (
     <section style={{ marginTop: 28 }}>
@@ -625,7 +639,7 @@ function PastJobs({
         <p className="muted" style={{ fontSize: 13.5 }}>No imports logged yet.</p>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {rows.map((r, i) => <JobCard key={r.id || i} r={r} onDelete={onDelete} onReenrich={onReenrich} onStatus={onStatus} />)}
+          {rows.map((r, i) => <JobCard key={r.id || i} r={r} onDelete={onDelete} onReenrich={onReenrich} onStatus={onStatus} onList={onList} />)}
         </div>
       )}
     </section>
@@ -633,14 +647,17 @@ function PastJobs({
 }
 
 function JobCard({
-  r, onDelete, onReenrich, onStatus,
+  r, onDelete, onReenrich, onStatus, onList,
 }: {
   r: HistoryRow; onDelete: (id?: string) => void;
   onReenrich: (r: HistoryRow) => Promise<"ok" | "error">;
   onStatus: (r: HistoryRow) => Promise<EnrichStatus | null>;
+  onList: (r: HistoryRow) => Promise<EnrichedDomain[] | null>;
 }) {
   const [state, setState] = useState<"idle" | "busy" | "ok" | "error">("idle");
   const [status, setStatus] = useState<EnrichStatus | null | "loading">("loading");
+  const [listOpen, setListOpen] = useState(false);
+  const [list, setList] = useState<EnrichedDomain[] | null | "loading">(null);
   const counts = [
     `${(r.upserted ?? 0).toLocaleString()} inserted`,
     (r.removed ?? 0) > 0 ? `${(r.removed ?? 0).toLocaleString()} removed` : null,
@@ -665,11 +682,22 @@ function JobCard({
     if (res === "ok") setTimeout(loadStatus, 1500);
   }
 
+  function toggleList() {
+    const next = !listOpen;
+    setListOpen(next);
+    if (next && list === null) {
+      setList("loading");
+      onList(r).then((d) => setList(d));
+    }
+  }
+
   // Age in hours, to distinguish "still processing" from "should be done by now".
   const ageH = r.created_at ? (Date.now() - new Date(r.created_at).getTime()) / 3.6e6 : 0;
+  const hasEligible = status && status !== "loading" && status.eligible > 0;
 
   return (
-    <div className="card card--flat" style={{ padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+    <div className="card card--flat" style={{ padding: "16px 20px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
       <div style={{ minWidth: 0 }}>
         <div style={{ fontSize: 16, fontWeight: 700, color: "var(--navy)" }}>
           {r.source || "—"} <span className="muted" style={{ fontWeight: 400, fontSize: 13.5 }}>→ {dbLabel}</span>
@@ -683,6 +711,11 @@ function JobCard({
           {r.user_email && <><span>·</span><span>{r.user_email.split("@")[0]}</span></>}
         </div>
         <EnrichLine status={status} ageH={ageH} backfilled={Boolean(r.backfilled)} inserted={r.upserted ?? 0} />
+        {hasEligible && (
+          <LinkBtn onClick={toggleList}>
+            {listOpen ? "▾ hide domains" : `▸ view the ${(status as EnrichStatus).eligible.toLocaleString()} qualifying domains`}
+          </LinkBtn>
+        )}
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 10, flex: "none" }}>
         {state === "ok" ? (
@@ -707,6 +740,46 @@ function JobCard({
         >
           <TrashIcon />
         </button>
+      </div>
+      </div>
+      {listOpen && <DomainList list={list} />}
+    </div>
+  );
+}
+
+function DomainList({ list }: { list: EnrichedDomain[] | null | "loading" }) {
+  if (list === "loading") return <div className="muted" style={{ fontSize: 12.5, marginTop: 12 }}>loading domains…</div>;
+  if (list === null) return <div className="muted" style={{ fontSize: 12.5, marginTop: 12 }}>couldn’t load domains.</div>;
+  if (!list.length) return <div className="muted" style={{ fontSize: 12.5, marginTop: 12 }}>no qualifying domains.</div>;
+  return (
+    <div style={{ marginTop: 12, border: "1px solid var(--line, #e3ddcf)", borderRadius: 10, overflow: "hidden" }}>
+      <div style={{ maxHeight: 320, overflowY: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5 }}>
+          <thead>
+            <tr style={{ textAlign: "left", color: "var(--navy-3)", background: "var(--cream-2, #fbf7ec)", position: "sticky", top: 0 }}>
+              <th style={{ padding: "6px 12px" }}>Domain</th>
+              <th style={{ padding: "6px 12px", textAlign: "right" }}>Quality</th>
+              <th style={{ padding: "6px 12px" }}>Category</th>
+              <th style={{ padding: "6px 12px" }}>Enriched</th>
+            </tr>
+          </thead>
+          <tbody>
+            {list.map((d) => (
+              <tr key={d.domain} style={{ borderTop: "1px solid var(--line, #f1ece0)" }}>
+                <td style={{ padding: "6px 12px", fontFamily: "monospace", color: "var(--navy)" }}>{d.domain}</td>
+                <td style={{ padding: "6px 12px", textAlign: "right", color: "var(--navy-2)" }}>
+                  {d.quality_score != null ? d.quality_score.toFixed(2) : "—"}
+                </td>
+                <td style={{ padding: "6px 12px", color: "var(--navy-2)" }}>{d.category || "—"}</td>
+                <td style={{ padding: "6px 12px" }}>
+                  {d.enriched
+                    ? <span style={{ color: "#1f9d55", fontWeight: 700 }}>✓</span>
+                    : <span style={{ color: "#b8860b" }}>⏳</span>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

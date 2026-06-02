@@ -13,6 +13,7 @@ import {
   countExisting,
   countSourceRows,
   enrichStatus,
+  listEnrichedDomains,
   logImport,
   listImports,
   listImportSources,
@@ -136,6 +137,10 @@ export async function POST(req: NextRequest) {
     if (body.action === "enrich-status") {
       const status = await enrichStatus(target, source, Number(body.qualityMin) || 1, body.newSince);
       return NextResponse.json({ ok: true, status });
+    }
+    if (body.action === "enriched-list") {
+      const domains = await listEnrichedDomains(target, source, Number(body.qualityMin) || 1, body.newSince);
+      return NextResponse.json({ ok: true, domains });
     }
     if (body.action === "preview") {
       const rows = Array.isArray(body.rows) ? body.rows : [];

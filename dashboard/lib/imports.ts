@@ -292,6 +292,43 @@ export async function enrichStatus(target: Target, source: string, floor = 1, si
   return { netNew: netNew ?? 0, eligible: eligible ?? 0, enriched: enriched ?? 0 };
 }
 
+export type EnrichedDomain = {
+  domain: string;
+  quality_score: number | null;
+  category: string | null; // null = qualifies but not yet enriched
+  enriched: boolean;
+};
+
+/** The actual net-new, quality≥floor domains for a source (the ones that qualify
+ *  for enrichment), with their enrichment state — so you can see exactly what got
+ *  added and enriched. Highest quality first. */
+export async function listEnrichedDomains(
+  target: Target,
+  source: string,
+  floor = 1,
+  since?: string,
+  limit = 300,
+): Promise<EnrichedDomain[]> {
+  const table = target === "master" ? MASTER_TABLE : "name_universe";
+  const db = target === "master" ? getMasterlistDb() : getNamingDb();
+  let q = db.from(table).select("domain,quality_score,category").gte("quality_score", floor);
+  q = target === "master" ? q.eq("source", source) : q.contains("sources", [source]);
+  if (since) q = q.gte(target === "master" ? "created_at" : "first_seen", since.slice(0, 10));
+  q = q.order("quality_score", { ascending: false, nullsFirst: false }).limit(limit);
+  const { data, error } = await q;
+  if (error) throw new Error(`enriched list: ${error.message || error.code || "request failed"}`);
+  return (data ?? []).map((r) => {
+    const row = r as { domain?: unknown; quality_score?: unknown; category?: unknown };
+    const category = row.category != null ? String(row.category) : null;
+    return {
+      domain: String(row.domain || ""),
+      quality_score: typeof row.quality_score === "number" ? row.quality_score : null,
+      category,
+      enriched: category != null,
+    };
+  });
+}
+
 export type ImportLogRow = {
   target: Target;
   source: string;
