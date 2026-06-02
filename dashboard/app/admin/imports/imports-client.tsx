@@ -421,7 +421,9 @@ export default function ImportsClient({
                 <textarea
                   className="field"
                   rows={8}
-                  placeholder={"example.com\nbobby.com, 1995\n…"}
+                  placeholder={target === "master"
+                    ? "example.com, 99999, digimedia\nbobby.com, 1995, Acme Holdings\n…"
+                    : "example.com, 99999\nbobby.com, 1995\n…"}
                   value={text}
                   onChange={(e) => { setText(e.target.value); setFileName(null); setPreview(null); }}
                   style={{ width: "100%", fontFamily: "monospace", fontSize: 13 }}
