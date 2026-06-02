@@ -1,1 +1,1 @@
-{"batch_id": "msgbatch_01P2MCnXycKtHE8Ctk3kgsDo", "target": "master", "model": "claude-haiku-4-5-20251001", "submitted_at": "2026-06-02T03:23:10.050645+00:00", "n_requests": 6723, "status": "submitted"}
+{"batch_id": "msgbatch_01P2MCnXycKtHE8Ctk3kgsDo", "target": "master", "model": "claude-haiku-4-5-20251001", "submitted_at": "2026-06-02T03:23:10.050645+00:00", "n_requests": 6723, "status": "collected"}
