@@ -1,19 +1,7 @@
 [
   {
-    "domain": "bumars.com",
-    "price": 2200.0
-  },
-  {
-    "domain": "wtfest.com",
-    "price": 9695.0
-  },
-  {
-    "domain": "veewee.com",
-    "price": 40000.0
-  },
-  {
-    "domain": "trasos.com",
-    "price": 40000.0
+    "domain": "homemini.com",
+    "price": 3195.0
   },
   {
     "domain": "contracted.com",
@@ -30,22 +18,6 @@
   {
     "domain": "bounded.net",
     "price": 4495.0
-  },
-  {
-    "domain": "buffers.net",
-    "price": 2395.0
-  },
-  {
-    "domain": "recone.net",
-    "price": 3195.0
-  },
-  {
-    "domain": "snackers.net",
-    "price": 2195.0
-  },
-  {
-    "domain": "minefield.net",
-    "price": 2795.0
   },
   {
     "domain": "wessex.co",
