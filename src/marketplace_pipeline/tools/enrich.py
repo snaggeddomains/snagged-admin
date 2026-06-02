@@ -135,7 +135,7 @@ PASSTHROUGH = {
 # names. `--order` picks the key; we fall back to `domain` where a table lacks
 # the column. (col, ascending) per target.
 ORDERINGS = {
-    "quality": {"universe": ("quality_score", False), "master": ("price", False)},
+    "quality": {"universe": ("quality_score", False), "master": ("quality_score", False)},
     "price":   {"universe": ("best_price", False),    "master": ("price", False)},
     "domain":  {"universe": ("domain", True),         "master": ("domain", True)},
 }
@@ -157,12 +157,12 @@ def _apply_scope(q, target: str, args):
         q = q.eq("num_words", 1) if target == "universe" else q.eq("is_single_word", "Y")
     if args.dict_word:
         q = q.eq("is_dictionary_word", True) if target == "universe" else q.eq("dictionary_word", "Y")
-    # quality_score banding is universe-only (Master has no quality_score).
-    if target == "universe":
-        if getattr(args, "quality_min", None) is not None:
-            q = q.gte("quality_score", args.quality_min)
-        if getattr(args, "quality_max", None) is not None:
-            q = q.lt("quality_score", args.quality_max)
+    # quality_score banding now applies to BOTH corpora — Master's quality_score
+    # was backfilled 2026-06 with the same wordfreq×tld formula as Universe.
+    if getattr(args, "quality_min", None) is not None:
+        q = q.gte("quality_score", args.quality_min)
+    if getattr(args, "quality_max", None) is not None:
+        q = q.lt("quality_score", args.quality_max)
     # hygiene filters apply to both corpora
     if getattr(args, "len_max", None) is not None:
         q = q.lte("sld_length", args.len_max)
