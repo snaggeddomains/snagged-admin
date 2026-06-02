@@ -167,8 +167,20 @@ export default function ImportsClient({
     setPreviewing(true);
     setPreview(null);
     try {
-      const data = await post({ action: "preview", target, source: src, rows, mode });
-      setPreview(data.preview as Preview);
+      // Stream domain strings in batches so we never POST the whole file (413).
+      const domains = rows.map((r) => r.domain);
+      const parsed = domains.length;
+      const PCHUNK = 3000;
+      let existing = 0;
+      for (let i = 0; i < domains.length; i += PCHUNK) {
+        const data = await post({ action: "preview-existing", target, domains: domains.slice(i, i + PCHUNK) });
+        existing += Number(data.count || 0);
+      }
+      const st = await post({ action: "preview-source-total", target, source: src });
+      const sourceTotal = Number(st.count || 0);
+      const fresh = parsed - existing;
+      const removed = mode === "replace" ? Math.max(0, sourceTotal - existing) : 0;
+      setPreview({ parsed, invalid: 0, existing, fresh, removed, sourceTotal });
     } catch (e) {
       add(`❌ Preview: ${e instanceof Error ? e.message : String(e)}`);
     } finally {

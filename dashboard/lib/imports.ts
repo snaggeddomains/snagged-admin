@@ -223,6 +223,38 @@ export async function previewImport(
   return { parsed, invalid, existing, fresh, removed, sourceTotal };
 }
 
+/** Count how many of `domains` already exist in the target (one chunk).
+ *  Used by the chunked Preview so we never POST the whole file at once. */
+export async function countExisting(target: Target, domains: string[]): Promise<number> {
+  if (!domains.length) return 0;
+  const table = target === "master" ? MASTER_TABLE : "name_universe";
+  const db = target === "master" ? getMasterlistDb() : getNamingDb();
+  const { count, error } = await db
+    .from(table)
+    .select("domain", { count: "exact", head: true })
+    .in("domain", domains);
+  if (error) throw new Error(`count existing: ${error.message}`);
+  return count ?? 0;
+}
+
+/** Count rows currently tagged with `source` in the target (replace delete-pool). */
+export async function countSourceRows(target: Target, source: string): Promise<number> {
+  if (target === "master") {
+    const { count, error } = await getMasterlistDb()
+      .from(MASTER_TABLE)
+      .select("domain", { count: "exact", head: true })
+      .eq("source", source);
+    if (error) throw new Error(`count source: ${error.message}`);
+    return count ?? 0;
+  }
+  const { count, error } = await getNamingDb()
+    .from("name_universe")
+    .select("domain", { count: "exact", head: true })
+    .eq("sources", `{${source}}`);
+  if (error) throw new Error(`count source: ${error.message}`);
+  return count ?? 0;
+}
+
 export type ImportLogRow = {
   target: Target;
   source: string;

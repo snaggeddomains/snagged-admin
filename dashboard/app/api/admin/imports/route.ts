@@ -10,6 +10,8 @@ import {
   upsertMaster,
   finalizeReplace,
   previewImport,
+  countExisting,
+  countSourceRows,
   logImport,
   listImports,
   listImportSources,
@@ -77,6 +79,7 @@ export async function POST(req: NextRequest) {
     target?: string;
     source?: string;
     rows?: ImportRow[];
+    domains?: string[];
     mode?: string;
     importTs?: string;
     today?: string;
@@ -92,6 +95,8 @@ export async function POST(req: NextRequest) {
   } | null;
   if (!body) return NextResponse.json({ error: "Bad request" }, { status: 400 });
 
+  const target: Target = body.target === "master" ? "master" : "universe";
+
   // Deleting a history entry needs only an id (no source).
   if (body.action === "delete-log") {
     try {
@@ -102,7 +107,19 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const target: Target = body.target === "master" ? "master" : "universe";
+  // Chunked Preview: count how many of this batch of domains already exist.
+  // Takes only domain strings (no source), so the client can stream the file in
+  // small batches instead of POSTing it whole (which 413s on large imports).
+  if (body.action === "preview-existing") {
+    try {
+      const domains = Array.isArray(body.domains) ? body.domains : [];
+      const count = await countExisting(target, domains);
+      return NextResponse.json({ ok: true, count });
+    } catch (e) {
+      return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500 });
+    }
+  }
+
   const source = String(body.source || "").trim();
   if (!source) return NextResponse.json({ error: "Missing source name" }, { status: 400 });
   const importTs = String(body.importTs || new Date().toISOString());
@@ -110,6 +127,10 @@ export async function POST(req: NextRequest) {
   const mode: "merge" | "replace" = body.mode === "replace" ? "replace" : "merge";
 
   try {
+    if (body.action === "preview-source-total") {
+      const count = await countSourceRows(target, source);
+      return NextResponse.json({ ok: true, count });
+    }
     if (body.action === "preview") {
       const rows = Array.isArray(body.rows) ? body.rows : [];
       const preview = await previewImport(target, source, rows, mode);
