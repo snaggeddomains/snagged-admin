@@ -31,6 +31,9 @@ type HistoryRow = {
 const DOMAIN_RE = /^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}$/i;
 const PRICE_RE = /^\$?[\d,]+(\.\d+)?$/;
 const CHUNK = 1000;
+// Quality floor for the optional post-import LLM enrich (matches the >1 rollout
+// band). Passed to enrich-batch --quality-min (>=).
+const ENRICH_QUALITY_MIN = 1;
 
 // Parse pasted text OR a CSV file: one row per line, find the cell that looks
 // like a domain, an optional numeric price cell, and (for Master) an optional
@@ -78,6 +81,7 @@ export default function ImportsClient({
   const [preview, setPreview] = useState<Preview | null>(null);
   const [previewing, setPreviewing] = useState(false);
   const [autoBackfill, setAutoBackfill] = useState(true);
+  const [autoEnrich, setAutoEnrich] = useState(false);
   const [history, setHistory] = useState<HistoryRow[]>([]);
   const [sourcesUniverse, setSourcesUniverse] = useState<string[]>([]);
   const [sourcesMaster, setSourcesMaster] = useState<string[]>([]);
@@ -207,11 +211,17 @@ export default function ImportsClient({
       let backfilled = false;
       if (autoBackfill) {
         try {
-          await post({ action: "post-backfill", target, source: src });
+          await post({
+            action: "post-backfill", target, source: src,
+            enrich: autoEnrich, qualityMin: ENRICH_QUALITY_MIN,
+          });
           backfilled = true;
           add(target === "universe"
             ? "🔧 Dispatched structural + quality backfill for new universe rows."
             : "🔧 Dispatched quality-score backfill for new Master rows.");
+          if (autoEnrich) {
+            add(`🧠 Will auto-enrich new names with quality_score > ${ENRICH_QUALITY_MIN} after backfill (Batches API; collected by the 4h cron).`);
+          }
         } catch (e) {
           add(`⚠️ Backfill dispatch failed: ${e instanceof Error ? e.message : String(e)}`);
         }
@@ -416,10 +426,31 @@ export default function ImportsClient({
           </p>
         </div>
 
-        <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13.5, cursor: "pointer" }}>
-          <input type="checkbox" checked={autoBackfill} onChange={(e) => setAutoBackfill(e.target.checked)} />
-          Auto-run {target === "universe" ? "structural + quality" : "quality-score"} backfill after import
-        </label>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13.5, cursor: "pointer" }}>
+            <input
+              type="checkbox"
+              checked={autoBackfill}
+              onChange={(e) => { setAutoBackfill(e.target.checked); if (!e.target.checked) setAutoEnrich(false); }}
+            />
+            Auto-run {target === "universe" ? "structural + quality" : "quality-score"} backfill after import
+          </label>
+          <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13.5, cursor: autoBackfill ? "pointer" : "not-allowed", opacity: autoBackfill ? 1 : 0.5, marginLeft: 22 }}>
+            <input
+              type="checkbox"
+              checked={autoEnrich}
+              disabled={!autoBackfill}
+              onChange={(e) => setAutoEnrich(e.target.checked)}
+            />
+            Then LLM-enrich new names with quality_score &gt; {ENRICH_QUALITY_MIN} <span className="muted">(paid · Batches API)</span>
+          </label>
+          {autoEnrich && (
+            <p className="muted" style={{ fontSize: 12, margin: "0 0 0 22px", lineHeight: 1.4 }}>
+              After scores are computed, submits an enrich batch scoped to this source for names above the
+              floor that aren&apos;t enriched yet. Results are picked up by the existing 4-hour auto-collect.
+            </p>
+          )}
+        </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
           <button className="btn" onClick={onPreview} disabled={busy || previewing || !targetReady}

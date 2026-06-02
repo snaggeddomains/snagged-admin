@@ -168,6 +168,12 @@ def _apply_scope(q, target: str, args):
         q = q.lte("sld_length", args.len_max)
     if getattr(args, "no_numbers", False):
         q = q.not_.match("sld" if target == "universe" else "domain", "[0-9]")
+    # Restrict to one source (used by the import → auto-enrich chain, so a small
+    # import only enriches its own new names). Universe keeps a sources[] array
+    # (membership test); Master a single source text (exact match).
+    src = getattr(args, "source", None)
+    if src:
+        q = q.contains("sources", [src]) if target == "universe" else q.eq("source", src)
     return q
 
 
@@ -286,6 +292,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--dict-word", action="store_true", help="only dictionary-word names")
     ap.add_argument("--quality-min", type=float, default=None, help="quality_score >= (universe only)")
     ap.add_argument("--quality-max", type=float, default=None, help="quality_score < (universe only)")
+    ap.add_argument("--source", default=None,
+                    help="restrict to one source (universe sources[] membership / master source text)")
     ap.add_argument("--len-max", type=int, default=None, help="sld_length <=")
     ap.add_argument("--no-numbers", action="store_true", help="exclude names containing digits")
     ap.add_argument("--no-copy-overlap", action="store_true", help="skip the free cross-store copy step")

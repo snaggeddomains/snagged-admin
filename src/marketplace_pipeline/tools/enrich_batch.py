@@ -372,6 +372,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--dict-word", action="store_true", help="only dictionary-word names")
     ap.add_argument("--quality-min", type=float, default=None, help="quality_score >= (universe)")
     ap.add_argument("--quality-max", type=float, default=None, help="quality_score < (universe)")
+    ap.add_argument("--source", default=None,
+                    help="restrict to one source (universe sources[] membership / master source text)")
     ap.add_argument("--len-max", type=int, default=None, help="sld_length <=")
     ap.add_argument("--no-numbers", action="store_true", help="exclude names containing digits")
     ap.add_argument("--reenrich", action="store_true",

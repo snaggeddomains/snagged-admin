@@ -71,6 +71,9 @@ export async function POST(req: NextRequest) {
     mode?: string;
     importTs?: string;
     today?: string;
+    // post-backfill options
+    enrich?: boolean;
+    qualityMin?: number | string;
     // log fields
     parsed?: number;
     upserted?: number;
@@ -100,9 +103,19 @@ export async function POST(req: NextRequest) {
       // Recompute structural + quality scores for the freshly-imported rows.
       const file = target === "master" ? BACKFILL_MASTER : BACKFILL_UNIVERSE;
       const inputs: Record<string, string> = target === "master" ? { commit: "true" } : {};
+      // Optionally chain a quality-banded LLM enrich-batch AFTER the backfill,
+      // scoped to this source so only its new names are charged.
+      if (body.enrich) {
+        const floor = body.qualityMin != null && String(body.qualityMin).trim() !== ""
+          ? String(body.qualityMin)
+          : "";
+        inputs.then_enrich = "true";
+        inputs.enrich_quality_min = floor;
+        inputs.enrich_source = source;
+      }
       const r = await dispatchWorkflow(file, inputs);
       if (!r.ok) return NextResponse.json({ error: r.error || "dispatch failed" }, { status: 502 });
-      return NextResponse.json({ ok: true, dispatched: file });
+      return NextResponse.json({ ok: true, dispatched: file, enriching: Boolean(body.enrich) });
     }
     if (body.action === "log") {
       await logImport({

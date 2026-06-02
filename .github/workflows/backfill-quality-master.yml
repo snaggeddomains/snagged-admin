@@ -6,6 +6,9 @@ name: Backfill quality_score (Master Domain List)
 # exercise rank Master candidates by the same quality signal as the universe.
 #
 # Dry-run by DEFAULT (preview counts only) — flip `commit` to true to write.
+# When dispatched by the admin Imports tool with then_enrich=true, it chains a
+# quality-banded LLM enrich-batch submit AFTER the score is written, scoped to
+# the just-imported source so only its new names are charged.
 # Prereq SQL (run once in the masterlist project):
 #   alter table "Master Domain List" add column if not exists quality_score double precision;
 #   create index if not exists idx_master_quality
@@ -20,9 +23,19 @@ on:
       max_rows:
         description: Cap rows processed this run (blank = all)
         default: ""
+      then_enrich:
+        description: After backfill, submit a quality-banded enrich batch for the new names
+        type: boolean
+        default: false
+      enrich_quality_min:
+        description: quality_score floor for the auto-enrich (blank = no floor)
+        default: ""
+      enrich_source:
+        description: Limit the auto-enrich to this source (blank = all eligible)
+        default: ""
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: backfill-quality-master
@@ -32,15 +45,30 @@ jobs:
   run:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    env:
+      ANTHROPIC_API_KEY:              ${{ secrets.ANTHROPIC_API_KEY }}
+      MASTERLIST_SUPABASE_URL:        ${{ secrets.MASTERLIST_SUPABASE_URL }}
+      MASTERLIST_SUPABASE_SECRET_KEY: ${{ secrets.MASTERLIST_SUPABASE_SECRET_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
       - name: Backfill quality_score (Master)
-        env:
-          MASTERLIST_SUPABASE_URL:        ${{ secrets.MASTERLIST_SUPABASE_URL }}
-          MASTERLIST_SUPABASE_SECRET_KEY: ${{ secrets.MASTERLIST_SUPABASE_SECRET_KEY }}
         run: |
           pipeline backfill-structural \
             --target master \
             ${{ github.event.inputs.max_rows != '' && format('--max-rows {0}', github.event.inputs.max_rows) || '' }} \
             ${{ github.event.inputs.commit == 'true' && '--commit' || '' }}
+
+      # Optional second leg: enrich the freshly-scored, freshly-imported names.
+      # Runs only when the import asked for it AND we actually wrote scores.
+      - name: Auto-enrich new names (quality-banded, Batches API)
+        if: ${{ github.event.inputs.then_enrich == 'true' && github.event.inputs.commit == 'true' }}
+        run: |
+          pipeline enrich-batch submit --commit --target master \
+            ${{ github.event.inputs.enrich_quality_min != '' && format('--quality-min {0}', github.event.inputs.enrich_quality_min) || '' }} \
+            ${{ github.event.inputs.enrich_source != '' && format('--source {0}', github.event.inputs.enrich_source) || '' }}
+      - name: Commit enrich-batch state
+        if: ${{ success() && github.event.inputs.then_enrich == 'true' && github.event.inputs.commit == 'true' }}
+        uses: ./.github/actions/commit-state
+        with:
+          message: "enrich-batch: auto-submit after master import"
