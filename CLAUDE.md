@@ -50,6 +50,10 @@ Written **only** by this pipeline (`universe/supabase_writer.py` →
   Master is consolidated in). Output casing matches the search filters: emotions
   Title-cased, keywords/industries lowercase. Default model
   `claude-haiku-4-5-20251001` (override via `--model` / `ENRICHMENT_MODEL`).
+  Scope flags narrow the slice (`--tld com --single-word --dict-word`) and
+  `--order` prioritizes (universe defaults to `quality_score` desc). Starting
+  strategy: one-word dictionary `.com` first (`enrich --target universe --tld com
+  --single-word --dict-word`).
   **One-time setup SQL** (run in each project):
   ```sql
   -- name_universe (naming project)

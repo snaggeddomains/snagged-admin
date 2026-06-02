@@ -100,6 +100,14 @@ def cmd_enrich(args: argparse.Namespace) -> int:
         argv += ["--batch", str(args.batch)]
     if args.model is not None:
         argv += ["--model", args.model]
+    if args.order is not None:
+        argv += ["--order", args.order]
+    if args.tld is not None:
+        argv += ["--tld", args.tld]
+    if args.single_word:
+        argv.append("--single-word")
+    if args.dict_word:
+        argv.append("--dict-word")
     if args.no_copy_overlap:
         argv.append("--no-copy-overlap")
     if args.retry_failed:
@@ -178,6 +186,11 @@ def main(argv: list[str] | None = None) -> int:
     p_en.add_argument("--max-rows", type=int, default=None, help="cap rows processed this run")
     p_en.add_argument("--batch", type=int, default=None, help="domains per LLM call")
     p_en.add_argument("--model", default=None, help="override enrichment model")
+    p_en.add_argument("--order", choices=["quality", "price", "domain"], default=None,
+                      help="row priority (default: universe=quality, master=domain)")
+    p_en.add_argument("--tld", default=None, help="restrict to a TLD (e.g. com)")
+    p_en.add_argument("--single-word", action="store_true", help="only one-word names")
+    p_en.add_argument("--dict-word", action="store_true", help="only dictionary-word names")
     p_en.add_argument("--no-copy-overlap", action="store_true",
                       help="skip the free cross-store copy of already-enriched domains")
     p_en.add_argument("--retry-failed", action="store_true",

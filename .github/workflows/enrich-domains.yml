@@ -25,6 +25,22 @@ on:
       model:
         description: Enrichment model (blank = default)
         default: ""
+      order:
+        description: Row priority (blank = universe:quality, master:domain)
+        type: choice
+        options: ["", quality, price, domain]
+        default: ""
+      tld:
+        description: Restrict to a TLD (e.g. com; blank = all)
+        default: ""
+      single_word:
+        description: Only one-word names
+        type: boolean
+        default: false
+      dict_word:
+        description: Only dictionary-word names
+        type: boolean
+        default: false
       retry_failed:
         description: Revisit rows attempted before but still empty
         type: boolean
@@ -57,5 +73,9 @@ jobs:
             --max-rows "${{ github.event.inputs.max_rows }}" \
             --batch "${{ github.event.inputs.batch }}" \
             ${{ github.event.inputs.model != '' && format('--model {0}', github.event.inputs.model) || '' }} \
+            ${{ github.event.inputs.order != '' && format('--order {0}', github.event.inputs.order) || '' }} \
+            ${{ github.event.inputs.tld != '' && format('--tld {0}', github.event.inputs.tld) || '' }} \
+            ${{ github.event.inputs.single_word == 'true' && '--single-word' || '' }} \
+            ${{ github.event.inputs.dict_word == 'true' && '--dict-word' || '' }} \
             ${{ github.event.inputs.commit == 'true' && '--commit' || '' }} \
             ${{ github.event.inputs.retry_failed == 'true' && '--retry-failed' || '' }}

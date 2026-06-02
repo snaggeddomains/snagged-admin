@@ -94,6 +94,30 @@ TARGETS = {
     "master": (_master_client, "Master Domain List", True),
 }
 
+# Process the most valuable rows first so a budget-capped run spends on good
+# names. `--order` picks the key; we fall back to `domain` where a table lacks
+# the column. (col, ascending) per target.
+ORDERINGS = {
+    "quality": {"universe": ("quality_score", False), "master": ("price", False)},
+    "price":   {"universe": ("best_price", False),    "master": ("price", False)},
+    "domain":  {"universe": ("domain", True),         "master": ("domain", True)},
+}
+DEFAULT_ORDER = {"universe": "quality", "master": "domain"}
+
+
+def _apply_scope(q, target: str, args):
+    """Narrow the selection to a slice (e.g. one-word dictionary .com), mapping
+    flags to each table's columns. Universe uses num_words/is_dictionary_word
+    (bool); Master uses is_single_word/dictionary_word (TEXT 'Y')."""
+    if args.tld:
+        t = args.tld.lower().lstrip(".")
+        q = q.in_("tld", [t, "." + t]).not_.like("domain", "%.%.%")  # clean sld.tld only
+    if args.single_word:
+        q = q.eq("num_words", 1) if target == "universe" else q.eq("is_single_word", "Y")
+    if args.dict_word:
+        q = q.eq("is_dictionary_word", True) if target == "universe" else q.eq("dictionary_word", "Y")
+    return q
+
 
 def _norm_list(v, *, lower: bool) -> list[str]:
     """Coerce model output to a clean list[str] with consistent casing."""
@@ -198,6 +222,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--batch", type=int, default=25, help="domains per LLM call")
     ap.add_argument("--model", default=os.environ.get("ENRICHMENT_MODEL", DEFAULT_MODEL))
     ap.add_argument("--max-tokens", type=int, default=4000, help="output token ceiling per call")
+    ap.add_argument("--order", choices=list(ORDERINGS), default=None,
+                    help="row priority (default: universe=quality, master=domain)")
+    ap.add_argument("--tld", default=None, help="restrict to a TLD (e.g. com)")
+    ap.add_argument("--single-word", action="store_true", help="only one-word names")
+    ap.add_argument("--dict-word", action="store_true", help="only dictionary-word names")
     ap.add_argument("--no-copy-overlap", action="store_true", help="skip the free cross-store copy step")
     ap.add_argument("--retry-failed", action="store_true",
                     help="revisit rows attempted before but still empty (enriched_at set, category null)")
@@ -215,10 +244,20 @@ def main(argv: list[str] | None = None) -> int:
     other_factory, other_table, _ = TARGETS[other_key]
     other_client = None if args.no_copy_overlap else other_factory()
 
+    order_key = args.order or DEFAULT_ORDER[args.target]
+    order_col, order_asc = ORDERINGS[order_key][args.target]
+
+    scope = ", ".join(filter(None, [
+        f"tld={args.tld}" if args.tld else None,
+        "single-word" if args.single_word else None,
+        "dict-word" if args.dict_word else None,
+    ])) or "all rows"
+
     model = args.model
     rate = RATES.get(model)
     print(f"enrich → {table} (model={model}, {'COMMIT' if args.commit else 'DRY-RUN'}, "
-          f"max_rows={args.max_rows}, batch={args.batch})")
+          f"max_rows={args.max_rows}, batch={args.batch}, order={order_key} "
+          f"[{order_col} {'asc' if order_asc else 'desc'}], scope: {scope})")
 
     anthropic_client = None
     if args.commit:
@@ -235,14 +274,10 @@ def main(argv: list[str] | None = None) -> int:
 
     while processed < args.max_rows:
         limit = min(args.batch, args.max_rows - processed)
-        q = (
-            client.table(table)
-            .select("domain")
-            .is_("category", "null")
-            .order("domain")
-            .limit(limit)
-        )
+        q = client.table(table).select("domain").is_("category", "null")
+        q = _apply_scope(q, args.target, args)
         q = q.not_.is_("enriched_at", "null") if args.retry_failed else q.is_("enriched_at", "null")
+        q = q.order(order_col, desc=not order_asc, nullsfirst=False).limit(limit)
         rows = q.execute().data or []
         if not rows:
             break
