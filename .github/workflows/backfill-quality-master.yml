@@ -1,0 +1,46 @@
+name: Backfill quality_score (Master Domain List)
+
+# Compute the structural quality_score on the Master Domain List using the SAME
+# formula as name_universe ingest (round(zipf_frequency(sld,'en') * tld_weight, 2)).
+# Master is imported externally and never got the score; this lets the naming
+# exercise rank Master candidates by the same quality signal as the universe.
+#
+# Dry-run by DEFAULT (preview counts only) — flip `commit` to true to write.
+# Prereq SQL (run once in the masterlist project):
+#   alter table "Master Domain List" add column if not exists quality_score double precision;
+#   create index if not exists idx_master_quality
+#     on "Master Domain List" (quality_score desc nulls last);
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: Actually write quality_score (otherwise dry-run preview)
+        type: boolean
+        default: false
+      max_rows:
+        description: Cap rows processed this run (blank = all)
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backfill-quality-master
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Backfill quality_score (Master)
+        env:
+          MASTERLIST_SUPABASE_URL:        ${{ secrets.MASTERLIST_SUPABASE_URL }}
+          MASTERLIST_SUPABASE_SECRET_KEY: ${{ secrets.MASTERLIST_SUPABASE_SECRET_KEY }}
+        run: |
+          pipeline backfill-structural \
+            --target master \
+            ${{ github.event.inputs.max_rows != '' && format('--max-rows {0}', github.event.inputs.max_rows) || '' }} \
+            ${{ github.event.inputs.commit == 'true' && '--commit' || '' }}

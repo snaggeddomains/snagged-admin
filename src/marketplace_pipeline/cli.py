@@ -86,7 +86,12 @@ def cmd_universe_sync(args: argparse.Namespace) -> int:
 
 def cmd_backfill_structural(args: argparse.Namespace) -> int:
     from .tools.backfill_structural import main as _run
-    return _run()
+    argv: list[str] = ["--target", args.target]
+    if args.commit:
+        argv.append("--commit")
+    if args.max_rows is not None:
+        argv += ["--max-rows", str(args.max_rows)]
+    return _run(argv)
 
 
 def cmd_enrich(args: argparse.Namespace) -> int:
@@ -219,8 +224,15 @@ def main(argv: list[str] | None = None) -> int:
     p_bf = sub.add_parser(
         "backfill-structural",
         help="Fill missing wordfreq structural fields (num_words/syllables/dictionary/"
-             "zipf/scores) on name_universe rows where num_syllables IS NULL",
+             "zipf/scores) on name_universe rows where num_syllables IS NULL; "
+             "--target master fills quality_score on the Master Domain List",
     )
+    p_bf.add_argument("--target", choices=["universe", "master"], default="universe",
+                      help="universe = full structural backfill (default); "
+                           "master = quality_score only")
+    p_bf.add_argument("--commit", action="store_true",
+                      help="master: actually write (default dry-run)")
+    p_bf.add_argument("--max-rows", type=int, default=None, help="master: cap rows processed")
     p_bf.set_defaults(func=cmd_backfill_structural)
 
     p_en = sub.add_parser(

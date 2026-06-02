@@ -19,6 +19,7 @@ Speed tip: a partial index makes the scan touch only unprocessed rows —
 """
 from __future__ import annotations
 
+import argparse
 import sys
 
 from .. import scoring
@@ -65,7 +66,7 @@ def _row_update(r: dict) -> dict:
     }
 
 
-def main(argv: list[str] | None = None) -> int:
+def _run_universe() -> int:
     client = _client_or_none()
     if client is None:
         print("backfill-structural: SUPABASE_NAMING_URL / SUPABASE_NAMING_SERVICE_KEY not set — skipping.")
@@ -98,6 +99,104 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"DONE — backfilled {total:,} rows.")
     return 0
+
+
+def _master_quality(domain: str, tld: str | None) -> float | None:
+    """quality_score for a Master Domain List row, using the SAME formula as
+    name_universe ingest: round(zipf_frequency(sld,'en') * tld_weight(tld), 2).
+
+    Master has no `sld` column, so derive it by stripping the TLD off the domain.
+    Only clean single-label, alphabetic SLDs are scoreable (matches universe,
+    which returns NULL for non-alpha SLDs); multi-label hosts (a.b.com) → None.
+    An unknown TLD weighs 0.0, so the score is 0.0 — same as universe.
+    """
+    domain = (domain or "").strip().lower()
+    tld_bare = (tld or "").strip().lower().lstrip(".")
+    if tld_bare and domain.endswith("." + tld_bare):
+        sld = domain[: -(len(tld_bare) + 1)]
+    else:
+        sld, _, _ = domain.partition(".")
+    if not sld or "." in sld or not sld.isalpha():
+        return None
+    zipf = float(flt.freq(sld))
+    weight = scoring.tld_weight(tld_bare)
+    return round(scoring.quality_score(zipf, weight), 2)
+
+
+def _run_master(args: argparse.Namespace) -> int:
+    """Backfill ONLY quality_score on the Master Domain List (it's imported
+    externally and never got the structural score). Leaves Master's curated
+    number_of_words / is_single_word / dictionary_word columns untouched — we
+    only add the score the naming exercise ranks on. Dry-run unless --commit.
+
+    Requires the column first (run in the masterlist project):
+        alter table "Master Domain List" add column if not exists quality_score double precision;
+        create index if not exists idx_master_quality
+          on "Master Domain List" (quality_score desc nulls last);
+    """
+    from .enrich import _master_client
+
+    client = _master_client()
+    if client is None:
+        print("backfill-structural: MASTERLIST_SUPABASE_URL / MASTERLIST_SUPABASE_SECRET_KEY not set — skipping.")
+        return 0
+
+    last_domain = ""
+    total = filled = nulls = 0
+    while True:
+        if args.max_rows is not None and total >= args.max_rows:
+            break
+        limit = SELECT_BATCH
+        if args.max_rows is not None:
+            limit = min(SELECT_BATCH, args.max_rows - total)
+        resp = (
+            client.table("Master Domain List")
+            .select("domain, tld, quality_score")
+            .is_("quality_score", "null")
+            .gt("domain", last_domain)
+            .order("domain")
+            .limit(limit)
+            .execute()
+        )
+        rows = resp.data or []
+        if not rows:
+            break
+        payload = []
+        for r in rows:
+            q = _master_quality(r.get("domain"), r.get("tld"))
+            if q is None:
+                nulls += 1
+            else:
+                filled += 1
+            payload.append({"domain": r["domain"], "quality_score": q})
+        if args.commit:
+            client.table("Master Domain List").upsert(payload, on_conflict="domain").execute()
+        total += len(rows)
+        last_domain = rows[-1]["domain"]
+        verb = "wrote" if args.commit else "previewed"
+        print(f"  {verb} {total:,} (scored {filled:,}, null {nulls:,}; through {last_domain})", flush=True)
+
+    mode = "DONE" if args.commit else "DRY-RUN"
+    print(f"{mode} — processed {total:,} rows; {filled:,} got a quality_score, "
+          f"{nulls:,} stayed null (non-alpha / multi-label SLD).")
+    if not args.commit:
+        print("  (dry-run: no writes. Re-run with --commit to persist.)")
+    return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser(prog="pipeline backfill-structural")
+    ap.add_argument("--target", choices=["universe", "master"], default="universe",
+                    help="universe = full structural backfill (default); "
+                         "master = quality_score only")
+    ap.add_argument("--commit", action="store_true",
+                    help="master: actually write (default dry-run). universe always writes.")
+    ap.add_argument("--max-rows", type=int, default=None, help="master: cap rows processed")
+    args = ap.parse_args(argv)
+
+    if args.target == "master":
+        return _run_master(args)
+    return _run_universe()
 
 
 if __name__ == "__main__":
