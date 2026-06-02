@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import sys
 import time
@@ -355,9 +356,93 @@ def _status(args) -> int:
     return 0
 
 
+# Rough token model for the enrichment prompt — used ONLY by `auto` to decide
+# realtime vs batch (system prompt + ~batch domains in; structured JSON out).
+_EST_INPUT_TOK_PER_REQ = 1200
+_EST_OUTPUT_TOK_PER_DOMAIN = 90
+
+
+def _count_eligible(args) -> int:
+    """How many rows are in scope for enrichment right now (same selection as
+    _select_domains, but a head count)."""
+    factory, table, _ = TARGETS[args.target]
+    client = factory()
+    if client is None:
+        return 0
+    now = _iso_now()
+    q = client.table(table).select("domain", count="exact")
+    if getattr(args, "refill_connotation", False):
+        q = q.is_("connotation", "null")
+    elif args.reenrich:
+        q = q.or_(f"enriched_at.is.null,enriched_at.lt.{now}")
+    else:
+        q = q.is_("category", "null").is_("enriched_at", "null")
+    q = _apply_scope(q, args.target, args)
+    res = q.limit(1).execute()
+    return res.count or 0
+
+
+def _est_batch_saving(n_domains: int, model: str, batch: int) -> float:
+    """Estimated $ saved by using the 50%-off Batches API instead of realtime."""
+    in_rate, out_rate = RATES.get(model, RATES[DEFAULT_MODEL])
+    n_req = math.ceil(n_domains / max(1, batch))
+    in_tok = n_req * _EST_INPUT_TOK_PER_REQ
+    out_tok = n_domains * _EST_OUTPUT_TOK_PER_DOMAIN
+    realtime = (in_tok * in_rate + out_tok * out_rate) / 1_000_000
+    return realtime * 0.5
+
+
+def _auto(args) -> int:
+    """Run enrichment NOW (realtime) unless the estimated batch saving clears
+    --min-batch-saving, in which case submit an async (≤24h) batch instead.
+    Lets small imports enrich immediately while big rollouts still get the
+    50%-off batch price."""
+    model = args.model or os.environ.get("ENRICHMENT_MODEL", DEFAULT_MODEL)
+    n = _count_eligible(args)
+    if n == 0:
+        print("enrich-auto: nothing eligible to enrich.")
+        return 0
+    saving = _est_batch_saving(n, model, args.batch)
+    print(f"enrich-auto: {n:,} eligible (model={model}); est. batch saving "
+          f"${saving:,.2f} vs realtime (threshold ${args.min_batch_saving:,.2f}).")
+    if saving >= args.min_batch_saving:
+        print("  → large job: submitting async Batches API job (50% cheaper, ≤24h).")
+        return _submit(args)
+    print("  → small enough: running immediately (realtime enrich).")
+    if not args.commit:
+        print("  [dry-run] would run realtime enrich now; pass --commit to write.")
+        return 0
+    from .enrich import main as _enrich_main
+    argv = ["--target", args.target, "--commit",
+            "--max-rows", str(args.max_rows), "--batch", str(args.batch)]
+    if args.model:
+        argv += ["--model", args.model]
+    if args.order:
+        argv += ["--order", args.order]
+    if args.tld:
+        argv += ["--tld", args.tld]
+    if args.single_word:
+        argv.append("--single-word")
+    if args.dict_word:
+        argv.append("--dict-word")
+    if args.quality_min is not None:
+        argv += ["--quality-min", str(args.quality_min)]
+    if args.quality_max is not None:
+        argv += ["--quality-max", str(args.quality_max)]
+    if args.len_max is not None:
+        argv += ["--len-max", str(args.len_max)]
+    if args.no_numbers:
+        argv.append("--no-numbers")
+    if args.reenrich:
+        argv.append("--reenrich")
+    if args.source:
+        argv += ["--source", args.source]
+    return _enrich_main(argv)
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="pipeline enrich-batch")
-    ap.add_argument("action", choices=["submit", "collect", "status"])
+    ap.add_argument("action", choices=["submit", "collect", "status", "auto"])
     ap.add_argument("--target", choices=list(TARGETS), default="universe")
     ap.add_argument("--commit", action="store_true",
                     help="actually call the API + write state (submit; default: dry-run)")
@@ -382,6 +467,9 @@ def main(argv: list[str] | None = None) -> int:
                     help="select rows where connotation IS NULL (backfill the "
                          "connotation field on rows enriched before that column existed)")
     ap.add_argument("--batch-id", default=None, help="collect/status a single batch id")
+    ap.add_argument("--min-batch-saving", type=float, default=5.0,
+                    help="auto: use the async batch only when its estimated $ "
+                         "saving clears this (else run realtime now)")
     args = ap.parse_args(argv)
 
     if args.max_rows is None:
@@ -391,6 +479,8 @@ def main(argv: list[str] | None = None) -> int:
         return _submit(args)
     if args.action == "collect":
         return _collect(args)
+    if args.action == "auto":
+        return _auto(args)
     return _status(args)
 
 

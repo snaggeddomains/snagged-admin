@@ -248,7 +248,7 @@ export default function ImportsClient({
             ? "🔧 Dispatched structural + quality backfill for new universe rows."
             : "🔧 Dispatched quality-score backfill for new Master rows.");
           if (autoEnrich) {
-            add(`🧠 Will auto-enrich new names with quality_score > ${ENRICH_QUALITY_MIN} after backfill (Batches API; collected by the 4h cron).`);
+            add(`🧠 Will auto-enrich new names with quality_score > ${ENRICH_QUALITY_MIN} after backfill (runs immediately unless big enough to batch).`);
           }
         } catch (e) {
           add(`⚠️ Backfill dispatch failed: ${e instanceof Error ? e.message : String(e)}`);
@@ -475,12 +475,13 @@ export default function ImportsClient({
             </label>
             <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, cursor: autoBackfill ? "pointer" : "not-allowed", opacity: autoBackfill ? 1 : 0.5, marginLeft: 22 }}>
               <input type="checkbox" checked={autoEnrich} disabled={!autoBackfill} onChange={(e) => setAutoEnrich(e.target.checked)} />
-              Then LLM-enrich new names with quality_score &gt; {ENRICH_QUALITY_MIN} <span className="muted">(paid · Batches API)</span>
+              Then LLM-enrich new names with quality_score &gt; {ENRICH_QUALITY_MIN} <span className="muted">(paid)</span>
             </label>
             {autoEnrich && (
               <p className="muted" style={{ fontSize: 12, margin: "0 0 0 22px", lineHeight: 1.4 }}>
-                After scores are computed, submits an enrich batch scoped to this source for names above the
-                floor that aren&apos;t enriched yet. Picked up by the existing 4-hour auto-collect.
+                After scores are computed, enriches names above the floor from this source that aren&apos;t
+                enriched yet — <b>immediately</b> for smaller imports, or via the cheaper async Batches API
+                (collected within ~4h) when it&apos;s big enough to save $5+.
               </p>
             )}
           </div>
@@ -628,8 +629,8 @@ function JobCard({
 
   async function reenrich() {
     const ok = window.confirm(
-      `Re-enrich "${r.source}" in ${r.target}?\n\nRe-runs the quality backfill (idempotent), then submits a PAID LLM enrich ` +
-      `batch (quality_score > 1) for names from this source that aren’t enriched yet. Collected within ~4h.`,
+      `Re-enrich "${r.source}" in ${r.target}?\n\nRe-runs the quality backfill (idempotent), then runs a PAID LLM enrich ` +
+      `(quality_score > 1) for names from this source that aren’t enriched yet — immediately, or via the cheaper async batch if it’s large.`,
     );
     if (!ok) return;
     setState("busy");

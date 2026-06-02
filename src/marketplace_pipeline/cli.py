@@ -181,6 +181,8 @@ def cmd_enrich_batch(args: argparse.Namespace) -> int:
         argv += ["--batch-id", args.batch_id]
     if getattr(args, "source", None):
         argv += ["--source", args.source]
+    if getattr(args, "min_batch_saving", None) is not None:
+        argv += ["--min-batch-saving", str(args.min_batch_saving)]
     return _run(argv)
 
 
@@ -291,7 +293,7 @@ def main(argv: list[str] | None = None) -> int:
         help="Same LLM enrichment via the Anthropic Message Batches API "
              "(50% cheaper, async ≤24h; submit/collect/status)",
     )
-    p_eb.add_argument("action", choices=["submit", "collect", "status"])
+    p_eb.add_argument("action", choices=["submit", "collect", "status", "auto"])
     p_eb.add_argument("--target", choices=["universe", "master"], default="universe")
     p_eb.add_argument("--commit", action="store_true",
                       help="actually call the API + write state (submit; default: dry-run)")
@@ -321,6 +323,9 @@ def main(argv: list[str] | None = None) -> int:
     p_eb.add_argument("--source", default=None,
                       help="restrict to one source (universe sources[] membership / "
                            "master source text)")
+    p_eb.add_argument("--min-batch-saving", type=float, default=None,
+                      help="auto: only use the async batch when its estimated $ "
+                           "saving clears this (else run realtime now; default 5)")
     p_eb.set_defaults(func=cmd_enrich_batch)
 
     args = parser.parse_args(argv)

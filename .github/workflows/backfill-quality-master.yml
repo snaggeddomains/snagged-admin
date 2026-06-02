@@ -69,7 +69,7 @@ jobs:
           ENRICH_QMIN: ${{ github.event.inputs.enrich_quality_min }}
           ENRICH_SRC:  ${{ github.event.inputs.enrich_source }}
         run: |
-          args=(submit --commit --target master)
+          args=(auto --commit --target master --min-batch-saving 5)
           [ -n "$ENRICH_QMIN" ] && args+=(--quality-min "$ENRICH_QMIN")
           [ -n "$ENRICH_SRC" ]  && args+=(--source "$ENRICH_SRC")
           pipeline enrich-batch "${args[@]}"
