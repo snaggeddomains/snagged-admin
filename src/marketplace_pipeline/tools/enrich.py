@@ -111,7 +111,11 @@ def _apply_scope(q, target: str, args):
     (bool); Master uses is_single_word/dictionary_word (TEXT 'Y')."""
     if args.tld:
         t = args.tld.lower().lstrip(".")
-        q = q.in_("tld", [t, "." + t]).not_.like("domain", "%.%.%")  # clean sld.tld only
+        # Universe stores TLD bare ('com') — an exact match keeps the composite
+        # enrich-queue index's ordering usable. Master may carry legacy dotted
+        # rows, so match both there.
+        q = q.eq("tld", t) if target == "universe" else q.in_("tld", [t, "." + t])
+        q = q.not_.like("domain", "%.%.%")  # clean sld.tld only
     if args.single_word:
         q = q.eq("num_words", 1) if target == "universe" else q.eq("is_single_word", "Y")
     if args.dict_word:

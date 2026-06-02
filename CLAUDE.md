@@ -59,7 +59,8 @@ Written **only** by this pipeline (`universe/supabase_writer.py` →
   -- name_universe (naming project)
   alter table name_universe add column if not exists enriched_at timestamptz;
   alter table name_universe add column if not exists enrichment_model text;
-  create index if not exists idx_universe_needs_enrich on name_universe (domain)
+  create index if not exists idx_universe_enrich_queue on name_universe
+    (num_words, is_dictionary_word, tld, quality_score desc nulls last)
     where category is null and enriched_at is null;
   -- Master Domain List (masterlist project)
   alter table "Master Domain List" add column if not exists industries text[];
