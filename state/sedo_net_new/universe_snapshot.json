@@ -1,23 +1,39 @@
 [
   {
+    "domain": "bumars.com",
+    "price": 2200.0
+  },
+  {
+    "domain": "wtfest.com",
+    "price": 9695.0
+  },
+  {
+    "domain": "veewee.com",
+    "price": 40000.0
+  },
+  {
+    "domain": "trasos.com",
+    "price": 40000.0
+  },
+  {
+    "domain": "buffers.net",
+    "price": 2395.0
+  },
+  {
     "domain": "weihai.net",
     "price": 24811.0
   },
   {
-    "domain": "cherian.co",
-    "price": 1988.0
+    "domain": "recone.net",
+    "price": 3195.0
   },
   {
-    "domain": "kimari.co",
-    "price": 1988.0
+    "domain": "snackers.net",
+    "price": 2195.0
   },
   {
-    "domain": "giftie.co",
-    "price": 1988.0
-  },
-  {
-    "domain": "hinged.co",
-    "price": 2450.0
+    "domain": "minefield.net",
+    "price": 2795.0
   },
   {
     "domain": "thrilling.co",
