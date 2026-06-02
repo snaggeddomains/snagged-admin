@@ -114,6 +114,8 @@ def cmd_enrich(args: argparse.Namespace) -> int:
         argv.append("--no-copy-overlap")
     if args.retry_failed:
         argv.append("--retry-failed")
+    if args.reenrich:
+        argv.append("--reenrich")
     return _run(argv)
 
 
@@ -198,6 +200,8 @@ def main(argv: list[str] | None = None) -> int:
                       help="skip the free cross-store copy of already-enriched domains")
     p_en.add_argument("--retry-failed", action="store_true",
                       help="revisit rows attempted before but still empty")
+    p_en.add_argument("--reenrich", action="store_true",
+                      help="re-do every row in scope, overwriting existing enrichment")
     p_en.set_defaults(func=cmd_enrich)
 
     args = parser.parse_args(argv)

@@ -276,6 +276,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--no-copy-overlap", action="store_true", help="skip the free cross-store copy step")
     ap.add_argument("--retry-failed", action="store_true",
                     help="revisit rows attempted before but still empty (enriched_at set, category null)")
+    ap.add_argument("--reenrich", action="store_true",
+                    help="re-do every row in scope, overwriting existing enrichment (ignores category)")
     args = ap.parse_args(argv)
 
     factory, table, _ = TARGETS[args.target]
@@ -325,9 +327,16 @@ def main(argv: list[str] | None = None) -> int:
         # Pull a whole window (concurrency × batch) and enrich its batches in
         # parallel, so throughput scales with workers instead of per-call latency.
         window = min(conc * args.batch, args.max_rows - processed)
-        q = client.table(table).select(select_cols).is_("category", "null")
+        q = client.table(table).select(select_cols)
+        if args.reenrich:
+            # Re-do everything in scope once: select rows not yet touched THIS run
+            # (enriched_at null or older than run start). As we stamp enriched_at=now
+            # they drop out, so it terminates and never loops.
+            q = q.or_(f"enriched_at.is.null,enriched_at.lt.{now}")
+        else:
+            q = q.is_("category", "null")
+            q = q.not_.is_("enriched_at", "null") if args.retry_failed else q.is_("enriched_at", "null")
         q = _apply_scope(q, args.target, args)
-        q = q.not_.is_("enriched_at", "null") if args.retry_failed else q.is_("enriched_at", "null")
         q = q.order(order_col, desc=not order_asc, nullsfirst=False).limit(window)
         rows = q.execute().data or []
         if not rows:

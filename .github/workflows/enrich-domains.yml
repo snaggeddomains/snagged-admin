@@ -52,6 +52,10 @@ on:
         description: Revisit rows attempted before but still empty
         type: boolean
         default: false
+      reenrich:
+        description: Re-do every row in scope, overwriting existing enrichment
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -87,4 +91,5 @@ jobs:
             ${{ github.event.inputs.dict_word == 'true' && '--dict-word' || '' }} \
             ${{ github.event.inputs.no_copy_overlap == 'true' && '--no-copy-overlap' || '' }} \
             ${{ github.event.inputs.commit == 'true' && '--commit' || '' }} \
-            ${{ github.event.inputs.retry_failed == 'true' && '--retry-failed' || '' }}
+            ${{ github.event.inputs.retry_failed == 'true' && '--retry-failed' || '' }} \
+            ${{ github.event.inputs.reenrich == 'true' && '--reenrich' || '' }}
