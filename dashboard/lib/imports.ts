@@ -223,18 +223,25 @@ export async function previewImport(
   return { parsed, invalid, existing, fresh, removed, sourceTotal };
 }
 
-/** Count how many of `domains` already exist in the target (one chunk).
- *  Used by the chunked Preview so we never POST the whole file at once. */
+/** Count how many of `domains` already exist in the target. Domains within an
+ *  import are unique, so we can sub-chunk the .in() (which goes in the URL — too
+ *  many values 414s) and sum without double-counting. */
 export async function countExisting(target: Target, domains: string[]): Promise<number> {
   if (!domains.length) return 0;
   const table = target === "master" ? MASTER_TABLE : "name_universe";
   const db = target === "master" ? getMasterlistDb() : getNamingDb();
-  const { count, error } = await db
-    .from(table)
-    .select("domain", { count: "exact", head: true })
-    .in("domain", domains);
-  if (error) throw new Error(`count existing: ${error.message}`);
-  return count ?? 0;
+  const IN_CHUNK = 200; // keep the IN(...) URL well under length limits
+  let total = 0;
+  for (let i = 0; i < domains.length; i += IN_CHUNK) {
+    const slice = domains.slice(i, i + IN_CHUNK);
+    const { count, error } = await db
+      .from(table)
+      .select("domain", { count: "exact", head: true })
+      .in("domain", slice);
+    if (error) throw new Error(`count existing: ${error.message || error.code || "request failed"}`);
+    total += count ?? 0;
+  }
+  return total;
 }
 
 /** Count rows currently tagged with `source` in the target (replace delete-pool). */
