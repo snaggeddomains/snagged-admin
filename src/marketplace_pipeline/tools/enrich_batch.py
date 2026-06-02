@@ -152,6 +152,10 @@ def _submit(args) -> int:
     domains = _select_domains(client, table, args.target, args, order_key)
     requests = _build_requests(domains, model, args.batch, args.max_tokens)
     n_requests = len(requests)
+    # Domains per request (parallel to `requests`) so we can record/report the
+    # true DOMAIN count per batch — the Anthropic counts are REQUESTS, not
+    # domains (each request enriches up to `--batch` domains).
+    req_counts = [len(domains[i : i + args.batch]) for i in range(0, len(domains), args.batch)]
     # Split into Anthropic-cap-sized submissions.
     submissions = [
         requests[i : i + MAX_REQUESTS_PER_BATCH]
@@ -161,8 +165,8 @@ def _submit(args) -> int:
 
     print(f"enrich-batch submit → {table} (model={model}, order={order_key}, "
           f"{'COMMIT' if args.commit else 'DRY-RUN'})")
-    print(f"  rows={len(domains):,}  requests={n_requests:,} "
-          f"({args.batch}/req)  batches={n_batches}")
+    print(f"  ≈{len(domains):,} domains → {n_requests:,} requests "
+          f"({args.batch}/req) in {n_batches} batch(es)")
 
     if not args.commit:
         print(f"  [dry-run] would create {n_batches} batch(es) of up to "
@@ -179,7 +183,9 @@ def _submit(args) -> int:
     from anthropic import Anthropic
 
     aclient = Anthropic()
+    start = 0
     for sub in submissions:
+        n_dom = sum(req_counts[start : start + len(sub)])
         batch = aclient.messages.batches.create(requests=sub)
         rec = {
             "batch_id": batch.id,
@@ -187,10 +193,12 @@ def _submit(args) -> int:
             "model": model,
             "submitted_at": _iso_now(),
             "n_requests": len(sub),
+            "n_domains": n_dom,
             "status": "submitted",
         }
         _append_state(rec)
-        print(f"  created batch {batch.id} ({len(sub):,} requests) → state.")
+        print(f"  created batch {batch.id} (≈{n_dom:,} domains, {len(sub):,} requests) → state.")
+        start += len(sub)
     return 0
 
 
@@ -302,8 +310,12 @@ def _status(args) -> int:
             continue
         batch_id = rec["batch_id"]
         batch = aclient.messages.batches.retrieve(batch_id)
+        dom = rec.get("n_domains")
+        dom_str = f"≈{dom:,} domains, " if isinstance(dom, int) else ""
+        # request_counts are REQUESTS (each ≈ --batch domains), not domains.
         print(f"  {batch_id}  target={rec.get('target')}  "
-              f"status={batch.processing_status}  counts={batch.request_counts}")
+              f"status={batch.processing_status}  "
+              f"{dom_str}requests={batch.request_counts}")
     return 0
 
 
