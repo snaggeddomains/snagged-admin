@@ -116,20 +116,52 @@ def parse_auctions(html: str, *, now: datetime | None = None) -> list[dict[str, 
 
 # ---------- Playwright fetch ----------
 
+NAV_TIMEOUT_MS = 60000
+LISTING_SELECTOR = "section.dc-table__list-item"
+
+
 def fetch_html() -> str:
-    """Launch a headless Chromium, navigate to the listing page, return HTML."""
+    """Launch a headless Chromium, navigate to the listing page, return HTML.
+
+    DropCatch is a SPA with continuous background network activity, so the old
+    wait_until="networkidle" frequently never settled within the nav timeout and
+    the scheduled run threw TimeoutError (the cause of the multi-day dropcatch
+    outages — a manual retry would succeed whenever the network happened to
+    quiesce). We now wait for the DOM + the actual listing cards to render, and
+    retry a couple of times for transient Cloudflare / timeout blips."""
+    import time
+
+    from playwright.sync_api import TimeoutError as PWTimeout
     from playwright.sync_api import sync_playwright
 
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+    last_err: Exception | None = None
+    for attempt in range(3):
         try:
-            page = browser.new_page()
-            page.goto(LISTING_URL, wait_until="networkidle")
-            page.wait_for_timeout(5000)
-            html = page.content()
-        finally:
-            browser.close()
-    return html
+            with sync_playwright() as p:
+                browser = p.chromium.launch(headless=True)
+                try:
+                    page = browser.new_page()
+                    page.set_default_timeout(NAV_TIMEOUT_MS)
+                    page.goto(LISTING_URL, wait_until="domcontentloaded", timeout=NAV_TIMEOUT_MS)
+                    # Wait for listing cards specifically (not networkidle). If they
+                    # never appear (e.g. a Cloudflare wall), fall through with a
+                    # short settle so the parser sees whatever rendered — a clean
+                    # 0-result run beats crashing the whole auctions pipeline.
+                    try:
+                        page.wait_for_selector(LISTING_SELECTOR, timeout=30000)
+                    except PWTimeout:
+                        print("      WARN listing cards never rendered (possible "
+                              "Cloudflare/slow SPA); parsing whatever loaded")
+                        page.wait_for_timeout(4000)
+                    html = page.content()
+                finally:
+                    browser.close()
+            return html
+        except Exception as e:  # noqa: BLE001 — transient nav/timeout; retry
+            last_err = e
+            print(f"      WARN fetch attempt {attempt + 1}/3 failed: {e}")
+            time.sleep(3 * (2 ** attempt))
+    raise RuntimeError(f"dropcatch fetch_html failed after 3 attempts: {last_err}")
 
 
 # ---------- main entrypoint ----------
