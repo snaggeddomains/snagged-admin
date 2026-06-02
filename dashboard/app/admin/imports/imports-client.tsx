@@ -76,7 +76,7 @@ export default function ImportsClient({
   universeReady: boolean;
   masterReady: boolean;
 }) {
-  const [target, setTarget] = useState<Target>("universe");
+  const [target, setTarget] = useState<Target>("master");
   const [source, setSource] = useState("");
   const [mode, setMode] = useState<Mode>("merge");
   const [text, setText] = useState("");
@@ -333,7 +333,7 @@ export default function ImportsClient({
             : "Date added / first-seen are set automatically — no need to include them."}
         </p>
         <p className="muted" style={{ marginTop: 0, fontSize: 13 }}>
-          Sent in chunks of {CHUNK.toLocaleString()}; structural + quality scores are computed after upload.
+          Sent in chunks of {CHUNK[target].toLocaleString()}; structural + quality scores are computed after upload.
         </p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 18, marginTop: 18 }}>
@@ -342,20 +342,20 @@ export default function ImportsClient({
             <FieldLabel>Where does this belong?</FieldLabel>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
               <TargetCard
-                active={target === "universe"}
-                onClick={() => { setTarget("universe"); setConfirmReplace(false); setPreview(null); }}
-                title="Universe"
-                subtitle="name_universe"
-                blurb="Automated marketplace scrapes & platform dumps — afternic, Sedo, Atom, Namecheap, BrandBucket. sources[] array."
-                examples="sedo_dump · afternic · atom_daily · brandbucket"
-              />
-              <TargetCard
                 active={target === "master"}
                 onClick={() => { setTarget("master"); setConfirmReplace(false); setPreview(null); }}
                 title="Master List"
                 subtitle="Master Domain List"
                 blurb="Manual / curated owner attributions — one-off CSVs & portfolio sheets where you know the owner."
                 examples="Digimedia · portfolio sheets · owner exports"
+              />
+              <TargetCard
+                active={target === "universe"}
+                onClick={() => { setTarget("universe"); setConfirmReplace(false); setPreview(null); }}
+                title="Universe"
+                subtitle="name_universe"
+                blurb="Automated marketplace scrapes & platform dumps — afternic, Sedo, Atom, Namecheap, BrandBucket. sources[] array."
+                examples="sedo_dump · afternic · atom_daily · brandbucket"
               />
             </div>
             {!targetReady && (
