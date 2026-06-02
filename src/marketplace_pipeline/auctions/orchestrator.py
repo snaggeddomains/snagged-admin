@@ -71,6 +71,13 @@ def _run_one(source_id: str) -> dict[str, Any]:
         tb = traceback.format_exc()
         print(f"  PRODUCER FAILED: {source_id}: {e}")
         print(tb)
+        # Stamp the per-source run_status FAILED so the admin panel turns red
+        # (the producer only writes run_status on success, so its last 'ok'
+        # would otherwise mask the failure).
+        try:
+            state.write_run_status_failed(source_id, label, str(e))
+        except Exception as werr:  # noqa: BLE001 — never mask the real error
+            print(f"  (could not write failed run_status for {source_id}: {werr})")
         return {
             "source": source_id,
             "label": label,

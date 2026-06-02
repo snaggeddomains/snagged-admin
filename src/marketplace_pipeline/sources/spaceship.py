@@ -201,7 +201,7 @@ def run() -> int:
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "raw_count": len(all_listings),
         "universe_count": len(universe_entries),
-        "new_count": uni_stats.get("rows_sent", 0),
+        "new_count": uni_stats.get("rows_new", uni_stats.get("rows_sent", 0)),
         "supabase_status": uni_stats.get("status"),
     })
 

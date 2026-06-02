@@ -145,8 +145,25 @@ def upsert(merged_rows: list[dict[str, Any]]) -> dict[str, Any]:
     wire_rows.sort(key=lambda r: r["domain"])
     sent = 0
     batches = 0
+    rows_new = 0  # genuinely net-new domains (not already in name_universe)
     for i in range(0, len(wire_rows), BATCH_SIZE):
         batch = wire_rows[i : i + BATCH_SIZE]
+        # Net-new accounting (for the dashboard's "new today"): count how many of
+        # this batch's domains DON'T already exist, BEFORE upserting. Batches are
+        # disjoint by domain (sorted + sliced), so this reflects pre-run state.
+        # Sub-chunked to keep the `in.(...)` URL small; non-fatal — a metric must
+        # never break the write. `rows_sent` stays the total upserted.
+        batch_domains = [r["domain"] for r in batch]
+        existing = 0
+        for j in range(0, len(batch_domains), 200):
+            sub = batch_domains[j : j + 200]
+            try:
+                resp = client.table("name_universe").select("domain").in_("domain", sub).execute()
+                existing += len(resp.data or [])
+            except Exception as e:  # noqa: BLE001 — metric only, never fatal
+                print(f"      net-new count skipped for a sub-chunk: {e}")
+                existing += len(sub)  # assume existing → undercount new, never overcount
+        rows_new += len(batch_domains) - existing
         # The RPC takes a jsonb input named 'rows'. Retry transient Postgres
         # errors (timeout / deadlock) with backoff — the RPC is idempotent.
         for attempt in range(UPSERT_RETRIES):
@@ -169,6 +186,7 @@ def upsert(merged_rows: list[dict[str, Any]]) -> dict[str, Any]:
     return {
         "status": "ok",
         "rows_sent": sent,
+        "rows_new": rows_new,
         "batches": batches,
     }
 

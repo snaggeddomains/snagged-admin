@@ -10,7 +10,7 @@ from __future__ import annotations
 import argparse
 import sys
 
-from . import config
+from . import config, state
 
 
 def cmd_list(args: argparse.Namespace) -> int:
@@ -39,7 +39,17 @@ def cmd_run(args: argparse.Namespace) -> int:
             f"Source '{args.source_id}' has no implementation yet "
             f"(no module marketplace_pipeline.sources.{args.source_id})"
         ) from e
-    return mod.run()
+    # On failure, stamp a FAILED run_status so the admin panel turns red (sources
+    # only write run_status on success), then re-raise so the workflow still fails.
+    try:
+        return mod.run()
+    except Exception as e:
+        label = getattr(mod, "SOURCE_LABEL", args.source_id)
+        try:
+            state.write_run_status_failed(args.source_id, label, str(e))
+        except Exception as werr:  # noqa: BLE001 — never mask the real error
+            print(f"(could not write failed run_status: {werr})")
+        raise
 
 
 def cmd_status(args: argparse.Namespace) -> int:

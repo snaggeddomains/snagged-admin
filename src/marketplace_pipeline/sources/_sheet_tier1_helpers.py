@@ -123,7 +123,7 @@ def process_sheet_tier1(
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "raw_count": len(rows),
         "universe_count": len(universe_entries),
-        "new_count": stats.get("rows_sent", 0),
+        "new_count": stats.get("rows_new", stats.get("rows_sent", 0)),
         "supabase_status": stats.get("status"),
     })
 
