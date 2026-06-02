@@ -51,6 +51,8 @@ from .enrich import (
 
 STATE_PATH = Path("state/enrichment/batches.jsonl")
 MAX_REQUESTS_PER_BATCH = 25000  # Anthropic per-batch request cap
+COLLECT_UPSERT_CHUNK = 150  # rows per upsert on collect — small enough to stay
+# under the DB statement timeout on the large, GIN-indexed name_universe table.
 
 
 def _iso_now() -> str:
@@ -259,8 +261,11 @@ def _collect(args) -> int:
         now = _iso_now()
         domains = list(by_domain)
         written = 0
-        for i in range(0, len(domains), 500):
-            chunk = domains[i : i + 500]
+        # Upsert in small chunks: name_universe is large with GIN indexes on the
+        # emotions/keywords/industries arrays, so a 500-row upsert can exceed the
+        # statement timeout (57014). 150 keeps each write well under it.
+        for i in range(0, len(domains), COLLECT_UPSERT_CHUNK):
+            chunk = domains[i : i + COLLECT_UPSERT_CHUNK]
             resp = (
                 client.table(table)
                 .select(", ".join(PASSTHROUGH[args.target]))
