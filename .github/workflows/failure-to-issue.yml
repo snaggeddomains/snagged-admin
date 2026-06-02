@@ -1,0 +1,77 @@
+name: Source failure → issue
+
+# When a scheduled source/pipeline workflow fails, open (or comment on) a
+# deduped GitHub issue labeled `source-failure`. This is the "flag back" channel:
+# point a Claude Code on the web trigger at issues with the `source-failure`
+# label and a session can pick up the failure and open a fix PR. The dashboard
+# already turns the source red; this makes the failure actionable/automatable.
+on:
+  workflow_run:
+    types: [completed]
+    workflows:
+      - 'Source: afternic'
+      - 'Source: atom_daily'
+      - 'Source: atom_wholesale'
+      - 'Source: auctions_publish (orchestrator)'
+      - 'Source: auctions_watchdog'
+      - 'Source: berserk_snap_sheet'
+      - 'Source: braden_pollack_portfolio'
+      - 'Source: drive_auction_uploads'
+      - 'Source: dropcatch_auctions'
+      - 'Source: dynadot_auctions'
+      - 'Source: efty_partner'
+      - 'Source: godaddy_auctions'
+      - 'Source: namecheap_auctions'
+      - 'Source: namecheap_bin'
+      - 'Source: namejet_lastchance'
+      - 'Source: namesilo_auctions'
+      - 'Source: oxley'
+      - 'Source: parkio_auctions'
+      - 'Source: rob_purchases_sheet'
+      - 'Source: sedo_dump'
+      - 'Source: sedo_expired_auctions'
+      - 'Source: sedo_net_new'
+      - 'Source: snagged_marketplace_sheet'
+      - 'Source: snagged_snap_sheet'
+      - 'Source: spaceship'
+      - 'Enrich domains (LLM, Batches API)'
+
+permissions:
+  issues: write
+
+jobs:
+  file-issue:
+    # Only act on actual failures (skip success / cancelled / skipped).
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Open or update the failure issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WF:       ${{ github.event.workflow_run.name }}
+          RUN_URL:  ${{ github.event.workflow_run.html_url }}
+          RUN_NUM:  ${{ github.event.workflow_run.run_number }}
+          BRANCH:   ${{ github.event.workflow_run.head_branch }}
+          WHEN:     ${{ github.event.workflow_run.updated_at }}
+          REPO:     ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # Ensure the label exists (no-op if it already does).
+          gh label create source-failure --color B60205 \
+            --description "A scheduled source/pipeline workflow failed" 2>/dev/null || true
+
+          TITLE="Source failed: ${WF}"
+          BODY=$(printf '**%s** failed.\n\n- Run: [#%s](%s)\n- Branch: \`%s\`\n- When: %s\n\n_Filed automatically by the failure→issue workflow. Investigate the run logs; if fixable, push a fix. Resolve/close this issue once the source is green again._' \
+            "$WF" "$RUN_NUM" "$RUN_URL" "$BRANCH" "$WHEN")
+
+          # Dedupe: reuse the open issue for this workflow if one exists.
+          NUM=$(gh issue list --repo "$REPO" --state open --label source-failure \
+            --json number,title --jq "[.[] | select(.title==\"$TITLE\")][0].number // empty")
+
+          if [ -n "$NUM" ]; then
+            echo "Commenting on existing issue #$NUM"
+            gh issue comment "$NUM" --repo "$REPO" --body "$BODY"
+          else
+            echo "Creating new issue"
+            gh issue create --repo "$REPO" --title "$TITLE" --label source-failure --body "$BODY"
+          fi

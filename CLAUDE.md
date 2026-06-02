@@ -12,8 +12,9 @@ runner:
 
 - IP-allowlisted edges (Sedo's CDN returns `403 "Host not in allowlist"`
   to this sandbox; GH runners are on the allowlist)
-- Cloudflare-protected endpoints that need scrape.do (Oxley, NameJet,
-  Dropcatch)
+- Cloudflare-protected endpoints that need scrape.do (Oxley, NameJet)
+- Headless-browser scrapes that need Playwright + Chromium (Dropcatch renders
+  dropcatch.com/auctions via Playwright — not scrape.do)
 - Workflows that need GitHub Secrets we don't have locally
 - Anything that should run on a recurring cron
 
