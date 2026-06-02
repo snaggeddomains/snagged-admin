@@ -110,12 +110,56 @@ def cmd_enrich(args: argparse.Namespace) -> int:
         argv.append("--single-word")
     if args.dict_word:
         argv.append("--dict-word")
+    if args.quality_min is not None:
+        argv += ["--quality-min", str(args.quality_min)]
+    if args.quality_max is not None:
+        argv += ["--quality-max", str(args.quality_max)]
+    if args.len_max is not None:
+        argv += ["--len-max", str(args.len_max)]
+    if args.no_numbers:
+        argv.append("--no-numbers")
     if args.no_copy_overlap:
         argv.append("--no-copy-overlap")
     if args.retry_failed:
         argv.append("--retry-failed")
     if args.reenrich:
         argv.append("--reenrich")
+    return _run(argv)
+
+
+def cmd_enrich_batch(args: argparse.Namespace) -> int:
+    from .tools.enrich_batch import main as _run
+    argv: list[str] = [args.action, "--target", args.target]
+    if args.commit:
+        argv.append("--commit")
+    if args.max_rows is not None:
+        argv += ["--max-rows", str(args.max_rows)]
+    if args.batch is not None:
+        argv += ["--batch", str(args.batch)]
+    if args.model is not None:
+        argv += ["--model", args.model]
+    if args.max_tokens is not None:
+        argv += ["--max-tokens", str(args.max_tokens)]
+    if args.order is not None:
+        argv += ["--order", args.order]
+    if args.tld is not None:
+        argv += ["--tld", args.tld]
+    if args.single_word:
+        argv.append("--single-word")
+    if args.dict_word:
+        argv.append("--dict-word")
+    if args.quality_min is not None:
+        argv += ["--quality-min", str(args.quality_min)]
+    if args.quality_max is not None:
+        argv += ["--quality-max", str(args.quality_max)]
+    if args.len_max is not None:
+        argv += ["--len-max", str(args.len_max)]
+    if args.no_numbers:
+        argv.append("--no-numbers")
+    if args.reenrich:
+        argv.append("--reenrich")
+    if args.batch_id is not None:
+        argv += ["--batch-id", args.batch_id]
     return _run(argv)
 
 
@@ -196,6 +240,13 @@ def main(argv: list[str] | None = None) -> int:
     p_en.add_argument("--tld", default=None, help="restrict to a TLD (e.g. com)")
     p_en.add_argument("--single-word", action="store_true", help="only one-word names")
     p_en.add_argument("--dict-word", action="store_true", help="only dictionary-word names")
+    p_en.add_argument("--quality-min", type=float, default=None,
+                      help="quality_score >= (universe only)")
+    p_en.add_argument("--quality-max", type=float, default=None,
+                      help="quality_score < (universe only)")
+    p_en.add_argument("--len-max", type=int, default=None, help="sld_length <=")
+    p_en.add_argument("--no-numbers", action="store_true",
+                      help="exclude names containing digits")
     p_en.add_argument("--no-copy-overlap", action="store_true",
                       help="skip the free cross-store copy of already-enriched domains")
     p_en.add_argument("--retry-failed", action="store_true",
@@ -203,6 +254,37 @@ def main(argv: list[str] | None = None) -> int:
     p_en.add_argument("--reenrich", action="store_true",
                       help="re-do every row in scope, overwriting existing enrichment")
     p_en.set_defaults(func=cmd_enrich)
+
+    p_eb = sub.add_parser(
+        "enrich-batch",
+        help="Same LLM enrichment via the Anthropic Message Batches API "
+             "(50% cheaper, async ≤24h; submit/collect/status)",
+    )
+    p_eb.add_argument("action", choices=["submit", "collect", "status"])
+    p_eb.add_argument("--target", choices=["universe", "master"], default="universe")
+    p_eb.add_argument("--commit", action="store_true",
+                      help="actually call the API + write state (submit; default: dry-run)")
+    p_eb.add_argument("--max-rows", type=int, default=None, help="cap rows submitted this run")
+    p_eb.add_argument("--batch", type=int, default=None, help="domains per batch request")
+    p_eb.add_argument("--model", default=None, help="override enrichment model")
+    p_eb.add_argument("--max-tokens", type=int, default=None,
+                      help="output token ceiling per request")
+    p_eb.add_argument("--order", choices=["quality", "price", "domain"], default=None,
+                      help="row priority (default: universe=quality, master=domain)")
+    p_eb.add_argument("--tld", default=None, help="restrict to a TLD (e.g. com)")
+    p_eb.add_argument("--single-word", action="store_true", help="only one-word names")
+    p_eb.add_argument("--dict-word", action="store_true", help="only dictionary-word names")
+    p_eb.add_argument("--quality-min", type=float, default=None,
+                      help="quality_score >= (universe only)")
+    p_eb.add_argument("--quality-max", type=float, default=None,
+                      help="quality_score < (universe only)")
+    p_eb.add_argument("--len-max", type=int, default=None, help="sld_length <=")
+    p_eb.add_argument("--no-numbers", action="store_true",
+                      help="exclude names containing digits")
+    p_eb.add_argument("--reenrich", action="store_true",
+                      help="re-do every row in scope, overwriting existing enrichment")
+    p_eb.add_argument("--batch-id", default=None, help="collect/status a single batch id")
+    p_eb.set_defaults(func=cmd_enrich_batch)
 
     args = parser.parse_args(argv)
     return args.func(args)

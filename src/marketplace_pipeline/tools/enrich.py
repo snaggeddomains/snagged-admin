@@ -157,6 +157,17 @@ def _apply_scope(q, target: str, args):
         q = q.eq("num_words", 1) if target == "universe" else q.eq("is_single_word", "Y")
     if args.dict_word:
         q = q.eq("is_dictionary_word", True) if target == "universe" else q.eq("dictionary_word", "Y")
+    # quality_score banding is universe-only (Master has no quality_score).
+    if target == "universe":
+        if getattr(args, "quality_min", None) is not None:
+            q = q.gte("quality_score", args.quality_min)
+        if getattr(args, "quality_max", None) is not None:
+            q = q.lt("quality_score", args.quality_max)
+    # hygiene filters apply to both corpora
+    if getattr(args, "len_max", None) is not None:
+        q = q.lte("sld_length", args.len_max)
+    if getattr(args, "no_numbers", False):
+        q = q.not_.match("sld" if target == "universe" else "domain", "[0-9]")
     return q
 
 
@@ -273,6 +284,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--tld", default=None, help="restrict to a TLD (e.g. com)")
     ap.add_argument("--single-word", action="store_true", help="only one-word names")
     ap.add_argument("--dict-word", action="store_true", help="only dictionary-word names")
+    ap.add_argument("--quality-min", type=float, default=None, help="quality_score >= (universe only)")
+    ap.add_argument("--quality-max", type=float, default=None, help="quality_score < (universe only)")
+    ap.add_argument("--len-max", type=int, default=None, help="sld_length <=")
+    ap.add_argument("--no-numbers", action="store_true", help="exclude names containing digits")
     ap.add_argument("--no-copy-overlap", action="store_true", help="skip the free cross-store copy step")
     ap.add_argument("--retry-failed", action="store_true",
                     help="revisit rows attempted before but still empty (enriched_at set, category null)")

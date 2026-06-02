@@ -1,0 +1,106 @@
+name: Enrich domains (LLM, Batches API)
+
+# Same enrichment as enrich-domains.yml, but via the Anthropic Message Batches
+# API — 50% cheaper, async (≤24h). Three actions:
+#   submit  — page rows needing enrichment, create batch(es), record state.
+#   status  — print processing_status + request_counts for submitted batches.
+#   collect — pull ended batches' results and upsert the enrichment columns.
+# State (state/enrichment/batches.jsonl) is persisted by commit-state after a
+# meaningful submit. Dry-run by default — flip `commit` to true on submit to
+# actually call the API and write state. See tools/enrich_batch.py for the rails.
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: submit / status / collect
+        type: choice
+        options: [submit, collect, status]
+        default: submit
+      target:
+        description: Which corpus to enrich
+        type: choice
+        options: [universe, master]
+        default: universe
+      commit:
+        description: Actually call the API + write state (submit; otherwise dry-run preview)
+        type: boolean
+        default: false
+      max_rows:
+        description: Cap rows submitted this run
+        default: "100000"
+      batch:
+        description: Domains per batch request
+        default: "25"
+      model:
+        description: Enrichment model (blank = default)
+        default: ""
+      quality_min:
+        description: quality_score >= (universe only; blank = no floor)
+        default: ""
+      quality_max:
+        description: quality_score < (universe only; blank = no ceiling)
+        default: ""
+      len_max:
+        description: sld_length <= (blank = no cap)
+        default: ""
+      single_word:
+        description: Only one-word names
+        type: boolean
+        default: false
+      dict_word:
+        description: Only dictionary-word names
+        type: boolean
+        default: false
+      no_numbers:
+        description: Exclude names containing digits
+        type: boolean
+        default: false
+      reenrich:
+        description: Re-do every row in scope, overwriting existing enrichment
+        type: boolean
+        default: false
+      batch_id:
+        description: Single batch id for collect/status (blank = all)
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: enrich-batch
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Enrich (Batches API)
+        env:
+          ANTHROPIC_API_KEY:              ${{ secrets.ANTHROPIC_API_KEY }}
+          SUPABASE_NAMING_URL:            ${{ secrets.SUPABASE_NAMING_URL }}
+          SUPABASE_NAMING_SERVICE_KEY:    ${{ secrets.SUPABASE_NAMING_SERVICE_KEY }}
+          MASTERLIST_SUPABASE_URL:        ${{ secrets.MASTERLIST_SUPABASE_URL }}
+          MASTERLIST_SUPABASE_SECRET_KEY: ${{ secrets.MASTERLIST_SUPABASE_SECRET_KEY }}
+        run: |
+          pipeline enrich-batch "${{ github.event.inputs.action }}" \
+            --target "${{ github.event.inputs.target }}" \
+            --max-rows "${{ github.event.inputs.max_rows }}" \
+            --batch "${{ github.event.inputs.batch }}" \
+            ${{ github.event.inputs.model != '' && format('--model {0}', github.event.inputs.model) || '' }} \
+            ${{ github.event.inputs.quality_min != '' && format('--quality-min {0}', github.event.inputs.quality_min) || '' }} \
+            ${{ github.event.inputs.quality_max != '' && format('--quality-max {0}', github.event.inputs.quality_max) || '' }} \
+            ${{ github.event.inputs.len_max != '' && format('--len-max {0}', github.event.inputs.len_max) || '' }} \
+            ${{ github.event.inputs.single_word == 'true' && '--single-word' || '' }} \
+            ${{ github.event.inputs.dict_word == 'true' && '--dict-word' || '' }} \
+            ${{ github.event.inputs.no_numbers == 'true' && '--no-numbers' || '' }} \
+            ${{ github.event.inputs.reenrich == 'true' && '--reenrich' || '' }} \
+            ${{ github.event.inputs.batch_id != '' && format('--batch-id {0}', github.event.inputs.batch_id) || '' }} \
+            ${{ github.event.inputs.commit == 'true' && '--commit' || '' }}
+      - name: Commit state changes
+        if: success() && github.event.inputs.action == 'submit'
+        uses: ./.github/actions/commit-state
+        with:
+          message: "enrich-batch: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"

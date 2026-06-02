@@ -53,10 +53,16 @@ Written **only** by this pipeline (`universe/supabase_writer.py` →
   Master is consolidated in). Output casing matches the search filters: emotions
   Title-cased, keywords/industries lowercase. Default model
   `claude-haiku-4-5-20251001` (override via `--model` / `ENRICHMENT_MODEL`).
-  Scope flags narrow the slice (`--tld com --single-word --dict-word`) and
-  `--order` prioritizes (universe defaults to `quality_score` desc). Starting
-  strategy: one-word dictionary `.com` first (`enrich --target universe --tld com
-  --single-word --dict-word`).
+  Scope flags narrow the slice (`--tld com --single-word --dict-word
+  --quality-min/--quality-max --len-max --no-numbers`) and `--order` prioritizes
+  (universe defaults to `quality_score` desc). Starting strategy: one-word
+  dictionary `.com` first (`enrich --target universe --tld com --single-word
+  --dict-word`).
+  `pipeline enrich-batch submit|collect|status` runs the same enrichment via the
+  Anthropic Message Batches API (50% cheaper, async ≤24h; state in
+  `state/enrichment/batches.jsonl`; tool `tools/enrich_batch.py`, workflow
+  `.github/workflows/enrich-batch.yml`) — for the `quality_score`-banded bulk
+  rollout. `submit` is dry-run unless `--commit`; `collect` upserts ended batches.
   **One-time setup SQL** (run in each project):
   ```sql
   -- name_universe (naming project)
