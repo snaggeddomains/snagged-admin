@@ -34,6 +34,9 @@ on:
       model:
         description: Enrichment model (blank = default)
         default: ""
+      tld:
+        description: Restrict to a TLD (e.g. com; blank = all)
+        default: ""
       quality_min:
         description: quality_score >= (universe only; blank = no floor)
         default: ""
@@ -90,6 +93,7 @@ jobs:
             --max-rows "${{ github.event.inputs.max_rows }}" \
             --batch "${{ github.event.inputs.batch }}" \
             ${{ github.event.inputs.model != '' && format('--model {0}', github.event.inputs.model) || '' }} \
+            ${{ github.event.inputs.tld != '' && format('--tld {0}', github.event.inputs.tld) || '' }} \
             ${{ github.event.inputs.quality_min != '' && format('--quality-min {0}', github.event.inputs.quality_min) || '' }} \
             ${{ github.event.inputs.quality_max != '' && format('--quality-max {0}', github.event.inputs.quality_max) || '' }} \
             ${{ github.event.inputs.len_max != '' && format('--len-max {0}', github.event.inputs.len_max) || '' }} \
