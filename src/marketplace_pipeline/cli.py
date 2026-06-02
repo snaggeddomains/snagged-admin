@@ -163,6 +163,8 @@ def cmd_enrich_batch(args: argparse.Namespace) -> int:
         argv.append("--no-numbers")
     if args.reenrich:
         argv.append("--reenrich")
+    if getattr(args, "refill_connotation", False):
+        argv.append("--refill-connotation")
     if args.batch_id is not None:
         argv += ["--batch-id", args.batch_id]
     return _run(argv)
@@ -295,6 +297,9 @@ def main(argv: list[str] | None = None) -> int:
                       help="exclude names containing digits")
     p_eb.add_argument("--reenrich", action="store_true",
                       help="re-do every row in scope, overwriting existing enrichment")
+    p_eb.add_argument("--refill-connotation", action="store_true",
+                      help="select rows where connotation IS NULL (backfill connotation "
+                           "on rows enriched before that column existed)")
     p_eb.add_argument("--batch-id", default=None, help="collect/status a single batch id")
     p_eb.set_defaults(func=cmd_enrich_batch)
 

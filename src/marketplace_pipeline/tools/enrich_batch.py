@@ -100,7 +100,13 @@ def _select_domains(client, table: str, target: str, args, model_order_key: str)
     offset = 0
     while len(domains) < args.max_rows:
         q = client.table(table).select(", ".join(PASSTHROUGH[target]))
-        if args.reenrich:
+        if getattr(args, "refill_connotation", False):
+            # Backfill the connotation field on rows enriched BEFORE the
+            # connotation column existed (they have category/keywords but
+            # connotation IS NULL). Re-runs the full prompt, refreshing every
+            # field on those rows onto the current controlled vocab + connotation.
+            q = q.is_("connotation", "null")
+        elif args.reenrich:
             q = q.or_(f"enriched_at.is.null,enriched_at.lt.{now}")
         else:
             q = q.is_("category", "null").is_("enriched_at", "null")
@@ -340,6 +346,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--no-numbers", action="store_true", help="exclude names containing digits")
     ap.add_argument("--reenrich", action="store_true",
                     help="re-do every row in scope, overwriting existing enrichment")
+    ap.add_argument("--refill-connotation", action="store_true",
+                    help="select rows where connotation IS NULL (backfill the "
+                         "connotation field on rows enriched before that column existed)")
     ap.add_argument("--batch-id", default=None, help="collect/status a single batch id")
     args = ap.parse_args(argv)
 

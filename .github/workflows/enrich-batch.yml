@@ -64,6 +64,10 @@ on:
         description: Re-do every row in scope, overwriting existing enrichment
         type: boolean
         default: false
+      refill_connotation:
+        description: Select rows where connotation IS NULL (backfill connotation on already-enriched rows)
+        type: boolean
+        default: false
       batch_id:
         description: Single batch id for collect/status (blank = all)
         default: ""
@@ -114,6 +118,7 @@ jobs:
             ${{ github.event.inputs.dict_word == 'true' && '--dict-word' || '' }} \
             ${{ github.event.inputs.no_numbers == 'true' && '--no-numbers' || '' }} \
             ${{ github.event.inputs.reenrich == 'true' && '--reenrich' || '' }} \
+            ${{ github.event.inputs.refill_connotation == 'true' && '--refill-connotation' || '' }} \
             ${{ github.event.inputs.batch_id != '' && format('--batch-id {0}', github.event.inputs.batch_id) || '' }} \
             ${{ github.event.inputs.commit == 'true' && '--commit' || '' }}
       # submit AND collect both mutate state/enrichment/batches.jsonl (collect
