@@ -61,12 +61,18 @@ jobs:
 
       # Optional second leg: enrich the freshly-scored, freshly-imported names.
       # Runs only when the import asked for it AND we actually wrote scores.
+      # Values come in as env vars + a bash array so a source with spaces
+      # (e.g. "Reflex Publishing") is quoted correctly.
       - name: Auto-enrich new names (quality-banded, Batches API)
         if: ${{ github.event.inputs.then_enrich == 'true' && github.event.inputs.commit == 'true' }}
+        env:
+          ENRICH_QMIN: ${{ github.event.inputs.enrich_quality_min }}
+          ENRICH_SRC:  ${{ github.event.inputs.enrich_source }}
         run: |
-          pipeline enrich-batch submit --commit --target master \
-            ${{ github.event.inputs.enrich_quality_min != '' && format('--quality-min {0}', github.event.inputs.enrich_quality_min) || '' }} \
-            ${{ github.event.inputs.enrich_source != '' && format('--source {0}', github.event.inputs.enrich_source) || '' }}
+          args=(submit --commit --target master)
+          [ -n "$ENRICH_QMIN" ] && args+=(--quality-min "$ENRICH_QMIN")
+          [ -n "$ENRICH_SRC" ]  && args+=(--source "$ENRICH_SRC")
+          pipeline enrich-batch "${args[@]}"
       - name: Commit enrich-batch state
         if: ${{ success() && github.event.inputs.then_enrich == 'true' && github.event.inputs.commit == 'true' }}
         uses: ./.github/actions/commit-state

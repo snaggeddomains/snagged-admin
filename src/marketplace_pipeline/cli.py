@@ -139,6 +139,8 @@ def cmd_enrich(args: argparse.Namespace) -> int:
         argv.append("--retry-failed")
     if args.reenrich:
         argv.append("--reenrich")
+    if getattr(args, "source", None):
+        argv += ["--source", args.source]
     return _run(argv)
 
 
@@ -177,6 +179,8 @@ def cmd_enrich_batch(args: argparse.Namespace) -> int:
         argv.append("--refill-connotation")
     if args.batch_id is not None:
         argv += ["--batch-id", args.batch_id]
+    if getattr(args, "source", None):
+        argv += ["--source", args.source]
     return _run(argv)
 
 
@@ -277,6 +281,9 @@ def main(argv: list[str] | None = None) -> int:
                       help="revisit rows attempted before but still empty")
     p_en.add_argument("--reenrich", action="store_true",
                       help="re-do every row in scope, overwriting existing enrichment")
+    p_en.add_argument("--source", default=None,
+                      help="restrict to one source (universe sources[] membership / "
+                           "master source text)")
     p_en.set_defaults(func=cmd_enrich)
 
     p_eb = sub.add_parser(
@@ -311,6 +318,9 @@ def main(argv: list[str] | None = None) -> int:
                       help="select rows where connotation IS NULL (backfill connotation "
                            "on rows enriched before that column existed)")
     p_eb.add_argument("--batch-id", default=None, help="collect/status a single batch id")
+    p_eb.add_argument("--source", default=None,
+                      help="restrict to one source (universe sources[] membership / "
+                           "master source text)")
     p_eb.set_defaults(func=cmd_enrich_batch)
 
     args = parser.parse_args(argv)
