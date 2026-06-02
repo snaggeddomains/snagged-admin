@@ -232,6 +232,14 @@ export async function listImports(limit = 25): Promise<Record<string, unknown>[]
   return data ?? [];
 }
 
+/** Delete a single import-history entry (the trash control on a job card). The
+ *  log is a record of past runs only — removing a row never touches corpus data. */
+export async function deleteImport(id: string): Promise<void> {
+  if (!isDbConfigured() || !id) return;
+  const { error } = await getDb().from(IMPORTS_TABLE).delete().eq("id", id);
+  if (error) throw new Error(`deleteImport: ${error.message}`);
+}
+
 /** Distinct source names ever used by an import, tagged by target (cheap — from
  *  the log, not the corpora). Feeds the source-name typeahead. */
 export async function listImportSources(): Promise<{ source: string; target: string }[]> {

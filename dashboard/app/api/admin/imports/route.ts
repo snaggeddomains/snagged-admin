@@ -14,6 +14,7 @@ import {
   listImports,
   listImportSources,
   listMasterSources,
+  deleteImport,
   type ImportRow,
   type Target,
 } from "@/lib/imports";
@@ -71,6 +72,7 @@ export async function POST(req: NextRequest) {
     mode?: string;
     importTs?: string;
     today?: string;
+    id?: string;
     // post-backfill options
     enrich?: boolean;
     qualityMin?: number | string;
@@ -81,6 +83,16 @@ export async function POST(req: NextRequest) {
     backfilled?: boolean;
   } | null;
   if (!body) return NextResponse.json({ error: "Bad request" }, { status: 400 });
+
+  // Deleting a history entry needs only an id (no source).
+  if (body.action === "delete-log") {
+    try {
+      await deleteImport(String(body.id || ""));
+      return NextResponse.json({ ok: true });
+    } catch (e) {
+      return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500 });
+    }
+  }
 
   const target: Target = body.target === "master" ? "master" : "universe";
   const source = String(body.source || "").trim();
