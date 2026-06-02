@@ -1,8 +1,10 @@
 name: 'Source: sedo_net_new'
 
 on:
-  schedule:
-    - cron: '0 10,17,23 * * *'   # 3x daily — 6 AM, 1 PM, 7 PM ET; matches sources.yaml
+  # Scheduling moved to Vercel Cron (dashboard/app/api/cron/sedo-net-new) which
+  # dispatches this workflow at 6 AM / 1 PM / 7 PM ET — far more punctual than
+  # GitHub's `schedule:` (which ran 30-75 min late). sources.yaml keeps the
+  # canonical schedule_utc "0 10,17,23 * * *" as documentation of the cadence.
   workflow_dispatch: {}
 
 permissions:

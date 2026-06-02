@@ -35,13 +35,24 @@ function ghHeaders(token: string): HeadersInit {
 export async function dispatchOrchestrator(
   mode: "full" | "ping" = "full",
 ): Promise<{ ok: boolean; status: number; error?: string }> {
+  return dispatchWorkflow(WORKFLOW_FILE, { mode });
+}
+
+/** Fire workflow_dispatch for any workflow file on `main`. Shared by the cron
+ *  routes (SNAP orchestrator, sedo_net_new, …) so they all use the same token +
+ *  error handling. Omits `inputs` when none are given (some workflows take none). */
+export async function dispatchWorkflow(
+  file: string,
+  inputs: Record<string, string> = {},
+): Promise<{ ok: boolean; status: number; error?: string }> {
   const token = dispatchToken();
   if (!token) return { ok: false, status: 0, error: "No GH_DISPATCH_TOKEN configured." };
 
-  const res = await fetch(`${API}/actions/workflows/${WORKFLOW_FILE}/dispatches`, {
+  const body = Object.keys(inputs).length ? { ref: REF, inputs } : { ref: REF };
+  const res = await fetch(`${API}/actions/workflows/${file}/dispatches`, {
     method: "POST",
     headers: { ...ghHeaders(token), "content-type": "application/json" },
-    body: JSON.stringify({ ref: REF, inputs: { mode } }),
+    body: JSON.stringify(body),
     cache: "no-store",
   });
   // 204 No Content == accepted.

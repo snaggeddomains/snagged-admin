@@ -3,6 +3,7 @@
   "ignoreCommand": "git diff --quiet ${VERCEL_GIT_PREVIOUS_SHA:-HEAD^} HEAD -- . || exit 1",
   "crons": [
     { "path": "/api/cron/snap-run", "schedule": "0 8,9 * * *" },
-    { "path": "/api/cron/snap-watchdog", "schedule": "0 11,12 * * *" }
+    { "path": "/api/cron/snap-watchdog", "schedule": "0 11,12 * * *" },
+    { "path": "/api/cron/sedo-net-new", "schedule": "0 10,11,17,18,23,0 * * *" }
   ]
 }
