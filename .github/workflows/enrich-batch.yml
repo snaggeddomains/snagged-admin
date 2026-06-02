@@ -10,7 +10,7 @@ name: Enrich domains (LLM, Batches API)
 # actually call the API and write state. See tools/enrich_batch.py for the rails.
 on:
   schedule:
-    - cron: "0 */6 * * *"   # every 6h: auto-collect any ended batches (both corpora)
+    - cron: "0 */4 * * *"   # every 4h: auto-collect any ended batches (both corpora)
   workflow_dispatch:
     inputs:
       action:
