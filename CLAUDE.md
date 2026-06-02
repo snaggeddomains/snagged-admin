@@ -39,9 +39,10 @@ Written **only** by this pipeline (`universe/supabase_writer.py` →
   `is_dictionary_word`) is computed at ingest via `wordfreq`
   (`filters/universe.classify_dict_word`). `num_words`/`is_dictionary_word` are NULL
   for non-dictionary SLDs.
-- **LLM enrichment** (`category` text, `connotation` text [`positive`/`negative`/
-  `neutral`], `emotions[]`, `keywords[]`, `industries[]` arrays) is a separate paid
-  pass run by `pipeline enrich --target universe|master`
+- **LLM enrichment** (`category` text, `connotation` text — 5-point: `positive`/
+  `somewhat positive`/`neutral`/`somewhat negative`/`negative`, `emotions[]`,
+  `keywords[]`, `industries[]` arrays) is a separate paid pass run by
+  `pipeline enrich --target universe|master`
   (tool: `tools/enrich.py`; workflow: `.github/workflows/enrich-domains.yml`).
   Dry-run by default; `--commit` to write. Selection is
   `category IS NULL AND enriched_at IS NULL`, so legacy-enriched rows are never

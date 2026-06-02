@@ -66,9 +66,10 @@ TLD) and infer what it evokes — treat it as a potential brand. Output, per dom
 - category:  ONE concise Title Case label for its primary theme
              (e.g. "Tech", "Finance", "Health", "Travel", "Food & Drink").
 - connotation: the name's overall sentiment as a brand — exactly one of
-             "positive", "negative", or "neutral" (lowercase). Most names are
-             "neutral"; reserve "negative" for words with genuinely unfavorable
-             associations (e.g. divorce, scam, toxic, death).
+             "positive", "somewhat positive", "neutral", "somewhat negative",
+             or "negative" (lowercase). Most names are "neutral"; reserve the
+             negative grades for words with genuinely unfavorable associations
+             (e.g. divorce, scam, toxic, death).
 - emotions:  1-4 feelings the name evokes, each a single Capitalized word
              (e.g. "Trust", "Wonder", "Playful", "Bold"). [] if none fit.
 - keywords:  5-15 lowercase topical words/associations a buyer would search.
@@ -81,7 +82,7 @@ Return ONLY a JSON array — one object per input domain, in the SAME order, wit
 keys exactly: domain, category, connotation, emotions, keywords, industries.
 No prose, no markdown fences."""
 
-VALID_CONNOTATION = {"positive", "negative", "neutral"}
+VALID_CONNOTATION = {"positive", "somewhat positive", "neutral", "somewhat negative", "negative"}
 
 
 def _master_client():
