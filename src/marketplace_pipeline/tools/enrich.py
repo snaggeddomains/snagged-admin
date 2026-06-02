@@ -43,7 +43,7 @@ import argparse
 import json
 import os
 import sys
-import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 
 from ..universe.supabase_writer import _client_or_none as _naming_client
@@ -265,6 +265,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--commit", action="store_true", help="actually call the API + write (default: dry-run)")
     ap.add_argument("--max-rows", type=int, default=500, help="cap rows processed this run")
     ap.add_argument("--batch", type=int, default=25, help="domains per LLM call")
+    ap.add_argument("--concurrency", type=int, default=8, help="LLM calls in flight at once")
     ap.add_argument("--model", default=os.environ.get("ENRICHMENT_MODEL", DEFAULT_MODEL))
     ap.add_argument("--max-tokens", type=int, default=4000, help="output token ceiling per call")
     ap.add_argument("--order", choices=list(ORDERINGS), default=None,
@@ -300,8 +301,9 @@ def main(argv: list[str] | None = None) -> int:
 
     model = args.model
     rate = RATES.get(model)
+    conc = max(1, args.concurrency)
     print(f"enrich → {table} (model={model}, {'COMMIT' if args.commit else 'DRY-RUN'}, "
-          f"max_rows={args.max_rows}, batch={args.batch}, order={order_key} "
+          f"max_rows={args.max_rows}, batch={args.batch}x{conc} workers, order={order_key} "
           f"[{order_col} {'asc' if order_asc else 'desc'}], scope: {scope})")
 
     anthropic_client = None
@@ -311,7 +313,8 @@ def main(argv: list[str] | None = None) -> int:
             return 1
         from anthropic import Anthropic
 
-        anthropic_client = Anthropic()
+        # generous retries so 429s under concurrency recover instead of dropping a batch
+        anthropic_client = Anthropic(max_retries=8)
 
     processed = copied = llm_filled = failed = 0
     tot = {"in": 0, "out": 0, "cache_read": 0, "cache_write": 0}
@@ -319,11 +322,13 @@ def main(argv: list[str] | None = None) -> int:
 
     select_cols = ", ".join(PASSTHROUGH[args.target])
     while processed < args.max_rows:
-        limit = min(args.batch, args.max_rows - processed)
+        # Pull a whole window (concurrency × batch) and enrich its batches in
+        # parallel, so throughput scales with workers instead of per-call latency.
+        window = min(conc * args.batch, args.max_rows - processed)
         q = client.table(table).select(select_cols).is_("category", "null")
         q = _apply_scope(q, args.target, args)
         q = q.not_.is_("enriched_at", "null") if args.retry_failed else q.is_("enriched_at", "null")
-        q = q.order(order_col, desc=not order_asc, nullsfirst=False).limit(limit)
+        q = q.order(order_col, desc=not order_asc, nullsfirst=False).limit(window)
         rows = q.execute().data or []
         if not rows:
             break
@@ -334,51 +339,53 @@ def main(argv: list[str] | None = None) -> int:
         results: dict[str, dict] = {}
         if other_client is not None:
             overlap = _copy_overlap(other_client, other_table, domains)
-            for d, rec in overlap.items():
-                results[d] = rec
+            results.update(overlap)
             copied += len(overlap)
 
-        # 2) LLM the remainder
         todo = [d for d in domains if d not in results]
-        if todo:
-            if not args.commit:
-                print(f"  [dry-run] would enrich {len(todo)} via LLM "
-                      f"(+{len(domains) - len(todo)} copied free): {todo[:3]}…")
-            else:
-                by_domain, usage = _enrich_batch(anthropic_client, model, todo, args.max_tokens)
-                for k in tot:
-                    tot[k] += usage[k]
-                for d in todo:
-                    results[d] = by_domain.get(d) or {
-                        "category": None, "connotation": None,
-                        "emotions": [], "keywords": [], "industries": [],
-                    }
-                llm_filled += sum(1 for d in todo if results[d]["category"])
-                failed += sum(1 for d in todo if not results[d]["category"])
+        if not args.commit:
+            print(f"  [dry-run] window {len(domains)}: would enrich {len(todo)} via LLM "
+                  f"(+{len(domains) - len(todo)} copied free) across {conc} workers: {todo[:3]}…")
+            break  # one sample window is enough to preview cost/shape
 
-        # 3) write — echo back NOT-NULL identity columns, then enrichment.
-        if args.commit:
-            payload = []
-            for d in domains:
-                rec = results.get(d) or {}
-                item = {c: row_by_domain[d][c] for c in PASSTHROUGH[args.target]}
-                item.update({
-                    "category": rec.get("category"),
-                    "connotation": rec.get("connotation"),
-                    "emotions": rec.get("emotions") or [],
-                    "keywords": rec.get("keywords") or [],
-                    "industries": rec.get("industries") or [],
-                    "enriched_at": now,
-                    "enrichment_model": model,
-                })
-                payload.append(item)
-            client.table(table).upsert(payload, on_conflict="domain").execute()
+        # 2) LLM the remainder — batches run concurrently
+        chunks = [todo[i:i + args.batch] for i in range(0, len(todo), args.batch)]
+        if chunks:
+            with ThreadPoolExecutor(max_workers=conc) as pool:
+                futs = [pool.submit(_enrich_batch, anthropic_client, model, c, args.max_tokens)
+                        for c in chunks]
+                for fut in as_completed(futs):
+                    by_domain, usage = fut.result()
+                    for k in tot:
+                        tot[k] += usage[k]
+                    results.update(by_domain)
+            for d in todo:
+                results.setdefault(d, {"category": None, "connotation": None,
+                                       "emotions": [], "keywords": [], "industries": []})
+            llm_filled += sum(1 for d in todo if results[d].get("category"))
+            failed += sum(1 for d in todo if not results[d].get("category"))
+
+        # 3) write — echo back NOT-NULL identity columns; upsert in sub-chunks
+        payload = []
+        for d in domains:
+            rec = results.get(d) or {}
+            item = {c: row_by_domain[d][c] for c in PASSTHROUGH[args.target]}
+            item.update({
+                "category": rec.get("category"),
+                "connotation": rec.get("connotation"),
+                "emotions": rec.get("emotions") or [],
+                "keywords": rec.get("keywords") or [],
+                "industries": rec.get("industries") or [],
+                "enriched_at": now,
+                "enrichment_model": model,
+            })
+            payload.append(item)
+        for i in range(0, len(payload), 500):
+            client.table(table).upsert(payload[i:i + 500], on_conflict="domain").execute()
 
         processed += len(domains)
         print(f"  processed {processed:,} (copied {copied:,}, llm {llm_filled:,}, "
               f"empty {failed:,})", flush=True)
-        if not args.commit:
-            break  # one sample page is enough to preview cost/shape
 
     print(f"\nDONE — processed {processed:,}: {copied:,} copied free, "
           f"{llm_filled:,} LLM-enriched, {failed:,} came back empty.")

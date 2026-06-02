@@ -22,6 +22,9 @@ on:
       batch:
         description: Domains per LLM call
         default: "25"
+      concurrency:
+        description: LLM calls in flight at once
+        default: "8"
       model:
         description: Enrichment model (blank = default)
         default: ""
@@ -76,6 +79,7 @@ jobs:
             --target "${{ github.event.inputs.target }}" \
             --max-rows "${{ github.event.inputs.max_rows }}" \
             --batch "${{ github.event.inputs.batch }}" \
+            --concurrency "${{ github.event.inputs.concurrency }}" \
             ${{ github.event.inputs.model != '' && format('--model {0}', github.event.inputs.model) || '' }} \
             ${{ github.event.inputs.order != '' && format('--order {0}', github.event.inputs.order) || '' }} \
             ${{ github.event.inputs.tld != '' && format('--tld {0}', github.event.inputs.tld) || '' }} \

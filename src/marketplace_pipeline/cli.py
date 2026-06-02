@@ -98,6 +98,8 @@ def cmd_enrich(args: argparse.Namespace) -> int:
         argv += ["--max-rows", str(args.max_rows)]
     if args.batch is not None:
         argv += ["--batch", str(args.batch)]
+    if args.concurrency is not None:
+        argv += ["--concurrency", str(args.concurrency)]
     if args.model is not None:
         argv += ["--model", args.model]
     if args.order is not None:
@@ -185,6 +187,7 @@ def main(argv: list[str] | None = None) -> int:
                       help="actually call the API + write (default: dry-run preview)")
     p_en.add_argument("--max-rows", type=int, default=None, help="cap rows processed this run")
     p_en.add_argument("--batch", type=int, default=None, help="domains per LLM call")
+    p_en.add_argument("--concurrency", type=int, default=None, help="LLM calls in flight at once")
     p_en.add_argument("--model", default=None, help="override enrichment model")
     p_en.add_argument("--order", choices=["quality", "price", "domain"], default=None,
                       help="row priority (default: universe=quality, master=domain)")
