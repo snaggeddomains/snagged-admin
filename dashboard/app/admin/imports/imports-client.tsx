@@ -464,7 +464,7 @@ export default function ImportsClient({
               className="btn btn--primary"
               onClick={run}
               disabled={busy || !targetReady || (mode === "replace" && !confirmReplace)}
-              style={{ flex: 1, color: "#fff" }}
+              style={{ flex: 1, color: "#fff", borderColor: "var(--coral-deep)", boxShadow: "0 3px 0 var(--coral-deep)" }}
             >
               {busy
                 ? (progress ? `Importing… ${progress.done.toLocaleString()} / ${progress.total.toLocaleString()} (${pct}%)` : "Importing…")
