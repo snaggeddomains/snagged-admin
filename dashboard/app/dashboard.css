@@ -242,8 +242,9 @@ tr.dim { opacity: 0.6; }
   .topbar__brand .brand-mark { width: 34px; height: 34px; }
   .table-scroll > table.dash { min-width: 680px; }
 
-  /* Account + section tabs move into the hamburger menu. */
-  .topbar__account { display: none; }
+  /* Section tabs collapse into the hamburger, but keep the bell + profile
+     avatar visible on mobile (next to the hamburger), matching Research. */
+  .topbar__account { display: flex; }
   .tab-nav { display: none; }
   .topbar__burger {
     display: inline-flex; align-items: center; justify-content: center;
