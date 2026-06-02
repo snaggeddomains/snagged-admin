@@ -38,6 +38,29 @@ export function splitDomain(raw: string): { domain: string; sld: string; tld: st
   return { domain: d, sld, tld };
 }
 
+/** True for a Postgres statement-timeout (57014) / canceled statement. */
+function isTimeout(err: { message?: string; code?: string } | null): boolean {
+  if (!err) return false;
+  return err.code === "57014" || /statement timeout|canceling statement/i.test(err.message || "");
+}
+
+/** Upsert a batch of universe rows, halving on statement-timeout. The merge RPC
+ *  over the ~6M-row table can blow the statement timeout on big batches; on a
+ *  timeout we split and retry each half (down to a single row) so a large import
+ *  still lands instead of failing the whole chunk. */
+async function upsertUniverseChunk(wire: Record<string, unknown>[]): Promise<void> {
+  if (!wire.length) return;
+  const { error } = await getNamingDb().rpc("upsert_universe_rows", { rows: wire });
+  if (!error) return;
+  if (isTimeout(error) && wire.length > 1) {
+    const mid = Math.floor(wire.length / 2);
+    await upsertUniverseChunk(wire.slice(0, mid));
+    await upsertUniverseChunk(wire.slice(mid));
+    return;
+  }
+  throw new Error(`universe upsert: ${error.message}`);
+}
+
 /** Universe upsert via the merge RPC (consistent with the pipeline). */
 export async function upsertUniverse(source: string, rows: ImportRow[], today: string): Promise<number> {
   const wire = [];
@@ -64,9 +87,23 @@ export async function upsertUniverse(source: string, rows: ImportRow[], today: s
     });
   }
   if (!wire.length) return 0;
-  const { error } = await getNamingDb().rpc("upsert_universe_rows", { rows: wire });
-  if (error) throw new Error(`universe upsert: ${error.message}`);
+  await upsertUniverseChunk(wire);
   return wire.length;
+}
+
+/** Upsert a batch of master rows, halving on statement-timeout (same rationale
+ *  as the universe path — the ~435K-row table can time out on big batches). */
+async function upsertMasterChunk(out: Record<string, unknown>[]): Promise<void> {
+  if (!out.length) return;
+  const { error } = await getMasterlistDb().from(MASTER_TABLE).upsert(out, { onConflict: "domain" });
+  if (!error) return;
+  if (isTimeout(error) && out.length > 1) {
+    const mid = Math.floor(out.length / 2);
+    await upsertMasterChunk(out.slice(0, mid));
+    await upsertMasterChunk(out.slice(mid));
+    return;
+  }
+  throw new Error(`master upsert: ${error.message}`);
 }
 
 /** Master upsert (single source), tagged with importTs for replace. */
@@ -88,8 +125,7 @@ export async function upsertMaster(source: string, rows: ImportRow[], importTs: 
     });
   }
   if (!out.length) return 0;
-  const { error } = await getMasterlistDb().from(MASTER_TABLE).upsert(out, { onConflict: "domain" });
-  if (error) throw new Error(`master upsert: ${error.message}`);
+  await upsertMasterChunk(out);
   return out.length;
 }
 

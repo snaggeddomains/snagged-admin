@@ -22,7 +22,9 @@ import { dispatchWorkflow } from "@/lib/orchestrator";
 import { loadSources } from "@/lib/sources";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+// Universe chunks go through the merge RPC + may halve-retry on a statement
+// timeout, so give a single chunk request generous headroom.
+export const maxDuration = 300;
 
 // Workflow that recomputes structural + quality scores after an import.
 const BACKFILL_UNIVERSE = "backfill-universe-structural.yml";

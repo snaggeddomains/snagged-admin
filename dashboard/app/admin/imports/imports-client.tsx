@@ -30,7 +30,10 @@ type HistoryRow = {
 
 const DOMAIN_RE = /^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}$/i;
 const PRICE_RE = /^\$?[\d,]+(\.\d+)?$/;
-const CHUNK = 1000;
+// Per-target upload chunk. Universe goes through the merge RPC over a ~6M-row
+// table, which is slower per row, so use a smaller batch (the server still
+// halves further on a statement-timeout). Master is a plain upsert.
+const CHUNK = { universe: 400, master: 1000 } as const;
 // Quality floor for the optional post-import LLM enrich (matches the >1 rollout
 // band). Passed to enrich-batch --quality-min (>=).
 const ENRICH_QUALITY_MIN = 1;
@@ -204,12 +207,13 @@ export default function ImportsClient({
     setProgress({ done: 0, total: rows.length });
     let upserted = 0;
     let removed = 0;
+    const chunkSize = CHUNK[target];
     try {
-      for (let i = 0; i < rows.length; i += CHUNK) {
-        const chunk = rows.slice(i, i + CHUNK);
+      for (let i = 0; i < rows.length; i += chunkSize) {
+        const chunk = rows.slice(i, i + chunkSize);
         const data = await post({ action: "upsert", target, source: src, rows: chunk, importTs, today });
         upserted += data.upserted || 0;
-        setProgress({ done: Math.min(i + CHUNK, rows.length), total: rows.length });
+        setProgress({ done: Math.min(i + chunkSize, rows.length), total: rows.length });
       }
       add(`✅ Upserted ${upserted.toLocaleString()} rows.`);
 
