@@ -41,6 +41,10 @@ on:
         description: Only dictionary-word names
         type: boolean
         default: false
+      no_copy_overlap:
+        description: Skip the free cross-store copy (LLM every row for complete, consistent fields)
+        type: boolean
+        default: false
       retry_failed:
         description: Revisit rows attempted before but still empty
         type: boolean
@@ -77,5 +81,6 @@ jobs:
             ${{ github.event.inputs.tld != '' && format('--tld {0}', github.event.inputs.tld) || '' }} \
             ${{ github.event.inputs.single_word == 'true' && '--single-word' || '' }} \
             ${{ github.event.inputs.dict_word == 'true' && '--dict-word' || '' }} \
+            ${{ github.event.inputs.no_copy_overlap == 'true' && '--no-copy-overlap' || '' }} \
             ${{ github.event.inputs.commit == 'true' && '--commit' || '' }} \
             ${{ github.event.inputs.retry_failed == 'true' && '--retry-failed' || '' }}
