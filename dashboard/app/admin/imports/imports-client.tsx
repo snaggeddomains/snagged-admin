@@ -682,7 +682,7 @@ function JobCard({
           <span>{fmtTime(r.created_at)}</span>
           {r.user_email && <><span>·</span><span>{r.user_email.split("@")[0]}</span></>}
         </div>
-        <EnrichLine status={status} ageH={ageH} backfilled={Boolean(r.backfilled)} />
+        <EnrichLine status={status} ageH={ageH} backfilled={Boolean(r.backfilled)} inserted={r.upserted ?? 0} />
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 10, flex: "none" }}>
         {state === "ok" ? (
@@ -713,19 +713,20 @@ function JobCard({
 }
 
 function EnrichLine({
-  status, ageH, backfilled,
+  status, ageH, backfilled, inserted,
 }: {
-  status: EnrichStatus | null | "loading"; ageH: number; backfilled: boolean;
+  status: EnrichStatus | null | "loading"; ageH: number; backfilled: boolean; inserted: number;
 }) {
   const base: React.CSSProperties = { fontSize: 12.5, marginTop: 6, display: "flex", alignItems: "center", gap: 7 };
-  if (status === "loading") return <div style={{ ...base, color: "var(--navy-3)" }}>checking enrichment…</div>;
-  if (status === null) return <div style={{ ...base, color: "var(--navy-3)" }}>enrichment status unavailable</div>;
+  const ins = `${inserted.toLocaleString()} inserted`;
+  if (status === "loading") return <div style={{ ...base, color: "var(--navy-3)" }}>{ins} · checking enrichment…</div>;
+  if (status === null) return <div style={{ ...base, color: "var(--navy-3)" }}>{ins} · enrichment status unavailable</div>;
 
   const { eligible, enriched } = status;
   if (eligible === 0) {
     return (
       <div style={{ ...base, color: "var(--navy-3)" }}>
-        <Dot color="#cbd5e1" /> no net-new names ≥ q1 {backfilled ? "" : "(backfill pending)"}
+        <Dot color="#cbd5e1" /> {ins} · 0 net-new qualify (q≥1){backfilled ? "" : " · backfill pending"}
       </div>
     );
   }
@@ -734,14 +735,17 @@ function EnrichLine({
   const color = done ? "#1f9d55" : stalled ? "var(--coral-deep)" : "#caa300";
   const icon = done ? "✓" : stalled ? "✗" : "⏳";
   const label = done
-    ? `enriched ${enriched.toLocaleString()}/${eligible.toLocaleString()}`
+    ? "enriched ✓"
     : stalled
-      ? `0/${eligible.toLocaleString()} — not enriched (check / re-enrich)`
-      : `${enriched.toLocaleString()}/${eligible.toLocaleString()} enriched (in progress)`;
+      ? "not enriched — re-enrich"
+      : "enriching…";
   return (
     <div style={{ ...base, color, fontWeight: 600 }}>
       <span aria-hidden style={{ fontSize: 13 }}>{icon}</span>
-      <span>Net-new q≥1: {eligible.toLocaleString()} · {label}</span>
+      <span>
+        {ins} · {eligible.toLocaleString()} qualify (net-new q≥1) ·
+        {" "}{enriched.toLocaleString()}/{eligible.toLocaleString()} {label}
+      </span>
     </div>
   );
 }
