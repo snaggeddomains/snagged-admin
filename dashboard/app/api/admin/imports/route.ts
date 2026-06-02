@@ -28,6 +28,12 @@ export const maxDuration = 60;
 const BACKFILL_UNIVERSE = "backfill-universe-structural.yml";
 const BACKFILL_MASTER = "backfill-quality-master.yml";
 
+// Marketplace feeds that belong in Universe but aren't registered pipeline
+// sources in sources.yaml (imported by hand via this tool). Seeded into the
+// Universe typeahead so they suggest before the first import; once imported,
+// the import log carries them too.
+const UNIVERSE_EXTRA_SOURCES = ["brandbucket"];
+
 // GET — recent import-history entries for the panel.
 export async function GET() {
   const me = await getCurrentUser();
@@ -49,7 +55,7 @@ export async function GET() {
     // in it: Universe = the pipeline registry IDs + anything imported to Universe;
     // Master = the distinct curated `source` names already in the Master table +
     // anything imported to Master.
-    const sourcesUniverse = sortUniq([...registry.map((s) => s.source_id), ...logFor("universe")]);
+    const sourcesUniverse = sortUniq([...registry.map((s) => s.source_id), ...UNIVERSE_EXTRA_SOURCES, ...logFor("universe")]);
     const sourcesMaster = sortUniq([...masterSources, ...logFor("master")]);
     return NextResponse.json({ ok: true, history, sourcesUniverse, sourcesMaster });
   } catch (e) {
