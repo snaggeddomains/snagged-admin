@@ -163,3 +163,53 @@ alter table domain_research_imports add column if not exists import_ts timestamp
 Validated 2026-06-02: Reflex (1,960→1,959 net-new→616 q≥1→616 enriched via batch),
 brandbucket (145,722→5 net-new→0 q≥1→skipped), Narendra Ghimire (1,496→20→13→13 enriched
 realtime). All three paths (batch / skip / realtime) confirmed.
+
+# Read-only DB lookups (claude_ro)
+
+For troubleshooting / confirming functionality, a least-privilege Postgres role
+`claude_ro` (SELECT-only + `BYPASSRLS`, so it still reads after RLS is on) exists
+in all three projects. Query via `python3 scripts/db.py <research|naming|master>
+"<sql>"`. Connection strings (shared **Session pooler**, IPv4-friendly) are env
+vars set in the Claude Code **web environment config** (NOT Vercel):
+`RESEARCH_PG_RO_URL` / `NAMING_PG_RO_URL` / `MASTERLIST_PG_RO_URL`. The role can
+read everything but **cannot write** (no INSERT/UPDATE/DELETE/DDL grants).
+Recreate/rotate: `alter role claude_ro with login bypassrls password '…';` then
+`grant usage on schema public … ; grant select on all tables in schema public …`.
+Needs the env's network policy to allow `*.pooler.supabase.com:5432`.
+
+# Security: enable RLS on Master + naming (no policies)
+
+Supabase flagged the **Master** project (and naming is the same shape) for
+`rls_disabled_in_public`. Our apps use the **service_role** key (bypasses RLS),
+so enabling RLS with **no policies** closes anon/public access without breaking
+anything (matches the main research project). Run per project:
+`do $$ declare r record; begin for r in select tablename from pg_tables where
+schemaname='public' loop execute format('alter table public.%I enable row level
+security;', r.tablename); end loop; end $$;`
+
+# Session handoff — 2026-06-02 (imports + notifications + permissions)
+
+Shipped to `main` (both repos) this session:
+- **Admin Imports tool** — full build (see section above): preview, owner column,
+  net-new+quality auto-enrich (realtime <$5 / batch ≥$5), per-import funnel cards
+  with green/yellow/red status + "view qualifying domains" drill-down, Re-enrich.
+  Master is the default target.
+- **Permissions** — new `admin.imports` (module) gates the import tool; new
+  `admin.lessons.approve` (action) gates lesson curation. Both in
+  `dashboard/lib/permissions.ts` CATALOG; research enforces `admin.lessons.approve`
+  in `api/lessons.js` (was strict is_admin).
+- **Notifications** — research `api/lessons.js` notifies curators (bell + email)
+  when a lesson is submitted (`notifyAdminsOfLesson`, kind 'lesson'). The admin
+  **top bar** now has the bell + profile avatar (`app/notifications-bell.tsx`,
+  `app/top-bar.tsx`, `lib/notifications.ts`, `api/notifications/route.ts`) reading
+  the shared `domain_research_notifications` table.
+
+OPEN / next session:
+1. **Run the GIN index** `idx_universe_sources_gin` on the naming project (CRITICAL
+   for source-scoped enrich/count/status; without it they time out 57014).
+2. **Run RLS-enable** on Master + naming (security alert above).
+3. **Run migrations** 0004 + 0005 on the main research project (import-history log
+   + `import_ts`).
+4. **Verify read-only DB** once `*_PG_RO_URL` env vars are set: `python3
+   scripts/db.py naming "select 1"`, then the brandbucket net-new split
+   (`total` vs `first_seen>=current_date` vs `+ quality_score>=1`) to confirm the 0.
