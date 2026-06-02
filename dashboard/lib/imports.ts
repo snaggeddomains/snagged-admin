@@ -14,10 +14,12 @@
 
 import { getNamingDb } from "./naming";
 import { getMasterlistDb } from "./masterlist";
+import { getDb, isDbConfigured } from "./supabase";
 
 const MASTER_TABLE = "Master Domain List";
+const IMPORTS_TABLE = "domain_research_imports";
 
-export type ImportRow = { domain: string; price?: number | null };
+export type ImportRow = { domain: string; price?: number | null; owner?: string | null };
 export type Target = "universe" | "master";
 
 /** Normalize + split a domain into { domain, sld, tld(bare) }; null if invalid. */
@@ -74,12 +76,14 @@ export async function upsertMaster(source: string, rows: ImportRow[], importTs: 
     const s = splitDomain(r.domain);
     if (!s) continue;
     const price = typeof r.price === "number" && isFinite(r.price) ? r.price : null;
+    const owner = typeof r.owner === "string" && r.owner.trim() ? r.owner.trim() : null;
     out.push({
       domain: s.domain,
       tld: s.tld,
       sld_length: s.sld.length,
       source,
       price,
+      owner,
       updated_at: importTs,
     });
   }
@@ -113,4 +117,135 @@ export async function finalizeReplace(
     .lt("last_seen", today);
   if (error) throw new Error(`universe replace: ${error.message}`);
   return count ?? 0;
+}
+
+export type PreviewResult = {
+  parsed: number; // valid (splittable) rows in the import
+  invalid: number; // raw rows that failed to parse
+  existing: number; // import domains already present in the target
+  fresh: number; // import domains not yet present (net-new)
+  removed: number; // rows replace mode would delete (0 in merge mode)
+  sourceTotal: number; // rows currently tagged with this source in the target
+};
+
+/** Dry-run: count what an import would touch, without writing anything. */
+export async function previewImport(
+  target: Target,
+  source: string,
+  rows: ImportRow[],
+  mode: "merge" | "replace",
+): Promise<PreviewResult> {
+  const seen = new Set<string>();
+  let invalid = 0;
+  for (const r of rows) {
+    const s = splitDomain(r.domain);
+    if (!s) {
+      invalid++;
+      continue;
+    }
+    seen.add(s.domain);
+  }
+  const domains = [...seen];
+  const parsed = domains.length;
+
+  // How many of the import's domains already exist in the target?
+  const table = target === "master" ? MASTER_TABLE : "name_universe";
+  const db = target === "master" ? getMasterlistDb() : getNamingDb();
+  let existing = 0;
+  const CHUNK = 500;
+  for (let i = 0; i < domains.length; i += CHUNK) {
+    const chunk = domains.slice(i, i + CHUNK);
+    const { count, error } = await db
+      .from(table)
+      .select("domain", { count: "exact", head: true })
+      .in("domain", chunk);
+    if (error) throw new Error(`preview existing: ${error.message}`);
+    existing += count ?? 0;
+  }
+  const fresh = parsed - existing;
+
+  // How many rows currently carry this source (the replace-mode delete pool)?
+  let sourceTotal = 0;
+  if (target === "master") {
+    const { count, error } = await getMasterlistDb()
+      .from(MASTER_TABLE)
+      .select("domain", { count: "exact", head: true })
+      .eq("source", source);
+    if (error) throw new Error(`preview source total: ${error.message}`);
+    sourceTotal = count ?? 0;
+  } else {
+    const { count, error } = await getNamingDb()
+      .from("name_universe")
+      .select("domain", { count: "exact", head: true })
+      .eq("sources", `{${source}}`);
+    if (error) throw new Error(`preview source total: ${error.message}`);
+    sourceTotal = count ?? 0;
+  }
+  // Replace deletes the source rows this import does NOT refresh; cap at >= 0.
+  const removed = mode === "replace" ? Math.max(0, sourceTotal - existing) : 0;
+
+  return { parsed, invalid, existing, fresh, removed, sourceTotal };
+}
+
+export type ImportLogRow = {
+  target: Target;
+  source: string;
+  mode: string;
+  parsed: number;
+  upserted: number;
+  removed: number;
+  backfilled?: boolean;
+  user_email?: string | null;
+};
+
+/** Append a row to the import-history log (best-effort; never throws). */
+export async function logImport(entry: ImportLogRow): Promise<void> {
+  if (!isDbConfigured()) return;
+  try {
+    const { error } = await getDb()
+      .from(IMPORTS_TABLE)
+      .insert({
+        target: entry.target,
+        source: entry.source,
+        mode: entry.mode,
+        parsed: entry.parsed,
+        upserted: entry.upserted,
+        removed: entry.removed,
+        backfilled: entry.backfilled ?? false,
+        user_email: entry.user_email ?? null,
+      });
+    if (error) console.warn(`logImport: ${error.message}`);
+  } catch (e) {
+    console.warn(`logImport: ${e instanceof Error ? e.message : String(e)}`);
+  }
+}
+
+/** Read the most-recent import-history entries (newest first). */
+export async function listImports(limit = 25): Promise<Record<string, unknown>[]> {
+  if (!isDbConfigured()) return [];
+  const { data, error } = await getDb()
+    .from(IMPORTS_TABLE)
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) throw new Error(`listImports: ${error.message}`);
+  return data ?? [];
+}
+
+/** Distinct source names ever used by an import (cheap — from the log, not the
+ *  corpora). Feeds the source-name typeahead so names normalize to prior use. */
+export async function listImportSources(): Promise<string[]> {
+  if (!isDbConfigured()) return [];
+  const { data, error } = await getDb()
+    .from(IMPORTS_TABLE)
+    .select("source")
+    .order("source", { ascending: true })
+    .limit(1000);
+  if (error) return [];
+  const set = new Set<string>();
+  for (const r of data ?? []) {
+    const s = String((r as { source?: unknown }).source || "").trim();
+    if (s) set.add(s);
+  }
+  return [...set];
 }
