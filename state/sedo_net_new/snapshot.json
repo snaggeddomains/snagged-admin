@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "currency": "USD",
+    "domain": "thrilling.co",
+    "end_time_utc": "2026-06-02T02:04:00+00:00",
+    "price": 1538.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=thrilling.co"
+  }
+]
