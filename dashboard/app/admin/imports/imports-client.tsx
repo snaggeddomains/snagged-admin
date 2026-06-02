@@ -282,6 +282,11 @@ export default function ImportsClient({
           {target === "master" ? ", owner" : ""} (optional). Headers are auto-detected and ignored.
         </p>
         <p className="muted" style={{ marginTop: 0, fontSize: 13 }}>
+          {target === "universe"
+            ? "Owner isn’t stored on Universe — it’s derived from the source feed. Import CSVs with known owners to Master instead."
+            : "Date added / first-seen are set automatically — no need to include them."}
+        </p>
+        <p className="muted" style={{ marginTop: 0, fontSize: 13 }}>
           Sent in chunks of {CHUNK.toLocaleString()}; structural + quality scores are computed after upload.
         </p>
 
