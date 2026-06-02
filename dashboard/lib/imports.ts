@@ -277,7 +277,9 @@ export async function enrichStatus(target: Target, source: string, floor = 1, si
   const scoped = () => {
     let q = db.from(table).select("domain", { count: "exact", head: true }).gte("quality_score", floor);
     q = target === "master" ? q.eq("source", source) : q.contains("sources", [source]);
-    if (since) q = target === "master" ? q.gte("created_at", since) : q.gte("first_seen", since.slice(0, 10));
+    // Floor to the DATE (midnight): the import's rows are created slightly before
+    // the log entry, so an exact-timestamp >= would wrongly exclude them.
+    if (since) q = q.gte(target === "master" ? "created_at" : "first_seen", since.slice(0, 10));
     return q;
   };
   const { count: eligible, error: e1 } = await scoped();

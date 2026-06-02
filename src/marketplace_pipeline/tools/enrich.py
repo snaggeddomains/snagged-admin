@@ -180,7 +180,10 @@ def _apply_scope(q, target: str, args):
     # first_seen (a DATE); Master with created_at (timestamptz).
     since = getattr(args, "new_since", None)
     if since:
-        q = q.gte("first_seen", since[:10]) if target == "universe" else q.gte("created_at", since)
+        # Floor to the DATE: import rows are created just before the import's
+        # recorded timestamp, so an exact >= would miss them.
+        col = "first_seen" if target == "universe" else "created_at"
+        q = q.gte(col, since[:10])
     return q
 
 
