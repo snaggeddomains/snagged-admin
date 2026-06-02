@@ -1,2 +1,3 @@
 {"batch_id": "msgbatch_01P2MCnXycKtHE8Ctk3kgsDo", "target": "master", "model": "claude-haiku-4-5-20251001", "submitted_at": "2026-06-02T03:23:10.050645+00:00", "n_requests": 6723, "status": "collected"}
 {"batch_id": "msgbatch_01FEnqw8uDFsejjg7quhNq1a", "target": "universe", "model": "claude-haiku-4-5-20251001", "submitted_at": "2026-06-02T04:56:18.570128+00:00", "n_requests": 806, "n_domains": 20140, "status": "submitted"}
+{"batch_id": "msgbatch_01WU4Ad9QgwciEkKdBDJDP66", "target": "universe", "model": "claude-haiku-4-5-20251001", "submitted_at": "2026-06-02T05:11:52.331731+00:00", "n_requests": 3742, "n_domains": 93545, "status": "submitted"}
