@@ -106,3 +106,60 @@ belongs in `name_universe` (don't enrich it in Master).
 single-domain lookup. Universe filters use `num_words`/`is_dictionary_word`; Master
 uses `is_single_word`/`dictionary_word`. TLD filters require a single-dot domain
 (exclude multi-label hosts like `ab.co.com`).
+
+# Admin Imports tool — app.snagged.com/admin/imports
+
+Manual CSV/paste importer into either corpus. Code: `dashboard/app/admin/imports/*`
+(client), `dashboard/app/api/admin/imports/route.ts` (actions), `dashboard/lib/imports.ts`
+(DB). **Lives in the snagged-admin Vercel project**, so that project needs its OWN
+env vars (separate from research): `SUPABASE_NAMING_*` (universe), `MASTERLIST_SUPABASE_*`
+(master), and `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` (the MAIN research DB — it
+backs user auth AND the import-history log; **not** the naming universe).
+
+**Flow:** pick target (Universe vs Master) → drop CSV / paste → source name (typeahead)
+→ Merge|Replace → optional auto-backfill + auto-enrich → Start. Then per-import "Past
+Imports" cards show the funnel: **Inserted · Net-new · Quality q≥1 · Enriched X/Y** with
+a green ✓ / yellow ⏳ / red ✗ (stalled >24h) dot. Re-enrich button re-dispatches; trash
+deletes the log row only.
+
+- **Upsert** is chunked client-side (universe 400/req, master 1000) and **halves on a
+  statement timeout** (`57014`) server-side, so big files (145K+) land. Universe goes
+  through the `upsert_universe_rows` merge RPC; master is a plain upsert (+`owner`,
+  Master-only). Preview streams **domain strings** in 3,000-batches (`preview-existing`),
+  and `countExisting` sub-chunks the `IN(...)` at 200 (URL-length cap).
+- **Source typeahead** is target-aware: Universe = `sources.yaml` registry ids +
+  `UNIVERSE_EXTRA_SOURCES` (brandbucket — a manual feed not in the registry) + names
+  from the import log; Master = `distinct_master_sources()` RPC + log names.
+- **Post-import backfill** = `backfill-universe-structural.yml` (universe; all 6
+  structural fields) / `backfill-quality-master.yml` (master; quality_score only,
+  `commit=true`).
+- **Enrich = NET-NEW ONLY ∧ quality_score ≥ 1 ∧ un-enriched.** Never re-enrich names
+  that already existed (a Merge just appends the source to their `sources[]`). Net-new
+  via `--new-since <import_ts>`: universe `first_seen` (a DATE), master `created_at` —
+  **floored to the date** (import rows are created just before the log entry, so an
+  exact-timestamp `>=` would miss them). `--source` scopes to the import's source.
+- **`pipeline enrich-batch auto --min-batch-saving 5`** is the chained enrich: counts
+  eligible, estimates the 50%-off batch saving from `RATES`, and runs **realtime
+  immediately** unless the saving clears $5 → then submits the async batch (collected by
+  the 4h cron). Fail-safe: if the eligible count times out it returns -1 → submit async.
+  `--source` / `--new-since` were added to `enrich` + `enrich-batch` + the `pipeline` CLI
+  subparsers (cli.py builds its own argv — wire new flags in BOTH the tool and cli.py).
+
+**Required one-time SQL:**
+```sql
+-- naming project (snagged-naming-universe) — CRITICAL: source-scoped count/enrich/status
+-- seq-scan + time out (57014) without this.
+create index concurrently if not exists idx_universe_sources_gin
+  on name_universe using gin (sources);
+-- masterlist project — powers the Master source typeahead
+create or replace function distinct_master_sources()
+returns table(source text) language sql stable as $$
+  select distinct source from "Master Domain List"
+  where source is not null and source <> '' order by source $$;
+-- main research project — import-history log (migrations 0004 + 0005)
+create table if not exists domain_research_imports ( ... );   -- 0004
+alter table domain_research_imports add column if not exists import_ts timestamptz;  -- 0005
+```
+Validated 2026-06-02: Reflex (1,960→1,959 net-new→616 q≥1→616 enriched via batch),
+brandbucket (145,722→5 net-new→0 q≥1→skipped), Narendra Ghimire (1,496→20→13→13 enriched
+realtime). All three paths (batch / skip / realtime) confirmed.
