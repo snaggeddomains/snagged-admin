@@ -266,15 +266,23 @@ export default async function SourcesPage() {
     }
   }
 
-  const ORDER: Record<StatusKey, number> = {
-    ok: 0, stale: 1, failed: 2, never_run: 3, disabled: 4, todo: 5,
+  // Order each product group by its effective schedule time (the source's own
+  // cron, else its orchestrator's). Sorting by UTC time-of-day preserves the ET
+  // order shown in the schedule column. Manual / unparseable schedules sort last,
+  // then alphabetical as a stable tiebreaker.
+  const schedKey = (s: SourceWithStatus) => {
+    const cron = parseCron(s.schedule_utc)
+      || parseCron(orchestratorById.get(s.source_id)?.schedule_utc);
+    if (!cron || cron.hourSortKey == null) return Number.POSITIVE_INFINITY;
+    const min = /^\d+$/.test(cron.minute) ? Number(cron.minute) : 0;
+    return cron.hourSortKey * 60 + min;
   };
   for (const p of Object.keys(byProduct)) {
-    byProduct[p].sort(
-      (a, b) =>
-        ORDER[statusInfo(a, orchestratorById).key] -
-        ORDER[statusInfo(b, orchestratorById).key],
-    );
+    byProduct[p].sort((a, b) => {
+      const d = schedKey(a) - schedKey(b);
+      if (d !== 0) return d;
+      return a.source_id.localeCompare(b.source_id);
+    });
   }
 
   const counts: Record<StatusKey, number> = {
