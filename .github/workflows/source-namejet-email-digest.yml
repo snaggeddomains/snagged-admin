@@ -1,0 +1,38 @@
+name: 'Source: namejet_email_digest'
+
+# Manual/standalone run. In normal operation this runs in-process via the
+# auctions_publish orchestrator. Needs the naming-project creds (to read the
+# stashed inbound email) on top of the usual auction-sheet/Slack creds.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: source-namejet_email_digest
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup
+
+      - name: Run namejet_email_digest
+        env:
+          SLACK_BOT_TOKEN:             ${{ secrets.SLACK_BOT_TOKEN }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          SLACK_CHANNEL_AUCTIONS:      ${{ vars.SLACK_CHANNEL_AUCTIONS }}
+          SUPABASE_NAMING_URL:         ${{ secrets.SUPABASE_NAMING_URL }}
+          SUPABASE_NAMING_SERVICE_KEY: ${{ secrets.SUPABASE_NAMING_SERVICE_KEY }}
+        run: pipeline run namejet_email_digest
+
+      - name: Commit state changes
+        if: ${{ !cancelled() }}
+        uses: ./.github/actions/commit-state
+        with:
+          message: "namejet_email_digest: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
