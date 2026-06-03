@@ -75,18 +75,57 @@ export async function POST(req: NextRequest) {
     ? (payload.data as Record<string, unknown>)
     : payload) as Record<string, unknown>;
 
-  const html = pick(data, "html", "body_html", "bodyHtml");
-  const text = pick(data, "text", "body_text", "bodyText", "body");
-  const subject = pick(data, "subject");
-  const sender = pick(data, "from", "sender", "from_email");
+  // The email.received payload is METADATA ONLY (no body) — the HTML lives
+  // behind Resend's Retrieve Email API, keyed by email_id. Fetch it here.
+  const emailId = pick(data, "email_id", "id");
+  let subject = pick(data, "subject");
+  const fromRaw = data.from;
+  let sender =
+    typeof fromRaw === "string"
+      ? fromRaw
+      : fromRaw && typeof fromRaw === "object"
+        ? pick(fromRaw as Record<string, unknown>, "address", "email", "from")
+        : null;
 
-  if (!html && !text) {
-    // Nothing parseable (e.g. a non-content event) — ack so Resend doesn't retry.
-    return NextResponse.json({ ok: true, stored: false, reason: "no body" });
+  if (!emailId) {
+    return NextResponse.json({ ok: true, stored: false, reason: "no email_id" });
   }
 
+  let html: string | null = null;
+  let text: string | null = null;
+  const apiKey = process.env.RESEND_API_KEY;
+  if (apiKey) {
+    try {
+      const r = await fetch(`https://api.resend.com/emails/${emailId}`, {
+        headers: { Authorization: `Bearer ${apiKey}` },
+      });
+      if (r.ok) {
+        const email = (await r.json()) as Record<string, unknown>;
+        html = pick(email, "html", "body_html");
+        text = pick(email, "text", "body_text");
+        subject = pick(email, "subject") || subject;
+        const ef = email.from;
+        sender =
+          (typeof ef === "string" ? ef : null) ||
+          (ef && typeof ef === "object"
+            ? pick(ef as Record<string, unknown>, "address", "email")
+            : null) ||
+          sender;
+      } else {
+        console.error(`namejet inbound: Resend retrieve ${emailId} → ${r.status}`);
+      }
+    } catch (e) {
+      console.error("namejet inbound: Resend retrieve failed", e);
+    }
+  } else {
+    console.error("namejet inbound: RESEND_API_KEY not set — storing metadata only");
+  }
+
+  // Store the row regardless (keeps email_id so the body can be refetched);
+  // the source skips rows with no html.
   try {
     const { error } = await getNamingDb().from(INBOX_TABLE).insert({
+      email_id: emailId,
       sender,
       subject,
       html,
@@ -99,5 +138,5 @@ export async function POST(req: NextRequest) {
       { status: 500 },
     );
   }
-  return NextResponse.json({ ok: true, stored: true });
+  return NextResponse.json({ ok: true, stored: true, body: !!(html || text) });
 }
