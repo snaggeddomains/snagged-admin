@@ -111,3 +111,21 @@ def test_watchdog_all_ok_no_retries():
     s = state.read_json("auctions_watchdog", "run_status.json", default={})
     assert s["status"] == "ok"
     assert s["retried"] == 0
+
+
+def test_watchdog_still_failed_after_retry_exits_nonzero(monkeypatch):
+    # A producer that was failed and stays failed after the retry pass must make
+    # run() exit non-zero, so the failure propagates to the SNAP Orchestrator's
+    # conclusion (which fires the failure→issue + autofix workflow_run chain).
+    state.write_json("auctions", "refresh_status.json", [
+        {"source": "src_a", "label": "Source A", "status": "failed", "generated_at": "x"},
+    ])
+    monkeypatch.setattr(watchdog, "_retry_one", lambda sid: {
+        "source": sid, "label": "Source A", "status": "failed", "generated_at": "x",
+    })
+    rc = watchdog.run()
+    assert rc == 1
+    s = state.read_json("auctions_watchdog", "run_status.json", default={})
+    assert s["status"] == "failed"
+    assert s["still_failed"] == ["src_a"]
+    assert s["recovered"] == 0

@@ -9,6 +9,12 @@ on:
   workflow_run:
     types: [completed]
     workflows:
+      # The orchestrator is the workflow that actually runs daily (Vercel Cron);
+      # the per-source workflows below only fire on manual workflow_dispatch. When
+      # a source fails inside the orchestrator's in-process run, the orchestrator
+      # concludes `failure` (once the watchdog exits non-zero) — so it MUST be
+      # listed here for the failure to file an issue.
+      - 'SNAP Orchestrator'
       - 'Source: afternic'
       - 'Source: atom_daily'
       - 'Source: atom_wholesale'
