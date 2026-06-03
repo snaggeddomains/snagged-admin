@@ -116,8 +116,9 @@ export default function NotificationsBell() {
                   display: "block", padding: "10px 14px", borderBottom: "1px solid var(--line, #f1ece0)",
                   background: n.read_at ? "#fff" : "rgba(228,128,105,.06)", textDecoration: "none", color: "inherit",
                 };
-                return n.link ? (
-                  <a key={n.id} href={n.link} style={style} onClick={() => setOpen(false)}>{inner}</a>
+                const href = resolveLink(n.link);
+                return href ? (
+                  <a key={n.id} href={href} style={style} onClick={() => setOpen(false)}>{inner}</a>
                 ) : (
                   <div key={n.id} style={style}>{inner}</div>
                 );
@@ -128,6 +129,17 @@ export default function NotificationsBell() {
       )}
     </div>
   );
+}
+
+// A research in-app deep link is stored as a bare hash ("#/r/<slug>") because it
+// was authored for the research SPA's own bell. From the admin chrome that hash
+// would just append to the current /admin URL and never reach the report, so
+// resolve it to the research app's path (same origin: app.snagged.com/research).
+// Absolute or already-rooted links pass through untouched.
+function resolveLink(link: string | null): string | null {
+  if (!link) return null;
+  if (link.startsWith("#")) return `/research/${link}`;
+  return link;
 }
 
 function fmt(iso: string): string {
