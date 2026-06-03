@@ -20,6 +20,10 @@
     "price": null
   },
   {
+    "domain": "fetishbound.com",
+    "price": null
+  },
+  {
     "domain": "reductions.ai",
     "price": null
   },
@@ -28,24 +32,56 @@
     "price": 5000.0
   },
   {
+    "domain": "kirklees.net",
+    "price": 1999.0
+  },
+  {
     "domain": "sometimes.net",
     "price": 6400.0
+  },
+  {
+    "domain": "account.co",
+    "price": 100000.0
   },
   {
     "domain": "lubbock.co",
     "price": 29888.0
   },
   {
+    "domain": "bioedge.co",
+    "price": 1988.0
+  },
+  {
     "domain": "livara.co",
     "price": 3495.0
+  },
+  {
+    "domain": "arsene.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "infected.co",
+    "price": 1988.0
   },
   {
     "domain": "imminent.co",
     "price": 29888.0
   },
   {
+    "domain": "refera.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "kalish.co",
+    "price": 1988.0
+  },
+  {
     "domain": "shameless.co",
     "price": 34888.0
+  },
+  {
+    "domain": "recipient.co",
+    "price": 4988.0
   },
   {
     "domain": "congestion.co",
