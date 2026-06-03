@@ -28,10 +28,11 @@ function defaultLabel(meter: string): string {
 const usd = (n: number) =>
   n >= 100 ? `$${n.toFixed(0)}` : n >= 1 ? `$${n.toFixed(2)}` : `$${n.toFixed(4)}`;
 const num = (n: number) => (Number.isInteger(n) ? n.toLocaleString() : n.toLocaleString(undefined, { maximumFractionDigits: 3 }));
-// YYYY-MM-DD in UTC (matches the server's UTC day buckets).
-const ymd = (d: Date) => d.toISOString().slice(0, 10);
-const TODAY = ymd(new Date());
-const YESTERDAY = ymd(new Date(Date.now() - 86400000));
+// YYYY-MM-DD as the Eastern-Time calendar day (en-CA gives ISO order; the tz
+// makes "today"/"yesterday" track ET, matching the server's ET buckets).
+const etYmd = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(d);
+const TODAY = etYmd(new Date());
+const YESTERDAY = etYmd(new Date(Date.now() - 86400000));
 
 export default function ReportsClient({ canCost }: { canCost: boolean }) {
   const [period, setPeriod] = useState<Period>("day");

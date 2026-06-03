@@ -14,6 +14,18 @@ function periodOf(v: string | null): Period {
   return v === "week" || v === "month" ? v : "day";
 }
 
+// Convert a wall-clock time on a given calendar day in a timezone to the matching
+// UTC instant. The offset between the same naive instant read as `tz` vs `UTC`
+// IS the zone offset for that day (so EDT/EST is handled automatically), and the
+// server's own timezone cancels out — correct on Vercel (UTC) or anywhere.
+const ET = "America/New_York";
+function zonedToUtcISO(dateStr: string, timeStr: string, tz: string): string {
+  const naive = new Date(`${dateStr}T${timeStr}Z`);
+  const asTz = new Date(naive.toLocaleString("en-US", { timeZone: tz }));
+  const asUtc = new Date(naive.toLocaleString("en-US", { timeZone: "UTC" }));
+  return new Date(naive.getTime() + (asUtc.getTime() - asTz.getTime())).toISOString();
+}
+
 export async function GET(req: NextRequest) {
   const me = await getCurrentUser();
   if (!me) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
@@ -30,8 +42,9 @@ export async function GET(req: NextRequest) {
   let since: string;
   let until: string | null;
   if (isDate(from)) {
-    since = new Date(`${from}T00:00:00.000Z`).toISOString();
-    until = isDate(to) ? new Date(`${to}T23:59:59.999Z`).toISOString() : new Date().toISOString();
+    // from/to are ET calendar days (inclusive) → ET midnight..end-of-day in UTC.
+    since = zonedToUtcISO(from, "00:00:00.000", ET);
+    until = isDate(to) ? zonedToUtcISO(to, "23:59:59.999", ET) : new Date().toISOString();
   } else {
     const days = Math.min(Math.max(parseInt(req.nextUrl.searchParams.get("days") || "30", 10) || 30, 1), 730);
     since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
