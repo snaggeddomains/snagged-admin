@@ -361,5 +361,9 @@ def run() -> int:
         "slack_posted": posted,
     })
 
+    # Persist the feed-new names so the admin dashboard can show them
+    # behind the "new today" count (mirrors the imports drill-down).
+    state.write_new_today(SOURCE_ID, [e.domain for e in diff["new_entries"]])
+
     print("DONE")
     return 0
