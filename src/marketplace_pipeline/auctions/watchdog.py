@@ -151,4 +151,15 @@ def run() -> int:
         "still_failed": [s["source"] for s in final_failed],
         "reposted_slack": posted,
     })
+    # Exit non-zero when a source is STILL failed after the retry pass so the
+    # failure propagates to the workflow conclusion. The watchdog runs last in
+    # the SNAP Orchestrator, so a non-zero here makes the orchestrator conclude
+    # `failure`, which is what fires the failure→issue + claude-autofix
+    # `workflow_run` chain. Returning 0 (the old behaviour) left the orchestrator
+    # green and the whole flag-back channel dark — the dashboard went red from
+    # run_status.json but nothing escalated.
+    if final_failed:
+        still = ", ".join(s["source"] for s in final_failed)
+        print(f"::error title=auctions_watchdog::sources still failed after retry: {still}")
+        return 1
     return 0

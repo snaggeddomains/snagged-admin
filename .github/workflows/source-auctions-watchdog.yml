@@ -15,7 +15,8 @@ concurrency:
 
 jobs:
   run:
-    runs-on: ubuntu-latest
+    # Pin the runner image to match the source workflows (no `ubuntu-latest`).
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -24,8 +25,10 @@ jobs:
 
       - name: Install Playwright Chromium
         # Required if the watchdog needs to retry dropcatch_auctions or
-        # namejet_lastchance.
-        run: python -m playwright install --with-deps chromium
+        # namejet_lastchance. Must install the headless shell too, otherwise the
+        # watchdog's retry hits the same "chrome-headless-shell missing" wall as
+        # the source and can never recover it (recovered=0 on 2026-06-03).
+        run: python -m playwright install --with-deps chromium chromium-headless-shell
 
       - name: Run auctions_watchdog
         env:
