@@ -30,6 +30,7 @@ export type ModuleKey = (typeof MODULES)[number];
 // Action keys — gate individual actions WITHIN a module.
 export const ACTIONS = [
   "research.report_deep", // deep vs shallow report tier
+  "research.outreach", // owner-outreach email drafting on a report
   "admin.users.manage", // user + permission administration
   "admin.sources.edit", // edit source registry / schedules
   "admin.lessons.approve", // curate (approve/edit/delete) playbook lessons
@@ -76,6 +77,7 @@ export const CATALOG: CatalogEntry[] = [
   { key: "admin.imports", label: "Imports", group: "Admin", kind: "module" },
   { key: "admin.lessons.approve", label: "Lesson Approval", group: "Admin", kind: "action" },
   { key: "research.domain_owner", label: "Domain Owner research", group: "Research", kind: "module" },
+  { key: "research.outreach", label: "Owner Outreach — email drafting", group: "Research", kind: "action" },
   { key: "research.trademark", label: "Trademark", group: "Research", kind: "module" },
   { key: "research.appraisal", label: "Appraisal", group: "Research", kind: "module" },
   { key: "research.naming", label: "Naming Exercise — Free Reports", group: "Research", kind: "module" },
