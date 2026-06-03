@@ -27,6 +27,7 @@ export const MODULES = [
   "admin.config", // Configuration tab (/admin/config)
   "admin.schedule", // Schedule tab (/admin/schedule)
   "admin.imports", // the domain import tool (/admin/imports)
+  "admin.reports", // the Reports tab (/admin/reports) — usage/cost dashboards
   "research.domain_owner",
   "research.trademark",
   "research.appraisal",
@@ -44,6 +45,7 @@ export const ACTIONS = [
   "admin.sources.edit", // edit source registry / schedules
   "admin.lessons.approve", // curate (approve/edit/delete) playbook lessons
   "admin.imports.replace", // allow the destructive Replace mode in the import tool
+  "admin.reports.cost", // view the API cost/usage report + edit rates
 ] as const;
 export type ActionKey = (typeof ACTIONS)[number];
 
@@ -84,6 +86,7 @@ export const ADMIN_TABS: { href: string; label: string; perm: ModuleKey | Action
   { href: "/admin/schedule", label: "Schedule", perm: "admin.schedule" },
   { href: "/admin/users", label: "Users", perm: "admin.users.manage" },
   { href: "/admin/imports", label: "Imports", perm: "admin.imports" },
+  { href: "/admin/reports", label: "Reports", perm: "admin.reports" },
   { href: "/research/admin", label: "Lessons", perm: "admin.lessons.approve" },
 ];
 
@@ -119,6 +122,8 @@ export const CATALOG: CatalogEntry[] = [
   { key: "admin.users.manage", label: "Users — manage users & permissions", group: "Admin", kind: "action" },
   { key: "admin.imports", label: "Imports", group: "Admin", kind: "module" },
   { key: "admin.imports.replace", label: "Imports — Replace mode (destructive)", group: "Admin", kind: "action" },
+  { key: "admin.reports", label: "Reports", group: "Admin", kind: "module" },
+  { key: "admin.reports.cost", label: "Reports — API cost & usage", group: "Admin", kind: "action" },
   { key: "admin.lessons.approve", label: "Lessons — curate / approve", group: "Admin", kind: "action" },
   { key: "research.domain_owner", label: "Domain Owner research", group: "Research", kind: "module" },
   { key: "research.outreach", label: "Owner Outreach — email drafting", group: "Research", kind: "action" },
