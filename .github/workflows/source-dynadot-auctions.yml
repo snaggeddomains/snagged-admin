@@ -24,6 +24,8 @@ jobs:
           SLACK_CHANNEL_AUCTIONS:      ${{ vars.SLACK_CHANNEL_AUCTIONS }}
           DYNADOT_API_KEY:             ${{ secrets.DYNADOT_API_KEY }}
           DYNADOT_API_SECRET:          ${{ secrets.DYNADOT_API_SECRET }}
+          SUPABASE_URL:                ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY:   ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: pipeline run dynadot_auctions
       - name: Commit state changes
         if: ${{ !cancelled() }}

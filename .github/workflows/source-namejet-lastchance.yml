@@ -31,6 +31,8 @@ jobs:
           SCRAPE_DO_TOKEN:             ${{ secrets.SCRAPE_DO_TOKEN }}
           CF_BROWSER_ACCOUNT_ID:       ${{ secrets.CF_BROWSER_ACCOUNT_ID }}
           CF_BROWSER_API_TOKEN:        ${{ secrets.CF_BROWSER_API_TOKEN }}
+          SUPABASE_URL:                ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY:   ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: pipeline run namejet_lastchance
 
       - name: Commit state changes
