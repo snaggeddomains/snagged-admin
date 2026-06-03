@@ -103,10 +103,12 @@ def parse_email_listings(html: str) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
     seen: set[str] = set()
     for tr in soup.find_all("tr"):
-        cells = [c.get_text(" ", strip=True) for c in tr.find_all(["td", "th"])]
+        # No separator: inline tags some forwarding clients inject into the
+        # domain (e.g. Superhuman's "eyezone.<wbr/>com") must not become spaces.
+        cells = [c.get_text("", strip=True) for c in tr.find_all(["td", "th"])]
         if len(cells) < 3:
             continue
-        domain = cells[0].strip().lower()
+        domain = re.sub(r"\s+", "", cells[0]).lower()  # strip any stray whitespace
         if not _DOMAIN_RE.match(domain) or domain in seen:
             continue  # header / spacer / dupe
         seen.add(domain)
