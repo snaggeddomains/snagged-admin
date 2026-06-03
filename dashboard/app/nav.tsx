@@ -3,24 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-// Admin module sections. Cross-module switching (Research/Admin) lives in the
-// global TopBar; this is just the admin sub-nav.
-export const TABS = [
-  { href: "/admin", label: "Sources" },
-  { href: "/admin/config", label: "Configuration" },
-  { href: "/admin/schedule", label: "Schedule" },
-  { href: "/admin/users", label: "Users" },
-  { href: "/admin/imports", label: "Imports" },
-  // Playbook Lessons curation is admin-only; it lives in the research SPA but is
-  // surfaced here so it's an Admin function. Opens the research /research/admin view.
-  { href: "/research/admin", label: "Lessons" },
-];
-
-export default function Nav() {
+// Admin sub-nav. The tabs are filtered to what the user can access in the
+// layout (per-tab permissions) and passed in. Cross-module switching
+// (Research/Admin) lives in the global TopBar.
+export default function Nav({ tabs }: { tabs: { href: string; label: string }[] }) {
   const pathname = usePathname();
   return (
     <nav className="tab-nav">
-      {TABS.map((t) => {
+      {tabs.map((t) => {
         const active =
           t.href === "/admin" ? pathname === "/admin" : pathname.startsWith(t.href);
         // /research/* is the separate research app (reached via rewrite) — use a

@@ -22,7 +22,10 @@ export interface AppUser {
 
 // Module keys — gate whether a user can ENTER a module.
 export const MODULES = [
-  "admin", // the pipeline dashboard (this repo)
+  "admin", // umbrella — full access to every Admin tab (also = is_admin)
+  "admin.sources", // Sources tab (/admin)
+  "admin.config", // Configuration tab (/admin/config)
+  "admin.schedule", // Schedule tab (/admin/schedule)
   "admin.imports", // the domain import tool (/admin/imports)
   "research.domain_owner",
   "research.trademark",
@@ -68,6 +71,36 @@ export function userCanAction(user: AppUser | null, actionKey: ActionKey): boole
   return user.is_admin || isGranted(user.permissions, actionKey);
 }
 
+// The Admin sub-nav — the SINGLE source of truth for the tabs AND each tab's
+// gating permission. Every admin tab is independently grantable at the user
+// level; the `admin` umbrella (and is_admin) grants them all.
+//
+// FORWARD RULE: any new module/tool we add MUST have its own granular,
+// user-settable permission here (and in the CATALOG below) — never gate a new
+// surface on is_admin or the coarse `admin` umbrella alone.
+export const ADMIN_TABS: { href: string; label: string; perm: ModuleKey | ActionKey }[] = [
+  { href: "/admin", label: "Sources", perm: "admin.sources" },
+  { href: "/admin/config", label: "Configuration", perm: "admin.config" },
+  { href: "/admin/schedule", label: "Schedule", perm: "admin.schedule" },
+  { href: "/admin/users", label: "Users", perm: "admin.users.manage" },
+  { href: "/admin/imports", label: "Imports", perm: "admin.imports" },
+  { href: "/research/admin", label: "Lessons", perm: "admin.lessons.approve" },
+];
+
+// Can the user use this admin tab/key? is_admin and the `admin` umbrella both
+// grant every tab; otherwise the specific key must be granted.
+export function canAdmin(user: AppUser | null, key: ModuleKey | ActionKey): boolean {
+  if (!user) return false;
+  return user.is_admin || isGranted(user.permissions, "admin") || isGranted(user.permissions, key);
+}
+
+// Can the user open the Admin area at all (umbrella, or any individual tab)?
+export function canEnterAdmin(user: AppUser | null): boolean {
+  if (!user) return false;
+  if (user.is_admin || isGranted(user.permissions, "admin")) return true;
+  return ADMIN_TABS.some((t) => isGranted(user.permissions, t.perm));
+}
+
 // UI descriptor for the /admin/users permission editor. Adding a future module
 // is a one-line addition here (kept in sync with MODULES/ACTIONS above).
 export interface CatalogEntry {
@@ -78,12 +111,15 @@ export interface CatalogEntry {
 }
 
 export const CATALOG: CatalogEntry[] = [
-  { key: "admin", label: "Admin dashboard", group: "Admin", kind: "module" },
-  { key: "admin.users.manage", label: "Manage users & permissions", group: "Admin", kind: "action" },
-  { key: "admin.sources.edit", label: "Edit sources & schedules", group: "Admin", kind: "action" },
+  { key: "admin", label: "Admin — full access (all tabs)", group: "Admin", kind: "module" },
+  { key: "admin.sources", label: "Sources", group: "Admin", kind: "module" },
+  { key: "admin.sources.edit", label: "Sources — edit registry / schedules", group: "Admin", kind: "action" },
+  { key: "admin.config", label: "Configuration", group: "Admin", kind: "module" },
+  { key: "admin.schedule", label: "Schedule", group: "Admin", kind: "module" },
+  { key: "admin.users.manage", label: "Users — manage users & permissions", group: "Admin", kind: "action" },
   { key: "admin.imports", label: "Imports", group: "Admin", kind: "module" },
   { key: "admin.imports.replace", label: "Imports — Replace mode (destructive)", group: "Admin", kind: "action" },
-  { key: "admin.lessons.approve", label: "Lesson Approval", group: "Admin", kind: "action" },
+  { key: "admin.lessons.approve", label: "Lessons — curate / approve", group: "Admin", kind: "action" },
   { key: "research.domain_owner", label: "Domain Owner research", group: "Research", kind: "module" },
   { key: "research.outreach", label: "Owner Outreach — email drafting", group: "Research", kind: "action" },
   { key: "research.trademark", label: "Trademark", group: "Research", kind: "module" },

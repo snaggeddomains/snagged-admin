@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
-import { userCanAction } from "@/lib/permissions";
+import { canAdmin } from "@/lib/permissions";
 import { listUsers } from "@/lib/users";
 import UsersEditor from "./users-editor";
 
@@ -10,7 +10,7 @@ export default async function UsersPage() {
   const me = await getCurrentUser();
   if (!me) redirect("/login?next=/admin/users");
 
-  if (!userCanAction(me, "admin.users.manage")) {
+  if (!canAdmin(me, "admin.users.manage")) {
     return (
       <main>
         <h1 style={{ fontSize: "1.1rem" }}>No access</h1>

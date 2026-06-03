@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { userCan, MODULES, type AppUser } from "@/lib/permissions";
-import { TABS } from "./nav";
+import { userCan, MODULES, canEnterAdmin, canAdmin, ADMIN_TABS, type AppUser } from "@/lib/permissions";
 import NotificationsBell from "./notifications-bell";
 
 // The global chrome shared across every umbrella surface (hub, admin) and
@@ -19,7 +18,7 @@ export default function TopBar({
   current?: "research" | "admin";
 }) {
   const canResearch = MODULES.some((m) => m.startsWith("research.") && userCan(user, m));
-  const canAdmin = userCan(user, "admin");
+  const adminAccess = canEnterAdmin(user);
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const showTabs = current === "admin"; // admin section tabs live in the menu on mobile
@@ -32,14 +31,14 @@ export default function TopBar({
         <span className="wm-a">Snagged</span>
       </Link>
 
-      {(canResearch || canAdmin) && (
+      {(canResearch || adminAccess) && (
         <nav className="topbar__nav">
           {canResearch && (
             <a href="/research" className={current === "research" ? "active" : ""}>
               Research
             </a>
           )}
-          {canAdmin && (
+          {adminAccess && (
             <Link href="/admin" className={current === "admin" ? "active" : ""}>
               Admin
             </Link>
@@ -69,7 +68,7 @@ export default function TopBar({
       <div className={"topbar__menu" + (open ? " open" : "")}>
         {showTabs && (
           <nav className="topbar__menu-nav">
-            {TABS.map((t) => {
+            {ADMIN_TABS.filter((t) => canAdmin(user, t.perm)).map((t) => {
               const active =
                 t.href === "/admin" ? pathname === "/admin" : pathname.startsWith(t.href);
               return (

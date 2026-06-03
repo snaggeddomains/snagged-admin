@@ -177,6 +177,28 @@ Validated 2026-06-02: Reflex (1,960→1,959 net-new→616 q≥1→616 enriched v
 brandbucket (145,722→5 net-new→0 q≥1→skipped), Narendra Ghimire (1,496→20→13→13 enriched
 realtime). All three paths (batch / skip / realtime) confirmed.
 
+# Permissions — granular per-tab admin (lib/permissions.ts)
+
+Two-tier model (module + action) in `dashboard/lib/permissions.ts`, stored in the
+`permissions` JSONB on `domain_research_users`. **Every Admin tab is its own
+user-settable permission** (`ADMIN_TABS` is the single source of truth for the
+sub-nav + each tab's gate): `admin.sources` · `admin.config` · `admin.schedule` ·
+`admin.users.manage` (Users) · `admin.imports` (+ `admin.imports.replace`) ·
+`admin.lessons.approve` (Lessons). The `admin` umbrella key (and the `is_admin`
+flag) grants ALL tabs.
+- `canAdmin(user, key)` = `is_admin || perms.admin || perms[key]`; `canEnterAdmin(user)`
+  = umbrella or any one tab. The admin layout admits on `canEnterAdmin` and passes only
+  the allowed tabs to `<Nav>`; the TopBar mirrors this on mobile; **each page also
+  re-checks its own tab perm** (server-side). `/admin` (Sources) redirects to the
+  user's first allowed tab if they lack `admin.sources`.
+- `is_admin` is the **owner-only** break-glass superuser (auto-passes everything) —
+  reserve it for the owner; grant everyone else granular tabs. Research-side perms are
+  flat keys (`domain_owner`, …) via `storageKey`; the research SPA's Admin link checks
+  `is_admin || permissions.admin`.
+- **FORWARD RULE: every new module/tool gets its own granular, user-settable permission
+  in MODULES/ACTIONS + CATALOG (+ ADMIN_TABS if it's an admin tab).** Never gate a new
+  surface on `is_admin` or the coarse `admin` umbrella alone.
+
 # Read-only DB lookups (claude_ro)
 
 For troubleshooting / confirming functionality, a least-privilege Postgres role

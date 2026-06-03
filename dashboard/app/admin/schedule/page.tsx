@@ -2,6 +2,9 @@ import { loadFullRegistry, type Source } from "@/lib/sources";
 import { editFile, workflowPathFor, runWorkflowPage } from "@/lib/github-links";
 import { parseCron, etTimeLabel, type ParsedCron } from "@/lib/cron";
 import KindPill from "@/app/kind-pill";
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/session";
+import { canAdmin } from "@/lib/permissions";
 
 export const revalidate = 60;
 
@@ -95,6 +98,17 @@ const COLGROUP = (
 const TABLE_STYLE = { tableLayout: "fixed" as const, width: "100%" };
 
 export default async function SchedulePage() {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login?next=/admin/schedule");
+  if (!canAdmin(user, "admin.schedule")) {
+    return (
+      <main>
+        <h1 style={{ fontSize: "1.25rem" }}>No access</h1>
+        <p className="muted">Ask an admin for the <code>Schedule</code> permission.</p>
+      </main>
+    );
+  }
+
   const hasToken = !!process.env.GITHUB_TOKEN;
   if (!hasToken) {
     return (

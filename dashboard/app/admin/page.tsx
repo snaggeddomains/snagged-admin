@@ -13,6 +13,9 @@ import {
 import { parseCron, etTimeLabel } from "@/lib/cron";
 import KindPill from "@/app/kind-pill";
 import SourceTable, { type RowVM } from "./source-row";
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/session";
+import { canAdmin, ADMIN_TABS } from "@/lib/permissions";
 
 export const revalidate = 60;
 
@@ -165,6 +168,15 @@ function ReferencesSection({ refs }: { refs: Reference[] }) {
 }
 
 export default async function SourcesPage() {
+  // Per-tab gate. /admin is the index; if the user can't see Sources but can
+  // see another tab, send them there rather than a dead-end "No access".
+  const user = await getCurrentUser();
+  if (!user) redirect("/login?next=/admin");
+  if (!canAdmin(user, "admin.sources")) {
+    const first = ADMIN_TABS.find((t) => t.href !== "/admin" && canAdmin(user, t.perm));
+    redirect(first ? first.href : "/login");
+  }
+
   const hasToken = !!process.env.GITHUB_TOKEN;
   const [sources, refs] = hasToken
     ? await Promise.all([loadAllSourcesWithStatus(), loadReferences()])

@@ -1,6 +1,9 @@
 import { loadFullRegistry, type FilterProfile } from "@/lib/sources";
 import { editFile, viewFile, sourceModulePathFor } from "@/lib/github-links";
 import KindPill from "@/app/kind-pill";
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/session";
+import { canAdmin } from "@/lib/permissions";
 
 export const revalidate = 60;
 
@@ -116,6 +119,17 @@ function ProfileCard({ p }: { p: FilterProfile }) {
 }
 
 export default async function ConfigPage() {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login?next=/admin/config");
+  if (!canAdmin(user, "admin.config")) {
+    return (
+      <main>
+        <h1 style={{ fontSize: "1.25rem" }}>No access</h1>
+        <p className="muted">Ask an admin for the <code>Configuration</code> permission.</p>
+      </main>
+    );
+  }
+
   const hasToken = !!process.env.GITHUB_TOKEN;
   if (!hasToken) {
     return (
