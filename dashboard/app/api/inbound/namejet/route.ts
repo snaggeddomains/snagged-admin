@@ -14,6 +14,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 import crypto from "node:crypto";
 import { getNamingDb, isNamingConfigured } from "@/lib/naming";
+import { dispatchWorkflow } from "@/lib/orchestrator";
+
+// Run the source the moment an email is stashed (event-driven, not on a cron).
+const SOURCE_WORKFLOW = "source-namejet-email-digest.yml";
 
 export const runtime = "nodejs";
 
@@ -156,5 +160,19 @@ export async function POST(req: NextRequest) {
       { status: 500 },
     );
   }
-  return NextResponse.json({ ok: true, stored: true, body: !!html, ...diag });
+  // Event-driven ingest: the instant we've stored a real email body, kick the
+  // source so it parses + filters + publishes right away (no waiting for the
+  // morning auctions batch). Best-effort — the daily run is the safety net.
+  let dispatched = false;
+  if (html) {
+    try {
+      const d = await dispatchWorkflow(SOURCE_WORKFLOW);
+      dispatched = d.ok;
+      if (!d.ok) console.error("namejet inbound: dispatch failed —", d.error || d.status);
+    } catch (e) {
+      console.error("namejet inbound: dispatch error", e);
+    }
+  }
+
+  return NextResponse.json({ ok: true, stored: true, body: !!html, dispatched, ...diag });
 }
