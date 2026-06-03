@@ -12,7 +12,9 @@ concurrency:
 
 jobs:
   run:
-    runs-on: ubuntu-latest
+    # Pin the runner image (not `ubuntu-latest`) so a GitHub image refresh can't
+    # silently shift preinstalled libs under the headless browser.
+    runs-on: ubuntu-24.04
     # Playwright + chromium install adds ~3-5 min on top of usual runtime
     timeout-minutes: 20
     steps:
@@ -21,7 +23,13 @@ jobs:
       - uses: ./.github/actions/setup
 
       - name: Install Playwright Chromium
-        run: python -m playwright install --with-deps chromium
+        # `chromium` alone does NOT install the headless-shell binary that a
+        # headless launch needs on current Playwright — when the pinned-only
+        # `chromium` install and a freshly-resolved Playwright disagree, the
+        # launch dies with "Executable doesn't exist … chrome-headless-shell".
+        # Install the headless shell explicitly so a Playwright bump can't
+        # reintroduce that failure (broke dropcatch 2026-06-03).
+        run: python -m playwright install --with-deps chromium chromium-headless-shell
 
       - name: Run dropcatch_auctions
         env:

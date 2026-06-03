@@ -29,6 +29,18 @@ on:
       - "Source: spaceship"
       - "Source: auctions_publish (orchestrator)"
       - "Source: auctions_watchdog"
+      # Auction scrape sources — previously only the orchestrators above were
+      # wired in, so a per-source failure (e.g. the dropcatch Playwright break
+      # on 2026-06-03) never spun up a focused autofix on its own log. Wire each
+      # auction source so its failure triggers a diagnosis directly.
+      - "Source: dropcatch_auctions"
+      - "Source: dynadot_auctions"
+      - "Source: godaddy_auctions"
+      - "Source: namecheap_auctions"
+      - "Source: namejet_lastchance"
+      - "Source: namesilo_auctions"
+      - "Source: parkio_auctions"
+      - "Source: sedo_expired_auctions"
     types: [completed]
     branches: [main]
 
