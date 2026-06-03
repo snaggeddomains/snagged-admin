@@ -19,12 +19,14 @@ export const runtime = "nodejs";
 
 const INBOX_TABLE = "namejet_inbound";
 
-// Verify a Svix-signed webhook (Resend uses Svix). Signature header is a
-// space-separated list of "v1,<base64>"; content signed is `${id}.${ts}.${body}`.
+// Verify a Svix-signed webhook (Resend uses Svix). Svix sends both the legacy
+// `svix-*` headers and the standardized `webhook-*` aliases; accept either.
+// Signature header is a space-separated list of "v1,<base64>"; content signed is
+// `${id}.${ts}.${body}`.
 function verifySignature(secret: string, headers: Headers, rawBody: string): boolean {
-  const id = headers.get("svix-id");
-  const ts = headers.get("svix-timestamp");
-  const sigHeader = headers.get("svix-signature");
+  const id = headers.get("svix-id") || headers.get("webhook-id");
+  const ts = headers.get("svix-timestamp") || headers.get("webhook-timestamp");
+  const sigHeader = headers.get("svix-signature") || headers.get("webhook-signature");
   if (!id || !ts || !sigHeader) return false;
   const secretBytes = Buffer.from((secret.split("_")[1] ?? secret), "base64");
   const expected = crypto
