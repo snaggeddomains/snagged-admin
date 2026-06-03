@@ -21,16 +21,29 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "No access to the cost report" }, { status: 403 });
   }
   const period = periodOf(req.nextUrl.searchParams.get("period"));
-  const days = Math.min(Math.max(parseInt(req.nextUrl.searchParams.get("days") || "30", 10) || 30, 1), 730);
   const category = req.nextUrl.searchParams.get("category") || null;
-  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+  // Custom range (YYYY-MM-DD, treated as UTC days) takes precedence over the
+  // rolling "last N days" preset. `to` is inclusive → upper bound is end-of-day.
+  const from = req.nextUrl.searchParams.get("from");
+  const to = req.nextUrl.searchParams.get("to");
+  const isDate = (s: string | null): s is string => !!s && /^\d{4}-\d{2}-\d{2}$/.test(s);
+  let since: string;
+  let until: string | null;
+  if (isDate(from)) {
+    since = new Date(`${from}T00:00:00.000Z`).toISOString();
+    until = isDate(to) ? new Date(`${to}T23:59:59.999Z`).toISOString() : new Date().toISOString();
+  } else {
+    const days = Math.min(Math.max(parseInt(req.nextUrl.searchParams.get("days") || "30", 10) || 30, 1), 730);
+    since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+    until = null;
+  }
   try {
     const [totals, series, rates] = await Promise.all([
-      costTotals(since),
-      costSeries(period, since, category),
+      costTotals(since, until),
+      costSeries(period, since, category, until),
       listRates(),
     ]);
-    return NextResponse.json({ ok: true, period, days, category, totals, series, rates });
+    return NextResponse.json({ ok: true, period, category, since, until, totals, series, rates });
   } catch (e) {
     return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
   }

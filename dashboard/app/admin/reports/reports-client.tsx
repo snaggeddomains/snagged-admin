@@ -28,10 +28,17 @@ function defaultLabel(meter: string): string {
 const usd = (n: number) =>
   n >= 100 ? `$${n.toFixed(0)}` : n >= 1 ? `$${n.toFixed(2)}` : `$${n.toFixed(4)}`;
 const num = (n: number) => (Number.isInteger(n) ? n.toLocaleString() : n.toLocaleString(undefined, { maximumFractionDigits: 3 }));
+// YYYY-MM-DD in UTC (matches the server's UTC day buckets).
+const ymd = (d: Date) => d.toISOString().slice(0, 10);
+const TODAY = ymd(new Date());
+const YESTERDAY = ymd(new Date(Date.now() - 86400000));
 
 export default function ReportsClient({ canCost }: { canCost: boolean }) {
   const [period, setPeriod] = useState<Period>("day");
   const [days, setDays] = useState(30);
+  const [mode, setMode] = useState<"preset" | "custom">("preset");
+  const [from, setFrom] = useState(YESTERDAY);
+  const [to, setTo] = useState(TODAY);
   const [category, setCategory] = useState<string>("All");
   const [totals, setTotals] = useState<Total[]>([]);
   const [series, setSeries] = useState<SeriesPoint[]>([]);
@@ -46,7 +53,13 @@ export default function ReportsClient({ canCost }: { canCost: boolean }) {
     setLoading(true);
     setMsg("");
     try {
-      const q = new URLSearchParams({ period, days: String(days) });
+      const q = new URLSearchParams({ period });
+      if (mode === "custom" && from) {
+        q.set("from", from);
+        q.set("to", to || from);
+      } else {
+        q.set("days", String(days));
+      }
       if (category !== "All") q.set("category", category);
       const res = await fetch(`/api/admin/reports?${q.toString()}`, { cache: "no-store" });
       const data = await res.json();
@@ -67,7 +80,7 @@ export default function ReportsClient({ canCost }: { canCost: boolean }) {
     } finally {
       setLoading(false);
     }
-  }, [period, days, category]);
+  }, [period, days, category, mode, from, to]);
 
   useEffect(() => {
     if (canCost) load();
@@ -144,7 +157,8 @@ export default function ReportsClient({ canCost }: { canCost: boolean }) {
     );
   }
 
-  const filterNote = category === "All" ? `over last ${days}d` : `· ${category} · last ${days}d`;
+  const rangeLabel = mode === "custom" && from ? (from === (to || from) ? from : `${from} → ${to || from}`) : `last ${days}d`;
+  const filterNote = category === "All" ? rangeLabel : `· ${category} · ${rangeLabel}`;
 
   return (
     <main>
@@ -174,10 +188,30 @@ export default function ReportsClient({ canCost }: { canCost: boolean }) {
         </div>
         <label style={{ fontSize: 13, display: "flex", gap: 6, alignItems: "center" }}>
           Window
-          <select value={days} onChange={(e) => setDays(Number(e.target.value))} className="field" style={{ padding: "5px 8px", fontSize: 13 }}>
+          <select
+            value={mode === "custom" ? "custom" : String(days)}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v === "custom") setMode("custom");
+              else { setMode("preset"); setDays(Number(v)); }
+            }}
+            className="field" style={{ padding: "5px 8px", fontSize: 13 }}
+          >
             {WINDOWS.map((w) => <option key={w} value={w}>last {w} days</option>)}
+            <option value="custom">Custom range…</option>
           </select>
         </label>
+        {mode === "custom" && (
+          <span style={{ display: "inline-flex", gap: 6, alignItems: "center", fontSize: 13 }}>
+            <input type="date" value={from} max={to || TODAY} onChange={(e) => setFrom(e.target.value)}
+              className="field" style={{ padding: "4px 6px", fontSize: 13 }} />
+            <span className="muted">→</span>
+            <input type="date" value={to} max={TODAY} min={from} onChange={(e) => setTo(e.target.value)}
+              className="field" style={{ padding: "4px 6px", fontSize: 13 }} />
+            <button onClick={() => { setFrom(YESTERDAY); setTo(YESTERDAY); }} style={{ fontSize: 12 }}>Yesterday</button>
+            <button onClick={() => { setFrom(TODAY); setTo(TODAY); }} style={{ fontSize: 12 }}>Today</button>
+          </span>
+        )}
         <label style={{ fontSize: 13, display: "flex", gap: 6, alignItems: "center" }}>
           Category
           <select value={category} onChange={(e) => setCategory(e.target.value)} className="field" style={{ padding: "5px 8px", fontSize: 13 }}>

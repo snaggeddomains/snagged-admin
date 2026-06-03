@@ -37,11 +37,11 @@ export async function upsertRate(meter: string, usdPerUnit: number, unitLabel: s
   if (error) throw new Error(`upsertRate: ${error.message}`);
 }
 
-// Totals per (category, meter) since a cutoff — the client pivots into by-system
-// / by-category / the per-meter rate editor and applies the (live) rates.
-export async function costTotals(sinceISO: string): Promise<Total[]> {
+// Totals per (category, meter) within [since, until) — the client pivots into
+// by-system / by-category / the per-meter rate editor and applies (live) rates.
+export async function costTotals(sinceISO: string, untilISO: string | null = null): Promise<Total[]> {
   if (!isDbConfigured()) return [];
-  const { data, error } = await getDb().rpc("cost_totals", { p_since: sinceISO });
+  const { data, error } = await getDb().rpc("cost_totals", { p_since: sinceISO, p_until: untilISO });
   if (error) return [];
   return (data ?? []).map((r: { category: string; meter: string; units: number | string }) => ({
     category: String(r.category || "uncategorized"),
@@ -50,13 +50,15 @@ export async function costTotals(sinceISO: string): Promise<Total[]> {
   }));
 }
 
-// $ per day/week/month bucket using SAVED rates (optionally one category).
-export async function costSeries(period: Period, sinceISO: string, category: string | null): Promise<SeriesPoint[]> {
+// $ per day/week/month bucket using SAVED rates (optionally one category, within
+// [since, until)).
+export async function costSeries(period: Period, sinceISO: string, category: string | null, untilISO: string | null = null): Promise<SeriesPoint[]> {
   if (!isDbConfigured()) return [];
   const { data, error } = await getDb().rpc("cost_series", {
     p_period: period,
     p_since: sinceISO,
     p_category: category || null,
+    p_until: untilISO,
   });
   if (error) return [];
   return (data ?? []).map((r: { bucket: string; cost: number | string }) => ({
