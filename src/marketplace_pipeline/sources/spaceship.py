@@ -30,6 +30,7 @@ import requests
 from .. import config, state
 from ..filters import universe as univ
 from ..universe import supabase_writer
+from ..usage_log import record_usage
 
 SOURCE_ID = "spaceship"
 SOURCE_LABEL = "Spaceship SellerHub"
@@ -100,6 +101,7 @@ def _fetch_page(skip: int, take: int = PAGE_SIZE) -> dict[str, Any]:
                 response=resp,
             )
         resp.raise_for_status()
+        record_usage("spaceship.api", 1, "snap")
         return resp.json()
     raise RuntimeError(
         f"Spaceship API failed after {MAX_RETRIES} retries. Last error: {last_err}"

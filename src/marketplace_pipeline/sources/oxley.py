@@ -35,6 +35,7 @@ from typing import Any
 import requests
 
 from .. import config, state
+from ..usage_log import record_usage
 from ..filters import universe as univ
 from ..universe import supabase_writer
 
@@ -107,6 +108,7 @@ def _fetch_via_scrape_do(url: str) -> str:
     }
     resp = requests.get(SCRAPE_DO_BASE, params=params, timeout=REQUEST_TIMEOUT)
     resp.raise_for_status()
+    record_usage("scrape_do.request", 1, "snap")
     return resp.text
 
 

@@ -26,6 +26,7 @@ from .. import auctions, config, drive_cache, state
 from ..auctions import sheet as auctions_sheet
 from ..auctions import slack as auctions_slack
 from ..filters import standard as flt
+from ..usage_log import record_usage
 
 SOURCE_ID = "namejet_lastchance"
 SOURCE_LABEL = "NameJet Last Chance"
@@ -238,6 +239,7 @@ def _cf_post(account_id: str, api_token: str, body: dict[str, Any]) -> tuple[int
         json=body,
         timeout=150,
     )
+    record_usage("cloudflare.browser_render", 1, "auctions")
     try:
         return resp.status_code, resp.json()
     except ValueError:
@@ -336,6 +338,7 @@ def fetch_html_via_scrape_do(url: str) -> str:
     }
     resp = _r.get("https://api.scrape.do/", params=params, timeout=180)
     resp.raise_for_status()
+    record_usage("scrape_do.request", 1, "auctions")
     return resp.text
 
 

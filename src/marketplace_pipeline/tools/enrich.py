@@ -47,6 +47,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 
 from ..universe.supabase_writer import _client_or_none as _naming_client
+from ..usage_log import record_model_usage
 
 ENRICH_COLS = ("category", "connotation", "emotions", "keywords", "industries")
 
@@ -440,6 +441,8 @@ def main(argv: list[str] | None = None) -> int:
         if rate:
             cost = (tot["in"] + tot["cache_read"]) / 1e6 * rate[0] + tot["out"] / 1e6 * rate[1]
             print(f"Est. cost this run: ${cost:.2f} (≈${cost / max(processed,1) * 1000:.2f}/1k rows).")
+        # Log token spend to the cost report (category 'enrichment').
+        record_model_usage(model, tot, "enrichment")
     return 0
 
 

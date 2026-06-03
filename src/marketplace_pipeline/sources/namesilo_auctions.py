@@ -21,6 +21,7 @@ from .. import auctions, config, drive_cache, state
 from ..auctions import sheet as auctions_sheet
 from ..auctions import slack as auctions_slack
 from ..filters import standard as flt
+from ..usage_log import record_usage
 
 SOURCE_ID = "namesilo_auctions"
 SOURCE_LABEL = "NameSilo"
@@ -78,6 +79,7 @@ def _fetch_page(
             time.sleep(1.5 * (attempt + 1))
             continue
         resp.raise_for_status()
+        record_usage("namesilo.api", 1, "auctions")
         data = resp.json()
         return (data.get("reply") or {}).get("body") or []
     return []

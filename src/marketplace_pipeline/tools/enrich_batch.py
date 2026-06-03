@@ -50,6 +50,7 @@ from .enrich import (
     _clean,
     _parse_array,
 )
+from ..usage_log import record_model_usage
 
 STATE_PATH = Path("state/enrichment/batches.jsonl")
 MAX_REQUESTS_PER_BATCH = 25000  # Anthropic per-batch request cap
@@ -325,6 +326,9 @@ def _collect(args) -> int:
             cost = (tin / 1e6 * rate[0] + tout / 1e6 * rate[1]) * 0.5
             print(f"    tokens in {tin:,} / out {tout:,}; est. cost "
                   f"${cost:.2f} (Batch API 50% off).")
+        # Log batch token spend to the cost report (category 'enrichment',
+        # 'batch_' meter prefix so its 50%-off rate is set independently).
+        record_model_usage(model, {"in": tin, "out": tout}, "enrichment", batch=True)
 
     _rewrite_state(records)
     return 0

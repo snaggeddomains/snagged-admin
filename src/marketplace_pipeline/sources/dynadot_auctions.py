@@ -19,6 +19,7 @@ from .. import auctions, config, drive_cache, state
 from ..auctions import sheet as auctions_sheet
 from ..auctions import slack as auctions_slack
 from ..filters import standard as flt
+from ..usage_log import record_usage
 
 SOURCE_ID = "dynadot_auctions"
 SOURCE_LABEL = "Dynadot"
@@ -56,6 +57,7 @@ def _fetch_page(
     }
     resp = session.get(API_URL, params=params, timeout=60)
     resp.raise_for_status()
+    record_usage("dynadot.api", 1, "auctions")
     data = resp.json()
     if data.get("status") != "success":
         raise RuntimeError(f"Dynadot API error on page {page_index}: {data}")
