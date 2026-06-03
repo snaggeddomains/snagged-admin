@@ -6,6 +6,12 @@
 //
 // Storage: the `permissions` JSONB column on domain_research_users. `is_admin`
 // auto-passes every check.
+//
+// CONVENTION: `is_admin` is the OWNER / break-glass superuser — reserve it for
+// the owner account(s) only (it inherits every current + future module/action
+// and can never be locked out of the user editor). Everyone else, including
+// power users, gets GRANULAR module/action grants below — do not hand out
+// is_admin for convenience.
 
 export interface AppUser {
   id: string;
