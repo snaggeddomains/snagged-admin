@@ -23,6 +23,7 @@ export default async function ImportsPage() {
       universeReady={isNamingConfigured()}
       masterReady={isMasterlistConfigured()}
       canUniverse={userCanAction(user, "admin.imports.universe")}
+      canReplace={userCanAction(user, "admin.imports.replace")}
     />
   );
 }

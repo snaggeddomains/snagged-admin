@@ -44,7 +44,7 @@ const ENRICH_QUALITY_MIN = 1;
 
 // Steps shown in the visual "How to use" explainer at the top of the page.
 const HOWTO_STEPS: { t: string; d: React.ReactNode }[] = [
-  { t: "Add the domains", d: <>Drop a CSV or paste them. Columns: <b>domain</b> (required), <b>price</b>, <b>owner</b> (Master only). Headers auto-ignored — or grab the template.</> },
+  { t: "Add the domains", d: <>Drop a CSV or paste. Columns: <b>domain</b> (required), <b>owner</b> (required), <b>price</b> (optional). Headers auto-ignored — or grab the template.</> },
   { t: "Name the source", d: <>Type to pick an existing source or create a new one. This tag groups the names and scopes net-new + enrich.</> },
   { t: "Merge or Replace", d: <><b>Merge</b> appends &amp; keeps history; <b>Replace</b> wipes this source&rsquo;s rows first, then imports.</> },
   { t: "Backfill & enrich", d: <>Optional. Backfill = free scores. Enrich = paid LLM, only on <b>net-new</b> names with quality ≥ {ENRICH_QUALITY_MIN}.</> },
@@ -83,10 +83,12 @@ export default function ImportsClient({
   universeReady,
   masterReady,
   canUniverse,
+  canReplace,
 }: {
   universeReady: boolean;
   masterReady: boolean;
   canUniverse: boolean;
+  canReplace: boolean;
 }) {
   const [target, setTarget] = useState<Target>("master");
   // Universe is gated behind a sub-permission; without it, everything goes to
@@ -96,6 +98,11 @@ export default function ImportsClient({
   }, [canUniverse, target]);
   const [source, setSource] = useState("");
   const [mode, setMode] = useState<Mode>("merge");
+  // Replace is a destructive, permission-gated mode. Without it, imports always
+  // Merge and the Mode toggle is hidden — clamp any stray replace selection.
+  useEffect(() => {
+    if (!canReplace && mode !== "merge") setMode("merge");
+  }, [canReplace, mode]);
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [log, setLog] = useState<string[]>([]);
@@ -103,7 +110,7 @@ export default function ImportsClient({
   const [preview, setPreview] = useState<Preview | null>(null);
   const [previewing, setPreviewing] = useState(false);
   const [autoBackfill, setAutoBackfill] = useState(true);
-  const [autoEnrich, setAutoEnrich] = useState(false);
+  const [autoEnrich, setAutoEnrich] = useState(true);
   const [history, setHistory] = useState<HistoryRow[]>([]);
   const [sourcesUniverse, setSourcesUniverse] = useState<string[]>([]);
   const [sourcesMaster, setSourcesMaster] = useState<string[]>([]);
@@ -155,9 +162,9 @@ export default function ImportsClient({
   }
 
   function downloadTemplate() {
-    const header = target === "master" ? "domain,price,owner" : "domain,price";
+    const header = target === "master" ? "domain,owner,price" : "domain,price";
     const sample = target === "master"
-      ? ["example.com,2500,Digimedia", "brand.io,,Acme Holdings"]
+      ? ["example.com,Digimedia,2500", "brand.io,Acme Holdings,"]
       : ["example.com,2500", "brand.io,"];
     const blob = new Blob([`${header}\n${sample.join("\n")}\n`], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -213,6 +220,15 @@ export default function ImportsClient({
     if (!src) { add("⚠️ Enter a source name first."); return; }
     const rows = parseRows(text);
     if (!rows.length) { add("⚠️ No valid domains found in the input."); return; }
+
+    // Owner is required on Master — every domain must carry an owner.
+    if (target === "master") {
+      const missing = rows.filter((r) => !r.owner || !String(r.owner).trim()).length;
+      if (missing) {
+        add(`⚠️ Owner is required — ${missing.toLocaleString()} of ${rows.length.toLocaleString()} row(s) have no owner. Add an owner for every domain and re-upload.`);
+        return;
+      }
+    }
 
     // Replace mode deletes rows — double opt-in: the checkbox AND a confirm
     // dialog that spells out the consequence (with the previewed delete count).
@@ -376,10 +392,10 @@ export default function ImportsClient({
         )}
 
         <div style={{ fontSize: 11.5, fontWeight: 700, color: "var(--navy-3)", textTransform: "uppercase", letterSpacing: ".05em", marginBottom: 10 }}>
-          Then — five steps
+          Then — the steps
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(255px, 1fr))", rowGap: 14, columnGap: 22 }}>
-          {HOWTO_STEPS.map((s, i) => (
+          {(canReplace ? HOWTO_STEPS : HOWTO_STEPS.filter((s) => s.t !== "Merge or Replace")).map((s, i) => (
             <div key={i} style={{ display: "flex", gap: 11, alignItems: "flex-start" }}>
               <span style={{ flex: "0 0 auto", width: 24, height: 24, borderRadius: "50%", background: "var(--coral-deep, #cf6849)", color: "#fff", fontSize: 13, fontWeight: 700, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</span>
               <div>
@@ -415,8 +431,9 @@ export default function ImportsClient({
           </button>
         </div>
         <p className="muted" style={{ marginTop: 6, marginBottom: 2, fontSize: 14.5 }}>
-          Upload a CSV or paste domains. Columns: <b>domain</b> (required), price
-          {target === "master" ? ", owner" : ""} (optional). Headers are auto-detected and ignored.
+          {target === "master"
+            ? <>Upload a CSV or paste. Columns: <b>domain</b> (required), <b>owner</b> (required), <b>price</b> (optional). Headers are auto-detected and ignored.</>
+            : <>Upload a CSV or paste. Columns: <b>domain</b> (required), <b>price</b> (optional). Headers are auto-detected and ignored.</>}
         </p>
         <p className="muted" style={{ marginTop: 0, fontSize: 13 }}>
           {target === "universe"
@@ -552,7 +569,8 @@ export default function ImportsClient({
             <SourceHint source={source} known={knownSources} onPick={(s) => { setSource(s); setPreview(null); }} />
           </div>
 
-          {/* MODE */}
+          {/* MODE — Replace is destructive + permission-gated; hidden otherwise (always Merge). */}
+          {canReplace && (
           <div>
             <FieldLabel>Mode</FieldLabel>
             <Seg
@@ -584,6 +602,7 @@ export default function ImportsClient({
               </div>
             )}
           </div>
+          )}
 
           {/* OPTIONS */}
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>

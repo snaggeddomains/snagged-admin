@@ -154,6 +154,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true, preview });
     }
     if (body.action === "finalize-replace") {
+      // Replace deletes rows of the source not in the file — gated behind a
+      // dedicated action permission (admins auto-pass).
+      if (!userCanAction(me, "admin.imports.replace")) {
+        return NextResponse.json({ error: "Forbidden — Replace needs admin.imports.replace" }, { status: 403 });
+      }
       const removed = await finalizeReplace(target, source, importTs, today);
       return NextResponse.json({ ok: true, removed });
     }
