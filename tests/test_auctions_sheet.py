@@ -139,7 +139,10 @@ def test_write_to_empty_sheet():
         ],
         service=svc,
     )
-    assert stats == {"existing": 0, "added": 2, "deduped": 0, "total_after": 2}
+    assert stats == {
+        "existing": 0, "added": 2, "deduped": 0, "total_after": 2,
+        "added_domains": ["a.com", "b.com"],
+    }
     assert [r[2] for r in svc.rows] == ["a.com", "b.com"]
 
 
@@ -200,6 +203,37 @@ def test_write_clear_and_update_called():
 def test_write_no_new_or_existing_results_in_clear_only():
     svc = FakeService(initial=[])
     stats = auc_sheet.write(spreadsheet_id="S1", new_rows=[], service=svc)
-    assert stats == {"existing": 0, "added": 0, "deduped": 0, "total_after": 0}
+    assert stats == {
+        "existing": 0, "added": 0, "deduped": 0, "total_after": 0,
+        "added_domains": [],
+    }
     assert len(svc.clear_calls) == 1
     assert len(svc.update_calls) == 0  # nothing to write
+
+
+def test_write_returns_added_domains():
+    svc = FakeService(initial=[_mk_row("2026-05-28 04:00:00", "dup.com")])
+    stats = auc_sheet.write(
+        spreadsheet_id="S1",
+        new_rows=[
+            _mk_row("2026-05-28 04:00:00", "dup.com"),    # deduped, not "added"
+            _mk_row("2026-05-28 05:00:00", "fresh.com"),  # added
+        ],
+        service=svc,
+    )
+    assert stats["added_domains"] == ["fresh.com"]
+
+
+def test_write_persists_new_today_when_source_id_given(tmp_path, monkeypatch):
+    from marketplace_pipeline import state
+    monkeypatch.setattr(state, "STATE_DIR", tmp_path)
+    svc = FakeService(initial=[])
+    auc_sheet.write(
+        spreadsheet_id="S1",
+        new_rows=[_mk_row("2026-05-28 04:00:00", "New.com"), _mk_row("2026-05-28 05:00:00", "two.com")],
+        service=svc,
+        source_id="demo_auctions",
+    )
+    saved = state.read_json("demo_auctions", "new_today.json", default={})
+    assert saved["domains"] == ["new.com", "two.com"]  # lowercased, order preserved
+    assert saved["count"] == 2
