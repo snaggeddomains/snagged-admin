@@ -42,6 +42,15 @@ const CHUNK = { universe: 400, master: 1000 } as const;
 // band). Passed to enrich-batch --quality-min (>=).
 const ENRICH_QUALITY_MIN = 1;
 
+// Steps shown in the visual "How to use" explainer at the top of the page.
+const HOWTO_STEPS: { t: string; d: React.ReactNode }[] = [
+  { t: "Add the domains", d: <>Drop a CSV or paste them. Columns: <b>domain</b> (required), <b>price</b>, <b>owner</b> (Master only). Headers auto-ignored — or grab the template.</> },
+  { t: "Name the source", d: <>Type to pick an existing source or create a new one. This tag groups the names and scopes net-new + enrich.</> },
+  { t: "Merge or Replace", d: <><b>Merge</b> appends &amp; keeps history; <b>Replace</b> wipes this source&rsquo;s rows first, then imports.</> },
+  { t: "Backfill & enrich", d: <>Optional. Backfill = free scores. Enrich = paid LLM, only on <b>net-new</b> names with quality ≥ {ENRICH_QUALITY_MIN}.</> },
+  { t: "Preview, then Start", d: <><b>Preview</b> = dry-run (new vs. existing counts, no writes). <b>Start</b> applies it; big files chunk automatically.</> },
+];
+
 // Parse pasted text OR a CSV file: one row per line, find the cell that looks
 // like a domain, an optional numeric price cell, and (for Master) an optional
 // owner cell — the first remaining non-empty text cell. Header/junk lines (no
@@ -329,56 +338,60 @@ export default function ImportsClient({
 
   return (
     <main style={{ maxWidth: 940, margin: "0 auto" }}>
-      <details className="card" open style={{ padding: "16px 24px", marginBottom: 18 }}>
-        <summary style={{ cursor: "pointer", fontWeight: 700, fontSize: "1.05rem" }}>
-          How to use this tool
-        </summary>
-        <div style={{ fontSize: 14, lineHeight: 1.6, marginTop: 12, color: "var(--navy-2)" }}>
-          <p style={{ marginTop: 0 }}>
-            Bulk-import a list of domains into one of our two domain corpora, tag them with a
-            source, and (optionally) score and LLM-enrich the brand-new ones.
-          </p>
-          <ol style={{ paddingLeft: 20, margin: "0 0 4px" }}>
-            <li style={{ marginBottom: 6 }}>
-              <b>Pick the target.</b> <b>Universe</b> = the automated naming / marketplace pool
-              (owner is <i>derived</i> from the feed, not stored). <b>Master</b> = curated owner
-              attributions — import CSVs that include a real <code>owner</code>. Rule of thumb:
-              Master is &ldquo;I know who owns these&rdquo;; Universe is &ldquo;names for the naming engine.&rdquo;
-            </li>
-            <li style={{ marginBottom: 6 }}>
-              <b>Add the domains.</b> Drop a CSV or paste them. Columns: <b>domain</b> (required),
-              <b> price</b> (optional), <b>owner</b> (Master only). A header row is auto-detected and
-              ignored — or hit <b>Download Template</b> for the exact format.
-            </li>
-            <li style={{ marginBottom: 6 }}>
-              <b>Name the source.</b> Start typing — pick an existing source to add to it, or type a
-              new name. This tag groups the names and is how net-new / enrich is scoped.
-            </li>
-            <li style={{ marginBottom: 6 }}>
-              <b>Choose Merge or Replace.</b> <b>Merge</b> adds the names and appends this source to
-              any that already exist (keeps their history). <b>Replace</b> first removes this
-              source&rsquo;s existing rows, then imports — use it to re-sync a feed you fully own.
-            </li>
-            <li style={{ marginBottom: 6 }}>
-              <b>Optional: backfill &amp; enrich.</b> <b>Auto-backfill</b> computes the structural +
-              quality scores after upload (free). <b>Auto-enrich</b> runs the paid LLM pass — but
-              <i> only on NET-NEW names with quality ≥ {ENRICH_QUALITY_MIN}</i>, never on names that
-              already existed (a Merge just appends the source to those).
-            </li>
-            <li>
-              <b>Preview, then Start.</b> <b>Preview</b> is a dry-run — it shows how many are new vs.
-              already present without writing anything. <b>Start Import</b> applies it (large files
-              upload in chunks automatically).
-            </li>
-          </ol>
-          <p style={{ marginBottom: 0 }}>
-            After it runs, the <b>Past Imports</b> card shows the funnel —{" "}
-            <b>Inserted → Net-new → Quality q≥{ENRICH_QUALITY_MIN} → Enriched X/Y</b> — with a status
-            dot (green = done · yellow = running · red = stalled). <b>Re-enrich</b> re-dispatches the
-            enrich pass; the trash icon removes only the history entry, not the imported domains.
-          </p>
+      <section className="card" style={{ padding: "20px 24px", marginBottom: 18 }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
+          <h2 style={{ margin: 0, fontSize: "1.2rem" }}>How to use this tool</h2>
+          <span className="muted" style={{ fontSize: 13 }}>
+            Bulk-import domains into a corpus, tag them with a source, then optionally score &amp; enrich the new ones.
+          </span>
         </div>
-      </details>
+
+        <div style={{ fontSize: 11.5, fontWeight: 700, color: "var(--navy-3)", textTransform: "uppercase", letterSpacing: ".05em", marginBottom: 7 }}>
+          First — where do the domains go?
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 10, marginBottom: 18 }}>
+          <div style={{ border: "1px solid var(--line, #e3ddcf)", borderRadius: 10, padding: "11px 14px", background: "var(--cream-2, #fbf7ec)" }}>
+            <div style={{ fontWeight: 700, color: "var(--navy)" }}>🌐 Universe</div>
+            <div className="muted" style={{ fontSize: 12.5, marginTop: 3, lineHeight: 1.45 }}>Names for the naming engine. Owner is <i>derived</i> from the feed, not stored.</div>
+          </div>
+          <div style={{ border: "1px solid var(--line, #e3ddcf)", borderRadius: 10, padding: "11px 14px", background: "var(--cream-2, #fbf7ec)" }}>
+            <div style={{ fontWeight: 700, color: "var(--navy)" }}>👤 Master</div>
+            <div className="muted" style={{ fontSize: 12.5, marginTop: 3, lineHeight: 1.45 }}>&ldquo;I know who owns these.&rdquo; CSVs with a real <code>owner</code> column.</div>
+          </div>
+        </div>
+
+        <div style={{ fontSize: 11.5, fontWeight: 700, color: "var(--navy-3)", textTransform: "uppercase", letterSpacing: ".05em", marginBottom: 10 }}>
+          Then — five steps
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(255px, 1fr))", rowGap: 14, columnGap: 22 }}>
+          {HOWTO_STEPS.map((s, i) => (
+            <div key={i} style={{ display: "flex", gap: 11, alignItems: "flex-start" }}>
+              <span style={{ flex: "0 0 auto", width: 24, height: 24, borderRadius: "50%", background: "var(--coral-deep, #cf6849)", color: "#fff", fontSize: 13, fontWeight: 700, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</span>
+              <div>
+                <div style={{ fontWeight: 700, color: "var(--navy)", fontSize: 14 }}>{s.t}</div>
+                <div className="muted" style={{ fontSize: 12.5, lineHeight: 1.5, marginTop: 2 }}>{s.d}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ marginTop: 18, paddingTop: 14, borderTop: "1px solid var(--line, #eee)" }}>
+          <div style={{ fontSize: 11.5, fontWeight: 700, color: "var(--navy-3)", textTransform: "uppercase", letterSpacing: ".05em", marginBottom: 9 }}>
+            After it runs — the Past Imports funnel
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
+            {["Inserted", "Net-new", `Quality q≥${ENRICH_QUALITY_MIN}`, "Enriched X / Y"].map((c, i, arr) => (
+              <span key={c} style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
+                <span style={{ border: "1px solid var(--line, #e3ddcf)", borderRadius: 999, padding: "4px 13px", fontSize: 12.5, fontWeight: 600, color: "var(--navy-2)", background: "var(--cream-2, #fbf7ec)" }}>{c}</span>
+                {i < arr.length - 1 && <span style={{ color: "var(--navy-3)", fontWeight: 700 }}>→</span>}
+              </span>
+            ))}
+          </div>
+          <div className="muted" style={{ fontSize: 12, marginTop: 10, lineHeight: 1.5 }}>
+            Status dot <span style={{ color: "#3a9b6e", fontWeight: 700 }}>● done</span> · <span style={{ color: "#c79a1e", fontWeight: 700 }}>● running</span> · <span style={{ color: "var(--coral-deep)", fontWeight: 700 }}>● stalled</span>. <b>Re-enrich</b> re-runs the LLM pass; the trash icon removes only the history entry, not the domains.
+          </div>
+        </div>
+      </section>
       <section className="card" style={{ padding: "26px 28px" }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
           <h2 style={{ margin: 0, fontSize: "1.7rem" }}>Upload Domains</h2>
