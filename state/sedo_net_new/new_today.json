@@ -1,12 +1,9 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 1,
   "domains": [
-    "account.co",
-    "recipient.co",
-    "infected.co",
-    "arsene.co"
+    "bluegrass.co"
   ],
-  "generated_at": "2026-06-03T17:00:58.201047+00:00",
+  "generated_at": "2026-06-03T23:01:23.418402+00:00",
   "source": "sedo_net_new"
 }

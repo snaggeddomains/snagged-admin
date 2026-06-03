@@ -1,59 +1,19 @@
 [
   {
-    "domain": "reviewing.com",
-    "price": 24000.0
-  },
-  {
-    "domain": "wassup.ai",
-    "price": 15000.0
-  },
-  {
-    "domain": "yokohama.ai",
-    "price": null
-  },
-  {
-    "domain": "bisexual.ai",
-    "price": 5000.0
-  },
-  {
-    "domain": "megastore.ai",
-    "price": null
-  },
-  {
-    "domain": "fetishbound.com",
-    "price": null
-  },
-  {
-    "domain": "reductions.ai",
-    "price": null
-  },
-  {
-    "domain": "westminster.ai",
-    "price": 5000.0
+    "domain": "brandinglogo.com",
+    "price": 6000.0
   },
   {
     "domain": "kirklees.net",
     "price": 1999.0
   },
   {
-    "domain": "sometimes.net",
-    "price": 6400.0
-  },
-  {
     "domain": "account.co",
     "price": 100000.0
   },
   {
-    "domain": "lubbock.co",
-    "price": 29888.0
-  },
-  {
     "domain": "bioedge.co",
     "price": 1988.0
-  },
-  {
-    "domain": "livara.co",
-    "price": 3495.0
   },
   {
     "domain": "arsene.co",
@@ -64,10 +24,6 @@
     "price": 1988.0
   },
   {
-    "domain": "imminent.co",
-    "price": 29888.0
-  },
-  {
     "domain": "refera.co",
     "price": 1988.0
   },
@@ -76,23 +32,11 @@
     "price": 1988.0
   },
   {
-    "domain": "shameless.co",
-    "price": 34888.0
+    "domain": "bluegrass.co",
+    "price": 5980.0
   },
   {
     "domain": "recipient.co",
     "price": 4988.0
-  },
-  {
-    "domain": "congestion.co",
-    "price": 4988.0
-  },
-  {
-    "domain": "individually.net",
-    "price": 1895.0
-  },
-  {
-    "domain": "switchboards.co",
-    "price": 250.0
   }
 ]
