@@ -109,7 +109,9 @@ export async function POST(req: NextRequest) {
     diag.retrieve = "no_api_key";
   } else {
     try {
-      const r = await fetch(`https://api.resend.com/emails/${emailId}`, {
+      // Received/inbound emails use the Receiving API, NOT /emails/{id} (that's
+      // sent-only and 404s for inbound). Returns html / text / subject / from.
+      const r = await fetch(`https://api.resend.com/emails/receiving/${emailId}`, {
         headers: { Authorization: `Bearer ${apiKey}` },
       });
       const bodyText = await r.text();
