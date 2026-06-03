@@ -32,6 +32,27 @@ const RATE_CATALOG: string[] = [
   "anthropic.claude-haiku-4-5-20251001.cache_read", "anthropic.claude-haiku-4-5-20251001.cache_write",
 ];
 
+// Best-estimate $/unit to prefill the rate card. Anthropic + Whoxy are published
+// list prices; the rest are rough ballparks to adjust to your actual contracts.
+// Dynadot/NameSilo/Spaceship APIs are free for account holders → 0.
+const DEFAULT_RATES: Record<string, number> = {
+  // Anthropic published list ($ / 1M tokens)
+  "anthropic.claude-opus-4-7.input": 15, "anthropic.claude-opus-4-7.output": 75,
+  "anthropic.claude-opus-4-7.cache_read": 1.5, "anthropic.claude-opus-4-7.cache_write": 18.75,
+  "anthropic.claude-haiku-4-5-20251001.input": 1, "anthropic.claude-haiku-4-5-20251001.output": 5,
+  "anthropic.claude-haiku-4-5-20251001.cache_read": 0.1, "anthropic.claude-haiku-4-5-20251001.cache_write": 1.25,
+  // Contact / data lookups ($ / call) — ESTIMATES
+  "rocketreach.lookup": 0.5, "fullenrich.enrich": 0.1, "fullenrich.phone": 1.0,
+  "domainiq.lookup": 0.3, "whoisxml.lookup": 0.005, "whoisxml.reverse_whois": 0.02,
+  "whoisxml.reverse_ns": 0.02, "whoisxml.reverse_ip": 0.02, "bigdomaindata.lookup": 0.01,
+  "whoxy.history": 0.005, "whoxy.reverse": 0.01, "serper.web_search": 0.001,
+  "serper.namepros": 0.001, "brave.search": 0.004, "signa.trademark": 0.01,
+  "namebio.sales": 0.02, "appraise.new": 0.3, "appraise.cached": 0.1,
+  // Pipeline scrapers ($ / request) — ESTIMATES; the registrar APIs are free
+  "scrape_do.request": 0.005, "cloudflare.browser_render": 0.01,
+  "dynadot.api": 0, "namesilo.api": 0, "spaceship.api": 0,
+};
+
 // "fullenrich.phone" → "fullenrich"; "anthropic.claude-opus-4-7.input" → "anthropic".
 function systemOf(meter: string): string {
   return meter.split(".")[0] || meter;
@@ -158,6 +179,20 @@ export default function ReportsClient({ canCost }: { canCost: boolean }) {
     setRates((r) => ({ ...r, [m]: r[m] ?? 0 }));
     setDirty((d) => new Set(d).add(m));
     setNewMeter("");
+  }
+  // Drop best-estimate defaults into any meter that isn't priced yet (won't
+  // overwrite a rate you've already set). Review, then Save to persist.
+  function prefillEstimates() {
+    const next = { ...rates };
+    const d = new Set(dirty);
+    for (const m of rateMeters) {
+      if ((next[m] ?? 0) === 0 && DEFAULT_RATES[m] !== undefined) {
+        next[m] = DEFAULT_RATES[m];
+        d.add(m);
+      }
+    }
+    setRates(next);
+    setDirty(d);
   }
 
   async function saveRates() {
@@ -347,6 +382,8 @@ export default function ReportsClient({ canCost }: { canCost: boolean }) {
           Set what each source costs you — no SQL needed. Token meters are priced
           per <strong>1M tokens</strong>; everything else per <strong>call / lookup / enrichment</strong>.
           Saved rates apply across all categories and drive every dollar figure above.
+          Use <strong>Prefill estimates</strong> for a starting point (Anthropic &amp; Whoxy
+          are list prices; the rest are ballparks to adjust), then Save.
         </p>
         <div className="table-scroll"><table className="dash">
           <thead><tr><th>meter</th><th>unit</th><th className="right">$ / unit</th></tr></thead>
@@ -380,6 +417,7 @@ export default function ReportsClient({ canCost }: { canCost: boolean }) {
             className="field" style={{ maxWidth: 240, fontSize: 13 }}
           />
           <button onClick={addMeter} disabled={!newMeter.trim()} style={{ fontSize: 13 }}>Add meter</button>
+          <button onClick={prefillEstimates} style={{ fontSize: 13 }}>Prefill estimates</button>
           <button onClick={saveRates} disabled={saving || dirty.size === 0} className="btn btn--navy">
             {saving ? "Saving…" : dirty.size ? `Save ${dirty.size} change${dirty.size > 1 ? "s" : ""}` : "Saved"}
           </button>
