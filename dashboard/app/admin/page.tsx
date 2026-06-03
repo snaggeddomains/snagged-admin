@@ -12,6 +12,7 @@ import {
 } from "@/lib/github-links";
 import { parseCron, etTimeLabel } from "@/lib/cron";
 import KindPill from "@/app/kind-pill";
+import SourceTable, { type RowVM } from "./source-row";
 
 export const revalidate = 60;
 
@@ -87,110 +88,43 @@ function relativeTime(iso: string): string {
   return `${Math.round(ageSec / 86400)}d ago`;
 }
 
-function LinkOut({ href, label }: { href: string; label: string }) {
-  return (
-    <a href={href} target="_blank" rel="noopener noreferrer" className="link-out">
-      {label} →
-    </a>
-  );
-}
-
-function scheduleCell(
+function scheduleParts(
   s: SourceWithStatus,
   orchestratorById: Map<string, SourceWithStatus>,
-): React.ReactNode {
+): { label: string; via?: string } {
   const own = parseCron(s.schedule_utc);
-  if (own) return etTimeLabel(own);
+  if (own) return { label: etTimeLabel(own) };
   const parent = orchestratorById.get(s.source_id);
   const parentCron = parent && parseCron(parent.schedule_utc);
-  if (parent && parentCron) {
-    return (
-      <span title={`Triggered by ${parent.source_id}`}>
-        {etTimeLabel(parentCron)}
-        <span style={{ color: "var(--navy-3)", marginLeft: 6, fontSize: 12 }}>
-          via {parent.source_id}
-        </span>
-      </span>
-    );
-  }
-  return "—";
+  if (parent && parentCron) return { label: etTimeLabel(parentCron), via: parent.source_id };
+  return { label: "—" };
 }
 
-function SourceRow({
-  s,
-  orchestratorById,
-}: {
-  s: SourceWithStatus;
-  orchestratorById: Map<string, SourceWithStatus>;
-}) {
+// Flatten a source + its computed status into the serializable shape the client
+// row component renders (the row is a client component so the "new today" count
+// can lazily expand to the actual names).
+function toVM(
+  s: SourceWithStatus,
+  orchestratorById: Map<string, SourceWithStatus>,
+): RowVM {
   const info = statusInfo(s, orchestratorById);
-  const dim = info.key === "todo" || info.key === "disabled";
-  // The full reason/notes blurb lives in sources.yaml + the code link; keep the
-  // panel scannable by showing just the source_id here (KISS).
-  return (
-    <tr className={dim ? "dim" : undefined}>
-      <td>
-        <span title={info.label} className={`dot dot--${info.key}`} />
-      </td>
-      <td className="mono">
-        {s.source_id}
-        {info.key === "todo" && <span className="todo-badge">todo</span>}
-      </td>
-      <td><KindPill kind={s.kind} /></td>
-      <td className="muted">{scheduleCell(s, orchestratorById)}</td>
-      <td className="muted">
-        {s.runStatus ? relativeTime(s.runStatus.generated_at) : "—"}
-      </td>
-      <td className="num">{s.runStatus?.new_count ?? "—"}</td>
-      <td className="right" style={{ whiteSpace: "nowrap" }}>
-        {s.wired && <LinkOut href={runWorkflowPage(s.source_id)} label="run" />}
-        {s.wired && (
-          <LinkOut href={viewFile(sourceModulePathFor(s.source_id))} label="code" />
-        )}
-        {!s.wired && <LinkOut href={editFile("sources.yaml")} label="edit registry" />}
-      </td>
-    </tr>
-  );
-}
-
-function SourceTable({
-  items,
-  orchestratorById,
-}: {
-  items: SourceWithStatus[];
-  orchestratorById: Map<string, SourceWithStatus>;
-}) {
-  return (
-    <div className="table-scroll">
-    <table className="dash" style={{ tableLayout: "fixed", width: "100%" }}>
-      <colgroup>
-        <col style={{ width: 30 }} />
-        <col style={{ width: "22%" }} />
-        <col style={{ width: 130 }} />
-        <col style={{ width: "26%" }} />
-        <col style={{ width: 100 }} />
-        <col style={{ width: 110 }} />
-        <col />
-      </colgroup>
-      <thead>
-        <tr>
-          <th></th>
-          <th>source_id</th>
-          <th>kind</th>
-          <th>schedule (ET)</th>
-          <th>last run</th>
-          <th className="right">new&nbsp;today</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {items.map((s) => (
-          <SourceRow key={s.source_id} s={s} orchestratorById={orchestratorById} />
-        ))}
-      </tbody>
-    </table>
-    </div>
-  );
+  const sched = scheduleParts(s, orchestratorById);
+  return {
+    sourceId: s.source_id,
+    kind: s.kind,
+    statusKey: info.key,
+    statusLabel: info.label,
+    dim: info.key === "todo" || info.key === "disabled",
+    todo: info.key === "todo",
+    scheduleLabel: sched.label,
+    scheduleVia: sched.via,
+    lastRun: s.runStatus ? relativeTime(s.runStatus.generated_at) : "—",
+    newCount: s.runStatus?.new_count ?? null,
+    wired: !!s.wired,
+    runHref: runWorkflowPage(s.source_id),
+    codeHref: viewFile(sourceModulePathFor(s.source_id)),
+    editHref: editFile("sources.yaml"),
+  };
 }
 
 function ReferencesSection({ refs }: { refs: Reference[] }) {
@@ -311,7 +245,7 @@ export default async function SourcesPage() {
               {PRODUCT_LABEL[product]}
               <span className="count">· {wired}/{items.length} wired</span>
             </h2>
-            <SourceTable items={items} orchestratorById={orchestratorById} />
+            <SourceTable rows={items.map((s) => toVM(s, orchestratorById))} />
           </section>
         );
       })}

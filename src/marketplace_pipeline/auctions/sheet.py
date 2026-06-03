@@ -23,6 +23,8 @@ import os
 from datetime import datetime, timezone
 from typing import Any
 
+from .. import state
+
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 SHEET_RANGE = "Sheet1!A2:F"
 WRITE_RANGE = "Sheet1!A2"
@@ -112,10 +114,15 @@ def write(
     spreadsheet_id: str,
     new_rows: list[list[Any]],
     service: Any = None,
-) -> dict[str, int]:
+    source_id: str | None = None,
+) -> dict[str, Any]:
     """Prepend new auction rows to the sheet, deduping (domain, end) against existing.
 
-    Returns stats: {existing, added, deduped, total_after}.
+    Returns stats: {existing, added, deduped, total_after, added_domains}.
+
+    When `source_id` is given, the domains actually added today are also persisted
+    to state/<source_id>/new_today.json so the admin dashboard can show the names
+    behind the 'new today' count (best-effort; never fails the run).
     """
     svc = service or _service()
     existing = _read_existing(svc, spreadsheet_id)
@@ -143,9 +150,15 @@ def write(
             body={"values": combined},
         ).execute()
 
+    # Domain lives at column index 2 (see _dedup_key).
+    added_domains = [str(r[2]).strip() for r in deduped_new if len(r) >= 3]
+    if source_id:
+        state.write_new_today(source_id, added_domains)
+
     return {
         "existing": len(existing),
         "added": len(deduped_new),
         "deduped": skipped,
         "total_after": len(combined),
+        "added_domains": added_domains,
     }

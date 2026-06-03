@@ -227,6 +227,7 @@ def run() -> int:
     sheet_stats = auctions_sheet.write(
         spreadsheet_id=sheet_id,
         new_rows=sheet_rows,
+        source_id=SOURCE_ID,
     )
     print(f"      stats: {sheet_stats}")
 
