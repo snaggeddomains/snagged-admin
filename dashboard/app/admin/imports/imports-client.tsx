@@ -329,6 +329,56 @@ export default function ImportsClient({
 
   return (
     <main style={{ maxWidth: 940, margin: "0 auto" }}>
+      <details className="card" open style={{ padding: "16px 24px", marginBottom: 18 }}>
+        <summary style={{ cursor: "pointer", fontWeight: 700, fontSize: "1.05rem" }}>
+          How to use this tool
+        </summary>
+        <div style={{ fontSize: 14, lineHeight: 1.6, marginTop: 12, color: "var(--navy-2)" }}>
+          <p style={{ marginTop: 0 }}>
+            Bulk-import a list of domains into one of our two domain corpora, tag them with a
+            source, and (optionally) score and LLM-enrich the brand-new ones.
+          </p>
+          <ol style={{ paddingLeft: 20, margin: "0 0 4px" }}>
+            <li style={{ marginBottom: 6 }}>
+              <b>Pick the target.</b> <b>Universe</b> = the automated naming / marketplace pool
+              (owner is <i>derived</i> from the feed, not stored). <b>Master</b> = curated owner
+              attributions — import CSVs that include a real <code>owner</code>. Rule of thumb:
+              Master is &ldquo;I know who owns these&rdquo;; Universe is &ldquo;names for the naming engine.&rdquo;
+            </li>
+            <li style={{ marginBottom: 6 }}>
+              <b>Add the domains.</b> Drop a CSV or paste them. Columns: <b>domain</b> (required),
+              <b> price</b> (optional), <b>owner</b> (Master only). A header row is auto-detected and
+              ignored — or hit <b>Download Template</b> for the exact format.
+            </li>
+            <li style={{ marginBottom: 6 }}>
+              <b>Name the source.</b> Start typing — pick an existing source to add to it, or type a
+              new name. This tag groups the names and is how net-new / enrich is scoped.
+            </li>
+            <li style={{ marginBottom: 6 }}>
+              <b>Choose Merge or Replace.</b> <b>Merge</b> adds the names and appends this source to
+              any that already exist (keeps their history). <b>Replace</b> first removes this
+              source&rsquo;s existing rows, then imports — use it to re-sync a feed you fully own.
+            </li>
+            <li style={{ marginBottom: 6 }}>
+              <b>Optional: backfill &amp; enrich.</b> <b>Auto-backfill</b> computes the structural +
+              quality scores after upload (free). <b>Auto-enrich</b> runs the paid LLM pass — but
+              <i> only on NET-NEW names with quality ≥ {ENRICH_QUALITY_MIN}</i>, never on names that
+              already existed (a Merge just appends the source to those).
+            </li>
+            <li>
+              <b>Preview, then Start.</b> <b>Preview</b> is a dry-run — it shows how many are new vs.
+              already present without writing anything. <b>Start Import</b> applies it (large files
+              upload in chunks automatically).
+            </li>
+          </ol>
+          <p style={{ marginBottom: 0 }}>
+            After it runs, the <b>Past Imports</b> card shows the funnel —{" "}
+            <b>Inserted → Net-new → Quality q≥{ENRICH_QUALITY_MIN} → Enriched X/Y</b> — with a status
+            dot (green = done · yellow = running · red = stalled). <b>Re-enrich</b> re-dispatches the
+            enrich pass; the trash icon removes only the history entry, not the imported domains.
+          </p>
+        </div>
+      </details>
       <section className="card" style={{ padding: "26px 28px" }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
           <h2 style={{ margin: 0, fontSize: "1.7rem" }}>Upload Domains</h2>
