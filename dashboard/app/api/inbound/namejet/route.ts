@@ -52,6 +52,16 @@ function pick(obj: Record<string, unknown>, ...keys: string[]): string | null {
   return null;
 }
 
+// Recursively collect every string leaf — so we can find the body no matter how
+// Resend names/nests it in the Retrieve response.
+function collectStrings(v: unknown, acc: string[] = []): string[] {
+  if (typeof v === "string") acc.push(v);
+  else if (Array.isArray(v)) for (const x of v) collectStrings(x, acc);
+  else if (v && typeof v === "object") for (const x of Object.values(v)) collectStrings(x, acc);
+  return acc;
+}
+const looksHtml = (s: string) => /<\s*(table|tr|td|html|body|a\b|div)/i.test(s);
+
 export async function POST(req: NextRequest) {
   const secret = process.env.RESEND_INBOUND_SIGNING_SECRET;
   if (!secret) {
@@ -93,43 +103,49 @@ export async function POST(req: NextRequest) {
 
   let html: string | null = null;
   let text: string | null = null;
+  const diag: Record<string, unknown> = {};
   const apiKey = process.env.RESEND_API_KEY;
-  if (apiKey) {
+  if (!apiKey) {
+    diag.retrieve = "no_api_key";
+  } else {
     try {
       const r = await fetch(`https://api.resend.com/emails/${emailId}`, {
         headers: { Authorization: `Bearer ${apiKey}` },
       });
+      const bodyText = await r.text();
+      let email: Record<string, unknown> = {};
+      try { email = JSON.parse(bodyText) as Record<string, unknown>; } catch { /* non-JSON */ }
+      diag.retrieve_status = r.status;
+      diag.keys = Object.keys(email).slice(0, 40);
       if (r.ok) {
-        const email = (await r.json()) as Record<string, unknown>;
-        html = pick(email, "html", "body_html");
-        text = pick(email, "text", "body_text");
+        const strings = collectStrings(email);
+        html = strings.filter(looksHtml).sort((a, b) => b.length - a.length)[0] || null;
+        text = strings.filter((s) => !looksHtml(s) && s.length > 40).sort((a, b) => b.length - a.length)[0] || null;
         subject = pick(email, "subject") || subject;
         const ef = email.from;
         sender =
           (typeof ef === "string" ? ef : null) ||
-          (ef && typeof ef === "object"
-            ? pick(ef as Record<string, unknown>, "address", "email")
-            : null) ||
+          (ef && typeof ef === "object" ? pick(ef as Record<string, unknown>, "address", "email") : null) ||
           sender;
       } else {
-        console.error(`namejet inbound: Resend retrieve ${emailId} → ${r.status}`);
+        diag.body_snippet = bodyText.slice(0, 300);
       }
     } catch (e) {
-      console.error("namejet inbound: Resend retrieve failed", e);
+      diag.retrieve_error = e instanceof Error ? e.message : String(e);
     }
-  } else {
-    console.error("namejet inbound: RESEND_API_KEY not set — storing metadata only");
   }
 
-  // Store the row regardless (keeps email_id so the body can be refetched);
-  // the source skips rows with no html.
+  // Store the row regardless (keeps email_id so the body can be refetched). When
+  // we couldn't get the body, stash the Retrieve diagnostic in `text` so it's
+  // inspectable; the source skips rows with no html.
+  const textToStore = html ? text : (text || `RETRIEVE_DEBUG ${JSON.stringify(diag)}`);
   try {
     const { error } = await getNamingDb().from(INBOX_TABLE).insert({
       email_id: emailId,
       sender,
       subject,
       html,
-      text,
+      text: textToStore,
     });
     if (error) throw new Error(error.message);
   } catch (e) {
@@ -138,5 +154,5 @@ export async function POST(req: NextRequest) {
       { status: 500 },
     );
   }
-  return NextResponse.json({ ok: true, stored: true, body: !!(html || text) });
+  return NextResponse.json({ ok: true, stored: true, body: !!html, ...diag });
 }
