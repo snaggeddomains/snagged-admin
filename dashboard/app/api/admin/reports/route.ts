@@ -5,7 +5,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { canAdmin } from "@/lib/permissions";
-import { listRates, upsertRate, costTotals, costSeries, type Period } from "@/lib/cost-report";
+import { listRates, upsertRate, costTotals, costSeries, listAllMeters, type Period } from "@/lib/cost-report";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -51,12 +51,13 @@ export async function GET(req: NextRequest) {
     until = null;
   }
   try {
-    const [totals, series, rates] = await Promise.all([
+    const [totals, series, rates, allMeters] = await Promise.all([
       costTotals(since, until),
       costSeries(period, since, category, until),
       listRates(),
+      listAllMeters(),
     ]);
-    return NextResponse.json({ ok: true, period, category, since, until, totals, series, rates });
+    return NextResponse.json({ ok: true, period, category, since, until, totals, series, rates, allMeters });
   } catch (e) {
     return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
   }

@@ -14,6 +14,24 @@ const PERIODS: { key: Period; label: string }[] = [
 ];
 const WINDOWS = [7, 30, 90, 365];
 
+// Every meter the system can emit — so the rate card lists them for pricing even
+// before they've been used. Merged with whatever's actually been seen/saved.
+const RATE_CATALOG: string[] = [
+  // Contact / data lookups (research)
+  "rocketreach.lookup", "fullenrich.enrich", "fullenrich.phone",
+  "domainiq.lookup", "whoisxml.lookup", "whoisxml.reverse_whois",
+  "whoisxml.reverse_ns", "whoisxml.reverse_ip", "bigdomaindata.lookup",
+  "whoxy.history", "whoxy.reverse", "serper.web_search", "serper.namepros",
+  "brave.search", "signa.trademark", "namebio.sales", "appraise.new", "appraise.cached",
+  // Pipeline scrapers
+  "scrape_do.request", "cloudflare.browser_render", "dynadot.api", "namesilo.api", "spaceship.api",
+  // Anthropic — research (Opus 4.7) + enrichment (Haiku 4.5), per 1M tokens
+  "anthropic.claude-opus-4-7.input", "anthropic.claude-opus-4-7.output",
+  "anthropic.claude-opus-4-7.cache_read", "anthropic.claude-opus-4-7.cache_write",
+  "anthropic.claude-haiku-4-5-20251001.input", "anthropic.claude-haiku-4-5-20251001.output",
+  "anthropic.claude-haiku-4-5-20251001.cache_read", "anthropic.claude-haiku-4-5-20251001.cache_write",
+];
+
 // "fullenrich.phone" → "fullenrich"; "anthropic.claude-opus-4-7.input" → "anthropic".
 function systemOf(meter: string): string {
   return meter.split(".")[0] || meter;
@@ -43,8 +61,10 @@ export default function ReportsClient({ canCost }: { canCost: boolean }) {
   const [category, setCategory] = useState<string>("All");
   const [totals, setTotals] = useState<Total[]>([]);
   const [series, setSeries] = useState<SeriesPoint[]>([]);
+  const [allMeters, setAllMeters] = useState<string[]>([]);
   const [rates, setRates] = useState<Record<string, number>>({});
   const [labels, setLabels] = useState<Record<string, string | null>>({});
+  const [newMeter, setNewMeter] = useState("");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string>("");
@@ -67,6 +87,7 @@ export default function ReportsClient({ canCost }: { canCost: boolean }) {
       if (!res.ok) throw new Error(data.error || `Failed (${res.status})`);
       setTotals(data.totals || []);
       setSeries(data.series || []);
+      setAllMeters(data.allMeters || []);
       const r: Record<string, number> = {};
       const l: Record<string, string | null> = {};
       for (const row of (data.rates || []) as Rate[]) {
@@ -115,10 +136,28 @@ export default function ReportsClient({ canCost }: { canCost: boolean }) {
     return { categories: cats, byCategory: byCat, filtered: rows, bySystem: sys, perMeter: meters, grand: g };
   }, [totals, rates, category, rate]);
 
+  // Every meter to show in the editable Rate card: the known catalog ∪ anything
+  // ever logged ∪ anything already priced — so you can set rates before use.
+  const rateMeters = useMemo(() => {
+    const set = new Set<string>([...RATE_CATALOG, ...allMeters, ...Object.keys(rates), ...totals.map((t) => t.meter)]);
+    return Array.from(set).sort();
+  }, [allMeters, rates, totals]);
+
   function setRate(meter: string, value: string) {
     const n = Number(value);
     setRates((r) => ({ ...r, [meter]: Number.isFinite(n) ? n : 0 }));
     setDirty((d) => new Set(d).add(meter));
+  }
+  function setLabel(meter: string, value: string) {
+    setLabels((l) => ({ ...l, [meter]: value }));
+    setDirty((d) => new Set(d).add(meter));
+  }
+  function addMeter() {
+    const m = newMeter.trim();
+    if (!m) return;
+    setRates((r) => ({ ...r, [m]: r[m] ?? 0 }));
+    setDirty((d) => new Set(d).add(m));
+    setNewMeter("");
   }
 
   async function saveRates() {
@@ -269,7 +308,7 @@ export default function ReportsClient({ canCost }: { canCost: boolean }) {
           </section>
 
           <section style={{ marginTop: 20 }}>
-            <h2 style={{ fontSize: 14 }}>By meter — set your rate {category !== "All" && <span className="muted">· {category}</span>}</h2>
+            <h2 style={{ fontSize: 14 }}>By meter {category !== "All" && <span className="muted">· {category}</span>}</h2>
             <div className="table-scroll"><table className="dash">
               <thead><tr><th>meter</th><th className="right">usage</th><th className="right">rate</th><th className="right">cost</th></tr></thead>
               <tbody>
@@ -277,24 +316,13 @@ export default function ReportsClient({ canCost }: { canCost: boolean }) {
                   <tr key={m.meter}>
                     <td className="mono">{m.meter}<div className="muted" style={{ fontSize: 11 }}>{labels[m.meter] || defaultLabel(m.meter)}</div></td>
                     <td className="right">{num(m.units)}</td>
-                    <td className="right">
-                      <input
-                        type="number" step="any" min="0" value={rates[m.meter] ?? 0}
-                        onChange={(e) => setRate(m.meter, e.target.value)}
-                        style={{ width: 110, textAlign: "right", padding: "3px 6px", fontSize: 13, border: "1px solid #e3ddcf", borderRadius: 6 }}
-                      />
-                    </td>
+                    <td className="right muted">{(rates[m.meter] ?? 0) ? usd(rates[m.meter]) : "—"}</td>
                     <td className="right">{usd(m.cost)}</td>
                   </tr>
                 ))}
               </tbody>
             </table></div>
-            <div style={{ marginTop: 10, display: "flex", gap: 10, alignItems: "center" }}>
-              <button onClick={saveRates} disabled={saving || dirty.size === 0} className="btn btn--navy">
-                {saving ? "Saving…" : dirty.size ? `Save ${dirty.size} rate${dirty.size > 1 ? "s" : ""}` : "Saved"}
-              </button>
-              <span className="muted" style={{ fontSize: 12 }}>Token meters are priced per 1M tokens; lookups/enrichments per call. Rates are global (not per-category).</span>
-            </div>
+            <p className="muted" style={{ fontSize: 12, marginTop: 6 }}>Rates are set in the editable Rate card at the bottom of the page.</p>
           </section>
 
           <section style={{ marginTop: 20 }}>
@@ -307,10 +335,57 @@ export default function ReportsClient({ canCost }: { canCost: boolean }) {
                 ))}
               </tbody>
             </table></div>
-            <p className="muted" style={{ fontSize: 12, marginTop: 6 }}>Time series uses your saved rates — Save above to refresh it.</p>
+            <p className="muted" style={{ fontSize: 12, marginTop: 6 }}>Time series uses your saved rates — Save in the Rate card below to refresh it.</p>
           </section>
         </>
       )}
+
+      {/* Editable rate card — the single place to price every source (admin only). */}
+      <section style={{ marginTop: 28, paddingTop: 16, borderTop: "1px solid #e3ddcf" }}>
+        <h2 style={{ fontSize: 14 }}>Rate card — $ per unit</h2>
+        <p className="section-blurb" style={{ marginTop: 0 }}>
+          Set what each source costs you — no SQL needed. Token meters are priced
+          per <strong>1M tokens</strong>; everything else per <strong>call / lookup / enrichment</strong>.
+          Saved rates apply across all categories and drive every dollar figure above.
+        </p>
+        <div className="table-scroll"><table className="dash">
+          <thead><tr><th>meter</th><th>unit</th><th className="right">$ / unit</th></tr></thead>
+          <tbody>
+            {rateMeters.map((m) => (
+              <tr key={m}>
+                <td className="mono">{m}</td>
+                <td>
+                  <input
+                    type="text" value={labels[m] ?? defaultLabel(m)}
+                    onChange={(e) => setLabel(m, e.target.value)}
+                    style={{ width: 150, padding: "3px 6px", fontSize: 13, border: "1px solid #e3ddcf", borderRadius: 6 }}
+                  />
+                </td>
+                <td className="right">
+                  <input
+                    type="number" step="any" min="0" value={rates[m] ?? 0}
+                    onChange={(e) => setRate(m, e.target.value)}
+                    style={{ width: 120, textAlign: "right", padding: "3px 6px", fontSize: 13, border: "1px solid #e3ddcf", borderRadius: 6 }}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table></div>
+        <div style={{ marginTop: 12, display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+          <input
+            type="text" placeholder="add a meter (e.g. vendor.action)" value={newMeter}
+            onChange={(e) => setNewMeter(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") addMeter(); }}
+            className="field" style={{ maxWidth: 240, fontSize: 13 }}
+          />
+          <button onClick={addMeter} disabled={!newMeter.trim()} style={{ fontSize: 13 }}>Add meter</button>
+          <button onClick={saveRates} disabled={saving || dirty.size === 0} className="btn btn--navy">
+            {saving ? "Saving…" : dirty.size ? `Save ${dirty.size} change${dirty.size > 1 ? "s" : ""}` : "Saved"}
+          </button>
+          {msg && <span style={{ fontSize: 13, color: msg.includes("saved") ? "#2a7" : "var(--coral-deep, #c0492f)" }}>{msg}</span>}
+        </div>
+      </section>
     </main>
   );
 }

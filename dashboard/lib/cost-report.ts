@@ -37,6 +37,18 @@ export async function upsertRate(meter: string, usdPerUnit: number, unitLabel: s
   if (error) throw new Error(`upsertRate: ${error.message}`);
 }
 
+// Every meter that has EVER been logged (all-time), so the rate card can price
+// meters even when they're absent from the current window.
+export async function listAllMeters(): Promise<string[]> {
+  if (!isDbConfigured()) return [];
+  const since = new Date("2000-01-01T00:00:00.000Z").toISOString();
+  const { data, error } = await getDb().rpc("cost_totals", { p_since: since, p_until: null });
+  if (error) return [];
+  const set = new Set<string>();
+  for (const r of (data ?? []) as { meter: string }[]) set.add(String(r.meter));
+  return Array.from(set);
+}
+
 // Totals per (category, meter) within [since, until) — the client pivots into
 // by-system / by-category / the per-meter rate editor and applies (live) rates.
 export async function costTotals(sinceISO: string, untilISO: string | null = null): Promise<Total[]> {
