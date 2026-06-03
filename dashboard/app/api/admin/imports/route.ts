@@ -98,12 +98,8 @@ export async function POST(req: NextRequest) {
   } | null;
   if (!body) return NextResponse.json({ error: "Bad request" }, { status: 400 });
 
-  // The Universe corpus is gated behind a sub-permission; Master is the default
-  // for everyone with admin.imports. (delete-log sends no target — not gated.)
-  if (body.target === "universe" && !userCanAction(me, "admin.imports.universe")) {
-    return NextResponse.json({ error: "Forbidden — Universe imports need admin.imports.universe" }, { status: 403 });
-  }
-
+  // admin.imports alone covers both corpora; the UI is Master-only, but the
+  // universe code path stays intact if a target=universe ever comes through.
   const target: Target = body.target === "master" ? "master" : "universe";
 
   // Deleting a history entry needs only an id (no source).

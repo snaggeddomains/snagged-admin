@@ -123,12 +123,10 @@ auto-backfill + auto-enrich → Start. Then per-import "Past Imports" cards show
 funnel: **Inserted · Net-new · Quality q≥1 · Enriched X/Y** with a green ✓ / yellow ⏳ /
 red ✗ (stalled >24h) dot. Re-enrich button re-dispatches; trash deletes the log row only.
 
-- **Master is the default and primary corpus.** Two corpus choices are now gated by
-  **action sub-permissions** (in `lib/permissions.ts`; admins auto-pass; UI-hidden AND
-  server-enforced in `route.ts`):
-  - `admin.imports.universe` — without it the **target picker is hidden entirely** (no
-    table selection; everything → Master). With it, the picker shows with Master primary
-    and Universe **dimmed / "advanced"**. The API 403s any `target=universe` without it.
+- **Master-only UI — there is NO corpus picker.** The tool always imports to the Master
+  Domain List; `admin.imports` alone is the gate (Universe is no longer a separate
+  permission or a UI choice — the decision was removed). The universe code path remains
+  server-side (`route.ts` still accepts `target=universe`) but the UI never sends it.
   - `admin.imports.replace` — without it the **Mode toggle is hidden** (always Merge) and
     the explainer drops the Merge/Replace step. The API 403s the `finalize-replace` action.
 - **Owner is REQUIRED on Master** (`domain` required · `owner` required · `price` optional;
