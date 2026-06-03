@@ -5,7 +5,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { canAdmin } from "@/lib/permissions";
-import { listRates, upsertRate, usageBuckets, type Period } from "@/lib/cost-report";
+import { listRates, upsertRate, costTotals, costSeries, type Period } from "@/lib/cost-report";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -22,10 +22,15 @@ export async function GET(req: NextRequest) {
   }
   const period = periodOf(req.nextUrl.searchParams.get("period"));
   const days = Math.min(Math.max(parseInt(req.nextUrl.searchParams.get("days") || "30", 10) || 30, 1), 730);
+  const category = req.nextUrl.searchParams.get("category") || null;
   const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
   try {
-    const [buckets, rates] = await Promise.all([usageBuckets(period, since), listRates()]);
-    return NextResponse.json({ ok: true, period, days, buckets, rates });
+    const [totals, series, rates] = await Promise.all([
+      costTotals(since),
+      costSeries(period, since, category),
+      listRates(),
+    ]);
+    return NextResponse.json({ ok: true, period, days, category, totals, series, rates });
   } catch (e) {
     return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
   }

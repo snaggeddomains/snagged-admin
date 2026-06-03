@@ -8,7 +8,8 @@ import { getDb, isDbConfigured } from "./supabase";
 const RATES = "domain_research_cost_rates";
 
 export type Rate = { meter: string; usd_per_unit: number; unit_label: string | null };
-export type Bucket = { bucket: string; meter: string; units: number };
+export type Total = { category: string; meter: string; units: number };
+export type SeriesPoint = { bucket: string; cost: number };
 export type Period = "day" | "week" | "month";
 
 export async function listRates(): Promise<Rate[]> {
@@ -36,17 +37,30 @@ export async function upsertRate(meter: string, usdPerUnit: number, unitLabel: s
   if (error) throw new Error(`upsertRate: ${error.message}`);
 }
 
-// Day/week/month buckets per meter via the server-side RPC (small result set).
-export async function usageBuckets(period: Period, sinceISO: string): Promise<Bucket[]> {
+// Totals per (category, meter) since a cutoff — the client pivots into by-system
+// / by-category / the per-meter rate editor and applies the (live) rates.
+export async function costTotals(sinceISO: string): Promise<Total[]> {
   if (!isDbConfigured()) return [];
-  const { data, error } = await getDb().rpc("cost_usage_buckets", {
-    p_period: period,
-    p_since: sinceISO,
-  });
+  const { data, error } = await getDb().rpc("cost_totals", { p_since: sinceISO });
   if (error) return [];
-  return (data ?? []).map((r: { bucket: string; meter: string; units: number | string }) => ({
-    bucket: String(r.bucket),
+  return (data ?? []).map((r: { category: string; meter: string; units: number | string }) => ({
+    category: String(r.category || "uncategorized"),
     meter: String(r.meter),
     units: Number(r.units) || 0,
+  }));
+}
+
+// $ per day/week/month bucket using SAVED rates (optionally one category).
+export async function costSeries(period: Period, sinceISO: string, category: string | null): Promise<SeriesPoint[]> {
+  if (!isDbConfigured()) return [];
+  const { data, error } = await getDb().rpc("cost_series", {
+    p_period: period,
+    p_since: sinceISO,
+    p_category: category || null,
+  });
+  if (error) return [];
+  return (data ?? []).map((r: { bucket: string; cost: number | string }) => ({
+    bucket: String(r.bucket),
+    cost: Number(r.cost) || 0,
   }));
 }
