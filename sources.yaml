@@ -429,8 +429,14 @@ sources:
   - source_id: namejet_email_digest
     product: auctions
     kind: api_export
-    enabled: false
-    reason: "Replaced by drive_auction_uploads ingestion path."
+    enabled: true
+    notes: "Ingests NameJet's daily backorder email. A Gmail filter forwards
+            noreply@namejet.com → a Resend Inbound address; Resend POSTs to
+            /api/inbound/namejet, which stashes the raw email in the naming
+            project's namejet_inbound table. This source (run daily by
+            auctions_publish) parses the Domain/Price/Date table, applies the
+            standard upload option-filter, and publishes to the auctions sheet +
+            Slack. Fail-safe: skips cleanly when nothing is stashed."
 
   - source_id: namejet_exclusive_storefront
     product: auctions
@@ -455,6 +461,7 @@ sources:
       - sedo_expired_auctions
       - drive_auction_uploads
       - namejet_lastchance
+      - namejet_email_digest
     failure_policy: continue_on_partial_failure
 
   - source_id: auctions_watchdog
