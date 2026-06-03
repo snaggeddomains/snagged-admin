@@ -13,6 +13,7 @@ type Preview = {
   fresh: number;
   removed: number;
   sourceTotal: number;
+  missingOwner: number;
 };
 
 type EnrichStatus = { netNew: number; eligible: number; enriched: number };
@@ -207,7 +208,13 @@ export default function ImportsClient({
       const sourceTotal = Number(st.count || 0);
       const fresh = parsed - existing;
       const removed = mode === "replace" ? Math.max(0, sourceTotal - existing) : 0;
-      setPreview({ parsed, invalid: 0, existing, fresh, removed, sourceTotal });
+      const missingOwner = target === "master"
+        ? rows.filter((r) => !r.owner || !String(r.owner).trim()).length
+        : 0;
+      setPreview({ parsed, invalid: 0, existing, fresh, removed, sourceTotal, missingOwner });
+      if (missingOwner > 0) {
+        add(`⚠️ ${missingOwner.toLocaleString()} of ${parsed.toLocaleString()} row(s) have no owner — owner is required; the import will be blocked until every domain has one.`);
+      }
     } catch (e) {
       add(`❌ Preview: ${e instanceof Error ? e.message : String(e)}`);
     } finally {
@@ -649,6 +656,7 @@ export default function ImportsClient({
               <div style={{ fontWeight: 700, marginBottom: 6 }}>Dry-run preview</div>
               <Stat label="Valid domains" value={preview.parsed} />
               {preview.invalid > 0 && <Stat label="Skipped (unparseable)" value={preview.invalid} />}
+              {preview.missingOwner > 0 && <Stat label="Missing owner (required)" value={preview.missingOwner} warn />}
               <Stat label="Already present" value={preview.existing} />
               <Stat label="Net-new" value={preview.fresh} accent />
               <Stat label={`Currently tagged "${source.trim()}"`} value={preview.sourceTotal} />

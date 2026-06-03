@@ -116,11 +116,26 @@ env vars (separate from research): `SUPABASE_NAMING_*` (universe), `MASTERLIST_S
 (master), and `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` (the MAIN research DB — it
 backs user auth AND the import-history log; **not** the naming universe).
 
-**Flow:** pick target (Universe vs Master) → drop CSV / paste → source name (typeahead)
-→ Merge|Replace → optional auto-backfill + auto-enrich → Start. Then per-import "Past
-Imports" cards show the funnel: **Inserted · Net-new · Quality q≥1 · Enriched X/Y** with
-a green ✓ / yellow ⏳ / red ✗ (stalled >24h) dot. Re-enrich button re-dispatches; trash
-deletes the log row only.
+**Flow (2026-06-03 — simplified for non-admins):** a visual "How to use" explainer
+sits at the top; the page now uses the standard content width (`--maxw`), not a 940
+column. Default flow → drop CSV / paste → source name (typeahead) → optional
+auto-backfill + auto-enrich → Start. Then per-import "Past Imports" cards show the
+funnel: **Inserted · Net-new · Quality q≥1 · Enriched X/Y** with a green ✓ / yellow ⏳ /
+red ✗ (stalled >24h) dot. Re-enrich button re-dispatches; trash deletes the log row only.
+
+- **Master is the default and primary corpus.** Two corpus choices are now gated by
+  **action sub-permissions** (in `lib/permissions.ts`; admins auto-pass; UI-hidden AND
+  server-enforced in `route.ts`):
+  - `admin.imports.universe` — without it the **target picker is hidden entirely** (no
+    table selection; everything → Master). With it, the picker shows with Master primary
+    and Universe **dimmed / "advanced"**. The API 403s any `target=universe` without it.
+  - `admin.imports.replace` — without it the **Mode toggle is hidden** (always Merge) and
+    the explainer drops the Merge/Replace step. The API 403s the `finalize-replace` action.
+- **Owner is REQUIRED on Master** (`domain` required · `owner` required · `price` optional;
+  template header `domain,owner,price`). The import **blocks** if any row lacks an owner;
+  **Preview** surfaces a "Missing owner (required)" warn-stat + a log line. (Universe stores
+  no owner, so it's not enforced there.)
+- **Auto-enrich now defaults ON** (auto-backfill already did).
 
 - **Upsert** is chunked client-side (universe 400/req, master 1000) and **halves on a
   statement timeout** (`57014`) server-side, so big files (145K+) land. Universe goes
