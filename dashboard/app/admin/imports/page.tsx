@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
-import { userCan } from "@/lib/permissions";
+import { userCan, userCanAction } from "@/lib/permissions";
 import { isNamingConfigured } from "@/lib/naming";
 import { isMasterlistConfigured } from "@/lib/masterlist";
 import ImportsClient from "./imports-client";
@@ -22,6 +22,7 @@ export default async function ImportsPage() {
     <ImportsClient
       universeReady={isNamingConfigured()}
       masterReady={isMasterlistConfigured()}
+      canUniverse={userCanAction(user, "admin.imports.universe")}
     />
   );
 }

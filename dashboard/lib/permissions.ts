@@ -34,6 +34,7 @@ export const ACTIONS = [
   "admin.users.manage", // user + permission administration
   "admin.sources.edit", // edit source registry / schedules
   "admin.lessons.approve", // curate (approve/edit/delete) playbook lessons
+  "admin.imports.universe", // allow targeting the Universe corpus in the import tool
 ] as const;
 export type ActionKey = (typeof ACTIONS)[number];
 
@@ -75,6 +76,7 @@ export const CATALOG: CatalogEntry[] = [
   { key: "admin.users.manage", label: "Manage users & permissions", group: "Admin", kind: "action" },
   { key: "admin.sources.edit", label: "Edit sources & schedules", group: "Admin", kind: "action" },
   { key: "admin.imports", label: "Imports", group: "Admin", kind: "module" },
+  { key: "admin.imports.universe", label: "Imports — Universe corpus (advanced)", group: "Admin", kind: "action" },
   { key: "admin.lessons.approve", label: "Lesson Approval", group: "Admin", kind: "action" },
   { key: "research.domain_owner", label: "Domain Owner research", group: "Research", kind: "module" },
   { key: "research.outreach", label: "Owner Outreach — email drafting", group: "Research", kind: "action" },

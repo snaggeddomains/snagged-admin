@@ -82,11 +82,18 @@ function parseRows(text: string): Row[] {
 export default function ImportsClient({
   universeReady,
   masterReady,
+  canUniverse,
 }: {
   universeReady: boolean;
   masterReady: boolean;
+  canUniverse: boolean;
 }) {
   const [target, setTarget] = useState<Target>("master");
+  // Universe is gated behind a sub-permission; without it, everything goes to
+  // Master and the target picker is hidden. Clamp any stray universe selection.
+  useEffect(() => {
+    if (!canUniverse && target !== "master") setTarget("master");
+  }, [canUniverse, target]);
   const [source, setSource] = useState("");
   const [mode, setMode] = useState<Mode>("merge");
   const [text, setText] = useState("");
@@ -337,7 +344,7 @@ export default function ImportsClient({
   const hasInput = parseRows(text).length > 0;
 
   return (
-    <main style={{ maxWidth: 940, margin: "0 auto" }}>
+    <main style={{ maxWidth: "var(--maxw, 1180px)", margin: "0 auto", padding: "0 22px" }}>
       <section className="card" style={{ padding: "20px 24px", marginBottom: 18 }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
           <h2 style={{ margin: 0, fontSize: "1.2rem" }}>How to use this tool</h2>
@@ -346,19 +353,27 @@ export default function ImportsClient({
           </span>
         </div>
 
-        <div style={{ fontSize: 11.5, fontWeight: 700, color: "var(--navy-3)", textTransform: "uppercase", letterSpacing: ".05em", marginBottom: 7 }}>
-          First — where do the domains go?
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 10, marginBottom: 18 }}>
-          <div style={{ border: "1px solid var(--line, #e3ddcf)", borderRadius: 10, padding: "11px 14px", background: "var(--cream-2, #fbf7ec)" }}>
-            <div style={{ fontWeight: 700, color: "var(--navy)" }}>🌐 Universe</div>
-            <div className="muted" style={{ fontSize: 12.5, marginTop: 3, lineHeight: 1.45 }}>Names for the naming engine. Owner is <i>derived</i> from the feed, not stored.</div>
+        {canUniverse ? (
+          <>
+            <div style={{ fontSize: 11.5, fontWeight: 700, color: "var(--navy-3)", textTransform: "uppercase", letterSpacing: ".05em", marginBottom: 7 }}>
+              First — where do the domains go?
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 10, marginBottom: 18 }}>
+              <div style={{ border: "1px solid var(--coral)", borderRadius: 10, padding: "11px 14px", background: "rgba(228,128,105,.07)" }}>
+                <div style={{ fontWeight: 700, color: "var(--navy)" }}>👤 Master <span style={{ fontSize: 11, fontWeight: 700, color: "var(--coral-deep)" }}>· default</span></div>
+                <div className="muted" style={{ fontSize: 12.5, marginTop: 3, lineHeight: 1.45 }}>&ldquo;I know who owns these.&rdquo; CSVs with a real <code>owner</code> column. <b>Almost everything goes here.</b></div>
+              </div>
+              <div style={{ border: "1px solid var(--line, #e3ddcf)", borderRadius: 10, padding: "11px 14px", background: "var(--cream-2, #fbf7ec)", opacity: 0.7 }}>
+                <div style={{ fontWeight: 700, color: "var(--navy-3)" }}>🌐 Universe <span style={{ fontSize: 11, fontWeight: 700, color: "var(--navy-3)" }}>· advanced</span></div>
+                <div className="muted" style={{ fontSize: 12.5, marginTop: 3, lineHeight: 1.45 }}>The automated naming pool. <b>Only if you know what you&rsquo;re doing</b> — owner is derived from the feed, not stored.</div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div style={{ fontSize: 13.5, color: "var(--navy-2)", marginBottom: 18, padding: "10px 14px", border: "1px solid var(--coral)", borderRadius: 10, background: "rgba(228,128,105,.07)" }}>
+            👤 Imports go to the <b>Master Domain List</b> — upload/paste CSVs with the <code>owner</code> you know.
           </div>
-          <div style={{ border: "1px solid var(--line, #e3ddcf)", borderRadius: 10, padding: "11px 14px", background: "var(--cream-2, #fbf7ec)" }}>
-            <div style={{ fontWeight: 700, color: "var(--navy)" }}>👤 Master</div>
-            <div className="muted" style={{ fontSize: 12.5, marginTop: 3, lineHeight: 1.45 }}>&ldquo;I know who owns these.&rdquo; CSVs with a real <code>owner</code> column.</div>
-          </div>
-        </div>
+        )}
 
         <div style={{ fontSize: 11.5, fontWeight: 700, color: "var(--navy-3)", textTransform: "uppercase", letterSpacing: ".05em", marginBottom: 10 }}>
           Then — five steps
@@ -416,24 +431,37 @@ export default function ImportsClient({
           {/* WHERE */}
           <div>
             <FieldLabel>Where does this belong?</FieldLabel>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              <TargetCard
-                active={target === "master"}
-                onClick={() => { setTarget("master"); setConfirmReplace(false); setPreview(null); }}
-                title="Master List"
-                subtitle="Master Domain List"
-                blurb="Manual / curated owner attributions — one-off CSVs & portfolio sheets where you know the owner."
-                examples="Digimedia · portfolio sheets · owner exports"
-              />
-              <TargetCard
-                active={target === "universe"}
-                onClick={() => { setTarget("universe"); setConfirmReplace(false); setPreview(null); }}
-                title="Universe"
-                subtitle="name_universe"
-                blurb="Automated marketplace scrapes & platform dumps — afternic, Sedo, Atom, Namecheap, BrandBucket. sources[] array."
-                examples="sedo_dump · afternic · atom_daily · brandbucket"
-              />
-            </div>
+            {canUniverse ? (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <TargetCard
+                  active={target === "master"}
+                  onClick={() => { setTarget("master"); setConfirmReplace(false); setPreview(null); }}
+                  title="Master List"
+                  subtitle="Master Domain List"
+                  blurb="Manual / curated owner attributions — one-off CSVs & portfolio sheets where you know the owner. Almost everything goes here."
+                  examples="Digimedia · portfolio sheets · owner exports"
+                />
+                <TargetCard
+                  active={target === "universe"}
+                  dim
+                  onClick={() => { setTarget("universe"); setConfirmReplace(false); setPreview(null); }}
+                  title="Universe"
+                  subtitle="name_universe"
+                  blurb="⚠ Advanced — only if you know what you’re doing. Automated marketplace scrapes & platform dumps (afternic, Sedo, Atom, Namecheap, BrandBucket)."
+                  examples="sedo_dump · afternic · atom_daily · brandbucket"
+                />
+              </div>
+            ) : (
+              <div style={{ padding: "12px 16px", border: "2px solid var(--coral)", borderRadius: "var(--radius-sm, 14px)", background: "rgba(228,128,105,.07)" }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                  <span style={{ fontSize: 16, fontWeight: 800, color: "var(--navy)" }}>Master List</span>
+                  <code style={{ fontSize: 11.5, color: "var(--navy-3)" }}>Master Domain List</code>
+                </div>
+                <div className="muted" style={{ fontSize: 12.5, color: "var(--navy-2)", marginTop: 4 }}>
+                  Curated owner attributions — CSVs &amp; portfolio sheets where you know the owner.
+                </div>
+              </div>
+            )}
             {!targetReady && (
               <p style={{ color: "var(--coral-deep)", fontSize: 13, marginTop: 8 }}>
                 Not configured — add {target === "universe" ? "SUPABASE_NAMING_*" : "MASTERLIST_SUPABASE_*"} env vars.
@@ -933,9 +961,9 @@ function LinkBtn({ onClick, children }: { onClick: () => void; children: React.R
 }
 
 function TargetCard({
-  active, onClick, title, subtitle, blurb, examples,
+  active, onClick, title, subtitle, blurb, examples, dim = false,
 }: {
-  active: boolean; onClick: () => void; title: string; subtitle: string; blurb: string; examples: string;
+  active: boolean; onClick: () => void; title: string; subtitle: string; blurb: string; examples: string; dim?: boolean;
 }) {
   return (
     <button
@@ -944,6 +972,7 @@ function TargetCard({
         textAlign: "left",
         border: `2px solid ${active ? "var(--coral)" : "var(--line, #d9d2c2)"}`,
         background: active ? "rgba(228,128,105,.07)" : "#fff",
+        opacity: dim && !active ? 0.6 : 1,
         borderRadius: "var(--radius-sm, 14px)",
         padding: "14px 16px",
         cursor: "pointer",
