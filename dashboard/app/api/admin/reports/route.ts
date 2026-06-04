@@ -4,7 +4,7 @@
 
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
-import { canAdmin } from "@/lib/permissions";
+import { canAdmin, isGranted } from "@/lib/permissions";
 import { listRates, upsertRate, costTotals, costSeries, listAllMeters, type Period } from "@/lib/cost-report";
 
 export const runtime = "nodejs";
@@ -66,8 +66,10 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const me = await getCurrentUser();
   if (!me) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  if (!canAdmin(me, "admin.reports.cost")) {
-    return NextResponse.json({ error: "No access to edit rates" }, { status: 403 });
+  // Editing rates is admin-only (is_admin or the `admin` umbrella) — viewers with
+  // just admin.reports.cost can see costs but not change the dollar rates.
+  if (!(me.is_admin || isGranted(me.permissions, "admin"))) {
+    return NextResponse.json({ error: "Only admins can edit rates" }, { status: 403 });
   }
   const body = (await req.json().catch(() => ({}))) as {
     meter?: string;

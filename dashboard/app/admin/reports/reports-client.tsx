@@ -12,7 +12,13 @@ const PERIODS: { key: Period; label: string }[] = [
   { key: "week", label: "Weekly" },
   { key: "month", label: "Monthly" },
 ];
-const WINDOWS = [7, 30, 90, 365];
+type Preset = "today" | "week" | "month" | "custom";
+const PRESETS: { key: Preset; label: string }[] = [
+  { key: "today", label: "Today" },
+  { key: "week", label: "This week" },
+  { key: "month", label: "This month" },
+  { key: "custom", label: "Custom range" },
+];
 
 // Every meter the system can emit — so the rate card lists them for pricing even
 // before they've been used. Merged with whatever's actually been seen/saved.
@@ -70,16 +76,32 @@ const num = (n: number) => (Number.isInteger(n) ? n.toLocaleString() : n.toLocal
 // YYYY-MM-DD as the Eastern-Time calendar day (en-CA gives ISO order; the tz
 // makes "today"/"yesterday" track ET, matching the server's ET buckets).
 const etYmd = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(d);
+// Fixed column widths shared by the By-category and By-system tables so their
+// Cost / Share columns line up across both.
+const COLS_NAME_COST_SHARE = (
+  <colgroup><col /><col style={{ width: 150 }} /><col style={{ width: 90 }} /></colgroup>
+);
+const FIXED_TABLE = { tableLayout: "fixed" as const, width: "100%" };
 const TODAY = etYmd(new Date());
 const YESTERDAY = etYmd(new Date(Date.now() - 86400000));
+const WEEK_START = etYmd(new Date(Date.now() - 6 * 86400000)); // last 7 days incl. today
+const MONTH_START = `${TODAY.slice(0, 7)}-01`;                  // 1st of the current month (ET)
 
-export default function ReportsClient({ canCost }: { canCost: boolean }) {
+export default function ReportsClient({ canCost, canEditRates }: { canCost: boolean; canEditRates: boolean }) {
   const [period, setPeriod] = useState<Period>("day");
-  const [days, setDays] = useState(30);
-  const [mode, setMode] = useState<"preset" | "custom">("preset");
-  const [from, setFrom] = useState(YESTERDAY);
-  const [to, setTo] = useState(TODAY);
+  const [preset, setPreset] = useState<Preset>("week");
+  const [from, setFrom] = useState(WEEK_START); // custom-range start
+  const [to, setTo] = useState(TODAY);          // custom-range end
   const [category, setCategory] = useState<string>("All");
+
+  // Resolve the active preset → an ET [from, to] day range (all four options,
+  // including custom, run through the same ET date-range path).
+  const range = useMemo(() => {
+    if (preset === "today") return { from: TODAY, to: TODAY };
+    if (preset === "week") return { from: WEEK_START, to: TODAY };
+    if (preset === "month") return { from: MONTH_START, to: TODAY };
+    return { from, to: to || from };
+  }, [preset, from, to]);
   const [totals, setTotals] = useState<Total[]>([]);
   const [series, setSeries] = useState<SeriesPoint[]>([]);
   const [allMeters, setAllMeters] = useState<string[]>([]);
@@ -95,13 +117,7 @@ export default function ReportsClient({ canCost }: { canCost: boolean }) {
     setLoading(true);
     setMsg("");
     try {
-      const q = new URLSearchParams({ period });
-      if (mode === "custom" && from) {
-        q.set("from", from);
-        q.set("to", to || from);
-      } else {
-        q.set("days", String(days));
-      }
+      const q = new URLSearchParams({ period, from: range.from, to: range.to });
       if (category !== "All") q.set("category", category);
       const res = await fetch(`/api/admin/reports?${q.toString()}`, { cache: "no-store" });
       const data = await res.json();
@@ -123,7 +139,7 @@ export default function ReportsClient({ canCost }: { canCost: boolean }) {
     } finally {
       setLoading(false);
     }
-  }, [period, days, category, mode, from, to]);
+  }, [period, category, range.from, range.to]);
 
   useEffect(() => {
     if (canCost) load();
@@ -232,7 +248,10 @@ export default function ReportsClient({ canCost }: { canCost: boolean }) {
     );
   }
 
-  const rangeLabel = mode === "custom" && from ? (from === (to || from) ? from : `${from} → ${to || from}`) : `last ${days}d`;
+  const presetLabel = PRESETS.find((p) => p.key === preset)?.label.toLowerCase() ?? "";
+  const rangeLabel = preset === "custom"
+    ? (range.from === range.to ? range.from : `${range.from} → ${range.to}`)
+    : presetLabel;
   const filterNote = category === "All" ? rangeLabel : `· ${category} · ${rangeLabel}`;
 
   return (
@@ -264,27 +283,20 @@ export default function ReportsClient({ canCost }: { canCost: boolean }) {
         <label style={{ fontSize: 13, display: "flex", gap: 6, alignItems: "center" }}>
           Window
           <select
-            value={mode === "custom" ? "custom" : String(days)}
-            onChange={(e) => {
-              const v = e.target.value;
-              if (v === "custom") setMode("custom");
-              else { setMode("preset"); setDays(Number(v)); }
-            }}
+            value={preset}
+            onChange={(e) => setPreset(e.target.value as Preset)}
             className="field" style={{ padding: "5px 8px", fontSize: 13 }}
           >
-            {WINDOWS.map((w) => <option key={w} value={w}>last {w} days</option>)}
-            <option value="custom">Custom range…</option>
+            {PRESETS.map((p) => <option key={p.key} value={p.key}>{p.label}</option>)}
           </select>
         </label>
-        {mode === "custom" && (
+        {preset === "custom" && (
           <span style={{ display: "inline-flex", gap: 6, alignItems: "center", fontSize: 13 }}>
             <input type="date" value={from} max={to || TODAY} onChange={(e) => setFrom(e.target.value)}
               className="field" style={{ padding: "4px 6px", fontSize: 13 }} />
             <span className="muted">→</span>
             <input type="date" value={to} max={TODAY} min={from} onChange={(e) => setTo(e.target.value)}
               className="field" style={{ padding: "4px 6px", fontSize: 13 }} />
-            <button onClick={() => { setFrom(YESTERDAY); setTo(YESTERDAY); }} style={{ fontSize: 12 }}>Yesterday</button>
-            <button onClick={() => { setFrom(TODAY); setTo(TODAY); }} style={{ fontSize: 12 }}>Today</button>
           </span>
         )}
         <label style={{ fontSize: 13, display: "flex", gap: 6, alignItems: "center" }}>
@@ -307,9 +319,10 @@ export default function ReportsClient({ canCost }: { canCost: boolean }) {
       ) : (
         <>
           <section style={{ marginTop: 8 }}>
-            <h2 style={{ fontSize: 14 }}>By category</h2>
+            <h2 style={{ fontSize: 18 }}>By category</h2>
             <p className="section-blurb" style={{ marginTop: 0 }}>What each activity / product costs — e.g. auctions vs snap pipeline vs domain-owner reports.</p>
-            <div className="table-scroll"><table className="dash">
+            <div className="table-scroll"><table className="dash" style={FIXED_TABLE}>
+              {COLS_NAME_COST_SHARE}
               <thead><tr><th>category</th><th className="right">cost</th><th className="right">share</th></tr></thead>
               <tbody>
                 {byCategory.map((c) => {
@@ -327,8 +340,9 @@ export default function ReportsClient({ canCost }: { canCost: boolean }) {
           </section>
 
           <section style={{ marginTop: 20 }}>
-            <h2 style={{ fontSize: 14 }}>By system {category !== "All" && <span className="muted">· {category}</span>}</h2>
-            <div className="table-scroll"><table className="dash">
+            <h2 style={{ fontSize: 18 }}>By system {category !== "All" && <span className="muted">· {category}</span>}</h2>
+            <div className="table-scroll"><table className="dash" style={FIXED_TABLE}>
+              {COLS_NAME_COST_SHARE}
               <thead><tr><th>system</th><th className="right">cost</th><th className="right">share</th></tr></thead>
               <tbody>
                 {bySystem.map((s) => (
@@ -343,7 +357,7 @@ export default function ReportsClient({ canCost }: { canCost: boolean }) {
           </section>
 
           <section style={{ marginTop: 20 }}>
-            <h2 style={{ fontSize: 14 }}>By meter {category !== "All" && <span className="muted">· {category}</span>}</h2>
+            <h2 style={{ fontSize: 18 }}>By meter {category !== "All" && <span className="muted">· {category}</span>}</h2>
             <div className="table-scroll"><table className="dash">
               <thead><tr><th>meter</th><th className="right">usage</th><th className="right">rate</th><th className="right">cost</th></tr></thead>
               <tbody>
@@ -361,7 +375,7 @@ export default function ReportsClient({ canCost }: { canCost: boolean }) {
           </section>
 
           <section style={{ marginTop: 20 }}>
-            <h2 style={{ fontSize: 14 }}>Over time ({period}){category !== "All" && <span className="muted"> · {category}</span>}</h2>
+            <h2 style={{ fontSize: 18 }}>Over time ({period}){category !== "All" && <span className="muted"> · {category}</span>}</h2>
             <div className="table-scroll"><table className="dash">
               <thead><tr><th>{period === "month" ? "month" : period === "week" ? "week of" : "day"}</th><th className="right">cost</th></tr></thead>
               <tbody>
@@ -377,7 +391,7 @@ export default function ReportsClient({ canCost }: { canCost: boolean }) {
 
       {/* Editable rate card — the single place to price every source (admin only). */}
       <section style={{ marginTop: 28, paddingTop: 16, borderTop: "1px solid #e3ddcf" }}>
-        <h2 style={{ fontSize: 14 }}>Rate card — $ per unit</h2>
+        <h2 style={{ fontSize: 18 }}>Rate card — $ per unit</h2>
         <p className="section-blurb" style={{ marginTop: 0 }}>
           Set what each source costs you — no SQL needed. Token meters are priced
           per <strong>1M tokens</strong>; everything else per <strong>call / lookup / enrichment</strong>.
@@ -392,37 +406,45 @@ export default function ReportsClient({ canCost }: { canCost: boolean }) {
               <tr key={m}>
                 <td className="mono">{m}</td>
                 <td>
-                  <input
-                    type="text" value={labels[m] ?? defaultLabel(m)}
-                    onChange={(e) => setLabel(m, e.target.value)}
-                    style={{ width: 150, padding: "3px 6px", fontSize: 13, border: "1px solid #e3ddcf", borderRadius: 6 }}
-                  />
+                  {canEditRates ? (
+                    <input
+                      type="text" value={labels[m] ?? defaultLabel(m)}
+                      onChange={(e) => setLabel(m, e.target.value)}
+                      style={{ width: 150, padding: "3px 6px", fontSize: 13, border: "1px solid #e3ddcf", borderRadius: 6 }}
+                    />
+                  ) : <span className="muted">{labels[m] ?? defaultLabel(m)}</span>}
                 </td>
                 <td className="right">
-                  <input
-                    type="number" step="any" min="0" value={rates[m] ?? 0}
-                    onChange={(e) => setRate(m, e.target.value)}
-                    style={{ width: 120, textAlign: "right", padding: "3px 6px", fontSize: 13, border: "1px solid #e3ddcf", borderRadius: 6 }}
-                  />
+                  {canEditRates ? (
+                    <input
+                      type="number" step="any" min="0" value={rates[m] ?? 0}
+                      onChange={(e) => setRate(m, e.target.value)}
+                      style={{ width: 120, textAlign: "right", padding: "3px 6px", fontSize: 13, border: "1px solid #e3ddcf", borderRadius: 6 }}
+                    />
+                  ) : usd(rates[m] ?? 0)}
                 </td>
               </tr>
             ))}
           </tbody>
         </table></div>
-        <div style={{ marginTop: 12, display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-          <input
-            type="text" placeholder="add a meter (e.g. vendor.action)" value={newMeter}
-            onChange={(e) => setNewMeter(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter") addMeter(); }}
-            className="field" style={{ maxWidth: 240, fontSize: 13 }}
-          />
-          <button onClick={addMeter} disabled={!newMeter.trim()} style={{ fontSize: 13 }}>Add meter</button>
-          <button onClick={prefillEstimates} style={{ fontSize: 13 }}>Prefill estimates</button>
-          <button onClick={saveRates} disabled={saving || dirty.size === 0} className="btn btn--navy">
-            {saving ? "Saving…" : dirty.size ? `Save ${dirty.size} change${dirty.size > 1 ? "s" : ""}` : "Saved"}
-          </button>
-          {msg && <span style={{ fontSize: 13, color: msg.includes("saved") ? "#2a7" : "var(--coral-deep, #c0492f)" }}>{msg}</span>}
-        </div>
+        {canEditRates ? (
+          <div style={{ marginTop: 12, display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+            <input
+              type="text" placeholder="add a meter (e.g. vendor.action)" value={newMeter}
+              onChange={(e) => setNewMeter(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") addMeter(); }}
+              className="field" style={{ maxWidth: 240, fontSize: 13 }}
+            />
+            <button onClick={addMeter} disabled={!newMeter.trim()} style={{ fontSize: 13 }}>Add meter</button>
+            <button onClick={prefillEstimates} style={{ fontSize: 13 }}>Prefill estimates</button>
+            <button onClick={saveRates} disabled={saving || dirty.size === 0} className="btn btn--navy">
+              {saving ? "Saving…" : dirty.size ? `Save ${dirty.size} change${dirty.size > 1 ? "s" : ""}` : "Saved"}
+            </button>
+            {msg && <span style={{ fontSize: 13, color: msg.includes("saved") ? "#2a7" : "var(--coral-deep, #c0492f)" }}>{msg}</span>}
+          </div>
+        ) : (
+          <p className="muted" style={{ fontSize: 12, marginTop: 10 }}>Rates are read-only — only an admin can change them.</p>
+        )}
       </section>
     </main>
   );
