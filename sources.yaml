@@ -419,12 +419,15 @@ sources:
   - source_id: namejet_lastchance
     product: auctions
     kind: scrape_json
-    enabled: true
-    notes: "Direct Playwright scrape of NameJet's exclusive storefront last-chance
-            rows (status In Auction, <24h to close). Falls back to a clear
-            error if NameJet returns a Cloudflare challenge page — at that
-            point we'd need CF_BROWSER_ACCOUNT_ID + CF_BROWSER_API_TOKEN
-            for Cloudflare Browser Rendering API."
+    enabled: false   # DISABLED: NameJet's storefront can't be scraped (Cloudflare
+                     # challenge, no API access). The only live NameJet source is
+                     # namejet_email_digest (email ingestion). Re-enable only if we
+                     # get API access or a working scrape path.
+    notes: "DISABLED. Direct Playwright scrape of NameJet's exclusive storefront
+            last-chance rows — blocked by Cloudflare with no API access, so it
+            never succeeds. NameJet coverage comes entirely from the daily
+            backorder email (namejet_email_digest). Re-enable only with API
+            access or a working anti-bot path (e.g. CF_BROWSER_* rendering)."
 
   - source_id: namejet_email_digest
     product: auctions
@@ -460,11 +463,11 @@ sources:
       - namesilo_auctions
       - sedo_expired_auctions
       - drive_auction_uploads
-      - namejet_lastchance
-      # namejet_email_digest is NOT in the morning batch: it's triggered on email
-      # RECEIPT (afternoon) by /api/inbound/namejet → dispatchWorkflow(
-      # source-namejet-email-digest.yml). Running it here just parsed 0 rows every
-      # morning (no email yet) and showed red — so it's email-driven only.
+      # NEITHER NameJet scrape runs here. namejet_lastchance is disabled (the
+      # storefront can't be scraped — Cloudflare-challenged, no API). The only
+      # live NameJet source is namejet_email_digest, which is triggered on email
+      # RECEIPT by /api/inbound/namejet → dispatchWorkflow(source-namejet-email-
+      # digest.yml), so it's email-driven and not part of this morning batch.
     failure_policy: continue_on_partial_failure
 
   - source_id: auctions_watchdog
