@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import "./snagged-brand.css";
 import "./dashboard.css";
@@ -6,7 +6,14 @@ import "./dashboard.css";
 export const metadata: Metadata = {
   title: "Snagged Admin",
   description: "Snagged umbrella — admin & research",
-  icons: { icon: "/brand/favicon-32.png" },
+  manifest: "/manifest.webmanifest",
+  icons: { icon: "/brand/favicon-32.png", apple: "/icons/apple-touch-icon.png" },
+  // Standalone "Add to Home Screen" launch on iOS (status bar + title).
+  appleWebApp: { capable: true, title: "Snagged", statusBarStyle: "default" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#254254",
 };
 
 // Root shell only: the per-module chrome (header, nav) lives in each module's

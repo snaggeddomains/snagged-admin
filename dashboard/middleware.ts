@@ -14,10 +14,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import { COOKIE, verifyCookie, authSecret } from "./lib/auth";
 
 export const config = {
-  // Exclude public assets (brand/, fonts/) so the login page can load the
-  // mascot + brand fonts before the user is authenticated, plus /login itself
-  // and the CRON_SECRET-gated /api/cron routes (Vercel Cron has no session).
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|brand|fonts|login|api/login|api/cron|api/inbound).*)"],
+  // Exclude public assets (brand/, fonts/, PWA icons/ + manifest) so the login
+  // page + the browser's "Add to Home Screen" install can fetch them before the
+  // user is authenticated, plus /login itself and the CRON_SECRET-gated
+  // /api/cron routes (Vercel Cron has no session).
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|brand|fonts|icons|manifest.webmanifest|login|api/login|api/cron|api/inbound).*)"],
 };
 
 export async function middleware(req: NextRequest) {
