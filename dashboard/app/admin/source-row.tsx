@@ -33,7 +33,7 @@ type Dom = {
   enriched: boolean;
 };
 
-const COLS = 7;
+const COLS = 6;
 
 function LinkOut({ href, label }: { href: string; label: string }) {
   return (
@@ -131,8 +131,7 @@ function SourceRow({ vm }: { vm: RowVM }) {
           {vm.sourceId}
           {vm.todo && <span className="todo-badge">todo</span>}
         </td>
-        <td className="muted">{vm.lastRun}</td>
-        <td className="num">
+        <td>
           {canExpand ? (
             <button
               type="button"
@@ -147,6 +146,7 @@ function SourceRow({ vm }: { vm: RowVM }) {
             vm.newCount ?? "—"
           )}
         </td>
+        <td className="muted">{vm.lastRun}</td>
         <td className="muted">
           {vm.scheduleLabel}
           {vm.scheduleVia && (
@@ -154,11 +154,6 @@ function SourceRow({ vm }: { vm: RowVM }) {
           )}
         </td>
         <td><KindPill kind={vm.kind} /></td>
-        <td className="right" style={{ whiteSpace: "nowrap" }}>
-          {vm.wired && <LinkOut href={vm.runHref} label="run" />}
-          {vm.wired && <LinkOut href={vm.codeHref} label="code" />}
-          {!vm.wired && <LinkOut href={vm.editHref} label="edit registry" />}
-        </td>
       </tr>
       {open && (
         <tr>
@@ -177,22 +172,20 @@ export default function SourceTable({ rows }: { rows: RowVM[] }) {
       <table className="dash" style={{ tableLayout: "fixed", width: "100%" }}>
         <colgroup>
           <col style={{ width: 30 }} />
-          <col style={{ width: "24%" }} />
-          <col style={{ width: 110 }} />
-          <col style={{ width: 110 }} />
           <col style={{ width: "26%" }} />
-          <col style={{ width: 130 }} />
+          <col style={{ width: 120 }} />
+          <col style={{ width: 120 }} />
           <col />
+          <col style={{ width: 150 }} />
         </colgroup>
         <thead>
           <tr>
             <th></th>
             <th>source_id</th>
+            <th>new&nbsp;today</th>
             <th>last run</th>
-            <th className="right">new&nbsp;today</th>
             <th>schedule (ET)</th>
             <th>kind</th>
-            <th></th>
           </tr>
         </thead>
         <tbody>
