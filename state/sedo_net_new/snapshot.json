@@ -1,18 +1,10 @@
 [
   {
     "currency": "USD",
-    "domain": "nude.com",
-    "end_time_utc": "2026-06-04T01:07:12+00:00",
-    "price": 4500000.0,
+    "domain": "rmx.com",
+    "end_time_utc": "2026-06-04T14:09:13+00:00",
+    "price": 249000.0,
     "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=nude.com"
-  },
-  {
-    "currency": "USD",
-    "domain": "dwj.com",
-    "end_time_utc": "2026-06-04T01:44:10+00:00",
-    "price": 290755.0,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=dwj.com"
+    "url": "https://sedo.com/search/details/?domain=rmx.com"
   }
 ]
