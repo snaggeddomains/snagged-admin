@@ -1,0 +1,9 @@
+{
+  "capped": false,
+  "count": 1,
+  "domains": [
+    "pfeiffer.com"
+  ],
+  "generated_at": "2026-06-04T11:07:23.657672+00:00",
+  "source": "dropcatch_auctions"
+}
