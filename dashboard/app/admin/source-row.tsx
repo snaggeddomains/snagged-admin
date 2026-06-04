@@ -131,13 +131,6 @@ function SourceRow({ vm }: { vm: RowVM }) {
           {vm.sourceId}
           {vm.todo && <span className="todo-badge">todo</span>}
         </td>
-        <td><KindPill kind={vm.kind} /></td>
-        <td className="muted">
-          {vm.scheduleLabel}
-          {vm.scheduleVia && (
-            <span style={{ color: "var(--navy-3)", marginLeft: 6, fontSize: 12 }}>via {vm.scheduleVia}</span>
-          )}
-        </td>
         <td className="muted">{vm.lastRun}</td>
         <td className="num">
           {canExpand ? (
@@ -154,6 +147,13 @@ function SourceRow({ vm }: { vm: RowVM }) {
             vm.newCount ?? "—"
           )}
         </td>
+        <td className="muted">
+          {vm.scheduleLabel}
+          {vm.scheduleVia && (
+            <span style={{ color: "var(--navy-3)", marginLeft: 6, fontSize: 12 }}>via {vm.scheduleVia}</span>
+          )}
+        </td>
+        <td><KindPill kind={vm.kind} /></td>
         <td className="right" style={{ whiteSpace: "nowrap" }}>
           {vm.wired && <LinkOut href={vm.runHref} label="run" />}
           {vm.wired && <LinkOut href={vm.codeHref} label="code" />}
@@ -177,21 +177,21 @@ export default function SourceTable({ rows }: { rows: RowVM[] }) {
       <table className="dash" style={{ tableLayout: "fixed", width: "100%" }}>
         <colgroup>
           <col style={{ width: 30 }} />
-          <col style={{ width: "22%" }} />
-          <col style={{ width: 130 }} />
-          <col style={{ width: "26%" }} />
-          <col style={{ width: 100 }} />
+          <col style={{ width: "24%" }} />
           <col style={{ width: 110 }} />
+          <col style={{ width: 110 }} />
+          <col style={{ width: "26%" }} />
+          <col style={{ width: 130 }} />
           <col />
         </colgroup>
         <thead>
           <tr>
             <th></th>
             <th>source_id</th>
-            <th>kind</th>
-            <th>schedule (ET)</th>
             <th>last run</th>
             <th className="right">new&nbsp;today</th>
+            <th>schedule (ET)</th>
+            <th>kind</th>
             <th></th>
           </tr>
         </thead>
