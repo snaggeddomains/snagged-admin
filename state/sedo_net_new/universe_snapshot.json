@@ -6,5 +6,9 @@
   {
     "domain": "sinoop.com",
     "price": 9995.0
+  },
+  {
+    "domain": "astars.com",
+    "price": 59000.0
   }
 ]

@@ -1,9 +1,7 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "rmx.com"
-  ],
-  "generated_at": "2026-06-04T17:01:54.139600+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-06-04T23:01:14.998814+00:00",
   "source": "sedo_net_new"
 }
