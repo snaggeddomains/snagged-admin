@@ -1,5 +1,9 @@
 [
   {
+    "domain": "strawberry.io",
+    "price": null
+  },
+  {
     "domain": "catunicorn.com",
     "price": null
   },
@@ -9,10 +13,6 @@
   },
   {
     "domain": "slayqueenz.com",
-    "price": null
-  },
-  {
-    "domain": "strawberry.io",
     "price": null
   },
   {
