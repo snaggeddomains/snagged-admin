@@ -363,7 +363,7 @@ export default function ImportsClient({
   const hasInput = parseRows(text).length > 0;
 
   return (
-    <main style={{ maxWidth: "var(--maxw, 1180px)", margin: "0 auto", padding: "0 22px" }}>
+    <main>
       <section className="card" style={{ padding: "20px 24px", marginBottom: 18 }}>
         <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
           <h2 style={{ margin: 0, fontSize: "1.2rem" }}>How to use this tool</h2>
