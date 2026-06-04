@@ -21,7 +21,10 @@ jobs:
       - uses: ./.github/actions/setup
 
       - name: Install Playwright Chromium
-        run: python -m playwright install --with-deps chromium
+        # Include chromium-headless-shell — `chromium` alone omits the headless
+        # binary a headless launch needs on current Playwright (same break that
+        # hit dropcatch/namejet 2026-06-04).
+        run: python -m playwright install --with-deps chromium chromium-headless-shell
 
       - name: Run namejet_lastchance
         env:

@@ -461,7 +461,10 @@ sources:
       - sedo_expired_auctions
       - drive_auction_uploads
       - namejet_lastchance
-      - namejet_email_digest
+      # namejet_email_digest is NOT in the morning batch: it's triggered on email
+      # RECEIPT (afternoon) by /api/inbound/namejet → dispatchWorkflow(
+      # source-namejet-email-digest.yml). Running it here just parsed 0 rows every
+      # morning (no email yet) and showed red — so it's email-driven only.
     failure_policy: continue_on_partial_failure
 
   - source_id: auctions_watchdog
