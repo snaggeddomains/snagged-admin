@@ -31,9 +31,13 @@ const RATE_CATALOG: string[] = [
   "brave.search", "signa.trademark", "namebio.sales", "appraise.new", "appraise.cached",
   // Pipeline scrapers
   "scrape_do.request", "cloudflare.browser_render", "dynadot.api", "namesilo.api", "spaceship.api",
-  // Anthropic — research (Opus 4.7) + enrichment (Haiku 4.5), per 1M tokens
+  // Anthropic — research (Opus 4.7/4.8) + outreach (Sonnet 4.6) + enrichment (Haiku 4.5), per 1M tokens
   "anthropic.claude-opus-4-7.input", "anthropic.claude-opus-4-7.output",
   "anthropic.claude-opus-4-7.cache_read", "anthropic.claude-opus-4-7.cache_write",
+  "anthropic.claude-opus-4-8.input", "anthropic.claude-opus-4-8.output",
+  "anthropic.claude-opus-4-8.cache_read", "anthropic.claude-opus-4-8.cache_write",
+  "anthropic.claude-sonnet-4-6.input", "anthropic.claude-sonnet-4-6.output",
+  "anthropic.claude-sonnet-4-6.cache_read", "anthropic.claude-sonnet-4-6.cache_write",
   "anthropic.claude-haiku-4-5-20251001.input", "anthropic.claude-haiku-4-5-20251001.output",
   "anthropic.claude-haiku-4-5-20251001.cache_read", "anthropic.claude-haiku-4-5-20251001.cache_write",
 ];
@@ -42,9 +46,15 @@ const RATE_CATALOG: string[] = [
 // list prices; the rest are rough ballparks to adjust to your actual contracts.
 // Dynadot/NameSilo/Spaceship APIs are free for account holders → 0.
 const DEFAULT_RATES: Record<string, number> = {
-  // Anthropic published list ($ / 1M tokens)
-  "anthropic.claude-opus-4-7.input": 15, "anthropic.claude-opus-4-7.output": 75,
-  "anthropic.claude-opus-4-7.cache_read": 1.5, "anthropic.claude-opus-4-7.cache_write": 18.75,
+  // Anthropic published list ($ / 1M tokens). Opus 4.x dropped to $5/$25 as of
+  // Opus 4.5 (was $15/$75 on 4.1 and earlier) — keep these in sync with the
+  // platform.claude.com pricing table.
+  "anthropic.claude-opus-4-7.input": 5, "anthropic.claude-opus-4-7.output": 25,
+  "anthropic.claude-opus-4-7.cache_read": 0.5, "anthropic.claude-opus-4-7.cache_write": 6.25,
+  "anthropic.claude-opus-4-8.input": 5, "anthropic.claude-opus-4-8.output": 25,
+  "anthropic.claude-opus-4-8.cache_read": 0.5, "anthropic.claude-opus-4-8.cache_write": 6.25,
+  "anthropic.claude-sonnet-4-6.input": 3, "anthropic.claude-sonnet-4-6.output": 15,
+  "anthropic.claude-sonnet-4-6.cache_read": 0.3, "anthropic.claude-sonnet-4-6.cache_write": 3.75,
   "anthropic.claude-haiku-4-5-20251001.input": 1, "anthropic.claude-haiku-4-5-20251001.output": 5,
   "anthropic.claude-haiku-4-5-20251001.cache_read": 0.1, "anthropic.claude-haiku-4-5-20251001.cache_write": 1.25,
   // Contact / data lookups ($ / call) — ESTIMATES
