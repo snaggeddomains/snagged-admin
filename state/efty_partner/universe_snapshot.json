@@ -1,5 +1,21 @@
 [
   {
+    "domain": "neurodeploy.com",
+    "price": null
+  },
+  {
+    "domain": "abcgrid.com",
+    "price": 9888.0
+  },
+  {
+    "domain": "insurerider.com",
+    "price": 10995.0
+  },
+  {
+    "domain": "shasea.com",
+    "price": 17500.0
+  },
+  {
     "domain": "girlcollection.com",
     "price": null
   },
@@ -310,10 +326,6 @@
   {
     "domain": "hawaiianrelief.org",
     "price": null
-  },
-  {
-    "domain": "payplatforms.com",
-    "price": 599.0
   },
   {
     "domain": "francedomain.com",

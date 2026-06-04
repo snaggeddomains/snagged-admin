@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-06-03T10:15:52.162341+00:00",
+  "generated_at": "2026-06-04T10:00:37.870895+00:00",
   "label": "Braden Pollack Portfolio",
-  "new_count": 0,
-  "raw_count": 1826,
+  "new_count": 1,
+  "raw_count": 1827,
   "source": "braden_pollack_portfolio",
   "status": "ok",
   "supabase_status": "ok",
-  "universe_count": 1825
+  "universe_count": 1826
 }

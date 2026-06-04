@@ -1,0 +1,17 @@
+{
+  "capped": false,
+  "count": 9,
+  "domains": [
+    "receptacle.ai",
+    "beverley.co",
+    "said.io",
+    "vertebral.co",
+    "frenchman.co",
+    "failing.ai",
+    "physically.ai",
+    "getting.ai",
+    "drama.com"
+  ],
+  "generated_at": "2026-06-04T09:50:44.962776+00:00",
+  "source": "afternic"
+}

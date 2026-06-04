@@ -1,0 +1,10 @@
+{
+  "capped": false,
+  "count": 2,
+  "domains": [
+    "temperance.co",
+    "esprit.org"
+  ],
+  "generated_at": "2026-06-04T10:03:52.279617+00:00",
+  "source": "godaddy_auctions"
+}

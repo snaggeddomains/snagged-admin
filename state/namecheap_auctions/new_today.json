@@ -1,0 +1,17 @@
+{
+  "capped": false,
+  "count": 9,
+  "domains": [
+    "heterosexual.ai",
+    "handily.org",
+    "taggart.co",
+    "politician.io",
+    "vinson.ai",
+    "ahhh.ai",
+    "souza.ai",
+    "rediscover.co",
+    "shouldnt.org"
+  ],
+  "generated_at": "2026-06-04T10:02:53.504143+00:00",
+  "source": "namecheap_auctions"
+}

@@ -1,0 +1,12 @@
+{
+  "capped": false,
+  "count": 4,
+  "domains": [
+    "ought.co",
+    "staying.org",
+    "flanders.co",
+    "doherty.co"
+  ],
+  "generated_at": "2026-06-04T09:54:44.358104+00:00",
+  "source": "atom_daily"
+}

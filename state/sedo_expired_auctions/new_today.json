@@ -1,0 +1,7 @@
+{
+  "capped": false,
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-06-04T10:04:39.542215+00:00",
+  "source": "sedo_expired_auctions"
+}

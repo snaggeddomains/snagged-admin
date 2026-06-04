@@ -1,9 +1,7 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "nutmeg.org"
-  ],
-  "generated_at": "2026-06-03T16:53:38.696487+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-06-04T10:06:29.134472+00:00",
   "source": "namejet_email_digest"
 }
