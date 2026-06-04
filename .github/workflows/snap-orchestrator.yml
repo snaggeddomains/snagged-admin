@@ -24,7 +24,10 @@ concurrency:
 
 jobs:
   run:
-    runs-on: ubuntu-latest
+    # Pin the runner image (not `ubuntu-latest`) so a GitHub image refresh can't
+    # shift preinstalled libs under the headless browser (matches the dropcatch /
+    # watchdog workflows).
+    runs-on: ubuntu-24.04
     timeout-minutes: 180   # afternic alone can take ~1h; whole batch well under this
     steps:
       - uses: actions/checkout@v4
@@ -38,6 +41,17 @@ jobs:
 
       - uses: ./.github/actions/setup
         if: ${{ inputs.mode != 'ping' }}
+
+      # This orchestrator runs dropcatch_auctions + namejet_lastchance + the
+      # auctions_watchdog retry INLINE, all of which launch headless Chromium via
+      # Playwright. The `setup` action only pip-installs the Playwright package —
+      # the browser BINARY must be installed here. `chromium` alone omits the
+      # headless-shell that a headless launch needs on current Playwright, so
+      # install it explicitly (this is the exact break that hit dropcatch +
+      # namejet on 2026-06-04: "Executable doesn't exist … chrome-headless-shell").
+      - name: Install Playwright Chromium
+        if: ${{ inputs.mode != 'ping' }}
+        run: python -m playwright install --with-deps chromium chromium-headless-shell
 
       - name: Run SNAP + auction sources (sequential; continue on failure)
         if: ${{ inputs.mode != 'ping' }}
