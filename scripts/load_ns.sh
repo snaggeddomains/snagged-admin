@@ -36,17 +36,18 @@ case "$FILE" in
 esac
 
 "${READ[@]}" | python3 -c '
-import sys, csv
+import sys, csv, re
 tld = sys.argv[1]
+HOST = re.compile(r"^[a-z0-9._-]+$")   # reject template junk like ns1.{domain}
 w = csv.writer(sys.stdout); n = 0
 for row in csv.reader(sys.stdin, delimiter=";", quotechar=chr(34)):
     if len(row) < 2:
         continue
     d = row[0].strip().rstrip(".").lower()
     nsf = row[1].strip()
-    if not d or not nsf or d == tld:        # skip blanks + the TLD apex
+    if not d or not nsf or d == tld or not HOST.match(d):   # skip blanks, apex, junk
         continue
-    ns = sorted({h.strip().rstrip(".").lower() for h in nsf.split(",") if h.strip()})
+    ns = sorted({h for h in (x.strip().rstrip(".").lower() for x in nsf.split(",")) if h and "." in h and HOST.match(h)})
     if not ns:
         continue
     w.writerow([d, tld, "{" + ",".join(ns) + "}"]); n += 1
