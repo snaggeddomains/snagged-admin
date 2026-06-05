@@ -51,11 +51,18 @@ select tld, count(*) from zone_domains group by tld order by tld;
 
 -- ── Loading .com later (on XL) ──────────────────────────────────────────────
 -- load_ns.sh is unchanged — it copies into zone_domains, which routes com rows
--- into the empty, index-free zone_domains_com (fast, no OOM). Then:
+-- into the empty, index-free zone_domains_com (fast, no OOM). Then build BOTH
+-- indexes on the partition (the partitioned parent has no PK, so each new
+-- partition needs its own domain btree AND the nameservers GIN):
 --   set statement_timeout=0; set maintenance_work_mem='2GB';
---   create index on zone_domains_com using gin(nameservers);
+--   create index idx_zone_com_ns_gin on zone_domains_com using gin(nameservers);
+--   create index idx_zone_com_domain on zone_domains_com (domain);  -- REQUIRED:
+--       without it, domain lookups seq-scan 163M rows -> statement timeout
 --   analyze zone_domains_com;
 -- ...then scale compute back to Micro.
+-- NOTE: lookupDomain() in the research app filters by tld so the planner prunes
+-- to the one partition; every partition therefore needs its own domain index
+-- (the legacy default partition keeps the original PK; new ones need it added).
 --
 -- To add any future TLD: create its partition first, e.g.
 --   create table zone_domains_io partition of zone_domains for values in ('io');
