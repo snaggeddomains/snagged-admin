@@ -35,6 +35,7 @@ export const MODULES = [
   "research.dbscreen",
   "research.dbsearch",
   "research.nameserver",
+  "research.sales", // Sales Research Agent — find buyers for a domain we're selling
 ] as const;
 export type ModuleKey = (typeof MODULES)[number];
 
@@ -135,4 +136,5 @@ export const CATALOG: CatalogEntry[] = [
   { key: "research.dbscreen", label: "Domain DB Screen", group: "Research", kind: "module" },
   { key: "research.dbsearch", label: "Domain Name Search", group: "Research", kind: "module" },
   { key: "research.nameserver", label: "Nameserver Search", group: "Research", kind: "module" },
+  { key: "research.sales", label: "Sales Research", group: "Research", kind: "module" },
 ];
