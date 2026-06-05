@@ -20,6 +20,8 @@ export type NewTodayDomain = {
   quality_score: number | null;
   category: string | null; // null = in universe but not yet LLM-enriched
   enriched: boolean;
+  price: number | null;
+  best_price_source: string | null; // which marketplace the price came from
 };
 
 export type NewTodayResult = {
@@ -36,24 +38,25 @@ function todayUTC(): string {
 }
 
 /** Look up quality_score/category for a set of domains in name_universe. */
-async function enrichmentFor(
-  domains: string[],
-): Promise<Map<string, { q: number | null; c: string | null }>> {
-  const map = new Map<string, { q: number | null; c: string | null }>();
+type Enr = { q: number | null; c: string | null; price: number | null; ps: string | null };
+async function enrichmentFor(domains: string[]): Promise<Map<string, Enr>> {
+  const map = new Map<string, Enr>();
   if (!domains.length || !isNamingConfigured()) return map;
   const db = getNamingDb();
   for (let i = 0; i < domains.length; i += IN_CHUNK) {
     const chunk = domains.slice(i, i + IN_CHUNK);
     const { data, error } = await db
       .from("name_universe")
-      .select("domain,quality_score,category")
+      .select("domain,quality_score,category,best_price,best_price_source")
       .in("domain", chunk);
     if (error) throw new Error(`new-today enrichment: ${error.message || error.code || "request failed"}`);
     for (const r of data ?? []) {
-      const row = r as { domain?: unknown; quality_score?: unknown; category?: unknown };
+      const row = r as { domain?: unknown; quality_score?: unknown; category?: unknown; best_price?: unknown; best_price_source?: unknown };
       map.set(String(row.domain || "").toLowerCase(), {
         q: typeof row.quality_score === "number" ? row.quality_score : null,
         c: row.category != null ? String(row.category) : null,
+        price: typeof row.best_price === "number" ? row.best_price : null,
+        ps: row.best_price_source != null ? String(row.best_price_source) : null,
       });
     }
   }
@@ -85,6 +88,8 @@ export async function listNewTodayDomains(sourceId: string): Promise<NewTodayRes
         quality_score: e?.q ?? null,
         category: e?.c ?? null,
         enriched: e?.c != null,
+        price: e?.price ?? null,
+        best_price_source: e?.ps ?? null,
       };
     });
     out.sort((a, b) => (b.quality_score ?? -1) - (a.quality_score ?? -1));
@@ -96,20 +101,22 @@ export async function listNewTodayDomains(sourceId: string): Promise<NewTodayRes
   const db = getNamingDb();
   const { data, error } = await db
     .from("name_universe")
-    .select("domain,quality_score,category")
+    .select("domain,quality_score,category,best_price,best_price_source")
     .contains("sources", [sourceId])
     .gte("first_seen", todayUTC())
     .order("quality_score", { ascending: false, nullsFirst: false })
     .limit(DISPLAY_CAP);
   if (error) throw new Error(`new-today universe: ${error.message || error.code || "request failed"}`);
   const out: NewTodayDomain[] = (data ?? []).map((r) => {
-    const row = r as { domain?: unknown; quality_score?: unknown; category?: unknown };
+    const row = r as { domain?: unknown; quality_score?: unknown; category?: unknown; best_price?: unknown; best_price_source?: unknown };
     const category = row.category != null ? String(row.category) : null;
     return {
       domain: String(row.domain || ""),
       quality_score: typeof row.quality_score === "number" ? row.quality_score : null,
       category,
       enriched: category != null,
+      price: typeof row.best_price === "number" ? row.best_price : null,
+      best_price_source: row.best_price_source != null ? String(row.best_price_source) : null,
     };
   });
   return { source: sourceId, origin: "universe", domains: out };

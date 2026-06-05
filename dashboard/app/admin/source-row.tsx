@@ -31,9 +31,34 @@ type Dom = {
   quality_score: number | null;
   category: string | null;
   enriched: boolean;
+  price: number | null;
+  best_price_source: string | null;
 };
 
 const COLS = 6;
+
+// Best-effort link to where the domain is listed for sale, by marketplace.
+// Falls back to the domain's own URL (parked/for-sale landers usually live there).
+function forSaleUrl(source: string | null, domain: string): string {
+  const s = (source || "").toLowerCase();
+  const label = domain.split(".")[0];
+  const d = encodeURIComponent(domain);
+  if (s.includes("afternic")) return `https://www.afternic.com/domain/${domain}`;
+  if (s.includes("atom")) return `https://www.atom.com/name/${encodeURIComponent(label)}`;
+  if (s.includes("sedo")) return `https://sedo.com/search/?keyword=${d}`;
+  if (s.includes("dan")) return `https://dan.com/buy-domain/${domain}`;
+  if (s.includes("dropcatch")) return `https://www.dropcatch.com/domain/${domain}`;
+  if (s.includes("namejet")) return `https://www.namejet.com/Pages/Auctions/BackorderDetails.aspx?domainname=${d}`;
+  if (s.includes("godaddy")) return `https://www.godaddy.com/domainsearch/find?domainToCheck=${d}`;
+  if (s.includes("namecheap")) return `https://www.namecheap.com/market/?term=${d}`;
+  if (s.includes("brandbucket")) return `https://www.brandbucket.com/search?search=${encodeURIComponent(label)}`;
+  if (s.includes("oxley")) return `https://oxley.io/domain/${domain}`;
+  return `https://${domain}`;
+}
+function fmtPrice(p: number | null): string {
+  if (p == null) return "—";
+  return `$${Math.round(p).toLocaleString()}`;
+}
 
 function LinkOut({ href, label }: { href: string; label: string }) {
   return (
@@ -46,9 +71,11 @@ function LinkOut({ href, label }: { href: string; label: string }) {
 function NewTodayList({
   list,
   origin,
+  sourceId,
 }: {
   list: Dom[] | null | "loading";
   origin: string | null;
+  sourceId: string;
 }) {
   if (list === "loading")
     return <div className="muted" style={{ fontSize: 12.5, padding: "10px 12px" }}>loading domains…</div>;
@@ -74,8 +101,9 @@ function NewTodayList({
             <tr style={{ textAlign: "left", color: "var(--navy-3)", background: "var(--cream-2, #fbf7ec)", position: "sticky", top: 0 }}>
               <th style={{ padding: "6px 12px" }}>Domain</th>
               <th style={{ padding: "6px 12px", textAlign: "right" }}>Quality</th>
-              <th style={{ padding: "6px 12px" }}>Category</th>
+              <th style={{ padding: "6px 12px", textAlign: "right" }}>Price</th>
               <th style={{ padding: "6px 12px" }}>Enriched</th>
+              <th style={{ padding: "6px 12px" }}>Link</th>
             </tr>
           </thead>
           <tbody>
@@ -85,8 +113,13 @@ function NewTodayList({
                 <td style={{ padding: "6px 12px", textAlign: "right", color: "var(--navy-2)" }}>
                   {d.quality_score != null ? d.quality_score.toFixed(2) : "—"}
                 </td>
-                <td style={{ padding: "6px 12px", color: "var(--navy-2)" }}>{d.category || "—"}</td>
+                <td style={{ padding: "6px 12px", textAlign: "right", color: "var(--navy-2)" }}>{fmtPrice(d.price)}</td>
                 <td style={{ padding: "6px 12px" }}>{d.enriched ? "✓" : "—"}</td>
+                <td style={{ padding: "6px 12px" }}>
+                  <a href={forSaleUrl(d.best_price_source || sourceId, d.domain)} target="_blank" rel="noopener noreferrer" className="link-out">
+                    for sale ↗
+                  </a>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -158,7 +191,7 @@ function SourceRow({ vm }: { vm: RowVM }) {
       {open && (
         <tr>
           <td colSpan={COLS} style={{ padding: "0 12px" }}>
-            <NewTodayList list={list} origin={origin} />
+            <NewTodayList list={list} origin={origin} sourceId={vm.sourceId} />
           </td>
         </tr>
       )}
