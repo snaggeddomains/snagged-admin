@@ -1,14 +1,8 @@
 {
-  "detail": "retried 2, 0 recovered, 2 still failed",
-  "generated_at": "2026-06-04T10:09:46.192061+00:00",
+  "detail": "no failed producers",
+  "generated_at": "2026-06-05T10:46:51.384974+00:00",
   "label": "Auctions watchdog",
-  "recovered": 0,
-  "reposted_slack": false,
-  "retried": 2,
+  "retried": 0,
   "source": "auctions_watchdog",
-  "status": "failed",
-  "still_failed": [
-    "dropcatch_auctions",
-    "namejet_lastchance"
-  ]
+  "status": "ok"
 }

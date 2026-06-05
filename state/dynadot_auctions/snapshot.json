@@ -1,10 +1,18 @@
 [
   {
-    "bid_count": 1,
-    "domain": "absurd.io",
-    "end_time_utc": "2026-06-04T19:00:25+00:00",
-    "link": "https://www.dynadot.com/market/auction/39310298.html",
+    "bid_count": 16,
+    "domain": "construction.io",
+    "end_time_utc": "2026-06-06T00:00:00+00:00",
+    "link": "https://www.dynadot.com/market/auction/39295752.html",
     "platform": "Dynadot",
-    "price": 7.99
+    "price": 1136.0
+  },
+  {
+    "bid_count": 5,
+    "domain": "instrument.io",
+    "end_time_utc": "2026-06-06T00:00:00+00:00",
+    "link": "https://www.dynadot.com/market/auction/39295756.html",
+    "platform": "Dynadot",
+    "price": 122.48
   }
 ]

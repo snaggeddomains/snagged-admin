@@ -1,10 +1,18 @@
 [
   {
-    "bid_count": 51,
+    "bid_count": 56,
     "domain": "pfeiffer.com",
-    "end_time_utc": "2026-06-05T18:59:20.297399+00:00",
+    "end_time_utc": "2026-06-05T18:59:29.681328+00:00",
     "link": "https://www.dropcatch.com/domain/PfeiffEr.com",
     "platform": "DropCatch",
-    "price": 659.0
+    "price": 1100.0
+  },
+  {
+    "bid_count": 116,
+    "domain": "conqueror.com",
+    "end_time_utc": "2026-06-08T18:59:29.681328+00:00",
+    "link": "https://www.dropcatch.com/domain/Conqueror.com",
+    "platform": "DropCatch",
+    "price": 4700.0
   }
 ]

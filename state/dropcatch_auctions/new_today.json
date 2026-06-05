@@ -1,9 +1,10 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 2,
   "domains": [
-    "pfeiffer.com"
+    "pfeiffer.com",
+    "conqueror.com"
   ],
-  "generated_at": "2026-06-04T11:07:23.657672+00:00",
+  "generated_at": "2026-06-05T10:45:33.822101+00:00",
   "source": "dropcatch_auctions"
 }

@@ -1,9 +1,10 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 2,
   "domains": [
-    "absurd.io"
+    "construction.io",
+    "instrument.io"
   ],
-  "generated_at": "2026-06-04T10:03:17.558789+00:00",
+  "generated_at": "2026-06-05T10:45:21.589673+00:00",
   "source": "dynadot_auctions"
 }

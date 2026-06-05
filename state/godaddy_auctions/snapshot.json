@@ -1,18 +1,1 @@
-[
-  {
-    "bid_count": 0,
-    "domain": "temperance.co",
-    "end_time_utc": "2026-06-04T18:32:00+00:00",
-    "link": "https://www.godaddy.com/domain-auctions/temperance-co-705093154?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1.0
-  },
-  {
-    "bid_count": 16,
-    "domain": "esprit.org",
-    "end_time_utc": "2026-06-04T18:34:00+00:00",
-    "link": "https://www.godaddy.com/domain-auctions/esprit-org-704963406?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 121.0
-  }
-]
+[]
