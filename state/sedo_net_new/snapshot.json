@@ -1,5 +1,13 @@
 [
   {
+    "currency": "EUR",
+    "domain": "upcoming.ai",
+    "end_time_utc": "2026-06-05T11:45:11+00:00",
+    "price": 50000.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=upcoming.ai"
+  },
+  {
     "currency": "USD",
     "domain": "guangdong.co",
     "end_time_utc": "2026-06-05T10:46:19+00:00",
