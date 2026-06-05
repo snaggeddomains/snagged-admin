@@ -1,9 +1,10 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 2,
   "domains": [
-    "nutmeg.org"
+    "concentration.com",
+    "sto.org"
   ],
-  "generated_at": "2026-06-04T15:08:15.014898+00:00",
+  "generated_at": "2026-06-05T15:05:18.398762+00:00",
   "source": "namejet_email_digest"
 }
