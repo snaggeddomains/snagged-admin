@@ -1,13 +1,29 @@
 {
-  "cutoff_date": "2026-05-28",
+  "cutoff_date": "2026-05-29",
   "dry_run": false,
-  "generated_at": "2026-06-04T08:22:39.097316+00:00",
-  "kept": 80,
+  "generated_at": "2026-06-05T08:09:14.622940+00:00",
+  "kept": 90,
   "label": "Pipeline Raw Cache retention",
   "retention_days": 7,
-  "scanned": 80,
+  "scanned": 93,
   "source": "raw_cache_retention",
   "status": "ok",
-  "trashed": [],
-  "trashed_count": 0
+  "trashed": [
+    {
+      "date": "2026-05-28",
+      "folder_id": "1uLi7jRgNuOQrSz7JMNzIlXgDEj_Uf7xk",
+      "source": "atom_daily"
+    },
+    {
+      "date": "2026-05-28",
+      "folder_id": "1CeUvHOfBStt0KBcEMDHYtF3eBcAMcJ2Q",
+      "source": "afternic"
+    },
+    {
+      "date": "2026-05-28",
+      "folder_id": "1LphID25oWWJv6vQSY8ZYDd4xf-xJDEzQ",
+      "source": "namecheap_bin"
+    }
+  ],
+  "trashed_count": 3
 }
