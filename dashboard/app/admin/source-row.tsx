@@ -95,31 +95,33 @@ function NewTodayList({
           showing names net-new to the universe today (feed list not yet recorded for this source)
         </div>
       )}
-      <div style={{ maxHeight: 320, overflowY: "auto" }}>
+      <div style={{ maxHeight: 320, overflowY: "auto", overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12.5 }}>
           <thead>
             <tr style={{ textAlign: "left", color: "var(--navy-3)", background: "var(--cream-2, #fbf7ec)", position: "sticky", top: 0 }}>
-              <th style={{ padding: "6px 12px" }}>Domain</th>
-              <th style={{ padding: "6px 12px", textAlign: "right" }}>Quality</th>
-              <th style={{ padding: "6px 12px", textAlign: "right" }}>Price</th>
-              <th style={{ padding: "6px 12px" }}>Enriched</th>
-              <th style={{ padding: "6px 12px" }}>Link</th>
+              <th style={{ padding: "6px 10px", whiteSpace: "nowrap" }}>Domain</th>
+              <th style={{ padding: "6px 10px", textAlign: "right", whiteSpace: "nowrap" }}>Quality</th>
+              <th style={{ padding: "6px 10px", textAlign: "right", whiteSpace: "nowrap" }}>Price</th>
+              <th style={{ padding: "6px 10px", whiteSpace: "nowrap" }}>Enriched</th>
+              <th style={{ padding: "6px 10px", whiteSpace: "nowrap" }}>Link</th>
+              <th style={{ width: "100%" }}></th>
             </tr>
           </thead>
           <tbody>
             {list.map((d) => (
               <tr key={d.domain} style={{ borderTop: "1px solid var(--line, #f1ece0)" }}>
-                <td style={{ padding: "6px 12px", fontFamily: "monospace", color: "var(--navy)" }}>{d.domain}</td>
-                <td style={{ padding: "6px 12px", textAlign: "right", color: "var(--navy-2)" }}>
+                <td style={{ padding: "6px 10px", fontFamily: "monospace", color: "var(--navy)", whiteSpace: "nowrap" }}>{d.domain}</td>
+                <td style={{ padding: "6px 10px", textAlign: "right", color: "var(--navy-2)", whiteSpace: "nowrap" }}>
                   {d.quality_score != null ? d.quality_score.toFixed(2) : "—"}
                 </td>
-                <td style={{ padding: "6px 12px", textAlign: "right", color: "var(--navy-2)" }}>{fmtPrice(d.price)}</td>
-                <td style={{ padding: "6px 12px" }}>{d.enriched ? "✓" : "—"}</td>
-                <td style={{ padding: "6px 12px" }}>
+                <td style={{ padding: "6px 10px", textAlign: "right", color: "var(--navy-2)", whiteSpace: "nowrap" }}>{fmtPrice(d.price)}</td>
+                <td style={{ padding: "6px 10px" }}>{d.enriched ? "✓" : "—"}</td>
+                <td style={{ padding: "6px 10px", whiteSpace: "nowrap" }}>
                   <a href={forSaleUrl(d.best_price_source || sourceId, d.domain)} target="_blank" rel="noopener noreferrer" className="link-out">
                     for sale ↗
                   </a>
                 </td>
+                <td></td>
               </tr>
             ))}
           </tbody>
@@ -170,10 +172,10 @@ function SourceRow({ vm }: { vm: RowVM }) {
               type="button"
               onClick={toggle}
               className="link-out"
-              style={{ background: "none", border: "none", cursor: "pointer", padding: 0, font: "inherit" }}
+              style={{ background: "none", border: "none", cursor: "pointer", padding: "2px 6px", font: "inherit", fontSize: 15, fontWeight: 600 }}
               title="Show the names added new today"
             >
-              {vm.newCount!.toLocaleString()} {open ? "▾" : "▸"}
+              {vm.newCount!.toLocaleString()} <span style={{ fontSize: 17 }}>{open ? "▾" : "▸"}</span>
             </button>
           ) : (
             vm.newCount ?? "—"
