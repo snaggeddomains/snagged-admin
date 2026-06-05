@@ -162,7 +162,7 @@ function SourceRow({ vm }: { vm: RowVM }) {
         <td>
           <span title={vm.statusLabel} className={`dot dot--${vm.statusKey}`} />
         </td>
-        <td className="mono">
+        <td className="mono" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={vm.sourceId}>
           {vm.sourceId}
           {vm.todo && <span className="todo-badge">todo</span>}
         </td>
