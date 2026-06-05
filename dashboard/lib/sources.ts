@@ -51,6 +51,8 @@ export interface SourceWithStatus extends Source {
   /** True if a Python module exists at src/marketplace_pipeline/sources/<id>.py */
   wired: boolean;
   runStatus: RunStatus | null;
+  /** Live-auction count from snapshot.json — auction products only, else null. */
+  liveCount: number | null;
 }
 
 export async function loadSources(): Promise<Source[]> {
@@ -168,6 +170,19 @@ export async function loadRunStatus(sourceId: string): Promise<RunStatus | null>
   }
 }
 
+// Count of live auctions in a source's snapshot.json (the current qualifying
+// set). Only meaningful for auction products; best-effort → null.
+export async function loadSnapshotCount(sourceId: string): Promise<number | null> {
+  const text = await getFile(`state/${sourceId}/snapshot.json`);
+  if (!text) return null;
+  try {
+    const arr = JSON.parse(text);
+    return Array.isArray(arr) ? arr.length : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function loadAllSourcesWithStatus(): Promise<SourceWithStatus[]> {
   const [sources, wiredIds] = await Promise.all([
     loadSources(),
@@ -178,6 +193,9 @@ export async function loadAllSourcesWithStatus(): Promise<SourceWithStatus[]> {
       ...s,
       wired: wiredIds.has(s.source_id),
       runStatus: await loadRunStatus(s.source_id),
+      // Auction sources show their live-auction count (not the run delta); other
+      // products don't have a snapshot, so skip the extra fetch.
+      liveCount: s.product === "auctions" ? await loadSnapshotCount(s.source_id) : null,
     })),
   );
 }

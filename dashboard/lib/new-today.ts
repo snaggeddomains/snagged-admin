@@ -30,6 +30,23 @@ export type NewTodayResult = {
   domains: NewTodayDomain[];
 };
 
+// A single live auction from a source's snapshot.json (the current qualifying
+// set the auctions watchlist publishes). Auction names deliberately do NOT enter
+// name_universe / get enriched (only SNAP does), so they have no quality/category
+// — the drill-down shows the auction facts instead (price, end time, link).
+export type AuctionListing = {
+  domain: string;
+  price: number | null;
+  endTimeUtc: string | null;
+  bidCount: number | null;
+  link: string | null;
+};
+
+export type LiveAuctionsResult = {
+  source: string;
+  auctions: AuctionListing[];
+};
+
 const DISPLAY_CAP = 500;
 const IN_CHUNK = 150; // keep the IN(...) URL well under length limits
 
@@ -61,6 +78,43 @@ async function enrichmentFor(domains: string[]): Promise<Map<string, Enr>> {
     }
   }
   return map;
+}
+
+// Live auctions for an auction-product source, straight from its snapshot.json
+// (every auction source persists one: { domain, end_time_utc, price, bid_count,
+// link }). This is the same set the Slack watchlist reports — NOT the run delta
+// (new_count) and NOT a universe query. Best-effort: missing/malformed → [].
+export async function listLiveAuctions(sourceId: string): Promise<LiveAuctionsResult> {
+  let raw: string | null = null;
+  try {
+    raw = await getFile(`state/${sourceId}/snapshot.json`);
+  } catch {
+    raw = null;
+  }
+  if (!raw) return { source: sourceId, auctions: [] };
+  let arr: unknown;
+  try {
+    arr = JSON.parse(raw);
+  } catch {
+    return { source: sourceId, auctions: [] };
+  }
+  if (!Array.isArray(arr)) return { source: sourceId, auctions: [] };
+  const auctions: AuctionListing[] = [];
+  for (const it of arr) {
+    const r = it as Record<string, unknown>;
+    const domain = String(r.domain || "").toLowerCase();
+    if (!domain) continue;
+    auctions.push({
+      domain,
+      price: typeof r.price === "number" ? r.price : null,
+      endTimeUtc: r.end_time_utc != null ? String(r.end_time_utc) : null,
+      bidCount: typeof r.bid_count === "number" ? r.bid_count : null,
+      link: r.link != null ? String(r.link) : null,
+    });
+  }
+  // Soonest-ending first (snapshots are already sorted this way, but be safe).
+  auctions.sort((a, b) => String(a.endTimeUtc || "").localeCompare(String(b.endTimeUtc || "")));
+  return { source: sourceId, auctions: auctions.slice(0, DISPLAY_CAP) };
 }
 
 export async function listNewTodayDomains(sourceId: string): Promise<NewTodayResult> {

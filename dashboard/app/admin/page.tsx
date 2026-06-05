@@ -122,7 +122,10 @@ function toVM(
     scheduleLabel: sched.label,
     scheduleVia: sched.via,
     lastRun: s.runStatus ? relativeTime(s.runStatus.generated_at) : "—",
-    newCount: s.runStatus?.new_count ?? null,
+    // Auction sources headline their LIVE auction count (snapshot.json); every
+    // other product shows the net-new-today count from the run status.
+    product: s.product,
+    newCount: s.product === "auctions" ? (s.liveCount ?? null) : (s.runStatus?.new_count ?? null),
     wired: !!s.wired,
     runHref: runWorkflowPage(s.source_id),
     codeHref: viewFile(sourceModulePathFor(s.source_id)),
@@ -257,7 +260,10 @@ export default async function SourcesPage() {
               {PRODUCT_LABEL[product]}
               <span className="count">· {wired}/{items.length} wired</span>
             </h2>
-            <SourceTable rows={items.map((s) => toVM(s, orchestratorById))} />
+            <SourceTable
+              rows={items.map((s) => toVM(s, orchestratorById))}
+              countHeader={product === "auctions" ? "live auctions" : "new today"}
+            />
           </section>
         );
       })}
