@@ -172,13 +172,16 @@ function SourceRow({ vm }: { vm: RowVM }) {
               type="button"
               onClick={toggle}
               className="link-out"
-              style={{ background: "none", border: "none", cursor: "pointer", padding: "2px 6px", font: "inherit", fontSize: 15, fontWeight: 600 }}
+              style={{ background: "none", border: "none", cursor: "pointer", padding: "2px 6px", font: "inherit", fontSize: 15, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 6 }}
               title="Show the names added new today"
             >
-              {vm.newCount!.toLocaleString()} <span style={{ fontSize: 17 }}>{open ? "▾" : "▸"}</span>
+              <span style={{ minWidth: "2.5ch", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{vm.newCount!.toLocaleString()}</span>
+              <span style={{ fontSize: 17 }}>{open ? "▾" : "▸"}</span>
             </button>
           ) : (
-            vm.newCount ?? "—"
+            <span style={{ display: "inline-block", padding: "2px 6px" }}>
+              <span style={{ display: "inline-block", minWidth: "2.5ch", textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{vm.newCount ?? "—"}</span>
+            </span>
           )}
         </td>
         <td className="muted">{vm.lastRun}</td>
