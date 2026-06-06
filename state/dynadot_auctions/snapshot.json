@@ -1,18 +1,10 @@
 [
   {
-    "bid_count": 16,
-    "domain": "construction.io",
-    "end_time_utc": "2026-06-06T00:00:00+00:00",
-    "link": "https://www.dynadot.com/market/auction/39295752.html",
+    "bid_count": 0,
+    "domain": "communism.co",
+    "end_time_utc": "2026-06-06T20:00:00+00:00",
+    "link": "https://www.dynadot.com/market/auction/39070487.html",
     "platform": "Dynadot",
-    "price": 1136.0
-  },
-  {
-    "bid_count": 5,
-    "domain": "instrument.io",
-    "end_time_utc": "2026-06-06T00:00:00+00:00",
-    "link": "https://www.dynadot.com/market/auction/39295756.html",
-    "platform": "Dynadot",
-    "price": 122.48
+    "price": 7.99
   }
 ]

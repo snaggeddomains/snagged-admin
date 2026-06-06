@@ -2,9 +2,9 @@
   "capped": false,
   "count": 2,
   "domains": [
-    "pfeiffer.com",
-    "conqueror.com"
+    "conqueror.com",
+    "sto.org"
   ],
-  "generated_at": "2026-06-05T10:45:33.822101+00:00",
+  "generated_at": "2026-06-06T10:51:01.450884+00:00",
   "source": "dropcatch_auctions"
 }

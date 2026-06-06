@@ -1,7 +1,9 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-06-05T10:45:47.840890+00:00",
+  "count": 1,
+  "domains": [
+    "faithful.co"
+  ],
+  "generated_at": "2026-06-06T10:51:14.377594+00:00",
   "source": "godaddy_auctions"
 }
