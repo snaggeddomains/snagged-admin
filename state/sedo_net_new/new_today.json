@@ -1,11 +1,7 @@
 {
   "capped": false,
-  "count": 3,
-  "domains": [
-    "tactile.com",
-    "tact.ai",
-    "tactile.co"
-  ],
-  "generated_at": "2026-06-05T23:00:59.596478+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-06-06T10:00:57.914699+00:00",
   "source": "sedo_net_new"
 }
