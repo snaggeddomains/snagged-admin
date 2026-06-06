@@ -1,34 +1,42 @@
 [
   {
-    "domain": "clubour.com",
-    "price": 99.0
-  },
-  {
-    "domain": "usayour.com",
-    "price": 99.0
-  },
-  {
     "domain": "gayhurst.com",
     "price": 3288.0
   },
   {
-    "domain": "pancho.ai",
-    "price": 350000.0
+    "domain": "diversionist.com",
+    "price": 695.0
   },
   {
     "domain": "advances.net",
     "price": null
   },
   {
-    "domain": "uniformed.net",
-    "price": 1495.0
+    "domain": "cassara.co",
+    "price": 1988.0
   },
   {
     "domain": "delmont.co",
     "price": 1988.0
   },
   {
+    "domain": "lucania.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "picken.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "lonergan.co",
+    "price": 1988.0
+  },
+  {
     "domain": "capmed.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "leston.co",
     "price": 1988.0
   },
   {
@@ -40,7 +48,11 @@
     "price": 1988.0
   },
   {
-    "domain": "leston.co",
+    "domain": "areion.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "henton.co",
     "price": 1988.0
   }
 ]
