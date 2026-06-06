@@ -1,29 +1,79 @@
 {
-  "cutoff_date": "2026-05-29",
+  "cutoff_date": "2026-05-30",
   "dry_run": false,
-  "generated_at": "2026-06-05T08:09:14.622940+00:00",
-  "kept": 90,
+  "generated_at": "2026-06-06T06:55:03.423999+00:00",
+  "kept": 88,
   "label": "Pipeline Raw Cache retention",
   "retention_days": 7,
-  "scanned": 93,
+  "scanned": 101,
   "source": "raw_cache_retention",
   "status": "ok",
   "trashed": [
     {
-      "date": "2026-05-28",
-      "folder_id": "1uLi7jRgNuOQrSz7JMNzIlXgDEj_Uf7xk",
+      "date": "2026-05-29",
+      "folder_id": "1yO6cniKty_GHpxgxDV1KUc5I35vWb4dc",
+      "source": "efty_partner"
+    },
+    {
+      "date": "2026-05-29",
+      "folder_id": "1xB7DT5jVn1MAhTTPLf9K79wQGWRrNep4",
+      "source": "sedo_net_new"
+    },
+    {
+      "date": "2026-05-29",
+      "folder_id": "1wbBU2r8DGynjWdgkFTMWldElUqCrRKS0",
+      "source": "dynadot_auctions"
+    },
+    {
+      "date": "2026-05-29",
+      "folder_id": "1Mv2PP36Z2OGZPkpkMPj-HNiJ7KT8T8er",
+      "source": "namesilo_auctions"
+    },
+    {
+      "date": "2026-05-29",
+      "folder_id": "1oH7zgJO-8y8A5RnmmVZYHAMie1WO3sTO",
+      "source": "namejet_lastchance"
+    },
+    {
+      "date": "2026-05-29",
+      "folder_id": "1OkBnweYky7fSm7CV3ZzD56jIgNPlFhjl",
+      "source": "sedo_expired_auctions"
+    },
+    {
+      "date": "2026-05-29",
+      "folder_id": "1M9JdDjfm5li9me9EdKbzweRv6Zq5cJtN",
+      "source": "godaddy_auctions"
+    },
+    {
+      "date": "2026-05-29",
+      "folder_id": "17RW1rPkrlKhdlQj6mAyvvefuZ33y3QbJ",
+      "source": "parkio_auctions"
+    },
+    {
+      "date": "2026-05-29",
+      "folder_id": "1Jsg1JerzNupKHgiDizpmpKQyNpKyKjNl",
+      "source": "dropcatch_auctions"
+    },
+    {
+      "date": "2026-05-29",
+      "folder_id": "13H_OlF78NSUcegnLf4m4Ucp2v6vLoLE9",
+      "source": "namecheap_auctions"
+    },
+    {
+      "date": "2026-05-29",
+      "folder_id": "1Q-CWTafI7iyUI1JxGGcRYolQjBVtwfhh",
       "source": "atom_daily"
     },
     {
-      "date": "2026-05-28",
-      "folder_id": "1CeUvHOfBStt0KBcEMDHYtF3eBcAMcJ2Q",
+      "date": "2026-05-29",
+      "folder_id": "12E-OLnz0nkY78OTMNP_aRY2Q16z-cLa7",
       "source": "afternic"
     },
     {
-      "date": "2026-05-28",
-      "folder_id": "1LphID25oWWJv6vQSY8ZYDd4xf-xJDEzQ",
+      "date": "2026-05-29",
+      "folder_id": "1fOi4r-Sin-_L72vJtnTQZq2ceIVIfTHi",
       "source": "namecheap_bin"
     }
   ],
-  "trashed_count": 3
+  "trashed_count": 13
 }
