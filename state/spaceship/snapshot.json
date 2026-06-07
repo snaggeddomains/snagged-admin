@@ -1,9 +1,5 @@
 [
   {
-    "domain": "strawberry.io",
-    "price": null
-  },
-  {
     "domain": "catunicorn.com",
     "price": null
   },
@@ -17,6 +13,10 @@
   },
   {
     "domain": "trycaddy.com",
+    "price": null
+  },
+  {
+    "domain": "strawberry.io",
     "price": null
   }
 ]
