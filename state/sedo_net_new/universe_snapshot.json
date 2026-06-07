@@ -1,26 +1,34 @@
 [
   {
-    "domain": "deviled.com",
-    "price": null
+    "domain": "clubour.com",
+    "price": 99.0
   },
   {
-    "domain": "abishirts.com",
-    "price": null
+    "domain": "usscope.com",
+    "price": 99.0
+  },
+  {
+    "domain": "norche.com",
+    "price": 995.0
+  },
+  {
+    "domain": "valueour.com",
+    "price": 99.0
   },
   {
     "domain": "bridgestone.ai",
     "price": 250000.0
   },
   {
-    "domain": "espana.net",
-    "price": null
+    "domain": "toured.co",
+    "price": 2450.0
   },
   {
     "domain": "queria.co",
     "price": 1495.0
   },
   {
-    "domain": "toured.co",
-    "price": 2450.0
+    "domain": "encoding.co",
+    "price": null
   }
 ]
