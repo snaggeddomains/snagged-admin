@@ -1,16 +1,12 @@
 {
   "capped": false,
-  "count": 8,
+  "count": 4,
   "domains": [
-    "vodka.ai",
-    "hardcover.com",
-    "desmond.ai",
-    "statutory.co",
-    "marginal.co",
-    "fond.org",
-    "negotiator.co",
-    "turret.org"
+    "upcoming.ai",
+    "touched.co",
+    "watchman.co",
+    "harem.org"
   ],
-  "generated_at": "2026-06-06T10:40:29.804740+00:00",
+  "generated_at": "2026-06-07T10:12:49.591711+00:00",
   "source": "atom_daily"
 }

@@ -1,5 +1,21 @@
 [
   {
+    "domain": "cocoacove.com",
+    "price": 3999.0
+  },
+  {
+    "domain": "tubetally.com",
+    "price": 2750.0
+  },
+  {
+    "domain": "scriptsandbox.com",
+    "price": 3500.0
+  },
+  {
+    "domain": "canyontrip.com",
+    "price": 2500.0
+  },
+  {
     "domain": "matrixrails.com",
     "price": null
   },
@@ -273877,7 +273893,7 @@
   },
   {
     "domain": "charlestonlaw.com",
-    "price": 2500.0
+    "price": 3500.0
   },
   {
     "domain": "buysacramento.com",
@@ -340676,10 +340692,6 @@
     "price": null
   },
   {
-    "domain": "emiratescars.net",
-    "price": 8000.0
-  },
-  {
     "domain": "ingeniousdubai.com",
     "price": 10000.0
   },
@@ -342730,10 +342742,6 @@
   {
     "domain": "dualporn.com",
     "price": null
-  },
-  {
-    "domain": "dubaisport.org",
-    "price": 15000.0
   },
   {
     "domain": "dubaiemirates.net",

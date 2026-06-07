@@ -1,19 +1,20 @@
 {
   "capped": false,
-  "count": 11,
+  "count": 12,
   "domains": [
-    "ghent.ai",
-    "realignment.org",
-    "weakness.io",
-    "runnin.org",
-    "wardrobe.org",
-    "thump.ai",
-    "ponce.co",
-    "sharia.co",
-    "pitched.ai",
-    "deir.ai",
-    "insoluble.ai"
+    "commonly.io",
+    "killing.io",
+    "appellate.ai",
+    "kaine.ai",
+    "ballarat.ai",
+    "germination.co",
+    "potter.io",
+    "considered.io",
+    "blatantly.ai",
+    "tricia.org",
+    "orissa.ai",
+    "ordinarily.ai"
   ],
-  "generated_at": "2026-06-06T10:49:57.965706+00:00",
+  "generated_at": "2026-06-07T10:20:59.795466+00:00",
   "source": "namecheap_auctions"
 }
