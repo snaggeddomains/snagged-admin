@@ -1,10 +1,7 @@
 {
   "capped": false,
-  "count": 2,
-  "domains": [
-    "concentration.com",
-    "sto.org"
-  ],
-  "generated_at": "2026-06-05T15:05:18.398762+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-06-07T15:05:56.170297+00:00",
   "source": "namejet_email_digest"
 }
