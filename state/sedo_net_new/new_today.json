@@ -1,13 +1,7 @@
 {
   "capped": false,
-  "count": 5,
-  "domains": [
-    "stratosphere.ai",
-    "retake.ai",
-    "digestive.ai",
-    "paperback.ai",
-    "earning.ai"
-  ],
-  "generated_at": "2026-06-06T23:01:02.380492+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-06-07T10:00:56.046030+00:00",
   "source": "sedo_net_new"
 }
