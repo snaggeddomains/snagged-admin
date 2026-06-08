@@ -1,7 +1,11 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-06-07T23:00:30.087694+00:00",
+  "count": 3,
+  "domains": [
+    "phineas.co",
+    "gamecube.co",
+    "burkina.co"
+  ],
+  "generated_at": "2026-06-08T10:02:14.683275+00:00",
   "source": "sedo_net_new"
 }
