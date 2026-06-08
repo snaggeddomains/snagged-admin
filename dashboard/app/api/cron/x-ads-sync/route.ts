@@ -57,6 +57,7 @@ export async function GET(req: NextRequest) {
     if (level !== "campaign") {
       const a = await syncXAdsAdsDaily(opts);
       result.adRows = a.rows; result.from = a.from; result.to = a.to;
+      if (a.truncated) { result.truncated = true; result.nextTo = a.nextTo; }
     }
     return NextResponse.json(result);
   } catch (e) {

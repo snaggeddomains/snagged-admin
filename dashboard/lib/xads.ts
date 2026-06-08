@@ -377,12 +377,11 @@ async function fetchTweetTexts(accountId: string, tweetIds: string[]): Promise<M
   return out;
 }
 
-// Fetch per-ad per-day rows live over [from, to]: resolve campaign→line-item→promoted-
-// tweet, label each by tweet text, then pull PROMOTED_TWEET stats (DST-safe chunks ×
-// ≤20-id groups, fault-tolerant).
-async function fetchAdDailyRowsLive(from: string, to: string): Promise<XAdsAdDailyRow[]> {
-  const accountId = process.env.X_ADS_ACCOUNT_ID!;
-  const dates = dateRange(from, to);
+type AdMeta = { campaignId: string; campaignName: string; adName: string; tweetId: string; status: string };
+
+// Resolve the full promoted-tweet list (campaign→line-item→promoted-tweet) with
+// tweet-text labels — done once per sync, then reused across date blocks.
+async function resolveAdMeta(accountId: string): Promise<Map<string, AdMeta>> {
   const [campaigns, lineItems, promoted] = await Promise.all([
     fetchCampaigns(accountId),
     fetchPaged<LineItem>(accountId, "/line_items"),
@@ -391,8 +390,7 @@ async function fetchAdDailyRowsLive(from: string, to: string): Promise<XAdsAdDai
   const campNameById = new Map(campaigns.map((c) => [c.id, c.name]));
   const campByLineItem = new Map(lineItems.map((li) => [li.id, li.campaign_id || ""]));
   const tweetText = await fetchTweetTexts(accountId, promoted.map((p) => p.tweet_id || "").filter(Boolean));
-  // ad_id → { campaignId, campaignName, adName, tweetId, status }
-  const adMeta = new Map<string, { campaignId: string; campaignName: string; adName: string; tweetId: string; status: string }>();
+  const adMeta = new Map<string, AdMeta>();
   for (const p of promoted) {
     const campaignId = campByLineItem.get(p.line_item_id || "") || "";
     const tweetId = p.tweet_id || "";
@@ -405,8 +403,12 @@ async function fetchAdDailyRowsLive(from: string, to: string): Promise<XAdsAdDai
       status: p.entity_status || "",
     });
   }
-  const adIds = [...adMeta.keys()];
+  return adMeta;
+}
 
+// Pull PROMOTED_TWEET stats for the given ad ids over `dates` (DST-safe chunks ×
+// ≤20-id groups, fault-tolerant) → per-ad-per-day rows.
+async function fetchAdStatsRows(accountId: string, adIds: string[], adMeta: Map<string, AdMeta>, dates: string[]): Promise<XAdsAdDailyRow[]> {
   const rows: XAdsAdDailyRow[] = [];
   const tasks: (() => Promise<void>)[] = [];
   let failed = 0;
@@ -448,6 +450,14 @@ async function fetchAdDailyRowsLive(from: string, to: string): Promise<XAdsAdDai
   return rows;
 }
 
+// Fetch per-ad per-day rows live over [from, to] (used by the effectiveness view's
+// cache-miss fallback over a bounded window).
+async function fetchAdDailyRowsLive(from: string, to: string): Promise<XAdsAdDailyRow[]> {
+  const accountId = process.env.X_ADS_ACCOUNT_ID!;
+  const adMeta = await resolveAdMeta(accountId);
+  return fetchAdStatsRows(accountId, [...adMeta.keys()], adMeta, dateRange(from, to));
+}
+
 async function getAdDailyRows(from: string, to: string): Promise<XAdsAdDailyRow[]> {
   if (xAdsStoreConfigured()) {
     const cached = await readAdDailyRows(from, to);
@@ -456,15 +466,38 @@ async function getAdDailyRows(from: string, to: string): Promise<XAdsAdDailyRow[
   return fetchAdDailyRowsLive(from, to);
 }
 
-// Cron entry point for the per-ad cache (synced alongside the campaign cache).
+// Cron entry point for the per-ad cache. Resolves the ad list once, then walks the
+// date range in blocks NEWEST-FIRST, upserting each block, and stops before the
+// function time limit — so a long backfill persists progress and returns a clean
+// JSON (with a `nextTo` cursor to continue) instead of a platform timeout.
+const SYNC_BUDGET_MS = 240_000; // leave headroom under the 300s function limit
+const SYNC_BLOCK_DAYS = 45;
 export async function syncXAdsAdsDaily(
   opts: { days?: number; from?: string; to?: string } = {},
-): Promise<{ rows: number; from: string; to: string }> {
+): Promise<{ rows: number; from: string; to: string; truncated: boolean; nextTo?: string }> {
+  const started = Date.now();
+  const accountId = process.env.X_ADS_ACCOUNT_ID!;
   const to = opts.to || etToday();
   const from = opts.from || addDays(to, -(Math.max(1, opts.days ?? 14) - 1));
-  const rows = await fetchAdDailyRowsLive(from, to);
-  const written = await upsertAdDailyRows(rows);
-  return { rows: written, from, to };
+  const adMeta = await resolveAdMeta(accountId);
+  const adIds = [...adMeta.keys()];
+
+  let written = 0;
+  let blockEnd = to; // walk backwards
+  let truncated = false;
+  let nextTo: string | undefined;
+  while (blockEnd >= from) {
+    const blockStart = (() => {
+      const s = addDays(blockEnd, -(SYNC_BLOCK_DAYS - 1));
+      return s < from ? from : s;
+    })();
+    const rows = await fetchAdStatsRows(accountId, adIds, adMeta, dateRange(blockStart, blockEnd));
+    written += await upsertAdDailyRows(rows);
+    if (blockStart <= from) break;
+    blockEnd = addDays(blockStart, -1);
+    if (Date.now() - started > SYNC_BUDGET_MS) { truncated = true; nextTo = blockEnd; break; }
+  }
+  return { rows: written, from, to, truncated, ...(nextTo ? { nextTo } : {}) };
 }
 
 // ── Effectiveness (per-campaign + per-ad) ────────────────────────────────────
