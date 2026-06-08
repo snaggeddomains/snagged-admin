@@ -71,8 +71,11 @@ export async function newsletterReport(from: string, to: string): Promise<Newsle
     subscribers: num(s.member_count),
     unsubscribes: num(s.unsubscribe_count),
     cleaned: num(s.cleaned_count),
-    openRate: num(s.open_rate),
-    clickRate: num(s.click_rate),
+    // Mailchimp returns LIST-level rates as percentages (e.g. 42.1) but CAMPAIGN
+    // report rates as fractions (0.6). Normalize the list rates to fractions so the
+    // client renders both with the same ×100.
+    openRate: num(s.open_rate) / 100,
+    clickRate: num(s.click_rate) / 100,
     netSinceLastSend: num(s.member_count_since_send),
     campaigns: (reportsResp.reports || []).map((r) => ({
       title: r.campaign_title || r.subject_line || "(untitled)",
