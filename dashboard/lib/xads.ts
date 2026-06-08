@@ -75,12 +75,44 @@ function authHeader(method: string, url: string): string {
   );
 }
 
-async function apiGet<T>(path: string, query: Record<string, string> = {}): Promise<T> {
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+// The Ads API rate-limits per access token over a rolling window; a wide date
+// range fans out enough stats calls to trip a 429 if we burst them. apiGet retries
+// 429s (and transient 5xx) with backoff, honoring the reset/Retry-After header when
+// present, and the stats fan-out is run through a small concurrency pool (mapPool).
+async function apiGet<T>(path: string, query: Record<string, string> = {}, attempt = 0): Promise<T> {
   const qs = new URLSearchParams(query).toString();
   const url = `${API}${path}${qs ? `?${qs}` : ""}`;
   const res = await fetch(url, { headers: { Authorization: authHeader("GET", url) } });
-  if (!res.ok) throw new Error(`X Ads ${res.status}: ${(await res.text()).slice(0, 300)}`);
-  return (await res.json()) as T;
+  if (res.ok) return (await res.json()) as T;
+  if ((res.status === 429 || res.status >= 500) && attempt < 5) {
+    // Prefer the API's own hint: rate-limit reset (epoch secs) or Retry-After (secs).
+    const reset = Number(res.headers.get("x-rate-limit-reset") || res.headers.get("x-account-rate-limit-reset"));
+    const retryAfter = Number(res.headers.get("retry-after"));
+    let waitMs = 0;
+    if (Number.isFinite(retryAfter) && retryAfter > 0) waitMs = retryAfter * 1000;
+    else if (Number.isFinite(reset) && reset > 0) waitMs = Math.max(0, reset * 1000 - Date.now());
+    if (!waitMs || res.status >= 500) waitMs = Math.min(15000, 500 * 2 ** attempt); // exp backoff, capped
+    waitMs = Math.min(waitMs, 20000) + Math.floor(Math.random() * 250); // cap + jitter
+    await sleep(waitMs);
+    return apiGet<T>(path, query, attempt + 1);
+  }
+  throw new Error(`X Ads ${res.status}: ${(await res.text()).slice(0, 300)}`);
+}
+
+// Run async tasks with a bounded concurrency so we don't burst the rate limit.
+async function mapPool<T>(tasks: (() => Promise<T>)[], concurrency = 4): Promise<T[]> {
+  const results: T[] = new Array(tasks.length);
+  let next = 0;
+  const workers = Array.from({ length: Math.min(concurrency, tasks.length) }, async () => {
+    while (next < tasks.length) {
+      const i = next++;
+      results[i] = await tasks[i]();
+    }
+  });
+  await Promise.all(workers);
+  return results;
 }
 
 // ── Date helpers (account-timezone day math) ─────────────────────────────────
@@ -193,28 +225,27 @@ const num = (v: number | null | undefined): number => (typeof v === "number" && 
 // parallel. Used by the Ad Lift model, which only needs the daily spend series.
 async function fetchDailySpend(accountId: string, ids: string[], dates: string[]): Promise<Map<string, number>> {
   const byDate = new Map<string, number>(dates.map((d) => [d, 0]));
-  const jobs: Promise<void>[] = [];
+  const tasks: (() => Promise<void>)[] = [];
   for (const dc of chunk(dates, 7)) {
     const start = tzMidnightUtc(dc[0]);
     const end = tzMidnightUtc(addDays(dc[dc.length - 1], 1));
     for (const idc of chunk(ids, 20)) {
-      jobs.push(
-        apiGet<StatsResp>(`/stats/accounts/${accountId}`, {
+      tasks.push(async () => {
+        const resp = await apiGet<StatsResp>(`/stats/accounts/${accountId}`, {
           entity: "CAMPAIGN", entity_ids: idc.join(","), metric_groups: "BILLING",
           granularity: "DAY", placement: "ALL_ON_TWITTER", start_time: start, end_time: end,
-        }).then((resp) => {
-          for (const ent of resp.data || []) {
-            const m = ent.id_data?.[0]?.metrics;
-            if (!m) continue;
-            for (let i = 0; i < dc.length; i++) {
-              byDate.set(dc[i], byDate.get(dc[i])! + num(m.billed_charge_local_micro?.[i]) / 1_000_000);
-            }
+        });
+        for (const ent of resp.data || []) {
+          const m = ent.id_data?.[0]?.metrics;
+          if (!m) continue;
+          for (let i = 0; i < dc.length; i++) {
+            byDate.set(dc[i], byDate.get(dc[i])! + num(m.billed_charge_local_micro?.[i]) / 1_000_000);
           }
-        }),
-      );
+        }
+      });
     }
   }
-  await Promise.all(jobs);
+  await mapPool(tasks);
   return byDate;
 }
 
@@ -250,13 +281,13 @@ export async function xAdsReport(from: string, to: string): Promise<XAdsReport> 
   // then fetch every (dateChunk × idChunk) stats slice in parallel.
   const dateChunks = chunk(dates, 7);
   const idChunks = chunk(campaigns.map((c) => c.id), 20);
-  const jobs: Promise<void>[] = [];
+  const tasks: (() => Promise<void>)[] = [];
   for (const dc of dateChunks) {
     const start = tzMidnightUtc(dc[0]);
     const end = tzMidnightUtc(addDays(dc[dc.length - 1], 1)); // exclusive upper bound
     for (const ids of idChunks) {
-      jobs.push(
-        apiGet<StatsResp>(`/stats/accounts/${accountId}`, {
+      tasks.push(async () => {
+        const resp = await apiGet<StatsResp>(`/stats/accounts/${accountId}`, {
           entity: "CAMPAIGN",
           entity_ids: ids.join(","),
           metric_groups: "ENGAGEMENT,BILLING",
@@ -264,34 +295,33 @@ export async function xAdsReport(from: string, to: string): Promise<XAdsReport> 
           placement: "ALL_ON_TWITTER",
           start_time: start,
           end_time: end,
-        }).then((resp) => {
-          for (const ent of resp.data || []) {
-            const m = ent.id_data?.[0]?.metrics;
-            if (!m) continue;
-            const cAgg = byCampaign.get(ent.id) || blank();
-            for (let i = 0; i < dc.length; i++) {
-              const day = dc[i];
-              const spend = num(m.billed_charge_local_micro?.[i]) / 1_000_000;
-              const impressions = num(m.impressions?.[i]);
-              const clicks = num(m.clicks?.[i]);
-              const engagements = num(m.engagements?.[i]);
-              cAgg.spend += spend;
-              cAgg.impressions += impressions;
-              cAgg.clicks += clicks;
-              cAgg.engagements += engagements;
-              const dAgg = byDate.get(day)!;
-              dAgg.spend += spend;
-              dAgg.impressions += impressions;
-              dAgg.clicks += clicks;
-              dAgg.engagements += engagements;
-            }
-            byCampaign.set(ent.id, cAgg);
+        });
+        for (const ent of resp.data || []) {
+          const m = ent.id_data?.[0]?.metrics;
+          if (!m) continue;
+          const cAgg = byCampaign.get(ent.id) || blank();
+          for (let i = 0; i < dc.length; i++) {
+            const day = dc[i];
+            const spend = num(m.billed_charge_local_micro?.[i]) / 1_000_000;
+            const impressions = num(m.impressions?.[i]);
+            const clicks = num(m.clicks?.[i]);
+            const engagements = num(m.engagements?.[i]);
+            cAgg.spend += spend;
+            cAgg.impressions += impressions;
+            cAgg.clicks += clicks;
+            cAgg.engagements += engagements;
+            const dAgg = byDate.get(day)!;
+            dAgg.spend += spend;
+            dAgg.impressions += impressions;
+            dAgg.clicks += clicks;
+            dAgg.engagements += engagements;
           }
-        }),
-      );
+          byCampaign.set(ent.id, cAgg);
+        }
+      });
     }
   }
-  await Promise.all(jobs);
+  await mapPool(tasks);
 
   // Totals.
   let spend = 0, impressions = 0, clicks = 0, engagements = 0;
