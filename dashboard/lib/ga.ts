@@ -115,6 +115,12 @@ const rowsOf = (r: GaReport) => r.rows || [];
 // First metric of a single-row, dimensionless report (e.g. a summed total).
 const firstMetric = (r: GaReport, i = 0) => n(rowsOf(r)[0]?.metricValues?.[i]?.value);
 const ymd = (raw: string) => (/^\d{8}$/.test(raw) ? `${raw.slice(0, 4)}-${raw.slice(4, 6)}-${raw.slice(6, 8)}` : raw);
+// Run a report but never throw — for queries over custom dimensions that may not
+// be registered yet (GA 400s an unregistered customEvent:* dimension), so the
+// rest of the report still renders. Returns [] on any failure.
+async function safeRows(body: Record<string, unknown>): Promise<GaRow[]> {
+  try { return rowsOf(await runReport(body)); } catch { return []; }
+}
 
 // ── Typed report shapes the client renders ──────────────────────────────────
 export type StatBlock = { sessions: number; users: number; pageviews: number; submissions: number };
@@ -137,6 +143,9 @@ export type CoreReport = {
   channels: ChannelRow[];
   sources: SourceRow[];
   submissionsByChannel: LabelValue[];
+  selfReportedSource: LabelValue[]; // GA param heard_about (needs custom dimension)
+  leadIntent: LabelValue[]; // GA param lead_intent
+  leadBudget: LabelValue[]; // GA param lead_budget
   trend: TrendRow[];
 };
 export type AnalyticsReport = MarketplaceReport | CoreReport;
@@ -241,8 +250,22 @@ export async function analyticsReport(tranche: Tranche, from: string, to: string
     orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
     limit: 25,
   });
-  const [summary, submit, channels, trend, sources, submitByChannel] = await Promise.all([
+  // Breakdowns from the GA event params our footer snippet attaches to
+  // generate_lead (self-reported source / intent / budget). These read custom
+  // dimensions that must be registered in GA4 first — safeRows() returns [] until
+  // then, so the cards show an empty state rather than erroring the whole report.
+  const paramBreakdown = (param: string) =>
+    safeRows({
+      dateRanges,
+      dimensions: [{ name: `customEvent:${param}` }],
+      metrics: [{ name: "eventCount" }],
+      dimensionFilter: exact("eventName", SUBMIT_EVENT.core),
+      orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
+      limit: 25,
+    });
+  const [summary, submit, channels, trend, sources, submitByChannel, heard, intent, budget] = await Promise.all([
     summaryReq, submitReq, channelReq, trendReq, sourcesReq, submitByChannelReq,
+    paramBreakdown("heard_about"), paramBreakdown("lead_intent"), paramBreakdown("lead_budget"),
   ]);
   return {
     tranche: "core",
@@ -266,10 +289,21 @@ export async function analyticsReport(tranche: Tranche, from: string, to: string
       label: r.dimensionValues?.[0]?.value || "(none)",
       value: n(r.metricValues?.[0]?.value),
     })),
+    selfReportedSource: toLV(heard),
+    leadIntent: toLV(intent),
+    leadBudget: toLV(budget),
     trend: rowsOf(trend).map((r) => ({
       date: ymd(r.dimensionValues?.[0]?.value || ""),
       sessions: n(r.metricValues?.[0]?.value),
       pageviews: n(r.metricValues?.[1]?.value),
     })),
   };
+}
+
+// [dimension, eventCount] rows → {label, value}[], dropping GA's "(not set)"
+// bucket (events that didn't carry the param).
+function toLV(rows: GaRow[]): LabelValue[] {
+  return rows
+    .map((r) => ({ label: r.dimensionValues?.[0]?.value || "(none)", value: n(r.metricValues?.[0]?.value) }))
+    .filter((x) => x.label !== "(not set)" && x.label !== "(none)");
 }
