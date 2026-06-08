@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import ReportsSubnav from "./reports-subnav";
 
 type Period = "day" | "week" | "month";
 type Total = { category: string; meter: string; units: number };
@@ -97,7 +98,7 @@ const YESTERDAY = etYmd(new Date(Date.now() - 86400000));
 const WEEK_START = etYmd(new Date(Date.now() - 6 * 86400000)); // last 7 days incl. today
 const MONTH_START = `${TODAY.slice(0, 7)}-01`;                  // 1st of the current month (ET)
 
-export default function ReportsClient({ canCost, canEditRates }: { canCost: boolean; canEditRates: boolean }) {
+export default function ReportsClient({ canCost, canEditRates, canAnalytics = false }: { canCost: boolean; canEditRates: boolean; canAnalytics?: boolean }) {
   const [period, setPeriod] = useState<Period>("day");
   const [preset, setPreset] = useState<Preset>("week");
   const [from, setFrom] = useState(WEEK_START); // custom-range start
@@ -249,6 +250,7 @@ export default function ReportsClient({ canCost, canEditRates }: { canCost: bool
   if (!canCost) {
     return (
       <main>
+        <ReportsSubnav canCost={canCost} canAnalytics={canAnalytics} />
         <h1 style={{ fontSize: "1.25rem", marginBottom: 4 }}>Reports</h1>
         <p className="muted">
           You have the Reports tab but not the cost report. Ask an admin for the{" "}
@@ -266,6 +268,7 @@ export default function ReportsClient({ canCost, canEditRates }: { canCost: bool
 
   return (
     <main>
+      <ReportsSubnav canCost={canCost} canAnalytics={canAnalytics} />
       <h1 style={{ fontSize: "1.25rem", marginBottom: 4 }}>API cost &amp; usage</h1>
       <p className="muted" style={{ marginTop: 0, fontSize: 14 }}>
         What each system and activity is costing. Set a dollar rate per meter
