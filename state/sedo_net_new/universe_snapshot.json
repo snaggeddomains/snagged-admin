@@ -4,8 +4,20 @@
     "price": 12295.0
   },
   {
+    "domain": "country.co",
+    "price": 79888.0
+  },
+  {
+    "domain": "roadmaps.net",
+    "price": 2995.0
+  },
+  {
     "domain": "vitaforce.net",
     "price": 1995.0
+  },
+  {
+    "domain": "temples.co",
+    "price": 9995.0
   },
   {
     "domain": "marcomm.co",
@@ -40,6 +52,10 @@
     "price": 1488.0
   },
   {
+    "domain": "palouse.co",
+    "price": 1488.0
+  },
+  {
     "domain": "pooper.co",
     "price": 1488.0
   },
@@ -53,6 +69,10 @@
   },
   {
     "domain": "netflare.co",
+    "price": 1488.0
+  },
+  {
+    "domain": "meldon.co",
     "price": 1488.0
   },
   {
@@ -104,6 +124,14 @@
     "price": 1488.0
   },
   {
+    "domain": "troupe.co",
+    "price": 27888.0
+  },
+  {
+    "domain": "turbo.co",
+    "price": 149888.0
+  },
+  {
     "domain": "intraoral.co",
     "price": 1488.0
   },
@@ -114,5 +142,9 @@
   {
     "domain": "hyperbuild.co",
     "price": 1488.0
+  },
+  {
+    "domain": "instructions.co",
+    "price": 19995.0
   }
 ]
