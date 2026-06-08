@@ -25,7 +25,8 @@ type RevenueReport = {
 };
 type SeoRow = { key: string; clicks: number; impressions: number; ctr: number; position: number };
 type SeoTrend = { date: string; clicks: number; impressions: number };
-type SeoReport = { totals: { clicks: number; impressions: number; ctr: number; position: number }; topQueries: SeoRow[]; topPages: SeoRow[]; blogQueries: SeoRow[]; blogPages: SeoRow[]; trend: SeoTrend[] };
+type SeoBucket = "all" | "core" | "marketplace" | "blog";
+type SeoReport = { bucket: SeoBucket; totals: { clicks: number; impressions: number; ctr: number; position: number }; topQueries: SeoRow[]; topPages: SeoRow[]; trend: SeoTrend[] };
 
 type Preset = "today" | "week" | "month" | "custom";
 const PRESETS: { key: Preset; label: string }[] = [
@@ -63,8 +64,13 @@ function Section({ title, blurb, children }: { title: string; blurb?: string; ch
   );
 }
 
+const SEO_BUCKETS: { key: SeoBucket; label: string }[] = [
+  { key: "all", label: "All" }, { key: "core", label: "Core" }, { key: "marketplace", label: "Marketplace" }, { key: "blog", label: "Blog" },
+];
+
 export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
   const [tranche, setTranche] = useState<Tranche>("core");
+  const [seoBucket, setSeoBucket] = useState<SeoBucket>("all");
   const [preset, setPreset] = useState<Preset>("week");
   const [from, setFrom] = useState(WEEK_START);
   const [to, setTo] = useState(TODAY);
@@ -84,13 +90,14 @@ export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
     setLoading(true); setMsg("");
     try {
       const q = new URLSearchParams({ tranche, from: range.from, to: range.to });
+      if (tranche === "seo") q.set("bucket", seoBucket);
       const res = await fetch(`/api/admin/analytics?${q.toString()}`, { cache: "no-store" });
       const data = await res.json();
       if (data.configured === false) { setConfigured(false); setLoaded(null); setMsg(data.error || "Not configured."); return; }
       if (!res.ok) throw new Error(data.error || `Failed (${res.status})`);
       setConfigured(true); setLoaded({ tranche: data.tranche, report: data.report });
     } catch (e) { setMsg(String((e as Error).message || e)); } finally { setLoading(false); }
-  }, [tranche, range.from, range.to]);
+  }, [tranche, seoBucket, range.from, range.to]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -132,6 +139,20 @@ export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
         <button onClick={load} disabled={loading} style={{ fontSize: 13 }}>{loading ? "Loading…" : "Refresh"}</button>
         <span className="muted" style={{ marginLeft: "auto", fontSize: 13 }}>{rangeLabel}</span>
       </div>
+
+      {tranche === "seo" && (
+        <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8, flexWrap: "wrap" }}>
+          <span className="muted" style={{ fontSize: 12 }}>Search by business line:</span>
+          <div style={{ display: "inline-flex", gap: 4, border: "1px solid #e3ddcf", borderRadius: 8, padding: 3 }}>
+            {SEO_BUCKETS.map((b) => (
+              <button key={b.key} onClick={() => setSeoBucket(b.key)} style={{
+                padding: "4px 12px", fontSize: 13, fontWeight: 700, borderRadius: 6, border: "none", cursor: "pointer",
+                background: seoBucket === b.key ? "var(--coral-deep, #c0492f)" : "transparent", color: seoBucket === b.key ? "#fff" : "var(--navy, #254254)",
+              }}>{b.label}</button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {msg && <p style={{ fontSize: 13, color: CORAL }}>{msg}</p>}
 
@@ -275,10 +296,8 @@ function SeoView({ r }: { r: SeoReport }) {
         <StatCard label="Avg position" text={t.position ? t.position.toFixed(1) : "—"} />
       </div>
       <Section title="Clicks & impressions trend"><TrendChart data={trend} labels={["Clicks", "Impressions"]} /></Section>
-      <Section title="Top search queries" blurb="What people search to find Snagged (and where you rank)."><SeoTable rows={r.topQueries} head="query" /></Section>
+      <Section title="Top search queries" blurb="What people search to find this part of the site (and where you rank)."><SeoTable rows={r.topQueries} head="query" /></Section>
       <Section title="Top pages from search" blurb="Which pages pull search clicks."><SeoTable rows={r.topPages} head="page" link /></Section>
-      <Section title="Blog — top queries" blurb="The informational searches the blog ranks for (/post/*)."><SeoTable rows={r.blogQueries} head="query" /></Section>
-      <Section title="Blog — top pages" blurb="Which posts earn the search traffic."><SeoTable rows={r.blogPages} head="page" link /></Section>
     </>
   );
 }

@@ -27,17 +27,24 @@ async function query(body: Record<string, unknown>): Promise<GscRow[]> {
   return ((await res.json()) as { rows?: GscRow[] }).rows || [];
 }
 
-const blogFilter = { dimensionFilterGroups: [{ filters: [{ dimension: "page", operator: "contains", expression: "/post/" }] }] };
+export type SeoBucket = "all" | "core" | "marketplace" | "blog";
+// Per-business-line page filters. GSC combines multiple dimensionFilterGroups with
+// AND, so we OR namespaces inside a single RE2 regex (matched on the full page URL).
+function pageFilter(bucket: SeoBucket) {
+  if (bucket === "marketplace") return { dimension: "page", operator: "includingRegex", expression: "snagged\\.com/domains/" };
+  if (bucket === "blog") return { dimension: "page", operator: "includingRegex", expression: "snagged\\.com/(post/|blog|guides/)" };
+  if (bucket === "core") return { dimension: "page", operator: "excludingRegex", expression: "snagged\\.com/(domains/|post/|blog|guides/)" };
+  return null; // all
+}
 const num = (v?: number) => (typeof v === "number" && Number.isFinite(v) ? v : 0);
 
 export type SeoRow = { key: string; clicks: number; impressions: number; ctr: number; position: number };
 export type SeoTrend = { date: string; clicks: number; impressions: number };
 export type SeoReport = {
+  bucket: SeoBucket;
   totals: { clicks: number; impressions: number; ctr: number; position: number };
   topQueries: SeoRow[];
   topPages: SeoRow[];
-  blogQueries: SeoRow[];
-  blogPages: SeoRow[];
   trend: SeoTrend[];
 };
 
@@ -45,23 +52,21 @@ const toSeo = (rows: GscRow[]): SeoRow[] => rows.map((r) => ({
   key: r.keys?.[0] || "", clicks: num(r.clicks), impressions: num(r.impressions), ctr: num(r.ctr), position: num(r.position),
 }));
 
-export async function seoReport(from: string, to: string): Promise<SeoReport> {
-  const base = { startDate: from, endDate: to };
-  const [totals, q, p, bq, bp, tr] = await Promise.all([
+export async function seoReport(from: string, to: string, bucket: SeoBucket = "all"): Promise<SeoReport> {
+  const flt = pageFilter(bucket);
+  const base = { startDate: from, endDate: to, ...(flt ? { dimensionFilterGroups: [{ filters: [flt] }] } : {}) };
+  const [totals, q, p, tr] = await Promise.all([
     query({ ...base, dimensions: [] }),
     query({ ...base, dimensions: ["query"], rowLimit: 25 }),
     query({ ...base, dimensions: ["page"], rowLimit: 25 }),
-    query({ ...base, dimensions: ["query"], rowLimit: 25, ...blogFilter }),
-    query({ ...base, dimensions: ["page"], rowLimit: 25, ...blogFilter }),
     query({ ...base, dimensions: ["date"], rowLimit: 1000 }),
   ]);
   const t = totals[0] || {};
   return {
+    bucket,
     totals: { clicks: num(t.clicks), impressions: num(t.impressions), ctr: num(t.ctr), position: num(t.position) },
     topQueries: toSeo(q),
     topPages: toSeo(p),
-    blogQueries: toSeo(bq),
-    blogPages: toSeo(bp),
     trend: tr.map((r) => ({ date: r.keys?.[0] || "", clicks: num(r.clicks), impressions: num(r.impressions) })),
   };
 }
