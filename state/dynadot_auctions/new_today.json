@@ -1,9 +1,7 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "misdemeanor.org"
-  ],
-  "generated_at": "2026-06-07T10:21:23.390992+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-06-08T10:35:08.923730+00:00",
   "source": "dynadot_auctions"
 }

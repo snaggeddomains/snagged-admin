@@ -2,11 +2,11 @@
   "deduped_against_existing": 0,
   "files": [],
   "files_scanned": 0,
-  "generated_at": "2026-06-07T10:22:26.231976+00:00",
+  "generated_at": "2026-06-08T10:36:11.917946+00:00",
   "label": "Drive Uploads",
   "new_count": 0,
   "rows_after_dedup": 0,
-  "sheet_total_after": 12223,
+  "sheet_total_after": 12231,
   "slack_posted": false,
   "source": "drive_auction_uploads",
   "status": "ok"

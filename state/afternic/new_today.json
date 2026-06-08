@@ -1,11 +1,12 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 4,
   "domains": [
-    "pelvic.ai",
-    "jacoby.ai",
-    "brought.ai"
+    "litre.ai",
+    "byproduct.ai",
+    "offender.ai",
+    "e.ai"
   ],
-  "generated_at": "2026-06-07T10:08:04.770013+00:00",
+  "generated_at": "2026-06-08T10:21:26.619510+00:00",
   "source": "afternic"
 }

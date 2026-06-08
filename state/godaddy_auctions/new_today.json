@@ -1,13 +1,9 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 1,
   "domains": [
-    "usable.org",
-    "lionel.co",
-    "mounted.co",
-    "malaysian.io",
-    "spicy.io"
+    "beaten.co"
   ],
-  "generated_at": "2026-06-07T10:21:42.673774+00:00",
+  "generated_at": "2026-06-08T10:35:29.982118+00:00",
   "source": "godaddy_auctions"
 }

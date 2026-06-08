@@ -1,20 +1,13 @@
 {
   "capped": false,
-  "count": 12,
+  "count": 5,
   "domains": [
-    "commonly.io",
-    "killing.io",
-    "appellate.ai",
-    "kaine.ai",
-    "ballarat.ai",
-    "germination.co",
-    "potter.io",
-    "considered.io",
-    "blatantly.ai",
-    "tricia.org",
-    "orissa.ai",
-    "ordinarily.ai"
+    "colvin.ai",
+    "elaboration.ai",
+    "advantageous.ai",
+    "throng.ai",
+    "mcgee.ai"
   ],
-  "generated_at": "2026-06-07T10:20:59.795466+00:00",
+  "generated_at": "2026-06-08T10:34:45.233694+00:00",
   "source": "namecheap_auctions"
 }

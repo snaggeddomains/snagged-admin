@@ -1,12 +1,10 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 2,
   "domains": [
-    "upcoming.ai",
-    "touched.co",
-    "watchman.co",
-    "harem.org"
+    "sending.co",
+    "sine.ai"
   ],
-  "generated_at": "2026-06-07T10:12:49.591711+00:00",
+  "generated_at": "2026-06-08T10:25:51.043425+00:00",
   "source": "atom_daily"
 }
