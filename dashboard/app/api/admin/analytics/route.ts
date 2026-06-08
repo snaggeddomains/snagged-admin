@@ -11,8 +11,8 @@ import { canReports } from "@/lib/permissions";
 import { analyticsReport, gaConfigured, type Tranche } from "@/lib/ga";
 import { revenueReport, revenueConfigured } from "@/lib/revenue";
 import { seoReport, gscConfigured, type SeoBucket } from "@/lib/gsc";
-import { newsletterReport, mailchimpConfigured } from "@/lib/mailchimp";
-import { emailDaily, emailDataThrough } from "@/lib/historical-email";
+import { newsletterReport, mailchimpConfigured, recentMemberCounts } from "@/lib/mailchimp";
+import { histSignups, histUnsubs, mergeDaily, emailDataThrough } from "@/lib/historical-email";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -39,13 +39,16 @@ export async function GET(req: NextRequest) {
   // Email tranche → signup/unsub history (bundled export, always available) plus the
   // live Mailchimp audience/campaign report when the key is configured.
   if (trancheParam === "email") {
-    const signups = emailDaily("signups", from, to);
-    const unsubs = emailDaily("unsubs", from, to);
+    let live = { signups: {} as Record<string, number>, unsubs: {} as Record<string, number> };
     let newsletter = null;
     if (mailchimpConfigured()) {
-      try { newsletter = await newsletterReport(from, to); } catch { /* keep historical-only */ }
+      try { live = await recentMemberCounts(emailDataThrough); } catch { /* historical-only */ }
+      try { newsletter = await newsletterReport(from, to); } catch { /* historical-only */ }
     }
-    return NextResponse.json({ ok: true, configured: true, tranche: "email", from, to, report: { newsletter, signups, unsubs, through: emailDataThrough } });
+    const signups = mergeDaily(histSignups, live.signups, from, to);
+    const unsubs = mergeDaily(histUnsubs, live.unsubs, from, to);
+    const through = mailchimpConfigured() ? etYmd(new Date()) : emailDataThrough;
+    return NextResponse.json({ ok: true, configured: true, tranche: "email", from, to, report: { newsletter, signups, unsubs, through, live: mailchimpConfigured() } });
   }
 
   // SEO tranche → Google Search Console, not GA.

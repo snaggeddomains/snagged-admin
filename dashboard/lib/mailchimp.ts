@@ -90,3 +90,47 @@ export async function newsletterReport(from: string, to: string): Promise<Newsle
       .sort((a, b) => (a.month < b.month ? -1 : 1)),
   };
 }
+
+// ── Live signup/unsub increment (auto-refresh, beyond the bundled export) ─────
+// Pull members whose opt-in (signups) or status-change (unsubs) happened strictly
+// AFTER `since` (the export snapshot day), aggregated to daily counts — so the
+// Email trend stays current without re-exporting. Small + paginated; best-effort
+// (returns {} on any failure so the historical seed still renders). Cached briefly.
+type MemberPage = { members?: { timestamp_opt?: string; last_changed?: string }[] };
+let _recentCache: { since: string; at: number; val: { signups: Record<string, number>; unsubs: Record<string, number> } } | null = null;
+
+async function paginate(path: string, params: Record<string, string>, onItem: (m: { timestamp_opt?: string; last_changed?: string }) => void, maxPages = 10): Promise<void> {
+  const count = 1000;
+  for (let p = 0; p < maxPages; p++) {
+    const qs = new URLSearchParams({ ...params, count: String(count), offset: String(p * count) });
+    const resp = await mc<MemberPage>(`${path}?${qs.toString()}`);
+    const members = resp.members || [];
+    members.forEach(onItem);
+    if (members.length < count) break;
+  }
+}
+
+export async function recentMemberCounts(since: string): Promise<{ signups: Record<string, number>; unsubs: Record<string, number> }> {
+  const empty = { signups: {}, unsubs: {} };
+  if (!mailchimpConfigured() || !since) return empty;
+  if (_recentCache && _recentCache.since === since && Date.now() - _recentCache.at < 10 * 60 * 1000) return _recentCache.val;
+
+  const lists = (await mc<ListsResp>("/lists?count=50&fields=lists.id,lists.name,lists.stats")).lists || [];
+  if (!lists.length) return empty;
+  const list = lists.slice().sort((a, b) => num(b.stats?.member_count) - num(a.stats?.member_count))[0];
+  const sinceTs = `${since}T00:00:00+00:00`;
+  const signups: Record<string, number> = {};
+  const unsubs: Record<string, number> = {};
+  // Signups: any member opted-in after the snapshot.
+  await paginate(`/lists/${list.id}/members`, { since_timestamp_opt: sinceTs, fields: "members.timestamp_opt" }, (m) => {
+    const d = (m.timestamp_opt || "").slice(0, 10);
+    if (d && d > since) signups[d] = (signups[d] || 0) + 1; // strictly after snapshot — no overlap with the seed
+  });
+  // Unsubscribes: status=unsubscribed, changed after the snapshot (last_changed ≈ unsub date).
+  await paginate(`/lists/${list.id}/members`, { status: "unsubscribed", since_last_changed: sinceTs, fields: "members.last_changed" }, (m) => {
+    const d = (m.last_changed || "").slice(0, 10);
+    if (d && d > since) unsubs[d] = (unsubs[d] || 0) + 1;
+  });
+  _recentCache = { since, at: Date.now(), val: { signups, unsubs } };
+  return { signups, unsubs };
+}

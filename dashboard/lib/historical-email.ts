@@ -1,22 +1,23 @@
-// Historical Mailchimp signups + unsubscribes by day, from the audience export
-// (OPTIN_TIME across all members; UNSUB_TIME for unsubscribers). Pre-aggregated to
-// daily counts, no PII. Mailchimp's API doesn't expose granular daily signup/unsub
-// history, so this export IS the source for the Email tab's signup/unsub trend —
-// refresh by re-exporting and regenerating historical-email.json.
+// Email signups + unsubscribes by day. The bundled historical-email.json is the
+// SEED (from the audience export — OPTIN_TIME / UNSUB_TIME, PII-stripped); forward
+// data is pulled live from the Mailchimp members API and merged on top, so the
+// trend auto-refreshes without re-exporting. See lib/mailchimp.ts#recentMemberCounts.
 
 import data from "./historical-email.json";
 
 export type DayCount = { date: string; count: number };
 
-const SIGNUPS: Record<string, number> = (data as { signups?: Record<string, number> }).signups || {};
-const UNSUBS: Record<string, number> = (data as { unsubs?: Record<string, number> }).unsubs || {};
 export const emailDataThrough: string = (data as { generated?: string }).generated || "";
+export const histSignups: Record<string, number> = (data as { signups?: Record<string, number> }).signups || {};
+export const histUnsubs: Record<string, number> = (data as { unsubs?: Record<string, number> }).unsubs || {};
 
-// Daily counts within [from, to] (YYYY-MM-DD), sorted ascending.
-export function emailDaily(kind: "signups" | "unsubs", from: string, to: string): DayCount[] {
-  const src = kind === "signups" ? SIGNUPS : UNSUBS;
-  return Object.entries(src)
+// Merge the historical daily map with a live increment, then filter to [from, to].
+export function mergeDaily(hist: Record<string, number>, live: Record<string, number>, from: string, to: string): DayCount[] {
+  const m = new Map<string, number>();
+  for (const [d, c] of Object.entries(hist)) m.set(d, (m.get(d) || 0) + Number(c));
+  for (const [d, c] of Object.entries(live)) m.set(d, (m.get(d) || 0) + Number(c));
+  return [...m.entries()]
     .filter(([d]) => d >= from && d <= to)
-    .map(([date, count]) => ({ date, count: Number(count) || 0 }))
+    .map(([date, count]) => ({ date, count }))
     .sort((a, b) => (a.date < b.date ? -1 : 1));
 }

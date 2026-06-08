@@ -30,7 +30,7 @@ type Campaign = { title: string; sendTime: string; sent: number; openRate: numbe
 type GrowthPoint = { month: string; optins: number; subscribed: number };
 type NewsletterReport = { audience: string; subscribers: number; unsubscribes: number; cleaned: number; openRate: number; clickRate: number; netSinceLastSend: number; campaigns: Campaign[]; growth: GrowthPoint[] };
 type DayCount = { date: string; count: number };
-type EmailReport = { newsletter: NewsletterReport | null; signups: DayCount[]; unsubs: DayCount[]; through: string };
+type EmailReport = { newsletter: NewsletterReport | null; signups: DayCount[]; unsubs: DayCount[]; through: string; live?: boolean };
 
 type Preset = "today" | "week" | "month" | "custom";
 const PRESETS: { key: Preset; label: string }[] = [
@@ -325,6 +325,12 @@ function combineSeries(signups: DayCount[], unsubs: DayCount[], gran: "day" | "w
   for (const { date, count } of unsubs) { const k = bucketKey(date, gran); const o = m.get(k) || { s: 0, u: 0 }; o.u += count; m.set(k, o); }
   return [...m.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1)).map(([date, v]) => ({ date, sessions: v.s, pageviews: v.u }));
 }
+// Roll a single daily series up to the selected granularity → bars (per-period counts).
+function rollupBars(daily: DayCount[], gran: "day" | "week" | "month"): Bar[] {
+  const m = new Map<string, number>();
+  for (const { date, count } of daily) { const k = bucketKey(date, gran); m.set(k, (m.get(k) || 0) + count); }
+  return [...m.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1)).map(([label, value]) => ({ label, value }));
+}
 
 function EmailView({ r }: { r: EmailReport }) {
   const [gran, setGran] = useState<"day" | "week" | "month">("month");
@@ -343,7 +349,9 @@ function EmailView({ r }: { r: EmailReport }) {
         </div>
       )}
 
-      <Section title="Signups & unsubscribes" blurb={`New opt-ins vs unsubscribes over the window. History through ${r.through} (audience export).`}>
+      <Section title="Signups & unsubscribes" blurb={r.live
+        ? `Auto-refreshed from Mailchimp — historical export seed + live opt-ins/unsubscribes through ${r.through}.`
+        : `New opt-ins vs unsubscribes over the window. History through ${r.through} (audience export).`}>
         <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 12, flexWrap: "wrap" }}>
           <StatCard label="New signups" value={totalSignups} accent />
           <StatCard label="Unsubscribes" value={totalUnsubs} />
@@ -357,6 +365,11 @@ function EmailView({ r }: { r: EmailReport }) {
             ))}
           </div>
         </div>
+        {/* New signups by the selected period — the headline chart. */}
+        <h3 style={{ fontSize: 14, margin: "4px 0 8px" }}>New signups by {gran}</h3>
+        <BarList rows={rollupBars(r.signups, gran)} color={CORAL} empty="No signups in this window." />
+        {/* Signups vs unsubscribes trend overlay. */}
+        <h3 style={{ fontSize: 14, margin: "18px 0 8px" }}>Signups vs unsubscribes — trend</h3>
         <TrendChart data={trend} labels={["New signups", "Unsubscribes"]} />
       </Section>
 
