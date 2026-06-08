@@ -47,6 +47,7 @@ export const ACTIONS = [
   "admin.lessons.approve", // curate (approve/edit/delete) playbook lessons
   "admin.imports.replace", // allow the destructive Replace mode in the import tool
   "admin.reports.cost", // view the API cost/usage report + edit rates
+  "admin.reports.analytics", // view the Site Analytics (GA4) report
 ] as const;
 export type ActionKey = (typeof ACTIONS)[number];
 
@@ -125,6 +126,7 @@ export const CATALOG: CatalogEntry[] = [
   { key: "admin.imports.replace", label: "Imports — Replace mode (destructive)", group: "Admin", kind: "action" },
   { key: "admin.reports", label: "Reports", group: "Admin", kind: "module" },
   { key: "admin.reports.cost", label: "Reports — API cost & usage", group: "Admin", kind: "action" },
+  { key: "admin.reports.analytics", label: "Reports — Site Analytics (GA4)", group: "Admin", kind: "action" },
   { key: "admin.lessons.approve", label: "Lessons — curate / approve", group: "Admin", kind: "action" },
   { key: "research.domain_owner", label: "Domain Owner research", group: "Research", kind: "module" },
   { key: "research.outreach", label: "Owner Outreach — email drafting", group: "Research", kind: "action" },

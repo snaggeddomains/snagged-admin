@@ -23,5 +23,8 @@ export default async function ReportsPage() {
   // only admin.reports.cost can view costs but not change the dollar rates.
   const canCost = canAdmin(user, "admin.reports.cost");
   const canEditRates = Boolean(user.is_admin) || isGranted(user.permissions, "admin");
-  return <ReportsClient canCost={canCost} canEditRates={canEditRates} />;
+  // Site Analytics sits alongside the cost report under the same Reports tab; the
+  // in-page sub-nav links to it when this user can also open it.
+  const canAnalytics = canAdmin(user, "admin.reports.analytics");
+  return <ReportsClient canCost={canCost} canEditRates={canEditRates} canAnalytics={canAnalytics} />;
 }
