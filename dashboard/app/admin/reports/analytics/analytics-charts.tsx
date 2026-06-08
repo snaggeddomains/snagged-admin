@@ -9,14 +9,15 @@ const CORAL = "var(--coral-deep, #c0492f)";
 const TRACK = "#efeadf"; // bar background
 
 const fmt = (n: number) => n.toLocaleString();
+const usd = (n: number) => `$${Math.round(n).toLocaleString()}`;
 
 export type Bar = { label: string; value: number; href?: string };
 
 // A ranked horizontal bar list — label · bar · value, scaled to the max. Good for
 // channels, sources, top pages, self-reported source, budget/intent mixes.
 export function BarList({
-  rows, color = NAVY, max, empty = "No data in this window.", showShare = false,
-}: { rows: Bar[]; color?: string; max?: number; empty?: string; showShare?: boolean }) {
+  rows, color = NAVY, max, empty = "No data in this window.", showShare = false, money = false,
+}: { rows: Bar[]; color?: string; max?: number; empty?: string; showShare?: boolean; money?: boolean }) {
   if (!rows.length) return <p className="muted" style={{ fontSize: 13, margin: "6px 0" }}>{empty}</p>;
   const top = max ?? Math.max(1, ...rows.map((r) => r.value));
   const total = rows.reduce((s, r) => s + r.value, 0);
@@ -31,7 +32,7 @@ export function BarList({
             <span style={{ position: "absolute", insetBlock: 0, left: 0, width: `${Math.max(2, Math.round((r.value / top) * 100))}%`, background: color, borderRadius: 5 }} />
           </span>
           <span style={{ fontVariantNumeric: "tabular-nums", fontWeight: 600, minWidth: 44, textAlign: "right" }}>
-            {fmt(r.value)}
+            {money ? usd(r.value) : fmt(r.value)}
             {showShare && total > 0 && <span className="muted" style={{ fontWeight: 400, fontSize: 11 }}> · {Math.round((r.value / total) * 100)}%</span>}
           </span>
         </div>
@@ -94,5 +95,39 @@ function Legend({ color, label, dashed }: { color: string; label: string; dashed
       <span style={{ width: 14, height: 0, borderTop: `2px ${dashed ? "dashed" : "solid"} ${color}` }} />
       {label}
     </span>
+  );
+}
+
+export type Step = { name: string; users: number };
+
+// A descending funnel: each step is a bar scaled to the first step, annotated with
+// step-to-step conversion %. For the blog → main site → submission path.
+export function FunnelChart({ steps, empty = "Funnel data unavailable for this window." }: { steps: Step[]; empty?: string }) {
+  if (!steps.length || steps[0].users === 0) return <p className="muted" style={{ fontSize: 13 }}>{empty}</p>;
+  const top = steps[0].users;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      {steps.map((st, i) => {
+        const prev = i > 0 ? steps[i - 1].users : null;
+        const conv = prev && prev > 0 ? Math.round((st.users / prev) * 100) : null;
+        return (
+          <div key={st.name}>
+            {i > 0 && (
+              <div className="muted" style={{ fontSize: 11, padding: "1px 0 3px 2px" }}>
+                ↓ {conv}% continued{prev ? ` (${(prev - st.users).toLocaleString()} dropped off)` : ""}
+              </div>
+            )}
+            <div style={{ display: "grid", gridTemplateColumns: "minmax(120px, 200px) 1fr auto", gap: 10, alignItems: "center", fontSize: 13 }}>
+              <span>{i + 1}. {st.name}</span>
+              <span style={{ position: "relative", height: 22, background: TRACK, borderRadius: 5, overflow: "hidden" }}>
+                <span style={{ position: "absolute", insetBlock: 0, left: 0, width: `${Math.max(2, Math.round((st.users / top) * 100))}%`, background: i === steps.length - 1 ? CORAL : NAVY, borderRadius: 5 }} />
+              </span>
+              <span style={{ fontVariantNumeric: "tabular-nums", fontWeight: 700, minWidth: 52, textAlign: "right" }}>{st.users.toLocaleString()}</span>
+            </div>
+          </div>
+        );
+      })}
+      <p className="muted" style={{ fontSize: 11, marginTop: 4 }}>Active users, ordered path over the selected window.</p>
+    </div>
   );
 }
