@@ -1,7 +1,9 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-06-07T15:05:56.170297+00:00",
+  "count": 1,
+  "domains": [
+    "barista.org"
+  ],
+  "generated_at": "2026-06-08T15:10:23.465745+00:00",
   "source": "namejet_email_digest"
 }
