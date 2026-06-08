@@ -379,14 +379,34 @@ async function fetchTweetTexts(accountId: string, tweetIds: string[]): Promise<M
 
 type AdMeta = { campaignId: string; campaignName: string; adName: string; tweetId: string; status: string };
 
+// Promoted tweets enumerated PER LINE ITEM — the account-level /promoted_tweets list
+// is incomplete (it misses ads under some archived line items, which silently dropped
+// big campaigns like "all top performers" from the per-ad cache). Scoping by
+// line_item_ids returns every promoted tweet under every line item.
+async function fetchPromotedByLineItems(accountId: string, lineItemIds: string[]): Promise<PromotedTweet[]> {
+  const out: PromotedTweet[] = [];
+  const seen = new Set<string>();
+  for (const idc of chunk(lineItemIds, 20)) {
+    let cursor: string | undefined;
+    do {
+      const q: Record<string, string> = { count: "1000", with_deleted: "true", line_item_ids: idc.join(",") };
+      if (cursor) q.cursor = cursor;
+      const r = await apiGet<{ data?: PromotedTweet[]; next_cursor?: string | null }>(`/accounts/${accountId}/promoted_tweets`, q);
+      for (const p of r.data || []) if (!seen.has(p.id)) { seen.add(p.id); out.push(p); }
+      cursor = r.next_cursor || undefined;
+    } while (cursor && out.length < 20000);
+  }
+  return out;
+}
+
 // Resolve the full promoted-tweet list (campaign→line-item→promoted-tweet) with
 // tweet-text labels — done once per sync, then reused across date blocks.
 async function resolveAdMeta(accountId: string): Promise<Map<string, AdMeta>> {
-  const [campaigns, lineItems, promoted] = await Promise.all([
+  const [campaigns, lineItems] = await Promise.all([
     fetchCampaigns(accountId),
     fetchPaged<LineItem>(accountId, "/line_items"),
-    fetchPaged<PromotedTweet>(accountId, "/promoted_tweets"),
   ]);
+  const promoted = await fetchPromotedByLineItems(accountId, lineItems.map((li) => li.id));
   const campNameById = new Map(campaigns.map((c) => [c.id, c.name]));
   const campByLineItem = new Map(lineItems.map((li) => [li.id, li.campaign_id || ""]));
   const tweetText = await fetchTweetTexts(accountId, promoted.map((p) => p.tweet_id || "").filter(Boolean));
