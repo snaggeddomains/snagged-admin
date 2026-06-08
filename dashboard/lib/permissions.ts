@@ -100,7 +100,7 @@ export const ADMIN_TABS: { href: string; label: string; perm: ModuleKey | Action
 export const REPORTS_TABS: { href: string; label: string; perm: ModuleKey | ActionKey }[] = [
   { href: "/reports", label: "Site analytics", perm: "reports.analytics" },
   { href: "/reports/chat", label: "Chat", perm: "reports.chat" },
-  { href: "/reports/opportunities", label: "New opportunities", perm: "reports.opportunities" },
+  { href: "/reports/opportunities", label: "SNAP opportunities", perm: "reports.opportunities" },
   { href: "/reports/cost", label: "Cost & usage", perm: "reports.cost" },
 ];
 
@@ -152,7 +152,7 @@ export const CATALOG: CatalogEntry[] = [
   { key: "admin.lessons.approve", label: "Lessons — curate / approve", group: "Admin", kind: "action" },
   { key: "reports", label: "Reports — full access (analytics + cost)", group: "Reports", kind: "module" },
   { key: "reports.analytics", label: "Reports — Site Analytics", group: "Reports", kind: "action" },
-  { key: "reports.opportunities", label: "Reports — New Opportunities (snap + auctions)", group: "Reports", kind: "action" },
+  { key: "reports.opportunities", label: "Reports — SNAP Opportunities (snap + auctions)", group: "Reports", kind: "action" },
   { key: "reports.chat", label: "Reports — Chat Analytics (LLM Q&A)", group: "Reports", kind: "action" },
   { key: "reports.cost", label: "Reports — API cost & usage", group: "Reports", kind: "action" },
   { key: "research.domain_owner", label: "Domain Owner research", group: "Research", kind: "module" },

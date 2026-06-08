@@ -75,7 +75,7 @@ export default function OpportunitiesClient() {
 
   return (
     <main>
-      <h1 style={{ fontSize: "1.25rem", marginBottom: 4 }}>New opportunities</h1>
+      <h1 style={{ fontSize: "1.25rem", marginBottom: 4 }}>SNAP opportunities</h1>
       <p className="muted" style={{ marginTop: 0, fontSize: 14 }}>
         Everything the pipeline surfaced as new today — live auctions and SNAP candidates — in one place. Same per-source
         &ldquo;new today&rdquo; data as the Admin dashboard, aggregated.

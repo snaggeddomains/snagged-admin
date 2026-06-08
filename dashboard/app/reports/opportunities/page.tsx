@@ -13,7 +13,7 @@ export default async function OpportunitiesPage() {
       <main>
         <h1 style={{ fontSize: "1.25rem" }}>No access</h1>
         <p className="muted">
-          New Opportunities needs the <code>reports.opportunities</code> permission.
+          SNAP Opportunities needs the <code>reports.opportunities</code> permission.
         </p>
       </main>
     );

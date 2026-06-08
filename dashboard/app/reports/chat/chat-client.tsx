@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 
 type Turn = { q: string; a?: string; tools?: string[]; error?: string; loading?: boolean };
 
+const STORE_KEY = "snagged_chat_history";
+
 const SUGGESTIONS = [
   "How many email signups last week, and did a campaign drive it?",
   "Revenue this month — upfront vs success fees?",
@@ -13,19 +15,27 @@ const SUGGESTIONS = [
 
 export default function ChatClient({ configured }: { configured: boolean }) {
   const [q, setQ] = useState("");
-  const [turns, setTurns] = useState<Turn[]>([]);
+  const [turns, setTurns] = useState<Turn[]>(() => {
+    if (typeof window === "undefined") return [];
+    try { const raw = localStorage.getItem(STORE_KEY); return raw ? (JSON.parse(raw) as Turn[]).filter((t) => !t.loading) : []; } catch { return []; }
+  });
   const [busy, setBusy] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [turns]);
+  // Persist the transcript so it survives navigating away and back.
+  useEffect(() => {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(turns.filter((t) => !t.loading))); } catch { /* ignore */ }
+  }, [turns]);
 
   async function ask(question: string) {
     if (!question.trim() || busy) return;
     setBusy(true);
     const idx = turns.length;
+    const history = turns.filter((t) => t.a).map((t) => ({ q: t.q, a: t.a as string }));
     setTurns((t) => [...t, { q: question, loading: true }]);
     setQ("");
     try {
-      const res = await fetch("/api/admin/chat", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ question }) });
+      const res = await fetch("/api/admin/chat", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ question, history }) });
       const data = await res.json();
       if (data.configured === false) { setTurns((t) => t.map((x, i) => (i === idx ? { ...x, loading: false, error: data.error } : x))); return; }
       if (!res.ok) throw new Error(data.error || `Failed (${res.status})`);
@@ -43,6 +53,12 @@ export default function ChatClient({ configured }: { configured: boolean }) {
         revenue, and live opportunities to answer — only with real numbers from those sources.
       </p>
       {!configured && <p style={{ fontSize: 13, color: "var(--coral-deep, #c0492f)" }}>Not configured — set <code>ANTHROPIC_API_KEY</code> in the project env.</p>}
+
+      {turns.length > 0 && (
+        <div style={{ marginTop: 12 }}>
+          <button onClick={() => { setTurns([]); try { localStorage.removeItem(STORE_KEY); } catch { /* ignore */ } }} style={{ fontSize: 12 }}>Clear conversation</button>
+        </div>
+      )}
 
       <div style={{ margin: "18px 0", display: "flex", flexDirection: "column", gap: 16 }}>
         {turns.map((t, i) => (
@@ -73,7 +89,7 @@ export default function ChatClient({ configured }: { configured: boolean }) {
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Ask about signups, leads, revenue, traffic, SEO…" disabled={busy || !configured} className="field" style={{ flex: 1, fontSize: 14, padding: "9px 12px" }} />
         <button type="submit" disabled={busy || !configured || !q.trim()} className="btn btn--navy">{busy ? "…" : "Ask"}</button>
       </form>
-      <p className="muted" style={{ fontSize: 11, marginTop: 8 }}>Each question is answered fresh (no memory between questions yet). Answers use live report data; double-check anything you act on.</p>
+      <p className="muted" style={{ fontSize: 11, marginTop: 8 }}>The conversation has memory (follow-ups work) and persists across tabs on this device. Answers use live report data — double-check anything you act on.</p>
     </main>
   );
 }

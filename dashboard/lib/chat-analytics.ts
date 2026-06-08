@@ -72,8 +72,9 @@ type AnthropicResp = { content?: Block[]; stop_reason?: string; usage?: Usage };
 type Msg = { role: "user" | "assistant"; content: string | unknown[] };
 
 export type ChatResult = { answer: string; toolsUsed: string[]; usage: { input: number; output: number } };
+export type PriorTurn = { q: string; a: string };
 
-export async function askAnalytics(question: string, today: string): Promise<ChatResult> {
+export async function askAnalytics(question: string, today: string, history: PriorTurn[] = []): Promise<ChatResult> {
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) throw new Error("ANTHROPIC_API_KEY not set");
 
@@ -86,7 +87,15 @@ Rules:
 - Be concise: lead with the direct answer and the key numbers, then one or two sentences of context. Use $ and % correctly.
 The two core businesses: "core" = the sell-side services site (clients hiring Snagged); "marketplace" = /domains/* type-in domain buyers.`;
 
-  const messages: Msg[] = [{ role: "user", content: question }];
+  // Prior turns as lightweight conversational context (just the text Q&A — not the
+  // full tool transcripts — so follow-ups like "what about last month?" work without
+  // token bloat). Capped to the most recent few.
+  const messages: Msg[] = [];
+  for (const h of history.slice(-6)) {
+    if (h.q) messages.push({ role: "user", content: h.q });
+    if (h.a) messages.push({ role: "assistant", content: h.a });
+  }
+  messages.push({ role: "user", content: question });
   const toolsUsed: string[] = [];
   let inTok = 0, outTok = 0;
 
