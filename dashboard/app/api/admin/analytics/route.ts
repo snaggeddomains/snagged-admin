@@ -12,6 +12,7 @@ import { analyticsReport, gaConfigured, type Tranche } from "@/lib/ga";
 import { revenueReport, revenueConfigured } from "@/lib/revenue";
 import { seoReport, gscConfigured, type SeoBucket } from "@/lib/gsc";
 import { newsletterReport, mailchimpConfigured } from "@/lib/mailchimp";
+import { emailDaily, emailDataThrough } from "@/lib/historical-email";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -35,17 +36,16 @@ export async function GET(req: NextRequest) {
   const from = isDate(sp.get("from")) ? (sp.get("from") as string) : etYmd(new Date(Date.now() - 6 * 86400000));
   const to = isDate(sp.get("to")) ? (sp.get("to") as string) : etYmd(new Date());
 
-  // Email tranche → Mailchimp, not GA.
+  // Email tranche → signup/unsub history (bundled export, always available) plus the
+  // live Mailchimp audience/campaign report when the key is configured.
   if (trancheParam === "email") {
-    if (!mailchimpConfigured()) {
-      return NextResponse.json({ ok: false, configured: false, error: "Mailchimp not configured — set MAILCHIMP_API_KEY in this project's env." }, { status: 200 });
+    const signups = emailDaily("signups", from, to);
+    const unsubs = emailDaily("unsubs", from, to);
+    let newsletter = null;
+    if (mailchimpConfigured()) {
+      try { newsletter = await newsletterReport(from, to); } catch { /* keep historical-only */ }
     }
-    try {
-      const report = await newsletterReport(from, to);
-      return NextResponse.json({ ok: true, configured: true, tranche: "email", from, to, report });
-    } catch (e) {
-      return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
-    }
+    return NextResponse.json({ ok: true, configured: true, tranche: "email", from, to, report: { newsletter, signups, unsubs, through: emailDataThrough } });
   }
 
   // SEO tranche → Google Search Console, not GA.

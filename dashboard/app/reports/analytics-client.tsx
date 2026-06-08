@@ -28,7 +28,9 @@ type SeoBucket = "all" | "core" | "marketplace" | "blog";
 type SeoReport = { bucket: SeoBucket; totals: { clicks: number; impressions: number; ctr: number; position: number }; topQueries: SeoRow[]; topPages: SeoRow[]; trend: SeoTrend[] };
 type Campaign = { title: string; sendTime: string; sent: number; openRate: number; clickRate: number };
 type GrowthPoint = { month: string; optins: number; subscribed: number };
-type NewsletterReport = { audience: string; subscribers: number; unsubscribes: number; cleaned: number; openRate: number; clickRate: number; netSinceLastSend: number; campaigns: Campaign[]; growth: GrowthPoint[] } | null;
+type NewsletterReport = { audience: string; subscribers: number; unsubscribes: number; cleaned: number; openRate: number; clickRate: number; netSinceLastSend: number; campaigns: Campaign[]; growth: GrowthPoint[] };
+type DayCount = { date: string; count: number };
+type EmailReport = { newsletter: NewsletterReport | null; signups: DayCount[]; unsubs: DayCount[]; through: string };
 
 type Preset = "today" | "week" | "month" | "custom";
 const PRESETS: { key: Preset; label: string }[] = [
@@ -165,7 +167,7 @@ export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
         loaded.tranche === "marketplace" ? <MarketplaceView r={loaded.report as MarketplaceReport} />
           : loaded.tranche === "blog" ? <BlogView r={loaded.report as BlogReport} />
             : loaded.tranche === "seo" ? <SeoView r={loaded.report as SeoReport} />
-              : loaded.tranche === "email" ? <EmailView r={loaded.report as NewsletterReport} />
+              : loaded.tranche === "email" ? <EmailView r={loaded.report as EmailReport} />
                 : loaded.tranche === "revenue" ? <RevenueView r={loaded.report as RevenueReport} />
                   : <CoreView r={loaded.report as CoreReport} />
       ) : (
@@ -307,36 +309,77 @@ function SeoView({ r }: { r: SeoReport }) {
   );
 }
 
-function EmailView({ r }: { r: NewsletterReport }) {
-  if (!r) return <p className="muted">No Mailchimp audience found.</p>;
-  const growthBars: Bar[] = r.growth.slice(-12).map((g) => ({ label: g.month, value: g.optins }));
+// Roll daily counts up to the chosen granularity, then merge signups + unsubs into
+// a single trend series (signups = the solid line, unsubs = the dashed line).
+function weekKey(d: string): string {
+  const dt = new Date(d + "T00:00:00Z");
+  dt.setUTCDate(dt.getUTCDate() - ((dt.getUTCDay() + 6) % 7)); // back to Monday
+  return dt.toISOString().slice(0, 10);
+}
+function bucketKey(date: string, gran: "day" | "week" | "month"): string {
+  return gran === "month" ? date.slice(0, 7) : gran === "week" ? weekKey(date) : date;
+}
+function combineSeries(signups: DayCount[], unsubs: DayCount[], gran: "day" | "week" | "month"): TrendRow[] {
+  const m = new Map<string, { s: number; u: number }>();
+  for (const { date, count } of signups) { const k = bucketKey(date, gran); const o = m.get(k) || { s: 0, u: 0 }; o.s += count; m.set(k, o); }
+  for (const { date, count } of unsubs) { const k = bucketKey(date, gran); const o = m.get(k) || { s: 0, u: 0 }; o.u += count; m.set(k, o); }
+  return [...m.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1)).map(([date, v]) => ({ date, sessions: v.s, pageviews: v.u }));
+}
+
+function EmailView({ r }: { r: EmailReport }) {
+  const [gran, setGran] = useState<"day" | "week" | "month">("month");
+  const nl = r.newsletter;
+  const totalSignups = r.signups.reduce((a, b) => a + b.count, 0);
+  const totalUnsubs = r.unsubs.reduce((a, b) => a + b.count, 0);
+  const trend = combineSeries(r.signups, r.unsubs, gran);
   return (
     <>
-      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-        <StatCard label="Subscribers" sub={r.audience} value={r.subscribers} accent />
-        <StatCard label="Avg open rate" text={`${(r.openRate * 100).toFixed(1)}%`} />
-        <StatCard label="Avg click rate" text={`${(r.clickRate * 100).toFixed(1)}%`} />
-        <StatCard label="Net since last send" value={r.netSinceLastSend} accent />
-      </div>
-      <Section title="Recent campaigns" blurb="Email performance for sends in this window.">
-        {r.campaigns.length === 0 ? <p className="muted" style={{ fontSize: 13 }}>No campaigns sent in this window.</p> : (
-          <div className="table-scroll"><table className="dash">
-            <thead><tr><th>campaign</th><th className="right">sent</th><th className="right">date</th><th className="right">open</th><th className="right">click</th></tr></thead>
-            <tbody>
-              {r.campaigns.map((c, i) => (
-                <tr key={c.title + i}>
-                  <td>{c.title}</td>
-                  <td className="right">{fmt(c.sent)}</td>
-                  <td className="right muted">{c.sendTime}</td>
-                  <td className="right muted">{(c.openRate * 100).toFixed(1)}%</td>
-                  <td className="right muted">{(c.clickRate * 100).toFixed(1)}%</td>
-                </tr>
-              ))}
-            </tbody>
-          </table></div>
-        )}
+      {nl && (
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <StatCard label="Subscribers" sub={nl.audience} value={nl.subscribers} accent />
+          <StatCard label="Avg open rate" text={`${(nl.openRate * 100).toFixed(1)}%`} />
+          <StatCard label="Avg click rate" text={`${(nl.clickRate * 100).toFixed(1)}%`} />
+          <StatCard label="Net since last send" value={nl.netSinceLastSend} accent />
+        </div>
+      )}
+
+      <Section title="Signups & unsubscribes" blurb={`New opt-ins vs unsubscribes over the window. History through ${r.through} (audience export).`}>
+        <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 12, flexWrap: "wrap" }}>
+          <StatCard label="New signups" value={totalSignups} accent />
+          <StatCard label="Unsubscribes" value={totalUnsubs} />
+          <StatCard label="Net adds" value={totalSignups - totalUnsubs} accent />
+          <div style={{ marginLeft: "auto", display: "inline-flex", gap: 4, border: "1px solid #e3ddcf", borderRadius: 8, padding: 3, alignSelf: "center" }}>
+            {(["day", "week", "month"] as const).map((g) => (
+              <button key={g} onClick={() => setGran(g)} style={{
+                padding: "4px 12px", fontSize: 13, fontWeight: 700, borderRadius: 6, border: "none", cursor: "pointer", textTransform: "capitalize",
+                background: gran === g ? "var(--navy, #254254)" : "transparent", color: gran === g ? "#fff" : "var(--navy, #254254)",
+              }}>{g}</button>
+            ))}
+          </div>
+        </div>
+        <TrendChart data={trend} labels={["New signups", "Unsubscribes"]} />
       </Section>
-      <Section title="New sign-ups by month" blurb="Opt-ins to the audience over time."><BarList rows={growthBars} color={CORAL} empty="No growth history available." /></Section>
+
+      {nl && (
+        <Section title="Recent campaigns" blurb="Email performance for sends in this window.">
+          {nl.campaigns.length === 0 ? <p className="muted" style={{ fontSize: 13 }}>No campaigns sent in this window.</p> : (
+            <div className="table-scroll"><table className="dash">
+              <thead><tr><th>campaign</th><th className="right">sent</th><th className="right">date</th><th className="right">open</th><th className="right">click</th></tr></thead>
+              <tbody>
+                {nl.campaigns.map((c, i) => (
+                  <tr key={c.title + i}>
+                    <td>{c.title}</td>
+                    <td className="right">{fmt(c.sent)}</td>
+                    <td className="right muted">{c.sendTime}</td>
+                    <td className="right muted">{(c.openRate * 100).toFixed(1)}%</td>
+                    <td className="right muted">{(c.clickRate * 100).toFixed(1)}%</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table></div>
+          )}
+        </Section>
+      )}
     </>
   );
 }
