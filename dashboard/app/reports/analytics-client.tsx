@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { BarList, TrendChart, FunnelChart, type Bar } from "./analytics-charts";
 
 // ── Types mirror lib/ga.ts + lib/revenue.ts ─────────────────────────────────
-type Tranche = "core" | "marketplace" | "blog" | "seo" | "revenue";
+type Tranche = "core" | "marketplace" | "blog" | "seo" | "revenue" | "email";
 type StatBlock = { sessions: number; users: number; pageviews: number; submissions: number };
 type ChannelRow = { channel: string; sessions: number; users: number };
 type PageRow = { path: string; views: number; users: number };
@@ -26,13 +26,16 @@ type SeoRow = { key: string; clicks: number; impressions: number; ctr: number; p
 type SeoTrend = { date: string; clicks: number; impressions: number };
 type SeoBucket = "all" | "core" | "marketplace" | "blog";
 type SeoReport = { bucket: SeoBucket; totals: { clicks: number; impressions: number; ctr: number; position: number }; topQueries: SeoRow[]; topPages: SeoRow[]; trend: SeoTrend[] };
+type Campaign = { title: string; sendTime: string; sent: number; openRate: number; clickRate: number };
+type GrowthPoint = { month: string; optins: number; subscribed: number };
+type NewsletterReport = { audience: string; subscribers: number; unsubscribes: number; cleaned: number; openRate: number; clickRate: number; netSinceLastSend: number; campaigns: Campaign[]; growth: GrowthPoint[] } | null;
 
 type Preset = "today" | "week" | "month" | "custom";
 const PRESETS: { key: Preset; label: string }[] = [
   { key: "today", label: "Today" }, { key: "week", label: "This week" }, { key: "month", label: "This month" }, { key: "custom", label: "Custom range" },
 ];
 const TRANCHES: { key: Tranche; label: string }[] = [
-  { key: "core", label: "Core Services" }, { key: "marketplace", label: "Marketplace" }, { key: "blog", label: "Blog" }, { key: "seo", label: "SEO" }, { key: "revenue", label: "Revenue" },
+  { key: "core", label: "Core Services" }, { key: "marketplace", label: "Marketplace" }, { key: "blog", label: "Blog" }, { key: "seo", label: "SEO" }, { key: "email", label: "Email" }, { key: "revenue", label: "Revenue" },
 ];
 const QUALITY_BUDGETS = ["$25K to $100K", "$100K+"]; // tunable; v1 quality-lead definition
 
@@ -162,8 +165,9 @@ export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
         loaded.tranche === "marketplace" ? <MarketplaceView r={loaded.report as MarketplaceReport} />
           : loaded.tranche === "blog" ? <BlogView r={loaded.report as BlogReport} />
             : loaded.tranche === "seo" ? <SeoView r={loaded.report as SeoReport} />
-              : loaded.tranche === "revenue" ? <RevenueView r={loaded.report as RevenueReport} />
-                : <CoreView r={loaded.report as CoreReport} />
+              : loaded.tranche === "email" ? <EmailView r={loaded.report as NewsletterReport} />
+                : loaded.tranche === "revenue" ? <RevenueView r={loaded.report as RevenueReport} />
+                  : <CoreView r={loaded.report as CoreReport} />
       ) : (
         <p className="muted">No data for this window.</p>
       )}
@@ -180,6 +184,9 @@ export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
       )}
       {loaded && loaded.tranche === "seo" && (
         <p className="muted" style={{ fontSize: 12, marginTop: 22 }}>Source: Google Search Console (snagged.com). Search data lags ~2 days, so the most recent day or two of a window may read low.</p>
+      )}
+      {loaded && loaded.tranche === "email" && (
+        <p className="muted" style={{ fontSize: 12, marginTop: 22 }}>Source: Mailchimp (largest audience). Audience totals are current; campaigns are those sent within the selected window.</p>
       )}
     </main>
   );
@@ -296,6 +303,40 @@ function SeoView({ r }: { r: SeoReport }) {
       <Section title="Clicks & impressions trend"><TrendChart data={trend} labels={["Clicks", "Impressions"]} /></Section>
       <Section title="Top search queries" blurb="What people search to find this part of the site (and where you rank)."><SeoTable rows={r.topQueries} head="query" /></Section>
       <Section title="Top pages from search" blurb="Which pages pull search clicks."><SeoTable rows={r.topPages} head="page" link /></Section>
+    </>
+  );
+}
+
+function EmailView({ r }: { r: NewsletterReport }) {
+  if (!r) return <p className="muted">No Mailchimp audience found.</p>;
+  const growthBars: Bar[] = r.growth.slice(-12).map((g) => ({ label: g.month, value: g.optins }));
+  return (
+    <>
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+        <StatCard label="Subscribers" sub={r.audience} value={r.subscribers} accent />
+        <StatCard label="Avg open rate" text={`${(r.openRate * 100).toFixed(1)}%`} />
+        <StatCard label="Avg click rate" text={`${(r.clickRate * 100).toFixed(1)}%`} />
+        <StatCard label="Net since last send" value={r.netSinceLastSend} accent />
+      </div>
+      <Section title="Recent campaigns" blurb="Email performance for sends in this window.">
+        {r.campaigns.length === 0 ? <p className="muted" style={{ fontSize: 13 }}>No campaigns sent in this window.</p> : (
+          <div className="table-scroll"><table className="dash">
+            <thead><tr><th>campaign</th><th className="right">sent</th><th className="right">date</th><th className="right">open</th><th className="right">click</th></tr></thead>
+            <tbody>
+              {r.campaigns.map((c, i) => (
+                <tr key={c.title + i}>
+                  <td>{c.title}</td>
+                  <td className="right">{fmt(c.sent)}</td>
+                  <td className="right muted">{c.sendTime}</td>
+                  <td className="right muted">{(c.openRate * 100).toFixed(1)}%</td>
+                  <td className="right muted">{(c.clickRate * 100).toFixed(1)}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table></div>
+        )}
+      </Section>
+      <Section title="New sign-ups by month" blurb="Opt-ins to the audience over time."><BarList rows={growthBars} color={CORAL} empty="No growth history available." /></Section>
     </>
   );
 }

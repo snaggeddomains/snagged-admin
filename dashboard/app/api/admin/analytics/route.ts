@@ -11,6 +11,7 @@ import { canReports } from "@/lib/permissions";
 import { analyticsReport, gaConfigured, type Tranche } from "@/lib/ga";
 import { revenueReport, revenueConfigured } from "@/lib/revenue";
 import { seoReport, gscConfigured, type SeoBucket } from "@/lib/gsc";
+import { newsletterReport, mailchimpConfigured } from "@/lib/mailchimp";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -33,6 +34,19 @@ export async function GET(req: NextRequest) {
   const trancheParam = sp.get("tranche") || "core";
   const from = isDate(sp.get("from")) ? (sp.get("from") as string) : etYmd(new Date(Date.now() - 6 * 86400000));
   const to = isDate(sp.get("to")) ? (sp.get("to") as string) : etYmd(new Date());
+
+  // Email tranche → Mailchimp, not GA.
+  if (trancheParam === "email") {
+    if (!mailchimpConfigured()) {
+      return NextResponse.json({ ok: false, configured: false, error: "Mailchimp not configured — set MAILCHIMP_API_KEY in this project's env." }, { status: 200 });
+    }
+    try {
+      const report = await newsletterReport(from, to);
+      return NextResponse.json({ ok: true, configured: true, tranche: "email", from, to, report });
+    } catch (e) {
+      return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
+    }
+  }
 
   // SEO tranche → Google Search Console, not GA.
   if (trancheParam === "seo") {
