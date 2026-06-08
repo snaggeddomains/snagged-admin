@@ -6,6 +6,7 @@
 import { analyticsReport, type Tranche } from "./ga";
 import { seoReport, type SeoBucket } from "./gsc";
 import { revenueReport } from "./revenue";
+import { xAdsReport, xAdsConfigured } from "./xads";
 import { newsletterReport, recentMemberCounts } from "./mailchimp";
 import { histSignups, histUnsubs, mergeDaily, emailDataThrough } from "./historical-email";
 import { newOpportunities } from "./opportunities";
@@ -40,6 +41,11 @@ const TOOLS = [
     input_schema: { type: "object", properties: { from: { type: "string" }, to: { type: "string" } }, required: ["from", "to"] },
   },
   {
+    name: "x_ads",
+    description: "X (Twitter) paid ads over a date range: total spend (USD), impressions, clicks, engagements, CPC, CPM, CTR, per-campaign spend, a daily spend/clicks trend, and ROI — the X-attributed lead count (self-reported 'X / Twitter' source) and cost-per-lead (spend ÷ X-attributed leads). Use this for 'how much are we spending on X', 'what's our cost per lead on X', or X ad performance questions. X is Snagged's #1 self-reported lead source.",
+    input_schema: { type: "object", properties: { from: { type: "string", description: "YYYY-MM-DD" }, to: { type: "string", description: "YYYY-MM-DD" } }, required: ["from", "to"] },
+  },
+  {
     name: "opportunities",
     description: "Current new opportunities: live domain auctions (domain, price, bids, end time) and today's new SNAP candidates (domain, quality, category, price). No arguments.",
     input_schema: { type: "object", properties: {} },
@@ -51,6 +57,10 @@ async function runTool(name: string, input: ToolInput): Promise<unknown> {
   if (name === "site_analytics") return analyticsReport(input.tranche as Tranche, input.from, input.to);
   if (name === "seo") return seoReport(input.from, input.to, input.bucket as SeoBucket);
   if (name === "revenue") return revenueReport(input.from, input.to);
+  if (name === "x_ads") {
+    if (!xAdsConfigured()) return { error: "X Ads not configured (X_ADS_* env vars missing)." };
+    return xAdsReport(input.from, input.to);
+  }
   if (name === "opportunities") return newOpportunities();
   if (name === "email") {
     let live = { signups: {} as Record<string, number>, unsubs: {} as Record<string, number> };
@@ -79,7 +89,7 @@ export async function askAnalytics(question: string, today: string, history: Pri
   if (!key) throw new Error("ANTHROPIC_API_KEY not set");
 
   const system = `You are Snagged's analytics assistant. Today is ${today} (timezone America/New_York).
-You answer questions about the business using ONLY the tools provided: site_analytics (Google Analytics), seo (Search Console), email (Mailchimp), revenue (the Domain Tracker), and opportunities (live auctions + new SNAP).
+You answer questions about the business using ONLY the tools provided: site_analytics (Google Analytics), seo (Search Console), email (Mailchimp), revenue (the Domain Tracker), x_ads (X/Twitter paid ad spend + cost-per-lead ROI), and opportunities (live auctions + new SNAP).
 Rules:
 - Resolve relative dates ("last week", "yesterday", "this month") to explicit YYYY-MM-DD ranges before calling tools. A week is Mon–Sun unless the user says otherwise.
 - Call as many tools as needed; when a question links two things (e.g. signups vs an email send), pull both and correlate them explicitly.

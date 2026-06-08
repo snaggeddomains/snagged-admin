@@ -22,6 +22,38 @@ For everything else — Sheets reads, Spaceship/Atom/Namecheap APIs,
 Supabase queries, Drive ops, pipeline CLI commands — execute it here and
 report the result. No round-trip, no dispatch link, no copy/paste.
 
+# Reports → Site Analytics: X Ads tranche (2026-06-08)
+
+The **Ads** tab in Reports → Site Analytics (`dashboard/app/reports/analytics-client.tsx`
+→ `AdsView`) is an X (Twitter) ad-spend + ROI tranche. X is Snagged's #1 self-reported
+lead source (~41%), so the headline is **cost-per-X-lead = X spend ÷ X-attributed leads**.
+
+- **`dashboard/lib/xads.ts`** — hand-rolled **OAuth 1.0a** signer (HMAC-SHA1 via Node
+  `crypto`, no dependency — same dependency-free spirit as `lib/google-auth.ts`) + the
+  `xAdsReport(from, to)` builder. Returns `totals` (spend/impressions/clicks/engagements
+  + CPC/CPM/CTR), `byCampaign[]`, a daily `trend[]`, and `roi` (X-attributed leads,
+  total leads, cost-per-lead). **Spend = `billed_charge_local_micro` / 1e6** (USD).
+  ROI leads come from `analyticsReport("core")` `selfReportedSource` where the label is
+  `X / Twitter` (tolerates `Twitter`/`X` free-text variants); null when GA isn't configured.
+- **Live API constraints** (confirmed by probe 2026-06-08, app 33036944, Standard access):
+  base `https://ads-api.x.com/12`; **DAY granularity is capped at a 7-day (+1h) window per
+  call** and **≤20 entity_ids per call**, and day boundaries must be **midnight in the
+  account's tz (America/New_York)**, not UTC — so `xAdsReport` chunks the date range into
+  ≤7-day sub-windows × ≤20-id campaign groups and fetches them in parallel. Stats come back
+  as **per-day arrays** under `data[].id_data[].metrics`, or `null` when an entity had no
+  activity in the window.
+- **Env (Vercel + web session):** `X_ADS_CONSUMER_KEY` / `X_ADS_CONSUMER_SECRET` (app
+  key/secret) · `X_ADS_ACCESS_TOKEN` / `X_ADS_ACCESS_TOKEN_SECRET` (account token) ·
+  `X_ADS_ACCOUNT_ID` (e.g. `18ce55lp5d7`). Account currency USD.
+- **Wiring:** `ads` tranche in `app/api/admin/analytics/route.ts` (gated by the existing
+  `reports.analytics` — **no new permission**); `x_ads` tool in `lib/chat-analytics.ts` so
+  Chat Analytics can answer "what's our cost per lead on X this month?".
+- **Next (Rob's direction):** per-ad → site-visit / contact-form-submission matching over
+  each ad's lifetime, ad runtime + performance degradation, cost-per-submission / cost-per-
+  visit. Needs per-campaign UTM attribution joined to GA sessions/leads (today's lead
+  attribution is account-level self-report, not per-campaign). Google Ads to be added as a
+  second spend source once live — the tranche/`AdsView` are provider-agnostic enough to grow.
+
 # Domain data model — canonical (do not let this drift)
 
 Two domain corpora live in **separate Supabase projects**. Keep the boundary clean:

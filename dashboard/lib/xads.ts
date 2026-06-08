@@ -1,0 +1,315 @@
+// X (Twitter) Ads API — ad-spend analytics for the Site Analytics report. X is
+// Snagged's #1 self-reported lead source, so this tranche pairs spend/engagement
+// from the Ads API with the X-attributed lead count from core GA to give a real
+// cost-per-lead (ROI) headline.
+//
+// Auth is OAuth 1.0a request signing (HMAC-SHA1), hand-rolled with Node's crypto
+// so we don't add a dependency — same dependency-free spirit as lib/google-auth.ts
+// (which signs RS256 JWTs). Env (also in Vercel):
+//   X_ADS_CONSUMER_KEY / X_ADS_CONSUMER_SECRET   — the app's API key/secret
+//   X_ADS_ACCESS_TOKEN / X_ADS_ACCESS_TOKEN_SECRET — the account access token
+//   X_ADS_ACCOUNT_ID                              — the ads account (e.g. 18ce55lp5d7)
+//
+// API notes confirmed by live probe (2026-06-08, app 33036944, Standard access):
+//   • Base https://ads-api.x.com/12 (v12 authenticates fine).
+//   • Spend = billed_charge_local_micro / 1_000_000 (micros; account currency USD).
+//   • Stats come back as per-day arrays under data[].id_data[].metrics, or null
+//     when an entity had no activity in the window.
+//   • DAY granularity is capped at a 7-day (+1h) window per call, and ≤20 entity
+//     ids per call — so we chunk both the date range and the campaign list.
+//   • Day boundaries must be midnight in the ACCOUNT's timezone (America/New_York),
+//     not UTC — tzMidnightUtc() computes that instant.
+
+import crypto from "node:crypto";
+import { analyticsReport, gaConfigured } from "./ga";
+
+const API = "https://ads-api.x.com/12";
+const TZ = "America/New_York"; // the ads account's timezone (from the account probe)
+
+export function xAdsConfigured(): boolean {
+  return Boolean(
+    process.env.X_ADS_CONSUMER_KEY &&
+      process.env.X_ADS_CONSUMER_SECRET &&
+      process.env.X_ADS_ACCESS_TOKEN &&
+      process.env.X_ADS_ACCESS_TOKEN_SECRET &&
+      process.env.X_ADS_ACCOUNT_ID,
+  );
+}
+
+// ── OAuth 1.0a signing ───────────────────────────────────────────────────────
+// RFC 3986 percent-encoding (stricter than encodeURIComponent — also escapes !*'()).
+const enc = (s: string) =>
+  encodeURIComponent(s).replace(/[!'()*]/g, (c) => "%" + c.charCodeAt(0).toString(16).toUpperCase());
+
+function authHeader(method: string, url: string): string {
+  const u = new URL(url);
+  const ck = process.env.X_ADS_CONSUMER_KEY!;
+  const cs = process.env.X_ADS_CONSUMER_SECRET!;
+  const at = process.env.X_ADS_ACCESS_TOKEN!;
+  const ats = process.env.X_ADS_ACCESS_TOKEN_SECRET!;
+  const oauth: Record<string, string> = {
+    oauth_consumer_key: ck,
+    oauth_nonce: crypto.randomBytes(16).toString("hex"),
+    oauth_signature_method: "HMAC-SHA1",
+    oauth_timestamp: String(Math.floor(Date.now() / 1000)),
+    oauth_token: at,
+    oauth_version: "1.0",
+  };
+  // Signature base string folds the oauth params together with the query params.
+  const all: Record<string, string> = { ...oauth };
+  for (const [k, v] of u.searchParams) all[k] = v;
+  const paramStr = Object.keys(all)
+    .map((k) => [enc(k), enc(all[k])] as [string, string])
+    .sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : a[1] < b[1] ? -1 : 1))
+    .map(([k, v]) => `${k}=${v}`)
+    .join("&");
+  const base = [method.toUpperCase(), enc(`${u.origin}${u.pathname}`), enc(paramStr)].join("&");
+  const signingKey = `${enc(cs)}&${enc(ats)}`;
+  oauth.oauth_signature = crypto.createHmac("sha1", signingKey).update(base).digest("base64");
+  return (
+    "OAuth " +
+    Object.keys(oauth)
+      .sort()
+      .map((k) => `${enc(k)}="${enc(oauth[k])}"`)
+      .join(", ")
+  );
+}
+
+async function apiGet<T>(path: string, query: Record<string, string> = {}): Promise<T> {
+  const qs = new URLSearchParams(query).toString();
+  const url = `${API}${path}${qs ? `?${qs}` : ""}`;
+  const res = await fetch(url, { headers: { Authorization: authHeader("GET", url) } });
+  if (!res.ok) throw new Error(`X Ads ${res.status}: ${(await res.text()).slice(0, 300)}`);
+  return (await res.json()) as T;
+}
+
+// ── Date helpers (account-timezone day math) ─────────────────────────────────
+// Midnight of an ET date, as a UTC instant ISO string — the boundary the stats
+// endpoint requires for DAY granularity.
+function tzMidnightUtc(ymd: string): string {
+  const [y, m, d] = ymd.split("-").map(Number);
+  const utcGuess = Date.UTC(y, m - 1, d, 0, 0, 0);
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: TZ, hour12: false, year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit",
+  }).formatToParts(new Date(utcGuess));
+  const g = (t: string) => Number(parts.find((p) => p.type === t)!.value);
+  const asUtc = Date.UTC(g("year"), g("month") - 1, g("day"), g("hour") % 24, g("minute"), g("second"));
+  const offset = asUtc - utcGuess; // (tz wall time) − UTC
+  return new Date(utcGuess - offset).toISOString().replace(/\.\d+Z$/, "Z");
+}
+
+const addDays = (ymd: string, n: number): string => {
+  const [y, m, d] = ymd.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10);
+};
+
+// Inclusive list of YYYY-MM-DD dates for [from, to].
+function dateRange(from: string, to: string): string[] {
+  const out: string[] = [];
+  for (let d = from; d <= to; d = addDays(d, 1)) {
+    out.push(d);
+    if (out.length > 400) break; // safety
+  }
+  return out;
+}
+
+const chunk = <T>(arr: T[], size: number): T[][] => {
+  const out: T[][] = [];
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  return out;
+};
+
+// ── API shapes ───────────────────────────────────────────────────────────────
+type Campaign = { id: string; name: string; entity_status?: string; effective_status?: string };
+type StatMetrics = {
+  impressions?: (number | null)[] | null;
+  clicks?: (number | null)[] | null;
+  engagements?: (number | null)[] | null;
+  billed_charge_local_micro?: (number | null)[] | null;
+};
+type StatEntity = { id: string; id_data: { segment: unknown; metrics: StatMetrics }[] };
+type StatsResp = { time_series_length: number; data: StatEntity[] };
+
+// ── Public report shape (mirrors the other tranches) ─────────────────────────
+export type XAdsCampaign = {
+  id: string;
+  name: string;
+  status: string;
+  spend: number;
+  impressions: number;
+  clicks: number;
+  engagements: number;
+  cpc: number;
+};
+export type XAdsDaily = { date: string; spend: number; impressions: number; clicks: number };
+export type XAdsTotals = {
+  spend: number;
+  impressions: number;
+  clicks: number;
+  engagements: number;
+  cpc: number; // spend / clicks
+  cpm: number; // spend / impressions * 1000
+  ctr: number; // clicks / impressions
+};
+// ROI = X spend measured against the X-attributed leads the core funnel reports
+// (the "How did you hear about us → X / Twitter" self-report, which already blends
+// the historical Formspark export with live GA). leads/costPerLead are null when
+// GA isn't configured for the deployment.
+export type XAdsRoi = {
+  leads: number | null; // X-attributed leads in the window
+  totalLeads: number | null; // all self-reported leads (for share context)
+  costPerLead: number | null; // spend / X-attributed leads
+  gaConfigured: boolean;
+};
+export type XAdsReport = {
+  totals: XAdsTotals;
+  byCampaign: XAdsCampaign[];
+  trend: XAdsDaily[];
+  roi: XAdsRoi;
+  campaignCount: number;
+};
+
+async function fetchCampaigns(accountId: string): Promise<Campaign[]> {
+  const out: Campaign[] = [];
+  let cursor: string | undefined;
+  do {
+    const q: Record<string, string> = { count: "1000" };
+    if (cursor) q.cursor = cursor;
+    const r = await apiGet<{ data?: Campaign[]; next_cursor?: string | null }>(
+      `/accounts/${accountId}/campaigns`,
+      q,
+    );
+    out.push(...(r.data || []));
+    cursor = r.next_cursor || undefined;
+  } while (cursor && out.length < 5000);
+  return out;
+}
+
+const num = (v: number | null | undefined): number => (typeof v === "number" && Number.isFinite(v) ? v : 0);
+
+// X-attributed self-reported leads. The form label is "X / Twitter"; tolerate the
+// handful of free-text variants ("Twitter", "X", "twitter") the historical export holds.
+function xLeads(selfReportedSource: { label: string; value: number }[]): number {
+  return selfReportedSource
+    .filter((r) => {
+      const l = r.label.trim().toLowerCase();
+      return l === "x / twitter" || l === "x" || l === "twitter";
+    })
+    .reduce((a, r) => a + r.value, 0);
+}
+
+// Build the full X Ads report over an ET day range [from, to] (YYYY-MM-DD inclusive).
+export async function xAdsReport(from: string, to: string): Promise<XAdsReport> {
+  const accountId = process.env.X_ADS_ACCOUNT_ID!;
+  const dates = dateRange(from, to);
+  const campaigns = await fetchCampaigns(accountId);
+  const nameById = new Map(campaigns.map((c) => [c.id, c.name]));
+  const statusById = new Map(
+    campaigns.map((c) => [c.id, c.effective_status || c.entity_status || ""]),
+  );
+
+  // Per-campaign + per-day accumulators.
+  type Agg = { spend: number; impressions: number; clicks: number; engagements: number };
+  const blank = (): Agg => ({ spend: 0, impressions: 0, clicks: 0, engagements: 0 });
+  const byCampaign = new Map<string, Agg>();
+  const byDate = new Map<string, Agg>();
+  for (const d of dates) byDate.set(d, blank());
+
+  // Chunk the date range into ≤7-day sub-windows and campaigns into ≤20-id groups,
+  // then fetch every (dateChunk × idChunk) stats slice in parallel.
+  const dateChunks = chunk(dates, 7);
+  const idChunks = chunk(campaigns.map((c) => c.id), 20);
+  const jobs: Promise<void>[] = [];
+  for (const dc of dateChunks) {
+    const start = tzMidnightUtc(dc[0]);
+    const end = tzMidnightUtc(addDays(dc[dc.length - 1], 1)); // exclusive upper bound
+    for (const ids of idChunks) {
+      jobs.push(
+        apiGet<StatsResp>(`/stats/accounts/${accountId}`, {
+          entity: "CAMPAIGN",
+          entity_ids: ids.join(","),
+          metric_groups: "ENGAGEMENT,BILLING",
+          granularity: "DAY",
+          placement: "ALL_ON_TWITTER",
+          start_time: start,
+          end_time: end,
+        }).then((resp) => {
+          for (const ent of resp.data || []) {
+            const m = ent.id_data?.[0]?.metrics;
+            if (!m) continue;
+            const cAgg = byCampaign.get(ent.id) || blank();
+            for (let i = 0; i < dc.length; i++) {
+              const day = dc[i];
+              const spend = num(m.billed_charge_local_micro?.[i]) / 1_000_000;
+              const impressions = num(m.impressions?.[i]);
+              const clicks = num(m.clicks?.[i]);
+              const engagements = num(m.engagements?.[i]);
+              cAgg.spend += spend;
+              cAgg.impressions += impressions;
+              cAgg.clicks += clicks;
+              cAgg.engagements += engagements;
+              const dAgg = byDate.get(day)!;
+              dAgg.spend += spend;
+              dAgg.impressions += impressions;
+              dAgg.clicks += clicks;
+              dAgg.engagements += engagements;
+            }
+            byCampaign.set(ent.id, cAgg);
+          }
+        }),
+      );
+    }
+  }
+  await Promise.all(jobs);
+
+  // Totals.
+  let spend = 0, impressions = 0, clicks = 0, engagements = 0;
+  for (const a of byCampaign.values()) {
+    spend += a.spend; impressions += a.impressions; clicks += a.clicks; engagements += a.engagements;
+  }
+  const totals: XAdsTotals = {
+    spend, impressions, clicks, engagements,
+    cpc: clicks ? spend / clicks : 0,
+    cpm: impressions ? (spend / impressions) * 1000 : 0,
+    ctr: impressions ? clicks / impressions : 0,
+  };
+
+  const campaignRows: XAdsCampaign[] = [...byCampaign.entries()]
+    .map(([id, a]) => ({
+      id,
+      name: nameById.get(id) || id,
+      status: statusById.get(id) || "",
+      spend: a.spend,
+      impressions: a.impressions,
+      clicks: a.clicks,
+      engagements: a.engagements,
+      cpc: a.clicks ? a.spend / a.clicks : 0,
+    }))
+    .filter((c) => c.spend > 0 || c.impressions > 0) // drop campaigns with no activity in window
+    .sort((a, b) => b.spend - a.spend);
+
+  const trend: XAdsDaily[] = dates.map((date) => {
+    const a = byDate.get(date)!;
+    return { date, spend: a.spend, impressions: a.impressions, clicks: a.clicks };
+  });
+
+  // ── ROI — pair spend against X-attributed leads from the core funnel ─────────
+  const roi: XAdsRoi = { leads: null, totalLeads: null, costPerLead: null, gaConfigured: gaConfigured() };
+  if (gaConfigured()) {
+    try {
+      const core = await analyticsReport("core", from, to);
+      if (core.tranche === "core") {
+        const leads = xLeads(core.selfReportedSource);
+        const totalLeads = core.selfReportedSource.reduce((a, r) => a + r.value, 0);
+        roi.leads = leads;
+        roi.totalLeads = totalLeads;
+        roi.costPerLead = leads > 0 ? spend / leads : null;
+      }
+    } catch {
+      /* leave roi leads null — spend still renders */
+    }
+  }
+
+  return { totals, byCampaign: campaignRows, trend, roi, campaignCount: campaigns.length };
+}

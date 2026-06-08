@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { BarList, TrendChart, FunnelChart, type Bar } from "./analytics-charts";
 
 // ── Types mirror lib/ga.ts + lib/revenue.ts ─────────────────────────────────
-type Tranche = "core" | "marketplace" | "blog" | "seo" | "revenue" | "email";
+type Tranche = "core" | "marketplace" | "blog" | "seo" | "revenue" | "email" | "ads";
 type StatBlock = { sessions: number; users: number; pageviews: number; submissions: number };
 type ChannelRow = { channel: string; sessions: number; users: number };
 type PageRow = { path: string; views: number; users: number };
@@ -31,13 +31,18 @@ type GrowthPoint = { month: string; optins: number; subscribed: number };
 type NewsletterReport = { audience: string; subscribers: number; unsubscribes: number; cleaned: number; openRate: number; clickRate: number; netSinceLastSend: number; campaigns: Campaign[]; growth: GrowthPoint[] };
 type DayCount = { date: string; count: number };
 type EmailReport = { newsletter: NewsletterReport | null; signups: DayCount[]; unsubs: DayCount[]; through: string; live?: boolean };
+type XAdsCampaign = { id: string; name: string; status: string; spend: number; impressions: number; clicks: number; engagements: number; cpc: number };
+type XAdsDaily = { date: string; spend: number; impressions: number; clicks: number };
+type XAdsTotals = { spend: number; impressions: number; clicks: number; engagements: number; cpc: number; cpm: number; ctr: number };
+type XAdsRoi = { leads: number | null; totalLeads: number | null; costPerLead: number | null; gaConfigured: boolean };
+type AdsReport = { totals: XAdsTotals; byCampaign: XAdsCampaign[]; trend: XAdsDaily[]; roi: XAdsRoi; campaignCount: number };
 
 type Preset = "today" | "week" | "month" | "custom";
 const PRESETS: { key: Preset; label: string }[] = [
   { key: "today", label: "Today" }, { key: "week", label: "This week" }, { key: "month", label: "This month" }, { key: "custom", label: "Custom range" },
 ];
 const TRANCHES: { key: Tranche; label: string }[] = [
-  { key: "core", label: "Core Services" }, { key: "marketplace", label: "Marketplace" }, { key: "blog", label: "Blog" }, { key: "seo", label: "SEO" }, { key: "email", label: "Email" }, { key: "revenue", label: "Revenue" },
+  { key: "core", label: "Core Services" }, { key: "marketplace", label: "Marketplace" }, { key: "blog", label: "Blog" }, { key: "seo", label: "SEO" }, { key: "email", label: "Email" }, { key: "ads", label: "Ads" }, { key: "revenue", label: "Revenue" },
 ];
 const QUALITY_BUDGETS = ["$25K to $100K", "$100K+"]; // tunable; v1 quality-lead definition
 
@@ -113,7 +118,8 @@ export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
       <p className="muted" style={{ marginTop: 0, fontSize: 14 }}>
         snagged.com performance, split by business: <strong>Core Services</strong> (the sell-side),{" "}
         <strong>Marketplace</strong> (<code>/domains/*</code> type-in buyers), <strong>Blog / SEO</strong> (content driving
-        organic traffic), and <strong>Revenue</strong> (the Domain Tracker). Pre-June submission data is the historical
+        organic traffic), <strong>Ads</strong> (X spend &amp; cost-per-lead — X is our #1 lead source), and{" "}
+        <strong>Revenue</strong> (the Domain Tracker). Pre-June submission data is the historical
         Formspark export; everything forward is live from GA.
       </p>
 
@@ -168,8 +174,9 @@ export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
           : loaded.tranche === "blog" ? <BlogView r={loaded.report as BlogReport} />
             : loaded.tranche === "seo" ? <SeoView r={loaded.report as SeoReport} />
               : loaded.tranche === "email" ? <EmailView r={loaded.report as EmailReport} />
-                : loaded.tranche === "revenue" ? <RevenueView r={loaded.report as RevenueReport} />
-                  : <CoreView r={loaded.report as CoreReport} />
+                : loaded.tranche === "ads" ? <AdsView r={loaded.report as AdsReport} />
+                  : loaded.tranche === "revenue" ? <RevenueView r={loaded.report as RevenueReport} />
+                    : <CoreView r={loaded.report as CoreReport} />
       ) : (
         <p className="muted">No data for this window.</p>
       )}
@@ -189,6 +196,9 @@ export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
       )}
       {loaded && loaded.tranche === "email" && (
         <p className="muted" style={{ fontSize: 12, marginTop: 22 }}>Source: Mailchimp (largest audience). Audience totals are current; campaigns are those sent within the selected window.</p>
+      )}
+      {loaded && loaded.tranche === "ads" && (
+        <p className="muted" style={{ fontSize: 12, marginTop: 22 }}>Source: X (Twitter) Ads API (account timezone America/New_York), spend billed in USD. Cost-per-lead pairs X spend with X-attributed leads from the core funnel (&quot;How did you hear about Snagged? → X / Twitter&quot;, blending the historical export with live GA), so it reads low until self-reported source data lands for the window.</p>
       )}
     </main>
   );
@@ -267,6 +277,62 @@ function RevenueView({ r }: { r: RevenueReport }) {
       <Section title="Revenue by type" blurb="Upfront engagement fees vs success fees on closed acquisitions."><BarList rows={r.byType.map((x) => ({ label: x.label, value: x.value }))} money empty="No payments in this window." /></Section>
       <Section title="Revenue by month" blurb="Monthly take over the window (by Client Paid Date)."><BarList rows={monthBars} money color={CORAL} empty="No payments in this window." /></Section>
       <Section title="By owner / lead" blurb="Who's bringing in the revenue."><BarList rows={r.byOwner.map((x) => ({ label: x.label, value: x.value }))} money empty="No payments in this window." /></Section>
+    </>
+  );
+}
+
+function AdsView({ r }: { r: AdsReport }) {
+  const t = r.totals;
+  const roi = r.roi;
+  const campaignBars: Bar[] = r.byCampaign.slice(0, 15).map((c) => ({ label: c.name, value: c.spend }));
+  const spendTrend = r.trend.map((d) => ({ date: d.date, sessions: Math.round(d.spend), pageviews: d.clicks }));
+  const cplText = roi.costPerLead != null ? usd(roi.costPerLead) : "—";
+  const cplSub = roi.leads != null
+    ? `${fmt(roi.leads)} X lead${roi.leads === 1 ? "" : "s"} · spend ÷ leads`
+    : roi.gaConfigured ? "No X-attributed leads in window" : "GA not configured";
+  const leadShare = roi.leads != null && roi.totalLeads ? Math.round((roi.leads / roi.totalLeads) * 100) : null;
+  return (
+    <>
+      {/* ROI headline — the reason this tab exists: X is the #1 lead source, so
+          what are we paying per lead? */}
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+        <StatCard label="Cost per X lead" sub={cplSub} text={cplText} accent />
+        <StatCard label="Ad spend" text={usd(t.spend)} accent />
+        <StatCard label="X-attributed leads" sub={leadShare != null ? `${leadShare}% of self-reported` : "self-reported source"} text={roi.leads != null ? fmt(roi.leads) : "—"} accent />
+        <StatCard label="Clicks" value={t.clicks} />
+      </div>
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 12 }}>
+        <StatCard label="Impressions" value={t.impressions} />
+        <StatCard label="Engagements" value={t.engagements} />
+        <StatCard label="CPC" sub="cost per click" text={t.clicks ? usd(t.cpc) : "—"} />
+        <StatCard label="CPM" sub="cost / 1k impr" text={t.impressions ? usd(t.cpm) : "—"} />
+        <StatCard label="CTR" text={t.impressions ? `${(t.ctr * 100).toFixed(2)}%` : "—"} />
+      </div>
+      <Section title="Spend by campaign" blurb={`Where the X budget went${r.campaignCount ? ` (${r.campaignCount} campaigns in the account; only those active in the window shown)` : ""}.`}>
+        <BarList rows={campaignBars} money color={CORAL} empty="No campaign spend in this window." />
+      </Section>
+      <Section title="Daily spend & clicks" blurb="Spend (area, $) against clicks (dashed) over the window.">
+        <TrendChart data={spendTrend} labels={["Spend ($)", "Clicks"]} />
+      </Section>
+      {r.byCampaign.length > 0 && (
+        <Section title="Campaign detail" blurb="Per-campaign spend, reach and efficiency.">
+          <div className="table-scroll"><table className="dash">
+            <thead><tr><th>campaign</th><th>status</th><th className="right">spend</th><th className="right">impr</th><th className="right">clicks</th><th className="right">CPC</th></tr></thead>
+            <tbody>
+              {r.byCampaign.map((c) => (
+                <tr key={c.id}>
+                  <td>{c.name}</td>
+                  <td className="muted">{c.status.toLowerCase()}</td>
+                  <td className="right">{usd(c.spend)}</td>
+                  <td className="right muted">{fmt(c.impressions)}</td>
+                  <td className="right muted">{fmt(c.clicks)}</td>
+                  <td className="right muted">{c.clicks ? usd(c.cpc) : "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table></div>
+        </Section>
+      )}
     </>
   );
 }

@@ -11,6 +11,7 @@ import { canReports } from "@/lib/permissions";
 import { analyticsReport, gaConfigured, type Tranche } from "@/lib/ga";
 import { revenueReport, revenueConfigured } from "@/lib/revenue";
 import { seoReport, gscConfigured, type SeoBucket } from "@/lib/gsc";
+import { xAdsReport, xAdsConfigured } from "@/lib/xads";
 import { newsletterReport, mailchimpConfigured, recentMemberCounts } from "@/lib/mailchimp";
 import { histSignups, histUnsubs, mergeDaily, emailDataThrough } from "@/lib/historical-email";
 
@@ -61,6 +62,20 @@ export async function GET(req: NextRequest) {
       const bucket: SeoBucket = bp === "core" || bp === "marketplace" || bp === "blog" ? bp : "all";
       const report = await seoReport(from, to, bucket);
       return NextResponse.json({ ok: true, configured: true, tranche: "seo", from, to, report });
+    } catch (e) {
+      return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
+    }
+  }
+
+  // Ads tranche → the X (Twitter) Ads API, with the ROI headline pulling the
+  // X-attributed lead count from core GA inside xAdsReport.
+  if (trancheParam === "ads") {
+    if (!xAdsConfigured()) {
+      return NextResponse.json({ ok: false, configured: false, error: "X Ads not configured — set X_ADS_CONSUMER_KEY / X_ADS_CONSUMER_SECRET / X_ADS_ACCESS_TOKEN / X_ADS_ACCESS_TOKEN_SECRET / X_ADS_ACCOUNT_ID in this project's env." }, { status: 200 });
+    }
+    try {
+      const report = await xAdsReport(from, to);
+      return NextResponse.json({ ok: true, configured: true, tranche: "ads", from, to, report });
     } catch (e) {
       return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
     }
