@@ -14,6 +14,8 @@
 //   ?days=N   sync the trailing N days (default 14). Pass a large N ONCE — with the
 //             secret — to backfill history, e.g. ?days=1200.
 
+// Deploy touch 2026-06-08: force a fresh Production build so a rotated CRON_SECRET
+// is picked up (a no-diff redeploy is skipped by the Ignored-Build-Step rule).
 import { NextResponse, type NextRequest } from "next/server";
 import { authorizedCron } from "@/lib/orchestrator";
 import { syncXAdsDaily, xAdsConfigured } from "@/lib/xads";
