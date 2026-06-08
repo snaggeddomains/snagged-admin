@@ -111,6 +111,25 @@ function toLV(rows: GaRow[]): LabelValue[] {
     .filter((x) => x.label !== "(not set)" && x.label !== "(none)");
 }
 
+// Sitewide daily sessions split by default channel group, over [from, to]. Powers
+// the Ad Lift (incrementality) model in lib/xads.ts: comparing channel traffic on
+// X-ad-running days vs dark days. Sitewide (no landing segment) — promoted-post
+// brand lift isn't confined to one business line.
+export type DailyChannelRow = { date: string; channel: string; sessions: number };
+export async function dailyChannelSessions(from: string, to: string): Promise<DailyChannelRow[]> {
+  const r = await runReport({
+    dateRanges: [{ startDate: from, endDate: to }],
+    dimensions: [{ name: "date" }, { name: "sessionDefaultChannelGroup" }],
+    metrics: [{ name: "sessions" }],
+    limit: 100000,
+  });
+  return rowsOf(r).map((x) => ({
+    date: ymd(x.dimensionValues?.[0]?.value || ""),
+    channel: x.dimensionValues?.[1]?.value || "(none)",
+    sessions: n(x.metricValues?.[0]?.value),
+  }));
+}
+
 // ── Typed report shapes the client renders ──────────────────────────────────
 export type StatBlock = { sessions: number; users: number; pageviews: number; submissions: number };
 export type ChannelRow = { channel: string; sessions: number; users: number };

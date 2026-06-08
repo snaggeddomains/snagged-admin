@@ -11,7 +11,7 @@ import { canReports } from "@/lib/permissions";
 import { analyticsReport, gaConfigured, type Tranche } from "@/lib/ga";
 import { revenueReport, revenueConfigured } from "@/lib/revenue";
 import { seoReport, gscConfigured, type SeoBucket } from "@/lib/gsc";
-import { xAdsReport, xAdsConfigured } from "@/lib/xads";
+import { xAdsReport, xAdsLift, xAdsConfigured } from "@/lib/xads";
 import { newsletterReport, mailchimpConfigured, recentMemberCounts } from "@/lib/mailchimp";
 import { histSignups, histUnsubs, mergeDaily, emailDataThrough } from "@/lib/historical-email";
 
@@ -74,8 +74,13 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ ok: false, configured: false, error: "X Ads not configured — set X_ADS_CONSUMER_KEY / X_ADS_CONSUMER_SECRET / X_ADS_ACCESS_TOKEN / X_ADS_ACCESS_TOKEN_SECRET / X_ADS_ACCOUNT_ID in this project's env." }, { status: 200 });
     }
     try {
-      const report = await xAdsReport(from, to);
-      return NextResponse.json({ ok: true, configured: true, tranche: "ads", from, to, report });
+      // Spend view honors [from, to]; the lift model uses its own trailing window
+      // (independent of the selector) so it always has enough dark days to baseline.
+      const [report, lift] = await Promise.all([
+        xAdsReport(from, to),
+        gaConfigured() ? xAdsLift(to).catch(() => null) : Promise.resolve(null),
+      ]);
+      return NextResponse.json({ ok: true, configured: true, tranche: "ads", from, to, report: { ...report, lift } });
     } catch (e) {
       return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
     }

@@ -35,7 +35,9 @@ type XAdsCampaign = { id: string; name: string; status: string; spend: number; i
 type XAdsDaily = { date: string; spend: number; impressions: number; clicks: number };
 type XAdsTotals = { spend: number; impressions: number; clicks: number; engagements: number; cpc: number; cpm: number; ctr: number };
 type XAdsRoi = { leads: number | null; totalLeads: number | null; costPerLead: number | null; gaConfigured: boolean };
-type AdsReport = { totals: XAdsTotals; byCampaign: XAdsCampaign[]; trend: XAdsDaily[]; roi: XAdsRoi; campaignCount: number };
+type LiftChannel = { channel: string; baselinePerDay: number; adPerDay: number; incrementalVisits: number };
+type XAdsLift = { from: string; to: string; lookbackDays: number; adDays: number; offDays: number; spend: number; channels: LiftChannel[]; defaultChannels: string[] };
+type AdsReport = { totals: XAdsTotals; byCampaign: XAdsCampaign[]; trend: XAdsDaily[]; roi: XAdsRoi; campaignCount: number; lift: XAdsLift | null };
 
 type Preset = "today" | "week" | "month" | "custom";
 const PRESETS: { key: Preset; label: string }[] = [
@@ -314,6 +316,7 @@ function AdsView({ r }: { r: AdsReport }) {
       <Section title="Daily spend & clicks" blurb="Spend (area, $) against clicks (dashed) over the window.">
         <TrendChart data={spendTrend} labels={["Spend ($)", "Clicks"]} />
       </Section>
+      {r.lift && <LiftSection lift={r.lift} />}
       {r.byCampaign.length > 0 && (
         <Section title="Campaign detail" blurb="Per-campaign spend, reach and efficiency.">
           <div className="table-scroll"><table className="dash">
@@ -334,6 +337,54 @@ function AdsView({ r }: { r: AdsReport }) {
         </Section>
       )}
     </>
+  );
+}
+
+// Ad Lift (incrementality) — most X spend boosts organic posts (no click-through),
+// so we measure the traffic lift on ad-running days vs dark days, per channel and
+// day-of-week-matched. The channel set crediting the lift is toggleable (defaults to
+// the social channels; Direct/type-in is dominated by the marketplace and only adds
+// noise) — flip channels and the headline $/incremental-visit recomputes live.
+function LiftSection({ lift }: { lift: XAdsLift }) {
+  const [sel, setSel] = useState<Set<string>>(() => new Set(lift.defaultChannels));
+  const toggle = (c: string) => setSel((prev) => {
+    const next = new Set(prev);
+    if (next.has(c)) next.delete(c); else next.add(c);
+    return next;
+  });
+  const incremental = lift.channels.filter((c) => sel.has(c.channel)).reduce((a, c) => a + c.incrementalVisits, 0);
+  const costPerVisit = incremental > 0 ? lift.spend / incremental : null;
+  return (
+    <Section title="Ad lift (incrementality)" blurb={`Most X spend boosts organic posts (no click-through links), so instead of click attribution this compares traffic on ad-running days vs dark days, day-of-week-matched, over a trailing ${lift.lookbackDays} days (${lift.from} → ${lift.to}: ${lift.adDays} ad days vs ${lift.offDays} dark days). Tick the channels to credit — the social channels are the clean signal; Direct/type-in is dominated by the marketplace business.`}>
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 14 }}>
+        <StatCard label="Incremental visits" sub="from selected channels" text={incremental > 0 ? fmt(Math.round(incremental)) : "—"} accent />
+        <StatCard label="Cost per incremental visit" sub="X spend ÷ incremental" text={costPerVisit != null ? `$${costPerVisit.toFixed(2)}` : "—"} accent />
+        <StatCard label="Spend (lift window)" text={usd(lift.spend)} />
+        <StatCard label="Ad days / dark days" text={`${lift.adDays} / ${lift.offDays}`} />
+      </div>
+      <div className="table-scroll"><table className="dash">
+        <thead><tr><th>credit</th><th>channel</th><th className="right">baseline/day</th><th className="right">ad day/day</th><th className="right">incremental</th><th className="right">$/incr. visit</th></tr></thead>
+        <tbody>
+          {lift.channels.map((c) => {
+            const on = sel.has(c.channel);
+            const cpv = c.incrementalVisits > 0 ? lift.spend / c.incrementalVisits : null;
+            return (
+              <tr key={c.channel} style={{ opacity: on ? 1 : 0.5 }}>
+                <td><input type="checkbox" checked={on} onChange={() => toggle(c.channel)} aria-label={`Credit ${c.channel}`} /></td>
+                <td>{c.channel}</td>
+                <td className="right muted">{c.baselinePerDay.toFixed(1)}</td>
+                <td className="right muted">{c.adPerDay.toFixed(1)}</td>
+                <td className="right" style={{ color: c.incrementalVisits >= 0 ? "inherit" : CORAL }}>{c.incrementalVisits >= 0 ? "+" : ""}{fmt(Math.round(c.incrementalVisits))}</td>
+                <td className="right muted">{cpv != null ? `$${cpv.toFixed(2)}` : "—"}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table></div>
+      <p className="muted" style={{ fontSize: 11, marginTop: 8 }}>
+        Correlational, not a holdout experiment — anything that moves with ad timing is folded in, and a negative figure means that channel ran lower on ad days (noise, or other factors). Treat it as a directional read on the brand-awareness halo, cross-checked against self-reported &quot;X / Twitter&quot; leads above.
+      </p>
+    </Section>
   );
 }
 

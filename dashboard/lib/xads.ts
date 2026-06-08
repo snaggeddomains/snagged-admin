@@ -21,7 +21,7 @@
 //     not UTC — tzMidnightUtc() computes that instant.
 
 import crypto from "node:crypto";
-import { analyticsReport, gaConfigured } from "./ga";
+import { analyticsReport, gaConfigured, dailyChannelSessions } from "./ga";
 
 const API = "https://ads-api.x.com/12";
 const TZ = "America/New_York"; // the ads account's timezone (from the account probe)
@@ -188,6 +188,36 @@ async function fetchCampaigns(accountId: string): Promise<Campaign[]> {
 
 const num = (v: number | null | undefined): number => (typeof v === "number" && Number.isFinite(v) ? v : 0);
 
+// Total billed spend per ET day across all campaigns over [dates], chunked into
+// ≤7-day × ≤20-id slices (the API's DAY-granularity + entity caps) and fetched in
+// parallel. Used by the Ad Lift model, which only needs the daily spend series.
+async function fetchDailySpend(accountId: string, ids: string[], dates: string[]): Promise<Map<string, number>> {
+  const byDate = new Map<string, number>(dates.map((d) => [d, 0]));
+  const jobs: Promise<void>[] = [];
+  for (const dc of chunk(dates, 7)) {
+    const start = tzMidnightUtc(dc[0]);
+    const end = tzMidnightUtc(addDays(dc[dc.length - 1], 1));
+    for (const idc of chunk(ids, 20)) {
+      jobs.push(
+        apiGet<StatsResp>(`/stats/accounts/${accountId}`, {
+          entity: "CAMPAIGN", entity_ids: idc.join(","), metric_groups: "BILLING",
+          granularity: "DAY", placement: "ALL_ON_TWITTER", start_time: start, end_time: end,
+        }).then((resp) => {
+          for (const ent of resp.data || []) {
+            const m = ent.id_data?.[0]?.metrics;
+            if (!m) continue;
+            for (let i = 0; i < dc.length; i++) {
+              byDate.set(dc[i], byDate.get(dc[i])! + num(m.billed_charge_local_micro?.[i]) / 1_000_000);
+            }
+          }
+        }),
+      );
+    }
+  }
+  await Promise.all(jobs);
+  return byDate;
+}
+
 // X-attributed self-reported leads. The form label is "X / Twitter"; tolerate the
 // handful of free-text variants ("Twitter", "X", "twitter") the historical export holds.
 function xLeads(selfReportedSource: { label: string; value: number }[]): number {
@@ -312,4 +342,93 @@ export async function xAdsReport(from: string, to: string): Promise<XAdsReport> 
   }
 
   return { totals, byCampaign: campaignRows, trend, roi, campaignCount: campaigns.length };
+}
+
+// ── Ad Lift (incrementality) ─────────────────────────────────────────────────
+// Most X spend boosts organic POSTS (no UTM click-through), so per-campaign click
+// attribution doesn't apply. Instead we measure lift: pick a channel's baseline
+// traffic on days X ads are dark, then credit the excess on ad-running days to the
+// ads. Done per channel and day-of-week-matched (traffic is weekly-seasonal), so
+// each ad day is compared to the mean of dark days with the SAME weekday.
+//
+// The clean signal lives in the social channels (Organic Social / Unassigned /
+// Organic Video) — Direct/type-in is dominated by the marketplace business and
+// swamps the ad effect, so it's offered but not credited by default. Computed over
+// a trailing window (default 90 days, independent of the spend selector) so there
+// are always enough dark days to form a baseline.
+
+export const LIFT_DEFAULT_CHANNELS = ["Organic Social", "Unassigned", "Organic Video"];
+const LIFT_SPEND_MIN = 1; // $1+ billed in a day ⇒ an "ad-running" day
+
+export type LiftChannel = {
+  channel: string;
+  baselinePerDay: number; // mean sessions on dark days
+  adPerDay: number; // mean sessions on ad days
+  incrementalVisits: number; // DoW-matched lift summed over ad days
+};
+export type XAdsLift = {
+  from: string;
+  to: string;
+  lookbackDays: number;
+  adDays: number;
+  offDays: number;
+  spend: number; // X spend on ad days within the lift window
+  channels: LiftChannel[];
+  defaultChannels: string[];
+};
+
+const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
+const dow = (ymd: string) => new Date(ymd + "T00:00:00Z").getUTCDay();
+
+export async function xAdsLift(to: string, lookbackDays = 90): Promise<XAdsLift> {
+  const accountId = process.env.X_ADS_ACCOUNT_ID!;
+  const from = addDays(to, -(lookbackDays - 1));
+  const dates = dateRange(from, to);
+
+  const campaigns = await fetchCampaigns(accountId);
+  const [spendByDay, gaRows] = await Promise.all([
+    fetchDailySpend(accountId, campaigns.map((c) => c.id), dates),
+    dailyChannelSessions(from, to),
+  ]);
+
+  // sessions[date][channel], restricted to days GA actually reported (so a not-yet-
+  // populated tail or pre-tracking head doesn't read as zero-traffic dark days).
+  const byDayCh = new Map<string, Map<string, number>>();
+  const channels = new Set<string>();
+  for (const r of gaRows) {
+    channels.add(r.channel);
+    if (!byDayCh.has(r.date)) byDayCh.set(r.date, new Map());
+    byDayCh.get(r.date)!.set(r.channel, (byDayCh.get(r.date)!.get(r.channel) || 0) + r.sessions);
+  }
+  const covered = dates.filter((d) => byDayCh.has(d));
+  const adDays = covered.filter((d) => (spendByDay.get(d) || 0) >= LIFT_SPEND_MIN);
+  const offDays = covered.filter((d) => (spendByDay.get(d) || 0) < LIFT_SPEND_MIN);
+  const spend = adDays.reduce((a, d) => a + (spendByDay.get(d) || 0), 0);
+  const sess = (d: string, c: string) => byDayCh.get(d)?.get(c) || 0;
+
+  const liftChannels: LiftChannel[] = [...channels]
+    .map((c) => {
+      const baselinePerDay = mean(offDays.map((d) => sess(d, c)));
+      const adPerDay = mean(adDays.map((d) => sess(d, c)));
+      // Day-of-week-matched: each ad day vs the mean of dark days sharing its weekday
+      // (fallback to the overall baseline when no same-weekday dark day exists).
+      let incrementalVisits = 0;
+      for (const d of adDays) {
+        const peers = offDays.filter((x) => dow(x) === dow(d)).map((x) => sess(x, c));
+        incrementalVisits += sess(d, c) - (peers.length ? mean(peers) : baselinePerDay);
+      }
+      return { channel: c, baselinePerDay, adPerDay, incrementalVisits };
+    })
+    .sort((a, b) => b.adPerDay - a.adPerDay);
+
+  return {
+    from: covered[0] || from,
+    to,
+    lookbackDays,
+    adDays: adDays.length,
+    offDays: offDays.length,
+    spend,
+    channels: liftChannels,
+    defaultChannels: LIFT_DEFAULT_CHANNELS.filter((c) => channels.has(c)),
+  };
 }
