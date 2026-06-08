@@ -50,6 +50,7 @@ export const ACTIONS = [
   "reports.cost", // view the API cost/usage report + edit rates
   "reports.analytics", // view the Site Analytics (GA4) report
   "reports.opportunities", // view the New Opportunities report (snap + auctions)
+  "reports.chat", // use Chat Analytics (LLM Q&A over the report data)
 ] as const;
 export type ActionKey = (typeof ACTIONS)[number];
 
@@ -98,6 +99,7 @@ export const ADMIN_TABS: { href: string; label: string; perm: ModuleKey | Action
 // is_admin) grant both; otherwise the specific action is needed.
 export const REPORTS_TABS: { href: string; label: string; perm: ModuleKey | ActionKey }[] = [
   { href: "/reports", label: "Site analytics", perm: "reports.analytics" },
+  { href: "/reports/chat", label: "Chat", perm: "reports.chat" },
   { href: "/reports/opportunities", label: "New opportunities", perm: "reports.opportunities" },
   { href: "/reports/cost", label: "Cost & usage", perm: "reports.cost" },
 ];
@@ -151,6 +153,7 @@ export const CATALOG: CatalogEntry[] = [
   { key: "reports", label: "Reports — full access (analytics + cost)", group: "Reports", kind: "module" },
   { key: "reports.analytics", label: "Reports — Site Analytics", group: "Reports", kind: "action" },
   { key: "reports.opportunities", label: "Reports — New Opportunities (snap + auctions)", group: "Reports", kind: "action" },
+  { key: "reports.chat", label: "Reports — Chat Analytics (LLM Q&A)", group: "Reports", kind: "action" },
   { key: "reports.cost", label: "Reports — API cost & usage", group: "Reports", kind: "action" },
   { key: "research.domain_owner", label: "Domain Owner research", group: "Research", kind: "module" },
   { key: "research.outreach", label: "Owner Outreach — email drafting", group: "Research", kind: "action" },

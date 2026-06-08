@@ -84,6 +84,7 @@ export default async function Hub() {
             </p>
             <ul className="hub-tasks">
               <li><Link href="/reports">Site analytics</Link></li>
+              <li><Link href="/reports/chat">Chat analytics</Link></li>
               <li><Link href="/reports/opportunities">New opportunities</Link></li>
               <li><Link href="/reports/cost">API cost &amp; usage</Link></li>
             </ul>
