@@ -117,9 +117,9 @@ async function mapPool<T>(tasks: (() => Promise<T>)[], concurrency = 4): Promise
 }
 
 // ── Date helpers (account-timezone day math) ─────────────────────────────────
-// Midnight of an ET date, as a UTC instant ISO string — the boundary the stats
-// endpoint requires for DAY granularity.
-function tzMidnightUtc(ymd: string): string {
+// The ET UTC-offset (ms) at midnight of a given date — i.e. (ET wall time − UTC).
+// -04:00 during EDT, -05:00 during EST.
+function etOffsetMs(ymd: string): number {
   const [y, m, d] = ymd.split("-").map(Number);
   const utcGuess = Date.UTC(y, m - 1, d, 0, 0, 0);
   const parts = new Intl.DateTimeFormat("en-US", {
@@ -128,8 +128,15 @@ function tzMidnightUtc(ymd: string): string {
   }).formatToParts(new Date(utcGuess));
   const g = (t: string) => Number(parts.find((p) => p.type === t)!.value);
   const asUtc = Date.UTC(g("year"), g("month") - 1, g("day"), g("hour") % 24, g("minute"), g("second"));
-  const offset = asUtc - utcGuess; // (tz wall time) − UTC
-  return new Date(utcGuess - offset).toISOString().replace(/\.\d+Z$/, "Z");
+  return asUtc - utcGuess;
+}
+
+// Midnight of an ET date, as a UTC instant ISO string — the boundary the stats
+// endpoint requires for DAY granularity.
+function tzMidnightUtc(ymd: string): string {
+  const [y, m, d] = ymd.split("-").map(Number);
+  const utcGuess = Date.UTC(y, m - 1, d, 0, 0, 0);
+  return new Date(utcGuess - etOffsetMs(ymd)).toISOString().replace(/\.\d+Z$/, "Z");
 }
 
 const addDays = (ymd: string, n: number): string => {
@@ -137,12 +144,40 @@ const addDays = (ymd: string, n: number): string => {
   return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10);
 };
 
-// Inclusive list of YYYY-MM-DD dates for [from, to].
+// Inclusive list of YYYY-MM-DD dates for [from, to] (cap generous enough for a
+// multi-year backfill).
 function dateRange(from: string, to: string): string[] {
   const out: string[] = [];
   for (let d = from; d <= to; d = addDays(d, 1)) {
     out.push(d);
-    if (out.length > 400) break; // safety
+    if (out.length > 2000) break; // safety
+  }
+  return out;
+}
+
+// Group dates into ≤maxLen-day chunks that NEVER straddle a DST transition. The
+// stats endpoint rejects a DAY-granularity window whose start_time and end_time
+// land on different UTC offsets (e.g. a week across the Nov fall-back: start −04:00,
+// end −05:00) — it surfaces as a misleading INVALID_PARAMETER "entity" 400. We keep
+// extending a chunk only while both the next day AND its end-boundary share the
+// start day's offset; a transition day falls out as its own (unavoidably straddling)
+// 1-day chunk, which the fault-tolerant fetch can drop without losing a whole week.
+function dstSafeChunks(dates: string[], maxLen = 7): string[][] {
+  const out: string[][] = [];
+  let i = 0;
+  while (i < dates.length) {
+    const startOffset = etOffsetMs(dates[i]);
+    const group = [dates[i]];
+    let j = i;
+    while (group.length < maxLen && j + 1 < dates.length) {
+      const cand = dates[j + 1];
+      if (etOffsetMs(cand) === startOffset && etOffsetMs(addDays(cand, 1)) === startOffset) {
+        group.push(cand);
+        j++;
+      } else break;
+    }
+    out.push(group);
+    i = j + 1;
   }
   return out;
 }
@@ -236,16 +271,27 @@ async function fetchDailyRowsLive(from: string, to: string): Promise<XAdsDailyRo
   const campaigns = await fetchCampaigns(accountId);
   const meta = new Map(campaigns.map((c) => [c.id, { name: c.name, status: c.effective_status || c.entity_status || "" }]));
   const rows: XAdsDailyRow[] = [];
+  const idChunks = chunk(campaigns.map((c) => c.id), 20);
   const tasks: (() => Promise<void>)[] = [];
-  for (const dc of chunk(dates, 7)) {
+  let failed = 0;
+  for (const dc of dstSafeChunks(dates, 7)) {
     const start = tzMidnightUtc(dc[0]);
     const end = tzMidnightUtc(addDays(dc[dc.length - 1], 1)); // exclusive upper bound
-    for (const ids of chunk(campaigns.map((c) => c.id), 20)) {
+    for (const ids of idChunks) {
       tasks.push(async () => {
-        const resp = await apiGet<StatsResp>(`/stats/accounts/${accountId}`, {
-          entity: "CAMPAIGN", entity_ids: ids.join(","), metric_groups: "ENGAGEMENT,BILLING",
-          granularity: "DAY", placement: "ALL_ON_TWITTER", start_time: start, end_time: end,
-        });
+        let resp: StatsResp;
+        try {
+          resp = await apiGet<StatsResp>(`/stats/accounts/${accountId}`, {
+            entity: "CAMPAIGN", entity_ids: ids.join(","), metric_groups: "ENGAGEMENT,BILLING",
+            granularity: "DAY", placement: "ALL_ON_TWITTER", start_time: start, end_time: end,
+          });
+        } catch (e) {
+          // One bad slice (e.g. an unavoidable DST-transition day) must not abort the
+          // whole sync — skip it and keep the rest. The next clean sync re-covers it.
+          failed++;
+          if (failed <= 5) console.warn(`x_ads: stats slice ${dc[0]}..${dc[dc.length - 1]} failed: ${String((e as Error)?.message || e).slice(0, 160)}`);
+          return;
+        }
         for (const ent of resp.data || []) {
           const m = ent.id_data?.[0]?.metrics;
           if (!m) continue;
@@ -263,6 +309,7 @@ async function fetchDailyRowsLive(from: string, to: string): Promise<XAdsDailyRo
     }
   }
   await mapPool(tasks);
+  if (failed) console.warn(`x_ads: ${failed}/${tasks.length} stats slices failed (skipped)`);
   return rows;
 }
 
@@ -280,9 +327,11 @@ async function getDailyRows(from: string, to: string): Promise<XAdsDailyRow[]> {
 // Cron entry point: pull the trailing `days` of daily rows live and upsert them into
 // the cache. A short trailing window keeps each run cheap while correcting the recent
 // days X is still revising; pass a large `days` once to backfill history.
-export async function syncXAdsDaily(days = 14): Promise<{ rows: number; from: string; to: string }> {
-  const to = etToday();
-  const from = addDays(to, -(Math.max(1, days) - 1));
+export async function syncXAdsDaily(
+  opts: { days?: number; from?: string; to?: string } = {},
+): Promise<{ rows: number; from: string; to: string }> {
+  const to = opts.to || etToday();
+  const from = opts.from || addDays(to, -(Math.max(1, opts.days ?? 14) - 1));
   const rows = await fetchDailyRowsLive(from, to);
   const written = await upsertDailyRows(rows);
   return { rows: written, from, to };

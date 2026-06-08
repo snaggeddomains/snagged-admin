@@ -35,10 +35,17 @@ export async function GET(req: NextRequest) {
   if (!xAdsStoreConfigured()) {
     return NextResponse.json({ ok: false, error: "Cache DB not configured (SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY)." }, { status: 200 });
   }
-  const daysParam = Number(new URL(req.url).searchParams.get("days"));
+  // ?days=N → trailing N days (default 14). ?from=YYYY-MM-DD&to=YYYY-MM-DD → an
+  // explicit window, for backfilling history in segments (a single multi-year pull
+  // can exceed the 300s function limit; segment it and each one upserts on its own).
+  const sp = new URL(req.url).searchParams;
+  const isDate = (s: string | null): s is string => !!s && /^\d{4}-\d{2}-\d{2}$/.test(s);
+  const daysParam = Number(sp.get("days"));
   const days = Number.isFinite(daysParam) && daysParam > 0 ? Math.min(daysParam, 1500) : 14;
+  const from = isDate(sp.get("from")) ? (sp.get("from") as string) : undefined;
+  const to = isDate(sp.get("to")) ? (sp.get("to") as string) : undefined;
   try {
-    const result = await syncXAdsDaily(days);
+    const result = await syncXAdsDaily(from ? { from, to } : { days });
     return NextResponse.json({ ok: true, ...result });
   } catch (e) {
     return NextResponse.json({ ok: false, error: String((e as Error)?.message || e) }, { status: 500 });
