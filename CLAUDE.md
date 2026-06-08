@@ -48,6 +48,18 @@ lead source (~41%), so the headline is **cost-per-X-lead = X spend ÷ X-attribut
 - **Wiring:** `ads` tranche in `app/api/admin/analytics/route.ts` (gated by the existing
   `reports.analytics` — **no new permission**); `x_ads` tool in `lib/chat-analytics.ts` so
   Chat Analytics can answer "what's our cost per lead on X this month?".
+- **Local cache (speed / 429 / timeout fix):** X spend per campaign per day is append-only
+  history, so it's snapshotted to Supabase (`x_ads_daily`, admin project — SUPABASE_URL/
+  SERVICE_ROLE_KEY, same project as the import log) by a cron and read back from the table
+  instead of re-fetching live every page view. `lib/xads-store.ts` (read/upsert) ·
+  `lib/xads.ts` `getDailyRows` (cache-first, **live API fallback when empty** — degrades
+  gracefully before backfill) · `syncXAdsDaily(days)` · cron `/api/cron/x-ads-sync`
+  (CRON_SECRET-gated, runs inline — no GH workflow needed; `?days=N` to backfill, default
+  trailing 14). **One-time setup:** run `scripts/x_ads_cache.sql` in the admin project, then
+  backfill once: `curl -H "Authorization: Bearer $CRON_SECRET" ".../api/cron/x-ads-sync?days=1200"`.
+  Scheduled 3×/day in `vercel.json`. GA stays live (single fast query: ROI leads + the lift
+  channel series). The lift view is also **lazy-loaded** as a separate `part=lift` request so
+  its trailing-90-day compute never blocks (or times out) the main spend view.
 - **Next (Rob's direction):** per-ad → site-visit / contact-form-submission matching over
   each ad's lifetime, ad runtime + performance degradation, cost-per-submission / cost-per-
   visit. Needs per-campaign UTM attribution joined to GA sessions/leads (today's lead

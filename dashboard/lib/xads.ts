@@ -22,6 +22,7 @@
 
 import crypto from "node:crypto";
 import { analyticsReport, gaConfigured, dailyChannelSessions } from "./ga";
+import { readDailyRows, upsertDailyRows, xAdsStoreConfigured, type XAdsDailyRow } from "./xads-store";
 
 const API = "https://ads-api.x.com/12";
 const TZ = "America/New_York"; // the ads account's timezone (from the account probe)
@@ -220,33 +221,71 @@ async function fetchCampaigns(accountId: string): Promise<Campaign[]> {
 
 const num = (v: number | null | undefined): number => (typeof v === "number" && Number.isFinite(v) ? v : 0);
 
-// Total billed spend per ET day across all campaigns over [dates], chunked into
-// ≤7-day × ≤20-id slices (the API's DAY-granularity + entity caps) and fetched in
-// parallel. Used by the Ad Lift model, which only needs the daily spend series.
-async function fetchDailySpend(accountId: string, ids: string[], dates: string[]): Promise<Map<string, number>> {
-  const byDate = new Map<string, number>(dates.map((d) => [d, 0]));
+// Today's date in the account timezone (ET) — the upper bound for a live sync.
+export function etToday(): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: TZ }).format(new Date());
+}
+
+// Fetch per-campaign per-day rows live from the API over [from, to]. Chunks the
+// range into ≤7-day sub-windows × ≤20-id campaign groups (the API's DAY-granularity
+// + entity caps) and runs them through the concurrency pool. Emits one row per
+// (campaign, day) with any activity; all-null/zero days are skipped (absent ⇒ 0).
+async function fetchDailyRowsLive(from: string, to: string): Promise<XAdsDailyRow[]> {
+  const accountId = process.env.X_ADS_ACCOUNT_ID!;
+  const dates = dateRange(from, to);
+  const campaigns = await fetchCampaigns(accountId);
+  const meta = new Map(campaigns.map((c) => [c.id, { name: c.name, status: c.effective_status || c.entity_status || "" }]));
+  const rows: XAdsDailyRow[] = [];
   const tasks: (() => Promise<void>)[] = [];
   for (const dc of chunk(dates, 7)) {
     const start = tzMidnightUtc(dc[0]);
-    const end = tzMidnightUtc(addDays(dc[dc.length - 1], 1));
-    for (const idc of chunk(ids, 20)) {
+    const end = tzMidnightUtc(addDays(dc[dc.length - 1], 1)); // exclusive upper bound
+    for (const ids of chunk(campaigns.map((c) => c.id), 20)) {
       tasks.push(async () => {
         const resp = await apiGet<StatsResp>(`/stats/accounts/${accountId}`, {
-          entity: "CAMPAIGN", entity_ids: idc.join(","), metric_groups: "BILLING",
+          entity: "CAMPAIGN", entity_ids: ids.join(","), metric_groups: "ENGAGEMENT,BILLING",
           granularity: "DAY", placement: "ALL_ON_TWITTER", start_time: start, end_time: end,
         });
         for (const ent of resp.data || []) {
           const m = ent.id_data?.[0]?.metrics;
           if (!m) continue;
+          const info = meta.get(ent.id) || { name: ent.id, status: "" };
           for (let i = 0; i < dc.length; i++) {
-            byDate.set(dc[i], byDate.get(dc[i])! + num(m.billed_charge_local_micro?.[i]) / 1_000_000);
+            const spend = num(m.billed_charge_local_micro?.[i]) / 1_000_000;
+            const impressions = num(m.impressions?.[i]);
+            const clicks = num(m.clicks?.[i]);
+            const engagements = num(m.engagements?.[i]);
+            if (!spend && !impressions && !clicks && !engagements) continue;
+            rows.push({ date: dc[i], campaignId: ent.id, name: info.name, status: info.status, spend, impressions, clicks, engagements });
           }
         }
       });
     }
   }
   await mapPool(tasks);
-  return byDate;
+  return rows;
+}
+
+// The read path used by the report + lift: prefer the local cache (fast, consistent,
+// no API load), fall back to a live fetch when the cache is unconfigured or empty
+// (e.g. before the first sync / backfill).
+async function getDailyRows(from: string, to: string): Promise<XAdsDailyRow[]> {
+  if (xAdsStoreConfigured()) {
+    const cached = await readDailyRows(from, to);
+    if (cached.length) return cached;
+  }
+  return fetchDailyRowsLive(from, to);
+}
+
+// Cron entry point: pull the trailing `days` of daily rows live and upsert them into
+// the cache. A short trailing window keeps each run cheap while correcting the recent
+// days X is still revising; pass a large `days` once to backfill history.
+export async function syncXAdsDaily(days = 14): Promise<{ rows: number; from: string; to: string }> {
+  const to = etToday();
+  const from = addDays(to, -(Math.max(1, days) - 1));
+  const rows = await fetchDailyRowsLive(from, to);
+  const written = await upsertDailyRows(rows);
+  return { rows: written, from, to };
 }
 
 // X-attributed self-reported leads. The form label is "X / Twitter"; tolerate the
@@ -260,15 +299,11 @@ function xLeads(selfReportedSource: { label: string; value: number }[]): number 
     .reduce((a, r) => a + r.value, 0);
 }
 
-// Build the full X Ads report over an ET day range [from, to] (YYYY-MM-DD inclusive).
+// Build the full X Ads report over an ET day range [from, to] (YYYY-MM-DD inclusive),
+// reading from the local cache when available (live API fallback otherwise).
 export async function xAdsReport(from: string, to: string): Promise<XAdsReport> {
-  const accountId = process.env.X_ADS_ACCOUNT_ID!;
   const dates = dateRange(from, to);
-  const campaigns = await fetchCampaigns(accountId);
-  const nameById = new Map(campaigns.map((c) => [c.id, c.name]));
-  const statusById = new Map(
-    campaigns.map((c) => [c.id, c.effective_status || c.entity_status || ""]),
-  );
+  const rows = await getDailyRows(from, to);
 
   // Per-campaign + per-day accumulators.
   type Agg = { spend: number; impressions: number; clicks: number; engagements: number };
@@ -276,52 +311,19 @@ export async function xAdsReport(from: string, to: string): Promise<XAdsReport> 
   const byCampaign = new Map<string, Agg>();
   const byDate = new Map<string, Agg>();
   for (const d of dates) byDate.set(d, blank());
+  const nameById = new Map<string, string>();
+  const statusById = new Map<string, string>();
 
-  // Chunk the date range into ≤7-day sub-windows and campaigns into ≤20-id groups,
-  // then fetch every (dateChunk × idChunk) stats slice in parallel.
-  const dateChunks = chunk(dates, 7);
-  const idChunks = chunk(campaigns.map((c) => c.id), 20);
-  const tasks: (() => Promise<void>)[] = [];
-  for (const dc of dateChunks) {
-    const start = tzMidnightUtc(dc[0]);
-    const end = tzMidnightUtc(addDays(dc[dc.length - 1], 1)); // exclusive upper bound
-    for (const ids of idChunks) {
-      tasks.push(async () => {
-        const resp = await apiGet<StatsResp>(`/stats/accounts/${accountId}`, {
-          entity: "CAMPAIGN",
-          entity_ids: ids.join(","),
-          metric_groups: "ENGAGEMENT,BILLING",
-          granularity: "DAY",
-          placement: "ALL_ON_TWITTER",
-          start_time: start,
-          end_time: end,
-        });
-        for (const ent of resp.data || []) {
-          const m = ent.id_data?.[0]?.metrics;
-          if (!m) continue;
-          const cAgg = byCampaign.get(ent.id) || blank();
-          for (let i = 0; i < dc.length; i++) {
-            const day = dc[i];
-            const spend = num(m.billed_charge_local_micro?.[i]) / 1_000_000;
-            const impressions = num(m.impressions?.[i]);
-            const clicks = num(m.clicks?.[i]);
-            const engagements = num(m.engagements?.[i]);
-            cAgg.spend += spend;
-            cAgg.impressions += impressions;
-            cAgg.clicks += clicks;
-            cAgg.engagements += engagements;
-            const dAgg = byDate.get(day)!;
-            dAgg.spend += spend;
-            dAgg.impressions += impressions;
-            dAgg.clicks += clicks;
-            dAgg.engagements += engagements;
-          }
-          byCampaign.set(ent.id, cAgg);
-        }
-      });
-    }
+  for (const r of rows) {
+    if (!byDate.has(r.date)) continue; // guard against any out-of-range cache row
+    nameById.set(r.campaignId, r.name);
+    statusById.set(r.campaignId, r.status);
+    const cAgg = byCampaign.get(r.campaignId) || blank();
+    cAgg.spend += r.spend; cAgg.impressions += r.impressions; cAgg.clicks += r.clicks; cAgg.engagements += r.engagements;
+    byCampaign.set(r.campaignId, cAgg);
+    const dAgg = byDate.get(r.date)!;
+    dAgg.spend += r.spend; dAgg.impressions += r.impressions; dAgg.clicks += r.clicks; dAgg.engagements += r.engagements;
   }
-  await mapPool(tasks);
 
   // Totals.
   let spend = 0, impressions = 0, clicks = 0, engagements = 0;
@@ -371,7 +373,7 @@ export async function xAdsReport(from: string, to: string): Promise<XAdsReport> 
     }
   }
 
-  return { totals, byCampaign: campaignRows, trend, roi, campaignCount: campaigns.length };
+  return { totals, byCampaign: campaignRows, trend, roi, campaignCount: campaignRows.length };
 }
 
 // ── Ad Lift (incrementality) ─────────────────────────────────────────────────
@@ -411,15 +413,16 @@ const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.l
 const dow = (ymd: string) => new Date(ymd + "T00:00:00Z").getUTCDay();
 
 export async function xAdsLift(to: string, lookbackDays = 90): Promise<XAdsLift> {
-  const accountId = process.env.X_ADS_ACCOUNT_ID!;
   const from = addDays(to, -(lookbackDays - 1));
   const dates = dateRange(from, to);
 
-  const campaigns = await fetchCampaigns(accountId);
-  const [spendByDay, gaRows] = await Promise.all([
-    fetchDailySpend(accountId, campaigns.map((c) => c.id), dates),
+  // Daily spend (cache-first) + GA daily channel sessions, in parallel.
+  const [rows, gaRows] = await Promise.all([
+    getDailyRows(from, to),
     dailyChannelSessions(from, to),
   ]);
+  const spendByDay = new Map<string, number>(dates.map((d) => [d, 0]));
+  for (const r of rows) if (spendByDay.has(r.date)) spendByDay.set(r.date, spendByDay.get(r.date)! + r.spend);
 
   // sessions[date][channel], restricted to days GA actually reported (so a not-yet-
   // populated tail or pre-tracking head doesn't read as zero-traffic dark days).

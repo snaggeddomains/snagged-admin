@@ -310,7 +310,7 @@ function AdsView({ r, range }: { r: AdsReport; range: { from: string; to: string
         <StatCard label="CPM" sub="cost / 1k impr" text={t.impressions ? usd(t.cpm) : "—"} />
         <StatCard label="CTR" text={t.impressions ? `${(t.ctr * 100).toFixed(2)}%` : "—"} />
       </div>
-      <Section title="Spend by campaign" blurb={`Where the X budget went${r.campaignCount ? ` (${r.campaignCount} campaigns in the account; only those active in the window shown)` : ""}.`}>
+      <Section title="Spend by campaign" blurb={`Where the X budget went${r.campaignCount ? ` (${r.campaignCount} campaign${r.campaignCount === 1 ? "" : "s"} active in the window)` : ""}.`}>
         <BarList rows={campaignBars} money color={CORAL} empty="No campaign spend in this window." />
       </Section>
       <Section title="Daily spend & clicks" blurb="Spend (area, $) against clicks (dashed) over the window.">
