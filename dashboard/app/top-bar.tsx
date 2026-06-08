@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { userCan, MODULES, canEnterAdmin, canAdmin, ADMIN_TABS, type AppUser } from "@/lib/permissions";
+import { userCan, MODULES, canEnterAdmin, canAdmin, ADMIN_TABS, canEnterReports, canReports, REPORTS_TABS, type AppUser } from "@/lib/permissions";
 import NotificationsBell from "./notifications-bell";
 
 // The global chrome shared across every umbrella surface (hub, admin) and
@@ -15,13 +15,19 @@ export default function TopBar({
   current,
 }: {
   user: AppUser;
-  current?: "research" | "admin";
+  current?: "research" | "admin" | "reports";
 }) {
   const canResearch = MODULES.some((m) => m.startsWith("research.") && userCan(user, m));
   const adminAccess = canEnterAdmin(user);
+  const reportsAccess = canEnterReports(user);
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const showTabs = current === "admin"; // admin section tabs live in the menu on mobile
+  // The active module's section tabs live in the hamburger on mobile (.tab-nav is
+  // hidden there). Both Admin and Reports drive it from their own tab lists.
+  const menuTabs =
+    current === "admin" ? ADMIN_TABS.filter((t) => canAdmin(user, t.perm))
+      : current === "reports" ? REPORTS_TABS.filter((t) => canReports(user, t.perm))
+        : [];
 
   return (
     <header className="topbar">
@@ -31,7 +37,7 @@ export default function TopBar({
         <span className="wm-a">Snagged</span>
       </Link>
 
-      {(canResearch || adminAccess) && (
+      {(canResearch || adminAccess || reportsAccess) && (
         <nav className="topbar__nav">
           {canResearch && (
             <a href="/research" className={current === "research" ? "active" : ""}>
@@ -41,6 +47,11 @@ export default function TopBar({
           {adminAccess && (
             <Link href="/admin" className={current === "admin" ? "active" : ""}>
               Admin
+            </Link>
+          )}
+          {reportsAccess && (
+            <Link href="/reports" className={current === "reports" ? "active" : ""}>
+              Reports
             </Link>
           )}
         </nav>
@@ -70,13 +81,13 @@ export default function TopBar({
         &#9776;
       </button>
 
-      {/* Mobile dropdown: admin section tabs (if any) + account. */}
+      {/* Mobile dropdown: the active module's section tabs (if any) + account. */}
       <div className={"topbar__menu" + (open ? " open" : "")}>
-        {showTabs && (
+        {menuTabs.length > 0 && (
           <nav className="topbar__menu-nav">
-            {ADMIN_TABS.filter((t) => canAdmin(user, t.perm)).map((t) => {
-              const active =
-                t.href === "/admin" ? pathname === "/admin" : pathname.startsWith(t.href);
+            {menuTabs.map((t) => {
+              const isIndex = t.href === "/admin" || t.href === "/reports";
+              const active = isIndex ? pathname === t.href : pathname.startsWith(t.href);
               return (
                 <Link
                   key={t.href}

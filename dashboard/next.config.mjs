@@ -21,5 +21,13 @@ const nextConfig = {
       { source: "/dbsearch/:path*", destination: `${research}/research/dbsearch/:path*` },
     ];
   },
+  // Reports graduated from an Admin sub-tab to its own top-level module — keep the
+  // old /admin/reports URLs working (analytics is now the default at /reports).
+  async redirects() {
+    return [
+      { source: "/admin/reports/analytics", destination: "/reports", permanent: true },
+      { source: "/admin/reports", destination: "/reports/cost", permanent: true },
+    ];
+  },
 };
 export default nextConfig;

@@ -4,7 +4,7 @@
 
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
-import { canAdmin, isGranted } from "@/lib/permissions";
+import { canReports, isGranted } from "@/lib/permissions";
 import { listRates, upsertRate, costTotals, costSeries, listAllMeters, type Period } from "@/lib/cost-report";
 
 export const runtime = "nodejs";
@@ -29,7 +29,7 @@ function zonedToUtcISO(dateStr: string, timeStr: string, tz: string): string {
 export async function GET(req: NextRequest) {
   const me = await getCurrentUser();
   if (!me) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  if (!canAdmin(me, "admin.reports.cost")) {
+  if (!canReports(me, "reports.cost")) {
     return NextResponse.json({ error: "No access to the cost report" }, { status: 403 });
   }
   const period = periodOf(req.nextUrl.searchParams.get("period"));

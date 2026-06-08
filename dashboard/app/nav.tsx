@@ -11,8 +11,10 @@ export default function Nav({ tabs }: { tabs: { href: string; label: string }[] 
   return (
     <nav className="tab-nav">
       {tabs.map((t) => {
-        const active =
-          t.href === "/admin" ? pathname === "/admin" : pathname.startsWith(t.href);
+        // Index routes ("/admin", "/reports") match exactly so a child route
+        // ("/reports/cost") doesn't also light up the parent tab.
+        const isIndex = t.href === "/admin" || t.href === "/reports";
+        const active = isIndex ? pathname === t.href : pathname.startsWith(t.href);
         // /research/* is the separate research app (reached via rewrite) — use a
         // plain anchor so it does a full navigation rather than a client-side
         // RSC fetch that would 404.

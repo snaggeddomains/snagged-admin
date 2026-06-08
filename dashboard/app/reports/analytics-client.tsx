@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import ReportsSubnav from "../reports-subnav";
 import { BarList, TrendChart, FunnelChart, type Bar } from "./analytics-charts";
 
 // ── Types mirror lib/ga.ts + lib/revenue.ts ─────────────────────────────────
@@ -105,7 +104,6 @@ export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
 
   return (
     <main>
-      <ReportsSubnav canCost={canCost} canAnalytics />
       <h1 style={{ fontSize: "1.25rem", marginBottom: 4 }}>Site analytics</h1>
       <p className="muted" style={{ marginTop: 0, fontSize: 14 }}>
         snagged.com performance, split by business: <strong>Core Services</strong> (the sell-side),{" "}

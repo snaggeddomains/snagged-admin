@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import ReportsSubnav from "./reports-subnav";
 
 type Period = "day" | "week" | "month";
 type Total = { category: string; meter: string; units: number };
@@ -250,11 +249,10 @@ export default function ReportsClient({ canCost, canEditRates, canAnalytics = fa
   if (!canCost) {
     return (
       <main>
-        <ReportsSubnav canCost={canCost} canAnalytics={canAnalytics} />
         <h1 style={{ fontSize: "1.25rem", marginBottom: 4 }}>Reports</h1>
         <p className="muted">
-          You have the Reports tab but not the cost report. Ask an admin for the{" "}
-          <code>admin.reports.cost</code> permission.
+          You have Reports access but not the cost report. Ask an admin for the{" "}
+          <code>reports.cost</code> permission.
         </p>
       </main>
     );
@@ -268,7 +266,6 @@ export default function ReportsClient({ canCost, canEditRates, canAnalytics = fa
 
   return (
     <main>
-      <ReportsSubnav canCost={canCost} canAnalytics={canAnalytics} />
       <h1 style={{ fontSize: "1.25rem", marginBottom: 4 }}>API cost &amp; usage</h1>
       <p className="muted" style={{ marginTop: 0, fontSize: 14 }}>
         What each system and activity is costing. Set a dollar rate per meter

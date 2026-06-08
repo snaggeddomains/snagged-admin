@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
-import { userCan } from "@/lib/permissions";
+import { userCan, canEnterReports } from "@/lib/permissions";
 import TopBar from "./top-bar";
 
 export const dynamic = "force-dynamic";
@@ -25,6 +25,7 @@ export default async function Hub() {
 
   const canResearch = researchTasks.length > 0;
   const canAdmin = userCan(user, "admin");
+  const canReportsAccess = canEnterReports(user);
 
   return (
     <main>
@@ -75,7 +76,20 @@ export default async function Hub() {
           </section>
         )}
 
-        {!canResearch && !canAdmin && (
+        {canReportsAccess && (
+          <section className="card hub-card">
+            <h2><Link href="/reports">Reports</Link></h2>
+            <p className="muted" style={{ marginTop: 0, fontSize: 14 }}>
+              Site analytics across the business lines, SEO, revenue &amp; API cost.
+            </p>
+            <ul className="hub-tasks">
+              <li><Link href="/reports">Site analytics</Link></li>
+              <li><Link href="/reports/cost">API cost &amp; usage</Link></li>
+            </ul>
+          </section>
+        )}
+
+        {!canResearch && !canAdmin && !canReportsAccess && (
           <p className="muted">
             You don&apos;t have access to any modules yet. Ask an administrator to grant
             permissions.

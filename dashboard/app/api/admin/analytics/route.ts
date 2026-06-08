@@ -7,7 +7,7 @@
 
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
-import { canAdmin } from "@/lib/permissions";
+import { canReports } from "@/lib/permissions";
 import { analyticsReport, gaConfigured, type Tranche } from "@/lib/ga";
 import { revenueReport, revenueConfigured } from "@/lib/revenue";
 import { seoReport, gscConfigured, type SeoBucket } from "@/lib/gsc";
@@ -25,7 +25,7 @@ function etYmd(d: Date): string {
 export async function GET(req: NextRequest) {
   const me = await getCurrentUser();
   if (!me) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  if (!canAdmin(me, "admin.reports.analytics")) {
+  if (!canReports(me, "reports.analytics")) {
     return NextResponse.json({ error: "No access to Site Analytics" }, { status: 403 });
   }
 

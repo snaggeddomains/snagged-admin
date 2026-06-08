@@ -27,7 +27,7 @@ export const MODULES = [
   "admin.config", // Configuration tab (/admin/config)
   "admin.schedule", // Schedule tab (/admin/schedule)
   "admin.imports", // the domain import tool (/admin/imports)
-  "admin.reports", // the Reports tab (/admin/reports) — usage/cost dashboards
+  "reports", // top-level Reports module (/reports) — analytics + cost; NOT under admin
   "research.domain_owner",
   "research.trademark",
   "research.appraisal",
@@ -47,8 +47,8 @@ export const ACTIONS = [
   "admin.sources.edit", // edit source registry / schedules
   "admin.lessons.approve", // curate (approve/edit/delete) playbook lessons
   "admin.imports.replace", // allow the destructive Replace mode in the import tool
-  "admin.reports.cost", // view the API cost/usage report + edit rates
-  "admin.reports.analytics", // view the Site Analytics (GA4) report
+  "reports.cost", // view the API cost/usage report + edit rates
+  "reports.analytics", // view the Site Analytics (GA4) report
 ] as const;
 export type ActionKey = (typeof ACTIONS)[number];
 
@@ -89,8 +89,15 @@ export const ADMIN_TABS: { href: string; label: string; perm: ModuleKey | Action
   { href: "/admin/schedule", label: "Schedule", perm: "admin.schedule" },
   { href: "/admin/users", label: "Users", perm: "admin.users.manage" },
   { href: "/admin/imports", label: "Imports", perm: "admin.imports" },
-  { href: "/admin/reports", label: "Reports", perm: "admin.reports" },
   { href: "/research/admin", label: "Lessons", perm: "admin.lessons.approve" },
+];
+
+// The Reports module's sub-nav — its own top-level module (peer to Admin), so
+// analytics access can be granted WITHOUT admin powers. `reports` umbrella (and
+// is_admin) grant both; otherwise the specific action is needed.
+export const REPORTS_TABS: { href: string; label: string; perm: ModuleKey | ActionKey }[] = [
+  { href: "/reports", label: "Site analytics", perm: "reports.analytics" },
+  { href: "/reports/cost", label: "Cost & usage", perm: "reports.cost" },
 ];
 
 // Can the user use this admin tab/key? is_admin and the `admin` umbrella both
@@ -105,6 +112,19 @@ export function canEnterAdmin(user: AppUser | null): boolean {
   if (!user) return false;
   if (user.is_admin || isGranted(user.permissions, "admin")) return true;
   return ADMIN_TABS.some((t) => isGranted(user.permissions, t.perm));
+}
+
+// Reports is its OWN top-level module — deliberately independent of the `admin`
+// umbrella so you can grant analytics without admin powers. is_admin still
+// auto-passes (owner break-glass).
+export function canReports(user: AppUser | null, key: ModuleKey | ActionKey): boolean {
+  if (!user) return false;
+  return user.is_admin || isGranted(user.permissions, "reports") || isGranted(user.permissions, key);
+}
+export function canEnterReports(user: AppUser | null): boolean {
+  if (!user) return false;
+  if (user.is_admin || isGranted(user.permissions, "reports")) return true;
+  return REPORTS_TABS.some((t) => isGranted(user.permissions, t.perm));
 }
 
 // UI descriptor for the /admin/users permission editor. Adding a future module
@@ -125,10 +145,10 @@ export const CATALOG: CatalogEntry[] = [
   { key: "admin.users.manage", label: "Users — manage users & permissions", group: "Admin", kind: "action" },
   { key: "admin.imports", label: "Imports", group: "Admin", kind: "module" },
   { key: "admin.imports.replace", label: "Imports — Replace mode (destructive)", group: "Admin", kind: "action" },
-  { key: "admin.reports", label: "Reports", group: "Admin", kind: "module" },
-  { key: "admin.reports.cost", label: "Reports — API cost & usage", group: "Admin", kind: "action" },
-  { key: "admin.reports.analytics", label: "Reports — Site Analytics (GA4)", group: "Admin", kind: "action" },
   { key: "admin.lessons.approve", label: "Lessons — curate / approve", group: "Admin", kind: "action" },
+  { key: "reports", label: "Reports — full access (analytics + cost)", group: "Reports", kind: "module" },
+  { key: "reports.analytics", label: "Reports — Site Analytics", group: "Reports", kind: "action" },
+  { key: "reports.cost", label: "Reports — API cost & usage", group: "Reports", kind: "action" },
   { key: "research.domain_owner", label: "Domain Owner research", group: "Research", kind: "module" },
   { key: "research.outreach", label: "Owner Outreach — email drafting", group: "Research", kind: "action" },
   { key: "research.trademark", label: "Trademark", group: "Research", kind: "module" },
