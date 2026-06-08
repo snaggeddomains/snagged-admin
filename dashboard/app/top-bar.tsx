@@ -46,6 +46,12 @@ export default function TopBar({
         </nav>
       )}
 
+      {/* In-app back/refresh — only render in the installed PWA (standalone), where
+          there's no browser chrome. Mirrors the Research app so Admin doesn't feel
+          like a trapped page. Shows on mobile too (outside the desktop-only account
+          span), pinned just left of the hamburger. */}
+      <PwaNavControls />
+
       {/* Desktop: bell + account avatar on the right (mirrors Research). Hidden
           on mobile (moves to the hamburger menu). */}
       <span className="topbar__account" style={{ display: "flex", alignItems: "center", gap: 14 }}>
@@ -90,6 +96,39 @@ export default function TopBar({
         </div>
       </div>
     </header>
+  );
+}
+
+// Back + refresh buttons shown only when running as an installed PWA (iOS
+// `navigator.standalone` or the standalone display-mode media query). In that mode
+// there's no Safari chrome, so without these Admin feels like a dead-end page —
+// Research has the same affordance. Hidden in a normal browser tab (it already has
+// back/refresh).
+function PwaNavControls() {
+  const [standalone, setStandalone] = useState(false);
+  useEffect(() => {
+    const mq = typeof window !== "undefined" && window.matchMedia ? window.matchMedia("(display-mode: standalone)") : null;
+    const check = () => setStandalone(
+      Boolean(mq?.matches) || (window.navigator as unknown as { standalone?: boolean }).standalone === true,
+    );
+    check();
+    mq?.addEventListener?.("change", check);
+    return () => mq?.removeEventListener?.("change", check);
+  }, []);
+  if (!standalone) return null;
+  const btn: React.CSSProperties = {
+    width: 34, height: 34, borderRadius: "50%", border: "none", background: "transparent",
+    color: "var(--navy, #254254)", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center",
+  };
+  return (
+    <span className="topbar__pwa-nav" style={{ display: "inline-flex", alignItems: "center", gap: 2, marginLeft: "auto" }}>
+      <button type="button" aria-label="Back" title="Back" onClick={() => window.history.back()} style={btn}>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+      </button>
+      <button type="button" aria-label="Refresh" title="Refresh" onClick={() => window.location.reload()} style={btn}>
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M23 4v6h-6" /><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" /></svg>
+      </button>
+    </span>
   );
 }
 
