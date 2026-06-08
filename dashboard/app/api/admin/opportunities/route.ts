@@ -14,7 +14,7 @@ export async function GET() {
   const me = await getCurrentUser();
   if (!me) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   if (!canReports(me, "reports.opportunities")) {
-    return NextResponse.json({ error: "No access to New Opportunities" }, { status: 403 });
+    return NextResponse.json({ error: "No access to SNAP Opportunities" }, { status: 403 });
   }
   try {
     const report = await newOpportunities();
