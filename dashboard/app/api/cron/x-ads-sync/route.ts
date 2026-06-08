@@ -18,7 +18,7 @@
 // CRON_SECRET is picked up (a no-diff redeploy is skipped by the Ignored-Build-Step rule).
 import { NextResponse, type NextRequest } from "next/server";
 import { authorizedCron } from "@/lib/orchestrator";
-import { syncXAdsDaily, xAdsConfigured } from "@/lib/xads";
+import { syncXAdsDaily, syncXAdsAdsDaily, xAdsConfigured } from "@/lib/xads";
 import { xAdsStoreConfigured } from "@/lib/xads-store";
 
 export const runtime = "nodejs";
@@ -44,9 +44,21 @@ export async function GET(req: NextRequest) {
   const days = Number.isFinite(daysParam) && daysParam > 0 ? Math.min(daysParam, 1500) : 14;
   const from = isDate(sp.get("from")) ? (sp.get("from") as string) : undefined;
   const to = isDate(sp.get("to")) ? (sp.get("to") as string) : undefined;
+  // ?level=campaign | ad | both (default both) — backfills can be run per-level to
+  // stay under the 300s limit.
+  const level = sp.get("level") || "both";
+  const opts = from ? { from, to } : { days };
   try {
-    const result = await syncXAdsDaily(from ? { from, to } : { days });
-    return NextResponse.json({ ok: true, ...result });
+    const result: Record<string, unknown> = { ok: true, level };
+    if (level !== "ad") {
+      const c = await syncXAdsDaily(opts);
+      result.campaignRows = c.rows; result.from = c.from; result.to = c.to;
+    }
+    if (level !== "campaign") {
+      const a = await syncXAdsAdsDaily(opts);
+      result.adRows = a.rows; result.from = a.from; result.to = a.to;
+    }
+    return NextResponse.json(result);
   } catch (e) {
     return NextResponse.json({ ok: false, error: String((e as Error)?.message || e) }, { status: 500 });
   }

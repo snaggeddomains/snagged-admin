@@ -32,6 +32,21 @@ export type XAdsDailyRow = {
   engagements: number;
 };
 
+// Per-ad (promoted tweet) daily row — same metrics plus campaign + creative labels.
+export type XAdsAdDailyRow = {
+  date: string;
+  adId: string;
+  campaignId: string;
+  campaignName: string;
+  adName: string; // tweet text snippet
+  tweetId: string;
+  status: string;
+  spend: number;
+  impressions: number;
+  clicks: number;
+  engagements: number;
+};
+
 export function xAdsStoreConfigured(): boolean {
   return isDbConfigured();
 }
@@ -81,6 +96,55 @@ export async function upsertDailyRows(rows: XAdsDailyRow[]): Promise<number> {
     }));
     const { error } = await db.from("x_ads_daily").upsert(batch, { onConflict: "date,campaign_id" });
     if (error) throw new Error(`x_ads_daily upsert: ${error.message}`);
+    written += batch.length;
+  }
+  return written;
+}
+
+type AdDbRow = {
+  date: string; ad_id: string; campaign_id: string | null; campaign_name: string | null;
+  ad_name: string | null; tweet_id: string | null; status: string | null;
+  spend: number | string | null; impressions: number | null; clicks: number | null; engagements: number | null;
+};
+
+// Read cached per-ad daily rows for [from, to] inclusive.
+export async function readAdDailyRows(from: string, to: string): Promise<XAdsAdDailyRow[]> {
+  if (!isDbConfigured()) return [];
+  const { data, error } = await getDb()
+    .from("x_ads_ad_daily")
+    .select("date,ad_id,campaign_id,campaign_name,ad_name,tweet_id,status,spend,impressions,clicks,engagements")
+    .gte("date", from)
+    .lte("date", to);
+  if (error || !data) return [];
+  return (data as AdDbRow[]).map((r) => ({
+    date: String(r.date).slice(0, 10),
+    adId: r.ad_id,
+    campaignId: r.campaign_id || "",
+    campaignName: r.campaign_name || "",
+    adName: r.ad_name || r.ad_id,
+    tweetId: r.tweet_id || "",
+    status: r.status || "",
+    spend: n(r.spend),
+    impressions: n(r.impressions),
+    clicks: n(r.clicks),
+    engagements: n(r.engagements),
+  }));
+}
+
+// Upsert per-ad daily rows onto (date, ad_id).
+export async function upsertAdDailyRows(rows: XAdsAdDailyRow[]): Promise<number> {
+  if (!isDbConfigured() || !rows.length) return 0;
+  const db = getDb();
+  let written = 0;
+  for (let i = 0; i < rows.length; i += 500) {
+    const batch = rows.slice(i, i + 500).map((r) => ({
+      date: r.date, ad_id: r.adId, campaign_id: r.campaignId, campaign_name: r.campaignName,
+      ad_name: r.adName, tweet_id: r.tweetId, status: r.status,
+      spend: r.spend, impressions: r.impressions, clicks: r.clicks, engagements: r.engagements,
+      updated_at: new Date().toISOString(),
+    }));
+    const { error } = await db.from("x_ads_ad_daily").upsert(batch, { onConflict: "date,ad_id" });
+    if (error) throw new Error(`x_ads_ad_daily upsert: ${error.message}`);
     written += batch.length;
   }
   return written;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { BarList, TrendChart, FunnelChart, type Bar } from "./analytics-charts";
+import { BarList, TrendChart, FunnelChart, Sparkline, type Bar } from "./analytics-charts";
 
 // ── Types mirror lib/ga.ts + lib/revenue.ts ─────────────────────────────────
 type Tranche = "core" | "marketplace" | "blog" | "seo" | "revenue" | "email" | "ads";
@@ -316,6 +316,7 @@ function AdsView({ r, range }: { r: AdsReport; range: { from: string; to: string
       <Section title="Daily spend & clicks" blurb="Spend (area, $) against clicks (dashed) over the window.">
         <TrendChart data={spendTrend} labels={["Spend ($)", "Clicks"]} />
       </Section>
+      <EffectivenessLoader range={range} />
       <LiftLoader to={range.to} />
       {r.byCampaign.length > 0 && (
         <Section title="Campaign detail" blurb="Per-campaign spend, reach and efficiency.">
@@ -337,6 +338,105 @@ function AdsView({ r, range }: { r: AdsReport; range: { from: string; to: string
         </Section>
       )}
     </>
+  );
+}
+
+// ── Effectiveness (per-campaign + per-ad) ────────────────────────────────────
+type EffWeek = { week: string; ctr: number; spend: number; impressions: number };
+type EffRow = {
+  id: string; name: string; campaign: string; status: string; firstDay: string; lastDay: string;
+  daysActive: number; spend: number; impressions: number; clicks: number; engagements: number;
+  ctr: number; cpc: number; cpm: number; cpe: number; engRate: number; weekly: EffWeek[];
+};
+type XAdsEffectiveness = { from: string; to: string; campaigns: EffRow[]; ads: EffRow[] };
+
+// CTR degradation = last vs first active week (negative = fatiguing).
+function degradation(weekly: EffWeek[]): number | null {
+  const live = weekly.filter((w) => w.impressions > 0);
+  if (live.length < 2) return null;
+  const first = live[0].ctr, last = live[live.length - 1].ctr;
+  if (!first) return null;
+  return (last - first) / first;
+}
+
+function EffTable({ rows, kind }: { rows: EffRow[]; kind: "campaign" | "ad" }) {
+  if (!rows.length) return <p className="muted" style={{ fontSize: 13 }}>No {kind} activity in this window.</p>;
+  return (
+    <div className="table-scroll"><table className="dash">
+      <thead><tr>
+        <th>{kind === "ad" ? "ad (tweet)" : "campaign"}</th>
+        <th className="right">days</th><th className="right">spend</th><th className="right">impr</th>
+        <th className="right">CTR</th><th className="right">CPC</th><th className="right">CPE</th>
+        <th className="right">eng rate</th><th className="right">CTR trend</th><th className="right">Δ CTR</th>
+      </tr></thead>
+      <tbody>
+        {rows.map((r) => {
+          const deg = degradation(r.weekly);
+          return (
+            <tr key={r.id}>
+              <td title={r.name + (r.campaign ? ` — ${r.campaign}` : "")} style={{ maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {r.name}{kind === "ad" && r.campaign && <span className="muted" style={{ display: "block", fontSize: 10 }}>{r.campaign}</span>}
+              </td>
+              <td className="right muted">{r.daysActive}</td>
+              <td className="right">{usd(r.spend)}</td>
+              <td className="right muted">{fmt(r.impressions)}</td>
+              <td className="right">{(r.ctr * 100).toFixed(2)}%</td>
+              <td className="right muted">{r.clicks ? usd(r.cpc) : "—"}</td>
+              <td className="right muted">{r.engagements ? `$${r.cpe.toFixed(2)}` : "—"}</td>
+              <td className="right muted">{(r.engRate * 100).toFixed(1)}%</td>
+              <td className="right"><span style={{ display: "inline-block" }}><Sparkline values={r.weekly.map((w) => w.ctr)} color={CORAL} /></span></td>
+              <td className="right" style={{ color: deg == null ? undefined : deg >= 0 ? "#2e7d32" : CORAL, fontWeight: 600 }}>
+                {deg == null ? "—" : `${deg >= 0 ? "+" : ""}${Math.round(deg * 100)}%`}
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table></div>
+  );
+}
+
+// Per-campaign + per-ad effectiveness, lazy-loaded (own request) like the lift view.
+function EffectivenessLoader({ range }: { range: { from: string; to: string } }) {
+  const [data, setData] = useState<XAdsEffectiveness | null>(null);
+  const [state, setState] = useState<"loading" | "done" | "error">("loading");
+  const [msg, setMsg] = useState("");
+  const [level, setLevel] = useState<"campaign" | "ad">("campaign");
+  useEffect(() => {
+    let live = true;
+    setState("loading"); setMsg("");
+    (async () => {
+      try {
+        const res = await fetch(`/api/admin/analytics?tranche=ads&part=effectiveness&from=${range.from}&to=${range.to}`, { cache: "no-store" });
+        const json = JSON.parse(await res.text());
+        if (!live) return;
+        if (!res.ok || json.ok === false) throw new Error(json.error || `Failed (${res.status})`);
+        setData(json.effectiveness || null); setState("done");
+      } catch (e) {
+        if (live) { setState("error"); setMsg(String((e as Error).message || e)); }
+      }
+    })();
+    return () => { live = false; };
+  }, [range.from, range.to]);
+
+  const blurb = "Engagement efficiency, runtime and week-over-week CTR trend, per campaign and per ad. Δ CTR compares the last active week to the first (negative = the creative is fatiguing). Conversion efficiency stays account-level (see Ad lift) until the X pixel reports per-ad conversions.";
+  if (state === "loading") return <Section title="Effectiveness" blurb={blurb}><p className="muted" style={{ fontSize: 13 }}>Loading effectiveness…</p></Section>;
+  if (state === "error") return <Section title="Effectiveness" blurb={blurb}><p className="muted" style={{ fontSize: 13 }}>Couldn&apos;t load effectiveness ({msg}). The per-ad cache may not be backfilled yet.</p></Section>;
+  if (!data) return null;
+  const rows = level === "campaign" ? data.campaigns : data.ads;
+  return (
+    <Section title="Effectiveness" blurb={blurb}>
+      <div style={{ display: "inline-flex", gap: 4, border: "1px solid #e3ddcf", borderRadius: 8, padding: 3, marginBottom: 12 }}>
+        {(["campaign", "ad"] as const).map((l) => (
+          <button key={l} onClick={() => setLevel(l)} style={{
+            padding: "4px 14px", fontSize: 13, fontWeight: 700, borderRadius: 6, border: "none", cursor: "pointer", textTransform: "capitalize",
+            background: level === l ? "var(--navy, #254254)" : "transparent", color: level === l ? "#fff" : "var(--navy, #254254)",
+          }}>{l === "ad" ? "Per ad" : "Per campaign"}</button>
+        ))}
+        <span className="muted" style={{ alignSelf: "center", fontSize: 11, padding: "0 6px" }}>{rows.length} {level === "ad" ? "ads" : "campaigns"} with activity</span>
+      </div>
+      <EffTable rows={rows} kind={level} />
+    </Section>
   );
 }
 

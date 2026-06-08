@@ -60,11 +60,23 @@ lead source (~41%), so the headline is **cost-per-X-lead = X spend ÷ X-attribut
   Scheduled 3×/day in `vercel.json`. GA stays live (single fast query: ROI leads + the lift
   channel series). The lift view is also **lazy-loaded** as a separate `part=lift` request so
   its trailing-90-day compute never blocks (or times out) the main spend view.
-- **Next (Rob's direction):** per-ad → site-visit / contact-form-submission matching over
-  each ad's lifetime, ad runtime + performance degradation, cost-per-submission / cost-per-
-  visit. Needs per-campaign UTM attribution joined to GA sessions/leads (today's lead
-  attribution is account-level self-report, not per-campaign). Google Ads to be added as a
-  second spend source once live — the tranche/`AdsView` are provider-agnostic enough to grow.
+- **Per-ad + per-campaign effectiveness (2026-06-08):** a lazy `part=effectiveness` request
+  (`xAdsEffectiveness`) → engagement efficiency (CTR/CPC/CPE/eng-rate), **runtime** (days
+  active) and **week-over-week CTR trend + Δ CTR degradation** (last vs first active week),
+  per campaign and per ad. UI = the "Effectiveness" section in `AdsView` with a Per-campaign/
+  Per-ad toggle + sparkline. Per-ad data is its own cache: **`x_ads_ad_daily`** (one row per
+  (date, promoted-tweet); campaign + tweet-text labels denormalized in; SQL
+  `scripts/x_ads_ads_cache.sql`), synced by the SAME cron alongside `x_ads_daily`
+  (`syncXAdsAdsDaily`; cron `?level=campaign|ad|both`, default both). The sync resolves
+  campaign→line_item→promoted_tweet and pulls `entity=PROMOTED_TWEET` stats (same DST-safe,
+  fault-tolerant chunking). **Conversion** efficiency (cost-per-lead per ad) is still
+  account-level via the lift model — it can't be split per-ad until the **X conversion pixel**
+  fires (the `WEB_CONVERSION` metrics come back null today; getting the pixel/CAPI working
+  server-side unlocks true per-ad cost-per-conversion).
+- **Next (Rob's direction):** stand up the X **Conversion API (CAPI)** server-side on the
+  contact-form handler (keyed by `twclid` / hashed email) → unblocks per-ad conversions.
+  Google Ads to be added as a second spend source once live — the tranche/`AdsView` are
+  provider-agnostic enough to grow.
 
 # Domain data model — canonical (do not let this drift)
 

@@ -98,6 +98,20 @@ function Legend({ color, label, dashed }: { color: string; label: string; dashed
   );
 }
 
+// A compact inline sparkline for a small series (e.g. an ad's weekly CTR over its
+// life — the degradation curve). Renders nothing meaningful below 2 points.
+export function Sparkline({ values, width = 84, height = 22, color = NAVY }: { values: number[]; width?: number; height?: number; color?: string }) {
+  if (values.length < 2) return <span className="muted" style={{ fontSize: 11 }}>—</span>;
+  const max = Math.max(...values), min = Math.min(...values);
+  const rng = max - min || 1;
+  const pts = values.map((v, i) => `${((i / (values.length - 1)) * width).toFixed(1)},${(height - ((v - min) / rng) * (height - 2) - 1).toFixed(1)}`).join(" ");
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label="trend" style={{ display: "block" }}>
+      <polyline points={pts} fill="none" stroke={color} strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+    </svg>
+  );
+}
+
 export type Step = { name: string; users: number };
 
 // A descending funnel: each step is a bar scaled to the first step, annotated with

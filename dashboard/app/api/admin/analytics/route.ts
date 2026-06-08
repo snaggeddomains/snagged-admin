@@ -11,7 +11,7 @@ import { canReports } from "@/lib/permissions";
 import { analyticsReport, gaConfigured, type Tranche } from "@/lib/ga";
 import { revenueReport, revenueConfigured } from "@/lib/revenue";
 import { seoReport, gscConfigured, type SeoBucket } from "@/lib/gsc";
-import { xAdsReport, xAdsLift, xAdsConfigured } from "@/lib/xads";
+import { xAdsReport, xAdsLift, xAdsEffectiveness, xAdsConfigured } from "@/lib/xads";
 import { newsletterReport, mailchimpConfigured, recentMemberCounts } from "@/lib/mailchimp";
 import { histSignups, histUnsubs, mergeDaily, emailDataThrough } from "@/lib/historical-email";
 
@@ -81,6 +81,16 @@ export async function GET(req: NextRequest) {
       try {
         const lift = await xAdsLift(to);
         return NextResponse.json({ ok: true, configured: true, tranche: "ads", part: "lift", lift });
+      } catch (e) {
+        return NextResponse.json({ ok: false, error: String((e as Error)?.message || e) }, { status: 500 });
+      }
+    }
+    // Per-campaign + per-ad effectiveness (engagement efficiency, runtime, weekly
+    // trend) — its own lazy `part=effectiveness` request like lift.
+    if (sp.get("part") === "effectiveness") {
+      try {
+        const effectiveness = await xAdsEffectiveness(from, to);
+        return NextResponse.json({ ok: true, configured: true, tranche: "ads", part: "effectiveness", effectiveness });
       } catch (e) {
         return NextResponse.json({ ok: false, error: String((e as Error)?.message || e) }, { status: 500 });
       }

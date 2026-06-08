@@ -22,7 +22,10 @@
 
 import crypto from "node:crypto";
 import { analyticsReport, gaConfigured, dailyChannelSessions } from "./ga";
-import { readDailyRows, upsertDailyRows, xAdsStoreConfigured, type XAdsDailyRow } from "./xads-store";
+import {
+  readDailyRows, upsertDailyRows, xAdsStoreConfigured, type XAdsDailyRow,
+  readAdDailyRows, upsertAdDailyRows, type XAdsAdDailyRow,
+} from "./xads-store";
 
 const API = "https://ads-api.x.com/12";
 const TZ = "America/New_York"; // the ads account's timezone (from the account probe)
@@ -335,6 +338,221 @@ export async function syncXAdsDaily(
   const rows = await fetchDailyRowsLive(from, to);
   const written = await upsertDailyRows(rows);
   return { rows: written, from, to };
+}
+
+// ── Per-ad (promoted tweet) sync ─────────────────────────────────────────────
+type LineItem = { id: string; campaign_id?: string };
+type PromotedTweet = { id: string; line_item_id?: string; tweet_id?: string; entity_status?: string };
+
+async function fetchPaged<T>(accountId: string, path: string, extra: Record<string, string> = {}): Promise<T[]> {
+  const out: T[] = [];
+  let cursor: string | undefined;
+  do {
+    const q: Record<string, string> = { count: "1000", with_deleted: "true", ...extra };
+    if (cursor) q.cursor = cursor;
+    const r = await apiGet<{ data?: T[]; next_cursor?: string | null }>(`/accounts/${accountId}${path}`, q);
+    out.push(...(r.data || []));
+    cursor = r.next_cursor || undefined;
+  } while (cursor && out.length < 20000);
+  return out;
+}
+
+// Tweet text by tweet_id, for labeling each ad by its creative. Batched (≤200/call);
+// best-effort — a failed batch just leaves those ads labeled by id.
+async function fetchTweetTexts(accountId: string, tweetIds: string[]): Promise<Map<string, string>> {
+  const out = new Map<string, string>();
+  for (const batch of chunk([...new Set(tweetIds)], 150)) {
+    try {
+      const r = await apiGet<{ data?: { tweet_id?: string; id_str?: string; text?: string; full_text?: string }[] }>(
+        `/accounts/${accountId}/tweets`,
+        { tweet_ids: batch.join(","), tweet_type: "PUBLISHED", count: "200" },
+      );
+      for (const t of r.data || []) {
+        const id = t.tweet_id || t.id_str || "";
+        const text = (t.full_text || t.text || "").replace(/\s+/g, " ").trim();
+        if (id) out.set(id, text);
+      }
+    } catch { /* labels fall back to id */ }
+  }
+  return out;
+}
+
+// Fetch per-ad per-day rows live over [from, to]: resolve campaign→line-item→promoted-
+// tweet, label each by tweet text, then pull PROMOTED_TWEET stats (DST-safe chunks ×
+// ≤20-id groups, fault-tolerant).
+async function fetchAdDailyRowsLive(from: string, to: string): Promise<XAdsAdDailyRow[]> {
+  const accountId = process.env.X_ADS_ACCOUNT_ID!;
+  const dates = dateRange(from, to);
+  const [campaigns, lineItems, promoted] = await Promise.all([
+    fetchCampaigns(accountId),
+    fetchPaged<LineItem>(accountId, "/line_items"),
+    fetchPaged<PromotedTweet>(accountId, "/promoted_tweets"),
+  ]);
+  const campNameById = new Map(campaigns.map((c) => [c.id, c.name]));
+  const campByLineItem = new Map(lineItems.map((li) => [li.id, li.campaign_id || ""]));
+  const tweetText = await fetchTweetTexts(accountId, promoted.map((p) => p.tweet_id || "").filter(Boolean));
+  // ad_id → { campaignId, campaignName, adName, tweetId, status }
+  const adMeta = new Map<string, { campaignId: string; campaignName: string; adName: string; tweetId: string; status: string }>();
+  for (const p of promoted) {
+    const campaignId = campByLineItem.get(p.line_item_id || "") || "";
+    const tweetId = p.tweet_id || "";
+    const text = tweetText.get(tweetId) || "";
+    adMeta.set(p.id, {
+      campaignId,
+      campaignName: campNameById.get(campaignId) || campaignId,
+      adName: text ? (text.length > 90 ? text.slice(0, 90) + "…" : text) : `tweet ${tweetId || p.id}`,
+      tweetId,
+      status: p.entity_status || "",
+    });
+  }
+  const adIds = [...adMeta.keys()];
+
+  const rows: XAdsAdDailyRow[] = [];
+  const tasks: (() => Promise<void>)[] = [];
+  let failed = 0;
+  for (const dc of dstSafeChunks(dates, 7)) {
+    const start = tzMidnightUtc(dc[0]);
+    const end = tzMidnightUtc(addDays(dc[dc.length - 1], 1));
+    for (const ids of chunk(adIds, 20)) {
+      tasks.push(async () => {
+        let resp: StatsResp;
+        try {
+          resp = await apiGet<StatsResp>(`/stats/accounts/${accountId}`, {
+            entity: "PROMOTED_TWEET", entity_ids: ids.join(","), metric_groups: "ENGAGEMENT,BILLING",
+            granularity: "DAY", placement: "ALL_ON_TWITTER", start_time: start, end_time: end,
+          });
+        } catch (e) {
+          failed++;
+          if (failed <= 5) console.warn(`x_ads ads: slice ${dc[0]}..${dc[dc.length - 1]} failed: ${String((e as Error)?.message || e).slice(0, 160)}`);
+          return;
+        }
+        for (const ent of resp.data || []) {
+          const m = ent.id_data?.[0]?.metrics;
+          if (!m) continue;
+          const meta = adMeta.get(ent.id);
+          if (!meta) continue;
+          for (let i = 0; i < dc.length; i++) {
+            const spend = num(m.billed_charge_local_micro?.[i]) / 1_000_000;
+            const impressions = num(m.impressions?.[i]);
+            const clicks = num(m.clicks?.[i]);
+            const engagements = num(m.engagements?.[i]);
+            if (!spend && !impressions && !clicks && !engagements) continue;
+            rows.push({ date: dc[i], adId: ent.id, ...meta, spend, impressions, clicks, engagements });
+          }
+        }
+      });
+    }
+  }
+  await mapPool(tasks);
+  if (failed) console.warn(`x_ads ads: ${failed}/${tasks.length} stats slices failed (skipped)`);
+  return rows;
+}
+
+async function getAdDailyRows(from: string, to: string): Promise<XAdsAdDailyRow[]> {
+  if (xAdsStoreConfigured()) {
+    const cached = await readAdDailyRows(from, to);
+    if (cached.length) return cached;
+  }
+  return fetchAdDailyRowsLive(from, to);
+}
+
+// Cron entry point for the per-ad cache (synced alongside the campaign cache).
+export async function syncXAdsAdsDaily(
+  opts: { days?: number; from?: string; to?: string } = {},
+): Promise<{ rows: number; from: string; to: string }> {
+  const to = opts.to || etToday();
+  const from = opts.from || addDays(to, -(Math.max(1, opts.days ?? 14) - 1));
+  const rows = await fetchAdDailyRowsLive(from, to);
+  const written = await upsertAdDailyRows(rows);
+  return { rows: written, from, to };
+}
+
+// ── Effectiveness (per-campaign + per-ad) ────────────────────────────────────
+// Engagement efficiency + runtime + week-over-week trend, per campaign and per ad.
+// (Conversion efficiency stays account-level via the lift model until the X pixel
+// fires per-ad conversions.) Reads from the cache (live fallback) like everything else.
+export type EffWeek = { week: string; ctr: number; spend: number; impressions: number };
+export type EffRow = {
+  id: string;
+  name: string;
+  campaign: string; // parent campaign (ads only; "" for campaigns)
+  status: string;
+  firstDay: string;
+  lastDay: string;
+  daysActive: number;
+  spend: number;
+  impressions: number;
+  clicks: number;
+  engagements: number;
+  ctr: number; // clicks / impressions
+  cpc: number; // spend / clicks
+  cpm: number; // spend / 1k impressions
+  cpe: number; // spend / engagement
+  engRate: number; // engagements / impressions
+  weekly: EffWeek[];
+};
+export type XAdsEffectiveness = { from: string; to: string; campaigns: EffRow[]; ads: EffRow[] };
+
+// Monday-anchored ISO week key for the day-of-week-stable weekly trend.
+function weekKey(ymd: string): string {
+  const [y, m, d] = ymd.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  dt.setUTCDate(dt.getUTCDate() - ((dt.getUTCDay() + 6) % 7));
+  return dt.toISOString().slice(0, 10);
+}
+
+type EffInput = { id: string; name: string; campaign: string; status: string; date: string; spend: number; impressions: number; clicks: number; engagements: number };
+function buildEff(items: EffInput[]): EffRow[] {
+  const byId = new Map<string, EffInput[]>();
+  for (const it of items) {
+    const arr = byId.get(it.id);
+    if (arr) arr.push(it); else byId.set(it.id, [it]);
+  }
+  const out: EffRow[] = [];
+  for (const [id, arr] of byId) {
+    let spend = 0, impressions = 0, clicks = 0, engagements = 0;
+    let name = id, campaign = "", status = "";
+    const activeDays = new Set<string>();
+    const wk = new Map<string, { spend: number; impr: number; clicks: number }>();
+    for (const it of arr) {
+      spend += it.spend; impressions += it.impressions; clicks += it.clicks; engagements += it.engagements;
+      if (it.spend || it.impressions || it.clicks || it.engagements) activeDays.add(it.date);
+      if (it.name) name = it.name;
+      if (it.campaign) campaign = it.campaign;
+      if (it.status) status = it.status;
+      const k = weekKey(it.date);
+      const w = wk.get(k) || { spend: 0, impr: 0, clicks: 0 };
+      w.spend += it.spend; w.impr += it.impressions; w.clicks += it.clicks;
+      wk.set(k, w);
+    }
+    const days = [...activeDays].sort();
+    out.push({
+      id, name, campaign, status,
+      firstDay: days[0] || "", lastDay: days[days.length - 1] || "", daysActive: days.length,
+      spend, impressions, clicks, engagements,
+      ctr: impressions ? clicks / impressions : 0,
+      cpc: clicks ? spend / clicks : 0,
+      cpm: impressions ? (spend / impressions) * 1000 : 0,
+      cpe: engagements ? spend / engagements : 0,
+      engRate: impressions ? engagements / impressions : 0,
+      weekly: [...wk.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1)).slice(-30)
+        .map(([week, w]) => ({ week, ctr: w.impr ? w.clicks / w.impr : 0, spend: w.spend, impressions: w.impr })),
+    });
+  }
+  return out.filter((r) => r.spend > 0 || r.impressions > 0).sort((a, b) => b.spend - a.spend).slice(0, 100);
+}
+
+export async function xAdsEffectiveness(from: string, to: string): Promise<XAdsEffectiveness> {
+  const [campRows, adRows] = await Promise.all([getDailyRows(from, to), getAdDailyRows(from, to)]);
+  const campaigns = buildEff(campRows.map((r) => ({
+    id: r.campaignId, name: r.name, campaign: "", status: r.status, date: r.date,
+    spend: r.spend, impressions: r.impressions, clicks: r.clicks, engagements: r.engagements,
+  })));
+  const ads = buildEff(adRows.map((r) => ({
+    id: r.adId, name: r.adName, campaign: r.campaignName, status: r.status, date: r.date,
+    spend: r.spend, impressions: r.impressions, clicks: r.clicks, engagements: r.engagements,
+  })));
+  return { from, to, campaigns, ads };
 }
 
 // X-attributed self-reported leads. The form label is "X / Twitter"; tolerate the
