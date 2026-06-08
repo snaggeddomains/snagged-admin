@@ -348,7 +348,7 @@ type EffRow = {
   daysActive: number; spend: number; impressions: number; clicks: number; engagements: number;
   ctr: number; cpc: number; cpm: number; cpe: number; engRate: number; weekly: EffWeek[];
 };
-type XAdsEffectiveness = { from: string; to: string; campaigns: EffRow[]; ads: EffRow[] };
+type XAdsEffectiveness = { from: string; to: string; campaigns: EffRow[]; ads: EffRow[]; coverage: { adSpend: number; campaignSpend: number } };
 
 // CTR degradation = last vs first active week (negative = fatiguing).
 function degradation(weekly: EffWeek[]): number | null {
@@ -435,6 +435,11 @@ function EffectivenessLoader({ range }: { range: { from: string; to: string } })
         ))}
         <span className="muted" style={{ alignSelf: "center", fontSize: 11, padding: "0 6px" }}>{rows.length} {level === "ad" ? "ads" : "campaigns"} with activity</span>
       </div>
+      {level === "ad" && data.coverage.campaignSpend > 0 && data.coverage.adSpend < data.coverage.campaignSpend * 0.98 && (
+        <p className="muted" style={{ fontSize: 11, marginBottom: 10 }}>
+          Per-ad covers {usd(data.coverage.adSpend)} of {usd(data.coverage.campaignSpend)} spend ({Math.round((data.coverage.adSpend / data.coverage.campaignSpend) * 100)}%). The rest is on auto-promotion (&quot;all top performers&quot;) campaigns, which X reports only at the campaign level — see the Per-campaign view for those.
+        </p>
+      )}
       <EffTable rows={rows} kind={level} />
     </Section>
   );

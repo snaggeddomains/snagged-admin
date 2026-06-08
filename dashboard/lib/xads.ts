@@ -544,7 +544,14 @@ export type EffRow = {
   engRate: number; // engagements / impressions
   weekly: EffWeek[];
 };
-export type XAdsEffectiveness = { from: string; to: string; campaigns: EffRow[]; ads: EffRow[] };
+// coverage = how much spend the per-AD view accounts for vs the campaign total.
+// "All top performers" / auto-promotion campaigns report spend only at the
+// campaign level (X rotates the creatives), so they don't appear per-ad — this
+// surfaces that gap honestly instead of looking like missing data.
+export type XAdsEffectiveness = {
+  from: string; to: string; campaigns: EffRow[]; ads: EffRow[];
+  coverage: { adSpend: number; campaignSpend: number };
+};
 
 // Monday-anchored ISO week key for the day-of-week-stable weekly trend.
 function weekKey(ymd: string): string {
@@ -605,7 +612,10 @@ export async function xAdsEffectiveness(from: string, to: string): Promise<XAdsE
     id: r.adId, name: r.adName, campaign: r.campaignName, status: r.status, date: r.date,
     spend: r.spend, impressions: r.impressions, clicks: r.clicks, engagements: r.engagements,
   })));
-  return { from, to, campaigns, ads };
+  // Coverage from the raw rows (not the top-100-capped EffRows) so it's exact.
+  const campaignSpend = campRows.reduce((a, r) => a + r.spend, 0);
+  const adSpend = adRows.reduce((a, r) => a + r.spend, 0);
+  return { from, to, campaigns, ads, coverage: { adSpend, campaignSpend } };
 }
 
 // X-attributed self-reported leads. The form label is "X / Twitter"; tolerate the
