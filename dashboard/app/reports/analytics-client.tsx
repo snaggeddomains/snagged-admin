@@ -37,7 +37,7 @@ type XAdsTotals = { spend: number; impressions: number; clicks: number; engageme
 type XAdsRoi = { leads: number | null; totalLeads: number | null; costPerLead: number | null; gaConfigured: boolean };
 type LiftChannel = { channel: string; baselinePerDay: number; adPerDay: number; incrementalVisits: number };
 type XAdsLift = { from: string; to: string; lookbackDays: number; adDays: number; offDays: number; spend: number; channels: LiftChannel[]; defaultChannels: string[] };
-type AdsReport = { totals: XAdsTotals; byCampaign: XAdsCampaign[]; trend: XAdsDaily[]; roi: XAdsRoi; campaignCount: number; lift: XAdsLift | null };
+type AdsReport = { totals: XAdsTotals; byCampaign: XAdsCampaign[]; trend: XAdsDaily[]; roi: XAdsRoi; campaignCount: number };
 
 type Preset = "today" | "week" | "month" | "custom";
 const PRESETS: { key: Preset; label: string }[] = [
@@ -107,7 +107,7 @@ export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
       if (data.configured === false) { setConfigured(false); setLoaded(null); setMsg(data.error || "Not configured."); return; }
       if (!res.ok) throw new Error(data.error || `Failed (${res.status})`);
       setConfigured(true); setLoaded({ tranche: data.tranche, report: data.report });
-    } catch (e) { setMsg(String((e as Error).message || e)); } finally { setLoading(false); }
+    } catch (e) { setLoaded(null); setMsg(String((e as Error).message || e)); } finally { setLoading(false); }
   }, [tranche, seoBucket, range.from, range.to]);
 
   useEffect(() => { load(); }, [load]);
@@ -169,14 +169,14 @@ export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
 
       {!configured ? (
         <p className="muted">Not configured for this deployment. Set <code>GA4_PROPERTY_ID</code> and <code>GOOGLE_SA_KEY</code> in the project env, then refresh.</p>
-      ) : !loaded && loading ? (
+      ) : loading ? (
         <p className="muted">Loading…</p>
-      ) : loaded ? (
+      ) : loaded && loaded.tranche === tranche ? (
         loaded.tranche === "marketplace" ? <MarketplaceView r={loaded.report as MarketplaceReport} />
           : loaded.tranche === "blog" ? <BlogView r={loaded.report as BlogReport} />
             : loaded.tranche === "seo" ? <SeoView r={loaded.report as SeoReport} />
               : loaded.tranche === "email" ? <EmailView r={loaded.report as EmailReport} />
-                : loaded.tranche === "ads" ? <AdsView r={loaded.report as AdsReport} />
+                : loaded.tranche === "ads" ? <AdsView r={loaded.report as AdsReport} range={range} />
                   : loaded.tranche === "revenue" ? <RevenueView r={loaded.report as RevenueReport} />
                     : <CoreView r={loaded.report as CoreReport} />
       ) : (
@@ -283,7 +283,7 @@ function RevenueView({ r }: { r: RevenueReport }) {
   );
 }
 
-function AdsView({ r }: { r: AdsReport }) {
+function AdsView({ r, range }: { r: AdsReport; range: { from: string; to: string } }) {
   const t = r.totals;
   const roi = r.roi;
   const campaignBars: Bar[] = r.byCampaign.slice(0, 15).map((c) => ({ label: c.name, value: c.spend }));
@@ -316,7 +316,7 @@ function AdsView({ r }: { r: AdsReport }) {
       <Section title="Daily spend & clicks" blurb="Spend (area, $) against clicks (dashed) over the window.">
         <TrendChart data={spendTrend} labels={["Spend ($)", "Clicks"]} />
       </Section>
-      {r.lift && <LiftSection lift={r.lift} />}
+      <LiftLoader to={range.to} />
       {r.byCampaign.length > 0 && (
         <Section title="Campaign detail" blurb="Per-campaign spend, reach and efficiency.">
           <div className="table-scroll"><table className="dash">
@@ -338,6 +338,37 @@ function AdsView({ r }: { r: AdsReport }) {
       )}
     </>
   );
+}
+
+// The lift model recomputes a 90-day trailing window (~40 throttled X API calls),
+// so it's fetched in its OWN request, lazily, AFTER the spend view has painted —
+// keeping the main Ads load fast and never letting the heavy computation (or its
+// occasional timeout) take down the whole tab.
+function LiftLoader({ to }: { to: string }) {
+  const [lift, setLift] = useState<XAdsLift | null>(null);
+  const [state, setState] = useState<"loading" | "done" | "error">("loading");
+  const [msg, setMsg] = useState("");
+  useEffect(() => {
+    let live = true;
+    setState("loading"); setMsg("");
+    (async () => {
+      try {
+        const res = await fetch(`/api/admin/analytics?tranche=ads&part=lift&to=${to}`, { cache: "no-store" });
+        const text = await res.text();
+        const data = JSON.parse(text); // guarded: a platform timeout returns non-JSON
+        if (!live) return;
+        if (!res.ok || data.ok === false) throw new Error(data.error || `Failed (${res.status})`);
+        setLift(data.lift || null); setState("done");
+      } catch (e) {
+        if (live) { setState("error"); setMsg(String((e as Error).message || e)); }
+      }
+    })();
+    return () => { live = false; };
+  }, [to]);
+  if (state === "loading") return <Section title="Ad lift (incrementality)" blurb="Crunching the trailing-90-day baseline…"><p className="muted" style={{ fontSize: 13 }}>Loading lift analysis…</p></Section>;
+  if (state === "error") return <Section title="Ad lift (incrementality)" blurb="Traffic lift on ad-running days vs dark days."><p className="muted" style={{ fontSize: 13 }}>Couldn&apos;t load the lift analysis ({msg}). The spend numbers above are unaffected — retry from Refresh.</p></Section>;
+  if (!lift) return null;
+  return <LiftSection lift={lift} />;
 }
 
 // Ad Lift (incrementality) — most X spend boosts organic posts (no click-through),

@@ -73,14 +73,21 @@ export async function GET(req: NextRequest) {
     if (!xAdsConfigured()) {
       return NextResponse.json({ ok: false, configured: false, error: "X Ads not configured — set X_ADS_CONSUMER_KEY / X_ADS_CONSUMER_SECRET / X_ADS_ACCESS_TOKEN / X_ADS_ACCESS_TOKEN_SECRET / X_ADS_ACCOUNT_ID in this project's env." }, { status: 200 });
     }
+    // The lift model recomputes a trailing 90-day window (~40 throttled X API
+    // calls) — too heavy to ride on the main spend load (it was timing out), so
+    // the client fetches it as a separate `part=lift` request, lazily.
+    if (sp.get("part") === "lift") {
+      if (!gaConfigured()) return NextResponse.json({ ok: true, configured: true, tranche: "ads", part: "lift", lift: null });
+      try {
+        const lift = await xAdsLift(to);
+        return NextResponse.json({ ok: true, configured: true, tranche: "ads", part: "lift", lift });
+      } catch (e) {
+        return NextResponse.json({ ok: false, error: String((e as Error)?.message || e) }, { status: 500 });
+      }
+    }
     try {
-      // Spend view honors [from, to]; the lift model uses its own trailing window
-      // (independent of the selector) so it always has enough dark days to baseline.
-      const [report, lift] = await Promise.all([
-        xAdsReport(from, to),
-        gaConfigured() ? xAdsLift(to).catch(() => null) : Promise.resolve(null),
-      ]);
-      return NextResponse.json({ ok: true, configured: true, tranche: "ads", from, to, report: { ...report, lift } });
+      const report = await xAdsReport(from, to); // spend view honors [from, to]; lift loaded separately
+      return NextResponse.json({ ok: true, configured: true, tranche: "ads", from, to, report });
     } catch (e) {
       return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
     }
