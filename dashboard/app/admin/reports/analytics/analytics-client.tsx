@@ -5,7 +5,7 @@ import ReportsSubnav from "../reports-subnav";
 import { BarList, TrendChart, FunnelChart, type Bar } from "./analytics-charts";
 
 // ── Types mirror lib/ga.ts + lib/revenue.ts ─────────────────────────────────
-type Tranche = "core" | "marketplace" | "blog" | "revenue";
+type Tranche = "core" | "marketplace" | "blog" | "seo" | "revenue";
 type StatBlock = { sessions: number; users: number; pageviews: number; submissions: number };
 type ChannelRow = { channel: string; sessions: number; users: number };
 type PageRow = { path: string; views: number; users: number };
@@ -23,13 +23,16 @@ type RevenueReport = {
   totalRevenue: number; payments: number; upfront: { count: number; amount: number }; success: { count: number; amount: number };
   other: { count: number; amount: number }; byType: LabelValue[]; byOwner: LabelValue[]; monthly: { month: string; amount: number }[];
 };
+type SeoRow = { key: string; clicks: number; impressions: number; ctr: number; position: number };
+type SeoTrend = { date: string; clicks: number; impressions: number };
+type SeoReport = { totals: { clicks: number; impressions: number; ctr: number; position: number }; topQueries: SeoRow[]; topPages: SeoRow[]; blogQueries: SeoRow[]; blogPages: SeoRow[]; trend: SeoTrend[] };
 
 type Preset = "today" | "week" | "month" | "custom";
 const PRESETS: { key: Preset; label: string }[] = [
   { key: "today", label: "Today" }, { key: "week", label: "This week" }, { key: "month", label: "This month" }, { key: "custom", label: "Custom range" },
 ];
 const TRANCHES: { key: Tranche; label: string }[] = [
-  { key: "core", label: "Core Services" }, { key: "marketplace", label: "Marketplace" }, { key: "blog", label: "Blog / SEO" }, { key: "revenue", label: "Revenue" },
+  { key: "core", label: "Core Services" }, { key: "marketplace", label: "Marketplace" }, { key: "blog", label: "Blog" }, { key: "seo", label: "SEO" }, { key: "revenue", label: "Revenue" },
 ];
 const QUALITY_BUDGETS = ["$25K to $100K", "$100K+"]; // tunable; v1 quality-lead definition
 
@@ -139,13 +142,14 @@ export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
       ) : loaded ? (
         loaded.tranche === "marketplace" ? <MarketplaceView r={loaded.report as MarketplaceReport} />
           : loaded.tranche === "blog" ? <BlogView r={loaded.report as BlogReport} />
-            : loaded.tranche === "revenue" ? <RevenueView r={loaded.report as RevenueReport} />
-              : <CoreView r={loaded.report as CoreReport} />
+            : loaded.tranche === "seo" ? <SeoView r={loaded.report as SeoReport} />
+              : loaded.tranche === "revenue" ? <RevenueView r={loaded.report as RevenueReport} />
+                : <CoreView r={loaded.report as CoreReport} />
       ) : (
         <p className="muted">No data for this window.</p>
       )}
 
-      {loaded && loaded.tranche !== "revenue" && (
+      {loaded && (loaded.tranche === "core" || loaded.tranche === "marketplace" || loaded.tranche === "blog") && (
         <p className="muted" style={{ fontSize: 12, marginTop: 22 }}>
           Source: GA4 Data API (timezone America/New_York). Submissions blend the historical Formspark export (through
           2026-06-07) with GA conversion events (forward). Self-reported source / intent / budget come from form fields —
@@ -154,6 +158,9 @@ export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
       )}
       {loaded && loaded.tranche === "revenue" && (
         <p className="muted" style={{ fontSize: 12, marginTop: 22 }}>Source: Snagged Domain Tracker (Payments tab), aggregated by Client Paid Date over the window.</p>
+      )}
+      {loaded && loaded.tranche === "seo" && (
+        <p className="muted" style={{ fontSize: 12, marginTop: 22 }}>Source: Google Search Console (snagged.com). Search data lags ~2 days, so the most recent day or two of a window may read low.</p>
       )}
     </main>
   );
@@ -232,6 +239,46 @@ function RevenueView({ r }: { r: RevenueReport }) {
       <Section title="Revenue by type" blurb="Upfront engagement fees vs success fees on closed acquisitions."><BarList rows={r.byType.map((x) => ({ label: x.label, value: x.value }))} money empty="No payments in this window." /></Section>
       <Section title="Revenue by month" blurb="Monthly take over the window (by Client Paid Date)."><BarList rows={monthBars} money color={CORAL} empty="No payments in this window." /></Section>
       <Section title="By owner / lead" blurb="Who's bringing in the revenue."><BarList rows={r.byOwner.map((x) => ({ label: x.label, value: x.value }))} money empty="No payments in this window." /></Section>
+    </>
+  );
+}
+
+function SeoTable({ rows, head, link }: { rows: SeoRow[]; head: string; link?: boolean }) {
+  if (!rows.length) return <p className="muted" style={{ fontSize: 13 }}>No search data in this window.</p>;
+  return (
+    <div className="table-scroll"><table className="dash">
+      <thead><tr><th>{head}</th><th className="right">clicks</th><th className="right">impr</th><th className="right">CTR</th><th className="right">avg pos</th></tr></thead>
+      <tbody>
+        {rows.map((r) => (
+          <tr key={r.key}>
+            <td className="mono">{link ? <a href={r.key} target="_blank" rel="noreferrer">{r.key.replace(/^https?:\/\/(www\.)?snagged\.com/, "") || r.key}</a> : r.key}</td>
+            <td className="right">{fmt(r.clicks)}</td>
+            <td className="right muted">{fmt(r.impressions)}</td>
+            <td className="right muted">{(r.ctr * 100).toFixed(1)}%</td>
+            <td className="right muted">{r.position.toFixed(1)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table></div>
+  );
+}
+
+function SeoView({ r }: { r: SeoReport }) {
+  const t = r.totals;
+  const trend = r.trend.map((x) => ({ date: x.date, sessions: x.clicks, pageviews: x.impressions }));
+  return (
+    <>
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+        <StatCard label="Clicks" value={t.clicks} accent />
+        <StatCard label="Impressions" value={t.impressions} />
+        <StatCard label="CTR" text={`${(t.ctr * 100).toFixed(1)}%`} />
+        <StatCard label="Avg position" text={t.position ? t.position.toFixed(1) : "—"} />
+      </div>
+      <Section title="Clicks & impressions trend"><TrendChart data={trend} labels={["Clicks", "Impressions"]} /></Section>
+      <Section title="Top search queries" blurb="What people search to find Snagged (and where you rank)."><SeoTable rows={r.topQueries} head="query" /></Section>
+      <Section title="Top pages from search" blurb="Which pages pull search clicks."><SeoTable rows={r.topPages} head="page" link /></Section>
+      <Section title="Blog — top queries" blurb="The informational searches the blog ranks for (/post/*)."><SeoTable rows={r.blogQueries} head="query" /></Section>
+      <Section title="Blog — top pages" blurb="Which posts earn the search traffic."><SeoTable rows={r.blogPages} head="page" link /></Section>
     </>
   );
 }

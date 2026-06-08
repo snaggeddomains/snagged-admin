@@ -10,6 +10,7 @@ import { getCurrentUser } from "@/lib/session";
 import { canAdmin } from "@/lib/permissions";
 import { analyticsReport, gaConfigured, type Tranche } from "@/lib/ga";
 import { revenueReport, revenueConfigured } from "@/lib/revenue";
+import { seoReport, gscConfigured } from "@/lib/gsc";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -32,6 +33,19 @@ export async function GET(req: NextRequest) {
   const trancheParam = sp.get("tranche") || "core";
   const from = isDate(sp.get("from")) ? (sp.get("from") as string) : etYmd(new Date(Date.now() - 6 * 86400000));
   const to = isDate(sp.get("to")) ? (sp.get("to") as string) : etYmd(new Date());
+
+  // SEO tranche → Google Search Console, not GA.
+  if (trancheParam === "seo") {
+    if (!gscConfigured()) {
+      return NextResponse.json({ ok: false, configured: false, error: "Search Console not configured — set GOOGLE_SA_KEY and add the SA to the GSC property." }, { status: 200 });
+    }
+    try {
+      const report = await seoReport(from, to);
+      return NextResponse.json({ ok: true, configured: true, tranche: "seo", from, to, report });
+    } catch (e) {
+      return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
+    }
+  }
 
   // Revenue tranche → the Tracker sheet, not GA.
   if (trancheParam === "revenue") {

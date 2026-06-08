@@ -45,7 +45,7 @@ type TrendPoint = { date: string; sessions: number; pageviews?: number };
 
 // An SVG area+line chart of sessions over the window, with an optional pageviews
 // line. Scales to container width via viewBox. Bare-bones but readable.
-export function TrendChart({ data, height = 130 }: { data: TrendPoint[]; height?: number }) {
+export function TrendChart({ data, height = 130, labels = ["Sessions", "Pageviews"] }: { data: TrendPoint[]; height?: number; labels?: [string, string] }) {
   if (!data.length) return <p className="muted" style={{ fontSize: 13 }}>No data in this window.</p>;
   const W = 760, H = height, padX = 6, padTop = 10, padBot = 18;
   const max = Math.max(1, ...data.map((d) => Math.max(d.sessions, d.pageviews ?? 0)));
@@ -76,13 +76,13 @@ export function TrendChart({ data, height = 130 }: { data: TrendPoint[]; height?
       </svg>
       <div className="muted" style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginTop: 2 }}>
         <span>{first}</span>
-        <span>peak {fmt(peak.sessions)} sessions · {peak.date}</span>
+        <span>peak {fmt(peak.sessions)} {labels[0].toLowerCase()} · {peak.date}</span>
         <span>{last}</span>
       </div>
       {hasViews && (
         <div style={{ display: "flex", gap: 14, fontSize: 11, marginTop: 4 }}>
-          <Legend color={NAVY} label="Sessions" />
-          <Legend color="#b9b09a" label="Pageviews" dashed />
+          <Legend color={NAVY} label={labels[0]} />
+          <Legend color="#b9b09a" label={labels[1]} dashed />
         </div>
       )}
     </div>
