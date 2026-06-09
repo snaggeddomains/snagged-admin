@@ -49,6 +49,7 @@ permissions:
   pull-requests: write   # open the PR
   issues: write          # open a tracking issue for transient/uncertain failures
   actions: read          # read the failed run's logs
+  id-token: write        # OIDC token the claude-code-action mints its GitHub token from
 
 concurrency:
   # Don't pile up auto-fix runs for the same source; let an in-flight one finish.
