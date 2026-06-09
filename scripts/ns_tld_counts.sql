@@ -14,7 +14,7 @@
 create or replace function ns_tld_counts(p_ns text[], p_match text default 'all')
 returns table(tld text, n bigint)
 language plpgsql
-stable
+volatile  -- must be volatile: a STABLE/IMMUTABLE function can't run `SET LOCAL`
 as $$
 begin
   set local statement_timeout = '5s';
