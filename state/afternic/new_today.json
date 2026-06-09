@@ -1,12 +1,14 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 6,
   "domains": [
-    "litre.ai",
-    "byproduct.ai",
-    "offender.ai",
-    "e.ai"
+    "failing.ai",
+    "physically.ai",
+    "lifeless.org",
+    "usually.org",
+    "ignored.ai",
+    "former.ai"
   ],
-  "generated_at": "2026-06-08T10:21:26.619510+00:00",
+  "generated_at": "2026-06-09T10:28:17.556326+00:00",
   "source": "afternic"
 }

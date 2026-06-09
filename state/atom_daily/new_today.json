@@ -2,9 +2,9 @@
   "capped": false,
   "count": 2,
   "domains": [
-    "sending.co",
-    "sine.ai"
+    "uefa.ai",
+    "underside.ai"
   ],
-  "generated_at": "2026-06-08T10:25:51.043425+00:00",
+  "generated_at": "2026-06-09T10:32:49.835439+00:00",
   "source": "atom_daily"
 }

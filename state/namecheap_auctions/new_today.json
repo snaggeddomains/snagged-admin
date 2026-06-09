@@ -1,13 +1,17 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 9,
   "domains": [
-    "colvin.ai",
-    "elaboration.ai",
-    "advantageous.ai",
-    "throng.ai",
-    "mcgee.ai"
+    "vinson.ai",
+    "shouldnt.org",
+    "seine.ai",
+    "lanarkshire.org",
+    "recombination.org",
+    "gad.ai",
+    "warhead.ai",
+    "perrin.ai",
+    "disappointment.co"
   ],
-  "generated_at": "2026-06-08T10:34:45.233694+00:00",
+  "generated_at": "2026-06-09T10:39:52.716407+00:00",
   "source": "namecheap_auctions"
 }

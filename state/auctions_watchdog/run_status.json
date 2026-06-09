@@ -1,6 +1,6 @@
 {
   "detail": "no failed producers",
-  "generated_at": "2026-06-08T10:36:12.364087+00:00",
+  "generated_at": "2026-06-09T10:41:25.458203+00:00",
   "label": "Auctions watchdog",
   "retried": 0,
   "source": "auctions_watchdog",

@@ -1,9 +1,9 @@
 {
   "deduped_against_existing": 0,
-  "generated_at": "2026-06-08T10:35:29.984776+00:00",
+  "generated_at": "2026-06-09T10:40:40.153173+00:00",
   "label": "GoDaddy",
-  "new_count": 1,
-  "sheet_total_after": 12231,
+  "new_count": 53,
+  "sheet_total_after": 12295,
   "slack_posted": false,
   "source": "godaddy_auctions",
   "status": "ok"
