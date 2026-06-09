@@ -1,14 +1,6 @@
 [
   {
     "currency": "USD",
-    "domain": "eminem.ai",
-    "end_time_utc": "2026-06-09T02:46:18+00:00",
-    "price": 3000.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=eminem.ai"
-  },
-  {
-    "currency": "USD",
     "domain": "calligraphy.com",
     "end_time_utc": "2026-06-09T09:08:30+00:00",
     "price": 176079.0,
