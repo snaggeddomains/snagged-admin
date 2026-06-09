@@ -299,7 +299,7 @@ export default function ImportsClient({
       }
 
       // Record the run in the import-history log (best-effort).
-      await post({ action: "log", target, source: src, mode, parsed: rows.length, upserted, removed, backfilled }).catch(() => {});
+      await post({ action: "log", target, source: src, mode, parsed: rows.length, upserted, removed, backfilled, importTs }).catch(() => {});
       loadHistory();
     } catch (e) {
       add(`❌ ${e instanceof Error ? e.message : String(e)}`);
@@ -326,7 +326,7 @@ export default function ImportsClient({
     const tgt: Target = r.target === "master" ? "master" : "universe";
     if (!r.source) return "error";
     try {
-      await post({ action: "post-backfill", target: tgt, source: r.source, enrich: true, qualityMin: ENRICH_QUALITY_MIN, newSince: r.import_ts || r.created_at });
+      await post({ action: "post-backfill", target: tgt, source: r.source, enrich: true, retryFailed: true, qualityMin: ENRICH_QUALITY_MIN, newSince: r.import_ts || r.created_at });
       return "ok";
     } catch {
       return "error";

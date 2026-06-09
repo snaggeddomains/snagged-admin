@@ -292,6 +292,26 @@ export async function enrichStatus(target: Target, source: string, floor = 1, si
   return { netNew: netNew ?? 0, eligible: eligible ?? 0, enriched: enriched ?? 0 };
 }
 
+/** Re-qualify FAILED enrichments for retry. The pipeline stamps `enriched_at` on
+ *  every attempted row (so it's never re-charged), but an attempt that returned
+ *  no category leaves `category IS NULL, enriched_at IS NOT NULL` — which the
+ *  resumable selection (`category IS NULL AND enriched_at IS NULL`) then skips
+ *  forever. Clearing `enriched_at` on those rows makes them eligible again. Scoped
+ *  to the same source + net-new window the enrich uses. Returns rows cleared. */
+export async function clearFailedEnrichStamps(target: Target, source: string, floor = 1, since?: string): Promise<number> {
+  const table = target === "master" ? MASTER_TABLE : "name_universe";
+  const db = target === "master" ? getMasterlistDb() : getNamingDb();
+  let q = db.from(table).update({ enriched_at: null }, { count: "exact" })
+    .is("category", null)
+    .not("enriched_at", "is", null)
+    .gte("quality_score", floor);
+  q = target === "master" ? q.eq("source", source) : q.contains("sources", [source]);
+  if (since) q = q.gte(target === "master" ? "created_at" : "first_seen", since.slice(0, 10));
+  const { count, error } = await q;
+  if (error) throw new Error(`retry-failed clear: ${error.message || error.code || "request failed"}`);
+  return count ?? 0;
+}
+
 export type EnrichedDomain = {
   domain: string;
   quality_score: number | null;

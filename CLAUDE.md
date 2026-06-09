@@ -178,6 +178,15 @@ column. Default flow → drop CSV / paste → source name (typeahead) → option
 auto-backfill + auto-enrich → Start. Then per-import "Past Imports" cards show the
 funnel: **Inserted · Net-new · Quality q≥1 · Enriched X/Y** with a green ✓ / yellow ⏳ /
 red ✗ (stalled >24h) dot. Re-enrich button re-dispatches; trash deletes the log row only.
+**Re-enrich also RETRIES FAILED rows** (2026-06-09): the pipeline stamps `enriched_at` on
+every attempted row (so it's never re-charged), but an attempt that returns NO category
+leaves `category IS NULL, enriched_at IS NOT NULL` — which the resumable selection
+(`category IS NULL AND enriched_at IS NULL`) then skips forever (an import freezes at e.g.
+580/582). So Re-enrich now passes `retryFailed` → the route calls `clearFailedEnrichStamps`
+(`lib/imports.ts`) to null those stamps (scoped to source + net-new) BEFORE dispatching, so
+they re-qualify. (Auto-enrich on import does NOT retry-failed — only the manual button.)
+The import-log `import_ts` is now always stamped (the client passes it to the `log` action;
+the route falls back to `now()`) — it was NULL before, so net-new scoping leaned on `created_at`.
 
 - **Master-only UI — there is NO corpus picker.** The tool always imports to the Master
   Domain List; `admin.imports` alone is the gate (Universe is no longer a separate

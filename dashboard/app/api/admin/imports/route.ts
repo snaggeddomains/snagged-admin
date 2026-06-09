@@ -13,6 +13,7 @@ import {
   countExisting,
   countSourceRows,
   enrichStatus,
+  clearFailedEnrichStamps,
   listEnrichedDomains,
   logImport,
   listImports,
@@ -88,6 +89,7 @@ export async function POST(req: NextRequest) {
     id?: string;
     // post-backfill options
     enrich?: boolean;
+    retryFailed?: boolean;
     qualityMin?: number | string;
     newSince?: string;
     // log fields
@@ -174,6 +176,13 @@ export async function POST(req: NextRequest) {
         // Net-new only: enrich rows created at/after the import (never re-enrich
         // names that already existed). Falls back to all-eligible if absent.
         if (body.newSince) inputs.enrich_new_since = String(body.newSince);
+        // Retry failed (manual Re-enrich): clear the enriched_at stamp on rows that
+        // were attempted but produced no category, so the enrich's resumable
+        // selection (category IS NULL AND enriched_at IS NULL) re-qualifies them.
+        if (body.retryFailed) {
+          try { await clearFailedEnrichStamps(target, source, Number(body.qualityMin) || 1, body.newSince); }
+          catch { /* non-fatal — the unrun-eligible names still enrich */ }
+        }
       }
       const r = await dispatchWorkflow(file, inputs);
       if (!r.ok) return NextResponse.json({ error: r.error || "dispatch failed" }, { status: 502 });
@@ -188,7 +197,7 @@ export async function POST(req: NextRequest) {
         upserted: Number(body.upserted) || 0,
         removed: Number(body.removed) || 0,
         backfilled: Boolean(body.backfilled),
-        import_ts: body.importTs ? String(body.importTs) : null,
+        import_ts: importTs, // always stamped (body.importTs || now()) — net-new scoping relies on it
         user_email: me.email ?? null,
       });
       return NextResponse.json({ ok: true });
