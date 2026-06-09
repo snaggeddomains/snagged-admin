@@ -1,9 +1,10 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 2,
   "domains": [
-    "barista.org"
+    "superstition.org",
+    "irregular.org"
   ],
-  "generated_at": "2026-06-08T15:10:23.465745+00:00",
+  "generated_at": "2026-06-09T15:10:59.485678+00:00",
   "source": "namejet_email_digest"
 }
