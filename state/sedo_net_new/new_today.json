@@ -1,7 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-06-08T23:01:21.157840+00:00",
+  "count": 2,
+  "domains": [
+    "calligraphy.com",
+    "eminem.ai"
+  ],
+  "generated_at": "2026-06-09T10:01:09.596646+00:00",
   "source": "sedo_net_new"
 }

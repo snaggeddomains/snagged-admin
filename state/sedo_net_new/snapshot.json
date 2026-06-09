@@ -1,26 +1,18 @@
 [
   {
     "currency": "USD",
-    "domain": "country.co",
-    "end_time_utc": "2026-06-08T17:36:09+00:00",
-    "price": 79888.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=country.co"
+    "domain": "eminem.ai",
+    "end_time_utc": "2026-06-09T02:46:18+00:00",
+    "price": 3000.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=eminem.ai"
   },
   {
     "currency": "USD",
-    "domain": "troupe.co",
-    "end_time_utc": "2026-06-08T17:36:03+00:00",
-    "price": 27888.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=troupe.co"
-  },
-  {
-    "currency": "USD",
-    "domain": "turbo.co",
-    "end_time_utc": "2026-06-08T15:42:16+00:00",
-    "price": 149888.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=turbo.co"
+    "domain": "calligraphy.com",
+    "end_time_utc": "2026-06-09T09:08:30+00:00",
+    "price": 176079.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=calligraphy.com"
   }
 ]
