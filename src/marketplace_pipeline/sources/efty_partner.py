@@ -15,6 +15,7 @@ import csv
 import gzip
 import io
 import os
+import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
@@ -112,22 +113,60 @@ def _parse_price(raw: str) -> float:
 
 # ---------- pure helpers ----------
 
+# Transient upstream statuses worth retrying: 429 rate-limit + Cloudflare
+# origin/edge blips (520-527, e.g. 525 SSL-handshake-failed) + standard 5xx.
+# A single transient blip on Efty's CDN otherwise fails the whole source and
+# cascades into failing the nightly SNAP orchestrator.
+_RETRYABLE_STATUS = {429, 500, 502, 503, 504, 520, 521, 522, 523, 524, 525, 526, 527}
+_MAX_ATTEMPTS = 4
+
+
 def fetch_feed(token: str) -> bytes:
-    """Fetch + transparently decompress the Efty partner CSV feed."""
+    """Fetch + transparently decompress the Efty partner CSV feed.
+
+    Retries transient upstream failures (429 + Cloudflare/5xx) with
+    exponential backoff so a one-off CDN blip doesn't fail the source.
+    """
     url = FEED_URL_TEMPLATE.format(token=token)
-    resp = requests.get(
-        url,
-        timeout=180,
-        headers={
-            "User-Agent": "Mozilla/5.0",
-            "Accept": "text/csv,application/octet-stream,*/*",
-            "Accept-Encoding": "gzip,deflate",
-        },
-    )
-    if resp.status_code == 429:
-        raise RuntimeError("Efty feed returned 429 rate limit")
-    resp.raise_for_status()
-    content = resp.content
+    last_exc: Exception | None = None
+    for attempt in range(1, _MAX_ATTEMPTS + 1):
+        try:
+            resp = requests.get(
+                url,
+                timeout=180,
+                headers={
+                    "User-Agent": "Mozilla/5.0",
+                    "Accept": "text/csv,application/octet-stream,*/*",
+                    "Accept-Encoding": "gzip,deflate",
+                },
+            )
+        except requests.exceptions.RequestException as exc:
+            # Connection reset / timeout / DNS — treat as transient.
+            last_exc = exc
+            if attempt == _MAX_ATTEMPTS:
+                raise
+            delay = 2 ** attempt
+            print(f"      Efty feed {type(exc).__name__} (attempt "
+                  f"{attempt}/{_MAX_ATTEMPTS}); retrying in {delay}s")
+            time.sleep(delay)
+            continue
+
+        if resp.status_code in _RETRYABLE_STATUS and attempt < _MAX_ATTEMPTS:
+            delay = 2 ** attempt
+            print(f"      Efty feed HTTP {resp.status_code} (attempt "
+                  f"{attempt}/{_MAX_ATTEMPTS}); retrying in {delay}s")
+            time.sleep(delay)
+            continue
+
+        if resp.status_code == 429:
+            raise RuntimeError("Efty feed returned 429 rate limit")
+        resp.raise_for_status()
+        content = resp.content
+        break
+    else:  # pragma: no cover - loop always breaks or raises above
+        if last_exc:
+            raise last_exc
+        raise RuntimeError("Efty feed fetch failed after retries")
     # requests should auto-decompress when Content-Encoding: gzip, but the
     # legacy also handles the case where the BYTES are gzipped (magic 1f 8b).
     if content[:2] == b"\x1f\x8b":
