@@ -95,6 +95,25 @@ const ymd = (raw: string) => (/^\d{8}$/.test(raw) ? `${raw.slice(0, 4)}-${raw.sl
 async function safeRows(body: Record<string, unknown>): Promise<GaRow[]> {
   try { return rowsOf(await runReport(body)); } catch { return []; }
 }
+const inList = (fieldName: string, values: string[]) => ({ filter: { fieldName, inListFilter: { values } } });
+// /domains/<slug> → domain. The slug replaces dots with hyphens and the TLD is the
+// last hyphen segment: "actionable-com" → "actionable.com", "natural-products-com"
+// → "natural-products.com", "edms-net" → "edms.net".
+const slugToDomain = (slug: string) => slug.replace(/-([a-z0-9]+)$/i, ".$1");
+const slugOf = (path: string) => path.replace(/^\/domains\//, "").replace(/\/$/, "");
+// Best-effort: the live /marketplace page's /domains/<slug> links, so zero-traffic
+// listings still appear in the table. Falls back to the GA-trafficked set on error.
+async function marketplaceInventory(): Promise<string[]> {
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 6000);
+    const res = await fetch("https://www.snagged.com/marketplace", { signal: ctrl.signal, headers: { "user-agent": "snagged-admin/analytics" } });
+    clearTimeout(timer);
+    const html = await res.text();
+    const slugs = [...html.matchAll(/href="\/domains\/([a-z0-9-]+)"/gi)].map((m) => m[1].toLowerCase());
+    return [...new Set(slugs)];
+  } catch { return []; }
+}
 const channelRows = (r: GaReport): ChannelRow[] => rowsOf(r).map((x) => ({
   channel: x.dimensionValues?.[0]?.value || "(none)", sessions: n(x.metricValues?.[0]?.value), users: n(x.metricValues?.[1]?.value),
 }));
@@ -139,7 +158,12 @@ export type LabelValue = { label: string; value: number };
 export type TrendRow = { date: string; sessions: number; pageviews: number };
 export type FunnelStep = { name: string; users: number };
 
-export type MarketplaceReport = { tranche: "marketplace"; summary: StatBlock; topPages: PageRow[]; channels: ChannelRow[]; trend: TrendRow[] };
+// One row per marketplace listing (/domains/<slug>), GA metrics joined per domain.
+export type ListingRow = {
+  domain: string; path: string; views: number; sessions: number; users: number;
+  inquiryStarts: number; clicks: number; inquiries: number;
+};
+export type MarketplaceReport = { tranche: "marketplace"; summary: StatBlock; topPages: PageRow[]; listings: ListingRow[]; channels: ChannelRow[]; trend: TrendRow[] };
 export type CoreReport = {
   tranche: "core"; summary: StatBlock; channels: ChannelRow[]; sources: SourceRow[];
   submissionsByChannel: LabelValue[]; selfReportedSource: LabelValue[]; leadIntent: LabelValue[]; leadBudget: LabelValue[]; trend: TrendRow[];
@@ -197,12 +221,52 @@ export async function analyticsReport(tranche: Tranche, from: string, to: string
 
   // ── Marketplace ────────────────────────────────────────────────────────────
   if (tranche === "marketplace") {
-    const topPagesReq = runReport({ dateRanges, dimensions: [{ name: "pagePath" }], metrics: [{ name: "screenPageViews" }, { name: "totalUsers" }], dimensionFilter: beginsWith("pagePath", MKT_PREFIX), orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }], limit: 100 });
-    const [summary, submit, channels, trend, topPages] = await Promise.all([summaryReq, submitReq, channelReq, trendReq, topPagesReq]);
+    const pagesReq = runReport({ dateRanges, dimensions: [{ name: "pagePath" }], metrics: [{ name: "screenPageViews" }, { name: "sessions" }, { name: "totalUsers" }], dimensionFilter: beginsWith("pagePath", MKT_PREFIX), orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }], limit: 300 });
+    const eventsReq = runReport({ dateRanges, dimensions: [{ name: "pagePath" }, { name: "eventName" }], metrics: [{ name: "eventCount" }], dimensionFilter: and(beginsWith("pagePath", MKT_PREFIX), inList("eventName", ["form_start", "click", "marketplace_inquiry"])), limit: 1000 });
+    // Submitted inquiries per domain — needs the `domain_of_interest` event-scoped
+    // custom dimension. safeRows → [] until it's registered in GA4, so the column
+    // lights up automatically ~24-48h after setup with no code change.
+    const submittedReq = safeRows({ dateRanges, dimensions: [{ name: "customEvent:domain_of_interest" }], metrics: [{ name: "eventCount" }], dimensionFilter: inList("eventName", ["generate_lead", "marketplace_inquiry"]), limit: 500 });
+    const [summary, submit, channels, trend, pages, events, submittedRows, inventory] =
+      await Promise.all([summaryReq, submitReq, channelReq, trendReq, pagesReq, eventsReq, submittedReq, marketplaceInventory()]);
+
+    const bySlug = new Map<string, ListingRow>();
+    const ensure = (slug: string): ListingRow => {
+      let row = bySlug.get(slug);
+      if (!row) { row = { domain: slugToDomain(slug), path: MKT_PREFIX + slug, views: 0, sessions: 0, users: 0, inquiryStarts: 0, clicks: 0, inquiries: 0 }; bySlug.set(slug, row); }
+      return row;
+    };
+    for (const s of inventory) ensure(s);                                          // zero-traffic listings still appear
+    for (const r of rowsOf(pages)) {
+      const slug = slugOf(r.dimensionValues?.[0]?.value || ""); if (!slug) continue;
+      const row = ensure(slug);
+      row.views += n(r.metricValues?.[0]?.value); row.sessions += n(r.metricValues?.[1]?.value); row.users += n(r.metricValues?.[2]?.value);
+    }
+    for (const r of rowsOf(events)) {
+      const slug = slugOf(r.dimensionValues?.[0]?.value || ""); if (!slug) continue;
+      const ev = r.dimensionValues?.[1]?.value || ""; const c = n(r.metricValues?.[0]?.value);
+      const row = ensure(slug);
+      if (ev === "form_start") row.inquiryStarts += c;
+      else if (ev === "click") row.clicks += c;
+      else if (ev === "marketplace_inquiry") row.inquiries += c;
+    }
+    // Once the custom dimension is live, it's the authoritative per-domain submitted
+    // count → override the interim per-page marketplace_inquiry (no double-count).
+    const submittedByDomain = new Map<string, number>();
+    for (const r of submittedRows) {
+      const d = (r.dimensionValues?.[0]?.value || "").toLowerCase().replace(/^www\./, "").trim();
+      if (d && d !== "(not set)") submittedByDomain.set(d, (submittedByDomain.get(d) || 0) + n(r.metricValues?.[0]?.value));
+    }
+    const customDimLive = submittedByDomain.size > 0;
+    const listings = [...bySlug.values()]
+      .map((row) => (customDimLive ? { ...row, inquiries: submittedByDomain.get(row.domain.toLowerCase()) || 0 } : row))
+      .sort((a, b) => b.views - a.views || b.inquiryStarts - a.inquiryStarts);
+
     return {
       tranche: "marketplace",
       summary: { sessions: firstMetric(summary, 0), users: firstMetric(summary, 1), pageviews: firstMetric(summary, 2), submissions: firstMetric(submit, 0) + historicalCount("marketplace", from, to) },
-      topPages: rowsOf(topPages).map((r) => ({ path: r.dimensionValues?.[0]?.value || "", views: n(r.metricValues?.[0]?.value), users: n(r.metricValues?.[1]?.value) })),
+      topPages: rowsOf(pages).map((r) => ({ path: r.dimensionValues?.[0]?.value || "", views: n(r.metricValues?.[0]?.value), users: n(r.metricValues?.[2]?.value) })),
+      listings,
       channels: channelRows(channels),
       trend: trendRows(trend),
     };
