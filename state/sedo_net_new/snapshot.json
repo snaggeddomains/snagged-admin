@@ -1,10 +1,18 @@
 [
   {
     "currency": "USD",
-    "domain": "march.ai",
-    "end_time_utc": "2026-06-10T03:15:17+00:00",
-    "price": 250000.0,
+    "domain": "automate.ai",
+    "end_time_utc": "2026-06-10T15:30:15+00:00",
+    "price": null,
     "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=march.ai"
+    "url": "https://sedo.com/search/details/?domain=automate.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "tea.ai",
+    "end_time_utc": "2026-06-10T15:30:10+00:00",
+    "price": null,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=tea.ai"
   }
 ]

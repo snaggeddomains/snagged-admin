@@ -8,63 +8,47 @@
     "price": 3995.0
   },
   {
-    "domain": "march.ai",
-    "price": 250000.0
+    "domain": "automate.ai",
+    "price": null
   },
   {
-    "domain": "unclothed.ai",
-    "price": 2012.0
+    "domain": "bandar.ai",
+    "price": null
   },
   {
-    "domain": "khansoftware.com",
-    "price": 856.0
+    "domain": "lightsdecor.com",
+    "price": 3125.0
+  },
+  {
+    "domain": "tea.ai",
+    "price": null
   },
   {
     "domain": "minilectures.com",
     "price": 10694.0
   },
   {
-    "domain": "eduardo.net",
-    "price": 3999.0
-  },
-  {
-    "domain": "antoine.net",
-    "price": 6995.0
+    "domain": "flooringwood.com",
+    "price": 2995.0
   },
   {
     "domain": "maneuver.net",
     "price": null
   },
   {
-    "domain": "cliche.net",
-    "price": 4899.0
+    "domain": "matemo.net",
+    "price": null
   },
   {
-    "domain": "acre.net",
-    "price": 29888.0
-  },
-  {
-    "domain": "soothes.co",
-    "price": 699.0
-  },
-  {
-    "domain": "thrived.co",
-    "price": 850.0
-  },
-  {
-    "domain": "servings.co",
-    "price": 699.0
-  },
-  {
-    "domain": "unseal.co",
-    "price": 699.0
-  },
-  {
-    "domain": "medicina.co",
-    "price": 3999.0
+    "domain": "jiangyin.net",
+    "price": 2990.0
   },
   {
     "domain": "notetaker.co",
     "price": 1988.0
+  },
+  {
+    "domain": "periodically.net",
+    "price": 1695.0
   }
 ]
