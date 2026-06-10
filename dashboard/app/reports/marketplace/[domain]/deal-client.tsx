@@ -237,11 +237,9 @@ export default function DealClient({ domain }: { domain: string }) {
                     <tr key={i}>
                       <td style={cell}><div style={{ fontWeight: 600 }}>{t.party}</div>{t.partyEmail && <div className="muted" style={{ fontSize: 11 }}>{t.partyEmail}</div>}</td>
                       <td style={{ ...cell, whiteSpace: "nowrap" }}>
-                        {t.offer
-                          ? <span style={{ fontWeight: 700, color: NAVY }}>{t.offer}</span>
-                          : t.budget
-                            ? <span className="muted" title="Budget band (not a firm offer)">{t.budget}</span>
-                            : <span className="muted">—</span>}
+                        {(t.offer || t.budget)
+                          ? <span style={{ fontWeight: 600, color: NAVY }} title={t.offer ? "Buyer offer" : "Budget band (from the inquiry form)"}>{t.offer || t.budget}</span>
+                          : <span className="muted">—</span>}
                       </td>
                       <td style={cell}><StatusBadge t={t} /></td>
                       <td style={{ ...cell, whiteSpace: "nowrap" }}>{t.last}<span className="muted" style={{ fontSize: 11 }}> · {t.messages} msg</span></td>

@@ -297,11 +297,15 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
     detectRepresentingSince(domain),
   ]);
 
-  // Group into conversations by normalized subject (merges cross-mailbox dupes,
-  // the form notification, and all replies).
+  // Group into conversations by Gmail THREAD ID — the real conversation boundary.
+  // Grouping by subject over-merged DISTINCT buyers who happened to get the same
+  // pitch subject (e.g. Rob's "Strategic Opportunity: <domain>" sent to many
+  // buyers all collapsed into one 135-msg blob, then resolved to one wrong party).
+  // Messages are already deduped by Message-ID, so a conversation clusters under
+  // its first-seen mailbox's threadId.
   const convos = new Map<string, GmailMessage[]>();
   for (const m of msgs) {
-    const k = normSubject(m.subject);
+    const k = m.threadId || normSubject(m.subject);
     (convos.get(k) || convos.set(k, []).get(k)!).push(m);
   }
 
@@ -313,12 +317,13 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
   type Relevant = { ms: GmailMessage[]; formMatch: Form[] };
   const relevant: Relevant[] = [];
   const threadsByEmail = new Map<string, number>();
-  for (const [key, ms] of convos) {
-    if (NOISE_SUBJECT.test(key)) continue;
+  for (const [, ms] of convos) {
     ms.sort((a, b) => a.date - b.date);
+    const subjects = ms.map((m) => normSubject(m.subject));
+    if (NOISE_SUBJECT.test(subjects[subjects.length - 1])) continue; // tooling/infra thread
     const forms = ms.map(parseForm).filter((f): f is Form => !!f);
     const formMatch = forms.filter((f) => formMatches(f, domain));
-    const subjHas = key.includes(domain) || key.includes(sld(domain));
+    const subjHas = subjects.some((s) => s.includes(domain) || s.includes(sld(domain)));
     if (!formMatch.length && !subjHas) continue; // incidental mention only
     if (!formMatch.length && ms.some((m) => NEWSLETTER_HINT.some((h) => m.from.includes(h)))) continue;
     relevant.push({ ms, formMatch });
@@ -401,16 +406,41 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
   // sort; the whole report is cached so page loads never pay for it. Fail-open.
   await applyRecaps(domain, threads, transcripts, process.env);
 
-  threads.sort((a, b) => (a.last < b.last ? 1 : -1));
+  // One row per buyer: a buyer can appear in a direct thread AND a forwarded
+  // internal copy (now separate threadIds). Keep the richest thread per email,
+  // OR-ing active and carrying any offer/outcome/extent.
+  const best = new Map<string, DealThread>();
+  for (const t of threads) {
+    const key = (t.partyEmail || "").toLowerCase();
+    if (!key) continue;
+    const ex = best.get(key);
+    const merge = (keep: DealThread, drop: DealThread) => {
+      keep.active = keep.active || drop.active;
+      keep.offer = keep.offer || drop.offer;
+      keep.outcome = keep.outcome || drop.outcome;
+      keep.qualified = keep.qualified || drop.qualified;
+      if (drop.last > keep.last) keep.last = drop.last;
+      if (drop.first < keep.first) keep.first = drop.first;
+    };
+    if (!ex) best.set(key, t);
+    else if (t.messages > ex.messages) { merge(t, ex); best.set(key, t); }
+    else merge(ex, t);
+  }
+  const final = threads.filter((t) => {
+    const key = (t.partyEmail || "").toLowerCase();
+    return !key || best.get(key) === t;
+  });
+
+  final.sort((a, b) => (a.last < b.last ? 1 : -1));
   return {
     domain,
-    inbound: threads.filter((t) => t.origin === "inbound").length,
-    inboundQualified: threads.filter((t) => t.origin === "inbound" && t.qualified).length,
-    activeNegotiations: threads.filter((t) => t.active).length,
-    pitched: threads.filter((t) => t.origin === "pitched").length,
+    inbound: final.filter((t) => t.origin === "inbound").length,
+    inboundQualified: final.filter((t) => t.origin === "inbound" && t.qualified).length,
+    activeNegotiations: final.filter((t) => t.active).length,
+    pitched: final.filter((t) => t.origin === "pitched").length,
     representingSince,
     sale,
-    threads,
+    threads: final,
   };
 }
 
