@@ -36,6 +36,7 @@ export const MODULES = [
   "research.dbsearch",
   "research.nameserver",
   "research.sales", // Sales Research Agent — find buyers for a domain we're selling
+  "research.beeper", // Beeper — RDAP drop watcher (alert when a domain's status changes)
 ] as const;
 export type ModuleKey = (typeof MODULES)[number];
 
@@ -168,4 +169,5 @@ export const CATALOG: CatalogEntry[] = [
   { key: "research.dbsearch", label: "Domain Name Search", group: "Research", kind: "module" },
   { key: "research.nameserver", label: "Nameserver Search", group: "Research", kind: "module" },
   { key: "research.sales", label: "Sales Research", group: "Research", kind: "module" },
+  { key: "research.beeper", label: "Beeper (drop watch)", group: "Research", kind: "module" },
 ];
