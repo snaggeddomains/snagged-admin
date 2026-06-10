@@ -12,7 +12,8 @@ type SourceRow = { source: string; medium: string; sessions: number };
 type LabelValue = { label: string; value: number };
 type TrendRow = { date: string; sessions: number; pageviews: number };
 type FunnelStep = { name: string; users: number };
-type MarketplaceReport = { summary: StatBlock; topPages: PageRow[]; channels: ChannelRow[]; trend: TrendRow[] };
+type ListingRow = { domain: string; path: string; views: number; sessions: number; users: number; inquiryStarts: number; clicks: number; inquiries: number };
+type MarketplaceReport = { summary: StatBlock; topPages: PageRow[]; listings: ListingRow[]; channels: ChannelRow[]; trend: TrendRow[] };
 type CoreReport = {
   summary: StatBlock; channels: ChannelRow[]; sources: SourceRow[];
   submissionsByChannel: LabelValue[]; selfReportedSource: LabelValue[]; leadIntent: LabelValue[]; leadBudget: LabelValue[]; trend: TrendRow[];
@@ -39,9 +40,10 @@ type LiftChannel = { channel: string; baselinePerDay: number; adPerDay: number; 
 type XAdsLift = { from: string; to: string; lookbackDays: number; adDays: number; offDays: number; spend: number; channels: LiftChannel[]; defaultChannels: string[] };
 type AdsReport = { totals: XAdsTotals; byCampaign: XAdsCampaign[]; trend: XAdsDaily[]; roi: XAdsRoi; campaignCount: number };
 
-type Preset = "today" | "week" | "month" | "custom";
+type Preset = "today" | "week" | "lastweek" | "month" | "lastmonth" | "custom";
 const PRESETS: { key: Preset; label: string }[] = [
-  { key: "today", label: "Today" }, { key: "week", label: "This week" }, { key: "month", label: "This month" }, { key: "custom", label: "Custom range" },
+  { key: "today", label: "Today" }, { key: "week", label: "This week" }, { key: "lastweek", label: "Last week" },
+  { key: "month", label: "This month" }, { key: "lastmonth", label: "Last month" }, { key: "custom", label: "Custom range" },
 ];
 const TRANCHES: { key: Tranche; label: string }[] = [
   { key: "core", label: "Core Services" }, { key: "marketplace", label: "Marketplace" }, { key: "blog", label: "Blog" }, { key: "seo", label: "SEO" }, { key: "email", label: "Email" }, { key: "ads", label: "Ads" }, { key: "revenue", label: "Revenue" },
@@ -52,6 +54,15 @@ const etYmd = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "America
 const TODAY = etYmd(new Date());
 const WEEK_START = etYmd(new Date(Date.now() - 6 * 86400000));
 const MONTH_START = `${TODAY.slice(0, 7)}-01`;
+// Last week = the 7 days before this rolling week; last month = the previous
+// calendar month (UTC calendar math — these are dates, not instants).
+const LAST_WEEK_START = etYmd(new Date(Date.now() - 13 * 86400000));
+const LAST_WEEK_END = etYmd(new Date(Date.now() - 7 * 86400000));
+const _ty = Number(TODAY.slice(0, 4)), _tm = Number(TODAY.slice(5, 7));
+const _lmEnd = new Date(Date.UTC(_ty, _tm - 1, 0)); // day 0 of this month = last day of prev month
+const pad2 = (x: number) => String(x).padStart(2, "0");
+const LAST_MONTH_END = `${_lmEnd.getUTCFullYear()}-${pad2(_lmEnd.getUTCMonth() + 1)}-${pad2(_lmEnd.getUTCDate())}`;
+const LAST_MONTH_START = `${_lmEnd.getUTCFullYear()}-${pad2(_lmEnd.getUTCMonth() + 1)}-01`;
 const fmt = (x: number) => x.toLocaleString();
 const usd = (x: number) => `$${Math.round(x).toLocaleString()}`;
 const CORAL = "var(--coral-deep, #c0492f)";
@@ -93,7 +104,9 @@ export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
   const range = useMemo(() => {
     if (preset === "today") return { from: TODAY, to: TODAY };
     if (preset === "week") return { from: WEEK_START, to: TODAY };
+    if (preset === "lastweek") return { from: LAST_WEEK_START, to: LAST_WEEK_END };
     if (preset === "month") return { from: MONTH_START, to: TODAY };
+    if (preset === "lastmonth") return { from: LAST_MONTH_START, to: LAST_MONTH_END };
     return { from, to: to || from };
   }, [preset, from, to]);
 
@@ -208,14 +221,45 @@ export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
 
 function MarketplaceView({ r }: { r: MarketplaceReport }) {
   const s = r.summary;
-  const pageBars: Bar[] = r.topPages.slice(0, 15).map((p) => ({ label: p.path.replace(/^\/domains\//, ""), value: p.views, href: `https://www.snagged.com${p.path}` }));
+  const listings = r.listings || [];
+  const cell = { padding: "6px 10px", borderBottom: "1px solid var(--line, #eee)", whiteSpace: "nowrap" as const };
+  const num = { ...cell, textAlign: "right" as const, fontVariantNumeric: "tabular-nums" as const };
+  const th = { ...num, color: "var(--muted, #888)", fontWeight: 600, cursor: "default" };
   return (
     <>
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-        <StatCard label="Sessions" value={s.sessions} /><StatCard label="Users" value={s.users} />
-        <StatCard label="Pageviews" value={s.pageviews} /><StatCard label="Inquiries (form)" value={s.submissions} accent />
+        <StatCard label="Listings" value={listings.length} /><StatCard label="Visits (pageviews)" value={s.pageviews} />
+        <StatCard label="Visitors" value={s.users} /><StatCard label="Inquiries (form)" value={s.submissions} accent />
       </div>
-      <Section title="Top pages by views" blurb="Which domain listings are getting looked at most."><BarList rows={pageBars} /></Section>
+      <Section
+        title={`All listings (${listings.length})`}
+        blurb="Every /marketplace domain with its GA traffic for the selected range, sorted by visits. Inquiry starts = the inquiry form was opened on that listing; Inquiries = completed submissions (populates per-domain once the GA domain_of_interest dimension is live)."
+      >
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <thead>
+              <tr>
+                <th style={{ ...th, textAlign: "left" }}>Domain</th>
+                <th style={th}>Visits</th><th style={th}>Visitors</th><th style={th}>Sessions</th>
+                <th style={th}>Inquiry starts</th><th style={th}>CTA clicks</th><th style={th}>Inquiries</th>
+              </tr>
+            </thead>
+            <tbody>
+              {listings.map((l) => (
+                <tr key={l.path}>
+                  <td style={{ ...cell, textAlign: "left" }}>
+                    <a href={`https://www.snagged.com${l.path}`} target="_blank" rel="noreferrer" style={{ color: CORAL, textDecoration: "none" }}>{l.domain}</a>
+                  </td>
+                  <td style={num}>{fmt(l.views)}</td><td style={num}>{fmt(l.users)}</td><td style={num}>{fmt(l.sessions)}</td>
+                  <td style={num}>{fmt(l.inquiryStarts)}</td><td style={num}>{fmt(l.clicks)}</td>
+                  <td style={{ ...num, color: l.inquiries > 0 ? CORAL : "inherit", fontWeight: l.inquiries > 0 ? 600 : 400 }}>{fmt(l.inquiries)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {listings.length === 0 && <p className="muted" style={{ padding: 8 }}>No marketplace listings with data in this range.</p>}
+        </div>
+      </Section>
       <Section title="Traffic by channel" blurb="How marketplace visitors arrive (mostly Direct — type-ins)."><BarList rows={r.channels.map((c) => ({ label: c.channel, value: c.sessions }))} showShare /></Section>
       <Section title="Daily trend"><TrendChart data={r.trend} /></Section>
     </>
