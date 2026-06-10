@@ -157,13 +157,13 @@ export default function DealClient({ domain }: { domain: string }) {
           </>
         )}
         <button onClick={() => void load(true)} style={BTN} disabled={loading} title="Re-scan the mailboxes now (a few minutes)">↻ Regenerate</button>
-        {loading && <span className="muted" style={{ fontSize: 12 }}>loading…</span>}
+        {loading && <span className="loading-pulse" style={{ fontSize: 12, color: CORAL }}>working…</span>}
         {!loading && data?.deals.generatedAt && <span className="muted" style={{ fontSize: 12 }}>updated {ago(data.deals.generatedAt)}</span>}
       </div>
 
       {msg && <p style={{ color: CORAL }}>{msg}</p>}
       {data?.deals.configured === false && <p className="muted">Gmail isn&apos;t configured on this deployment (GOOGLE_SA_KEY).</p>}
-      {loading && !rep && <p className="muted">Generating the activity report — scanning the deal mailboxes for this domain. This can take a few minutes the first time…</p>}
+      {loading && !rep && <p className="loading-pulse" style={{ color: CORAL }}>Generating the activity report — scanning the deal mailboxes for this domain. This can take a few minutes the first time…</p>}
 
       <h2 style={{ fontSize: "1rem", margin: "16px 0 6px" }}>Traffic <span className="muted" style={{ fontWeight: 400, fontSize: 12 }}>({range.from === range.to ? range.from : `${range.from} → ${range.to}`})</span></h2>
       {ga ? (

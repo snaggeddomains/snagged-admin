@@ -255,12 +255,22 @@ function forwardedParticipants(body: string): { name: string; email: string }[] 
 // message's From, To/Cc, AND forwarded headers — excluding us, the seller, and
 // system/automation. Returns null when there's no external human anywhere (a
 // purely internal Rob↔Brian thread), so such threads get dropped.
-function resolveExternalParty(ms: GmailMessage[], sellerEmails: Set<string>): { name: string; email: string } | null {
+// Normalized name key: lowercase, accent-stripped, punctuation-free, tokens
+// sorted — so "Alberto Lopez" and "López, Alberto" collapse to the same key.
+// Lets us catch a seller's OTHER email addresses (e.g. a work address) by name.
+function nameKey(s: string): string {
+  return (s || "")
+    .normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .toLowerCase().replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/).filter(Boolean).sort().join(" ");
+}
+function resolveExternalParty(ms: GmailMessage[], sellerEmails: Set<string>, sellerNameKeys: Set<string>): { name: string; email: string } | null {
   const count = new Map<string, number>();
   const names = new Map<string, string>();
   const consider = (name: string, emailRaw: string) => {
     const email = (emailRaw || "").toLowerCase();
     if (!email || isUs(email) || isSystem(email, name) || sellerEmails.has(email)) return;
+    if (name && sellerNameKeys.has(nameKey(name))) return; // the seller under another address
     count.set(email, (count.get(email) || 0) + 1);
     if (name && !names.has(email)) names.set(email, name);
   };
@@ -313,7 +323,16 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
     }
   }
   const sellerEmails = new Set([...threadsByEmail].filter(([, c]) => c >= 3).map(([e]) => e));
-  const isBuyer = (m: GmailMessage) => !isUs(m.from) && !isSystem(m.from, m.fromName) && !sellerEmails.has(m.from);
+  // The seller often uses more than one address (e.g. a personal gmail AND a work
+  // email) — collect the display-name keys of the identified seller(s) so their
+  // OTHER addresses are excluded too (Luxe.com's Alberto: gmail ≥3 threads, plus a
+  // 2-thread volvocars.com "López, Alberto" that the count alone would miss).
+  const sellerNameKeys = new Set<string>();
+  for (const m of msgs) if (sellerEmails.has(m.from) && m.fromName) sellerNameKeys.add(nameKey(m.fromName));
+  sellerNameKeys.delete("");
+  const isSellerName = (name: string) => !!name && sellerNameKeys.has(nameKey(name));
+  const isBuyer = (m: GmailMessage) =>
+    !isUs(m.from) && !isSystem(m.from, m.fromName) && !sellerEmails.has(m.from) && !isSellerName(m.fromName);
 
   const threads: DealThread[] = [];
   const transcripts: ThreadTranscript[] = []; // aligned 1:1 with threads, for the LLM recap
@@ -326,7 +345,7 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
     // The real external buyer — from From / To / Cc / forwarded headers (so a
     // buyer who only appears as a recipient or inside a forwarded reply still
     // counts), never us or the seller.
-    const extParty = resolveExternalParty(ms, sellerEmails);
+    const extParty = resolveExternalParty(ms, sellerEmails, sellerNameKeys);
     // No form AND no external buyer anywhere = a purely internal (Rob↔Brian) or
     // seller-only thread — not a buyer deal. Drop it.
     if (!hasForm && !extParty) continue;

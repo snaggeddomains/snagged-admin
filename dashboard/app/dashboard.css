@@ -305,3 +305,8 @@ tr.dim { opacity: 0.6; }
 
 /* Brand the form controls used in /admin/users */
 input[type="checkbox"] { accent-color: var(--coral); }
+
+/* Reusable "working / loading" indicator — pulsing text, used anywhere a report
+   or panel is fetching/generating so it's unmistakably in-progress. */
+@keyframes pulse-fade { 0%, 100% { opacity: 1; } 50% { opacity: .42; } }
+.loading-pulse { animation: pulse-fade 1.15s ease-in-out infinite; font-weight: 600; }
