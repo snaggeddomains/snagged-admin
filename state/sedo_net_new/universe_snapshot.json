@@ -1,18 +1,6 @@
 [
   {
-    "domain": "browden.com",
-    "price": 4295.0
-  },
-  {
-    "domain": "comicloud.com",
-    "price": 3995.0
-  },
-  {
     "domain": "automate.ai",
-    "price": null
-  },
-  {
-    "domain": "bandar.ai",
     "price": null
   },
   {
@@ -24,16 +12,8 @@
     "price": null
   },
   {
-    "domain": "minilectures.com",
-    "price": 10694.0
-  },
-  {
     "domain": "flooringwood.com",
     "price": 2995.0
-  },
-  {
-    "domain": "maneuver.net",
-    "price": null
   },
   {
     "domain": "matemo.net",
@@ -44,11 +24,7 @@
     "price": 2990.0
   },
   {
-    "domain": "notetaker.co",
-    "price": 1988.0
-  },
-  {
-    "domain": "periodically.net",
-    "price": 1695.0
+    "domain": "longma.net",
+    "price": 3888.0
   }
 ]
