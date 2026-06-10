@@ -1,0 +1,110 @@
+// Read-only Gmail client (server-only). Reads the deal mailboxes via the
+// `marketplace-pipeline` service account using DOMAIN-WIDE DELEGATION — the SA's
+// client ID is authorized for gmail.readonly in Workspace Admin and impersonates
+// a specific user per request (see lib/google-auth.ts `subject`). Used by the
+// Marketplace activity report to reconstruct per-domain buyer inquiry / outreach
+// threads. NEVER writes — gmail.readonly only.
+
+import { googleAccessToken } from "./google-auth";
+
+const SCOPE = "https://www.googleapis.com/auth/gmail.readonly";
+const API = "https://gmail.googleapis.com/gmail/v1/users/me";
+
+// Mailboxes scanned for deal activity. Both rob@ and brian@ carry the inquiry
+// stream (form notifications are sent to both / via the marketplace@ alias), so
+// we read both and dedupe by RFC Message-ID. Override via env (comma-separated).
+export function dealMailboxes(): string[] {
+  return (process.env.GMAIL_DEAL_MAILBOXES || "rob@snagged.com,brian@snagged.com")
+    .split(",").map((s) => s.trim()).filter(Boolean);
+}
+
+export function gmailConfigured(): boolean {
+  return Boolean(process.env.GOOGLE_SA_KEY || process.env.GOOGLE_SA_KEY_B64);
+}
+
+export type GmailMessage = {
+  id: string;
+  threadId: string;
+  mid: string; // RFC Message-ID — stable across mailboxes, used to dedupe
+  from: string; // bare lowercased address
+  fromName: string;
+  to: string; // raw To header (may hold several recipients)
+  subject: string;
+  date: number; // epoch ms
+  snippet: string;
+  body: string; // text/plain (html-stripped fallback), capped
+};
+
+async function gget(subject: string, path: string): Promise<any> {
+  const token = await googleAccessToken(SCOPE, subject);
+  const res = await fetch(`${API}/${path}`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) throw new Error(`gmail ${path.split("?")[0]}: ${res.status} ${(await res.text()).slice(0, 200)}`);
+  return res.json();
+}
+
+// Confirm a mailbox is reachable (delegation + Gmail API check).
+export async function getProfile(subject: string): Promise<{ emailAddress: string; messagesTotal: number; threadsTotal: number }> {
+  return gget(subject, "profile");
+}
+
+// Distinct thread IDs matching a Gmail search query, in one mailbox.
+export async function searchThreadIds(subject: string, q: string, max = 100): Promise<string[]> {
+  const ids = new Set<string>();
+  let pageToken = "";
+  while (ids.size < max) {
+    const qs = new URLSearchParams({ q, maxResults: String(Math.min(100, max - ids.size)) });
+    if (pageToken) qs.set("pageToken", pageToken);
+    const r = await gget(subject, `messages?${qs.toString()}`);
+    for (const m of r.messages || []) ids.add(m.threadId);
+    if (!r.nextPageToken) break;
+    pageToken = r.nextPageToken;
+  }
+  return [...ids];
+}
+
+const ENT: Record<string, string> = { "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&#39;": "'", "&nbsp;": " " };
+function unescapeHtml(s: string): string {
+  return s.replace(/&amp;|&lt;|&gt;|&quot;|&#39;|&nbsp;/g, (m) => ENT[m] || m).replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)));
+}
+function decodeB64(data?: string): string {
+  if (!data) return "";
+  try { return Buffer.from(data.replace(/-/g, "+").replace(/_/g, "/"), "base64").toString("utf8"); } catch { return ""; }
+}
+function plainBody(payload: any): string {
+  let out = "";
+  if ((payload?.mimeType || "").startsWith("text/plain") && payload?.body?.data) out += decodeB64(payload.body.data);
+  for (const p of payload?.parts || []) out += plainBody(p);
+  return out;
+}
+function htmlBody(payload: any): string {
+  let out = "";
+  if (payload?.mimeType === "text/html" && payload?.body?.data) out += decodeB64(payload.body.data);
+  for (const p of payload?.parts || []) out += htmlBody(p);
+  return out;
+}
+const bareAddr = (s: string): string => (s.match(/[\w.\-+]+@[\w.\-]+/)?.[0] || "").toLowerCase();
+
+function parseMessage(m: any): GmailMessage {
+  const hd: Record<string, string> = {};
+  for (const h of m.payload?.headers || []) hd[h.name.toLowerCase()] = h.value;
+  let body = plainBody(m.payload || {});
+  if (!body) body = htmlBody(m.payload || {}).replace(/<[^>]+>/g, " ");
+  return {
+    id: m.id,
+    threadId: m.threadId,
+    mid: hd["message-id"] || m.id,
+    from: bareAddr(hd["from"] || ""),
+    fromName: (hd["from"] || "").replace(/\s*<.*/, "").trim().replace(/^"|"$/g, ""),
+    to: hd["to"] || "",
+    subject: hd["subject"] || "",
+    date: Number(m.internalDate || 0),
+    snippet: unescapeHtml(m.snippet || ""),
+    body: unescapeHtml(body).slice(0, 8000),
+  };
+}
+
+// All messages in a thread (full bodies), one mailbox.
+export async function getThread(subject: string, threadId: string): Promise<GmailMessage[]> {
+  const t = await gget(subject, `threads/${threadId}?format=full`);
+  return (t.messages || []).map(parseMessage);
+}
