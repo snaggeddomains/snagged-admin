@@ -21,7 +21,10 @@ const isUs = (a: string) => a.endsWith("@snagged.com") || a.endsWith("@snagged.c
 // marketplace@) but their bodies are the structured submission — we still parse
 // those; this set only governs who counts as a real "them" human, and lets a
 // thread that is purely automated (no form, no human) be dropped as noise.
-const SYSTEM_DOMAINS = ["asana.com", "zapiermail.com", "googlemail.com", "mailer-daemon", "superhuman.com", "cloudflare.com", "docusign.net", "docusign.com", "intercom"];
+// escrow.com + docusign are transactional, not buyers — kept out of the buyer
+// buckets here; their meaning (sale status / representation start) is detected
+// separately below.
+const SYSTEM_DOMAINS = ["asana.com", "zapiermail.com", "googlemail.com", "mailer-daemon", "superhuman.com", "cloudflare.com", "docusign.net", "docusign.com", "escrow.com", "intercom"];
 const SYSTEM_ADDRS = new Set(["sharing@superhuman.com", "reminder@superhuman.com", "noreply@snagged.com", "no-reply@snagged.com", "marketplace@snagged.com"]);
 function isSystem(addr: string, name = ""): boolean {
   if (SYSTEM_ADDRS.has(addr)) return true;
@@ -83,14 +86,95 @@ export type DealThread = {
   lastSnippet: string;
 };
 
+// Sale status from Escrow.com — where actual marketplace sales settle. Stages
+// progress: opened → terms agreed → payment secured → sold (closing statement /
+// disbursement). NOT a buyer bucket — it's the outcome.
+export type SaleStage = "opened" | "agreed" | "payment_secured" | "sold";
+export type SaleStatus = {
+  stage: SaleStage;
+  label: string;
+  opened: string | null; // YYYY-MM-DD
+  closed: string | null; // set once sold
+  txn: string | null;
+};
+
 export type DealReport = {
   domain: string;
   inbound: number;
   inboundQualified: number;
   activeNegotiations: number;
   pitched: number;
+  // Owner engagement start, from the completed Snagged brokerage DocuSign.
+  representingSince: string | null;
+  // Sale outcome, from Escrow.com (null if never went to escrow).
+  sale: SaleStatus | null;
   threads: DealThread[];
 };
+
+const SALE_RANK: Record<SaleStage, number> = { opened: 1, agreed: 2, payment_secured: 3, sold: 4 };
+function escrowStage(subject: string): SaleStage | null {
+  const s = subject.toLowerCase();
+  if (/(closing statement|disbursement|domain name has been accepted|wait for merchandise)/.test(s)) return "sold";
+  if (/payment secured/.test(s)) return "payment_secured";
+  if (/agreed to terms/.test(s)) return "agreed";
+  if (/(successfully created|transaction was successfully created|disbursement method)/.test(s)) return "opened";
+  return null;
+}
+const SALE_LABEL: Record<SaleStage, string> = {
+  opened: "In escrow (opened)", agreed: "Terms agreed", payment_secured: "Payment secured — in transfer", sold: "Sold",
+};
+
+// Detect the Escrow.com sale lifecycle for a domain (highest stage reached).
+async function detectSale(domain: string): Promise<SaleStatus | null> {
+  const seen = new Set<string>();
+  const events: { stage: SaleStage; date: number; txn: string | null }[] = [];
+  for (const mailbox of dealMailboxes()) {
+    let tids: string[] = [];
+    try { tids = await searchThreadIds(mailbox, `from:escrow.com "${domain}"`, 40); } catch { /* skip */ }
+    for (const tid of tids) {
+      let msgs: GmailMessage[];
+      try { msgs = await getThread(mailbox, tid); } catch { continue; }
+      for (const m of msgs) {
+        if (seen.has(m.mid) || !m.from.includes("escrow.com")) continue;
+        seen.add(m.mid);
+        const stage = escrowStage(m.subject);
+        if (!stage) continue;
+        const txn = (m.subject.match(/#?(\d{6,})/) || [])[1] || null;
+        events.push({ stage, date: m.date, txn });
+      }
+    }
+  }
+  if (!events.length) return null;
+  events.sort((a, b) => a.date - b.date);
+  const top = events.reduce((a, b) => (SALE_RANK[b.stage] >= SALE_RANK[a.stage] ? b : a));
+  const sold = events.find((e) => e.stage === "sold");
+  return {
+    stage: top.stage,
+    label: SALE_LABEL[top.stage],
+    opened: ymd(events[0].date),
+    closed: sold ? ymd(sold.date) : null,
+    txn: top.txn || events.find((e) => e.txn)?.txn || null,
+  };
+}
+
+// Representation start = the completed Snagged brokerage DocuSign envelope.
+async function detectRepresentingSince(domain: string): Promise<string | null> {
+  let earliest: number | null = null;
+  for (const mailbox of dealMailboxes()) {
+    let tids: string[] = [];
+    try { tids = await searchThreadIds(mailbox, `from:docusign "snagged" "${domain}"`, 10); } catch { /* skip */ }
+    for (const tid of tids) {
+      let msgs: GmailMessage[];
+      try { msgs = await getThread(mailbox, tid); } catch { continue; }
+      for (const m of msgs) {
+        if (!m.from.includes("docusign")) continue;
+        if (!/snagged/i.test(m.subject) && !/snagged/i.test(m.body)) continue;
+        if (earliest === null || m.date < earliest) earliest = m.date;
+      }
+    }
+  }
+  return earliest ? ymd(earliest) : null;
+}
 
 const ymd = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 
@@ -121,7 +205,11 @@ async function collect(domain: string): Promise<GmailMessage[]> {
 
 export async function buildDealReport(domain: string): Promise<DealReport> {
   domain = domain.toLowerCase().replace(/^www\./, "");
-  const msgs = await collect(domain);
+  const [msgs, sale, representingSince] = await Promise.all([
+    collect(domain),
+    detectSale(domain),
+    detectRepresentingSince(domain),
+  ]);
 
   // Group into conversations by normalized subject (merges cross-mailbox dupes,
   // the form notification, and all replies).
@@ -196,6 +284,8 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
     inboundQualified: threads.filter((t) => t.origin === "inbound" && t.qualified).length,
     activeNegotiations: threads.filter((t) => t.active).length,
     pitched: threads.filter((t) => t.origin === "pitched").length,
+    representingSince,
+    sale,
     threads,
   };
 }
