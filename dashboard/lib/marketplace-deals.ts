@@ -267,18 +267,22 @@ function nameKey(s: string): string {
 function resolveExternalParty(ms: GmailMessage[], sellerEmails: Set<string>, sellerNameKeys: Set<string>): { name: string; email: string } | null {
   const count = new Map<string, number>();
   const names = new Map<string, string>();
-  const consider = (name: string, emailRaw: string) => {
+  // The actual buyer SENDS messages; someone merely CC'd on a big thread does not.
+  // So weight a From sender far above a To/Cc recipient — otherwise a person CC'd
+  // on all 110 messages outranks the buyer who sent 50 (Luxe.com's Daniel Cox vs
+  // Alyas). Forwarded "From" headers are historical senders → weighted too.
+  const consider = (name: string, emailRaw: string, weight: number) => {
     const email = (emailRaw || "").toLowerCase();
     if (!email || isUs(email) || isSystem(email, name) || sellerEmails.has(email)) return;
     if (name && sellerNameKeys.has(nameKey(name))) return; // the seller under another address
-    count.set(email, (count.get(email) || 0) + 1);
+    count.set(email, (count.get(email) || 0) + weight);
     if (name && !names.has(email)) names.set(email, name);
   };
   for (const m of ms) {
-    consider(m.fromName, m.from);
-    for (const a of addrsIn(m.to)) consider(a.name, a.email);
-    for (const a of addrsIn(m.cc)) consider(a.name, a.email);
-    for (const a of forwardedParticipants(m.body)) consider(a.name, a.email);
+    consider(m.fromName, m.from, 10);
+    for (const a of addrsIn(m.to)) consider(a.name, a.email, 1);
+    for (const a of addrsIn(m.cc)) consider(a.name, a.email, 1);
+    for (const a of forwardedParticipants(m.body)) consider(a.name, a.email, 5);
   }
   if (!count.size) return null;
   const top = [...count.entries()].sort((a, b) => b[1] - a[1])[0][0];
