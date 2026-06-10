@@ -5,7 +5,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { canReports } from "@/lib/permissions";
-import { analyticsReport, gaConfigured } from "@/lib/ga";
+import { analyticsReport, gaConfigured, type MarketplaceReport } from "@/lib/ga";
+import { getNewsletterFeatures, summarizeNewsletter } from "@/lib/newsletter";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -28,8 +29,13 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: true, configured: false, from, to, report: null });
   }
   try {
-    const report = await analyticsReport("marketplace", from, to);
-    return NextResponse.json({ ok: true, configured: true, from, to, report });
+    const [report, feats] = await Promise.all([
+      analyticsReport("marketplace", from, to) as Promise<MarketplaceReport>,
+      getNewsletterFeatures().catch(() => ({} as Record<string, never[]>)),
+    ]);
+    // Newsletter exposure is all-time (cumulative), independent of the GA window.
+    const listings = report.listings.map((l) => ({ ...l, newsletter: summarizeNewsletter(feats[l.domain.toLowerCase()]) }));
+    return NextResponse.json({ ok: true, configured: true, from, to, report: { ...report, listings } });
   } catch (e) {
     return NextResponse.json({ ok: false, error: String((e as Error)?.message || e) }, { status: 500 });
   }

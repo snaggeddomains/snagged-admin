@@ -103,6 +103,12 @@ const slugToDomain = (slug: string) => slug.replace(/-([a-z0-9]+)$/i, ".$1");
 const slugOf = (path: string) => path.replace(/^\/domains\//, "").replace(/\/$/, "");
 // Best-effort: the live /marketplace page's /domains/<slug> links, so zero-traffic
 // listings still appear in the table. Falls back to the GA-trafficked set on error.
+// The current marketplace listing domains (slug → domain), for joins (e.g. the
+// newsletter-feature scan only counts domains that are live listings).
+export async function marketplaceListingDomains(): Promise<string[]> {
+  const slugs = await marketplaceInventory();
+  return [...new Set(slugs.map(slugToDomain))];
+}
 async function marketplaceInventory(): Promise<string[]> {
   try {
     const ctrl = new AbortController();
