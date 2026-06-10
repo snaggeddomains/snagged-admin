@@ -135,7 +135,7 @@ export default function MarketplaceClient() {
       )}
 
       <div style={{ overflowX: "auto", marginTop: 18 }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <table style={{ width: "auto", borderCollapse: "collapse", fontSize: 13 }}>
           <thead>
             <tr>
               <th style={{ ...cell, textAlign: "left", color: "var(--muted, #888)", fontWeight: 600 }}>Domain</th>
