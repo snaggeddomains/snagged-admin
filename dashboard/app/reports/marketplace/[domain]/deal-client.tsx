@@ -5,8 +5,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 // Mirrors lib/marketplace-deals.ts + lib/ga.ts ListingRow + newsletter summary.
 type SaleStatus = { stage: string; label: string; opened: string | null; closed: string | null; txn: string | null };
 type DealThread = {
-  subject: string; origin: "inbound" | "pitched"; active: boolean; hasForm: boolean; qualified: boolean;
-  party: string; partyEmail: string | null; budget: string | null; intent: string | null;
+  subject: string; origin: "inbound" | "pitched"; active: boolean; stale: boolean; declined: boolean;
+  hasForm: boolean; qualified: boolean; party: string; partyEmail: string | null;
+  budget: string | null; offer: string | null; intent: string | null; outcome: string | null;
   messages: number; first: string; last: string; lastSnippet: string;
 };
 type DealReport = {
@@ -48,7 +49,6 @@ function StatCard({ label, value, accent }: { label: string; value: number; acce
     </div>
   );
 }
-
 function AggCard({ label, value, sub, accent }: { label: string; value: number; sub?: string; accent?: boolean }) {
   return (
     <div style={{ border: `1px solid ${accent ? CORAL : "#e3ddcf"}`, borderRadius: 10, padding: "14px 18px", minWidth: 150, flex: "1 1 150px" }}>
@@ -59,27 +59,20 @@ function AggCard({ label, value, sub, accent }: { label: string; value: number; 
   );
 }
 
-function Badge({ text, color }: { text: string; color: string }) {
-  return <span style={{ fontSize: 11, fontWeight: 700, color, border: `1px solid ${color}`, borderRadius: 999, padding: "1px 8px", whiteSpace: "nowrap" }}>{text}</span>;
+function statusOf(t: DealThread): { label: string; color: string } {
+  if (t.active) return { label: "Active", color: CORAL };
+  if (t.declined) return { label: "Declined", color: "#9a3b3b" };
+  if (t.stale) return { label: "Stale", color: "#8a8275" };
+  if (t.origin === "inbound") return { label: t.qualified ? "Qualified" : "Low-quality", color: t.qualified ? "#2f7d4f" : "#8a8275" };
+  return { label: "Pitched", color: "#5a4ec0" };
 }
 
-function ThreadRow({ t }: { t: DealThread }) {
-  return (
-    <div style={{ borderBottom: "1px solid var(--line, #eee)", padding: "10px 2px" }}>
-      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-        {t.origin === "inbound" ? <Badge text="Inbound" color="#2f7d4f" /> : <Badge text="Pitched" color="#5a4ec0" />}
-        {t.active && <Badge text="Active negotiation" color={CORAL} />}
-        {t.qualified && t.origin === "inbound" && <Badge text="Qualified" color={NAVY} />}
-        <strong style={{ fontSize: 13 }}>{t.party}</strong>
-        {t.budget && <span className="muted" style={{ fontSize: 12 }}>· budget {t.budget}</span>}
-        <span className="muted" style={{ fontSize: 12, marginLeft: "auto" }}>{t.first === t.last ? t.last : `${t.first} → ${t.last}`} · {t.messages} msg</span>
-      </div>
-      <div className="muted" style={{ fontSize: 12, marginTop: 3 }}>
-        {t.subject}
-        {t.lastSnippet ? <span style={{ opacity: 0.8 }}> — {t.lastSnippet}</span> : null}
-      </div>
-    </div>
-  );
+const cell: React.CSSProperties = { padding: "7px 10px", borderBottom: "1px solid var(--line, #eee)", verticalAlign: "top", fontSize: 13 };
+const head: React.CSSProperties = { ...cell, textAlign: "left", color: "var(--muted, #888)", fontWeight: 600, whiteSpace: "nowrap" };
+
+function StatusBadge({ t }: { t: DealThread }) {
+  const s = statusOf(t);
+  return <span style={{ fontSize: 11, fontWeight: 700, color: s.color, border: `1px solid ${s.color}`, borderRadius: 999, padding: "1px 8px", whiteSpace: "nowrap" }}>{s.label}</span>;
 }
 
 export default function DealClient({ domain }: { domain: string }) {
@@ -121,8 +114,16 @@ export default function DealClient({ domain }: { domain: string }) {
   const ga = data?.ga;
   const nl = data?.newsletter;
   const threads = rep?.threads || [];
-  const lowQ = threads.filter((t) => t.origin === "inbound" && !t.qualified);
-  const shown = threads.filter((t) => !(t.origin === "inbound" && !t.qualified) || showLowQ);
+
+  // Section 1 — inbound inquiries & negotiations (active first, then recency).
+  const inboundAll = threads.filter((t) => t.origin === "inbound");
+  const lowQ = inboundAll.filter((t) => !t.qualified);
+  const rank = (t: DealThread) => (t.active ? 0 : t.declined ? 2 : t.stale ? 3 : 1);
+  const inboundShown = inboundAll
+    .filter((t) => t.qualified || showLowQ)
+    .sort((a, b) => rank(a) - rank(b) || (a.last < b.last ? 1 : -1));
+  // Section 2 — pitched (our outreach).
+  const pitched = threads.filter((t) => t.origin === "pitched").sort((a, b) => rank(a) - rank(b) || (a.last < b.last ? 1 : -1));
 
   return (
     <main>
@@ -139,7 +140,6 @@ export default function DealClient({ domain }: { domain: string }) {
         {rep?.representingSince && <span className="muted" style={{ fontSize: 12 }}>Representing since {rep.representingSince}</span>}
       </div>
 
-      {/* Window controls (drive the traffic stats) */}
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", margin: "12px 0 4px" }}>
         <span className="muted" style={{ fontSize: 13 }}>Traffic window</span>
         <select value={preset} onChange={(e) => setPreset(e.target.value as Preset)} className="field" style={{ padding: "5px 8px", fontSize: 13 }}>
@@ -152,12 +152,8 @@ export default function DealClient({ domain }: { domain: string }) {
             <input type="date" value={to} max={TODAY} min={from} onChange={(e) => setTo(e.target.value)} className="field" style={{ padding: "4px 6px", fontSize: 13 }} />
           </>
         )}
-        <button onClick={() => void load(false)} className="field" style={{ padding: "5px 12px", fontSize: 13, cursor: "pointer" }} disabled={loading}>
-          {loading ? "Loading…" : "Apply"}
-        </button>
-        <button onClick={() => void load(true)} className="field" style={{ padding: "5px 12px", fontSize: 13, cursor: "pointer" }} disabled={loading} title="Re-scan the mailboxes now (a few minutes)">
-          Regenerate
-        </button>
+        <button onClick={() => void load(false)} className="field" style={{ padding: "5px 12px", fontSize: 13, cursor: "pointer" }} disabled={loading}>{loading ? "Loading…" : "Apply"}</button>
+        <button onClick={() => void load(true)} className="field" style={{ padding: "5px 12px", fontSize: 13, cursor: "pointer" }} disabled={loading} title="Re-scan the mailboxes now (a few minutes)">Regenerate</button>
         {data?.deals.generatedAt && <span className="muted" style={{ fontSize: 12 }}>deal data {ago(data.deals.generatedAt)}</span>}
       </div>
 
@@ -165,44 +161,76 @@ export default function DealClient({ domain }: { domain: string }) {
       {data?.deals.configured === false && <p className="muted">Gmail isn&apos;t configured on this deployment (GOOGLE_SA_KEY).</p>}
       {loading && !rep && <p className="muted">Generating the activity report — scanning the deal mailboxes for this domain. This can take a few minutes the first time…</p>}
 
-      {/* Traffic (window) */}
       <h2 style={{ fontSize: "1rem", margin: "16px 0 6px" }}>Traffic <span className="muted" style={{ fontWeight: 400, fontSize: 12 }}>({range.from === range.to ? range.from : `${range.from} → ${range.to}`})</span></h2>
       {ga ? (
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-          <StatCard label="Visits" value={ga.views} />
-          <StatCard label="Visitors" value={ga.users} />
-          <StatCard label="Sessions" value={ga.sessions} />
-          <StatCard label="Inquiries (GA)" value={ga.inquiries} accent />
+          <StatCard label="Visits" value={ga.views} /><StatCard label="Visitors" value={ga.users} />
+          <StatCard label="Sessions" value={ga.sessions} /><StatCard label="Inquiries (GA)" value={ga.inquiries} accent />
         </div>
       ) : <p className="muted" style={{ fontSize: 13 }}>No GA traffic for this window.</p>}
 
-      {/* Deal activity (all-time) */}
-      <h2 style={{ fontSize: "1rem", margin: "20px 0 6px" }}>Deal activity <span className="muted" style={{ fontWeight: 400, fontSize: 12 }}>(all-time, from email)</span></h2>
-      {rep ? (
+      {rep && (
         <>
+          <h2 style={{ fontSize: "1rem", margin: "20px 0 6px" }}>Deal activity <span className="muted" style={{ fontWeight: 400, fontSize: 12 }}>(all-time, from email)</span></h2>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             <AggCard label="Inbound inquiries" value={rep.inboundQualified} sub={`${rep.inbound} total incl. low-quality`} accent />
-            <AggCard label="Active negotiations" value={rep.activeNegotiations} sub="two-way buyer exchange" />
+            <AggCard label="Active negotiations" value={rep.activeNegotiations} sub="live two-way (≤45d, not declined)" />
             <AggCard label="Pitched to buyers" value={rep.pitched} sub="our proactive outreach" />
           </div>
-
           {nl && nl.count > 0 && (
             <p className="muted" style={{ fontSize: 13, marginTop: 12 }}>
-              Newsletter: <strong>{nl.forSale}</strong>× Monthly Spotlight · <strong>{nl.content}</strong>× weekly content
-              {nl.lastDate ? ` · last ${nl.lastDate}` : ""}
+              Newsletter: <strong>{nl.forSale}</strong>× Monthly Spotlight · <strong>{nl.content}</strong>× weekly content{nl.lastDate ? ` · last ${nl.lastDate}` : ""}
             </p>
           )}
 
-          <h3 style={{ fontSize: 14, margin: "18px 0 2px" }}>Detail</h3>
-          {shown.length === 0 && <p className="muted" style={{ fontSize: 13 }}>No deal threads found for this domain.</p>}
-          {shown.map((t, i) => <ThreadRow key={i} t={t} />)}
+          {/* Section 1: Inbound & negotiations */}
+          <h3 style={{ fontSize: 14, margin: "20px 0 4px" }}>Inbound inquiries &amp; negotiations</h3>
+          {inboundShown.length === 0 ? <p className="muted" style={{ fontSize: 13 }}>None.</p> : (
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ borderCollapse: "collapse", width: "100%", maxWidth: 920 }}>
+                <thead><tr><th style={head}>Buyer</th><th style={head}>Offer</th><th style={head}>Status</th><th style={head}>Last activity</th><th style={{ ...head, width: "42%" }}>What happened</th></tr></thead>
+                <tbody>
+                  {inboundShown.map((t, i) => (
+                    <tr key={i}>
+                      <td style={cell}><div style={{ fontWeight: 600 }}>{t.party}</div>{t.partyEmail && <div className="muted" style={{ fontSize: 11 }}>{t.partyEmail}</div>}</td>
+                      <td style={{ ...cell, whiteSpace: "nowrap", fontWeight: t.offer ? 700 : 400, color: t.offer ? NAVY : "var(--muted,#999)" }}>{t.offer || (t.budget ? <span className="muted" style={{ fontWeight: 400, fontSize: 12 }}>{t.budget}</span> : "—")}</td>
+                      <td style={cell}><StatusBadge t={t} /></td>
+                      <td style={{ ...cell, whiteSpace: "nowrap" }}>{t.last}<span className="muted" style={{ fontSize: 11 }}> · {t.messages} msg</span></td>
+                      <td style={cell}>{t.outcome || <span className="muted">{t.lastSnippet || "—"}</span>}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
           {lowQ.length > 0 && (
-            <button onClick={() => setShowLowQ((v) => !v)} className="field" style={{ marginTop: 10, padding: "5px 12px", fontSize: 12, cursor: "pointer" }}>
+            <button onClick={() => setShowLowQ((v) => !v)} className="field" style={{ marginTop: 8, padding: "4px 12px", fontSize: 12, cursor: "pointer" }}>
               {showLowQ ? "Hide" : "Show"} {lowQ.length} low-quality inquir{lowQ.length === 1 ? "y" : "ies"}
             </button>
           )}
+
+          {/* Section 2: Pitched */}
+          <h3 style={{ fontSize: 14, margin: "24px 0 4px" }}>Pitched to buyers</h3>
+          {pitched.length === 0 ? <p className="muted" style={{ fontSize: 13 }}>None.</p> : (
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ borderCollapse: "collapse", width: "100%", maxWidth: 920 }}>
+                <thead><tr><th style={head}>Pitched to</th><th style={head}>Status</th><th style={head}>Last contact</th><th style={{ ...head, width: "48%" }}>What happened</th></tr></thead>
+                <tbody>
+                  {pitched.map((t, i) => (
+                    <tr key={i}>
+                      <td style={cell}><div style={{ fontWeight: 600 }}>{t.party}</div>{t.partyEmail && <div className="muted" style={{ fontSize: 11 }}>{t.partyEmail}</div>}</td>
+                      <td style={cell}><StatusBadge t={t} /></td>
+                      <td style={{ ...cell, whiteSpace: "nowrap" }}>{t.last}<span className="muted" style={{ fontSize: 11 }}> · {t.messages} msg</span></td>
+                      <td style={cell}>{t.outcome || <span className="muted">{t.lastSnippet || "—"}</span>}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </>
-      ) : !loading && <p className="muted" style={{ fontSize: 13 }}>No deal data.</p>}
+      )}
+      {!loading && !rep && data && <p className="muted" style={{ fontSize: 13 }}>No deal data.</p>}
     </main>
   );
 }

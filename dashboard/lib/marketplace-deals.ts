@@ -96,8 +96,9 @@ export type DealThread = {
   party: string;
   partyEmail: string | null;
   budget: string | null; // a budget BAND from the form ("$5K to $25K")
-  offer: string | null; // a specific offer amount mentioned ("$50,000")
+  offer: string | null; // a specific offer amount ("$50,000") — LLM > structured
   intent: string | null;
+  outcome: string | null; // one-line "what happened" (LLM recap)
   messages: number;
   first: string; // YYYY-MM-DD
   last: string;
@@ -273,6 +274,7 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
   const isBuyer = (m: GmailMessage) => !isUs(m.from) && !isSystem(m.from, m.fromName) && !sellerEmails.has(m.from);
 
   const threads: DealThread[] = [];
+  const transcripts: ThreadTranscript[] = []; // aligned 1:1 with threads, for the LLM recap
   for (const { ms, formMatch } of relevant) {
     const usMsgs = ms.filter((m) => isUs(m.from));
     const themMsgs = ms.filter(isBuyer); // real buyers only — seller excluded
@@ -320,12 +322,20 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
       budget: fm && hasBudget(fm.budget) ? fm.budget : null,
       offer: formatOffer(fm?.offer),
       intent: fm?.intent || null,
+      outcome: null,
       messages: ms.length,
       first: ymd(ms[0].date),
       last: ymd(ms[ms.length - 1].date),
       lastSnippet: ms[ms.length - 1].snippet.slice(0, 160),
     });
+    transcripts.push(buildTranscript(ms, (m) => isUs(m.from)));
   }
+
+  // LLM recap (best-effort, on demand) — fills each thread's one-line `outcome`
+  // and the real negotiated `offer` (distinguishing a buyer offer from our ask).
+  // Runs once per generation against the index-aligned transcripts BEFORE the
+  // sort; the whole report is cached so page loads never pay for it. Fail-open.
+  await applyRecaps(domain, threads, transcripts, process.env);
 
   threads.sort((a, b) => (a.last < b.last ? 1 : -1));
   return {
@@ -343,4 +353,43 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
 function bareAddrToName(s: string): string {
   const a = s.match(/[\w.\-+]+@[\w.\-]+/)?.[0] || "";
   return a ? a.split("@")[0] : "";
+}
+
+// A compact transcript for the LLM recap: the last few messages, each tagged
+// US/THEM, signature/quote-trimmed and capped. Keeps the LLM input small.
+export type ThreadTranscript = { lines: string[] };
+function buildTranscript(ms: GmailMessage[], us: (m: GmailMessage) => boolean): ThreadTranscript {
+  const lines = ms.slice(-7).map((m) => {
+    const who = us(m) ? "US" : (m.fromName || m.from || "THEM");
+    // Drop quoted replies / signatures — keep the fresh text only.
+    const body = m.body
+      .split(/\n\s*(?:On .+ wrote:|-----Original Message-----|From: )/)[0]
+      .replace(/^\s*>.*$/gm, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 300);
+    return `${who}: ${body}`;
+  });
+  return { lines };
+}
+
+// Merge LLM recaps (offer + one-line outcome) into the threads in place. Aligned
+// by index with `transcripts`. Best-effort: leaves threads as-is on any failure.
+async function applyRecaps(domain: string, threads: DealThread[], transcripts: ThreadTranscript[], env: NodeJS.ProcessEnv): Promise<void> {
+  try {
+    const { recapThreads } = await import("./marketplace-deal-recaps");
+    const items = threads.map((t, i) => ({
+      idx: i, party: t.party, origin: t.origin,
+      subject: t.subject, transcript: transcripts[i]?.lines.join("\n") || "",
+    }));
+    const recaps = await recapThreads(domain, items, env);
+    for (const [i, r] of recaps) {
+      const t = threads[i];
+      if (!t) continue;
+      if (r.outcome) t.outcome = r.outcome;
+      if (r.offer) t.offer = r.offer; // LLM-extracted buyer offer beats the structured one
+    }
+  } catch {
+    /* recaps are enrichment only — never block the report */
+  }
 }
