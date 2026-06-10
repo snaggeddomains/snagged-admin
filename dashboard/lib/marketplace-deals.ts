@@ -24,7 +24,13 @@ const isUs = (a: string) => a.endsWith("@snagged.com") || a.endsWith("@snagged.c
 // escrow.com + docusign are transactional, not buyers — kept out of the buyer
 // buckets here; their meaning (sale status / representation start) is detected
 // separately below.
-const SYSTEM_DOMAINS = ["asana.com", "zapiermail.com", "googlemail.com", "mailer-daemon", "superhuman.com", "cloudflare.com", "docusign.net", "docusign.com", "escrow.com", "intercom"];
+const SYSTEM_DOMAINS = ["asana.com", "zapiermail.com", "googlemail.com", "mailer-daemon", "superhuman.com", "cloudflare.com", "docusign.net", "docusign.com", "escrow.com", "intercom",
+  // CRM / tracking / internal tooling — never a buyer counterparty.
+  "hubspot.com", "docs.google.com", "domainscout", "calendly.com", "notion.so"];
+// A negotiation with no activity in this many days is treated as STALE, not active.
+const ACTIVE_DAYS = 45;
+// Buyer signalling they're out — so the thread isn't a live negotiation.
+const DECLINE = /\b(not interested|no longer interested|we'?ll pass|i'?ll pass|gonna pass|going to pass|decided (?:not|against)|no thank|out of (?:our )?budget|too (?:high|expensive|much)|can'?t afford|different direction|move on|no deal|withdraw)\b/i;
 const SYSTEM_ADDRS = new Set(["sharing@superhuman.com", "reminder@superhuman.com", "noreply@snagged.com", "no-reply@snagged.com", "marketplace@snagged.com"]);
 function isSystem(addr: string, name = ""): boolean {
   if (SYSTEM_ADDRS.has(addr)) return true;
@@ -46,7 +52,7 @@ function normSubject(s: string): string {
 }
 const sld = (d: string) => d.split(".")[0];
 
-type Form = { domain: string; name: string; email: string; budget: string; message: string; intent: string };
+type Form = { domain: string; name: string; email: string; budget: string; offer: string; message: string; intent: string };
 // Parse a structured inquiry-form body. Handles all three historical formats:
 // marketplace@ / newer Zapier ("Domain Name: X.com") and the older Superhuman/
 // Zapier "New Submission" ("Domains: opson", often no TLD, with "Acquire or Sell?").
@@ -62,12 +68,13 @@ function parseForm(m: GmailMessage): Form | null {
   };
   const dnRaw = field("Domain Name") || field("Domains") || field("Domain");
   if (!dnRaw) return null;
-  const offer = field("Offer"); // Efty's budget field
+  const offer = field("Offer"); // Efty's structured buyer-offer field
   return {
     domain: dnRaw.toLowerCase().replace(/^www\./, "").split(/[\s,]+/)[0],
     name: (field("Name") || m.fromName || "").slice(0, 60),
     email: (field("Email") || "").slice(0, 80),
-    budget: (field("Budget") || (offer && offer !== "-" ? offer : "")).slice(0, 40),
+    budget: field("Budget").slice(0, 40), // a budget BAND (marketplace form)
+    offer: offer && offer !== "-" && /\d/.test(offer) ? offer.slice(0, 40) : "", // a specific $ offer (Efty)
     message: field("Message").slice(0, 400),
     intent: field("Acquire or Sell\\?").slice(0, 30),
   };
@@ -81,18 +88,32 @@ const hasBudget = (b?: string) => !!b && !/^(i'?m not sure|not sure|unsure|n\/?a
 export type DealThread = {
   subject: string;
   origin: "inbound" | "pitched";
-  active: boolean;
+  active: boolean; // live two-way negotiation (recent, not declined/stale)
+  stale: boolean; // a real two-way thread that's gone quiet (> ACTIVE_DAYS)
+  declined: boolean; // buyer signalled they're out
   hasForm: boolean;
   qualified: boolean; // a credible buyer (real budget / business email / engaged)
   party: string;
   partyEmail: string | null;
-  budget: string | null;
+  budget: string | null; // a budget BAND from the form ("$5K to $25K")
+  offer: string | null; // a specific offer amount mentioned ("$50,000")
   intent: string | null;
   messages: number;
   first: string; // YYYY-MM-DD
   last: string;
   lastSnippet: string;
 };
+
+// Normalize a structured offer string to a "$X" display (e.g. "5000" → "$5,000").
+// We deliberately do NOT scrape free-text $ amounts from bodies — those pick up
+// the ASK price we quote, not the buyer's offer. Real negotiated offers come from
+// the LLM recap pass; this is the reliable structured (Efty) offer only.
+function formatOffer(raw?: string): string | null {
+  if (!raw) return null;
+  const digits = raw.replace(/[^0-9]/g, "");
+  if (!digits) return null;
+  return `$${Number(digits).toLocaleString()}`;
+}
 
 // Sale status from Escrow.com — where actual marketplace sales settle. Stages
 // progress: opened → terms agreed → payment secured → sold (closing statement /
@@ -227,62 +248,83 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
     (convos.get(k) || convos.set(k, []).get(k)!).push(m);
   }
 
-  const threads: DealThread[] = [];
+  // First pass — keep only convos actually about this domain, and tally each
+  // external counterparty's distinct-thread count. The DOMAIN OWNER/SELLER recurs
+  // across many of a domain's threads (forwarding offers, status, etc.) whereas a
+  // buyer shows up in one — so a counterparty in ≥3 threads is treated as the
+  // seller and excluded from the buyer buckets (e.g. Luxe.com's Alberto Lopez).
+  type Relevant = { ms: GmailMessage[]; formMatch: Form[] };
+  const relevant: Relevant[] = [];
+  const threadsByEmail = new Map<string, number>();
   for (const [key, ms] of convos) {
     if (NOISE_SUBJECT.test(key)) continue;
     ms.sort((a, b) => a.date - b.date);
-
     const forms = ms.map(parseForm).filter((f): f is Form => !!f);
     const formMatch = forms.filter((f) => formMatches(f, domain));
     const subjHas = key.includes(domain) || key.includes(sld(domain));
     if (!formMatch.length && !subjHas) continue; // incidental mention only
-
-    // Skip pure newsletter blasts (no form, not an actual inquiry thread).
     if (!formMatch.length && ms.some((m) => NEWSLETTER_HINT.some((h) => m.from.includes(h)))) continue;
+    relevant.push({ ms, formMatch });
+    for (const e of new Set(ms.filter((m) => !isUs(m.from) && !isSystem(m.from, m.fromName)).map((m) => m.from))) {
+      threadsByEmail.set(e, (threadsByEmail.get(e) || 0) + 1);
+    }
+  }
+  const sellerEmails = new Set([...threadsByEmail].filter(([, c]) => c >= 3).map(([e]) => e));
+  const isBuyer = (m: GmailMessage) => !isUs(m.from) && !isSystem(m.from, m.fromName) && !sellerEmails.has(m.from);
 
-    const senders = new Set(ms.map((m) => m.from));
+  const threads: DealThread[] = [];
+  for (const { ms, formMatch } of relevant) {
     const usMsgs = ms.filter((m) => isUs(m.from));
-    const themMsgs = ms.filter((m) => !isUs(m.from) && !isSystem(m.from, m.fromName));
+    const themMsgs = ms.filter(isBuyer); // real buyers only — seller excluded
     const hasForm = formMatch.length > 0;
     const hasUs = usMsgs.length > 0;
     const hasThem = themMsgs.length > 0;
+    // Seller-only correspondence (owner emailing about their domain, no buyer, no
+    // form) — not a buyer deal.
+    if (!hasThem && !hasForm) {
+      if (ms.some((m) => sellerEmails.has(m.from)) || !ms.some((m) => isUs(m.from))) continue;
+    }
 
-    const firstHuman = ms.find((m) => isUs(m.from) || !isSystem(m.from, m.fromName));
+    const firstHuman = ms.find((m) => isUs(m.from) || isBuyer(m));
     let origin: "inbound" | "pitched";
     if (hasForm || (firstHuman && !isUs(firstHuman.from))) origin = "inbound";
     else if (firstHuman && isUs(firstHuman.from)) origin = "pitched";
-    else continue; // purely automated, no form, no human → noise
+    else continue; // purely automated / seller-only → noise
 
-    const active = hasUs && hasThem;
+    // Live vs stale vs declined. "Active negotiation" = a real two-way exchange
+    // that is RECENT and not declined — a March inquiry with no reply since, or a
+    // buyer who passed, is NOT active.
+    const lastDate = ms[ms.length - 1].date;
+    const stale = (Date.now() - lastDate) / 86400000 > ACTIVE_DAYS;
+    const recentThem = themMsgs.slice(-2).map((m) => `${m.subject}\n${m.body}`).join("\n");
+    const declined = DECLINE.test(recentThem);
+    const active = hasUs && hasThem && !stale && !declined;
+
     const fm = formMatch[0] || null;
-    // Party: the buyer. From the form (name/email) for inbound submissions;
-    // the external human for direct threads; the To: recipient for our pitches.
     let party = (fm?.name || themMsgs[0]?.fromName || themMsgs[0]?.from || "").trim();
     let partyEmail = fm?.email || themMsgs[0]?.from || null;
     if (origin === "pitched" && !party) {
       const to = usMsgs[0]?.to || "";
       party = (to.match(/"?([^"<]+?)"?\s*</)?.[1] || bareAddrToName(to)).trim();
-      partyEmail = (to.match(/[\w.\-+]+@[\w.\-]+/)?.[0] || null);
+      partyEmail = to.match(/[\w.\-+]+@[\w.\-]+/)?.[0] || null;
     }
 
-    // Qualified buyer heuristic: a real budget band, OR a business (non-free)
-    // email, OR a genuinely engaged thread (multi-message back-and-forth).
     const emailDom = (partyEmail || "").split("@")[1]?.toLowerCase() || "";
-    const qualified = hasBudget(fm?.budget) || (!!emailDom && !FREE_EMAIL.has(emailDom)) || ms.length >= 3 || active;
+    const qualified = hasBudget(fm?.budget) || (!!emailDom && !FREE_EMAIL.has(emailDom)) || ms.length >= 3 || (hasUs && hasThem);
 
     threads.push({
       subject: ms[ms.length - 1].subject,
-      origin, active, hasForm, qualified,
+      origin, active, stale, declined, hasForm, qualified,
       party: party || "—",
       partyEmail,
       budget: fm && hasBudget(fm.budget) ? fm.budget : null,
+      offer: formatOffer(fm?.offer),
       intent: fm?.intent || null,
       messages: ms.length,
       first: ymd(ms[0].date),
       last: ymd(ms[ms.length - 1].date),
       lastSnippet: ms[ms.length - 1].snippet.slice(0, 160),
     });
-    void senders;
   }
 
   threads.sort((a, b) => (a.last < b.last ? 1 : -1));
