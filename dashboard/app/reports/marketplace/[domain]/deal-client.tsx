@@ -44,17 +44,17 @@ const PRESETS: { key: Preset; label: string }[] = [
 function StatCard({ label, value, accent }: { label: string; value: number; accent?: boolean }) {
   return (
     <div style={{ border: "1px solid #e3ddcf", borderRadius: 10, padding: "12px 16px", minWidth: 120, flex: "1 1 120px" }}>
-      <div style={{ fontSize: 24, fontWeight: 800, color: accent ? CORAL : NAVY }}>{fmt(value)}</div>
-      <div className="muted" style={{ fontSize: 12, marginTop: 2 }}>{label}</div>
+      <div style={{ fontSize: 30, fontWeight: 800, color: accent ? CORAL : NAVY }}>{fmt(value)}</div>
+      <div className="muted" style={{ fontSize: 13.5, marginTop: 2 }}>{label}</div>
     </div>
   );
 }
 function AggCard({ label, value, sub, accent }: { label: string; value: number; sub?: string; accent?: boolean }) {
   return (
     <div style={{ border: `1px solid ${accent ? CORAL : "#e3ddcf"}`, borderRadius: 10, padding: "14px 18px", minWidth: 150, flex: "1 1 150px" }}>
-      <div style={{ fontSize: 30, fontWeight: 800, color: accent ? CORAL : NAVY }}>{fmt(value)}</div>
-      <div style={{ fontSize: 13, fontWeight: 600, marginTop: 2 }}>{label}</div>
-      {sub && <div className="muted" style={{ fontSize: 11, marginTop: 2 }}>{sub}</div>}
+      <div style={{ fontSize: 38, fontWeight: 800, color: accent ? CORAL : NAVY }}>{fmt(value)}</div>
+      <div style={{ fontSize: 15, fontWeight: 600, marginTop: 2 }}>{label}</div>
+      {sub && <div className="muted" style={{ fontSize: 12.5, marginTop: 2 }}>{sub}</div>}
     </div>
   );
 }
@@ -70,12 +70,12 @@ function statusOf(t: DealThread): { label: string; color: string } {
 // Compact controls (the dashboard's `.field` class is full-width — too clunky here).
 const CTL: React.CSSProperties = { padding: "5px 9px", fontSize: 13, borderRadius: 8, border: "1px solid #d8d0bf", background: "#fff", color: NAVY, maxWidth: 200, cursor: "pointer" };
 const BTN: React.CSSProperties = { padding: "5px 11px", fontSize: 12.5, borderRadius: 8, border: "1px solid #d8d0bf", background: "#fff", color: NAVY, cursor: "pointer", whiteSpace: "nowrap" };
-const cell: React.CSSProperties = { padding: "7px 10px", borderBottom: "1px solid var(--line, #eee)", verticalAlign: "top", fontSize: 13 };
-const head: React.CSSProperties = { ...cell, textAlign: "left", color: "var(--muted, #888)", fontWeight: 600, whiteSpace: "nowrap" };
+const cell: React.CSSProperties = { padding: "10px 14px", borderBottom: "1px solid var(--line, #eee)", verticalAlign: "top", fontSize: 15, lineHeight: 1.45 };
+const head: React.CSSProperties = { ...cell, textAlign: "left", color: "var(--muted, #888)", fontWeight: 600, whiteSpace: "nowrap", fontSize: 13.5 };
 
 function StatusBadge({ t }: { t: DealThread }) {
   const s = statusOf(t);
-  return <span style={{ fontSize: 11, fontWeight: 700, color: s.color, border: `1px solid ${s.color}`, borderRadius: 999, padding: "1px 8px", whiteSpace: "nowrap" }}>{s.label}</span>;
+  return <span style={{ fontSize: 12.5, fontWeight: 700, color: s.color, border: `1px solid ${s.color}`, borderRadius: 999, padding: "1px 8px", whiteSpace: "nowrap" }}>{s.label}</span>;
 }
 
 export default function DealClient({ domain }: { domain: string }) {
@@ -165,7 +165,7 @@ export default function DealClient({ domain }: { domain: string }) {
       {data?.deals.configured === false && <p className="muted">Gmail isn&apos;t configured on this deployment (GOOGLE_SA_KEY).</p>}
       {loading && !rep && <p className="loading-pulse" style={{ color: CORAL }}>Generating the activity report — scanning the deal mailboxes for this domain. This can take a few minutes the first time…</p>}
 
-      <h2 style={{ fontSize: "1rem", margin: "16px 0 6px" }}>Traffic <span className="muted" style={{ fontWeight: 400, fontSize: 12 }}>({range.from === range.to ? range.from : `${range.from} → ${range.to}`})</span></h2>
+      <h2 style={{ fontSize: "1.18rem", margin: "16px 0 6px" }}>Traffic <span className="muted" style={{ fontWeight: 400, fontSize: 12 }}>({range.from === range.to ? range.from : `${range.from} → ${range.to}`})</span></h2>
       {ga ? (
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
           <StatCard label="Visits" value={ga.views} /><StatCard label="Visitors" value={ga.users} />
@@ -175,7 +175,7 @@ export default function DealClient({ domain }: { domain: string }) {
 
       {rep && (
         <>
-          <h2 style={{ fontSize: "1rem", margin: "20px 0 6px" }}>Deal activity <span className="muted" style={{ fontWeight: 400, fontSize: 12 }}>(all-time, from email)</span></h2>
+          <h2 style={{ fontSize: "1.18rem", margin: "20px 0 6px" }}>Deal activity <span className="muted" style={{ fontWeight: 400, fontSize: 12 }}>(all-time, from email)</span></h2>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             <AggCard label="Inbound inquiries" value={rep.inboundQualified} sub={`${rep.inbound} total incl. low-quality`} accent />
             <AggCard label="Active negotiations" value={rep.activeNegotiations} sub="live two-way (≤45d, not declined)" />
@@ -188,10 +188,10 @@ export default function DealClient({ domain }: { domain: string }) {
           )}
 
           {/* Section 1: Inbound & negotiations */}
-          <h3 style={{ fontSize: 14, margin: "20px 0 4px" }}>Inbound inquiries &amp; negotiations</h3>
+          <h3 style={{ fontSize: 16.5, margin: "20px 0 4px" }}>Inbound inquiries &amp; negotiations</h3>
           {inboundShown.length === 0 ? <p className="muted" style={{ fontSize: 13 }}>None.</p> : (
             <div style={{ overflowX: "auto" }}>
-              <table style={{ borderCollapse: "collapse", width: "100%", maxWidth: 920 }}>
+              <table style={{ borderCollapse: "collapse", width: "100%" }}>
                 <thead><tr><th style={head}>Buyer</th><th style={head}>Offer</th><th style={head}>Status</th><th style={head}>Last activity</th><th style={{ ...head, width: "42%" }}>What happened</th></tr></thead>
                 <tbody>
                   {inboundShown.map((t, i) => (
@@ -214,10 +214,10 @@ export default function DealClient({ domain }: { domain: string }) {
           )}
 
           {/* Section 2: Pitched */}
-          <h3 style={{ fontSize: 14, margin: "24px 0 4px" }}>Pitched to buyers</h3>
+          <h3 style={{ fontSize: 16.5, margin: "24px 0 4px" }}>Pitched to buyers</h3>
           {pitched.length === 0 ? <p className="muted" style={{ fontSize: 13 }}>None.</p> : (
             <div style={{ overflowX: "auto" }}>
-              <table style={{ borderCollapse: "collapse", width: "100%", maxWidth: 920 }}>
+              <table style={{ borderCollapse: "collapse", width: "100%" }}>
                 <thead><tr><th style={head}>Pitched to</th><th style={head}>Status</th><th style={head}>Last contact</th><th style={{ ...head, width: "48%" }}>What happened</th></tr></thead>
                 <tbody>
                   {pitched.map((t, i) => (
