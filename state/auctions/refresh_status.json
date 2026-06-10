@@ -1,48 +1,48 @@
 [
   {
-    "generated_at": "2026-06-09T10:39:29.031958+00:00",
+    "generated_at": "2026-06-10T09:27:51.235550+00:00",
     "label": "Park.io",
     "source": "parkio_auctions",
     "status": "ok"
   },
   {
-    "generated_at": "2026-06-09T10:39:53.125662+00:00",
+    "generated_at": "2026-06-10T09:28:14.883934+00:00",
     "label": "Namecheap",
     "source": "namecheap_auctions",
     "status": "ok"
   },
   {
-    "generated_at": "2026-06-09T10:40:16.216347+00:00",
+    "generated_at": "2026-06-10T09:28:37.772224+00:00",
     "label": "Dynadot",
     "source": "dynadot_auctions",
     "status": "ok"
   },
   {
-    "generated_at": "2026-06-09T10:40:26.299775+00:00",
+    "generated_at": "2026-06-10T09:28:47.100465+00:00",
     "label": "DropCatch",
     "source": "dropcatch_auctions",
     "status": "ok"
   },
   {
-    "generated_at": "2026-06-09T10:40:40.203552+00:00",
+    "generated_at": "2026-06-10T09:29:00.844535+00:00",
     "label": "GoDaddy",
     "source": "godaddy_auctions",
     "status": "ok"
   },
   {
-    "generated_at": "2026-06-09T10:41:13.316514+00:00",
+    "generated_at": "2026-06-10T09:29:52.029439+00:00",
     "label": "NameSilo",
     "source": "namesilo_auctions",
     "status": "ok"
   },
   {
-    "generated_at": "2026-06-09T10:41:21.710697+00:00",
+    "generated_at": "2026-06-10T09:30:00.156323+00:00",
     "label": "Sedo Expired",
     "source": "sedo_expired_auctions",
     "status": "ok"
   },
   {
-    "generated_at": "2026-06-09T10:41:25.051187+00:00",
+    "generated_at": "2026-06-10T09:30:03.004614+00:00",
     "label": "Drive Uploads",
     "source": "drive_auction_uploads",
     "status": "ok"

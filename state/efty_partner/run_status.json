@@ -1,7 +1,12 @@
 {
-  "error": "525 Server Error: <none> for url: https://efty.com/partner/feed/token/640677654bf924ed61392d5393d5781db75edfa275cd3b62edc5e390319ed718/",
-  "generated_at": "2026-06-09T10:39:20.251239+00:00",
+  "dropped_count": 1,
+  "generated_at": "2026-06-10T09:27:43.038498+00:00",
   "label": "Efty",
+  "new_count": 1,
+  "price_change_count": 0,
+  "qualified_count": 2633,
+  "scored_count": 452895,
+  "slack_posted": true,
   "source": "efty_partner",
-  "status": "failed"
+  "status": "ok"
 }

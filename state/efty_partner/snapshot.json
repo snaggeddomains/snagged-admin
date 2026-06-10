@@ -2071,16 +2071,6 @@
   },
   {
     "deal_score": 43100.0,
-    "domain": "mouse.com",
-    "link": "https://efty.com/d/33ryg/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
-    "price": 1.0,
-    "quality_score": 4.31,
-    "sld": "mouse",
-    "tld": ".com",
-    "zipf_score": 4.31
-  },
-  {
-    "deal_score": 43100.0,
     "domain": "piano.com",
     "link": "https://efty.com/d/1dn9p/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
     "price": 1.0,
@@ -2498,5 +2488,15 @@
     "sld": "said",
     "tld": ".io",
     "zipf_score": 6.01
+  },
+  {
+    "deal_score": 42000.0,
+    "domain": "chronic.com",
+    "link": "https://efty.com/d/2d7jl/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
+    "price": 1.0,
+    "quality_score": 4.2,
+    "sld": "chronic",
+    "tld": ".com",
+    "zipf_score": 4.2
   }
 ]

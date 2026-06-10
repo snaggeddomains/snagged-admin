@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "bid_count": 0,
+    "domain": "developmental.co",
+    "end_time_utc": "2026-06-10T19:29:59+00:00",
+    "link": "https://www.dynadot.com/market/auction/39574944.html",
+    "platform": "Dynadot",
+    "price": 7.99
+  },
+  {
+    "bid_count": 0,
+    "domain": "preventative.co",
+    "end_time_utc": "2026-06-10T19:29:59+00:00",
+    "link": "https://www.dynadot.com/market/auction/39574945.html",
+    "platform": "Dynadot",
+    "price": 7.99
+  },
+  {
+    "bid_count": 0,
+    "domain": "relatable.co",
+    "end_time_utc": "2026-06-10T20:00:00+00:00",
+    "link": "https://www.dynadot.com/market/auction/39248745.html",
+    "platform": "Dynadot",
+    "price": 7.99
+  }
+]

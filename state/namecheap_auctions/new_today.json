@@ -1,17 +1,18 @@
 {
   "capped": false,
-  "count": 9,
+  "count": 10,
   "domains": [
-    "vinson.ai",
-    "shouldnt.org",
-    "seine.ai",
-    "lanarkshire.org",
-    "recombination.org",
-    "gad.ai",
-    "warhead.ai",
-    "perrin.ai",
-    "disappointment.co"
+    "morbid.co",
+    "anonymously.co",
+    "distraught.org",
+    "hearse.ai",
+    "hiroshima.ai",
+    "guesthouse.ai",
+    "wyndham.co",
+    "sitting.ai",
+    "scourge.ai",
+    "harbaugh.ai"
   ],
-  "generated_at": "2026-06-09T10:39:52.716407+00:00",
+  "generated_at": "2026-06-10T09:28:14.449960+00:00",
   "source": "namecheap_auctions"
 }
