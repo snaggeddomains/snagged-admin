@@ -52,14 +52,22 @@ type Form = { domain: string; name: string; email: string; budget: string; messa
 // Zapier "New Submission" ("Domains: opson", often no TLD, with "Acquire or Sell?").
 function parseForm(m: GmailMessage): Form | null {
   const b = m.body;
-  const field = (k: string) => (b.match(new RegExp(`^\\s*${k}\\s*:\\s*(.+)$`, "im"))?.[1] || "").trim();
+  // Two on-the-wire shapes: "Field: value" (marketplace@/Zapier/Superhuman) and
+  // the Efty "*Field*\nvalue" markdown shape (legacy lead channel, still live).
+  const field = (k: string): string => {
+    const inline = b.match(new RegExp(`^\\s*${k}\\s*:\\s*(.+)$`, "im"));
+    if (inline?.[1]?.trim()) return inline[1].trim();
+    const block = b.match(new RegExp(`^\\s*\\*?${k}\\*?\\s*\\r?\\n+\\s*(.+)$`, "im")); // Efty
+    return block?.[1]?.trim() || "";
+  };
   const dnRaw = field("Domain Name") || field("Domains") || field("Domain");
   if (!dnRaw) return null;
+  const offer = field("Offer"); // Efty's budget field
   return {
     domain: dnRaw.toLowerCase().replace(/^www\./, "").split(/[\s,]+/)[0],
     name: (field("Name") || m.fromName || "").slice(0, 60),
     email: (field("Email") || "").slice(0, 80),
-    budget: field("Budget").slice(0, 40),
+    budget: (field("Budget") || (offer && offer !== "-" ? offer : "")).slice(0, 40),
     message: field("Message").slice(0, 400),
     intent: field("Acquire or Sell\\?").slice(0, 30),
   };
