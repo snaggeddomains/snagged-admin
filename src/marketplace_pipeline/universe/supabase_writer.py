@@ -24,13 +24,16 @@ from typing import Any
 # Override via env for smoke runs.
 BATCH_SIZE = int(os.environ.get("UNIVERSE_UPSERT_BATCH") or 1_000)
 
-# The merge RPC hits two load-induced, idempotent-safe transient errors:
+# The merge RPC hits idempotent-safe transient errors at two layers:
 #   57014 statement timeout  — a batch ran past the statement_timeout
 #   40P01 deadlock detected  — concurrent source runs (e.g. afternic +
 #                              namecheap) lock overlapping rows in opposite
 #                              orders and deadlock.
-# Both are safe to retry (the RPC is idempotent). Retry with exponential
-# backoff before giving up, instead of failing the whole scheduled run.
+#   httpx transport errors   — a dropped/reset TLS connection mid-request
+#                              ("EOF occurred in violation of protocol") or a
+#                              read/write/connect/pool timeout.
+# All are safe to retry (the RPC is idempotent). See `_is_retryable`. Retry with
+# exponential backoff before giving up, instead of failing the whole scheduled run.
 UPSERT_RETRIES = 5
 UPSERT_BACKOFF_BASE = 2.0  # seconds; doubles each attempt
 
@@ -43,6 +46,35 @@ def _is_transient(err: str) -> bool:
         or "deadlock" in low
         or "statement timeout" in low
         or "canceling statement" in low
+    )
+
+
+def _is_retryable(e: Exception) -> bool:
+    """Whether the merge-RPC error `e` is safe to retry (the RPC is idempotent).
+
+    Two distinct transient classes hit this write path:
+      - Postgres load-induced errors (57014 statement timeout / 40P01 deadlock),
+        identifiable from the error text via `_is_transient`; and
+      - httpx **transport-layer** failures — a dropped/reset TLS connection,
+        "EOF occurred in violation of protocol", or a read/write/connect/pool
+        timeout. These surface as `httpx.TimeoutException` / `httpx.NetworkError`
+        (the parent of WriteError/ReadError/ConnectError) / `httpx.RemoteProtocolError`,
+        whose `str()` carries no Postgres code, so the text test alone misses them.
+
+    Afternic alone upserts ~700K rows across ~700 sequential batches over ~70
+    minutes; over that many requests a single mid-run network blip is expected,
+    and previously re-raised immediately and aborted the whole source run.
+    """
+    if _is_transient(str(e)):
+        return True
+    try:
+        import httpx
+    except ImportError:  # pragma: no cover — httpx ships with supabase/postgrest
+        return False
+    # Network-transient subset only; deliberately excludes client-side
+    # LocalProtocolError / UnsupportedProtocol, which retrying can't fix.
+    return isinstance(
+        e, (httpx.TimeoutException, httpx.NetworkError, httpx.RemoteProtocolError)
     )
 
 
@@ -171,7 +203,7 @@ def upsert(merged_rows: list[dict[str, Any]]) -> dict[str, Any]:
                 client.rpc("upsert_universe_rows", {"rows": batch}).execute()
                 break
             except Exception as e:  # noqa: BLE001 — Postgres transient errors
-                if attempt < UPSERT_RETRIES - 1 and _is_transient(str(e)):
+                if attempt < UPSERT_RETRIES - 1 and _is_retryable(e):
                     backoff = UPSERT_BACKOFF_BASE * (2 ** attempt)
                     print(
                         f"      universe upsert transient error "

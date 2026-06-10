@@ -182,3 +182,42 @@ def test_upsert_batches_and_calls_rpc(monkeypatch):
     for call in fake_client.rpc.call_args_list:
         args, _ = call
         assert args[0] == "upsert_universe_rows"
+
+
+def test_upsert_retries_httpx_transport_error(monkeypatch):
+    """A mid-run httpx transport blip (e.g. WriteError "EOF occurred in
+    violation of protocol") must be retried, not abort the source run.
+
+    Regression for the SNAP-orchestrator afternic failure (2026-06-10): the
+    retry classifier only matched Postgres transient text, so a transport-layer
+    error re-raised on the first attempt and killed a ~700-batch upsert.
+    """
+    import httpx
+
+    fake_client = MagicMock()
+    # First execute() raises a transport error; the second (retry) succeeds.
+    fake_client.rpc.return_value.execute.side_effect = [
+        httpx.WriteError("EOF occurred in violation of protocol (_ssl.c:2437)"),
+        MagicMock(),
+    ]
+    monkeypatch.setattr(sw, "_client_or_none", lambda: fake_client)
+    monkeypatch.setattr(sw.time, "sleep", lambda _s: None)  # don't actually back off
+
+    merged = [
+        {
+            "domain": "retry.com",
+            "sld": "retry",
+            "tld": ".com",
+            "sld_length": 5,
+            "observed_date": "2026-06-10",
+            "zipf_score": None,
+            "sources": ["afternic"],
+            "prices": {"afternic": 99.0},
+        }
+    ]
+    stats = sw.upsert(merged)
+
+    assert stats["status"] == "ok"
+    assert stats["rows_sent"] == 1
+    # Two execute() calls = one transient failure + one successful retry.
+    assert fake_client.rpc.return_value.execute.call_count == 2
