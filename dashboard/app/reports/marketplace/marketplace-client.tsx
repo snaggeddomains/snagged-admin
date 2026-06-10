@@ -15,25 +15,13 @@ const CTL: React.CSSProperties = { padding: "5px 9px", fontSize: 13, borderRadiu
 const BTN: React.CSSProperties = { padding: "5px 11px", fontSize: 12.5, borderRadius: 8, border: "1px solid #d8d0bf", background: "#fff", color: "var(--navy,#254254)", cursor: "pointer", whiteSpace: "nowrap" };
 const fmt = (x: number) => x.toLocaleString();
 const etYmd = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(d);
-const pad2 = (x: number) => String(x).padStart(2, "0");
-
 const TODAY = etYmd(new Date());
-const YESTERDAY = etYmd(new Date(Date.now() - 86400000));
-const WEEK_START = etYmd(new Date(Date.now() - 6 * 86400000));
-const MONTH_START = `${TODAY.slice(0, 7)}-01`;
-const LAST_WEEK_START = etYmd(new Date(Date.now() - 13 * 86400000));
-const LAST_WEEK_END = etYmd(new Date(Date.now() - 7 * 86400000));
-const _ty = Number(TODAY.slice(0, 4)), _tm = Number(TODAY.slice(5, 7));
-const _lmEnd = new Date(Date.UTC(_ty, _tm - 1, 0)); // day 0 of this month = last day of prev month
-const LAST_MONTH_END = `${_lmEnd.getUTCFullYear()}-${pad2(_lmEnd.getUTCMonth() + 1)}-${pad2(_lmEnd.getUTCDate())}`;
-const LAST_MONTH_START = `${_lmEnd.getUTCFullYear()}-${pad2(_lmEnd.getUTCMonth() + 1)}-01`;
 
-type Preset = "today" | "yesterday" | "week" | "lastweek" | "month" | "lastmonth" | "custom";
+// Consistent with the per-domain drill-down report.
+type Preset = "30" | "90" | "365" | "all" | "custom";
 const PRESETS: { key: Preset; label: string }[] = [
-  { key: "today", label: "Today" }, { key: "yesterday", label: "Yesterday" },
-  { key: "week", label: "This week" }, { key: "lastweek", label: "Last week" },
-  { key: "month", label: "This month" }, { key: "lastmonth", label: "Last month" },
-  { key: "custom", label: "Custom range" },
+  { key: "30", label: "Last 30 days" }, { key: "90", label: "Last 90 days" },
+  { key: "365", label: "Last 12 months" }, { key: "all", label: "All time" }, { key: "custom", label: "Custom" },
 ];
 
 function StatCard({ label, value, accent }: { label: string; value: number; accent?: boolean }) {
@@ -46,8 +34,8 @@ function StatCard({ label, value, accent }: { label: string; value: number; acce
 }
 
 export default function MarketplaceClient() {
-  const [preset, setPreset] = useState<Preset>("week");
-  const [from, setFrom] = useState(WEEK_START);
+  const [preset, setPreset] = useState<Preset>("90");
+  const [from, setFrom] = useState(etYmd(new Date(Date.now() - 89 * 86400000)));
   const [to, setTo] = useState(TODAY);
   const [report, setReport] = useState<MarketplaceReport | null>(null);
   const [configured, setConfigured] = useState(true);
@@ -56,12 +44,10 @@ export default function MarketplaceClient() {
   const [sort, setSort] = useState<SortKey>("views");
 
   const range = useMemo(() => {
-    if (preset === "today") return { from: TODAY, to: TODAY };
-    if (preset === "yesterday") return { from: YESTERDAY, to: YESTERDAY };
-    if (preset === "week") return { from: WEEK_START, to: TODAY };
-    if (preset === "lastweek") return { from: LAST_WEEK_START, to: LAST_WEEK_END };
-    if (preset === "month") return { from: MONTH_START, to: TODAY };
-    if (preset === "lastmonth") return { from: LAST_MONTH_START, to: LAST_MONTH_END };
+    if (preset === "30") return { from: etYmd(new Date(Date.now() - 29 * 86400000)), to: TODAY };
+    if (preset === "90") return { from: etYmd(new Date(Date.now() - 89 * 86400000)), to: TODAY };
+    if (preset === "365") return { from: etYmd(new Date(Date.now() - 364 * 86400000)), to: TODAY };
+    if (preset === "all") return { from: "2024-01-01", to: TODAY };
     return { from, to: to || from };
   }, [preset, from, to]);
 

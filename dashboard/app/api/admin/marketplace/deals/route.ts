@@ -76,11 +76,15 @@ export async function GET(req: NextRequest) {
     } catch { return null; }
   })();
 
-  const nlP = getNewsletterFeatures().then((f) => summarizeNewsletter(f[domain])).catch(() => null);
+  // Newsletter: both the summary (counts) AND the per-send list (date · subject ·
+  // MailChimp archive link) so the report can show the full breakdown.
+  const nlP = getNewsletterFeatures()
+    .then((f) => ({ summary: summarizeNewsletter(f[domain]), features: f[domain] || [] }))
+    .catch(() => ({ summary: null as ReturnType<typeof summarizeNewsletter> | null, features: [] as Awaited<ReturnType<typeof getNewsletterFeatures>>[string] }));
 
   try {
-    const [deals, ga, newsletter] = await Promise.all([dealsP, gaP, nlP]);
-    return NextResponse.json({ ok: true, domain, from, to, deals, ga, newsletter });
+    const [deals, ga, nl] = await Promise.all([dealsP, gaP, nlP]);
+    return NextResponse.json({ ok: true, domain, from, to, deals, ga, newsletter: nl.summary, newsletterFeatures: nl.features });
   } catch (e) {
     return NextResponse.json({ ok: false, error: String((e as Error)?.message || e) }, { status: 500 });
   }

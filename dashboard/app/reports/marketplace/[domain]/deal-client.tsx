@@ -16,10 +16,11 @@ type DealReport = {
 };
 type GaRow = { views: number; sessions: number; users: number; inquiryStarts: number; clicks: number; inquiries: number };
 type Newsletter = { count: number; forSale: number; content: number; lastDate: string | null; dates: string[] } | null;
+type NlFeature = { date: string | null; type: "for_sale" | "content"; subject: string; archiveUrl: string | null };
 type Resp = {
   ok: boolean; domain: string; from: string; to: string;
   deals: { report: DealReport | null; generatedAt: string | null; configured: boolean };
-  ga: GaRow | null; newsletter: Newsletter; error?: string;
+  ga: GaRow | null; newsletter: Newsletter; newsletterFeatures?: NlFeature[]; error?: string;
 };
 
 const CORAL = "var(--coral-deep, #c0492f)";
@@ -76,6 +77,43 @@ const head: React.CSSProperties = { ...cell, textAlign: "left", color: "var(--mu
 function StatusBadge({ t }: { t: DealThread }) {
   const s = statusOf(t);
   return <span style={{ fontSize: 12.5, fontWeight: 700, color: s.color, border: `1px solid ${s.color}`, borderRadius: 999, padding: "1px 8px", whiteSpace: "nowrap" }}>{s.label}</span>;
+}
+
+function NlList({ title, items, color }: { title: string; items: NlFeature[]; color: string }) {
+  return (
+    <div style={{ flex: "1 1 340px", minWidth: 300 }}>
+      <div style={{ fontWeight: 700, fontSize: 14.5, color, marginBottom: 6 }}>{title} ({items.length})</div>
+      {items.length === 0 ? (
+        <div className="muted" style={{ fontSize: 14 }}>None.</div>
+      ) : (
+        <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+          {items.map((f, i) => (
+            <li key={i} style={{ padding: "7px 0", borderBottom: "1px solid var(--line, #eee)", fontSize: 14.5, lineHeight: 1.4 }}>
+              <span className="muted" style={{ fontSize: 12.5 }}>{f.date || "—"}</span>{" · "}
+              {f.archiveUrl
+                ? <a href={f.archiveUrl} target="_blank" rel="noreferrer" style={{ color: CORAL, textDecoration: "none" }}>{f.subject || "(view email ↗)"}</a>
+                : <span>{f.subject || "(no subject)"}</span>}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+function NewsletterSection({ features }: { features: NlFeature[] }) {
+  if (!features.length) return null;
+  const byDateDesc = (a: NlFeature, b: NlFeature) => ((a.date || "") < (b.date || "") ? 1 : -1);
+  const spotlights = features.filter((f) => f.type === "for_sale").sort(byDateDesc);
+  const content = features.filter((f) => f.type === "content").sort(byDateDesc);
+  return (
+    <div style={{ marginTop: 22 }}>
+      <h3 style={{ fontSize: 16.5, margin: "0 0 8px" }}>Newsletter exposure</h3>
+      <div style={{ display: "flex", gap: 32, flexWrap: "wrap" }}>
+        <NlList title="Monthly Spotlight (for-sale)" items={spotlights} color="#176a2b" />
+        <NlList title="Weekly content mentions" items={content} color={NAVY} />
+      </div>
+    </div>
+  );
 }
 
 export default function DealClient({ domain }: { domain: string }) {
@@ -149,7 +187,7 @@ export default function DealClient({ domain }: { domain: string }) {
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "12px 0 4px" }}>
-        <span className="muted" style={{ fontSize: 12 }}>Traffic:</span>
+        <span className="muted" style={{ fontSize: 12 }}>Window:</span>
         <select value={preset} onChange={(e) => setPreset(e.target.value as Preset)} style={CTL}>
           {PRESETS.map((p) => <option key={p.key} value={p.key}>{p.label}</option>)}
         </select>
@@ -186,11 +224,7 @@ export default function DealClient({ domain }: { domain: string }) {
             <AggCard label="Active negotiations" value={rep.activeNegotiations} sub="live two-way (≤45d, not declined)" />
             <AggCard label="Pitched to buyers" value={rep.pitched} sub="our proactive outreach" />
           </div>
-          {nl && nl.count > 0 && (
-            <p className="muted" style={{ fontSize: 13, marginTop: 12 }}>
-              Newsletter: <strong>{nl.forSale}</strong>× Monthly Spotlight · <strong>{nl.content}</strong>× weekly content{nl.lastDate ? ` · last ${nl.lastDate}` : ""}
-            </p>
-          )}
+          <NewsletterSection features={data?.newsletterFeatures || []} />
 
           {/* Section 1: Inbound & negotiations */}
           <h3 style={{ fontSize: 16.5, margin: "20px 0 4px" }}>Inbound inquiries &amp; negotiations</h3>

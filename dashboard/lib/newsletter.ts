@@ -36,11 +36,11 @@ async function mc<T = unknown>(path: string): Promise<T> {
 }
 
 export type NewsletterType = "for_sale" | "content";
-export type NewsletterFeature = { date: string | null; type: NewsletterType; subject: string };
+export type NewsletterFeature = { date: string | null; type: NewsletterType; subject: string; archiveUrl: string | null };
 export type NewsletterSummary = { count: number; forSale: number; content: number; lastDate: string | null; dates: string[] };
 
 const DOMAIN_RE = /\b([a-z0-9][a-z0-9-]*(?:\.[a-z0-9-]+)*\.(?:com|net|org|ai|io|co|xyz|app|st|me|tv|so))\b/gi;
-type McCampaign = { id: string; send_time?: string; settings?: { subject_line?: string; title?: string } };
+type McCampaign = { id: string; send_time?: string; long_archive_url?: string; settings?: { subject_line?: string; title?: string } };
 
 // Pull every domain-looking token out of a campaign's body (anchor text, hrefs,
 // plain text), lowercased + de-duped.
@@ -67,7 +67,7 @@ export async function syncNewsletterFeatures(opts: { rescan?: boolean } = {}): P
   let featured = 0;
   // Bounded concurrency so a backfill doesn't hammer the MailChimp API.
   const queue = [...campaigns];
-  const featureRows: { domain: string; campaign_id: string; send_date: string | null; subject: string; type: NewsletterType }[] = [];
+  const featureRows: { domain: string; campaign_id: string; send_date: string | null; subject: string; type: NewsletterType; archive_url: string | null }[] = [];
   const scannedRows: { campaign_id: string; send_date: string | null }[] = [];
   async function worker() {
     while (queue.length) {
@@ -80,7 +80,7 @@ export async function syncNewsletterFeatures(opts: { rescan?: boolean } = {}): P
       try { html = (await mc<{ html?: string }>(`/campaigns/${c.id}/content`)).html || ""; } catch { html = ""; }
       const hits = domainsInHtml(html).filter((d) => listings.has(d));
       for (const domain of hits) {
-        featureRows.push({ domain, campaign_id: c.id, send_date: date, subject: subject.slice(0, 160), type: isForSale ? "for_sale" : "content" });
+        featureRows.push({ domain, campaign_id: c.id, send_date: date, subject: subject.slice(0, 160), type: isForSale ? "for_sale" : "content", archive_url: c.long_archive_url || null });
         featured++;
       }
       scannedRows.push({ campaign_id: c.id, send_date: date });
@@ -90,7 +90,13 @@ export async function syncNewsletterFeatures(opts: { rescan?: boolean } = {}): P
 
   // Chunked upserts (PostgREST payload limits).
   const chunk = <T,>(a: T[], n: number) => a.length ? Array.from({ length: Math.ceil(a.length / n) }, (_, i) => a.slice(i * n, i * n + n)) : [];
-  for (const part of chunk(featureRows, 500)) await db.from("newsletter_features").upsert(part, { onConflict: "domain,campaign_id" });
+  // Resilient to the archive_url column not existing yet (pre-migration): on a
+  // missing-column error, retry the chunk without it.
+  const missingCol = (e: { message?: string; code?: string } | null) => !!e && /archive_url|column|PGRST204|42703|schema cache/i.test(`${e.message || ""} ${e.code || ""}`);
+  for (const part of chunk(featureRows, 500)) {
+    const { error } = await db.from("newsletter_features").upsert(part, { onConflict: "domain,campaign_id" });
+    if (missingCol(error)) await db.from("newsletter_features").upsert(part.map(({ archive_url: _x, ...r }) => r), { onConflict: "domain,campaign_id" });
+  }
   for (const part of chunk(scannedRows, 500)) await db.from("newsletter_scanned").upsert(part, { onConflict: "campaign_id" });
 
   return { scanned: campaigns.length, featured };
@@ -100,12 +106,12 @@ export async function syncNewsletterFeatures(opts: { rescan?: boolean } = {}): P
 export async function getNewsletterFeatures(): Promise<Record<string, NewsletterFeature[]>> {
   if (!isDbConfigured()) return {};
   const db = getDb();
-  const { data, error } = await db.from("newsletter_features").select("domain,send_date,subject,type");
+  const { data, error } = await db.from("newsletter_features").select("*"); // '*' so archive_url rides along when present
   if (error || !data) return {};
   const out: Record<string, NewsletterFeature[]> = {};
   for (const r of data) {
     const d = String(r.domain).toLowerCase();
-    (out[d] ||= []).push({ date: r.send_date as string | null, type: (r.type as NewsletterType) || "content", subject: (r.subject as string) || "" });
+    (out[d] ||= []).push({ date: r.send_date as string | null, type: (r.type as NewsletterType) || "content", subject: (r.subject as string) || "", archiveUrl: (r.archive_url as string) || null });
   }
   for (const d of Object.keys(out)) out[d].sort((a, b) => String(b.date).localeCompare(String(a.date)));
   return out;
