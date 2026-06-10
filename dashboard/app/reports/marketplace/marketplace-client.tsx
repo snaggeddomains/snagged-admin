@@ -7,7 +7,7 @@ type NewsletterSummary = { count: number; forSale: number; content: number; last
 type ListingRow = { domain: string; path: string; views: number; sessions: number; users: number; inquiryStarts: number; clicks: number; inquiries: number; newsletter?: NewsletterSummary };
 type StatBlock = { sessions: number; users: number; pageviews: number; submissions: number };
 type MarketplaceReport = { summary: StatBlock; listings: ListingRow[] };
-type SortKey = "views" | "users" | "sessions" | "inquiryStarts" | "clicks" | "inquiries" | "newsletter";
+type SortKey = "views" | "users" | "sessions" | "inquiryStarts" | "inquiries";
 
 const CORAL = "var(--coral-deep, #c0492f)";
 const fmt = (x: number) => x.toLocaleString();
@@ -80,7 +80,7 @@ export default function MarketplaceClient() {
 
   useEffect(() => { void load(); }, [load]);
 
-  const sortVal = (l: ListingRow, k: SortKey) => (k === "newsletter" ? l.newsletter?.count || 0 : (l[k] as number));
+  const sortVal = (l: ListingRow, k: SortKey) => l[k] as number;
   const listings = useMemo(() => {
     const rows = report?.listings ? [...report.listings] : [];
     rows.sort((a, b) => sortVal(b, sort) - sortVal(a, sort) || b.views - a.views);
@@ -104,7 +104,7 @@ export default function MarketplaceClient() {
         Every domain on <strong>snagged.com/marketplace</strong> with its GA4 traffic for the selected window.
         <strong> Inquiry starts</strong> = the inquiry form was opened on that listing; <strong>Inquiries</strong> = completed
         submissions (fills in per-domain once the GA <code>domain_of_interest</code> dimension is live).
-        <strong> Newsletter</strong> = times featured in a MailChimp send (all-time; hover for the Spotlight/content split + dates).
+        Click a domain for its full <strong>activity report</strong> — inbound inquiries, pitches, negotiations, sale status &amp; newsletter exposure.
       </p>
 
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", margin: "10px 0 4px" }}>
@@ -143,24 +143,23 @@ export default function MarketplaceClient() {
             <tr>
               <th style={{ ...cell, textAlign: "left", color: "var(--muted, #888)", fontWeight: 600 }}>Domain</th>
               {th("views", "Visits")}{th("users", "Visitors")}{th("sessions", "Sessions")}
-              {th("inquiryStarts", "Inquiry starts")}{th("clicks", "CTA clicks")}{th("inquiries", "Inquiries")}{th("newsletter", "Newsletter")}
+              {th("inquiryStarts", "Inquiry starts")}{th("inquiries", "Inquiries")}
+              <th style={{ ...cell, color: "var(--muted, #888)", fontWeight: 600 }}></th>
             </tr>
           </thead>
           <tbody>
             {listings.map((l) => (
               <tr key={l.path}>
                 <td style={{ ...cell, textAlign: "left" }}>
-                  <a href={`https://www.snagged.com${l.path}`} target="_blank" rel="noreferrer" style={{ color: CORAL, textDecoration: "none" }}>{l.domain}</a>
+                  <a href={`/reports/marketplace/${encodeURIComponent(l.domain.toLowerCase())}`} style={{ color: CORAL, textDecoration: "none", fontWeight: 600 }}>{l.domain}</a>
+                  {l.path && <a href={`https://www.snagged.com${l.path}`} target="_blank" rel="noreferrer" title="Open listing" style={{ color: "var(--muted,#888)", textDecoration: "none", marginLeft: 6, fontSize: 12 }}>↗</a>}
                 </td>
                 <td style={num}>{fmt(l.views)}</td><td style={num}>{fmt(l.users)}</td><td style={num}>{fmt(l.sessions)}</td>
-                <td style={num}>{fmt(l.inquiryStarts)}</td><td style={num}>{fmt(l.clicks)}</td>
+                <td style={num}>{fmt(l.inquiryStarts)}</td>
                 <td style={{ ...num, color: l.inquiries > 0 ? CORAL : "inherit", fontWeight: l.inquiries > 0 ? 600 : 400 }}>{fmt(l.inquiries)}</td>
-                <td
-                  style={{ ...num, color: (l.newsletter?.count || 0) > 0 ? CORAL : "inherit", fontWeight: (l.newsletter?.count || 0) > 0 ? 600 : 400 }}
-                  title={l.newsletter && l.newsletter.count > 0
-                    ? `For-sale (Spotlight): ${l.newsletter.forSale} · Content: ${l.newsletter.content}${l.newsletter.lastDate ? ` · last ${l.newsletter.lastDate}` : ""}\n${l.newsletter.dates.join(", ")}`
-                    : "Not featured yet"}
-                >{fmt(l.newsletter?.count || 0)}</td>
+                <td style={{ ...cell, textAlign: "left" }}>
+                  <a href={`/reports/marketplace/${encodeURIComponent(l.domain.toLowerCase())}`} style={{ color: CORAL, textDecoration: "none", fontSize: 12 }}>Activity →</a>
+                </td>
               </tr>
             ))}
           </tbody>
