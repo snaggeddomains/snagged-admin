@@ -48,16 +48,6 @@ DICT_WORD_MIN_ZIPF = 3.0
 # 'fresh' + 'coffee', 'blue' + 'bird', 'ice' + 'box'.
 MIN_HALF_LEN = 3
 
-# Curated short affixes that ARE real English morphemes, so a brandable like
-# 'rechain' (re + chain) or 'bitly' (bit + ly) qualifies even though the affix
-# is below MIN_HALF_LEN. The OTHER half must still be a real dictionary word
-# (>= MIN_HALF_LEN, zipf >= min) — so junk like 'cirro' (ci/rro) stays out
-# because neither 'ci' nor 'rro' is an affix or a word.
-AFFIX_PREFIXES: frozenset[str] = frozenset(
-    {"re", "un", "up", "in", "on", "ex", "de", "bi", "co", "go"}
-)
-AFFIX_SUFFIXES: frozenset[str] = frozenset({"ly", "fy", "ify"})
-
 
 def max_consonant_run(sld: str) -> int:
     """Return the longest run of consecutive consonants in sld.
@@ -114,20 +104,6 @@ def classify_dict_word(sld: str, min_zipf: float = DICT_WORD_MIN_ZIPF) -> int | 
         left, right = sld[:i], sld[i:]
         if _zipf(left) >= min_zipf and _zipf(right) >= min_zipf:
             return 2
-    # Affix brandables: a short real morpheme (prefix or suffix) attached to a
-    # real dictionary word — e.g. 're'+'chain', 'up'+'market', 'bit'+'ly'. The
-    # word half must still clear MIN_HALF_LEN + min_zipf, so consonant junk
-    # ('ci'+'rro') never qualifies.
-    for plen in (2,):
-        pre, rest = sld[:plen], sld[plen:]
-        if (pre in AFFIX_PREFIXES and len(rest) >= MIN_HALF_LEN
-                and _zipf(rest) >= min_zipf):
-            return 2
-    for suf in AFFIX_SUFFIXES:
-        if sld.endswith(suf):
-            front = sld[: -len(suf)]
-            if len(front) >= MIN_HALF_LEN and _zipf(front) >= min_zipf:
-                return 2
     return None
 
 
