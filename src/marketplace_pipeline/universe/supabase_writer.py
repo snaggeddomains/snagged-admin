@@ -38,11 +38,30 @@ UPSERT_BACKOFF_BASE = 2.0  # seconds; doubles each attempt
 def _is_transient(err: str) -> bool:
     low = err.lower()
     return (
+        # Postgres transient errors
         "57014" in low
         or "40p01" in low
         or "deadlock" in low
         or "statement timeout" in low
         or "canceling statement" in low
+        # Network / TLS transport drops — common on the long (~1h, hundreds of
+        # batches) afternic upsert when Supabase briefly drops the connection.
+        # These re-raised uncaught before and failed the whole source.
+        or "eof occurred in violation of protocol" in low
+        or "server disconnected" in low
+        or "connection reset" in low
+        or "connection aborted" in low
+        or "broken pipe" in low
+        or "writeerror" in low
+        or "readerror" in low
+        or "remoteprotocolerror" in low
+        or "connecterror" in low
+        or "connecttimeout" in low
+        or "readtimeout" in low
+        or "pooltimeout" in low
+        or "_ssl.c" in low
+        or "timed out" in low
+        or "temporarily unavailable" in low
     )
 
 
