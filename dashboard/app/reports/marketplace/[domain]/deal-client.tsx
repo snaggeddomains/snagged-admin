@@ -197,7 +197,13 @@ export default function DealClient({ domain }: { domain: string }) {
                   {inboundShown.map((t, i) => (
                     <tr key={i}>
                       <td style={cell}><div style={{ fontWeight: 600 }}>{t.party}</div>{t.partyEmail && <div className="muted" style={{ fontSize: 11 }}>{t.partyEmail}</div>}</td>
-                      <td style={{ ...cell, whiteSpace: "nowrap", fontWeight: t.offer ? 700 : 400, color: t.offer ? NAVY : "var(--muted,#999)" }}>{t.offer || (t.budget ? <span className="muted" style={{ fontWeight: 400, fontSize: 12 }}>{t.budget}</span> : "—")}</td>
+                      <td style={{ ...cell, whiteSpace: "nowrap" }}>
+                        {t.offer
+                          ? <span style={{ fontWeight: 700, color: NAVY }}>{t.offer}</span>
+                          : t.budget
+                            ? <span className="muted" title="Budget band (not a firm offer)">{t.budget}</span>
+                            : <span className="muted">—</span>}
+                      </td>
                       <td style={cell}><StatusBadge t={t} /></td>
                       <td style={{ ...cell, whiteSpace: "nowrap" }}>{t.last}<span className="muted" style={{ fontSize: 11 }}> · {t.messages} msg</span></td>
                       <td style={cell}>{t.outcome || <span className="muted">{t.lastSnippet || "—"}</span>}</td>
