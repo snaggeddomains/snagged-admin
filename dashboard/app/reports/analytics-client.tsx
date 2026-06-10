@@ -12,8 +12,6 @@ type SourceRow = { source: string; medium: string; sessions: number };
 type LabelValue = { label: string; value: number };
 type TrendRow = { date: string; sessions: number; pageviews: number };
 type FunnelStep = { name: string; users: number };
-type ListingRow = { domain: string; path: string; views: number; sessions: number; users: number; inquiryStarts: number; clicks: number; inquiries: number };
-type MarketplaceReport = { summary: StatBlock; topPages: PageRow[]; listings: ListingRow[]; channels: ChannelRow[]; trend: TrendRow[] };
 type CoreReport = {
   summary: StatBlock; channels: ChannelRow[]; sources: SourceRow[];
   submissionsByChannel: LabelValue[]; selfReportedSource: LabelValue[]; leadIntent: LabelValue[]; leadBudget: LabelValue[]; trend: TrendRow[];
@@ -40,18 +38,20 @@ type LiftChannel = { channel: string; baselinePerDay: number; adPerDay: number; 
 type XAdsLift = { from: string; to: string; lookbackDays: number; adDays: number; offDays: number; spend: number; channels: LiftChannel[]; defaultChannels: string[] };
 type AdsReport = { totals: XAdsTotals; byCampaign: XAdsCampaign[]; trend: XAdsDaily[]; roi: XAdsRoi; campaignCount: number };
 
-type Preset = "today" | "week" | "lastweek" | "month" | "lastmonth" | "custom";
+type Preset = "today" | "yesterday" | "week" | "lastweek" | "month" | "lastmonth" | "custom";
 const PRESETS: { key: Preset; label: string }[] = [
-  { key: "today", label: "Today" }, { key: "week", label: "This week" }, { key: "lastweek", label: "Last week" },
+  { key: "today", label: "Today" }, { key: "yesterday", label: "Yesterday" },
+  { key: "week", label: "This week" }, { key: "lastweek", label: "Last week" },
   { key: "month", label: "This month" }, { key: "lastmonth", label: "Last month" }, { key: "custom", label: "Custom range" },
 ];
 const TRANCHES: { key: Tranche; label: string }[] = [
-  { key: "core", label: "Core Services" }, { key: "marketplace", label: "Marketplace" }, { key: "blog", label: "Blog" }, { key: "seo", label: "SEO" }, { key: "email", label: "Email" }, { key: "ads", label: "Ads" }, { key: "revenue", label: "Revenue" },
+  { key: "core", label: "Core Services" }, { key: "blog", label: "Blog" }, { key: "seo", label: "SEO" }, { key: "email", label: "Email" }, { key: "ads", label: "Ads" }, { key: "revenue", label: "Revenue" },
 ];
 const QUALITY_BUDGETS = ["$25K to $100K", "$100K+"]; // tunable; v1 quality-lead definition
 
 const etYmd = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(d);
 const TODAY = etYmd(new Date());
+const YESTERDAY = etYmd(new Date(Date.now() - 86400000));
 const WEEK_START = etYmd(new Date(Date.now() - 6 * 86400000));
 const MONTH_START = `${TODAY.slice(0, 7)}-01`;
 // Last week = the 7 days before this rolling week; last month = the previous
@@ -103,6 +103,7 @@ export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
 
   const range = useMemo(() => {
     if (preset === "today") return { from: TODAY, to: TODAY };
+    if (preset === "yesterday") return { from: YESTERDAY, to: YESTERDAY };
     if (preset === "week") return { from: WEEK_START, to: TODAY };
     if (preset === "lastweek") return { from: LAST_WEEK_START, to: LAST_WEEK_END };
     if (preset === "month") return { from: MONTH_START, to: TODAY };
@@ -132,7 +133,7 @@ export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
       <h1 style={{ fontSize: "1.25rem", marginBottom: 4 }}>Site analytics</h1>
       <p className="muted" style={{ marginTop: 0, fontSize: 14 }}>
         snagged.com performance, split by business: <strong>Core Services</strong> (the sell-side),{" "}
-        <strong>Marketplace</strong> (<code>/domains/*</code> type-in buyers), <strong>Blog / SEO</strong> (content driving
+        <strong>Blog / SEO</strong> (content driving
         organic traffic), <strong>Ads</strong> (X spend &amp; cost-per-lead — X is our #1 lead source), and{" "}
         <strong>Revenue</strong> (the Domain Tracker). Pre-June submission data is the historical
         Formspark export; everything forward is live from GA.
@@ -185,8 +186,7 @@ export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
       ) : loading ? (
         <p className="muted">Loading…</p>
       ) : loaded && loaded.tranche === tranche ? (
-        loaded.tranche === "marketplace" ? <MarketplaceView r={loaded.report as MarketplaceReport} />
-          : loaded.tranche === "blog" ? <BlogView r={loaded.report as BlogReport} />
+        loaded.tranche === "blog" ? <BlogView r={loaded.report as BlogReport} />
             : loaded.tranche === "seo" ? <SeoView r={loaded.report as SeoReport} />
               : loaded.tranche === "email" ? <EmailView r={loaded.report as EmailReport} />
                 : loaded.tranche === "ads" ? <AdsView r={loaded.report as AdsReport} range={range} />
@@ -196,7 +196,7 @@ export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
         <p className="muted">No data for this window.</p>
       )}
 
-      {loaded && (loaded.tranche === "core" || loaded.tranche === "marketplace" || loaded.tranche === "blog") && (
+      {loaded && (loaded.tranche === "core" || loaded.tranche === "blog") && (
         <p className="muted" style={{ fontSize: 12, marginTop: 22 }}>
           Source: GA4 Data API (timezone America/New_York). Submissions blend the historical Formspark export (through
           2026-06-07) with GA conversion events (forward). Self-reported source / intent / budget come from form fields —
@@ -219,52 +219,6 @@ export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
   );
 }
 
-function MarketplaceView({ r }: { r: MarketplaceReport }) {
-  const s = r.summary;
-  const listings = r.listings || [];
-  const cell = { padding: "6px 10px", borderBottom: "1px solid var(--line, #eee)", whiteSpace: "nowrap" as const };
-  const num = { ...cell, textAlign: "right" as const, fontVariantNumeric: "tabular-nums" as const };
-  const th = { ...num, color: "var(--muted, #888)", fontWeight: 600, cursor: "default" };
-  return (
-    <>
-      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-        <StatCard label="Listings" value={listings.length} /><StatCard label="Visits (pageviews)" value={s.pageviews} />
-        <StatCard label="Visitors" value={s.users} /><StatCard label="Inquiries (form)" value={s.submissions} accent />
-      </div>
-      <Section
-        title={`All listings (${listings.length})`}
-        blurb="Every /marketplace domain with its GA traffic for the selected range, sorted by visits. Inquiry starts = the inquiry form was opened on that listing; Inquiries = completed submissions (populates per-domain once the GA domain_of_interest dimension is live)."
-      >
-        <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-            <thead>
-              <tr>
-                <th style={{ ...th, textAlign: "left" }}>Domain</th>
-                <th style={th}>Visits</th><th style={th}>Visitors</th><th style={th}>Sessions</th>
-                <th style={th}>Inquiry starts</th><th style={th}>CTA clicks</th><th style={th}>Inquiries</th>
-              </tr>
-            </thead>
-            <tbody>
-              {listings.map((l) => (
-                <tr key={l.path}>
-                  <td style={{ ...cell, textAlign: "left" }}>
-                    <a href={`https://www.snagged.com${l.path}`} target="_blank" rel="noreferrer" style={{ color: CORAL, textDecoration: "none" }}>{l.domain}</a>
-                  </td>
-                  <td style={num}>{fmt(l.views)}</td><td style={num}>{fmt(l.users)}</td><td style={num}>{fmt(l.sessions)}</td>
-                  <td style={num}>{fmt(l.inquiryStarts)}</td><td style={num}>{fmt(l.clicks)}</td>
-                  <td style={{ ...num, color: l.inquiries > 0 ? CORAL : "inherit", fontWeight: l.inquiries > 0 ? 600 : 400 }}>{fmt(l.inquiries)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {listings.length === 0 && <p className="muted" style={{ padding: 8 }}>No marketplace listings with data in this range.</p>}
-        </div>
-      </Section>
-      <Section title="Traffic by channel" blurb="How marketplace visitors arrive (mostly Direct — type-ins)."><BarList rows={r.channels.map((c) => ({ label: c.channel, value: c.sessions }))} showShare /></Section>
-      <Section title="Daily trend"><TrendChart data={r.trend} /></Section>
-    </>
-  );
-}
 
 function CoreView({ r }: { r: CoreReport }) {
   const s = r.summary;
