@@ -79,9 +79,11 @@ jobs:
             ${{ github.event.workflow_run.head_sha }}).
 
             Do this:
-            1. Read the failing logs:
-                 gh run view ${{ github.event.workflow_run.id }} --log-failed
-               (GH_TOKEN here has actions:read).
+            1. Find the error FAST. The full log can be hundreds of MB (a source
+               streams a multi-GB feed), so NEVER read it whole — grep for the
+               failure first, then narrow:
+                 gh run view ${{ github.event.workflow_run.id }} --log-failed | grep -iE "error|traceback|exception|failed source|exited non-zero|httpx|ssl|timeout" | tail -100
+               (GH_TOKEN here has actions:read.)
             2. Diagnose the root cause in this repo. The pipeline lives under
                src/marketplace_pipeline/ (sources/<id>.py, universe/, cli.py).
                The source_id is the part of the workflow name after "Source: ".
@@ -103,5 +105,5 @@ jobs:
             Be conservative: a wrong fix to the production pipeline is worse than
             no fix. When in doubt, open an issue, not a PR.
           claude_args: |
-            --max-turns 25
-            --allowedTools Bash(gh run view:*),Bash(gh pr create:*),Bash(gh issue create:*),Bash(gh issue list:*),Bash(gh api:*),Bash(git:*),Edit,Read,Grep,Glob
+            --max-turns 80
+            --allowedTools Bash(gh run view:*),Bash(gh pr create:*),Bash(gh issue create:*),Bash(gh issue list:*),Bash(gh api:*),Bash(git:*),Bash(grep:*),Bash(tail:*),Bash(head:*),Bash(rg:*),Edit,Read,Grep,Glob
