@@ -10,11 +10,12 @@ import { googleAccessToken } from "./google-auth";
 const SCOPE = "https://www.googleapis.com/auth/gmail.readonly";
 const API = "https://gmail.googleapis.com/gmail/v1/users/me";
 
-// Mailboxes scanned for deal activity. Both rob@ and brian@ carry the inquiry
-// stream (form notifications are sent to both / via the marketplace@ alias), so
-// we read both and dedupe by RFC Message-ID. Override via env (comma-separated).
+// Mailboxes scanned for deal activity. The team has SEPARATE @snagged.com AND
+// @snagged.co Workspaces — direct buyer negotiations often land in the .co boxes
+// (e.g. Luxe.com's six-figure offers went to brian@snagged.co), so we read all
+// four and dedupe by RFC Message-ID. Override via env (comma-separated).
 export function dealMailboxes(): string[] {
-  return (process.env.GMAIL_DEAL_MAILBOXES || "rob@snagged.com,brian@snagged.com")
+  return (process.env.GMAIL_DEAL_MAILBOXES || "rob@snagged.com,brian@snagged.com,rob@snagged.co,brian@snagged.co")
     .split(",").map((s) => s.trim()).filter(Boolean);
 }
 
@@ -29,6 +30,7 @@ export type GmailMessage = {
   from: string; // bare lowercased address
   fromName: string;
   to: string; // raw To header (may hold several recipients)
+  cc: string; // raw Cc header
   subject: string;
   date: number; // epoch ms
   snippet: string;
@@ -96,6 +98,7 @@ function parseMessage(m: any): GmailMessage {
     from: bareAddr(hd["from"] || ""),
     fromName: (hd["from"] || "").replace(/\s*<.*/, "").trim().replace(/^"|"$/g, ""),
     to: hd["to"] || "",
+    cc: hd["cc"] || "",
     subject: hd["subject"] || "",
     date: Number(m.internalDate || 0),
     snippet: unescapeHtml(m.snippet || ""),

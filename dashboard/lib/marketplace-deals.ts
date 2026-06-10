@@ -233,6 +233,48 @@ async function collect(domain: string): Promise<GmailMessage[]> {
   return out;
 }
 
+// {name,email} pairs from a To/Cc header string.
+function addrsIn(h: string): { name: string; email: string }[] {
+  const out: { name: string; email: string }[] = [];
+  const re = /(?:"?([^"<>,]+?)"?\s*)?<?\s*([\w.\-+]+@[\w.\-]+)\s*>?/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(h || ""))) out.push({ name: (m[1] || "").trim(), email: m[2].toLowerCase() });
+  return out;
+}
+// Participants from FORWARDED message headers inside a body — "From: Name <email>"
+// / "To: …". This is how a buyer surfaces when their reply was forwarded
+// internally (Rob↔Brian) rather than landing as its own message.
+function forwardedParticipants(body: string): { name: string; email: string }[] {
+  const out: { name: string; email: string }[] = [];
+  const re = /^\s*(?:From|To)\s*:\s*(?:"?([^"<\n]+?)"?\s*)?<\s*([\w.\-+]+@[\w.\-]+)\s*>/gim;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(body))) out.push({ name: (m[1] || "").trim(), email: m[2].toLowerCase() });
+  return out;
+}
+// The real external counterparty (buyer): the most-seen address across every
+// message's From, To/Cc, AND forwarded headers — excluding us, the seller, and
+// system/automation. Returns null when there's no external human anywhere (a
+// purely internal Rob↔Brian thread), so such threads get dropped.
+function resolveExternalParty(ms: GmailMessage[], sellerEmails: Set<string>): { name: string; email: string } | null {
+  const count = new Map<string, number>();
+  const names = new Map<string, string>();
+  const consider = (name: string, emailRaw: string) => {
+    const email = (emailRaw || "").toLowerCase();
+    if (!email || isUs(email) || isSystem(email, name) || sellerEmails.has(email)) return;
+    count.set(email, (count.get(email) || 0) + 1);
+    if (name && !names.has(email)) names.set(email, name);
+  };
+  for (const m of ms) {
+    consider(m.fromName, m.from);
+    for (const a of addrsIn(m.to)) consider(a.name, a.email);
+    for (const a of addrsIn(m.cc)) consider(a.name, a.email);
+    for (const a of forwardedParticipants(m.body)) consider(a.name, a.email);
+  }
+  if (!count.size) return null;
+  const top = [...count.entries()].sort((a, b) => b[1] - a[1])[0][0];
+  return { name: names.get(top) || top.split("@")[0], email: top };
+}
+
 export async function buildDealReport(domain: string): Promise<DealReport> {
   domain = domain.toLowerCase().replace(/^www\./, "");
   const [msgs, sale, representingSince] = await Promise.all([
@@ -281,11 +323,13 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
     const hasForm = formMatch.length > 0;
     const hasUs = usMsgs.length > 0;
     const hasThem = themMsgs.length > 0;
-    // Seller-only correspondence (owner emailing about their domain, no buyer, no
-    // form) — not a buyer deal.
-    if (!hasThem && !hasForm) {
-      if (ms.some((m) => sellerEmails.has(m.from)) || !ms.some((m) => isUs(m.from))) continue;
-    }
+    // The real external buyer — from From / To / Cc / forwarded headers (so a
+    // buyer who only appears as a recipient or inside a forwarded reply still
+    // counts), never us or the seller.
+    const extParty = resolveExternalParty(ms, sellerEmails);
+    // No form AND no external buyer anywhere = a purely internal (Rob↔Brian) or
+    // seller-only thread — not a buyer deal. Drop it.
+    if (!hasForm && !extParty) continue;
 
     const firstHuman = ms.find((m) => isUs(m.from) || isBuyer(m));
     let origin: "inbound" | "pitched";
@@ -303,13 +347,10 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
     const active = hasUs && hasThem && !stale && !declined;
 
     const fm = formMatch[0] || null;
-    let party = (fm?.name || themMsgs[0]?.fromName || themMsgs[0]?.from || "").trim();
-    let partyEmail = fm?.email || themMsgs[0]?.from || null;
-    if (origin === "pitched" && !party) {
-      const to = usMsgs[0]?.to || "";
-      party = (to.match(/"?([^"<]+?)"?\s*</)?.[1] || bareAddrToName(to)).trim();
-      partyEmail = to.match(/[\w.\-+]+@[\w.\-]+/)?.[0] || null;
-    }
+    // Buyer identity: the form's contact, else the resolved external party
+    // (From/To/Cc/forwarded). Never us or the seller.
+    const party = (fm?.name || extParty?.name || "").trim();
+    const partyEmail = fm?.email || extParty?.email || null;
 
     const emailDom = (partyEmail || "").split("@")[1]?.toLowerCase() || "";
     const qualified = hasBudget(fm?.budget) || (!!emailDom && !FREE_EMAIL.has(emailDom)) || ms.length >= 3 || (hasUs && hasThem);
@@ -348,11 +389,6 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
     sale,
     threads,
   };
-}
-
-function bareAddrToName(s: string): string {
-  const a = s.match(/[\w.\-+]+@[\w.\-]+/)?.[0] || "";
-  return a ? a.split("@")[0] : "";
 }
 
 // A compact transcript for the LLM recap: the last few messages, each tagged
