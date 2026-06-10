@@ -86,6 +86,10 @@ export default function DealClient({ domain }: { domain: string }) {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
   const [showLowQ, setShowLowQ] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const share = async () => {
+    try { await navigator.clipboard.writeText(window.location.href); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch { /* clipboard blocked */ }
+  };
 
   const range = useMemo(() => {
     if (preset === "30") return { from: etYmd(new Date(Date.now() - 29 * 86400000)), to: TODAY };
@@ -141,6 +145,7 @@ export default function DealClient({ domain }: { domain: string }) {
           </span>
         )}
         {rep?.representingSince && <span className="muted" style={{ fontSize: 12 }}>Representing since {rep.representingSince}</span>}
+        <button onClick={share} style={{ ...BTN, marginLeft: "auto" }} title="Copy a shareable link to this report">{copied ? "✓ Link copied" : "🔗 Share"}</button>
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "12px 0 4px" }}>

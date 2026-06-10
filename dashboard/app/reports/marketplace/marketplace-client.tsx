@@ -10,6 +10,9 @@ type MarketplaceReport = { summary: StatBlock; listings: ListingRow[] };
 type SortKey = "views" | "users" | "sessions" | "inquiryStarts" | "inquiries";
 
 const CORAL = "var(--coral-deep, #c0492f)";
+// Compact controls — consistent with the drill-down (the `.field` class is full-width).
+const CTL: React.CSSProperties = { padding: "5px 9px", fontSize: 13, borderRadius: 8, border: "1px solid #d8d0bf", background: "#fff", color: "var(--navy,#254254)", maxWidth: 200, cursor: "pointer" };
+const BTN: React.CSSProperties = { padding: "5px 11px", fontSize: 12.5, borderRadius: 8, border: "1px solid #d8d0bf", background: "#fff", color: "var(--navy,#254254)", cursor: "pointer", whiteSpace: "nowrap" };
 const fmt = (x: number) => x.toLocaleString();
 const etYmd = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(d);
 const pad2 = (x: number) => String(x).padStart(2, "0");
@@ -107,22 +110,22 @@ export default function MarketplaceClient() {
         Click a domain for its full <strong>activity report</strong> — inbound inquiries, pitches, negotiations, sale status &amp; newsletter exposure.
       </p>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", margin: "10px 0 4px" }}>
-        <span className="muted" style={{ fontSize: 13 }}>Window</span>
-        <select value={preset} onChange={(e) => setPreset(e.target.value as Preset)} className="field" style={{ padding: "5px 8px", fontSize: 13 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "10px 0 4px" }}>
+        <span className="muted" style={{ fontSize: 12 }}>Window:</span>
+        <select value={preset} onChange={(e) => setPreset(e.target.value as Preset)} style={CTL}>
           {PRESETS.map((p) => <option key={p.key} value={p.key}>{p.label}</option>)}
         </select>
         {preset === "custom" && (
           <>
-            <input type="date" value={from} max={to || TODAY} onChange={(e) => setFrom(e.target.value)} className="field" style={{ padding: "4px 6px", fontSize: 13 }} />
+            <input type="date" value={from} max={to || TODAY} onChange={(e) => setFrom(e.target.value)} style={CTL} />
             <span className="muted">→</span>
-            <input type="date" value={to} max={TODAY} min={from} onChange={(e) => setTo(e.target.value)} className="field" style={{ padding: "4px 6px", fontSize: 13 }} />
+            <input type="date" value={to} max={TODAY} min={from} onChange={(e) => setTo(e.target.value)} style={CTL} />
           </>
         )}
-        <button onClick={() => void load()} className="field" style={{ padding: "5px 12px", fontSize: 13, cursor: "pointer" }} disabled={loading}>
-          {loading ? "Loading…" : "Refresh"}
-        </button>
-        <span className="muted" style={{ fontSize: 12 }}>{rangeLabel}</span>
+        <button onClick={() => void load()} style={BTN} disabled={loading}>↻ Refresh</button>
+        {loading
+          ? <span className="loading-pulse" style={{ fontSize: 12, color: CORAL }}>working…</span>
+          : <span className="muted" style={{ fontSize: 12 }}>{rangeLabel}</span>}
       </div>
 
       {msg && <p style={{ color: CORAL }}>{msg}</p>}
