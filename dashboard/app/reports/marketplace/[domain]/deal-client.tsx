@@ -67,6 +67,9 @@ function statusOf(t: DealThread): { label: string; color: string } {
   return { label: "Pitched", color: "#5a4ec0" };
 }
 
+// Compact controls (the dashboard's `.field` class is full-width — too clunky here).
+const CTL: React.CSSProperties = { padding: "5px 9px", fontSize: 13, borderRadius: 8, border: "1px solid #d8d0bf", background: "#fff", color: NAVY, maxWidth: 200, cursor: "pointer" };
+const BTN: React.CSSProperties = { padding: "5px 11px", fontSize: 12.5, borderRadius: 8, border: "1px solid #d8d0bf", background: "#fff", color: NAVY, cursor: "pointer", whiteSpace: "nowrap" };
 const cell: React.CSSProperties = { padding: "7px 10px", borderBottom: "1px solid var(--line, #eee)", verticalAlign: "top", fontSize: 13 };
 const head: React.CSSProperties = { ...cell, textAlign: "left", color: "var(--muted, #888)", fontWeight: 600, whiteSpace: "nowrap" };
 
@@ -140,21 +143,22 @@ export default function DealClient({ domain }: { domain: string }) {
         {rep?.representingSince && <span className="muted" style={{ fontSize: 12 }}>Representing since {rep.representingSince}</span>}
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", margin: "12px 0 4px" }}>
-        <span className="muted" style={{ fontSize: 13 }}>Traffic window</span>
-        <select value={preset} onChange={(e) => setPreset(e.target.value as Preset)} className="field" style={{ padding: "5px 8px", fontSize: 13 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "12px 0 4px" }}>
+        <span className="muted" style={{ fontSize: 12 }}>Traffic:</span>
+        <select value={preset} onChange={(e) => setPreset(e.target.value as Preset)} style={CTL}>
           {PRESETS.map((p) => <option key={p.key} value={p.key}>{p.label}</option>)}
         </select>
         {preset === "custom" && (
           <>
-            <input type="date" value={from} max={to || TODAY} onChange={(e) => setFrom(e.target.value)} className="field" style={{ padding: "4px 6px", fontSize: 13 }} />
+            <input type="date" value={from} max={to || TODAY} onChange={(e) => setFrom(e.target.value)} style={CTL} />
             <span className="muted">→</span>
-            <input type="date" value={to} max={TODAY} min={from} onChange={(e) => setTo(e.target.value)} className="field" style={{ padding: "4px 6px", fontSize: 13 }} />
+            <input type="date" value={to} max={TODAY} min={from} onChange={(e) => setTo(e.target.value)} style={CTL} />
+            <button onClick={() => void load(false)} style={BTN} disabled={loading}>Apply</button>
           </>
         )}
-        <button onClick={() => void load(false)} className="field" style={{ padding: "5px 12px", fontSize: 13, cursor: "pointer" }} disabled={loading}>{loading ? "Loading…" : "Apply"}</button>
-        <button onClick={() => void load(true)} className="field" style={{ padding: "5px 12px", fontSize: 13, cursor: "pointer" }} disabled={loading} title="Re-scan the mailboxes now (a few minutes)">Regenerate</button>
-        {data?.deals.generatedAt && <span className="muted" style={{ fontSize: 12 }}>deal data {ago(data.deals.generatedAt)}</span>}
+        <button onClick={() => void load(true)} style={BTN} disabled={loading} title="Re-scan the mailboxes now (a few minutes)">↻ Regenerate</button>
+        {loading && <span className="muted" style={{ fontSize: 12 }}>loading…</span>}
+        {!loading && data?.deals.generatedAt && <span className="muted" style={{ fontSize: 12 }}>updated {ago(data.deals.generatedAt)}</span>}
       </div>
 
       {msg && <p style={{ color: CORAL }}>{msg}</p>}
