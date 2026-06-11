@@ -225,11 +225,24 @@ def upsert(merged_rows: list[dict[str, Any]]) -> dict[str, Any]:
                 # not str(e), so matching on the message alone misses them.
                 err_text = f"{type(e).__name__}: {e}"
                 if attempt < UPSERT_RETRIES - 1 and _is_transient(err_text):
+                    # CRITICAL for the long afternic upsert: rebuild the client so
+                    # the retry doesn't reuse a GOAWAY'd / poisoned HTTP/2 connection.
+                    # PostgREST terminates the long-lived connection; the supabase
+                    # client otherwise keeps the dead connection in its pool, so
+                    # EVERY subsequent batch's first attempt fails the same way and
+                    # eats a backoff → a ~2s-per-batch crawl that timed the job out.
+                    # A fresh client (reassigned here) carries forward to the next
+                    # batches, so GOAWAYs recur only per server connection-limit, not
+                    # every batch. Connection drops need no long backoff.
+                    fresh = _client_or_none()
+                    if fresh is not None:
+                        client = fresh
                     backoff = UPSERT_BACKOFF_BASE * (2 ** attempt)
                     print(
                         f"      universe upsert transient error "
                         f"(batch {batches + 1}, attempt {attempt + 1}); "
-                        f"backing off {backoff:.0f}s"
+                        f"rebuilt client, backing off {backoff:.0f}s",
+                        flush=True,
                     )
                     time.sleep(backoff)
                     continue

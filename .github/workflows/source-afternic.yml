@@ -17,9 +17,10 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    # Afternic publishes ~7M qualifying rows; upserting in 5K batches takes
-    # ~25-40 min depending on Supabase latency. Bumped to 90 min headroom.
-    timeout-minutes: 90
+    # Afternic publishes ~7M qualifying rows; upserting in 1K batches takes
+    # ~25-40 min normally. 120 min is a safety net for slow-Supabase days (the
+    # writer now recycles its client on a GOAWAY so it no longer crawls).
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
 
@@ -27,6 +28,10 @@ jobs:
 
       - name: Run afternic
         env:
+          # Unbuffer Python stdout so progress + transient-retry lines stream to the
+          # Actions log in real time (a buffered run shows nothing until it ends —
+          # and nothing at all if it's cancelled mid-run).
+          PYTHONUNBUFFERED:            "1"
           SLACK_BOT_TOKEN:             ${{ secrets.SLACK_BOT_TOKEN }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           SLACK_CHANNEL_SNAP:          ${{ vars.SLACK_CHANNEL_SNAP }}
