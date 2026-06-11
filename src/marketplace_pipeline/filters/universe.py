@@ -107,6 +107,41 @@ def classify_dict_word(sld: str, min_zipf: float = DICT_WORD_MIN_ZIPF) -> int | 
     return None
 
 
+# A two-word name is worth a little less than a single premium word of the same
+# strength, so its recovered score is discounted by this factor (keeps single
+# words ranked above equal-strength compounds without burying the compound).
+COMPOUND_FACTOR = 0.85
+
+
+def quality_zipf(sld: str, raw_zipf: float | None = None, min_zipf: float = DICT_WORD_MIN_ZIPF) -> float:
+    """Effective zipf used for quality/deal SCORING — NOT the stored raw zipf_score.
+
+    The raw whole-SLD zipf is right for a single dictionary word, but ~0 for a
+    two-word concatenation ('lunchmoney', 'interviewcloud') even though both halves
+    are real words — so scoring on it makes good two-word brandables look like junk
+    (quality 0.0 → never enriched). This recovers a real score:
+
+      - single dictionary word  → its own zipf (use raw_zipf when already known)
+      - two-word concatenation   → the WEAKER half's zipf (both >= min_zipf by the
+                                    universe filter), discounted by COMPOUND_FACTOR
+      - non-dictionary / non-alpha → 0.0 (caller maps that to a NULL score)
+    """
+    if raw_zipf is not None and raw_zipf >= min_zipf:
+        return raw_zipf
+    sld = (sld or "").lower()
+    if not sld or not sld.isalpha():
+        return 0.0
+    z = _zipf(sld)
+    if z >= min_zipf:
+        return z
+    best = 0.0
+    for i in range(MIN_HALF_LEN, len(sld) - MIN_HALF_LEN + 1):
+        zl, zr = _zipf(sld[:i]), _zipf(sld[i:])
+        if zl >= min_zipf and zr >= min_zipf:
+            best = max(best, min(zl, zr))
+    return best * COMPOUND_FACTOR if best else 0.0
+
+
 def count_syllables(sld: str) -> int:
     """Rough syllable count for a SLD using vowel-group heuristic.
 

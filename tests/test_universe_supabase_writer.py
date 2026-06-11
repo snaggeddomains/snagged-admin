@@ -76,6 +76,32 @@ def test_merged_to_universe_row_computes_quality_and_deal_scores():
     assert row2["deal_score"] == 120
 
 
+def test_two_word_names_get_a_real_quality_score():
+    """Regression: a two-word concatenation has a whole-SLD zipf ~0, but both
+    halves are real words — quality_zipf recovers a real score so the name isn't
+    wrongly buried at 0.0 (which would also leave it permanently un-enriched)."""
+    row = sw.merged_to_universe_row({
+        "domain": "lunchmoney.com", "sld": "lunchmoney", "tld": ".com",
+        "sld_length": 10, "observed_date": "2026-05-29",
+        "zipf_score": 0.0,  # whole-string zipf is ~0 for a compound
+        "sources": ["atom_daily"], "prices": {},
+    })
+    assert row["num_words"] == 2
+    # Scored on the weaker half (lunch/money are both common) → comfortably > 1.
+    assert row["quality_score"] is not None and row["quality_score"] > 1.0
+
+
+def test_xyz_and_dev_single_words_score_above_zero():
+    """.xyz / .dev are allowed TLDs; they must carry a weight or every name on
+    them scores 0.0. A single dictionary word on .xyz should score > 1."""
+    row = sw.merged_to_universe_row({
+        "domain": "ignore.xyz", "sld": "ignore", "tld": ".xyz",
+        "sld_length": 6, "observed_date": "2026-05-29",
+        "zipf_score": 4.0, "sources": ["namecheap_bin"], "prices": {},
+    })
+    assert row["quality_score"] is not None and row["quality_score"] > 1.0
+
+
 def test_merged_to_universe_row_nullifies_scores_when_inputs_missing():
     """If zipf or price is unknown, quality / deal should be NULL so
     ranking queries don't conflate 'missing' with 'bad'."""
@@ -143,6 +169,34 @@ def test_upsert_returns_skipped_when_env_not_set(monkeypatch):
     assert stats["rows_sent"] == 0
 
 
+def test_upsert_applies_quality_floor(monkeypatch):
+    """Ingest floor: only names scoring >= UNIVERSE_MIN_QUALITY (default 1.0) are
+    upserted; un-scoreable rows (non-dict SLD → null quality) are dropped and
+    counted in rows_below_quality."""
+    fake_client = MagicMock()
+    fake_client.rpc.return_value.execute.return_value = MagicMock()
+    # Net-new count sub-query → pretend nothing exists yet.
+    fake_client.table.return_value.select.return_value.in_.return_value.execute.return_value = MagicMock(data=[])
+    monkeypatch.setattr(sw, "_client_or_none", lambda: fake_client)
+    monkeypatch.delenv("UNIVERSE_MIN_QUALITY", raising=False)  # default 1.0
+
+    merged = [
+        # Real dictionary word → quality ~5 → kept.
+        {"domain": "table.com", "sld": "table", "tld": ".com", "sld_length": 5,
+         "observed_date": "2026-05-29", "zipf_score": 5.0, "sources": ["afternic"], "prices": {}},
+        # Non-alpha SLD → null quality → dropped by the floor.
+        {"domain": "xyz123.com", "sld": "xyz123", "tld": ".com", "sld_length": 6,
+         "observed_date": "2026-05-29", "zipf_score": None, "sources": ["afternic"], "prices": {}},
+    ]
+    stats = sw.upsert(merged)
+    assert stats["status"] == "ok"
+    assert stats["rows_sent"] == 1
+    assert stats["rows_below_quality"] == 1
+    # The single kept row is what got sent to the RPC.
+    sent = fake_client.rpc.call_args_list[0].args[1]["rows"]
+    assert [r["domain"] for r in sent] == ["table.com"]
+
+
 def test_upsert_batches_and_calls_rpc(monkeypatch):
     """With creds set, each batch should fire one rpc('upsert_universe_rows').
 
@@ -154,6 +208,9 @@ def test_upsert_batches_and_calls_rpc(monkeypatch):
     fake_client = MagicMock()
     fake_client.rpc.return_value.execute.return_value = MagicMock()
     monkeypatch.setattr(sw, "_client_or_none", lambda: fake_client)
+    # Disable the ingest quality floor — these synthetic rows (digit SLDs) score
+    # null and the test is about batch math, not the floor (covered separately).
+    monkeypatch.setenv("UNIVERSE_MIN_QUALITY", "0")
 
     # Batch count is derived from sw.BATCH_SIZE so this test stays correct when
     # the batch size is tuned (e.g. 1K batches for Postgres-timeout resilience).

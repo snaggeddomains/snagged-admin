@@ -94,7 +94,7 @@ def merged_to_universe_row(merged: dict[str, Any]) -> dict[str, Any]:
     are populated separately by a Phase 2 enrichment worker.
     """
     from .. import scoring
-    from ..filters.universe import classify_dict_word, count_syllables
+    from ..filters.universe import classify_dict_word, count_syllables, quality_zipf
 
     prices: dict[str, float] = merged.get("prices") or {}
     if prices:
@@ -109,13 +109,18 @@ def merged_to_universe_row(merged: dict[str, Any]) -> dict[str, Any]:
     num_words = classify_dict_word(sld)  # 1, 2, or None (rare since only
     # universe-filter-passing rows reach here, but defend anyway)
 
-    # Quality + deal scoring. Null when zipf or price is missing — keeps
+    # Quality + deal scoring use the EFFECTIVE zipf (quality_zipf), which recovers a
+    # real score for two-word names — the raw whole-SLD zipf is ~0 for those, so
+    # scoring on it wrongly buried every compound (and .xyz/.dev) at 0.0. The stored
+    # `zipf_score` column below stays the RAW value (deal queries / search rely on it).
+    # Null when the name isn't scoreable (non-dict) or price is missing — keeps
     # ranking queries honest instead of treating zero as a valid signal.
     weight = scoring.tld_weight(tld)
-    quality = round(scoring.quality_score(zipf, weight), 2) if zipf is not None else None
+    qzipf = quality_zipf(sld, zipf)
+    quality = round(scoring.quality_score(qzipf, weight), 2) if qzipf else None
     deal = (
-        int(round(scoring.deal_score(zipf, best_price, weight)))
-        if zipf is not None and best_price is not None and best_price > 0
+        int(round(scoring.deal_score(qzipf, best_price, weight)))
+        if qzipf and best_price is not None and best_price > 0
         else None
     )
 
@@ -158,6 +163,21 @@ def upsert(merged_rows: list[dict[str, Any]]) -> dict[str, Any]:
         }
 
     wire_rows = [merged_to_universe_row(r) for r in merged_rows]
+
+    # Quality floor on INGEST — only names scoring >= UNIVERSE_MIN_QUALITY enter the
+    # universe (default 1.0). With the corrected quality_zipf this drops almost
+    # nothing the universe filter already passes (a clean dict word scores >= ~1.3
+    # even on the lowest-weighted allowed TLD), so it's a guardrail rather than a
+    # cull: it keeps out un-scoreable rows (non-dict / un-weighted TLD / a source
+    # that forgot to filter) so the corpus the naming exercise + enrichment read
+    # stays "worthwhile names". Set UNIVERSE_MIN_QUALITY=0 to disable.
+    min_quality = float(os.environ.get("UNIVERSE_MIN_QUALITY") or 1.0)
+    rows_below_quality = 0
+    if min_quality > 0:
+        kept = [r for r in wire_rows if (r.get("quality_score") or 0) >= min_quality]
+        rows_below_quality = len(wire_rows) - len(kept)
+        wire_rows = kept
+
     # Sort by the conflict key (domain) so concurrent source runs acquire row
     # locks in a consistent order — the standard mitigation for the 40P01
     # deadlocks seen when two sources upsert overlapping rows at the same time.
@@ -206,6 +226,7 @@ def upsert(merged_rows: list[dict[str, Any]]) -> dict[str, Any]:
         "status": "ok",
         "rows_sent": sent,
         "rows_new": rows_new,
+        "rows_below_quality": rows_below_quality,
         "batches": batches,
     }
 

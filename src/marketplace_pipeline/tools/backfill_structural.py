@@ -36,12 +36,14 @@ def _row_update(r: dict) -> dict:
     zipf = float(flt.freq(sld)) if sld.isalpha() else None
     num_words = univ.classify_dict_word(sld)
     weight = scoring.tld_weight(tld)
-    quality = round(scoring.quality_score(zipf, weight), 2) if zipf is not None else None
+    # Score on the effective zipf (recovers two-word names; raw zipf_score stays raw).
+    qzipf = univ.quality_zipf(sld, zipf)
+    quality = round(scoring.quality_score(qzipf, weight), 2) if qzipf else None
     best_price = r.get("best_price")
     bp = float(best_price) if best_price is not None else None
     deal = (
-        int(round(scoring.deal_score(zipf, bp, weight)))
-        if zipf is not None and bp is not None and bp > 0
+        int(round(scoring.deal_score(qzipf, bp, weight)))
+        if qzipf and bp is not None and bp > 0
         else None
     )
     return {
@@ -66,7 +68,16 @@ def _row_update(r: dict) -> dict:
     }
 
 
-def _run_universe() -> int:
+def _run_universe(rescore: bool = False) -> int:
+    """Default: fill structural fields on rows that never got them (num_syllables
+    IS NULL) — idempotent + resumable.
+
+    --rescore: recompute the SCORES on EVERY row using the current formula. Needed
+    after a scoring change (e.g. the 2026-06 quality_zipf fix that gave two-word
+    names + .xyz/.dev a real quality_score instead of 0.0) so the already-stored
+    corpus matches new ingest. Touches all ~rows, so it's the long one — dispatch it
+    on the GH runner.
+    """
     client = _client_or_none()
     if client is None:
         print("backfill-structural: SUPABASE_NAMING_URL / SUPABASE_NAMING_SERVICE_KEY not set — skipping.")
@@ -75,18 +86,14 @@ def _run_universe() -> int:
     last_domain = ""
     total = 0
     while True:
-        resp = (
-            client.table("name_universe")
-            .select(
-                "domain, sld, tld, sld_length, sources, best_price, "
-                "best_price_source, first_seen, last_seen, source_tier"
-            )
-            .is_("num_syllables", "null")
-            .gt("domain", last_domain)
-            .order("domain")
-            .limit(SELECT_BATCH)
-            .execute()
+        q = client.table("name_universe").select(
+            "domain, sld, tld, sld_length, sources, best_price, "
+            "best_price_source, first_seen, last_seen, source_tier"
         )
+        # Default backfill is gated to never-processed rows; --rescore walks all.
+        if not rescore:
+            q = q.is_("num_syllables", "null")
+        resp = q.gt("domain", last_domain).order("domain").limit(SELECT_BATCH).execute()
         rows = resp.data or []
         if not rows:
             break
@@ -95,9 +102,11 @@ def _run_universe() -> int:
         ).execute()
         total += len(rows)
         last_domain = rows[-1]["domain"]
-        print(f"  backfilled {total:,} (through {last_domain})", flush=True)
+        verb = "rescored" if rescore else "backfilled"
+        print(f"  {verb} {total:,} (through {last_domain})", flush=True)
 
-    print(f"DONE — backfilled {total:,} rows.")
+    verb = "rescored" if rescore else "backfilled"
+    print(f"DONE — {verb} {total:,} rows.")
     return 0
 
 
@@ -118,9 +127,9 @@ def _master_quality(domain: str, tld: str | None) -> float | None:
         sld, _, _ = domain.partition(".")
     if not sld or "." in sld or not sld.isalpha():
         return None
-    zipf = float(flt.freq(sld))
+    qzipf = univ.quality_zipf(sld, float(flt.freq(sld)))
     weight = scoring.tld_weight(tld_bare)
-    return round(scoring.quality_score(zipf, weight), 2)
+    return round(scoring.quality_score(qzipf, weight), 2)
 
 
 def _run_master(args: argparse.Namespace) -> int:
@@ -192,11 +201,14 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--commit", action="store_true",
                     help="master: actually write (default dry-run). universe always writes.")
     ap.add_argument("--max-rows", type=int, default=None, help="master: cap rows processed")
+    ap.add_argument("--rescore", action="store_true",
+                    help="universe: recompute scores on EVERY row (not just missing) — "
+                         "use after a scoring-formula change to refresh the stored corpus")
     args = ap.parse_args(argv)
 
     if args.target == "master":
         return _run_master(args)
-    return _run_universe()
+    return _run_universe(rescore=args.rescore)
 
 
 if __name__ == "__main__":

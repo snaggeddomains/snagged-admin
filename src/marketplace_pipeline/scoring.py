@@ -15,8 +15,14 @@ TLD_WEIGHTS: dict[str, float] = {
     ".net": 0.7,
     ".co":  0.7,
     ".org": 0.6,
+    ".dev": 0.6,
+    ".xyz": 0.5,
     ".me":  0.4,
 }
+# NOTE: every TLD allowed into the universe (filters/universe.ALLOWED_TLDS) MUST
+# have an entry here, or its quality_score is 0.0 (tld_weight defaults to 0) and
+# the name looks like junk even when it's a clean dictionary word. .dev/.xyz were
+# added 2026-06 for exactly that reason — they were scoring 0.0 across the board.
 
 
 def tld_weight(tld: str) -> float:

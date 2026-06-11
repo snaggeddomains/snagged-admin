@@ -101,6 +101,8 @@ def cmd_backfill_structural(args: argparse.Namespace) -> int:
         argv.append("--commit")
     if args.max_rows is not None:
         argv += ["--max-rows", str(args.max_rows)]
+    if getattr(args, "rescore", False):
+        argv.append("--rescore")
     return _run(argv)
 
 
@@ -255,6 +257,8 @@ def main(argv: list[str] | None = None) -> int:
     p_bf.add_argument("--commit", action="store_true",
                       help="master: actually write (default dry-run)")
     p_bf.add_argument("--max-rows", type=int, default=None, help="master: cap rows processed")
+    p_bf.add_argument("--rescore", action="store_true",
+                      help="universe: recompute scores on every row (after a formula change)")
     p_bf.set_defaults(func=cmd_backfill_structural)
 
     p_en = sub.add_parser(
