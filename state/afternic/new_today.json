@@ -1,14 +1,12 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 4,
   "domains": [
-    "failing.ai",
-    "physically.ai",
-    "lifeless.org",
-    "usually.org",
-    "ignored.ai",
-    "former.ai"
+    "racine.co",
+    "whittier.co",
+    "had.ai",
+    "football.ai"
   ],
-  "generated_at": "2026-06-09T10:28:17.556326+00:00",
+  "generated_at": "2026-06-11T18:26:48.960363+00:00",
   "source": "afternic"
 }
