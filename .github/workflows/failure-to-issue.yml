@@ -62,16 +62,22 @@ jobs:
           REPO:     ${{ github.repository }}
         run: |
           set -euo pipefail
-          # Ensure the label exists (no-op if it already does).
-          gh label create source-failure --color B60205 \
+          # Ensure the label exists (no-op if it already does). This job does NOT
+          # check out the repo, so gh has no local git context — EVERY gh call must
+          # pass --repo explicitly. The label create was the one command missing it,
+          # so it silently failed (swallowed by `|| true`) and the label never got
+          # created, which then made `gh issue create --label` hard-fail with
+          # "label 'source-failure' not found" — the bug that broke this workflow.
+          gh label create source-failure --repo "$REPO" --color B60205 \
             --description "A scheduled source/pipeline workflow failed" 2>/dev/null || true
 
           TITLE="Source failed: ${WF}"
           BODY=$(printf '**%s** failed.\n\n- Run: [#%s](%s)\n- Branch: \`%s\`\n- When: %s\n\n_Filed automatically by the failure→issue workflow. Investigate the run logs; if fixable, push a fix. Resolve/close this issue once the source is green again._' \
             "$WF" "$RUN_NUM" "$RUN_URL" "$BRANCH" "$WHEN")
 
-          # Dedupe: reuse the open issue for this workflow if one exists.
-          NUM=$(gh issue list --repo "$REPO" --state open --label source-failure \
+          # Dedupe by exact title (no --label filter, so dedup never depends on the
+          # label existing). Reuse the open issue for this workflow if one exists.
+          NUM=$(gh issue list --repo "$REPO" --state open --limit 100 \
             --json number,title --jq "[.[] | select(.title==\"$TITLE\")][0].number // empty")
 
           if [ -n "$NUM" ]; then
@@ -79,5 +85,8 @@ jobs:
             gh issue comment "$NUM" --repo "$REPO" --body "$BODY"
           else
             echo "Creating new issue"
-            gh issue create --repo "$REPO" --title "$TITLE" --label source-failure --body "$BODY"
+            # Try with the label; if labeling still fails for any reason, file the
+            # issue WITHOUT it rather than losing the failure report entirely.
+            gh issue create --repo "$REPO" --title "$TITLE" --label source-failure --body "$BODY" \
+              || gh issue create --repo "$REPO" --title "$TITLE" --body "$BODY"
           fi
