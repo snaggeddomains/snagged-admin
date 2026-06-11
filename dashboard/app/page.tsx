@@ -21,6 +21,7 @@ export default async function Hub() {
     { key: "research.dbsearch", label: "Domain Name Search", href: "/research/dbsearch" },
     { key: "research.nameserver", label: "Nameserver Search", href: "/research/nameserver" },
     { key: "research.sales", label: "Sales Research", href: "/research/sales" },
+    { key: "research.beeper", label: "Beeper (drop watch)", href: "/research/beeper" },
   ].filter((t) => userCan(user, t.key as Parameters<typeof userCan>[1]));
 
   const canResearch = researchTasks.length > 0;
