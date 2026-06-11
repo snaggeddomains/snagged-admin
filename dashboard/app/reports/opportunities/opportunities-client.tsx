@@ -118,6 +118,10 @@ export default function OpportunitiesClient() {
   const [now, setNow] = useState(() => Date.now());
   const [aucSort, setAucSort] = useState<Sort>({ key: "ends", dir: 1 });
   const [snapSort, setSnapSort] = useState<Sort>({ key: "quality", dir: -1 });
+  // SNAP feeds are mostly junk (0.0-quality drops); default to a quality floor so
+  // the report reads as "today's worthwhile names", with a toggle to see it all.
+  const [minQuality, setMinQuality] = useState(1.0);
+  const [showAllSnap, setShowAllSnap] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true); setMsg("");
@@ -134,6 +138,7 @@ export default function OpportunitiesClient() {
   const endingSoon = report ? report.auctions.filter((a) => { const c = countdown(a.endTimeUtc, now); return c.soon && !c.ended; }).length : 0;
   const auctions = report ? sortAuctions(report.auctions, aucSort) : [];
   const snap = report ? sortSnap(report.snap, snapSort) : [];
+  const snapShown = showAllSnap ? snap : snap.filter((d) => (d.quality_score ?? 0) >= minQuality);
 
   return (
     <main>
@@ -189,7 +194,22 @@ export default function OpportunitiesClient() {
 
           <section style={{ marginTop: 28 }}>
             <h2 style={{ fontSize: 17 }}>Snap <span className="muted" style={{ fontWeight: 400, fontSize: 13 }}>· {report.snap.length} new today · {report.snapSources} sources</span></h2>
-            {report.snap.length === 0 ? <p className="muted">No new SNAP candidates today.</p> : (
+            <div style={{ display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap", margin: "4px 0 12px", fontSize: 13 }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 6, opacity: showAllSnap ? 0.45 : 1 }}>
+                <span className="muted">Min quality</span>
+                <input type="number" step="0.1" min="0" max="10" value={minQuality} disabled={showAllSnap}
+                  onChange={(e) => setMinQuality(Math.max(0, Number(e.target.value) || 0))}
+                  style={{ width: 64, padding: "4px 7px", borderRadius: 7, border: "1px solid #d8d0bf", fontSize: 13 }} />
+              </label>
+              <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
+                <input type="checkbox" checked={showAllSnap} onChange={(e) => setShowAllSnap(e.target.checked)} />
+                <span>Show all (incl. low-quality)</span>
+              </label>
+              <span className="muted" style={{ fontSize: 12 }}>showing {snapShown.length.toLocaleString()} of {report.snap.length.toLocaleString()}</span>
+            </div>
+            {report.snap.length === 0 ? <p className="muted">No new SNAP candidates today.</p> : snapShown.length === 0 ? (
+              <p className="muted">No names at quality ≥ {minQuality.toFixed(1)} today — lower the floor or toggle “Show all”.</p>
+            ) : (
               <div className="table-scroll"><table className="dash opp-table" style={{ width: "100%" }}>
                 <thead><tr>
                   <SortHeader label="Domain" k="domain" sort={snapSort} setSort={setSnapSort} />
@@ -200,7 +220,7 @@ export default function OpportunitiesClient() {
                   <th></th>
                 </tr></thead>
                 <tbody>
-                  {snap.map((d, i) => (
+                  {snapShown.map((d, i) => (
                     <tr key={d.domain + d.source + i}>
                       <td className="mono" style={{ fontWeight: 600 }}>{d.domain}</td>
                       <td className="right">{d.quality_score == null ? <span className="muted">—</span> : (
