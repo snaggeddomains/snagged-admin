@@ -1,11 +1,12 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 4,
   "domains": [
-    "developmental.co",
-    "preventative.co",
-    "relatable.co"
+    "darkly.co",
+    "klopp.co",
+    "narcissism.co",
+    "sasuke.co"
   ],
-  "generated_at": "2026-06-10T09:28:37.769419+00:00",
+  "generated_at": "2026-06-11T09:24:28.258173+00:00",
   "source": "dynadot_auctions"
 }
