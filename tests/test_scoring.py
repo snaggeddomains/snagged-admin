@@ -12,7 +12,9 @@ from marketplace_pipeline import scoring
     (".ai",  0.9),
     (".io",  0.7),
     (".org", 0.6),
-    (".xyz", 0.0),
+    (".dev", 0.6),
+    (".xyz", 0.5),
+    (".foo", 0.0),  # unknown TLD → no weight
     ("",     0.0),
 ])
 def test_tld_weight(tld, expected):
