@@ -4,8 +4,28 @@
     "price": 5000000.0
   },
   {
+    "domain": "reteng.com",
+    "price": 4198.0
+  },
+  {
+    "domain": "accvantage.com",
+    "price": 9195.0
+  },
+  {
+    "domain": "brandinghow.com",
+    "price": 999.0
+  },
+  {
+    "domain": "kamera.net",
+    "price": 10000.0
+  },
+  {
     "domain": "details.co",
     "price": 7995.0
+  },
+  {
+    "domain": "branson.co",
+    "price": 7895.0
   },
   {
     "domain": "metroair.co",
@@ -16,8 +36,16 @@
     "price": null
   },
   {
+    "domain": "midi.co",
+    "price": 8895.0
+  },
+  {
     "domain": "ter.co",
     "price": 9895.0
+  },
+  {
+    "domain": "eeg.co",
+    "price": 6895.0
   },
   {
     "domain": "atp.co",
