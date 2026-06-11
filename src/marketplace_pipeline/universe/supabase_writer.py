@@ -55,6 +55,16 @@ def _is_transient(err: str) -> bool:
         or "writeerror" in low
         or "readerror" in low
         or "remoteprotocolerror" in low
+        # HTTP/2 GOAWAY mid-upsert: the supabase client uses an HTTP/2 connection
+        # and on the hour-long afternic upsert PostgREST eventually sends a GOAWAY
+        # ("ConnectionTerminated error_code:0"). httpx raises RemoteProtocolError,
+        # but str(e) is just "<ConnectionTerminated …>" — it has NONE of the
+        # substrings above (the class name isn't in the message), so this used to
+        # escape the retry and fail afternic every night. Match the message text
+        # directly; the call site also feeds in the exception class name now.
+        or "connectionterminated" in low
+        or "connection terminated" in low
+        or "goaway" in low
         or "connecterror" in low
         or "connecttimeout" in low
         or "readtimeout" in low
@@ -210,7 +220,11 @@ def upsert(merged_rows: list[dict[str, Any]]) -> dict[str, Any]:
                 client.rpc("upsert_universe_rows", {"rows": batch}).execute()
                 break
             except Exception as e:  # noqa: BLE001 — Postgres transient errors
-                if attempt < UPSERT_RETRIES - 1 and _is_transient(str(e)):
+                # Include the exception CLASS NAME in the haystack — httpx errors
+                # like RemoteProtocolError carry the useful detail in the class,
+                # not str(e), so matching on the message alone misses them.
+                err_text = f"{type(e).__name__}: {e}"
+                if attempt < UPSERT_RETRIES - 1 and _is_transient(err_text):
                     backoff = UPSERT_BACKOFF_BASE * (2 ** attempt)
                     print(
                         f"      universe upsert transient error "

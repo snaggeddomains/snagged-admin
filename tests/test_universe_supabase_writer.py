@@ -159,6 +159,23 @@ def test_merged_to_universe_row_preserves_zipf_none():
     assert row["zipf_score"] is None
 
 
+# ---------- transient-error classification ----------
+
+def test_is_transient_matches_http2_goaway():
+    """Regression: the HTTP/2 GOAWAY that fails the nightly afternic upsert.
+    str() of httpx.RemoteProtocolError is just the ConnectionTerminated message
+    (no class name), so it must match on the message text — and the call site
+    also prepends the class name."""
+    msg = "<ConnectionTerminated error_code:0, last_stream_id:263, additional_data:None>"
+    assert sw._is_transient(msg)                       # message alone
+    assert sw._is_transient(f"RemoteProtocolError: {msg}")  # with class name
+
+
+def test_is_transient_ignores_genuine_errors():
+    assert not sw._is_transient("ValueError: domain is required")
+    assert not sw._is_transient("KeyError: 'sld'")
+
+
 # ---------- upsert ----------
 
 def test_upsert_returns_skipped_when_env_not_set(monkeypatch):
