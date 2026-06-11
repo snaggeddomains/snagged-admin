@@ -85,6 +85,46 @@ def _client_or_none():
     return create_client(url, key)
 
 
+# The heavy upsert RPC goes over a dedicated HTTP/1.1 client, NOT the supabase
+# client's HTTP/2 transport. On the hour-long afternic upsert PostgREST sends an
+# HTTP/2 GOAWAY (ConnectionTerminated) that terminates the long-lived connection;
+# the pooled-but-dead connection then failed every subsequent batch's first
+# attempt, turning the run into a ~2s-per-batch crawl that timed out at 90 min.
+# HTTP/1.1 has NO GOAWAY frame — httpx transparently reopens keep-alive
+# connections — so the upsert stays fast. (Net-new counting stays on the supabase
+# client: small, non-fatal GETs where an occasional drop is harmless.)
+_rpc_http = None
+
+
+def _rpc_session():
+    global _rpc_http
+    if _rpc_http is None:
+        import httpx  # lazy — keep module import-safe where httpx isn't installed
+
+        _rpc_http = httpx.Client(http2=False, timeout=httpx.Timeout(120.0))
+    return _rpc_http
+
+
+def _rpc_upsert_rows(url: str, key: str, batch: list[dict[str, Any]]):
+    """POST one batch to the upsert_universe_rows RPC over HTTP/1.1. Raises on a
+    non-2xx so the caller's transient-retry can see the SQLSTATE in the message."""
+    base = url.rstrip("/")
+    resp = _rpc_session().post(
+        f"{base}/rest/v1/rpc/upsert_universe_rows",
+        headers={
+            "apikey": key,
+            "Authorization": f"Bearer {key}",
+            "Content-Type": "application/json",
+        },
+        json={"rows": batch},
+    )
+    if resp.status_code >= 400:
+        # PostgREST puts the SQLSTATE / message in the body (e.g. 57014 timeout,
+        # 40P01 deadlock) — keep it so _is_transient can classify + retry.
+        raise RuntimeError(f"PostgREST {resp.status_code}: {resp.text[:300]}")
+    return resp
+
+
 def merged_to_universe_row(merged: dict[str, Any]) -> dict[str, Any]:
     """Convert a writer.merge_observations() row into the wire format
     expected by the upsert_universe_rows RPC.
@@ -172,6 +212,11 @@ def upsert(merged_rows: list[dict[str, Any]]) -> dict[str, Any]:
             "batches": 0,
         }
 
+    # Credentials for the direct HTTP/1.1 RPC (the supabase client is kept only for
+    # the small net-new count GETs). _client_or_none already proved both are set.
+    url = os.environ.get("SUPABASE_NAMING_URL")
+    key = os.environ.get("SUPABASE_NAMING_SERVICE_KEY")
+
     wire_rows = [merged_to_universe_row(r) for r in merged_rows]
 
     # Quality floor on INGEST — only names scoring >= UNIVERSE_MIN_QUALITY enter the
@@ -217,7 +262,7 @@ def upsert(merged_rows: list[dict[str, Any]]) -> dict[str, Any]:
         # errors (timeout / deadlock) with backoff — the RPC is idempotent.
         for attempt in range(UPSERT_RETRIES):
             try:
-                client.rpc("upsert_universe_rows", {"rows": batch}).execute()
+                _rpc_upsert_rows(url, key, batch)
                 break
             except Exception as e:  # noqa: BLE001 — Postgres transient errors
                 # Include the exception CLASS NAME in the haystack — httpx errors
@@ -225,23 +270,11 @@ def upsert(merged_rows: list[dict[str, Any]]) -> dict[str, Any]:
                 # not str(e), so matching on the message alone misses them.
                 err_text = f"{type(e).__name__}: {e}"
                 if attempt < UPSERT_RETRIES - 1 and _is_transient(err_text):
-                    # CRITICAL for the long afternic upsert: rebuild the client so
-                    # the retry doesn't reuse a GOAWAY'd / poisoned HTTP/2 connection.
-                    # PostgREST terminates the long-lived connection; the supabase
-                    # client otherwise keeps the dead connection in its pool, so
-                    # EVERY subsequent batch's first attempt fails the same way and
-                    # eats a backoff → a ~2s-per-batch crawl that timed the job out.
-                    # A fresh client (reassigned here) carries forward to the next
-                    # batches, so GOAWAYs recur only per server connection-limit, not
-                    # every batch. Connection drops need no long backoff.
-                    fresh = _client_or_none()
-                    if fresh is not None:
-                        client = fresh
                     backoff = UPSERT_BACKOFF_BASE * (2 ** attempt)
                     print(
                         f"      universe upsert transient error "
                         f"(batch {batches + 1}, attempt {attempt + 1}); "
-                        f"rebuilt client, backing off {backoff:.0f}s",
+                        f"backing off {backoff:.0f}s",
                         flush=True,
                     )
                     time.sleep(backoff)

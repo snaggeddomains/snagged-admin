@@ -191,10 +191,14 @@ def test_upsert_applies_quality_floor(monkeypatch):
     upserted; un-scoreable rows (non-dict SLD → null quality) are dropped and
     counted in rows_below_quality."""
     fake_client = MagicMock()
-    fake_client.rpc.return_value.execute.return_value = MagicMock()
     # Net-new count sub-query → pretend nothing exists yet.
     fake_client.table.return_value.select.return_value.in_.return_value.execute.return_value = MagicMock(data=[])
     monkeypatch.setattr(sw, "_client_or_none", lambda: fake_client)
+    # The heavy RPC now goes over a direct HTTP/1.1 client — mock that.
+    rpc = MagicMock()
+    monkeypatch.setattr(sw, "_rpc_upsert_rows", rpc)
+    monkeypatch.setenv("SUPABASE_NAMING_URL", "https://x.supabase.co")
+    monkeypatch.setenv("SUPABASE_NAMING_SERVICE_KEY", "k")
     monkeypatch.delenv("UNIVERSE_MIN_QUALITY", raising=False)  # default 1.0
 
     merged = [
@@ -209,22 +213,25 @@ def test_upsert_applies_quality_floor(monkeypatch):
     assert stats["status"] == "ok"
     assert stats["rows_sent"] == 1
     assert stats["rows_below_quality"] == 1
-    # The single kept row is what got sent to the RPC.
-    sent = fake_client.rpc.call_args_list[0].args[1]["rows"]
+    # The single kept row is what got sent to the RPC (3rd positional arg = batch).
+    sent = rpc.call_args_list[0].args[2]
     assert [r["domain"] for r in sent] == ["table.com"]
 
 
 def test_upsert_batches_and_calls_rpc(monkeypatch):
-    """With creds set, each batch should fire one rpc('upsert_universe_rows').
+    """With creds set, each batch should fire one upsert RPC.
 
     We mock _client_or_none rather than supabase.create_client so the test
     doesn't depend on the supabase package being importable in the test
     environment (it's a runtime dep that GitHub Actions has but local
-    sandboxes sometimes don't).
+    sandboxes sometimes don't), and mock the HTTP/1.1 RPC helper directly.
     """
     fake_client = MagicMock()
-    fake_client.rpc.return_value.execute.return_value = MagicMock()
     monkeypatch.setattr(sw, "_client_or_none", lambda: fake_client)
+    rpc = MagicMock()
+    monkeypatch.setattr(sw, "_rpc_upsert_rows", rpc)
+    monkeypatch.setenv("SUPABASE_NAMING_URL", "https://x.supabase.co")
+    monkeypatch.setenv("SUPABASE_NAMING_SERVICE_KEY", "k")
     # Disable the ingest quality floor — these synthetic rows (digit SLDs) score
     # null and the test is about batch math, not the floor (covered separately).
     monkeypatch.setenv("UNIVERSE_MIN_QUALITY", "0")
@@ -251,8 +258,8 @@ def test_upsert_batches_and_calls_rpc(monkeypatch):
     assert stats["status"] == "ok"
     assert stats["rows_sent"] == n_rows
     assert stats["batches"] == expected_batches
-    # Verify the RPC was called once per batch with the right function name
-    assert fake_client.rpc.call_count == expected_batches
-    for call in fake_client.rpc.call_args_list:
-        args, _ = call
-        assert args[0] == "upsert_universe_rows"
+    # One RPC call per batch; each carries (url, key, batch).
+    assert rpc.call_count == expected_batches
+    for call in rpc.call_args_list:
+        assert call.args[0] == "https://x.supabase.co"
+        assert isinstance(call.args[2], list)
