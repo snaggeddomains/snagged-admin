@@ -1,10 +1,50 @@
 [
   {
     "currency": "USD",
-    "domain": "djw.com",
-    "end_time_utc": "2026-06-11T02:18:44+00:00",
-    "price": 224548.0,
+    "domain": "indulge.com",
+    "end_time_utc": "2026-06-11T17:52:15+00:00",
+    "price": 5000000.0,
     "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=djw.com"
+    "url": "https://sedo.com/search/details/?domain=indulge.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "black.co",
+    "end_time_utc": "2026-06-11T14:57:17+00:00",
+    "price": null,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=black.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "mlm.co",
+    "end_time_utc": "2026-06-11T18:53:13+00:00",
+    "price": 12995.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=mlm.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "ter.co",
+    "end_time_utc": "2026-06-11T18:53:19+00:00",
+    "price": 9895.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=ter.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "bpa.co",
+    "end_time_utc": "2026-06-11T18:53:16+00:00",
+    "price": 12995.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=bpa.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "atp.co",
+    "end_time_utc": "2026-06-11T18:53:19+00:00",
+    "price": 14995.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=atp.co"
   }
 ]
