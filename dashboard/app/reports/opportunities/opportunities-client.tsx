@@ -118,9 +118,12 @@ export default function OpportunitiesClient() {
   const [now, setNow] = useState(() => Date.now());
   const [aucSort, setAucSort] = useState<Sort>({ key: "ends", dir: 1 });
   const [snapSort, setSnapSort] = useState<Sort>({ key: "quality", dir: -1 });
-  // SNAP feeds are mostly junk (0.0-quality drops); always apply a fixed quality
-  // floor so the report reads as "today's worthwhile names" (no toggle).
-  const MIN_QUALITY = 1.0;
+  // Quality floor is TLD-specific: .xyz is flooded with forgettable keyword combos
+  // in the 2.x band, so it needs a higher bar (3.0); every other TLD keeps the 1.0
+  // floor that just trims the 0.x drop junk.
+  const BASE_FLOOR = 1.0;
+  const XYZ_FLOOR = 3.0;
+  const floorFor = (domain: string) => (/\.xyz$/i.test(domain) ? XYZ_FLOOR : BASE_FLOOR);
 
   const load = useCallback(async () => {
     setLoading(true); setMsg("");
@@ -137,7 +140,7 @@ export default function OpportunitiesClient() {
   const endingSoon = report ? report.auctions.filter((a) => { const c = countdown(a.endTimeUtc, now); return c.soon && !c.ended; }).length : 0;
   const auctions = report ? sortAuctions(report.auctions, aucSort) : [];
   const snap = report ? sortSnap(report.snap, snapSort) : [];
-  const snapShown = snap.filter((d) => (d.quality_score ?? 0) >= MIN_QUALITY);
+  const snapShown = snap.filter((d) => (d.quality_score ?? 0) >= floorFor(d.domain));
 
   return (
     <main>
@@ -170,7 +173,6 @@ export default function OpportunitiesClient() {
                 <thead><tr>
                   <SortHeader label="Domain" k="domain" sort={aucSort} setSort={setAucSort} />
                   <SortHeader label="Price" k="price" sort={aucSort} setSort={setAucSort} align="right" />
-                  <SortHeader label="Bids" k="bids" sort={aucSort} setSort={setAucSort} align="right" />
                   <SortHeader label="Ends in" k="ends" sort={aucSort} setSort={setAucSort} />
                   <SortHeader label="Source" k="source" sort={aucSort} setSort={setAucSort} />
                   <th></th>
@@ -180,8 +182,7 @@ export default function OpportunitiesClient() {
                     <tr key={a.domain + a.source + i}>
                       <td className="mono" style={{ fontWeight: 600 }}>{a.domain}</td>
                       <td className="right" style={{ fontWeight: 600 }}>{usd(a.price)}</td>
-                      <td className="right muted">{a.bidCount ?? "—"}</td>
-                      <td><CountdownBadge end={a.endTimeUtc} now={now} /></td>
+                      <td><CountdownBadge end={a.endTimeUtc} now={now} />{a.bidCount != null ? <span className="muted" style={{ fontSize: 11, marginLeft: 8 }}>{a.bidCount} bid{a.bidCount === 1 ? "" : "s"}</span> : null}</td>
                       <td><SourcePill source={a.source} /></td>
                       <td className="right">{a.link ? <a href={a.link} target="_blank" rel="noreferrer" style={linkBtn}>Bid →</a> : null}</td>
                     </tr>
@@ -192,16 +193,15 @@ export default function OpportunitiesClient() {
           </section>
 
           <section style={{ marginTop: 28 }}>
-            <h2 style={{ fontSize: 17 }}>Snap <span className="muted" style={{ fontWeight: 400, fontSize: 13 }}>· {snapShown.length.toLocaleString()} new today (quality ≥ {MIN_QUALITY.toFixed(1)}) · {report.snapSources} sources</span></h2>
+            <h2 style={{ fontSize: 17 }}>Snap <span className="muted" style={{ fontWeight: 400, fontSize: 13 }}>· {snapShown.length.toLocaleString()} new today (quality ≥ {BASE_FLOOR.toFixed(1)}, ≥ {XYZ_FLOOR.toFixed(1)} for .xyz) · {report.snapSources} sources</span></h2>
             {report.snap.length === 0 ? <p className="muted">No new SNAP candidates today.</p> : snapShown.length === 0 ? (
-              <p className="muted">No names at quality ≥ {MIN_QUALITY.toFixed(1)} today.</p>
+              <p className="muted">No names clear today&apos;s quality floor.</p>
             ) : (
               <div className="table-scroll"><table className="dash opp-table" style={{ width: "100%" }}>
                 <thead><tr>
                   <SortHeader label="Domain" k="domain" sort={snapSort} setSort={setSnapSort} />
-                  <SortHeader label="Quality" k="quality" sort={snapSort} setSort={setSnapSort} align="right" />
-                  <SortHeader label="Category" k="category" sort={snapSort} setSort={setSnapSort} />
                   <SortHeader label="Price" k="price" sort={snapSort} setSort={setSnapSort} align="right" />
+                  <SortHeader label="Quality" k="quality" sort={snapSort} setSort={setSnapSort} />
                   <SortHeader label="Source" k="source" sort={snapSort} setSort={setSnapSort} />
                   <th></th>
                 </tr></thead>
@@ -209,13 +209,15 @@ export default function OpportunitiesClient() {
                   {snapShown.map((d, i) => (
                     <tr key={d.domain + d.source + i}>
                       <td className="mono" style={{ fontWeight: 600 }}>{d.domain}</td>
-                      <td className="right">{d.quality_score == null ? <span className="muted">—</span> : (
-                        <span style={{ display: "inline-block", minWidth: 34, textAlign: "center", padding: "1px 7px", borderRadius: 6, fontSize: 12.5, fontWeight: 700, background: d.quality_score >= 4 ? "#e3efe6" : d.quality_score >= 2 ? "#fdf0d4" : "#f0eee8", color: d.quality_score >= 4 ? "#2f7d4f" : d.quality_score >= 2 ? "#946200" : "#7a7568" }}>{d.quality_score.toFixed(1)}</span>
-                      )}</td>
-                      <td className="muted">{d.category ?? (d.enriched ? "—" : "unenriched")}</td>
-                      <td className="right">{usd(d.price)}{d.best_price_source ? <span className="muted" style={{ fontSize: 11 }}> · {d.best_price_source}</span> : null}</td>
+                      <td className="right">{usd(d.price)}</td>
+                      <td>
+                        {d.quality_score == null ? <span className="muted">—</span> : (
+                          <span style={{ display: "inline-block", minWidth: 34, textAlign: "center", padding: "1px 7px", borderRadius: 6, fontSize: 12.5, fontWeight: 700, background: d.quality_score >= 4 ? "#e3efe6" : d.quality_score >= 2 ? "#fdf0d4" : "#f0eee8", color: d.quality_score >= 4 ? "#2f7d4f" : d.quality_score >= 2 ? "#946200" : "#7a7568" }}>{d.quality_score.toFixed(1)}</span>
+                        )}
+                        <span className="muted" style={{ fontSize: 11, marginLeft: 8 }}>{d.category ?? (d.enriched ? "—" : "unenriched")}</span>
+                      </td>
                       <td><SourcePill source={d.source} /></td>
-                      <td className="right"><a href={snapLink(d.domain, d.best_price_source || d.source)} target="_blank" rel="noreferrer" style={linkBtn}>View →</a></td>
+                      <td className="right"><a href={snapLink(d.domain, d.source)} target="_blank" rel="noreferrer" style={linkBtn}>View →</a></td>
                     </tr>
                   ))}
                 </tbody>

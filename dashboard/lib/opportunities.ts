@@ -43,8 +43,24 @@ export async function newOpportunities(): Promise<OpportunitiesReport> {
     }),
   );
 
-  // Snap: best quality first. Auctions: soonest-ending first (the countdown matters).
-  const snap = snapLists.flat().sort((a, b) => (b.quality_score ?? -1) - (a.quality_score ?? -1));
+  // Snap: dedup by domain (a name "new today" in several feeds appeared once per
+  // feed) keeping the cheapest priced instance, then collapse to ONE source — the
+  // marketplace the price came from (best_price_source), falling back to the feed
+  // that surfaced it when there's no price. Best quality first.
+  const byDomain = new Map<string, SnapOpportunity>();
+  for (const d of snapLists.flat()) {
+    const key = String(d.domain || "").toLowerCase();
+    if (!key) continue;
+    const cur = byDomain.get(key);
+    if (!cur) { byDomain.set(key, d); continue; }
+    // Prefer a priced row, and the lower price when both are priced.
+    if (cur.price == null && d.price != null) byDomain.set(key, d);
+    else if (d.price != null && cur.price != null && d.price < cur.price) byDomain.set(key, d);
+  }
+  const snap = [...byDomain.values()]
+    .map((d): SnapOpportunity => ({ ...d, source: d.best_price_source || d.source }))
+    .sort((a, b) => (b.quality_score ?? -1) - (a.quality_score ?? -1));
+  // Auctions: soonest-ending first (the countdown matters).
   const auctions = aucLists.flat().sort((a, b) => String(a.endTimeUtc || "~").localeCompare(String(b.endTimeUtc || "~")));
 
   return {
