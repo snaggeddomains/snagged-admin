@@ -40,7 +40,9 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    # The --rescore pass walks millions of rows; it's resumable (re-dispatch until
+    # it reports 0), but give each run a long window so it covers as much as it can.
+    timeout-minutes: 350
     env:
       ANTHROPIC_API_KEY:           ${{ secrets.ANTHROPIC_API_KEY }}
       SUPABASE_NAMING_URL:         ${{ secrets.SUPABASE_NAMING_URL }}

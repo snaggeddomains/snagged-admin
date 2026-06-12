@@ -95,11 +95,13 @@ def _run_universe(rescore: bool = False) -> int:
     """Default: fill structural fields on rows that never got them (num_syllables
     IS NULL) — idempotent + resumable.
 
-    --rescore: recompute the SCORES on EVERY row using the current formula. Needed
-    after a scoring change (e.g. the 2026-06 quality_zipf fix that gave two-word
-    names + .xyz/.dev a real quality_score instead of 0.0) so the already-stored
-    corpus matches new ingest. Touches all ~rows, so it's the long one — dispatch it
-    on the GH runner.
+    --rescore: recompute scores + part_of_speech on rows where part_of_speech IS
+    NULL. Since part_of_speech is freshly added (every row null at first), the first
+    pass touches the WHOLE corpus — refreshing the corrected quality_score AND
+    setting POS — but it's RESUMABLE + self-terminating: processed rows get a
+    non-null POS ([] or tags) so a re-run picks up only what's left and eventually
+    reports 0. The 6-10M-row corpus won't finish in one runner window, so just
+    re-dispatch until it's done.
     """
     client = _client_or_none()
     if client is None:
@@ -114,9 +116,10 @@ def _run_universe(rescore: bool = False) -> int:
                 "domain, sld, tld, sld_length, sources, best_price, "
                 "best_price_source, first_seen, last_seen, source_tier"
             )
-            # Default backfill is gated to never-processed rows; --rescore walks all.
-            if not rescore:
-                q = q.is_("num_syllables", "null")
+            # Both modes are resumable via a NULL gate: default fills rows missing
+            # structural fields (num_syllables null); --rescore fills rows missing
+            # part_of_speech (initially all → a full corpus pass, re-runnable).
+            q = q.is_("part_of_speech" if rescore else "num_syllables", "null")
             return q.gt("domain", last_domain).order("domain").limit(SELECT_BATCH).execute()
 
         resp = _exec_retry(_select, "select")
