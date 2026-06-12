@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 from .. import scoring
 from ..filters import pos as _pos
@@ -47,6 +48,7 @@ def _exec_retry(thunk, what: str, retries: int = 6, base: float = 2.0):
             raise
 
 SELECT_BATCH = 1000
+UPDATE_WORKERS = 16  # concurrent per-row UPDATEs per batch (overlap HTTP latency)
 
 
 def _row_update(r: dict) -> dict:
@@ -65,19 +67,14 @@ def _row_update(r: dict) -> dict:
         if qzipf and bp is not None and bp > 0
         else None
     )
-    # The conflict key + recomputed columns + the NOT-NULL identity columns.
-    # supabase upsert issues INSERT ... ON CONFLICT DO UPDATE; Postgres validates
-    # the candidate INSERT tuple's NOT NULL constraints BEFORE it resolves to the
-    # UPDATE, so an omitted NOT-NULL column (sld) throws 23502 even though every
-    # row here already exists. sld/tld/sld_length are cheap plain columns (we
-    # SELECT them straight through) — pass them so the tuple validates. We still
-    # OMIT the array columns (sources/keywords GINs!) whose write would churn
-    # indexes and crush the DB into statement timeouts.
+    # ONLY the recomputed columns (written via a pure UPDATE keyed on domain — NOT
+    # an upsert). supabase `.upsert()` issues INSERT ... ON CONFLICT DO UPDATE, and
+    # Postgres validates the candidate INSERT tuple's NOT NULL constraints BEFORE it
+    # resolves to the UPDATE — so a partial payload throws 23502 (sld, then
+    # first_seen, …) even though every row already exists. A pure `.update()` has no
+    # insert tuple, so it writes just these columns and never touches the
+    # array/identity columns (sources/keywords GINs, first_seen, …).
     return {
-        "domain": r["domain"],
-        "sld": sld,
-        "tld": tld,
-        "sld_length": r.get("sld_length"),
         "zipf_score": zipf,
         "num_words": num_words,
         "num_syllables": univ.count_syllables(sld),
@@ -131,11 +128,18 @@ def _run_universe(rescore: bool = False) -> int:
         rows = resp.data or []
         if not rows:
             break
-        payload = [_row_update(r) for r in rows]  # POS + scores computed once
-        _exec_retry(
-            lambda: client.table("name_universe").upsert(payload, on_conflict="domain").execute(),
-            "upsert",
-        )
+        # Pure per-row UPDATE (not upsert) — writes only the recomputed columns and
+        # dodges the ON-CONFLICT insert-tuple NOT NULL validation. Threaded so the
+        # HTTP round-trips overlap (the per-row server work is tiny); each call
+        # rebuilds its own query, so the client is used concurrency-safely.
+        def _upd(r):
+            patch = _row_update(r)
+            return _exec_retry(
+                lambda: client.table("name_universe").update(patch).eq("domain", r["domain"]).execute(),
+                "update",
+            )
+        with ThreadPoolExecutor(max_workers=UPDATE_WORKERS) as pool:
+            list(pool.map(_upd, rows))
         total += len(rows)
         last_domain = rows[-1]["domain"]
         verb = "rescored" if rescore else "backfilled"
