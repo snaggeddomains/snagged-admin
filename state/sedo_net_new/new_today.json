@@ -1,11 +1,9 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 1,
   "domains": [
-    "gvb.com",
-    "kafka.co",
-    "ponce.co"
+    "not.co"
   ],
-  "generated_at": "2026-06-12T17:01:19.224478+00:00",
+  "generated_at": "2026-06-12T23:01:02.017746+00:00",
   "source": "sedo_net_new"
 }

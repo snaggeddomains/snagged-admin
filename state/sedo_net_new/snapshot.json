@@ -1,14 +1,6 @@
 [
   {
     "currency": "USD",
-    "domain": "gvb.com",
-    "end_time_utc": "2026-06-12T11:05:14+00:00",
-    "price": 16000000.0,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=gvb.com"
-  },
-  {
-    "currency": "USD",
     "domain": "ponce.co",
     "end_time_utc": "2026-06-12T15:29:13+00:00",
     "price": 4995.0,
@@ -25,10 +17,10 @@
   },
   {
     "currency": "USD",
-    "domain": "cheap.co",
-    "end_time_utc": "2026-06-12T10:00:18+00:00",
-    "price": 200000.0,
+    "domain": "not.co",
+    "end_time_utc": "2026-06-12T22:56:14+00:00",
+    "price": null,
     "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=cheap.co"
+    "url": "https://sedo.com/search/details/?domain=not.co"
   }
 ]
