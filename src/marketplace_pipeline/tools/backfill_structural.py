@@ -23,6 +23,7 @@ import argparse
 import sys
 
 from .. import scoring
+from ..filters import pos as _pos
 from ..filters import standard as flt
 from ..filters import universe as univ
 from ..universe.supabase_writer import _client_or_none
@@ -65,6 +66,10 @@ def _row_update(r: dict) -> dict:
         "is_dictionary_word": (num_words == 1) if num_words is not None else None,
         "quality_score": quality,
         "deal_score": deal,
+        # Part-of-speech (multi-tag) for single dictionary words, from WordNet —
+        # populated here (not at ingest: the upsert RPC doesn't carry it, and POS
+        # must stay off the hot per-source path). [] for compounds / non-words.
+        "part_of_speech": _pos.pos_for_sld(sld, num_words),
     }
 
 
