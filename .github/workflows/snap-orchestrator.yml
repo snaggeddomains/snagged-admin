@@ -53,10 +53,11 @@ jobs:
         if: ${{ inputs.mode != 'ping' }}
         run: python -m playwright install --with-deps chromium chromium-headless-shell
 
-      - name: Run SNAP + auction sources (sequential; continue on failure)
+      - name: Run SNAP + auction sources (afternic in parallel; continue on failure)
         if: ${{ inputs.mode != 'ping' }}
         id: runsources
         env:
+          PYTHONUNBUFFERED:            "1"
           SLACK_BOT_TOKEN:             ${{ secrets.SLACK_BOT_TOKEN }}
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           SUPABASE_NAMING_URL:         ${{ secrets.SUPABASE_NAMING_URL }}
@@ -78,10 +79,21 @@ jobs:
           SLACK_CHANNEL_AUCTIONS:      ${{ vars.SLACK_CHANNEL_AUCTIONS }}
         run: |
           set +e
-          # Order = the SLA cascade (afternic anchors at dispatch time; ATOM
-          # after afternic so its >4 AM feed is ready; auctions aggregate last).
-          SOURCES="afternic namecheap_bin atom_daily snagged_snap_sheet rob_purchases_sheet snagged_marketplace_sheet berserk_snap_sheet oxley braden_pollack_portfolio efty_partner auctions_publish auctions_watchdog"
           failed=""
+          mkdir -p /tmp/orch
+
+          # afternic is the long pole now (~100 min, universe-heavy): it no longer
+          # crashes, but it's far too slow to sit FIRST in a sequential 180-min
+          # budget (it timed the whole batch out 2026-06-12). Run it in PARALLEL in
+          # the background while the rest of the sources run sequentially in the
+          # foreground, then fold its result in at the end. Total wall time ≈
+          # max(afternic, the rest) instead of their sum — keeps the 7 AM ET SLA.
+          echo "Launching afternic in the background (parallel with the rest)…"
+          ( pipeline run afternic; echo "$?" > /tmp/orch/afternic.rc ) > /tmp/orch/afternic.log 2>&1 &
+          AFTERNIC_PID=$!
+
+          # ATOM stays after a quick first source so its ">4 AM ET" feed is ready.
+          SOURCES="namecheap_bin atom_daily snagged_snap_sheet rob_purchases_sheet snagged_marketplace_sheet berserk_snap_sheet oxley braden_pollack_portfolio efty_partner auctions_publish auctions_watchdog"
           for s in $SOURCES; do
             echo "::group::pipeline run $s"
             if pipeline run "$s"; then
@@ -92,6 +104,21 @@ jobs:
             fi
             echo "::endgroup::"
           done
+
+          # Collect afternic (it has usually finished while the rest ran). `wait`
+          # blocks until it's done; its buffered log is replayed under its own group.
+          echo "::group::pipeline run afternic (parallel → result)"
+          wait "$AFTERNIC_PID"
+          cat /tmp/orch/afternic.log 2>/dev/null || true
+          arc="$(cat /tmp/orch/afternic.rc 2>/dev/null || echo 1)"
+          if [ "$arc" = "0" ]; then
+            echo "OK: afternic"
+          else
+            echo "::error title=afternic failed::pipeline run afternic exited non-zero (parallel)"
+            failed="$failed afternic"
+          fi
+          echo "::endgroup::"
+
           { echo "failed=$failed"; } >> "$GITHUB_OUTPUT"
           [ -n "$failed" ] && echo "Sources that failed:$failed" || echo "All sources completed."
 
