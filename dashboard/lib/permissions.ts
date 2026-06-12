@@ -37,6 +37,7 @@ export const MODULES = [
   "research.nameserver",
   "research.sales", // Sales Research Agent — find buyers for a domain we're selling
   "research.beeper", // Beeper — RDAP drop watcher (alert when a domain's status changes)
+  "research.whois", // Whois — basic free RDAP/WHOIS domain lookup
 ] as const;
 export type ModuleKey = (typeof MODULES)[number];
 
@@ -170,4 +171,5 @@ export const CATALOG: CatalogEntry[] = [
   { key: "research.nameserver", label: "Nameserver Search", group: "Research", kind: "module" },
   { key: "research.sales", label: "Sales Research", group: "Research", kind: "module" },
   { key: "research.beeper", label: "Beeper (drop watch)", group: "Research", kind: "module" },
+  { key: "research.whois", label: "Whois (domain lookup)", group: "Research", kind: "module" },
 ];
