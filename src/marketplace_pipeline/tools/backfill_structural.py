@@ -22,7 +22,6 @@ from __future__ import annotations
 import argparse
 import sys
 import time
-from concurrent.futures import ThreadPoolExecutor
 
 from .. import scoring
 from ..filters import pos as _pos
@@ -48,7 +47,13 @@ def _exec_retry(thunk, what: str, retries: int = 6, base: float = 2.0):
             raise
 
 SELECT_BATCH = 1000
-UPDATE_WORKERS = 16  # concurrent per-row UPDATEs per batch (overlap HTTP latency)
+
+
+def _rpc_missing(e: Exception) -> bool:
+    """The set-based rescore RPC isn't installed yet (PostgREST PGRST202 /
+    Postgres 42883 undefined_function / 'could not find the function')."""
+    s = f"{getattr(e, 'code', '')} {e}".lower()
+    return "pgrst202" in s or "42883" in s or "could not find the function" in s or "does not exist" in s and "function" in s
 
 
 def _row_update(r: dict) -> dict:
@@ -128,18 +133,25 @@ def _run_universe(rescore: bool = False) -> int:
         rows = resp.data or []
         if not rows:
             break
-        # Pure per-row UPDATE (not upsert) — writes only the recomputed columns and
-        # dodges the ON-CONFLICT insert-tuple NOT NULL validation. Threaded so the
-        # HTTP round-trips overlap (the per-row server work is tiny); each call
-        # rebuilds its own query, so the client is used concurrency-safely.
-        def _upd(r):
-            patch = _row_update(r)
-            return _exec_retry(
-                lambda: client.table("name_universe").update(patch).eq("domain", r["domain"]).execute(),
-                "update",
+        # ONE set-based UPDATE per batch via the backfill_universe_rescore RPC —
+        # ~1000x fewer round-trips than per-row .update() (which can't keep up with
+        # a 6-10M-row corpus). The RPC writes only the recomputed columns.
+        payload = [{"domain": r["domain"], **_row_update(r)} for r in rows]
+        try:
+            _exec_retry(
+                lambda: client.rpc("backfill_universe_rescore", {"rows": payload}).execute(),
+                "rescore-rpc",
             )
-        with ThreadPoolExecutor(max_workers=UPDATE_WORKERS) as pool:
-            list(pool.map(_upd, rows))
+        except Exception as e:  # noqa: BLE001
+            if _rpc_missing(e):
+                print(
+                    "\nbackfill-structural: the backfill_universe_rescore RPC is not "
+                    "installed.\n  Run scripts/backfill_rescore_rpc.sql on the naming "
+                    "project (snagged-naming-universe), then re-dispatch.\n",
+                    flush=True,
+                )
+                return 1
+            raise
         total += len(rows)
         last_domain = rows[-1]["domain"]
         verb = "rescored" if rescore else "backfilled"
