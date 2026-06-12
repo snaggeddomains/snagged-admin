@@ -1,11 +1,27 @@
 [
   {
     "currency": "USD",
-    "domain": "rfp.com",
-    "end_time_utc": "2026-06-12T00:14:13+00:00",
-    "price": 2200000.0,
+    "domain": "gvb.com",
+    "end_time_utc": "2026-06-12T11:05:14+00:00",
+    "price": 16000000.0,
     "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=rfp.com"
+    "url": "https://sedo.com/search/details/?domain=gvb.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "ponce.co",
+    "end_time_utc": "2026-06-12T15:29:13+00:00",
+    "price": 4995.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=ponce.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "kafka.co",
+    "end_time_utc": "2026-06-12T16:41:49+00:00",
+    "price": 9995.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=kafka.co"
   },
   {
     "currency": "USD",
