@@ -1,9 +1,7 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "row.com"
-  ],
-  "generated_at": "2026-06-12T13:31:28.706659+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-06-12T14:20:39.964237+00:00",
   "source": "afternic"
 }
