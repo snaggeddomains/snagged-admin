@@ -1,19 +1,20 @@
 {
   "capped": false,
-  "count": 11,
+  "count": 12,
   "domains": [
-    "expected.io",
-    "stiffer.ai",
-    "including.ai",
-    "jer.ai",
-    "iain.ai",
-    "sensibly.co",
-    "gurney.ai",
-    "scarface.ai",
-    "pneumonia.ai",
-    "attrition.ai",
-    "harassment.ai"
+    "blatantly.ai",
+    "considered.io",
+    "vindictive.ai",
+    "army.ai",
+    "aung.ai",
+    "girlie.ai",
+    "mausoleum.ai",
+    "unprofitable.ai",
+    "shrinkage.co",
+    "noose.co",
+    "macklemore.org",
+    "medically.org"
   ],
-  "generated_at": "2026-06-11T09:24:03.076258+00:00",
+  "generated_at": "2026-06-12T12:07:44.933369+00:00",
   "source": "namecheap_auctions"
 }

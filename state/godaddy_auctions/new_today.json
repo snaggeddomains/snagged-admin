@@ -1,9 +1,7 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "paradoxical.co"
-  ],
-  "generated_at": "2026-06-11T09:24:50.545333+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-06-12T12:08:57.940126+00:00",
   "source": "godaddy_auctions"
 }
