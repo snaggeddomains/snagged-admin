@@ -109,7 +109,7 @@ def process_sheet_tier1(
 
     print("[3/3] Upserting to Supabase name_universe (tier=1)")
     stats = supabase_writer.upsert_from_source(
-        source_id, universe_entries, today, source_tier=1,
+        source_id, universe_entries, today, source_tier=1, count_new=True,
     )
     if stats["status"] == "ok":
         print(f"      upserted {stats['rows_sent']:,} rows in {stats['batches']} batch(es)")

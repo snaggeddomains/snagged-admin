@@ -66,7 +66,13 @@ def max_consonant_run(sld: str) -> int:
     return longest
 
 
-@lru_cache(maxsize=4096)
+# Cached zipf lookup — same SLDs (and, for two-word splits, the same word HALVES)
+# come up constantly across a multi-million-row feed. 4096 was far too small: the
+# unique full-SLDs evicted the reusable common-word halves on every row, so afternic
+# recomputed wordfreq ~30M times. A large bound keeps the bounded common-word
+# vocabulary resident (near-100% hit rate after warmup) while still LRU-evicting the
+# one-off full-SLD keys, so memory stays in check.
+@lru_cache(maxsize=500_000)
 def _zipf(word: str) -> float:
     """Cached zipf lookup — same SLDs come up repeatedly across sources."""
     from wordfreq import zipf_frequency

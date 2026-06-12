@@ -196,26 +196,33 @@ def merged_to_universe_row(merged: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def upsert(merged_rows: list[dict[str, Any]]) -> dict[str, Any]:
+def upsert(merged_rows: list[dict[str, Any]], *, count_new: bool = False) -> dict[str, Any]:
     """Upsert merged universe rows into Supabase. Returns a stats dict.
 
     No-op (with a `skipped` status) when credentials aren't configured —
     `universe-sync` should keep working for local dry-runs and Parquet
     writes without Supabase set up.
+
+    `count_new` (default OFF) toggles the net-new accounting — a ~5-GETs-per-batch
+    existence check that powers `rows_new` for the dashboard "new today". Only the
+    small tier-1 sheets / oxley / spaceship / braden actually read it; the big feeds
+    (afternic, atom, efty, namecheap, sedo) discard rows_new, so leaving it off
+    strips ~5/6 of their upsert HTTP round-trips.
     """
-    client = _client_or_none()
-    if client is None:
+    # Credentials for the direct HTTP/1.1 RPC.
+    url = os.environ.get("SUPABASE_NAMING_URL")
+    key = os.environ.get("SUPABASE_NAMING_SERVICE_KEY")
+    if not (url and key):
         return {
             "status": "skipped",
             "reason": "SUPABASE_NAMING_URL / SUPABASE_NAMING_SERVICE_KEY not set",
             "rows_sent": 0,
             "batches": 0,
         }
-
-    # Credentials for the direct HTTP/1.1 RPC (the supabase client is kept only for
-    # the small net-new count GETs). _client_or_none already proved both are set.
-    url = os.environ.get("SUPABASE_NAMING_URL")
-    key = os.environ.get("SUPABASE_NAMING_SERVICE_KEY")
+    # The supabase client is ONLY needed for the optional net-new count GETs — the
+    # heavy upsert RPC goes over HTTP/1.1. Skip building it (and its per-batch GETs)
+    # entirely unless the caller consumes rows_new.
+    client = _client_or_none() if count_new else None
 
     wire_rows = [merged_to_universe_row(r) for r in merged_rows]
 
@@ -242,22 +249,23 @@ def upsert(merged_rows: list[dict[str, Any]]) -> dict[str, Any]:
     rows_new = 0  # genuinely net-new domains (not already in name_universe)
     for i in range(0, len(wire_rows), BATCH_SIZE):
         batch = wire_rows[i : i + BATCH_SIZE]
-        # Net-new accounting (for the dashboard's "new today"): count how many of
-        # this batch's domains DON'T already exist, BEFORE upserting. Batches are
-        # disjoint by domain (sorted + sliced), so this reflects pre-run state.
+        # Net-new accounting (for the dashboard's "new today") — OPT-IN. Count how
+        # many of this batch's domains DON'T already exist, BEFORE upserting. Batches
+        # are disjoint by domain (sorted + sliced), so this reflects pre-run state.
         # Sub-chunked to keep the `in.(...)` URL small; non-fatal — a metric must
-        # never break the write. `rows_sent` stays the total upserted.
-        batch_domains = [r["domain"] for r in batch]
-        existing = 0
-        for j in range(0, len(batch_domains), 200):
-            sub = batch_domains[j : j + 200]
-            try:
-                resp = client.table("name_universe").select("domain").in_("domain", sub).execute()
-                existing += len(resp.data or [])
-            except Exception as e:  # noqa: BLE001 — metric only, never fatal
-                print(f"      net-new count skipped for a sub-chunk: {e}")
-                existing += len(sub)  # assume existing → undercount new, never overcount
-        rows_new += len(batch_domains) - existing
+        # never break the write. Skipped entirely when count_new is off (big feeds).
+        if count_new:
+            batch_domains = [r["domain"] for r in batch]
+            existing = 0
+            for j in range(0, len(batch_domains), 200):
+                sub = batch_domains[j : j + 200]
+                try:
+                    resp = client.table("name_universe").select("domain").in_("domain", sub).execute()
+                    existing += len(resp.data or [])
+                except Exception as e:  # noqa: BLE001 — metric only, never fatal
+                    print(f"      net-new count skipped for a sub-chunk: {e}")
+                    existing += len(sub)  # assume existing → undercount new, never overcount
+            rows_new += len(batch_domains) - existing
         # The RPC takes a jsonb input named 'rows'. Retry transient Postgres
         # errors (timeout / deadlock) with backoff — the RPC is idempotent.
         for attempt in range(UPSERT_RETRIES):
@@ -296,6 +304,8 @@ def upsert_from_source(
     listings: list[dict[str, Any]],
     observed_date: str,
     source_tier: int = 2,
+    *,
+    count_new: bool = False,
 ) -> dict[str, Any]:
     """Bulk upsert universe rows directly from a single source's run.
 
@@ -356,7 +366,7 @@ def upsert_from_source(
             "source_tier": source_tier,
         })
 
-    stats = upsert(merged_rows)
+    stats = upsert(merged_rows, count_new=count_new)
     stats["input_count"] = len(listings)
     stats["normalized_count"] = len(merged_rows)
     stats["duplicates_dropped"] = duplicates_dropped

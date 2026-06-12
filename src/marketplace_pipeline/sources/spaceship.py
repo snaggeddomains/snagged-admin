@@ -187,7 +187,7 @@ def run() -> int:
     state.write_json(SOURCE_ID, UNIVERSE_SNAPSHOT_FILE, universe_entries)
 
     print("[3/4] Upserting universe entries to Supabase name_universe")
-    uni_stats = supabase_writer.upsert_from_source(SOURCE_ID, universe_entries, today)
+    uni_stats = supabase_writer.upsert_from_source(SOURCE_ID, universe_entries, today, count_new=True)
     if uni_stats["status"] == "ok":
         print(f"      upserted {uni_stats['rows_sent']:,} rows in {uni_stats['batches']} batch(es)")
     else:

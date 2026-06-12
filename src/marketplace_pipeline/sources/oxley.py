@@ -181,7 +181,7 @@ def run() -> int:
 
     print(f"[3/3] Upserting to Supabase name_universe (tier={SOURCE_TIER})")
     stats = supabase_writer.upsert_from_source(
-        SOURCE_ID, universe_entries, today, source_tier=SOURCE_TIER,
+        SOURCE_ID, universe_entries, today, source_tier=SOURCE_TIER, count_new=True,
     )
     if stats["status"] == "ok":
         print(f"      upserted {stats['rows_sent']:,} rows in {stats['batches']} batch(es)")
