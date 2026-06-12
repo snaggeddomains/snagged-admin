@@ -21,12 +21,30 @@ from __future__ import annotations
 
 import argparse
 import sys
+import time
 
 from .. import scoring
 from ..filters import pos as _pos
 from ..filters import standard as flt
 from ..filters import universe as univ
-from ..universe.supabase_writer import _client_or_none
+from ..universe.supabase_writer import _client_or_none, _is_transient
+
+
+def _exec_retry(thunk, what: str, retries: int = 6, base: float = 2.0):
+    """Run a PostgREST .execute() thunk with transient-error retry — a 6M-row
+    rescan WILL hit transient 57014 statement timeouts (esp. while a fresh index
+    is still building or under nightly load). Re-runs the thunk so the query is
+    rebuilt each attempt; non-transient errors propagate."""
+    for attempt in range(retries):
+        try:
+            return thunk()
+        except Exception as e:  # noqa: BLE001
+            if attempt < retries - 1 and _is_transient(f"{type(e).__name__}: {e}"):
+                backoff = base * (2 ** attempt)
+                print(f"  transient {what} error (attempt {attempt + 1}); backing off {backoff:.0f}s", flush=True)
+                time.sleep(backoff)
+                continue
+            raise
 
 SELECT_BATCH = 1000
 
@@ -91,20 +109,25 @@ def _run_universe(rescore: bool = False) -> int:
     last_domain = ""
     total = 0
     while True:
-        q = client.table("name_universe").select(
-            "domain, sld, tld, sld_length, sources, best_price, "
-            "best_price_source, first_seen, last_seen, source_tier"
-        )
-        # Default backfill is gated to never-processed rows; --rescore walks all.
-        if not rescore:
-            q = q.is_("num_syllables", "null")
-        resp = q.gt("domain", last_domain).order("domain").limit(SELECT_BATCH).execute()
+        def _select():
+            q = client.table("name_universe").select(
+                "domain, sld, tld, sld_length, sources, best_price, "
+                "best_price_source, first_seen, last_seen, source_tier"
+            )
+            # Default backfill is gated to never-processed rows; --rescore walks all.
+            if not rescore:
+                q = q.is_("num_syllables", "null")
+            return q.gt("domain", last_domain).order("domain").limit(SELECT_BATCH).execute()
+
+        resp = _exec_retry(_select, "select")
         rows = resp.data or []
         if not rows:
             break
-        client.table("name_universe").upsert(
-            [_row_update(r) for r in rows], on_conflict="domain"
-        ).execute()
+        payload = [_row_update(r) for r in rows]  # POS + scores computed once
+        _exec_retry(
+            lambda: client.table("name_universe").upsert(payload, on_conflict="domain").execute(),
+            "upsert",
+        )
         total += len(rows)
         last_domain = rows[-1]["domain"]
         verb = "rescored" if rescore else "backfilled"
