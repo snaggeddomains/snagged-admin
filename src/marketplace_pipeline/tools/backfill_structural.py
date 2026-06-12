@@ -65,19 +65,12 @@ def _row_update(r: dict) -> dict:
         if qzipf and bp is not None and bp > 0
         else None
     )
+    # ONLY the conflict key + recomputed columns. Every row here already exists
+    # (we SELECT them from name_universe), so the upsert is always the UPDATE path —
+    # writing back the unchanged identity/array columns (sources/keywords GINs!)
+    # just churns indexes and crushes the DB into statement timeouts. Omit them.
     return {
-        # identity / NOT NULL columns — passed back unchanged
         "domain": r["domain"],
-        "sld": sld,
-        "tld": tld,
-        "sld_length": r["sld_length"],
-        "sources": r.get("sources") or [],
-        "best_price": best_price,
-        "best_price_source": r.get("best_price_source"),
-        "source_tier": r.get("source_tier"),
-        "first_seen": r["first_seen"],
-        "last_seen": r["last_seen"],
-        # structural fields being filled (same method as ingest)
         "zipf_score": zipf,
         "num_words": num_words,
         "num_syllables": univ.count_syllables(sld),
