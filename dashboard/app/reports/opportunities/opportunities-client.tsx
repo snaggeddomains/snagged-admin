@@ -144,7 +144,7 @@ export default function OpportunitiesClient() {
 
   return (
     <main>
-      <style>{`.opp-table th, .opp-table td { padding-right: 24px; } .opp-table th:last-child, .opp-table td:last-child { padding-right: 0; }`}</style>
+      <style>{`.opp-table th, .opp-table td { padding-right: 24px; } .opp-table th.right, .opp-table td.right { padding-right: 52px; } .opp-table th:last-child, .opp-table td:last-child { padding-right: 0; }`}</style>
       <h1 style={{ fontSize: "1.25rem", marginBottom: 4 }}>SNAP opportunities</h1>
       <p className="muted" style={{ marginTop: 0, fontSize: 14 }}>
         Everything the pipeline surfaced as new today — live auctions and SNAP candidates — in one place. Click any column to
@@ -214,7 +214,6 @@ export default function OpportunitiesClient() {
                         {d.quality_score == null ? <span className="muted">—</span> : (
                           <span style={{ display: "inline-block", minWidth: 34, textAlign: "center", padding: "1px 7px", borderRadius: 6, fontSize: 12.5, fontWeight: 700, background: d.quality_score >= 4 ? "#e3efe6" : d.quality_score >= 2 ? "#fdf0d4" : "#f0eee8", color: d.quality_score >= 4 ? "#2f7d4f" : d.quality_score >= 2 ? "#946200" : "#7a7568" }}>{d.quality_score.toFixed(1)}</span>
                         )}
-                        <span className="muted" style={{ fontSize: 11, marginLeft: 8 }}>{d.category ?? (d.enriched ? "—" : "unenriched")}</span>
                       </td>
                       <td><SourcePill source={d.source} /></td>
                       <td className="right"><a href={snapLink(d.domain, d.source)} target="_blank" rel="noreferrer" style={linkBtn}>View →</a></td>
