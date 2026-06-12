@@ -109,10 +109,15 @@ def _run_universe(rescore: bool = False) -> int:
                 "domain, sld, tld, sld_length, sources, best_price, "
                 "best_price_source, first_seen, last_seen, source_tier"
             )
-            # Both modes are resumable via a NULL gate: default fills rows missing
-            # structural fields (num_syllables null); --rescore fills rows missing
-            # part_of_speech (initially all → a full corpus pass, re-runnable).
-            q = q.is_("part_of_speech" if rescore else "num_syllables", "null")
+            # Default mode fills rows missing structural fields (num_syllables null),
+            # gated + resumable on that NULL. --rescore walks the WHOLE corpus by
+            # `domain` with NO value filter: a `part_of_speech IS NULL` gate forces a
+            # filtered scan that, once the early rows are done, must skip past millions
+            # of already-set rows every page → 57014 timeouts (and needs a partial
+            # index we can't create right now). A bare keyset walk on the existing
+            # domain index stays fast end-to-end; re-touching done rows is idempotent.
+            if not rescore:
+                q = q.is_("num_syllables", "null")
             return q.gt("domain", last_domain).order("domain").limit(SELECT_BATCH).execute()
 
         resp = _exec_retry(_select, "select")
