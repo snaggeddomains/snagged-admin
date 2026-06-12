@@ -65,12 +65,19 @@ def _row_update(r: dict) -> dict:
         if qzipf and bp is not None and bp > 0
         else None
     )
-    # ONLY the conflict key + recomputed columns. Every row here already exists
-    # (we SELECT them from name_universe), so the upsert is always the UPDATE path —
-    # writing back the unchanged identity/array columns (sources/keywords GINs!)
-    # just churns indexes and crushes the DB into statement timeouts. Omit them.
+    # The conflict key + recomputed columns + the NOT-NULL identity columns.
+    # supabase upsert issues INSERT ... ON CONFLICT DO UPDATE; Postgres validates
+    # the candidate INSERT tuple's NOT NULL constraints BEFORE it resolves to the
+    # UPDATE, so an omitted NOT-NULL column (sld) throws 23502 even though every
+    # row here already exists. sld/tld/sld_length are cheap plain columns (we
+    # SELECT them straight through) — pass them so the tuple validates. We still
+    # OMIT the array columns (sources/keywords GINs!) whose write would churn
+    # indexes and crush the DB into statement timeouts.
     return {
         "domain": r["domain"],
+        "sld": sld,
+        "tld": tld,
+        "sld_length": r.get("sld_length"),
         "zipf_score": zipf,
         "num_words": num_words,
         "num_syllables": univ.count_syllables(sld),
