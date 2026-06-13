@@ -1,18 +1,10 @@
 [
   {
     "currency": "USD",
-    "domain": "sow.co",
-    "end_time_utc": "2026-06-13T06:24:12+00:00",
-    "price": 50000.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=sow.co"
-  },
-  {
-    "currency": "USD",
-    "domain": "sla.co",
-    "end_time_utc": "2026-06-13T06:24:12+00:00",
-    "price": 17955.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=sla.co"
+    "domain": "feeble.ai",
+    "end_time_utc": "2026-06-13T16:34:08+00:00",
+    "price": 500.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=feeble.ai"
   }
 ]

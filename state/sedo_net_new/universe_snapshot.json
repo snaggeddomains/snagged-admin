@@ -4,23 +4,19 @@
     "price": 4995.0
   },
   {
+    "domain": "feeble.ai",
+    "price": 500.0
+  },
+  {
     "domain": "personale.ai",
     "price": 348888.0
   },
   {
+    "domain": "centred.net",
+    "price": 2495.0
+  },
+  {
     "domain": "marsen.net",
     "price": 250.0
-  },
-  {
-    "domain": "astrid.net",
-    "price": 34888.0
-  },
-  {
-    "domain": "pictured.net",
-    "price": null
-  },
-  {
-    "domain": "sow.co",
-    "price": 50000.0
   }
 ]
