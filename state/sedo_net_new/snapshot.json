@@ -1,26 +1,18 @@
 [
   {
     "currency": "USD",
-    "domain": "ponce.co",
-    "end_time_utc": "2026-06-12T15:29:13+00:00",
-    "price": 4995.0,
+    "domain": "sow.co",
+    "end_time_utc": "2026-06-13T06:24:12+00:00",
+    "price": 50000.0,
     "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=ponce.co"
+    "url": "https://sedo.com/search/details/?domain=sow.co"
   },
   {
     "currency": "USD",
-    "domain": "kafka.co",
-    "end_time_utc": "2026-06-12T16:41:49+00:00",
-    "price": 9995.0,
+    "domain": "sla.co",
+    "end_time_utc": "2026-06-13T06:24:12+00:00",
+    "price": 17955.0,
     "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=kafka.co"
-  },
-  {
-    "currency": "USD",
-    "domain": "not.co",
-    "end_time_utc": "2026-06-12T22:56:14+00:00",
-    "price": null,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=not.co"
+    "url": "https://sedo.com/search/details/?domain=sla.co"
   }
 ]
