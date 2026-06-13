@@ -1,10 +1,42 @@
 [
   {
+    "currency": "EUR",
+    "domain": "scalia.ai",
+    "end_time_utc": "2026-06-13T19:13:10+00:00",
+    "price": 18995.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=scalia.ai"
+  },
+  {
     "currency": "USD",
     "domain": "feeble.ai",
     "end_time_utc": "2026-06-13T16:34:08+00:00",
     "price": 500.0,
     "tld": "ai",
     "url": "https://sedo.com/search/details/?domain=feeble.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "reno.co",
+    "end_time_utc": "2026-06-13T22:31:07+00:00",
+    "price": 49995.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=reno.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "zac.co",
+    "end_time_utc": "2026-06-13T22:31:10+00:00",
+    "price": 24995.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=zac.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "oss.co",
+    "end_time_utc": "2026-06-13T22:31:12+00:00",
+    "price": 84995.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=oss.co"
   }
 ]
