@@ -18,7 +18,7 @@ type CoreReport = {
 };
 type BlogReport = { summary: StatBlock; topPosts: PageRow[]; channels: ChannelRow[]; sources: SourceRow[]; funnel: FunnelStep[]; trend: TrendRow[] };
 type RevenueReport = {
-  totalRevenue: number; payments: number; upfront: { count: number; amount: number }; success: { count: number; amount: number };
+  totalRevenue: number; gross: number; snaggedCost: number; payments: number; upfront: { count: number; amount: number }; success: { count: number; amount: number };
   other: { count: number; amount: number }; byType: LabelValue[]; byOwner: LabelValue[]; monthly: { month: string; amount: number }[];
 };
 type SeoRow = { key: string; clicks: number; impressions: number; ctr: number; position: number };
@@ -269,10 +269,11 @@ function RevenueView({ r }: { r: RevenueReport }) {
   return (
     <>
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-        <StatCard label="Total revenue" text={usd(r.totalRevenue)} accent />
+        <StatCard label="Net revenue" sub={r.snaggedCost ? `${usd(r.gross)} gross − ${usd(r.snaggedCost)} cost` : "gross − Snagged cost"} text={usd(r.totalRevenue)} accent />
         <StatCard label="Payments" value={r.payments} />
         <StatCard label="Upfront fees" sub={`${r.upfront.count} payments`} text={usd(r.upfront.amount)} />
-        <StatCard label="Success fees" sub={`${r.success.count} deals`} text={usd(r.success.amount)} accent />
+        <StatCard label="Success fees" sub={`${r.success.count} deals · net`} text={usd(r.success.amount)} accent />
+        <StatCard label="Snagged cost" sub="fronted & reimbursed" text={usd(r.snaggedCost)} />
       </div>
       <Section title="Revenue by type" blurb="Upfront engagement fees vs success fees on closed acquisitions."><BarList rows={r.byType.map((x) => ({ label: x.label, value: x.value }))} money empty="No payments in this window." /></Section>
       <Section title="Revenue by month" blurb="Monthly take over the window (by Client Paid Date)."><BarList rows={monthBars} money color={CORAL} empty="No payments in this window." /></Section>

@@ -15,14 +15,16 @@ const RANGE = "Payments!A1:N2000";
 
 export type LabelValue = { label: string; value: number };
 export type RevenueReport = {
-  totalRevenue: number;
+  totalRevenue: number; // NET — gross Client Paid minus the Snagged Cost we fronted
+  gross: number;        // sum of Client Paid (before netting)
+  snaggedCost: number;  // sum of Snagged Cost netted out (reimbursed outlay)
   payments: number;
   upfront: { count: number; amount: number };
   success: { count: number; amount: number };
   other: { count: number; amount: number };
-  byType: LabelValue[]; // revenue $ by type
-  byOwner: LabelValue[]; // revenue $ by Lead/owner
-  monthly: { month: string; amount: number }[];
+  byType: LabelValue[]; // revenue $ by type (net)
+  byOwner: LabelValue[]; // revenue $ by Lead/owner (net)
+  monthly: { month: string; amount: number }[]; // net
 };
 
 export function revenueConfigured(): boolean {
@@ -63,7 +65,7 @@ function indexer(header: string[]): (name: string) => number {
 export async function revenueReport(from: string, to: string): Promise<RevenueReport> {
   const rows = await getSheetValues(SHEET_ID, RANGE);
   const empty: RevenueReport = {
-    totalRevenue: 0, payments: 0, upfront: { count: 0, amount: 0 }, success: { count: 0, amount: 0 },
+    totalRevenue: 0, gross: 0, snaggedCost: 0, payments: 0, upfront: { count: 0, amount: 0 }, success: { count: 0, amount: 0 },
     other: { count: 0, amount: 0 }, byType: [], byOwner: [], monthly: [],
   };
   if (!rows.length) return empty;
@@ -74,6 +76,7 @@ export async function revenueReport(from: string, to: string): Promise<RevenueRe
   const cDate = col("Client Paid Date");
   const cType = col("Type");
   const cLead = col("Lead");
+  const cCost = col("Snagged Cost"); // outlay we fronted for the client (reimbursed in Client Paid)
 
   const acc = { ...empty, upfront: { count: 0, amount: 0 }, success: { count: 0, amount: 0 }, other: { count: 0, amount: 0 } };
   const ownerAmt = new Map<string, number>();
@@ -85,15 +88,21 @@ export async function revenueReport(from: string, to: string): Promise<RevenueRe
     if (!date || date < from || date > to) continue;
     const amount = money(r[cPaid]);
     if (amount === 0) continue;
+    // Net out the Snagged Cost we fronted on this deal — Client Paid already
+    // includes paying us back for it, so true revenue is Client Paid − Snagged Cost.
+    const cost = cCost >= 0 ? money(r[cCost]) : 0;
+    const net = amount - cost;
     const kind = classifyType(r[cType]);
-    acc.totalRevenue += amount;
+    acc.gross += amount;
+    acc.snaggedCost += cost;
+    acc.totalRevenue += net;
     acc.payments += 1;
     acc[kind].count += 1;
-    acc[kind].amount += amount;
+    acc[kind].amount += net;
     const owner = (r[cLead] || "(unassigned)").trim() || "(unassigned)";
-    ownerAmt.set(owner, (ownerAmt.get(owner) || 0) + amount);
+    ownerAmt.set(owner, (ownerAmt.get(owner) || 0) + net);
     const month = date.slice(0, 7);
-    monthAmt.set(month, (monthAmt.get(month) || 0) + amount);
+    monthAmt.set(month, (monthAmt.get(month) || 0) + net);
   }
 
   acc.byType = [

@@ -37,7 +37,7 @@ const TOOLS = [
   },
   {
     name: "revenue",
-    description: "Revenue from the Snagged Domain Tracker over a date range: total revenue, upfront fees vs success fees (counts + $), by month, and by owner.",
+    description: "Revenue from the Snagged Domain Tracker over a date range. totalRevenue is NET (gross Client Paid minus the Snagged Cost we fronted and were reimbursed for); gross and snaggedCost are also returned. Upfront vs success fees (counts + net $), by month, and by owner.",
     input_schema: { type: "object", properties: { from: { type: "string" }, to: { type: "string" } }, required: ["from", "to"] },
   },
   {
