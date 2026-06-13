@@ -20,6 +20,11 @@ import { dealMailboxes, gmailConfigured, searchMessages, getMessage, type GmailM
 import { getSheetValues } from "./sheets";
 
 const SHEET_ID = process.env.SNAGGED_TRACKER_SHEET_ID || "1TVAJ2ef_rM03pHZ9rq8C3W4BgyiSBiOc5j7jAbFzGTA";
+// Dedicated "Snagged Contact Form Submissions" sheet — Zapier appends one row per
+// submission. Preferred source when populated (fast, structured); otherwise we
+// fall back to parsing the inquiry@ notification emails. Tab + columns below.
+const LEADS_SHEET_ID = process.env.SNAGGED_LEADS_SHEET_ID || "1_IVeYfyAJibr-rpgqpugX2F2Rq3kZofxaFdEKQo_AAo";
+const LEADS_RANGE = `${process.env.SNAGGED_LEADS_TAB || "Sheet1"}!A1:Z20000`;
 
 export type LabelValue = { label: string; value: number };
 export type LeadMatch = {
@@ -170,43 +175,87 @@ function matchLead(lead: Lead, deals: Deal[], paidByDomain: Map<string, number>)
 
 const gmailDate = (iso: string) => iso.replace(/-/g, "/"); // YYYY-MM-DD → YYYY/MM/DD (Gmail query)
 
-export async function leadsReport(from: string, to: string): Promise<LeadsReport> {
-  const empty: LeadsReport = { configured: leadsConfigured(), total: 0, matched: 0, bySource: [], leads: [] };
-  if (!leadsConfigured()) return empty;
+// Accept ISO (2026-06-13 / full timestamp) or M/D/YYYY → YYYY-MM-DD; "" if junk.
+function flexDate(v: string | undefined): string {
+  const s = String(v || "").trim();
+  if (!s) return "";
+  const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
+  const us = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+  if (us) { let y = Number(us[3]); if (y < 100) y += 2000; return `${y}-${us[1].padStart(2, "0")}-${us[2].padStart(2, "0")}`; }
+  const t = Date.parse(s);
+  if (Number.isFinite(t)) { const d = new Date(t); return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`; }
+  return "";
+}
 
-  // before: is exclusive → bump one day so the `to` date is included.
+// Source A — the dedicated "Contact Form Submissions" sheet (Zapier-appended).
+// Returns null when not populated (header-only / unreadable) so the caller falls
+// back to the email sweep.
+async function leadsFromSheet(from: string, to: string): Promise<Lead[] | null> {
+  let rows: string[][] = [];
+  try { rows = await getSheetValues(LEADS_SHEET_ID, LEADS_RANGE); } catch { return null; }
+  if (!rows || rows.length < 2) return null; // empty or header-only → not live yet
+  const c = indexer(rows[0]);
+  const cDate = c("Date"), cName = c("Name"), cEmail = c("Email"), cDom = c("Domains"),
+    cSrc = c("Source"), cIntent = c("Intent"), cBudget = c("Budget"), cLoc = c("Location"), cMsg = c("Message");
+  const out: Lead[] = [];
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    const date = flexDate(cDate >= 0 ? r[cDate] : "");
+    if (!date || date < from || date > to) continue;
+    const domainsRaw = cDom >= 0 ? (r[cDom] || "") : "";
+    out.push({
+      date,
+      name: (cName >= 0 ? r[cName] || "" : "").trim(),
+      email: normEmail(cEmail >= 0 ? r[cEmail] : ""),
+      domains: domainsRaw.split(/[,\s/]+/).map((d) => d.trim()).filter((d) => d && d.length > 1),
+      source: (cSrc >= 0 ? r[cSrc] || "" : "").trim() || null,
+      intent: (cIntent >= 0 ? r[cIntent] || "" : "").trim() || null,
+      budget: (cBudget >= 0 ? r[cBudget] || "" : "").trim() || null,
+      location: (cLoc >= 0 ? r[cLoc] || "" : "").trim() || null,
+      message: (cMsg >= 0 ? r[cMsg] || "" : "").trim() || null,
+      match: null,
+    });
+  }
+  return out;
+}
+
+// Source B (fallback) — parse the inquiry@ notification emails out of the team
+// mailboxes (the inquiry@ group fans out to them), deduped by RFC Message-ID.
+async function leadsFromEmail(from: string, to: string): Promise<Lead[]> {
   const toPlus = new Date(to + "T00:00:00Z"); toPlus.setUTCDate(toPlus.getUTCDate() + 1);
   const beforeStr = `${toPlus.getUTCFullYear()}/${String(toPlus.getUTCMonth() + 1).padStart(2, "0")}/${String(toPlus.getUTCDate()).padStart(2, "0")}`;
   const q = `from:zapiermail.com subject:"New Submission from" after:${gmailDate(from)} before:${beforeStr}`;
-
-  // Collect submission messages across the team mailboxes (the inquiry@ group fans
-  // out to them), dedupe by RFC Message-ID (same submission lands in several boxes).
-  const mailboxes = dealMailboxes();
   const seen = new Set<string>();
   const leads: Lead[] = [];
-  const [{ deals, paidByDomain }] = await Promise.all([loadRevenueIndex()]);
-
-  for (const mb of mailboxes) {
+  for (const mb of dealMailboxes()) {
     let stubs: { id: string; threadId: string }[] = [];
     try { stubs = await searchMessages(mb, q, 250); } catch { continue; }
-    // Fetch message bodies with bounded concurrency.
     for (let i = 0; i < stubs.length; i += 8) {
       const batch = stubs.slice(i, i + 8);
       const msgs = await Promise.all(batch.map((s) => getMessage(mb, s.id).catch(() => null)));
       for (const msg of msgs) {
-        if (!msg) continue;
-        if (seen.has(msg.mid)) continue;
+        if (!msg || seen.has(msg.mid)) continue;
         seen.add(msg.mid);
-        // Only the Zapier submission emails (skip stray replies that match loosely).
         if (!/zapiermail\.com/i.test(msg.from) || !/New Submission from/i.test(msg.subject)) continue;
         const lead = parseLead(msg);
         if (!lead || !lead.date || lead.date < from || lead.date > to) continue;
-        lead.match = matchLead(lead, deals, paidByDomain);
         leads.push(lead);
       }
     }
   }
+  return leads;
+}
 
+export async function leadsReport(from: string, to: string): Promise<LeadsReport> {
+  const empty: LeadsReport = { configured: leadsConfigured(), total: 0, matched: 0, bySource: [], leads: [] };
+  if (!leadsConfigured()) return empty;
+
+  // Prefer the structured sheet; fall back to the email sweep until Zapier fills it.
+  const [sheetLeads, { deals, paidByDomain }] = await Promise.all([leadsFromSheet(from, to), loadRevenueIndex()]);
+  const leads = sheetLeads ?? (await leadsFromEmail(from, to));
+
+  for (const l of leads) l.match = matchLead(l, deals, paidByDomain);
   leads.sort((a, b) => (a.date < b.date ? 1 : -1)); // newest first
   const srcCounts = new Map<string, number>();
   for (const l of leads) srcCounts.set(canonicalSource(l.source), (srcCounts.get(canonicalSource(l.source)) || 0) + 1);
