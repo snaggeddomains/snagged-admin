@@ -1,15 +1,16 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 8,
   "domains": [
-    "tea.ai",
-    "vibe.com",
-    "skeletal.ai",
-    "iit.com",
-    "automate.ai",
-    "dil.ai",
-    "vinson.ai"
+    "zinc.ai",
+    "sadler.com",
+    "staying.org",
+    "marginal.co",
+    "rmp.com",
+    "watchman.co",
+    "ferret.co",
+    "mailer.co"
   ],
-  "generated_at": "2026-06-12T11:57:30.564371+00:00",
+  "generated_at": "2026-06-13T08:29:05.658676+00:00",
   "source": "atom_daily"
 }

@@ -1,20 +1,17 @@
 {
   "capped": false,
-  "count": 12,
+  "count": 9,
   "domains": [
-    "blatantly.ai",
-    "considered.io",
-    "vindictive.ai",
-    "army.ai",
-    "aung.ai",
-    "girlie.ai",
-    "mausoleum.ai",
-    "unprofitable.ai",
-    "shrinkage.co",
-    "noose.co",
-    "macklemore.org",
-    "medically.org"
+    "elaboration.ai",
+    "advantageous.ai",
+    "neglect.ai",
+    "establishing.org",
+    "pfft.org",
+    "halt.io",
+    "feral.ai",
+    "regarded.org",
+    "reinstate.ai"
   ],
-  "generated_at": "2026-06-12T12:07:44.933369+00:00",
+  "generated_at": "2026-06-13T08:44:52.318159+00:00",
   "source": "namecheap_auctions"
 }

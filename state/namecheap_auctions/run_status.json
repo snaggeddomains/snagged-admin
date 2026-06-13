@@ -1,9 +1,9 @@
 {
-  "deduped_against_existing": 30,
-  "generated_at": "2026-06-12T12:07:44.936036+00:00",
+  "deduped_against_existing": 36,
+  "generated_at": "2026-06-13T08:44:52.321795+00:00",
   "label": "Namecheap",
-  "new_count": 12,
-  "sheet_total_after": 12405,
+  "new_count": 9,
+  "sheet_total_after": 12415,
   "slack_posted": false,
   "source": "namecheap_auctions",
   "status": "ok"
