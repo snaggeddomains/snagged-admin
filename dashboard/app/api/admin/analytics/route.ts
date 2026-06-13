@@ -12,6 +12,7 @@ import { analyticsReport, gaConfigured, type Tranche } from "@/lib/ga";
 import { revenueReport, revenueConfigured } from "@/lib/revenue";
 import { seoReport, gscConfigured, type SeoBucket } from "@/lib/gsc";
 import { xAdsReport, xAdsLift, xAdsEffectiveness, xAdsConfigured } from "@/lib/xads";
+import { leadsReport, leadsConfigured } from "@/lib/leads";
 import { newsletterReport, mailchimpConfigured, recentMemberCounts } from "@/lib/mailchimp";
 import { histSignups, histUnsubs, mergeDaily, emailDataThrough } from "@/lib/historical-email";
 
@@ -91,6 +92,18 @@ export async function GET(req: NextRequest) {
       try {
         const effectiveness = await xAdsEffectiveness(from, to);
         return NextResponse.json({ ok: true, configured: true, tranche: "ads", part: "effectiveness", effectiveness });
+      } catch (e) {
+        return NextResponse.json({ ok: false, error: String((e as Error)?.message || e) }, { status: 500 });
+      }
+    }
+    // Actual lead identities (name/email/domains/source) parsed from the inquiry@
+    // submission emails + a best-effort revenue tie-back to the Deals tab. Its own
+    // lazy `part=leads` request (Gmail + Sheets reads — heavier than the spend view).
+    if (sp.get("part") === "leads") {
+      if (!leadsConfigured()) return NextResponse.json({ ok: true, configured: true, tranche: "ads", part: "leads", leads: null });
+      try {
+        const leads = await leadsReport(from, to);
+        return NextResponse.json({ ok: true, configured: true, tranche: "ads", part: "leads", leads });
       } catch (e) {
         return NextResponse.json({ ok: false, error: String((e as Error)?.message || e) }, { status: 500 });
       }

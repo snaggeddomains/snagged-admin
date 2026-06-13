@@ -64,6 +64,28 @@ export async function searchThreadIds(subject: string, q: string, max = 100): Pr
   return [...ids];
 }
 
+// Message stubs ({id, threadId}) matching a Gmail search query, one mailbox.
+// Like searchThreadIds but keeps the message id so a single message can be fetched
+// directly (no thread expansion) — used by the Leads feed (one email per lead).
+export async function searchMessages(subject: string, q: string, max = 200): Promise<{ id: string; threadId: string }[]> {
+  const out: { id: string; threadId: string }[] = [];
+  let pageToken = "";
+  while (out.length < max) {
+    const qs = new URLSearchParams({ q, maxResults: String(Math.min(100, max - out.length)) });
+    if (pageToken) qs.set("pageToken", pageToken);
+    const r = await gget(subject, `messages?${qs.toString()}`);
+    for (const m of r.messages || []) out.push({ id: m.id, threadId: m.threadId });
+    if (!r.nextPageToken) break;
+    pageToken = r.nextPageToken;
+  }
+  return out;
+}
+
+// One full message (parsed) by id, one mailbox.
+export async function getMessage(subject: string, id: string): Promise<GmailMessage> {
+  return parseMessage(await gget(subject, `messages/${id}?format=full`));
+}
+
 const ENT: Record<string, string> = { "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&#39;": "'", "&nbsp;": " " };
 function unescapeHtml(s: string): string {
   return s.replace(/&amp;|&lt;|&gt;|&quot;|&#39;|&nbsp;/g, (m) => ENT[m] || m).replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)));

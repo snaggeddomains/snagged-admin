@@ -315,6 +315,7 @@ function AdsView({ r, range }: { r: AdsReport; range: { from: string; to: string
       <Section title="Daily spend & clicks" blurb="Spend (area, $) against clicks (dashed) over the window.">
         <TrendChart data={spendTrend} labels={["Spend ($)", "Clicks"]} />
       </Section>
+      <LeadsLoader range={range} />
       <EffectivenessLoader range={range} />
       <LiftLoader to={range.to} />
       {r.byCampaign.length > 0 && (
@@ -392,6 +393,80 @@ function EffTable({ rows, kind }: { rows: EffRow[]; kind: "campaign" | "ad" }) {
         })}
       </tbody>
     </table></div>
+  );
+}
+
+// ── Leads (actual contact-form submissions) ─────────────────────────────────
+type LeadMatch = { dealName: string; contact: string | null; status: string | null; acquisitionPrice: number | null; clientPaid: number | null; via: "email" | "name" | "domain" };
+type Lead = { date: string; name: string; email: string; domains: string[]; source: string | null; intent: string | null; budget: string | null; location: string | null; message: string | null; match: LeadMatch | null };
+type LeadsReport = { configured: boolean; total: number; matched: number; bySource: LabelValue[]; leads: Lead[] };
+
+// The real leads behind the X-attributed count — name, email, domains of interest,
+// self-reported source — parsed from the inquiry@ submission emails, with a
+// best-effort revenue tie-back. Lazy-loaded (Gmail + Sheets) like lift/effectiveness.
+function LeadsLoader({ range }: { range: { from: string; to: string } }) {
+  const [data, setData] = useState<LeadsReport | null>(null);
+  const [state, setState] = useState<"loading" | "done" | "error">("loading");
+  const [msg, setMsg] = useState("");
+  const [src, setSrc] = useState<string>("X / Twitter"); // default to the X leads (this is the Ads tab)
+  useEffect(() => {
+    let live = true;
+    setState("loading"); setMsg("");
+    (async () => {
+      try {
+        const res = await fetch(`/api/admin/analytics?tranche=ads&part=leads&from=${range.from}&to=${range.to}`, { cache: "no-store" });
+        const json = JSON.parse(await res.text());
+        if (!live) return;
+        if (!res.ok || json.ok === false) throw new Error(json.error || `Failed (${res.status})`);
+        setData(json.leads || null); setState("done");
+      } catch (e) {
+        if (live) { setState("error"); setMsg(String((e as Error).message || e)); }
+      }
+    })();
+    return () => { live = false; };
+  }, [range.from, range.to]);
+
+  const blurb = "The actual contact-form submissions behind the lead count — name, email, domains of interest and self-reported source, parsed from the inquiry@ notification emails. The 💰 badge ties a lead back to a deal on the Tracker (matched by email → name → domain).";
+  if (state === "loading") return <Section title="Leads" blurb={blurb}><p className="muted" style={{ fontSize: 13 }}>Loading leads…</p></Section>;
+  if (state === "error") return <Section title="Leads" blurb={blurb}><p className="muted" style={{ fontSize: 13 }}>Couldn&apos;t load leads ({msg}). Needs the read-only Gmail integration (GOOGLE_SA_KEY) configured.</p></Section>;
+  if (!data || !data.configured) return <Section title="Leads" blurb={blurb}><p className="muted" style={{ fontSize: 13 }}>Leads need the read-only Gmail integration configured.</p></Section>;
+
+  const sources = data.bySource;
+  const shown = src === "(all)" ? data.leads : data.leads.filter((l) => (l.source && /\b(x|twitter)\b/i.test(l.source) ? "X / Twitter" : (l.source || "(unknown)").replace(/\s+/g, " ")) === src);
+  const matchedShown = shown.filter((l) => l.match).length;
+  return (
+    <Section title="Leads" blurb={blurb}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12, alignItems: "center" }}>
+        {[{ label: "All", key: "(all)", value: data.total }, ...sources.map((s) => ({ label: s.label, key: s.label, value: s.value }))].map((s) => (
+          <button key={s.key} onClick={() => setSrc(s.key)} style={{
+            padding: "4px 12px", fontSize: 12, fontWeight: 700, borderRadius: 999, cursor: "pointer",
+            border: src === s.key ? "1.5px solid var(--navy,#254254)" : "1.5px solid #e3ddcf",
+            background: src === s.key ? "var(--navy,#254254)" : "#fff", color: src === s.key ? "#fff" : "var(--navy,#254254)",
+          }}>{s.label} <span style={{ opacity: 0.7 }}>{s.value}</span></button>
+        ))}
+        <span className="muted" style={{ fontSize: 11, marginLeft: "auto" }}>{shown.length} lead{shown.length === 1 ? "" : "s"} · {matchedShown} matched to revenue</span>
+      </div>
+      {shown.length === 0 ? <p className="muted" style={{ fontSize: 13 }}>No leads in this window for this source.</p> : (
+        <div className="table-scroll"><table className="dash">
+          <thead><tr><th>date</th><th>name</th><th>email</th><th>domains</th><th>source</th><th>budget</th><th>revenue match</th></tr></thead>
+          <tbody>
+            {shown.map((l, i) => (
+              <tr key={i}>
+                <td className="muted" style={{ whiteSpace: "nowrap" }}>{l.date}</td>
+                <td>{l.name || "—"}</td>
+                <td className="muted">{l.email ? <a href={`mailto:${l.email}`}>{l.email}</a> : "—"}</td>
+                <td>{l.domains.length ? l.domains.join(", ") : <span className="muted">—</span>}</td>
+                <td className="muted">{l.source || "—"}</td>
+                <td className="muted">{l.budget || "—"}</td>
+                <td>{l.match ? (
+                  <span title={`matched by ${l.match.via}`}>💰 {l.match.dealName}{l.match.status ? ` · ${l.match.status.toLowerCase()}` : ""}{l.match.clientPaid ? ` · ${usd(l.match.clientPaid)}` : l.match.acquisitionPrice ? ` · ${usd(l.match.acquisitionPrice)} acq` : ""}</span>
+                ) : <span className="muted">—</span>}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table></div>
+      )}
+    </Section>
   );
 }
 
