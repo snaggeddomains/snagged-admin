@@ -1,9 +1,7 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "invaluable.co"
-  ],
-  "generated_at": "2026-06-14T17:00:49.700087+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-06-14T23:00:49.699916+00:00",
   "source": "sedo_net_new"
 }
