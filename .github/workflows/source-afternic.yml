@@ -1,9 +1,12 @@
 name: 'Source: afternic'
 
-# Scheduling is owned by "SNAP Orchestrator" (snap-orchestrator.yml), dispatched
-# by an external scheduler so runs land close to their SLA times instead of
-# relying on GitHub's best-effort `schedule:`. Only workflow_dispatch remains so
-# this source can still be (re)run individually.
+# Dispatched daily by an EXTERNAL scheduler (Vercel Cron -> /api/cron/afternic ->
+# workflow_dispatch) at the start of the 4 AM ET SLA window — NOT by the SNAP
+# Orchestrator. afternic used to run inside the orchestrator, but sharing that
+# runner's 2 cores with the sequential foreground sources slowed it to >3h and it
+# was killed by the orchestrator's job timeout. On its OWN runner it's back to
+# ~40 min, so it now lives here. workflow_dispatch also lets it be (re)run
+# individually.
 on:
   workflow_dispatch: {}
 
