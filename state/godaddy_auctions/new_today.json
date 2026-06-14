@@ -1,9 +1,7 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "spinach.co"
-  ],
-  "generated_at": "2026-06-13T08:46:06.406393+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-06-14T08:45:26.326200+00:00",
   "source": "godaddy_auctions"
 }

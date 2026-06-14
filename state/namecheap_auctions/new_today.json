@@ -1,17 +1,19 @@
 {
   "capped": false,
-  "count": 9,
+  "count": 11,
   "domains": [
-    "elaboration.ai",
-    "advantageous.ai",
-    "neglect.ai",
-    "establishing.org",
-    "pfft.org",
-    "halt.io",
-    "feral.ai",
-    "regarded.org",
-    "reinstate.ai"
+    "seine.ai",
+    "lanarkshire.org",
+    "recombination.org",
+    "disappointment.co",
+    "underlying.ai",
+    "differentiation.ai",
+    "damn.ai",
+    "portia.org",
+    "grammatical.ai",
+    "legislature.io",
+    "clinically.org"
   ],
-  "generated_at": "2026-06-13T08:44:52.318159+00:00",
+  "generated_at": "2026-06-14T08:44:36.173236+00:00",
   "source": "namecheap_auctions"
 }
