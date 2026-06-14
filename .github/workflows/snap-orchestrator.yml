@@ -28,7 +28,13 @@ jobs:
     # shift preinstalled libs under the headless browser (matches the dropcatch /
     # watchdog workflows).
     runs-on: ubuntu-24.04
-    timeout-minutes: 180   # afternic alone can take ~1h; whole batch well under this
+    # afternic was decoupled to its own scheduled workflow (source-afternic.yml,
+    # dispatched by /api/cron/afternic) because, sharing this runner's 2 cores
+    # with the sequential foreground sources, it slowed to >3h and got killed by
+    # this job timeout (the rest of the batch finishes in ~45 min). On its own
+    # runner it's back to ~40 min. So this budget is now just a safety net for
+    # the fast foreground batch.
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
 
@@ -53,7 +59,7 @@ jobs:
         if: ${{ inputs.mode != 'ping' }}
         run: python -m playwright install --with-deps chromium chromium-headless-shell
 
-      - name: Run SNAP + auction sources (afternic in parallel; continue on failure)
+      - name: Run SNAP + auction sources (continue on failure)
         if: ${{ inputs.mode != 'ping' }}
         id: runsources
         env:
@@ -80,18 +86,9 @@ jobs:
         run: |
           set +e
           failed=""
-          mkdir -p /tmp/orch
 
-          # afternic is the long pole now (~100 min, universe-heavy): it no longer
-          # crashes, but it's far too slow to sit FIRST in a sequential 180-min
-          # budget (it timed the whole batch out 2026-06-12). Run it in PARALLEL in
-          # the background while the rest of the sources run sequentially in the
-          # foreground, then fold its result in at the end. Total wall time ≈
-          # max(afternic, the rest) instead of their sum — keeps the 7 AM ET SLA.
-          echo "Launching afternic in the background (parallel with the rest)…"
-          ( pipeline run afternic; echo "$?" > /tmp/orch/afternic.rc ) > /tmp/orch/afternic.log 2>&1 &
-          AFTERNIC_PID=$!
-
+          # afternic is NOT here anymore — it runs on its own scheduled workflow
+          # (source-afternic.yml). See the timeout-minutes comment above.
           # ATOM stays after a quick first source so its ">4 AM ET" feed is ready.
           SOURCES="namecheap_bin atom_daily snagged_snap_sheet rob_purchases_sheet snagged_marketplace_sheet berserk_snap_sheet oxley braden_pollack_portfolio efty_partner auctions_publish auctions_watchdog"
           for s in $SOURCES; do
@@ -104,20 +101,6 @@ jobs:
             fi
             echo "::endgroup::"
           done
-
-          # Collect afternic (it has usually finished while the rest ran). `wait`
-          # blocks until it's done; its buffered log is replayed under its own group.
-          echo "::group::pipeline run afternic (parallel → result)"
-          wait "$AFTERNIC_PID"
-          cat /tmp/orch/afternic.log 2>/dev/null || true
-          arc="$(cat /tmp/orch/afternic.rc 2>/dev/null || echo 1)"
-          if [ "$arc" = "0" ]; then
-            echo "OK: afternic"
-          else
-            echo "::error title=afternic failed::pipeline run afternic exited non-zero (parallel)"
-            failed="$failed afternic"
-          fi
-          echo "::endgroup::"
 
           { echo "failed=$failed"; } >> "$GITHUB_OUTPUT"
           [ -n "$failed" ] && echo "Sources that failed:$failed" || echo "All sources completed."
