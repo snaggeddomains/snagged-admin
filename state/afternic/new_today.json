@@ -1,7 +1,12 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-06-12T14:20:39.964237+00:00",
+  "count": 4,
+  "domains": [
+    "miocene.ai",
+    "clitoris.co",
+    "feeble.ai",
+    "lengthen.org"
+  ],
+  "generated_at": "2026-06-14T13:22:22.384746+00:00",
   "source": "afternic"
 }
