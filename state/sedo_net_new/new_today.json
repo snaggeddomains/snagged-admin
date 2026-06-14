@@ -1,12 +1,14 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 6,
   "domains": [
-    "oss.co",
-    "reno.co",
-    "zac.co",
-    "scalia.ai"
+    "laredo.com",
+    "lubbock.com",
+    "annette.com",
+    "juanita.com",
+    "mindanao.com",
+    "dumfries.com"
   ],
-  "generated_at": "2026-06-13T23:00:50.987324+00:00",
+  "generated_at": "2026-06-14T10:00:56.373094+00:00",
   "source": "sedo_net_new"
 }

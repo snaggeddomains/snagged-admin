@@ -1,42 +1,50 @@
 [
   {
-    "currency": "EUR",
-    "domain": "scalia.ai",
-    "end_time_utc": "2026-06-13T19:13:10+00:00",
-    "price": 18995.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=scalia.ai"
+    "currency": "USD",
+    "domain": "annette.com",
+    "end_time_utc": "2026-06-14T01:58:27+00:00",
+    "price": 249888.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=annette.com"
   },
   {
     "currency": "USD",
-    "domain": "feeble.ai",
-    "end_time_utc": "2026-06-13T16:34:08+00:00",
-    "price": 500.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=feeble.ai"
+    "domain": "lubbock.com",
+    "end_time_utc": "2026-06-14T01:58:48+00:00",
+    "price": 249888.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=lubbock.com"
   },
   {
     "currency": "USD",
-    "domain": "reno.co",
-    "end_time_utc": "2026-06-13T22:31:07+00:00",
-    "price": 49995.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=reno.co"
+    "domain": "juanita.com",
+    "end_time_utc": "2026-06-14T01:58:23+00:00",
+    "price": 199888.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=juanita.com"
   },
   {
     "currency": "USD",
-    "domain": "zac.co",
-    "end_time_utc": "2026-06-13T22:31:10+00:00",
-    "price": 24995.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=zac.co"
+    "domain": "laredo.com",
+    "end_time_utc": "2026-06-14T01:58:58+00:00",
+    "price": 399888.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=laredo.com"
   },
   {
     "currency": "USD",
-    "domain": "oss.co",
-    "end_time_utc": "2026-06-13T22:31:12+00:00",
-    "price": 84995.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=oss.co"
+    "domain": "dumfries.com",
+    "end_time_utc": "2026-06-14T02:05:43+00:00",
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=dumfries.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "mindanao.com",
+    "end_time_utc": "2026-06-14T02:05:28+00:00",
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=mindanao.com"
   }
 ]
