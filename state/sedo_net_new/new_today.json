@@ -1,14 +1,9 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 1,
   "domains": [
-    "laredo.com",
-    "lubbock.com",
-    "annette.com",
-    "juanita.com",
-    "mindanao.com",
-    "dumfries.com"
+    "invaluable.co"
   ],
-  "generated_at": "2026-06-14T10:00:56.373094+00:00",
+  "generated_at": "2026-06-14T17:00:49.700087+00:00",
   "source": "sedo_net_new"
 }
