@@ -1,7 +1,7 @@
 // Vercel Cron entry point for the daily SNAP + auction batch.
 //
-// Scheduled in dashboard/vercel.json to fire at the start of the SLA window
-// (~4 AM ET). It dispatches the single "SNAP Orchestrator" GitHub Actions
+// Scheduled in dashboard/vercel.json to fire at 5 AM ET (an hour after afternic's
+// 4 AM ET solo head start). It dispatches the single "SNAP Orchestrator" GitHub Actions
 // workflow, which runs every daily source in order. We do NOT run the pipeline
 // here — Vercel functions can't (no Python, no long timeout); GitHub runners do.
 //
@@ -14,9 +14,13 @@ import { authorizedCron, dispatchOrchestrator, isEtHour } from "@/lib/orchestrat
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// Pinned to exactly 4 AM ET year-round. vercel.json fires this at both 08:00
-// and 09:00 UTC (EDT/EST) and we no-op on the hour that isn't 4 AM ET.
-const TARGET_ET_HOUR = 4;
+// Pinned to exactly 5 AM ET year-round. vercel.json fires this at both 09:00
+// and 10:00 UTC (EDT/EST) and we no-op on the hour that isn't 5 AM ET.
+// 5 AM (not 4) so afternic — dispatched solo at 4 AM ET by /api/cron/afternic —
+// gets a 60-minute contention-free head start on the name_universe upsert before
+// the orchestrator's foreground sources start writing it too. Still 2h ahead of
+// the 7 AM ET SLA for the ~45-min foreground batch.
+const TARGET_ET_HOUR = 5;
 
 export async function GET(req: NextRequest) {
   if (!authorizedCron(req)) {
@@ -30,7 +34,7 @@ export async function GET(req: NextRequest) {
   const ping = params.get("ping") === "1";
   const force = ping || params.get("force") === "1";
   if (!force && !isEtHour(TARGET_ET_HOUR)) {
-    return NextResponse.json({ ok: true, skipped: "not 4 AM ET" });
+    return NextResponse.json({ ok: true, skipped: "not 5 AM ET" });
   }
   const result = await dispatchOrchestrator(ping ? "ping" : "full");
   if (!result.ok) {
