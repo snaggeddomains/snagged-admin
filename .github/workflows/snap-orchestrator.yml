@@ -79,8 +79,11 @@ jobs:
           CF_BROWSER_API_TOKEN:        ${{ secrets.CF_BROWSER_API_TOKEN }}
           R2_ACCESS_KEY_ID:            ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY:        ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          R2_ENDPOINT:                 ${{ secrets.R2_ENDPOINT }}
-          R2_BUCKET:                   ${{ secrets.R2_BUCKET }}
+          # R2_ENDPOINT / R2_BUCKET are repo VARIABLES (non-secret), not secrets —
+          # referencing them as secrets resolved empty and silently disabled the
+          # observations->R2 upload.
+          R2_ENDPOINT:                 ${{ vars.R2_ENDPOINT }}
+          R2_BUCKET:                   ${{ vars.R2_BUCKET }}
           SLACK_CHANNEL_SNAP:          ${{ vars.SLACK_CHANNEL_SNAP }}
           SLACK_CHANNEL_AUCTIONS:      ${{ vars.SLACK_CHANNEL_AUCTIONS }}
         run: |
