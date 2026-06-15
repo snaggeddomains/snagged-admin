@@ -35,12 +35,13 @@ SLD_LEN_MIN = 2
 SLD_LEN_MAX = 14
 VOWELS = frozenset("aeiouy")
 
-# Dictionary-word floor (wordfreq zipf). Aligned with the SNAP base threshold
-# (standard.ZIPF_THRESHOLD = 2.8) so the two filters AGREE on what a "dictionary
-# word" is — a word that surfaces to SNAP also enters the universe. 2.8 ≈ "appears
-# at least once per ~1.6M words"; still rejects rare/coined terms (cirro, qrtyz).
-# Env-tunable: UNIVERSE_DICT_MIN_ZIPF.
-DICT_WORD_MIN_ZIPF = float(os.environ.get("UNIVERSE_DICT_MIN_ZIPF") or flt.ZIPF_THRESHOLD)
+# Dictionary-word floor (wordfreq zipf). Just above SNAP's base threshold (2.8):
+# the 2.8–2.9 band is where placeholder tokens with inflated frequency live (e.g.
+# "xyz" ≈ 2.86), while real words we want — widget 2.96, and any plural via its
+# singular root — sit at/above 2.9. So 2.9 admits the real vocabulary (cars,
+# deals, endorsements, widget/widgets) but keeps non-words out. Env-tunable:
+# UNIVERSE_DICT_MIN_ZIPF (set 2.8 to exactly match SNAP, or 3.0 for the old bar).
+DICT_WORD_MIN_ZIPF = float(os.environ.get("UNIVERSE_DICT_MIN_ZIPF") or 2.9)
 
 # Both halves of a 2-word split must be at least this many characters.
 # 3 is the threshold that eliminates wordfreq false positives — 2-letter

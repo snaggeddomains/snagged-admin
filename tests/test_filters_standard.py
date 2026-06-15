@@ -58,13 +58,13 @@ def test_is_three_letter_com():
     ("table.com",   "common single word, high zipf"),
     ("ocean.com",   "common single word"),
     ("xyz.com",     "3-letter .com exception"),
+    ("tables.com",  "plural of a common word — now allowed"),
 ])
 def test_allow_domain_passes_for_common_words_and_3letter_com(domain, reason_to_allow):
     assert flt.allow_domain(domain), f"expected pass: {reason_to_allow}"
 
 
 @pytest.mark.parametrize("domain", [
-    "tables.com",       # plural
     "qzqzqzq.com",      # nonsense, very low zipf
     "anything.xyz",     # disallowed TLD
     "",                 # empty
