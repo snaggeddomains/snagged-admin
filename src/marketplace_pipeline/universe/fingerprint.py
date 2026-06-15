@@ -16,8 +16,8 @@ R2 path as ``writer.upload_to_r2`` — no new dependency, no key in code.
 Gated by ``UNIVERSE_DELTA=1`` (off → byte-for-byte the old full-rewrite
 behavior, no R2 reads/writes). First run (no prior fingerprint) = full upsert
 that just seeds the fingerprint, so it self-bootstraps. ``observed_date`` on a
-skipped row stops advancing, so a weekly FULL pass re-affirms it (Sundays, or
-``UNIVERSE_DELTA_FULL=1``).
+skipped row stops advancing, so a monthly FULL pass re-affirms it (1st of the
+month, or ``UNIVERSE_DELTA_FULL=1``).
 """
 from __future__ import annotations
 
@@ -131,9 +131,11 @@ def save_fingerprint(source_id: str, hashes: Iterable[int]) -> bool:
     return ok
 
 
-def _is_weekly_full(now: datetime | None = None) -> bool:
-    # Sunday (UTC) → full re-affirm so skipped rows' observed_date doesn't go stale.
-    return (now or datetime.now(timezone.utc)).weekday() == 6
+def _is_periodic_full(now: datetime | None = None) -> bool:
+    # 1st of the month (UTC) → full re-affirm so skipped rows' observed_date doesn't
+    # go stale. Monthly (not weekly) to keep the heavy full-upsert IO to ~once/month
+    # — the daily delta is what keeps the corpus current.
+    return (now or datetime.now(timezone.utc)).day == 1
 
 
 class DeltaFilter:
@@ -155,7 +157,7 @@ class DeltaFilter:
         self.source_id = source_id
         self.enabled = (os.environ.get("UNIVERSE_DELTA") == "1") if enabled is None else enabled
         env_full = os.environ.get("UNIVERSE_DELTA_FULL") == "1"
-        self.force_full = (env_full or _is_weekly_full()) if force_full is None else force_full
+        self.force_full = (env_full or _is_periodic_full()) if force_full is None else force_full
         # Skip the prior load entirely on a forced full pass — everything upserts.
         self.prior: set[int] = load_fingerprint(source_id) if (self.enabled and not self.force_full) else set()
         self.current: set[int] = set()
