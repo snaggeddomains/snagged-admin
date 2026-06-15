@@ -7,6 +7,7 @@ filter_profiles.universe_ingest) is applied separately for Tier 3 storage.
 """
 from __future__ import annotations
 
+import os
 from functools import lru_cache
 
 from wordfreq import zipf_frequency
@@ -16,6 +17,13 @@ ZIPF_THRESHOLD = 2.8
 TLD_ZIPF_OVERRIDES: dict[str, float] = {".io": 3.8, ".net": 5.5}
 ROOT_FREQ_THRESHOLD = 2.0
 WORD_WHITELIST: set[str] = {"earthling"}
+# Plurals used to be dropped outright (looks_plural fires whenever the SINGULAR
+# root is common, ignoring the plural's own frequency) — which killed legit
+# commerce names like cars/deals/endorsements.com. Now a plural is judged by the
+# same dictionary-zipf gate as any word; only re-impose an extra plural bar if
+# this is set (0 = no penalty, the default). Past-tense / -ing forms are already
+# frequency-aware, so they're unchanged.
+PLURAL_MIN_ZIPF = float(os.environ.get("SNAP_PLURAL_MIN_ZIPF") or 0)
 
 
 @lru_cache(maxsize=None)
@@ -110,9 +118,13 @@ def is_clean_word(word: str, min_zipf: float) -> bool:
     if not word.isalpha():
         return False
     lower = word.lower()
-    if lower not in WORD_WHITELIST and _freq(lower) < min_zipf:
+    z = _freq(lower)
+    if lower not in WORD_WHITELIST and z < min_zipf:
         return False
-    if looks_plural(lower):
+    # Plurals pass on the dictionary-zipf gate (checked above) like any other word —
+    # a common plural (cars/deals/endorsements) is a legit name. Only filter weak
+    # plurals when SNAP_PLURAL_MIN_ZIPF is set above 0.
+    if PLURAL_MIN_ZIPF and looks_plural(lower) and z < PLURAL_MIN_ZIPF:
         return False
     if looks_past_tense(lower, min_zipf):
         return False
