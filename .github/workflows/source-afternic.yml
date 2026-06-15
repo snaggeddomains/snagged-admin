@@ -20,10 +20,11 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    # Afternic publishes ~7M qualifying rows; upserting in 1K batches takes
-    # ~25-40 min normally. 120 min is a safety net for slow-Supabase days (the
-    # writer now recycles its client on a GOAWAY so it no longer crawls).
-    timeout-minutes: 120
+    # Afternic scans ~27M rows and upserts ~6.2M to name_universe in 1K batches:
+    # ~60 min on a clean run, but slow-Supabase days have hit ~106 min. afternic
+    # has no SLA of its own now (it's decoupled from the orchestrator), so the
+    # timeout is just a generous safety net — keep it well above the slow case.
+    timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
 
