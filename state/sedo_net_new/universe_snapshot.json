@@ -1,51 +1,23 @@
 [
   {
-    "domain": "bandung.com",
-    "price": 88888.0
-  },
-  {
     "domain": "mashita.com",
     "price": 15995.0
   },
   {
-    "domain": "padang.com",
-    "price": 88888.0
+    "domain": "compay.ai",
+    "price": null
   },
   {
-    "domain": "malang.com",
-    "price": 88888.0
-  },
-  {
-    "domain": "vitoria.ai",
-    "price": 888888.0
-  },
-  {
-    "domain": "siting.ai",
-    "price": 888888.0
-  },
-  {
-    "domain": "salver.ai",
-    "price": 888888.0
-  },
-  {
-    "domain": "datong.ai",
-    "price": 888888.0
-  },
-  {
-    "domain": "tendering.ai",
-    "price": 888888.0
-  },
-  {
-    "domain": "netflare.net",
-    "price": 219.0
+    "domain": "eurobusiness.com",
+    "price": 5999.0
   },
   {
     "domain": "hanska.net",
     "price": 9500.0
   },
   {
-    "domain": "banian.net",
-    "price": 1972.0
+    "domain": "qingyun.co",
+    "price": null
   },
   {
     "domain": "kenobi.co",
