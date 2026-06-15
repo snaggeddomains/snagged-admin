@@ -1,5 +1,77 @@
 [
   {
+    "domain": "vancouverqueen.com",
+    "price": null
+  },
+  {
+    "domain": "synthledger.com",
+    "price": null
+  },
+  {
+    "domain": "quartzlayer.com",
+    "price": null
+  },
+  {
+    "domain": "pulsetelemetry.com",
+    "price": null
+  },
+  {
+    "domain": "orbittelemetry.com",
+    "price": null
+  },
+  {
+    "domain": "nodetelemetry.com",
+    "price": null
+  },
+  {
+    "domain": "groceragent.com",
+    "price": null
+  },
+  {
+    "domain": "convergevoice.com",
+    "price": null
+  },
+  {
+    "domain": "convergeledger.com",
+    "price": null
+  },
+  {
+    "domain": "convergeguard.com",
+    "price": null
+  },
+  {
+    "domain": "convergechat.com",
+    "price": null
+  },
+  {
+    "domain": "convergeauto.com",
+    "price": null
+  },
+  {
+    "domain": "bondrails.com",
+    "price": null
+  },
+  {
+    "domain": "accordchain.com",
+    "price": null
+  },
+  {
+    "domain": "tangwan.com",
+    "price": null
+  },
+  {
+    "domain": "tangben.com",
+    "price": null
+  },
+  {
+    "domain": "armred.com",
+    "price": 1288.0
+  },
+  {
+    "domain": "earthyfarm.com",
+    "price": 10000.0
+  },
+  {
     "domain": "gymtoys.com",
     "price": null
   },
@@ -1245,7 +1317,7 @@
   },
   {
     "domain": "finance.xyz",
-    "price": 200000.0
+    "price": 400000.0
   },
   {
     "domain": "finpersonal.com",
@@ -27520,10 +27592,6 @@
     "price": 14995.0
   },
   {
-    "domain": "doggiestyling.com",
-    "price": 799.0
-  },
-  {
     "domain": "taxdoha.com",
     "price": 9800.0
   },
@@ -29236,10 +29304,6 @@
     "price": null
   },
   {
-    "domain": "jaydis.com",
-    "price": 4999.0
-  },
-  {
     "domain": "hawaiiolive.com",
     "price": null
   },
@@ -29414,14 +29478,6 @@
   {
     "domain": "huhbets.com",
     "price": 4995.0
-  },
-  {
-    "domain": "carpetbuddy.com",
-    "price": 4999.0
-  },
-  {
-    "domain": "dogdegree.com",
-    "price": null
   },
   {
     "domain": "nite.org",
@@ -30485,10 +30541,6 @@
   },
   {
     "domain": "domainbias.com",
-    "price": null
-  },
-  {
-    "domain": "instalane.com",
     "price": null
   },
   {
@@ -32496,10 +32548,6 @@
     "price": 299888.0
   },
   {
-    "domain": "flowdio.com",
-    "price": null
-  },
-  {
     "domain": "procured.com",
     "price": null
   },
@@ -32806,14 +32854,6 @@
   {
     "domain": "graphicspal.com",
     "price": null
-  },
-  {
-    "domain": "nickpic.com",
-    "price": 499.0
-  },
-  {
-    "domain": "cuteshirts.com",
-    "price": 3999.0
   },
   {
     "domain": "cuts.co",
@@ -39692,10 +39732,6 @@
     "price": null
   },
   {
-    "domain": "chapellakes.com",
-    "price": 3999.0
-  },
-  {
     "domain": "datapeople.ai",
     "price": null
   },
@@ -39869,10 +39905,6 @@
   },
   {
     "domain": "leoxiv.xyz",
-    "price": null
-  },
-  {
-    "domain": "popcardio.com",
     "price": null
   },
   {
@@ -40474,10 +40506,6 @@
   {
     "domain": "plantae.ai",
     "price": 19000.0
-  },
-  {
-    "domain": "villageorganic.com",
-    "price": 4999.0
   },
   {
     "domain": "stabilize.com",
@@ -42144,10 +42172,6 @@
     "price": null
   },
   {
-    "domain": "alacara.com",
-    "price": null
-  },
-  {
     "domain": "movable.com",
     "price": null
   },
@@ -42458,10 +42482,6 @@
   {
     "domain": "belisa.ai",
     "price": null
-  },
-  {
-    "domain": "trailana.com",
-    "price": 2999.0
   },
   {
     "domain": "moneyvan.com",
@@ -108100,10 +108120,6 @@
     "price": 4995.0
   },
   {
-    "domain": "pepemarket.com",
-    "price": 1999.0
-  },
-  {
     "domain": "rnapro.com",
     "price": null
   },
@@ -145616,10 +145632,6 @@
     "price": 14000.0
   },
   {
-    "domain": "pageria.com",
-    "price": null
-  },
-  {
     "domain": "evopay.xyz",
     "price": 26888.0
   },
@@ -146226,10 +146238,6 @@
   {
     "domain": "morningcoffee.net",
     "price": null
-  },
-  {
-    "domain": "fargofitness.com",
-    "price": 2999.0
   },
   {
     "domain": "thebroker.xyz",
@@ -153294,10 +153302,6 @@
   {
     "domain": "shoppingguide.xyz",
     "price": 7488.0
-  },
-  {
-    "domain": "ultralis.com",
-    "price": null
   },
   {
     "domain": "winfinite.com",
@@ -213208,10 +213212,6 @@
     "price": null
   },
   {
-    "domain": "wondora.com",
-    "price": null
-  },
-  {
     "domain": "protectthem.com",
     "price": null
   },
@@ -214090,10 +214090,6 @@
   {
     "domain": "biolimits.com",
     "price": 19950.0
-  },
-  {
-    "domain": "amanra.com",
-    "price": null
   },
   {
     "domain": "summerqatar.com",
@@ -264540,10 +264536,6 @@
     "price": null
   },
   {
-    "domain": "urbanrunway.com",
-    "price": 9999.0
-  },
-  {
     "domain": "highmountain.com",
     "price": null
   },
@@ -264849,10 +264841,6 @@
   },
   {
     "domain": "ultrabod.com",
-    "price": null
-  },
-  {
-    "domain": "mindholiday.com",
     "price": null
   },
   {
@@ -265822,10 +265810,6 @@
   {
     "domain": "omegacannabis.com",
     "price": 5000.0
-  },
-  {
-    "domain": "marialena.com",
-    "price": null
   },
   {
     "domain": "maestrocode.com",
@@ -288932,10 +288916,6 @@
     "price": null
   },
   {
-    "domain": "recfly.com",
-    "price": 1999.0
-  },
-  {
     "domain": "seaweedbottles.com",
     "price": null
   },
@@ -289654,10 +289634,6 @@
   {
     "domain": "realitycasinos.com",
     "price": 18888.0
-  },
-  {
-    "domain": "cryptorupee.com",
-    "price": null
   },
   {
     "domain": "safetychamp.com",
@@ -301902,10 +301878,6 @@
   {
     "domain": "selectdenim.com",
     "price": null
-  },
-  {
-    "domain": "tokenswipe.com",
-    "price": 2999.0
   },
   {
     "domain": "frontart.com",
@@ -318128,10 +318100,6 @@
     "price": null
   },
   {
-    "domain": "bairddomains.com",
-    "price": null
-  },
-  {
     "domain": "indexscript.com",
     "price": null
   },
@@ -322446,10 +322414,6 @@
   {
     "domain": "dubaiphoto.net",
     "price": 20000.0
-  },
-  {
-    "domain": "cryptopowered.com",
-    "price": null
   },
   {
     "domain": "workswift.com",
@@ -333696,10 +333660,6 @@
     "price": 24500.0
   },
   {
-    "domain": "nitroinfused.com",
-    "price": 9795.0
-  },
-  {
     "domain": "kipico.com",
     "price": null
   },
@@ -333766,10 +333726,6 @@
   {
     "domain": "gulfarmor.com",
     "price": 8000.0
-  },
-  {
-    "domain": "cannabisliquid.com",
-    "price": 2499.0
   },
   {
     "domain": "uaeproperties.org",
@@ -334526,14 +334482,6 @@
   {
     "domain": "springdays.com",
     "price": 9500.0
-  },
-  {
-    "domain": "lowerrent.com",
-    "price": 99999.0
-  },
-  {
-    "domain": "mealcrate.com",
-    "price": 1999.0
   },
   {
     "domain": "collisionplus.com",
@@ -337485,10 +337433,6 @@
   },
   {
     "domain": "blueflurry.com",
-    "price": null
-  },
-  {
-    "domain": "vapetonic.com",
     "price": null
   },
   {
@@ -343960,10 +343904,6 @@
     "price": null
   },
   {
-    "domain": "antigun.com",
-    "price": 9999.0
-  },
-  {
     "domain": "picture.net",
     "price": null
   },
@@ -346258,10 +346198,6 @@
   {
     "domain": "alohaoil.com",
     "price": 7800.0
-  },
-  {
-    "domain": "fruitmachines.net",
-    "price": 799.0
   },
   {
     "domain": "gulfwater.co",

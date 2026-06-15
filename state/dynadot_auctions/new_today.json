@@ -1,10 +1,9 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 1,
   "domains": [
-    "boyhood.co",
-    "scotus.co"
+    "recognised.co"
   ],
-  "generated_at": "2026-06-14T08:45:05.928441+00:00",
+  "generated_at": "2026-06-15T08:47:48.021110+00:00",
   "source": "dynadot_auctions"
 }

@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-06-14T08:29:30.125213+00:00",
+  "generated_at": "2026-06-15T08:29:50.701021+00:00",
   "label": "Snagged Marketplace (sheet)",
   "new_count": 0,
-  "raw_count": 208,
+  "raw_count": 209,
   "source": "snagged_marketplace_sheet",
   "status": "ok",
   "supabase_status": "ok",
-  "universe_count": 77
+  "universe_count": 72
 }
