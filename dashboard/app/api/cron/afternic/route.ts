@@ -2,12 +2,20 @@
 //
 // afternic was decoupled from the SNAP Orchestrator: sharing the orchestrator
 // runner's 2 cores with the sequential foreground sources slowed it to >3h and
-// it was killed by the orchestrator's job timeout. On its OWN runner it's back
-// to ~40 min, so it now runs as a standalone workflow dispatched from here.
+// it was killed by the orchestrator's job timeout. It now runs as a standalone
+// workflow dispatched from here.
+//
+// It fires FIRST, at 4 AM ET — a 60-minute SOLO head start. afternic is the long
+// pole (scans ~27M rows, upserts ~6.2M to name_universe), so it gets a clean,
+// contention-free hour to do the bulk of its universe writes. The SNAP
+// orchestrator then fires at 5 AM ET (/api/cron/snap-run) and runs the balance of
+// the sources alongside afternic's tail. Firing both at the SAME tick made them
+// write name_universe concurrently and the upsert-RPC contention
+// (deadlock/statement-timeout backoffs) dragged afternic to >2h, blowing its
+// timeout ~50% done (2026-06-15) — hence the 1-hour stagger.
 //
 // vercel.json fires this at both 08:00 and 09:00 UTC (EDT/EST); we no-op on the
-// hour that isn't 4 AM ET, pinning it to the start of the SLA window year-round
-// (same slot as the orchestrator, but on a separate runner — no CPU contention).
+// hour that isn't 4 AM ET, pinning it to 4 AM ET year-round.
 //
 // Reuses the orchestrator plumbing: CRON_SECRET (auth) + GH_DISPATCH_TOKEN
 // (Actions: write). `?force=1` bypasses the hour gate for manual testing.
@@ -19,7 +27,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const WORKFLOW = "source-afternic.yml";
-// 4 AM ET — the start of the daily SLA window (matches the orchestrator).
+// 4 AM ET — fires an hour BEFORE the 5 AM ET orchestrator so afternic gets a solo
+// head start on the name_universe upsert (see the header note).
 const TARGET_ET_HOUR = 4;
 
 export async function GET(req: NextRequest) {
