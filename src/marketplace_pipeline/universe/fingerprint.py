@@ -21,74 +21,102 @@ skipped row stops advancing, so a weekly FULL pass re-affirms it (Sundays, or
 """
 from __future__ import annotations
 
+import array
+import gzip
 import hashlib
 import os
 from datetime import datetime, timezone
-from typing import Any, Iterable
+from typing import Iterable
+
+# Persist the fingerprint in the naming project's Supabase Storage — the same
+# project + service key the upserts already use (no extra infra/secrets, unlike
+# R2 which isn't configured). Stored as one gzipped little-endian int64 array
+# ("q") per source at fingerprints/<source>.bin.gz. ~6.5M hashes ≈ 52 MB.
+BUCKET = os.environ.get("UNIVERSE_FINGERPRINT_BUCKET") or "pipeline-fingerprints"
+# Generous per-file cap on the bucket so the ~52 MB blob isn't rejected.
+_BUCKET_FILE_LIMIT = 524_288_000  # 500 MB
 
 
-# 63-bit so it always fits a signed parquet/DuckDB BIGINT. Collision probability
-# at 6.2M items in a 2^63 space is ~10^-6; a collision only risks skipping one
-# changed row, which the weekly full re-affirm pass then corrects.
-def row_hash(domain: str, price: Any) -> int:
+# 63-bit so it always fits a signed int64 ("q"). Collision probability at ~6.5M
+# items in a 2^63 space is ~10^-6; a collision only risks skipping one changed
+# row, which the weekly full re-affirm pass then corrects.
+def row_hash(domain: str, price) -> int:
     p = "" if price is None else f"{float(price):.2f}"
     digest = hashlib.blake2b(f"{domain}|{p}".encode("utf-8"), digest_size=8).digest()
     return int.from_bytes(digest, "big") & 0x7FFF_FFFF_FFFF_FFFF
 
 
-def _r2_env() -> dict[str, str] | None:
-    keys = ("R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "R2_BUCKET", "R2_ENDPOINT")
-    vals = {k: os.environ.get(k) for k in keys}
-    if not all(vals.values()):
+def _sb_env() -> tuple[str, str] | None:
+    url = os.environ.get("SUPABASE_NAMING_URL")
+    key = os.environ.get("SUPABASE_NAMING_SERVICE_KEY")
+    if not (url and key):
         return None
-    return vals  # type: ignore[return-value]
+    return url.rstrip("/"), key
 
 
-def _duck(r2: dict[str, str]):
-    import duckdb
-
-    con = duckdb.connect(":memory:")
-    con.execute("INSTALL httpfs;")
-    con.execute("LOAD httpfs;")
-    con.execute(f"SET s3_access_key_id='{r2['R2_ACCESS_KEY_ID']}';")
-    con.execute(f"SET s3_secret_access_key='{r2['R2_SECRET_ACCESS_KEY']}';")
-    endpoint = r2["R2_ENDPOINT"].replace("https://", "").replace("http://", "")
-    con.execute(f"SET s3_endpoint='{endpoint}';")
-    con.execute("SET s3_url_style='path';")
-    return con
+def _obj_url(base: str, source_id: str) -> str:
+    return f"{base}/storage/v1/object/{BUCKET}/fingerprints/{source_id}.bin.gz"
 
 
-def _target(r2: dict[str, str], source_id: str) -> str:
-    return f"s3://{r2['R2_BUCKET']}/fingerprints/{source_id}.parquet"
+def _ensure_bucket(base: str, key: str) -> None:
+    import requests
+
+    try:
+        requests.post(
+            f"{base}/storage/v1/bucket",
+            headers={"Authorization": f"Bearer {key}", "apikey": key, "Content-Type": "application/json"},
+            json={"id": BUCKET, "name": BUCKET, "public": False, "file_size_limit": _BUCKET_FILE_LIMIT},
+            timeout=30,
+        )  # 200 created / 409 already exists — both fine
+    except Exception:  # noqa: BLE001 — bucket may already exist; upload will surface real errors
+        pass
 
 
 def load_fingerprint(source_id: str) -> set[int]:
-    """Prior run's hash set from R2. Empty set when unconfigured or absent (→ the
-    caller does a full upsert and seeds it)."""
-    r2 = _r2_env()
-    if not r2:
+    """Prior run's hash set from Supabase Storage. Empty set when unconfigured or
+    absent (→ the caller does a full upsert and seeds it)."""
+    env = _sb_env()
+    if not env:
         return set()
+    base, key = env
+    import requests
+
     try:
-        con = _duck(r2)
-        tbl = con.execute(f"SELECT h FROM '{_target(r2, source_id)}'").fetch_arrow_table()
-        return set(tbl.column("h").to_pylist())
+        r = requests.get(_obj_url(base, source_id),
+                         headers={"Authorization": f"Bearer {key}", "apikey": key}, timeout=180)
+        if r.status_code != 200 or not r.content:
+            print(f"      fingerprint load: none yet ({source_id}, HTTP {r.status_code})", flush=True)
+            return set()
+        a = array.array("q")
+        a.frombytes(gzip.decompress(r.content))
+        return set(a)
     except Exception as e:  # noqa: BLE001 — missing object / transient → treat as no prior
         print(f"      fingerprint load skipped ({source_id}): {e}", flush=True)
         return set()
 
 
 def save_fingerprint(source_id: str, hashes: Iterable[int]) -> bool:
-    """Snapshot the current run's hash set to R2 (one-column parquet). No-op when
-    R2 isn't configured."""
-    r2 = _r2_env()
-    if not r2:
+    """Snapshot the current run's hash set to Supabase Storage (gzipped int64).
+    No-op when the naming Supabase isn't configured."""
+    env = _sb_env()
+    if not env:
         return False
-    import pyarrow as pa
+    base, key = env
+    import requests
 
-    tbl = pa.table({"h": pa.array(list(hashes), type=pa.int64())})
-    con = _duck(r2)
-    con.register("fp", tbl)
-    con.execute(f"COPY (SELECT h FROM fp) TO '{_target(r2, source_id)}' (FORMAT PARQUET)")
+    _ensure_bucket(base, key)
+    blob = gzip.compress(array.array("q", hashes).tobytes(), compresslevel=6)
+    r = requests.post(
+        _obj_url(base, source_id),
+        headers={
+            "Authorization": f"Bearer {key}", "apikey": key,
+            "Content-Type": "application/octet-stream", "x-upsert": "true",
+        },
+        data=blob, timeout=300,
+    )
+    if r.status_code not in (200, 201):
+        print(f"      fingerprint save HTTP {r.status_code}: {r.text[:200]}", flush=True)
+        return False
     return True
 
 
