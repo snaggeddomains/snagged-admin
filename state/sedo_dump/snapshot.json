@@ -1,14 +1,14 @@
 {
   "crawl": {
     "current_partition": null,
-    "elapsed_sec": 10795.7,
+    "elapsed_sec": 11062.8,
     "failed_partitions": [],
-    "leaves_harvested": 230,
-    "leaves_truncated": 67,
-    "max_hits_total": 3002390,
-    "queries": 3028,
-    "request_count": 3028,
-    "rows_seen": 1403331,
+    "leaves_harvested": 228,
+    "leaves_truncated": 68,
+    "max_hits_total": 3074615,
+    "queries": 3041,
+    "request_count": 3041,
+    "rows_seen": 1405021,
     "stopped_early": null,
     "truncated_partitions": [
       "tld=xyz len=9-12 words=2-2 price=1000-5000",
@@ -31,6 +31,7 @@
       "tld=net len=9-12 words=2-2 price=1000-5000",
       "tld=net len=8-8 words=2-2 price=1000-5000",
       "tld=net len=7-7 words=2-2 price=1000-5000",
+      "tld=net len=6-6 words=2-2 price=1000-5000",
       "tld=net len=4-4 words=2-2 price=1000-5000",
       "tld=net len=13-\u221e words=2-2 price=0-100",
       "tld=net len=9-12 words=2-2 price=0-100",
@@ -80,8 +81,8 @@
       "tld=com len=1-3 words=1-1 price=0-100"
     ]
   },
-  "report_date": "2026-06-01",
+  "report_date": "2026-06-15",
   "status": "ok",
-  "unique_domains": 1172751,
-  "universe_qualifying": 401521
+  "unique_domains": 1181350,
+  "universe_qualifying": 401947
 }
