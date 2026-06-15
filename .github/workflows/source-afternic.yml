@@ -8,7 +8,12 @@ name: 'Source: afternic'
 # ~40 min, so it now lives here. workflow_dispatch also lets it be (re)run
 # individually.
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      seed_only:
+        description: "Seed-only: scan + write the delta fingerprint, upsert nothing (one-off priming run)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -46,6 +51,9 @@ jobs:
           # into minutes. First run (no fingerprint) seeds a full upsert; Sundays
           # do a full re-affirm so skipped rows' observed_date doesn't go stale.
           UNIVERSE_DELTA:              "1"
+          # One-off priming: write the fingerprint without upserting (workflow_dispatch
+          # input). Empty on scheduled/cron dispatch → normal delta run.
+          UNIVERSE_SEED_ONLY:          ${{ inputs.seed_only && '1' || '' }}
           R2_ACCESS_KEY_ID:            ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY:        ${{ secrets.R2_SECRET_ACCESS_KEY }}
           R2_ENDPOINT:                 ${{ secrets.R2_ENDPOINT }}

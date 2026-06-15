@@ -331,7 +331,11 @@ def run() -> int:
     # changed vs the prior run's fingerprint — ~99% of afternic's ~6.2M rows are
     # byte-identical day to day, so this turns the ~1-2h full rewrite into minutes.
     # Disabled → keep() is always True (identical to the old full-rewrite path).
-    delta = DeltaFilter(SOURCE_ID)
+    # UNIVERSE_SEED_ONLY=1: scan the feed + WRITE the fingerprint but upsert NOTHING
+    # (and skip the SNAP publish) — a fast (~scan-time) way to prime the fingerprint
+    # so the NEXT run is a true delta, without a redundant full upsert.
+    seed_only = os.environ.get("UNIVERSE_SEED_ONLY") == "1"
+    delta = DeltaFilter(SOURCE_ID, enabled=True if seed_only else None)
 
     UNIVERSE_FLUSH_SIZE = 50_000
     universe_buffer: list[dict[str, Any]] = []
@@ -354,7 +358,8 @@ def run() -> int:
             except ValueError:
                 price = None
             universe_qualifying += 1
-            if delta.keep(domain, price):  # new / price-changed → upsert
+            keep = delta.keep(domain, price)  # records the hash; True = new/changed
+            if keep and not seed_only:  # seed-only records hashes but upserts nothing
                 universe_buffer.append({"domain": domain, "price": price})
                 universe_total += 1
 
@@ -385,6 +390,13 @@ def run() -> int:
     print(f"       raw rows: {raw_count:,}")
     print(f"       universe qualifying: {universe_qualifying:,}  |  upserted: {universe_total:,} in {universe_batches_total} batch(es)")
     print(f"       SNAP qualifying entries: {len(entries):,}")
+
+    if seed_only:
+        # Fingerprint written; nothing upserted. Skip the SNAP publish (shortlist /
+        # sheets / Slack / snapshot) so this priming run doesn't double-post today's
+        # already-published listings. The NEXT run will be a true delta.
+        print("[SEED-ONLY] fingerprint written, no upserts, SNAP publish skipped. DONE")
+        return 0
 
     print("[6/10] Building combined shortlist")
     ranked = build_shortlist(entries)
