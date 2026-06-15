@@ -23,6 +23,7 @@ operational truth and this module enforces it.
 """
 from __future__ import annotations
 
+import os
 from functools import lru_cache
 
 from . import standard as flt
@@ -34,11 +35,12 @@ SLD_LEN_MIN = 2
 SLD_LEN_MAX = 14
 VOWELS = frozenset("aeiouy")
 
-# wordfreq zipf >= 3.0 corresponds to roughly "appears at least once per
-# million words in English usage" — a reasonable dictionary-word floor
-# that captures common vocabulary (table, ocean, fresh, coffee) but
-# rejects rare / obscure / coined terms (cirro, qrtyz).
-DICT_WORD_MIN_ZIPF = 3.0
+# Dictionary-word floor (wordfreq zipf). Aligned with the SNAP base threshold
+# (standard.ZIPF_THRESHOLD = 2.8) so the two filters AGREE on what a "dictionary
+# word" is — a word that surfaces to SNAP also enters the universe. 2.8 ≈ "appears
+# at least once per ~1.6M words"; still rejects rare/coined terms (cirro, qrtyz).
+# Env-tunable: UNIVERSE_DICT_MIN_ZIPF.
+DICT_WORD_MIN_ZIPF = float(os.environ.get("UNIVERSE_DICT_MIN_ZIPF") or flt.ZIPF_THRESHOLD)
 
 # Both halves of a 2-word split must be at least this many characters.
 # 3 is the threshold that eliminates wordfreq false positives — 2-letter
@@ -106,6 +108,12 @@ def classify_dict_word(sld: str, min_zipf: float = DICT_WORD_MIN_ZIPF) -> int | 
         return None
     if _zipf(sld) >= min_zipf:
         return 1
+    # A plural of a dictionary word is itself a dictionary word (widgets ← widget),
+    # even when the plural's own zipf dips just under the bar. Judge the singular
+    # root at the same threshold.
+    for root in flt._plural_root_candidates(sld):
+        if _zipf(root) >= min_zipf:
+            return 1
     for i in range(MIN_HALF_LEN, len(sld) - MIN_HALF_LEN + 1):
         left, right = sld[:i], sld[i:]
         if _zipf(left) >= min_zipf and _zipf(right) >= min_zipf:
