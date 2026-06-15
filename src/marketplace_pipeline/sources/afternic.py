@@ -325,10 +325,18 @@ def run() -> int:
     # bounded buffers (universe upserted in 50K chunks, SNAP entries kept
     # in a list since they're tiny post-filter) keeps memory under 1 GB.
     from ..universe import supabase_writer as _sw
+    from ..universe.fingerprint import DeltaFilter
+
+    # Delta-upsert (UNIVERSE_DELTA=1): only upsert rows that are new or whose price
+    # changed vs the prior run's fingerprint — ~99% of afternic's ~6.2M rows are
+    # byte-identical day to day, so this turns the ~1-2h full rewrite into minutes.
+    # Disabled → keep() is always True (identical to the old full-rewrite path).
+    delta = DeltaFilter(SOURCE_ID)
 
     UNIVERSE_FLUSH_SIZE = 50_000
     universe_buffer: list[dict[str, Any]] = []
-    universe_total = 0
+    universe_qualifying = 0   # rows passing the universe filter (seen)
+    universe_total = 0        # rows actually upserted (kept by the delta filter)
     universe_batches_total = 0
     raw_count = 0
     entries: list[Entry] = []
@@ -345,14 +353,16 @@ def run() -> int:
                 price = float(str(price_raw).replace(",", "")) if price_raw else None
             except ValueError:
                 price = None
-            universe_buffer.append({"domain": domain, "price": price})
-            universe_total += 1
+            universe_qualifying += 1
+            if delta.keep(domain, price):  # new / price-changed → upsert
+                universe_buffer.append({"domain": domain, "price": price})
+                universe_total += 1
 
-            if len(universe_buffer) >= UNIVERSE_FLUSH_SIZE:
-                stats = _sw.upsert_from_source(SOURCE_ID, universe_buffer, today)
-                if stats.get("status") == "ok":
-                    universe_batches_total += stats.get("batches", 0)
-                universe_buffer.clear()
+                if len(universe_buffer) >= UNIVERSE_FLUSH_SIZE:
+                    stats = _sw.upsert_from_source(SOURCE_ID, universe_buffer, today)
+                    if stats.get("status") == "ok":
+                        universe_batches_total += stats.get("batches", 0)
+                    universe_buffer.clear()
 
         # SNAP path — keep filtered entries (small list, ~hundreds to low thousands)
         e = entry_from_row(row)
@@ -360,7 +370,7 @@ def run() -> int:
             entries.append(e)
 
         if raw_count % 250_000 == 0:
-            print(f"       processed {raw_count:,} rows  |  universe so far: {universe_total:,}  |  SNAP so far: {len(entries):,}")
+            print(f"       processed {raw_count:,} rows  |  universe qualifying: {universe_qualifying:,}  |  to-upsert: {universe_total:,}  |  SNAP so far: {len(entries):,}")
 
     # Flush final universe batch
     if universe_buffer:
@@ -369,8 +379,11 @@ def run() -> int:
             universe_batches_total += stats.get("batches", 0)
         universe_buffer.clear()
 
+    # Snapshot the new fingerprint for tomorrow's delta (no-op when disabled).
+    delta.commit()
+
     print(f"       raw rows: {raw_count:,}")
-    print(f"       universe entries upserted: {universe_total:,} in {universe_batches_total} batch(es)")
+    print(f"       universe qualifying: {universe_qualifying:,}  |  upserted: {universe_total:,} in {universe_batches_total} batch(es)")
     print(f"       SNAP qualifying entries: {len(entries):,}")
 
     print("[6/10] Building combined shortlist")

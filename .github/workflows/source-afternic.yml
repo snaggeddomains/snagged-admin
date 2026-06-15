@@ -41,6 +41,15 @@ jobs:
           SLACK_CHANNEL_SNAP:          ${{ vars.SLACK_CHANNEL_SNAP }}
           SUPABASE_NAMING_URL:         ${{ secrets.SUPABASE_NAMING_URL }}
           SUPABASE_NAMING_SERVICE_KEY: ${{ secrets.SUPABASE_NAMING_SERVICE_KEY }}
+          # Delta-upsert: only write new/price-changed rows vs the prior run's
+          # fingerprint (stored in R2). Turns the ~6.2M-row nightly full rewrite
+          # into minutes. First run (no fingerprint) seeds a full upsert; Sundays
+          # do a full re-affirm so skipped rows' observed_date doesn't go stale.
+          UNIVERSE_DELTA:              "1"
+          R2_ACCESS_KEY_ID:            ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY:        ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_ENDPOINT:                 ${{ secrets.R2_ENDPOINT }}
+          R2_BUCKET:                   ${{ secrets.R2_BUCKET }}
 
         run: pipeline run afternic
 
