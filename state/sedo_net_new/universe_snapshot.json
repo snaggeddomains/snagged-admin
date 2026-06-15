@@ -1,34 +1,74 @@
 [
   {
-    "domain": "mashita.com",
-    "price": 15995.0
-  },
-  {
     "domain": "compay.ai",
     "price": null
+  },
+  {
+    "domain": "destructing.com",
+    "price": 9888.0
   },
   {
     "domain": "eurobusiness.com",
     "price": 5999.0
   },
   {
-    "domain": "hanska.net",
-    "price": 9500.0
+    "domain": "compressions.com",
+    "price": 49888.0
+  },
+  {
+    "domain": "elaborate.net",
+    "price": 4888.0
   },
   {
     "domain": "qingyun.co",
     "price": null
   },
   {
-    "domain": "kenobi.co",
-    "price": 1988.0
+    "domain": "gentry.co",
+    "price": 4995.0
   },
   {
-    "domain": "valana.co",
-    "price": 1988.0
+    "domain": "blonde.co",
+    "price": 12988.0
   },
   {
-    "domain": "brewhouse.co",
-    "price": 1988.0
+    "domain": "matcha.co",
+    "price": 18995.0
+  },
+  {
+    "domain": "catalina.co",
+    "price": 4995.0
+  },
+  {
+    "domain": "eater.co",
+    "price": 3595.0
+  },
+  {
+    "domain": "simms.co",
+    "price": 3595.0
+  },
+  {
+    "domain": "moonshine.co",
+    "price": 18995.0
+  },
+  {
+    "domain": "ziggy.co",
+    "price": 9888.0
+  },
+  {
+    "domain": "mountaintop.net",
+    "price": 4999.0
+  },
+  {
+    "domain": "archipelago.net",
+    "price": null
+  },
+  {
+    "domain": "rutherford.co",
+    "price": 3595.0
+  },
+  {
+    "domain": "transmission.co",
+    "price": 12988.0
   }
 ]

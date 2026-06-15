@@ -1,10 +1,74 @@
 [
   {
     "currency": "USD",
-    "domain": "bds.co",
-    "end_time_utc": "2026-06-15T12:14:51+00:00",
-    "price": 7450.0,
+    "domain": "gentry.co",
+    "end_time_utc": "2026-06-15T19:37:37+00:00",
+    "price": 4995.0,
     "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=bds.co"
+    "url": "https://sedo.com/search/details/?domain=gentry.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "blonde.co",
+    "end_time_utc": "2026-06-15T19:37:11+00:00",
+    "price": 12988.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=blonde.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "catalina.co",
+    "end_time_utc": "2026-06-15T19:45:09+00:00",
+    "price": 4995.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=catalina.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "eater.co",
+    "end_time_utc": "2026-06-15T19:47:46+00:00",
+    "price": 3595.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=eater.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "simms.co",
+    "end_time_utc": "2026-06-15T19:37:49+00:00",
+    "price": 3595.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=simms.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "moonshine.co",
+    "end_time_utc": "2026-06-15T19:37:51+00:00",
+    "price": 18995.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=moonshine.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "ziggy.co",
+    "end_time_utc": "2026-06-15T19:38:09+00:00",
+    "price": 9888.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=ziggy.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "rutherford.co",
+    "end_time_utc": "2026-06-15T19:37:33+00:00",
+    "price": 3595.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=rutherford.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "transmission.co",
+    "end_time_utc": "2026-06-15T19:39:03+00:00",
+    "price": 12988.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=transmission.co"
   }
 ]
