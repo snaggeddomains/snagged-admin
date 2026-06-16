@@ -1,9 +1,10 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 2,
   "domains": [
-    "recognised.co"
+    "gasol.co",
+    "immigrants.co"
   ],
-  "generated_at": "2026-06-15T08:47:48.021110+00:00",
+  "generated_at": "2026-06-16T09:33:16.166018+00:00",
   "source": "dynadot_auctions"
 }
