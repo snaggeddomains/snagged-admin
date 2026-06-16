@@ -1,7 +1,11 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-06-15T19:35:27.315288+00:00",
+  "count": 3,
+  "domains": [
+    "stiff.org",
+    "artistically.co",
+    "down.com"
+  ],
+  "generated_at": "2026-06-16T08:13:55.401280+00:00",
   "source": "afternic"
 }
