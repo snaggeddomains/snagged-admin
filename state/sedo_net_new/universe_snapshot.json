@@ -1,74 +1,50 @@
 [
   {
-    "domain": "compay.ai",
+    "domain": "lungisa.com",
+    "price": 1695.0
+  },
+  {
+    "domain": "palster.com",
+    "price": 25000.0
+  },
+  {
+    "domain": "prosim.com",
+    "price": 250000.0
+  },
+  {
+    "domain": "seine.ai",
+    "price": 2888.0
+  },
+  {
+    "domain": "padlock.net",
     "price": null
   },
   {
-    "domain": "destructing.com",
-    "price": 9888.0
+    "domain": "mold.net",
+    "price": 50000.0
   },
   {
-    "domain": "eurobusiness.com",
-    "price": 5999.0
+    "domain": "ante.net",
+    "price": 50000.0
   },
   {
-    "domain": "compressions.com",
-    "price": 49888.0
+    "domain": "sirota.co",
+    "price": 1488.0
   },
   {
-    "domain": "elaborate.net",
-    "price": 4888.0
+    "domain": "mattic.co",
+    "price": 1488.0
   },
   {
-    "domain": "qingyun.co",
-    "price": null
+    "domain": "hootie.co",
+    "price": 1488.0
   },
   {
-    "domain": "gentry.co",
-    "price": 4995.0
+    "domain": "bunnie.co",
+    "price": 1488.0
   },
   {
-    "domain": "blonde.co",
-    "price": 12988.0
-  },
-  {
-    "domain": "matcha.co",
-    "price": 18995.0
-  },
-  {
-    "domain": "catalina.co",
-    "price": 4995.0
-  },
-  {
-    "domain": "eater.co",
-    "price": 3595.0
-  },
-  {
-    "domain": "simms.co",
-    "price": 3595.0
-  },
-  {
-    "domain": "moonshine.co",
-    "price": 18995.0
-  },
-  {
-    "domain": "ziggy.co",
-    "price": 9888.0
-  },
-  {
-    "domain": "mountaintop.net",
-    "price": 4999.0
-  },
-  {
-    "domain": "archipelago.net",
-    "price": null
-  },
-  {
-    "domain": "rutherford.co",
-    "price": 3595.0
-  },
-  {
-    "domain": "transmission.co",
-    "price": 12988.0
+    "domain": "merseyside.co",
+    "price": 1488.0
   }
 ]

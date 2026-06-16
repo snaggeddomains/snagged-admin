@@ -1,17 +1,11 @@
 {
   "capped": false,
-  "count": 9,
+  "count": 3,
   "domains": [
-    "moonshine.co",
-    "transmission.co",
-    "blonde.co",
-    "ziggy.co",
-    "gentry.co",
-    "catalina.co",
-    "simms.co",
-    "rutherford.co",
-    "eater.co"
+    "irreverent.co",
+    "seine.ai",
+    "merseyside.co"
   ],
-  "generated_at": "2026-06-15T23:00:33.866335+00:00",
+  "generated_at": "2026-06-16T10:00:44.649753+00:00",
   "source": "sedo_net_new"
 }

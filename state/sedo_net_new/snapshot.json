@@ -1,74 +1,26 @@
 [
   {
     "currency": "USD",
-    "domain": "gentry.co",
-    "end_time_utc": "2026-06-15T19:37:37+00:00",
-    "price": 4995.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=gentry.co"
+    "domain": "seine.ai",
+    "end_time_utc": "2026-06-16T10:30:10+00:00",
+    "price": 2888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=seine.ai"
   },
   {
     "currency": "USD",
-    "domain": "blonde.co",
-    "end_time_utc": "2026-06-15T19:37:11+00:00",
-    "price": 12988.0,
+    "domain": "irreverent.co",
+    "end_time_utc": "2026-06-16T06:02:16+00:00",
+    "price": 3995.0,
     "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=blonde.co"
+    "url": "https://sedo.com/search/details/?domain=irreverent.co"
   },
   {
     "currency": "USD",
-    "domain": "catalina.co",
-    "end_time_utc": "2026-06-15T19:45:09+00:00",
-    "price": 4995.0,
+    "domain": "merseyside.co",
+    "end_time_utc": "2026-06-16T05:42:48+00:00",
+    "price": 1488.0,
     "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=catalina.co"
-  },
-  {
-    "currency": "USD",
-    "domain": "eater.co",
-    "end_time_utc": "2026-06-15T19:47:46+00:00",
-    "price": 3595.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=eater.co"
-  },
-  {
-    "currency": "USD",
-    "domain": "simms.co",
-    "end_time_utc": "2026-06-15T19:37:49+00:00",
-    "price": 3595.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=simms.co"
-  },
-  {
-    "currency": "USD",
-    "domain": "moonshine.co",
-    "end_time_utc": "2026-06-15T19:37:51+00:00",
-    "price": 18995.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=moonshine.co"
-  },
-  {
-    "currency": "USD",
-    "domain": "ziggy.co",
-    "end_time_utc": "2026-06-15T19:38:09+00:00",
-    "price": 9888.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=ziggy.co"
-  },
-  {
-    "currency": "USD",
-    "domain": "rutherford.co",
-    "end_time_utc": "2026-06-15T19:37:33+00:00",
-    "price": 3595.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=rutherford.co"
-  },
-  {
-    "currency": "USD",
-    "domain": "transmission.co",
-    "end_time_utc": "2026-06-15T19:39:03+00:00",
-    "price": 12988.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=transmission.co"
+    "url": "https://sedo.com/search/details/?domain=merseyside.co"
   }
 ]
