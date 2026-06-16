@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "domain": "restroom.org",
+    "end_time_utc": "2026-06-18T01:00:00+00:00",
+    "link": "https://www.namejet.com/domain/restroom.org.action",
+    "platform": "NameJet",
+    "price": 69.0
+  }
+]
