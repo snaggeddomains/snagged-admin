@@ -1,9 +1,13 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 5,
   "domains": [
-    "warhead.ai"
+    "paterson.ai",
+    "selves.ai",
+    "reply.ai",
+    "radars.ai",
+    "pitched.ai"
   ],
-  "generated_at": "2026-06-17T17:01:42.455842+00:00",
+  "generated_at": "2026-06-17T23:00:42.929403+00:00",
   "source": "sedo_net_new"
 }

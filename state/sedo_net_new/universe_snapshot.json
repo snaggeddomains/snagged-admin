@@ -1,22 +1,38 @@
 [
   {
+    "domain": "trucha.com",
+    "price": 6000.0
+  },
+  {
+    "domain": "pitched.ai",
+    "price": null
+  },
+  {
     "domain": "warhead.ai",
     "price": 100000.0
   },
   {
-    "domain": "robotcharger.ai",
-    "price": 40000.0
+    "domain": "selves.ai",
+    "price": null
   },
   {
-    "domain": "peridot.net",
-    "price": 7988.0
+    "domain": "paterson.ai",
+    "price": 9880.0
   },
   {
-    "domain": "nomnom.net",
-    "price": 4899.0
+    "domain": "radars.ai",
+    "price": null
   },
   {
-    "domain": "eretec.co",
-    "price": 250.0
+    "domain": "gleaming.ai",
+    "price": null
+  },
+  {
+    "domain": "reply.ai",
+    "price": null
+  },
+  {
+    "domain": "particularly.net",
+    "price": 1995.0
   }
 ]
