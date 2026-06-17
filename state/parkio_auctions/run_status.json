@@ -1,9 +1,9 @@
 {
   "deduped_against_existing": 0,
-  "generated_at": "2026-06-16T09:32:34.847175+00:00",
+  "generated_at": "2026-06-17T09:33:51.786170+00:00",
   "label": "Park.io",
   "new_count": 0,
-  "sheet_total_after": 12446,
+  "sheet_total_after": 12477,
   "slack_posted": false,
   "source": "parkio_auctions",
   "status": "ok"

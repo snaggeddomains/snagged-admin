@@ -1,5 +1,17 @@
 [
   {
+    "domain": "xxxbook.net",
+    "price": null
+  },
+  {
+    "domain": "pangmoney.com",
+    "price": 1495.0
+  },
+  {
+    "domain": "longhorn.com",
+    "price": null
+  },
+  {
     "domain": "peacehost.com",
     "price": null
   },
@@ -8116,14 +8128,6 @@
     "price": null
   },
   {
-    "domain": "scotlandnews.com",
-    "price": 12500.0
-  },
-  {
-    "domain": "newsclick.org",
-    "price": 975.0
-  },
-  {
     "domain": "witden.com",
     "price": 12995.0
   },
@@ -12949,7 +12953,7 @@
   },
   {
     "domain": "yogaspot.net",
-    "price": 3500.0
+    "price": 6000.0
   },
   {
     "domain": "baresushi.com",
@@ -42528,10 +42532,6 @@
     "price": null
   },
   {
-    "domain": "vintagefrance.com",
-    "price": null
-  },
-  {
     "domain": "caracasbeach.com",
     "price": null
   },
@@ -43237,10 +43237,6 @@
   },
   {
     "domain": "stabilize.com",
-    "price": null
-  },
-  {
-    "domain": "skincareusa.com",
     "price": null
   },
   {
@@ -44676,10 +44672,6 @@
     "price": 499.0
   },
   {
-    "domain": "millsoft.com",
-    "price": null
-  },
-  {
     "domain": "predictablebot.com",
     "price": 9888.0
   },
@@ -44745,10 +44737,6 @@
   },
   {
     "domain": "divebar.co",
-    "price": null
-  },
-  {
-    "domain": "aboutshanghai.com",
     "price": null
   },
   {
@@ -45145,10 +45133,6 @@
   },
   {
     "domain": "reflecting.com",
-    "price": null
-  },
-  {
-    "domain": "luxetraveler.com",
     "price": null
   },
   {
@@ -46960,10 +46944,6 @@
     "price": null
   },
   {
-    "domain": "measurement.net",
-    "price": null
-  },
-  {
     "domain": "zulucasino.com",
     "price": 14000.0
   },
@@ -47113,10 +47093,6 @@
   },
   {
     "domain": "murder.org",
-    "price": null
-  },
-  {
-    "domain": "customaudience.com",
     "price": null
   },
   {
@@ -47485,10 +47461,6 @@
   },
   {
     "domain": "hemplips.com",
-    "price": null
-  },
-  {
-    "domain": "digitalbeach.com",
     "price": null
   },
   {
@@ -50664,10 +50636,6 @@
     "price": null
   },
   {
-    "domain": "conversioncue.com",
-    "price": null
-  },
-  {
     "domain": "mentha.org",
     "price": 4995.0
   },
@@ -51738,10 +51706,6 @@
   {
     "domain": "flipops.com",
     "price": 9888.0
-  },
-  {
-    "domain": "modernguilt.com",
-    "price": null
   },
   {
     "domain": "besthumanoid.com",
@@ -54268,10 +54232,6 @@
     "price": null
   },
   {
-    "domain": "hunterlane.com",
-    "price": null
-  },
-  {
     "domain": "dealboard.com",
     "price": null
   },
@@ -54449,10 +54409,6 @@
   },
   {
     "domain": "thebazaar.org",
-    "price": null
-  },
-  {
-    "domain": "rentalbeach.com",
     "price": null
   },
   {
@@ -98297,10 +98253,6 @@
   },
   {
     "domain": "battleeveryday.com",
-    "price": null
-  },
-  {
-    "domain": "longhorn.com",
     "price": null
   },
   {
@@ -261129,7 +261081,7 @@
   },
   {
     "domain": "moonshuttle.com",
-    "price": 99000.0
+    "price": 99500.0
   },
   {
     "domain": "makeover.co",
@@ -290077,7 +290029,7 @@
   },
   {
     "domain": "webflorida.com",
-    "price": 2495.0
+    "price": 2500.0
   },
   {
     "domain": "mlsseattle.com",
@@ -294797,7 +294749,7 @@
   },
   {
     "domain": "travelingindia.com",
-    "price": 1495.0
+    "price": 1500.0
   },
   {
     "domain": "travelhouston.com",
@@ -294977,7 +294929,7 @@
   },
   {
     "domain": "flightcharters.com",
-    "price": 8500.0
+    "price": 7500.0
   },
   {
     "domain": "daytonawedding.com",
@@ -295009,7 +294961,7 @@
   },
   {
     "domain": "buffalodining.com",
-    "price": null
+    "price": 1500.0
   },
   {
     "domain": "britishvisas.com",
@@ -323941,7 +323893,7 @@
   },
   {
     "domain": "trendgain.com",
-    "price": null
+    "price": 6895.0
   },
   {
     "domain": "sugaryard.com",
@@ -327413,7 +327365,7 @@
   },
   {
     "domain": "qualitycertify.com",
-    "price": null
+    "price": 2895.0
   },
   {
     "domain": "penangcondos.com",
@@ -327789,7 +327741,7 @@
   },
   {
     "domain": "tripbulb.com",
-    "price": null
+    "price": 2795.0
   },
   {
     "domain": "thingmetrics.com",
@@ -327929,7 +327881,7 @@
   },
   {
     "domain": "toughchimp.com",
-    "price": null
+    "price": 2995.0
   },
   {
     "domain": "safecrest.com",
@@ -333757,7 +333709,7 @@
   },
   {
     "domain": "travelroster.com",
-    "price": null
+    "price": 3295.0
   },
   {
     "domain": "fusionorbit.com",
@@ -334173,7 +334125,7 @@
   },
   {
     "domain": "tunafarm.com",
-    "price": null
+    "price": 4395.0
   },
   {
     "domain": "triptrot.com",
@@ -335201,7 +335153,7 @@
   },
   {
     "domain": "factorsignal.com",
-    "price": null
+    "price": 3195.0
   },
   {
     "domain": "constantmind.com",
@@ -335489,7 +335441,7 @@
   },
   {
     "domain": "yenava.com",
-    "price": null
+    "price": 3495.0
   },
   {
     "domain": "touchevo.com",
@@ -337369,7 +337321,7 @@
   },
   {
     "domain": "trimica.com",
-    "price": null
+    "price": 4495.0
   },
   {
     "domain": "wantava.com",
@@ -337429,7 +337381,7 @@
   },
   {
     "domain": "trisava.com",
-    "price": null
+    "price": 3995.0
   },
   {
     "domain": "variableoutput.com",
@@ -337761,7 +337713,7 @@
   },
   {
     "domain": "govoda.com",
-    "price": null
+    "price": 3295.0
   },
   {
     "domain": "girlico.com",
@@ -337890,10 +337842,6 @@
   {
     "domain": "connectspark.com",
     "price": 5995.0
-  },
-  {
-    "domain": "connectionflow.com",
-    "price": 3495.0
   },
   {
     "domain": "comfic.com",
@@ -338033,11 +337981,11 @@
   },
   {
     "domain": "tripvantage.com",
-    "price": null
+    "price": 5895.0
   },
   {
     "domain": "triporo.com",
-    "price": null
+    "price": 2895.0
   },
   {
     "domain": "trainingscout.com",
@@ -343593,11 +343541,11 @@
   },
   {
     "domain": "travelguyana.com",
-    "price": null
+    "price": 7995.0
   },
   {
     "domain": "travelforge.com",
-    "price": null
+    "price": 12495.0
   },
   {
     "domain": "tradepeer.com",
@@ -343877,7 +343825,7 @@
   },
   {
     "domain": "renewbright.com",
-    "price": null
+    "price": 3495.0
   },
   {
     "domain": "relaxunwind.com",
@@ -345045,7 +344993,7 @@
   },
   {
     "domain": "tripeva.com",
-    "price": null
+    "price": 2995.0
   },
   {
     "domain": "snapsignal.com",
@@ -364221,7 +364169,7 @@
   },
   {
     "domain": "snipecast.com",
-    "price": null
+    "price": 3695.0
   },
   {
     "domain": "signalhit.com",

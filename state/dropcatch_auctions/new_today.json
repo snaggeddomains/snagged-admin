@@ -1,9 +1,7 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "wardrobe.org"
-  ],
-  "generated_at": "2026-06-16T09:33:24.814925+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-06-17T09:35:07.324802+00:00",
   "source": "dropcatch_auctions"
 }

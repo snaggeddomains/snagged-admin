@@ -1,11 +1,7 @@
 {
   "capped": false,
-  "count": 3,
-  "domains": [
-    "batter.co",
-    "ha.org",
-    "redress.co"
-  ],
-  "generated_at": "2026-06-16T09:33:36.507294+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-06-17T09:35:18.293140+00:00",
   "source": "godaddy_auctions"
 }
