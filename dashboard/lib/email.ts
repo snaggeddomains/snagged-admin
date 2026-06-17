@@ -12,7 +12,9 @@ export function emailConfigured(): boolean {
 export async function sendEmail(opts: { to: string | string[]; subject: string; html: string; from?: string }): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return false; // not configured — caller logs/skips
-  const from = opts.from || process.env.EMAIL_FROM || "Snagged <noreply@snagged.com>";
+  // Match the research app's pattern: EMAIL_FROM when set, else Resend's
+  // always-deliverable test sender (no domain-verification needed).
+  const from = opts.from || process.env.EMAIL_FROM || "Snagged <onboarding@resend.dev>";
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
