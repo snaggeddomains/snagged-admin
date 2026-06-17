@@ -11,7 +11,7 @@ type DealThread = {
   budget: string | null; offer: string | null; intent: string | null; outcome: string | null;
   messages: number; first: string; last: string; lastSnippet: string;
 };
-type PitchExercise = { client: string; sheetTitle: string; tab: string; url: string; price: string | null; note: string | null };
+type PitchExercise = { client: string; description?: string | null; sheetTitle: string; tab: string; url: string; price: string | null; note: string | null };
 type DealReport = {
   domain: string; inbound: number; inboundQualified: number; inboundEngaged: number; activeNegotiations: number;
   pitched: number; pitchedMass: number; pitchedIndividual: number; pitchExercises: PitchExercise[];
@@ -334,7 +334,10 @@ export default function DealClient({ domain }: { domain: string }) {
                   <tbody>
                     {exercises.map((e, i) => (
                       <tr key={i}>
-                        <td style={cell}><span style={{ fontWeight: 600 }}>{e.client}</span></td>
+                        <td style={cell}>
+                          <span style={{ fontWeight: 600 }}>{e.client}</span>
+                          {e.description && <div className="muted" style={{ fontSize: 11, marginTop: 2 }}>{e.description}</div>}
+                        </td>
                         <td style={cell}>
                           <a href={e.url} target="_blank" rel="noreferrer" style={{ color: CORAL, textDecoration: "none" }}>{e.sheetTitle || "(sheet ↗)"}</a>
                           {e.tab && <span className="muted" style={{ fontSize: 11 }}> · {e.tab}</span>}
