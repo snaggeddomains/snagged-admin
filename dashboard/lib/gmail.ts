@@ -35,6 +35,7 @@ export type GmailMessage = {
   date: number; // epoch ms
   snippet: string;
   body: string; // text/plain (html-stripped fallback), capped
+  bulk: boolean; // looks like a mass/marketing send (HubSpot etc.), not a 1:1 email
 };
 
 async function gget(subject: string, path: string): Promise<any> {
@@ -108,11 +109,27 @@ function htmlBody(payload: any): string {
 }
 const bareAddr = (s: string): string => (s.match(/[\w.\-+]+@[\w.\-]+/)?.[0] || "").toLowerCase();
 
+// Heuristic mass/marketing-send detector (HubSpot, Mailchimp, generic ESP).
+// A genuine 1:1 pitch has none of these; a HubSpot sequence/blast carries an
+// unsubscribe header, a bulk Precedence, an ESP X-mailer/return-path, or HubSpot
+// tracking infra in the body. Used to split "cold mass" vs "individual" outreach.
+const ESP_HEADER_KEY = /^(list-unsubscribe|x-hubspot|x-hs-|x-mailer|x-campaign|x-mailgun|x-sg-|x-ses-)/;
+function looksBulk(hd: Record<string, string>, body: string): boolean {
+  const keys = Object.keys(hd);
+  if (hd["list-unsubscribe"] || hd["list-id"]) return true;
+  if (/\bbulk\b/i.test(hd["precedence"] || "")) return true;
+  if (/hubspot|mailchimp|sendgrid|mailgun|amazonses|marketo/i.test(`${hd["x-mailer"] || ""} ${hd["return-path"] || ""} ${hd["x-csa-complaints"] || ""}`)) return true;
+  if (keys.some((k) => ESP_HEADER_KEY.test(k) && /hubspot|hs-/i.test(k))) return true;
+  // HubSpot tracking infra in the rendered body (unsubscribe pixel / link domains).
+  if (/hubspotlinks\.com|hs-sites\.com|hubspotemail\.net|track\.hubspot|\/hs\/manage-preferences|email\.hubspot/i.test(body)) return true;
+  return false;
+}
 function parseMessage(m: any): GmailMessage {
   const hd: Record<string, string> = {};
   for (const h of m.payload?.headers || []) hd[h.name.toLowerCase()] = h.value;
   let body = plainBody(m.payload || {});
   if (!body) body = htmlBody(m.payload || {}).replace(/<[^>]+>/g, " ");
+  const bulk = looksBulk(hd, body);
   return {
     id: m.id,
     threadId: m.threadId,
@@ -125,6 +142,7 @@ function parseMessage(m: any): GmailMessage {
     date: Number(m.internalDate || 0),
     snippet: unescapeHtml(m.snippet || ""),
     body: unescapeHtml(body).slice(0, 8000),
+    bulk,
   };
 }
 

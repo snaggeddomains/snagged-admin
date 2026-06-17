@@ -1,3 +1,38 @@
+# Marketplace per-domain Deal report — engagement, pitch-type, exercise pitches (2026-06-17)
+
+The Reports → Marketplace → `[domain]` deal report (`dashboard/lib/marketplace-deals.ts`
+`buildDealReport`, UI `app/reports/marketplace/[domain]/deal-client.tsx`, API
+`app/api/admin/marketplace/deals/route.ts`) is reconstructed from the Gmail deal mailboxes
+(`lib/gmail.ts`). Cached in Supabase `marketplace_deal_reports` for 6h (Regenerate forces a
+rebuild). Enhancements this session:
+
+- **Real back-and-forth vs form-and-gone.** Each thread now carries `repliedAfterUs` (a buyer
+  message dated after our FIRST reply — a true two-way exchange, not just a submitted lead
+  form). Report adds `inboundEngaged` = qualified inbound that replied after we did. UI: a
+  **All / Responded-after-our-reply** toggle on the inbound table + a "Responded after we did"
+  headline card. (`active` stays the recency-gated live-negotiation flag; engaged is all-time.)
+- **Broker suppression.** `BROKER_DOMAINS = godaddy.com, afternic.com` fold into `isSystem` —
+  GoDaddy/Afternic brokers (e.g. Jason Villalobos, afternicsales@godaddy.com) never count as a
+  buyer counterparty. A real buyer they FORWARD still surfaces (form / forwarded headers); a
+  broker-only thread is dropped.
+- **Cold mass vs individual pitch.** `lib/gmail.ts` `looksBulk()` flags a HubSpot/ESP mass send
+  (List-Unsubscribe / Precedence:bulk / X-Mailer / HubSpot tracking infra in the body) → each
+  message gets `bulk`. Pitched threads get `pitchKind: "mass" | "individual"`; report adds
+  `pitchedMass`/`pitchedIndividual`; UI shows a Mass/1:1 chip. **Phased — Gmail heuristic now;
+  wiring the real HubSpot API (private-app token) for authoritative sequence-vs-1:1 + pitch
+  records is the planned next step (Rob to provide the token).**
+- **Naming-exercise pitches (Google Sheets).** `lib/marketplace-pitch-sheets.ts` reads the
+  per-client pitch-exercise workbooks (where we pitch a client a curated domain shortlist) via
+  the SAME service account (`marketplace-pipeline@snagged-pipeline...`, plain SA token — NO
+  impersonation; delegation is NOT authorized for the Sheets scope, so the sheets must be
+  link-shared or shared to the SA email). **Small explicit registry** `EXERCISES` (sheet id →
+  client); **exact-domain** match across every tab (tolerant of header/headerless tabs + an
+  SLD/TLD split tab). A hit = a pitch of that domain to that client → `DealReport.pitchExercises`,
+  counted in "Pitched to buyers" + its own sub-table. Add an engagement = add one line to
+  `EXERCISES`. `lib/sheets.ts` gained `getSheetMeta` (title + tab list).
+- **Cache schema marker:** `readCache` ignores reports cached before these fields existed
+  (`inboundEngaged === undefined`) so old rows rebuild instead of rendering zeros.
+
 # Working agreements
 
 ## Probes and one-shot scripts: run locally by default

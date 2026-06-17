@@ -6,12 +6,15 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 type SaleStatus = { stage: string; label: string; opened: string | null; closed: string | null; txn: string | null };
 type DealThread = {
   subject: string; origin: "inbound" | "pitched"; active: boolean; stale: boolean; declined: boolean;
-  hasForm: boolean; qualified: boolean; party: string; partyEmail: string | null;
+  hasForm: boolean; qualified: boolean; repliedAfterUs: boolean; pitchKind: "mass" | "individual" | null;
+  party: string; partyEmail: string | null;
   budget: string | null; offer: string | null; intent: string | null; outcome: string | null;
   messages: number; first: string; last: string; lastSnippet: string;
 };
+type PitchExercise = { client: string; sheetTitle: string; tab: string; url: string; price: string | null; note: string | null };
 type DealReport = {
-  domain: string; inbound: number; inboundQualified: number; activeNegotiations: number; pitched: number;
+  domain: string; inbound: number; inboundQualified: number; inboundEngaged: number; activeNegotiations: number;
+  pitched: number; pitchedMass: number; pitchedIndividual: number; pitchExercises: PitchExercise[];
   representingSince: string | null; sale: SaleStatus | null; threads: DealThread[];
 };
 type GaRow = { views: number; sessions: number; users: number; inquiryStarts: number; clicks: number; inquiries: number };
@@ -79,6 +82,18 @@ function StatusBadge({ t }: { t: DealThread }) {
   return <span style={{ fontSize: 12.5, fontWeight: 700, color: s.color, border: `1px solid ${s.color}`, borderRadius: 999, padding: "1px 8px", whiteSpace: "nowrap" }}>{s.label}</span>;
 }
 
+// Cold mass send (HubSpot blast/sequence) vs an individual 1:1 pitch.
+function PitchTypeChip({ kind }: { kind: "mass" | "individual" | null }) {
+  if (!kind) return <span className="muted">—</span>;
+  const mass = kind === "mass";
+  const color = mass ? "#8a6d3b" : "#2f7d4f";
+  return (
+    <span title={mass ? "Cold mass send (HubSpot)" : "Individual 1:1 outreach"} style={{ fontSize: 12, fontWeight: 700, color, border: `1px solid ${color}`, borderRadius: 999, padding: "1px 8px", whiteSpace: "nowrap" }}>
+      {mass ? "Mass" : "1:1"}
+    </span>
+  );
+}
+
 function NlList({ title, items, color }: { title: string; items: NlFeature[]; color: string }) {
   return (
     <div style={{ flex: "1 1 340px", minWidth: 300 }}>
@@ -124,6 +139,7 @@ export default function DealClient({ domain }: { domain: string }) {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
   const [showLowQ, setShowLowQ] = useState(false);
+  const [inboundView, setInboundView] = useState<"all" | "engaged">("all");
   const [copied, setCopied] = useState(false);
   const share = async () => {
     try { await navigator.clipboard.writeText(window.location.href); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch { /* clipboard blocked */ }
@@ -164,11 +180,16 @@ export default function DealClient({ domain }: { domain: string }) {
   const inboundAll = threads.filter((t) => t.origin === "inbound");
   const lowQ = inboundAll.filter((t) => !t.qualified);
   const rank = (t: DealThread) => (t.active ? 0 : t.declined ? 2 : t.stale ? 3 : 1);
-  const inboundShown = inboundAll
-    .filter((t) => t.qualified || showLowQ)
+  // The visible pool (qualified, plus low-quality when revealed), then the
+  // optional "real back-and-forth" filter (buyer replied after our reply).
+  const inboundPool = inboundAll.filter((t) => t.qualified || showLowQ);
+  const engagedCount = inboundPool.filter((t) => t.repliedAfterUs).length;
+  const inboundShown = inboundPool
+    .filter((t) => inboundView === "all" || t.repliedAfterUs)
     .sort((a, b) => rank(a) - rank(b) || (a.last < b.last ? 1 : -1));
   // Section 2 — pitched (our outreach).
   const pitched = threads.filter((t) => t.origin === "pitched").sort((a, b) => rank(a) - rank(b) || (a.last < b.last ? 1 : -1));
+  const exercises = rep?.pitchExercises || [];
 
   return (
     <main>
@@ -221,14 +242,37 @@ export default function DealClient({ domain }: { domain: string }) {
           <h2 style={{ fontSize: "1.18rem", margin: "20px 0 6px" }}>Deal activity <span className="muted" style={{ fontWeight: 400, fontSize: 12 }}>(all-time, from email)</span></h2>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             <AggCard label="Inbound inquiries" value={rep.inboundQualified} sub={`${rep.inbound} total incl. low-quality`} accent />
+            <AggCard label="Responded after we did" value={rep.inboundEngaged} sub={`real back-and-forth of ${rep.inboundQualified}`} />
             <AggCard label="Active negotiations" value={rep.activeNegotiations} sub="live two-way (≤45d, not declined)" />
-            <AggCard label="Pitched to buyers" value={rep.pitched} sub="our proactive outreach" />
+            <AggCard
+              label="Pitched to buyers"
+              value={rep.pitched + exercises.length}
+              sub={[
+                rep.pitchedIndividual ? `${rep.pitchedIndividual} individual` : "",
+                rep.pitchedMass ? `${rep.pitchedMass} mass` : "",
+                exercises.length ? `${exercises.length} naming-exercise` : "",
+              ].filter(Boolean).join(" · ") || "our proactive outreach"}
+            />
           </div>
           <NewsletterSection features={data?.newsletterFeatures || []} />
 
           {/* Section 1: Inbound & negotiations */}
           <h3 style={{ fontSize: 16.5, margin: "20px 0 4px" }}>Inbound inquiries &amp; negotiations</h3>
-          {inboundShown.length === 0 ? <p className="muted" style={{ fontSize: 13 }}>None.</p> : (
+          <div style={{ display: "inline-flex", border: "1px solid #d8d0bf", borderRadius: 8, overflow: "hidden", marginBottom: 8 }}>
+            {([["all", `All (${inboundPool.length})`], ["engaged", `Responded after our reply (${engagedCount})`]] as const).map(([k, lbl]) => (
+              <button
+                key={k}
+                onClick={() => setInboundView(k)}
+                style={{ padding: "5px 12px", fontSize: 12.5, border: "none", cursor: "pointer", background: inboundView === k ? NAVY : "#fff", color: inboundView === k ? "#fff" : NAVY, fontWeight: inboundView === k ? 700 : 500 }}
+              >
+                {lbl}
+              </button>
+            ))}
+          </div>
+          <p className="muted" style={{ fontSize: 12, margin: "0 0 6px" }}>
+            “Responded after our reply” = the buyer wrote back after we answered — a real two-way exchange, not just a submitted lead form.
+          </p>
+          {inboundShown.length === 0 ? <p className="muted" style={{ fontSize: 13 }}>{inboundView === "engaged" ? "No buyers responded after our reply in this set." : "None."}</p> : (
             <div style={{ overflowX: "auto" }}>
               <table style={{ borderCollapse: "collapse", width: "100%" }}>
                 <thead><tr><th style={head}>Buyer</th><th style={head}>Offer</th><th style={head}>Status</th><th style={head}>Last activity</th><th style={{ ...head, width: "42%" }}>What happened</th></tr></thead>
@@ -258,14 +302,16 @@ export default function DealClient({ domain }: { domain: string }) {
 
           {/* Section 2: Pitched */}
           <h3 style={{ fontSize: 16.5, margin: "24px 0 4px" }}>Pitched to buyers</h3>
-          {pitched.length === 0 ? <p className="muted" style={{ fontSize: 13 }}>None.</p> : (
+          {pitched.length === 0 && exercises.length === 0 ? <p className="muted" style={{ fontSize: 13 }}>None.</p> : null}
+          {pitched.length > 0 && (
             <div style={{ overflowX: "auto" }}>
               <table style={{ borderCollapse: "collapse", width: "100%" }}>
-                <thead><tr><th style={head}>Pitched to</th><th style={head}>Status</th><th style={head}>Last contact</th><th style={{ ...head, width: "48%" }}>What happened</th></tr></thead>
+                <thead><tr><th style={head}>Pitched to</th><th style={head}>Type</th><th style={head}>Status</th><th style={head}>Last contact</th><th style={{ ...head, width: "42%" }}>What happened</th></tr></thead>
                 <tbody>
                   {pitched.map((t, i) => (
                     <tr key={i}>
                       <td style={cell}><div style={{ fontWeight: 600 }}>{t.party}</div>{t.partyEmail && <div className="muted" style={{ fontSize: 11 }}>{t.partyEmail}</div>}</td>
+                      <td style={cell}><PitchTypeChip kind={t.pitchKind} /></td>
                       <td style={cell}><StatusBadge t={t} /></td>
                       <td style={{ ...cell, whiteSpace: "nowrap" }}>{t.last}<span className="muted" style={{ fontSize: 11 }}> · {t.messages} msg</span></td>
                       <td style={cell}>{t.outcome || <span className="muted">{t.lastSnippet || "—"}</span>}</td>
@@ -273,6 +319,33 @@ export default function DealClient({ domain }: { domain: string }) {
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {/* Naming-exercise pitches: this domain on a client's pitch sheet. */}
+          {exercises.length > 0 && (
+            <div style={{ marginTop: pitched.length ? 14 : 4 }}>
+              <div style={{ fontWeight: 700, fontSize: 13.5, color: NAVY, marginBottom: 6 }}>
+                Naming-exercise pitches <span className="muted" style={{ fontWeight: 400 }}>· included in a client&apos;s curated domain shortlist</span>
+              </div>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ borderCollapse: "collapse", width: "100%" }}>
+                  <thead><tr><th style={head}>Client</th><th style={head}>Exercise</th><th style={head}>Quote</th><th style={{ ...head, width: "42%" }}>Notes</th></tr></thead>
+                  <tbody>
+                    {exercises.map((e, i) => (
+                      <tr key={i}>
+                        <td style={cell}><span style={{ fontWeight: 600 }}>{e.client}</span></td>
+                        <td style={cell}>
+                          <a href={e.url} target="_blank" rel="noreferrer" style={{ color: CORAL, textDecoration: "none" }}>{e.sheetTitle || "(sheet ↗)"}</a>
+                          {e.tab && <span className="muted" style={{ fontSize: 11 }}> · {e.tab}</span>}
+                        </td>
+                        <td style={{ ...cell, whiteSpace: "nowrap" }}>{e.price || <span className="muted">—</span>}</td>
+                        <td style={cell}>{e.note || <span className="muted">—</span>}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </>
