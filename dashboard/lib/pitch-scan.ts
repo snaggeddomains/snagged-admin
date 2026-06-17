@@ -39,9 +39,12 @@ const DOMAIN_RE = /\b([a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9-]+)+)\b/i;
 const PLAUSIBLE_TLD = /\.(com|net|org|io|ai|co|app|dev|xyz|gg|tv|me|sh|so|inc|tech|club|live|store|fun|vc)$/i;
 
 function firstRecipient(h: string): { name: string; email: string } | null {
-  const m = /(?:"?([^"<>,]+?)"?\s*)?<?\s*([\w.\-+]+@[\w.\-]+)\s*>?/.exec(h || "");
+  // `Name <email>` (name captured) or a bare `email` (no name). A bare address
+  // must never donate its first character to a "name" (the old lazy group did).
+  const m = /"?([^"<>,]+?)"?\s*<\s*([\w.\-+]+@[\w.\-]+)\s*>|([\w.\-+]+@[\w.\-]+)/.exec(h || "");
   if (!m) return null;
-  return { name: (m[1] || "").trim(), email: m[2].toLowerCase() };
+  if (m[2]) return { name: (m[1] || "").trim(), email: m[2].toLowerCase() };
+  return { name: "", email: m[3].toLowerCase() };
 }
 function subjectDomain(subject: string): string | null {
   const s = (subject || "").replace(/^\s*(re|fwd|fw)\s*:\s*/i, "").replace(/https?:\/\//gi, "").trim();

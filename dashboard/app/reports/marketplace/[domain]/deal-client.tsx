@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 type SaleStatus = { stage: string; label: string; opened: string | null; closed: string | null; txn: string | null };
 type DealThread = {
   subject: string; origin: "inbound" | "pitched"; active: boolean; stale: boolean; declined: boolean;
-  hasForm: boolean; qualified: boolean; repliedAfterUs: boolean; pitchKind: "mass" | "individual" | null;
+  hasForm: boolean; qualified: boolean; repliedAfterUs: boolean; spam: boolean; pitchKind: "mass" | "individual" | null;
   sequenceName: string | null;
   opens: number | null; clicks: number | null; replies: number | null;
   party: string; partyEmail: string | null;
@@ -189,7 +189,7 @@ export default function DealClient({ domain }: { domain: string }) {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
   const [showLowQ, setShowLowQ] = useState(false);
-  const [inboundView, setInboundView] = useState<"all" | "engaged">("all");
+  const [inboundView, setInboundView] = useState<"all" | "engaged" | "spam">("all");
   const [pitchView, setPitchView] = useState<"all" | "responded">("all");
   const [coldView, setColdView] = useState<"all" | "responded" | "noresp">("all");
   const [copied, setCopied] = useState(false);
@@ -229,16 +229,18 @@ export default function DealClient({ domain }: { domain: string }) {
   const threads = rep?.threads || [];
 
   // Section 1 — inbound inquiries & negotiations (active first, then recency).
+  // Probable spam (unrelated dead-end form junk) is split off into its own filter.
   const inboundAll = threads.filter((t) => t.origin === "inbound");
-  const lowQ = inboundAll.filter((t) => !t.qualified);
+  const spamList = inboundAll.filter((t) => t.spam);
+  const inboundReal = inboundAll.filter((t) => !t.spam);
+  const lowQ = inboundReal.filter((t) => !t.qualified);
   const rank = (t: DealThread) => (t.active ? 0 : t.declined ? 2 : t.stale ? 3 : 1);
   // The visible pool (qualified, plus low-quality when revealed), then the
   // optional "real back-and-forth" filter (buyer replied after our reply).
-  const inboundPool = inboundAll.filter((t) => t.qualified || showLowQ);
+  const inboundPool = inboundReal.filter((t) => t.qualified || showLowQ);
   const engagedCount = inboundPool.filter((t) => t.repliedAfterUs).length;
-  const inboundShown = inboundPool
-    .filter((t) => inboundView === "all" || t.repliedAfterUs)
-    .sort((a, b) => rank(a) - rank(b) || (a.last < b.last ? 1 : -1));
+  const bySort = (a: DealThread, b: DealThread) => rank(a) - rank(b) || (a.last < b.last ? 1 : -1);
+  const inboundShown = (inboundView === "spam" ? spamList : inboundPool.filter((t) => inboundView === "all" || t.repliedAfterUs)).slice().sort(bySort);
   // Section 2 — pitched 1:1 (our individual outreach). When the cold roster is
   // available (HubSpot), the mass/sequence pitches live in their own bucket below,
   // so the 1:1 section excludes them; without HubSpot, show all pitched threads.
@@ -253,6 +255,11 @@ export default function DealClient({ domain }: { domain: string }) {
   const exercises = rep?.pitchExercises || [];
 
   const hsOn = rep?.pitchSource === "hubspot";
+  // Section 2 engagement (opens/clicks) only exists for 1:1 sends actually logged
+  // in HubSpot. Many 1:1 pitches are plain Gmail (never logged), so show the
+  // engagement cards/column ONLY when HubSpot has data for someone here — never
+  // imply tracked metrics that don't exist (all-zeros).
+  const p1HasEngagement = pitched1on1.some((t) => t.opens != null || t.clicks != null || t.replies != null);
   const p1Opened = pitched1on1.filter((t) => (t.opens || 0) > 0).length;
   const p1Clicked = pitched1on1.filter((t) => (t.clicks || 0) > 0).length;
   const p1Active = pitched1on1.filter((t) => t.active).length;
@@ -318,11 +325,21 @@ export default function DealClient({ domain }: { domain: string }) {
             <AggCard label="Responded after we did" value={rep.inboundEngaged} sub={`real back-and-forth of ${rep.inboundQualified}`} />
             <AggCard label="Active negotiations" value={rep.activeNegotiations} sub="live two-way (≤45d, not declined)" />
           </div>
-          <SegToggle value={inboundView} onChange={setInboundView} options={[["all", `All (${inboundPool.length})`], ["engaged", `Responded after our reply (${engagedCount})`]]} />
+          <SegToggle
+            value={inboundView}
+            onChange={setInboundView}
+            options={[
+              ["all", `All (${inboundPool.length})`],
+              ["engaged", `Responded after our reply (${engagedCount})`],
+              ...(spamList.length ? [["spam", `Probable spam (${spamList.length})`] as [typeof inboundView, string]] : []),
+            ]}
+          />
           <p className="muted" style={{ fontSize: 12, margin: "0 0 6px" }}>
-            “Responded after our reply” = the buyer wrote back after we answered — a real two-way exchange, not just a submitted lead form.
+            {inboundView === "spam"
+              ? "Probable spam — dead-end form submissions whose message is unrelated to buying a domain. Excluded from the counts above."
+              : "“Responded after our reply” = the buyer wrote back after we answered — a real two-way exchange, not just a submitted lead form."}
           </p>
-          {inboundShown.length === 0 ? <p className="muted" style={{ fontSize: 13 }}>{inboundView === "engaged" ? "No buyers responded after our reply in this set." : "None."}</p> : (
+          {inboundShown.length === 0 ? <p className="muted" style={{ fontSize: 13 }}>{inboundView === "engaged" ? "No buyers responded after our reply in this set." : inboundView === "spam" ? "No probable spam." : "None."}</p> : (
             <div style={{ overflowX: "auto" }}>
               <table style={{ borderCollapse: "collapse", width: "100%" }}>
                 <thead><tr><th style={head}>Buyer</th><th style={head}>Offer</th><th style={head}>Status</th><th style={head}>Last activity</th><th style={{ ...head, width: "42%" }}>What happened</th></tr></thead>
@@ -354,7 +371,7 @@ export default function DealClient({ domain }: { domain: string }) {
           <h3 style={{ fontSize: 16.5, margin: "28px 0 6px" }}>2 · Pitched 1:1 <span className="muted" style={{ fontWeight: 400, fontSize: 12.5 }}>— individual outreach &amp; naming-exercise pitches</span></h3>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 10 }}>
             <AggCard label="People pitched 1:1" value={pitched1on1.length + exercises.length} sub={exercises.length ? `incl. ${exercises.length} naming-exercise` : "individual outreach"} accent />
-            {hsOn && <><StatCard label="Opened" value={p1Opened} /><StatCard label="Clicked" value={p1Clicked} /></>}
+            {p1HasEngagement && <><StatCard label="Opened" value={p1Opened} /><StatCard label="Clicked" value={p1Clicked} /></>}
             <StatCard label="Responded" value={pitch1RespondedCount} hint="People who replied — click to see who" onClick={() => setPitchView("responded")} />
             <StatCard label="Active" value={p1Active} />
           </div>
@@ -364,12 +381,13 @@ export default function DealClient({ domain }: { domain: string }) {
               <SegToggle value={pitchView} onChange={setPitchView} options={[["all", `All (${pitched1on1.length})`], ["responded", `Responded (${pitch1RespondedCount})`]]} />
               <div style={{ overflowX: "auto" }}>
                 <table style={{ borderCollapse: "collapse", width: "100%" }}>
-                  <thead><tr><th style={head}>Pitched to</th><th style={head}>{hsOn ? "Engagement" : "Type"}</th><th style={head}>Status</th><th style={head}>Last contact</th><th style={{ ...head, width: "38%" }}>What happened</th></tr></thead>
+                  <thead><tr><th style={head}>Pitched to</th>{p1HasEngagement && <th style={head}>Engagement</th>}{!p1HasEngagement && !cold && <th style={head}>Type</th>}<th style={head}>Status</th><th style={head}>Last contact</th><th style={{ ...head, width: "38%" }}>What happened</th></tr></thead>
                   <tbody>
                     {pitched1Shown.map((t, i) => (
                       <tr key={i}>
                         <td style={cell}><div style={{ fontWeight: 600 }}>{t.party}</div>{t.partyEmail && <div className="muted" style={{ fontSize: 11 }}>{t.partyEmail}</div>}</td>
-                        <td style={cell}>{hsOn ? <EngageCell opens={t.opens} clicks={t.clicks} replies={t.replies} /> : <PitchTypeChip kind={t.pitchKind} sequenceName={t.sequenceName} />}</td>
+                        {p1HasEngagement && <td style={cell}><EngageCell opens={t.opens} clicks={t.clicks} replies={t.replies} /></td>}
+                        {!p1HasEngagement && !cold && <td style={cell}><PitchTypeChip kind={t.pitchKind} sequenceName={t.sequenceName} /></td>}
                         <td style={cell}><StatusBadge t={t} /></td>
                         <td style={{ ...cell, whiteSpace: "nowrap" }}>{t.last}<span className="muted" style={{ fontSize: 11 }}> · {t.messages} msg</span></td>
                         <td style={cell}>{t.outcome || <span className="muted">{t.lastSnippet || "—"}</span>}</td>
