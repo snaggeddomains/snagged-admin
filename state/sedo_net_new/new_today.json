@@ -1,9 +1,10 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 2,
   "domains": [
-    "tks.com"
+    "laying.com",
+    "newest.ai"
   ],
-  "generated_at": "2026-06-16T23:00:43.254028+00:00",
+  "generated_at": "2026-06-17T10:00:42.638724+00:00",
   "source": "sedo_net_new"
 }
