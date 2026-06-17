@@ -69,7 +69,9 @@ function forSaleUrl(source: string | null, domain: string): string {
   const label = domain.split(".")[0];
   const d = encodeURIComponent(domain);
   if (s.includes("afternic")) return `https://www.afternic.com/domain/${domain}`;
-  if (s.includes("atom")) return `https://www.atom.com/name/${encodeURIComponent(label)}`;
+  // Atom listing pages are /name/<Domain> on the FULL domain with the SLD's
+  // first letter capitalized (e.g. ballroom.ai -> /name/Ballroom.ai).
+  if (s.includes("atom")) return `https://www.atom.com/name/${domain.charAt(0).toUpperCase()}${domain.slice(1)}`;
   if (s.includes("sedo")) return `https://sedo.com/search/?keyword=${d}`;
   if (s.includes("dan")) return `https://dan.com/buy-domain/${domain}`;
   if (s.includes("dropcatch")) return `https://www.dropcatch.com/domain/${domain}`;

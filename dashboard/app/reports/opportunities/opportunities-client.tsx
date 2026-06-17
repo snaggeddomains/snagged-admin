@@ -45,7 +45,9 @@ function snapLink(domain: string, source: string | null): string {
   const s = (source || "").toLowerCase();
   if (s.includes("afternic")) return `https://www.afternic.com/domain/${domain}`;
   if (s.includes("sedo")) return `https://sedo.com/search/?keyword=${encodeURIComponent(domain)}`;
-  if (s.includes("atom")) return `https://www.atom.com/search?q=${encodeURIComponent(domain)}`;
+  // Atom listing pages live at /name/<Domain> with the SLD's first letter
+  // capitalized (e.g. ballroom.ai -> https://www.atom.com/name/Ballroom.ai).
+  if (s.includes("atom")) return `https://www.atom.com/name/${domain.charAt(0).toUpperCase()}${domain.slice(1)}`;
   if (s.includes("dan")) return `https://dan.com/buy-domain/${domain}`;
   return `http://${domain}`;
 }
