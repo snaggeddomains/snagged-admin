@@ -110,9 +110,11 @@ function htmlBody(payload: any): string {
 const bareAddr = (s: string): string => (s.match(/[\w.\-+]+@[\w.\-]+/)?.[0] || "").toLowerCase();
 
 // Heuristic mass/marketing-send detector (HubSpot, Mailchimp, generic ESP).
-// A genuine 1:1 pitch has none of these; a HubSpot sequence/blast carries an
-// unsubscribe header, a bulk Precedence, an ESP X-mailer/return-path, or HubSpot
-// tracking infra in the body. Used to split "cold mass" vs "individual" outreach.
+// FALLBACK ONLY: pitch type is now classified authoritatively from the HubSpot
+// CRM email log (lib/hubspot.ts — a send carrying an hs_sequence_id is mass). This
+// header heuristic is the backstop for our sends that aren't in HubSpot's log: a
+// HubSpot sequence/blast carries an unsubscribe header, a bulk Precedence, an ESP
+// X-mailer/return-path, or HubSpot tracking infra in the body; a 1:1 has none.
 const ESP_HEADER_KEY = /^(list-unsubscribe|x-hubspot|x-hs-|x-mailer|x-campaign|x-mailgun|x-sg-|x-ses-)/;
 function looksBulk(hd: Record<string, string>, body: string): boolean {
   const keys = Object.keys(hd);

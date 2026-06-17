@@ -14,6 +14,7 @@
 
 import { dealMailboxes, getThread, searchThreadIds, type GmailMessage } from "./gmail";
 import { findPitchExercises, type PitchExercise } from "./marketplace-pitch-sheets";
+import { classifyMessageIds, hubspotConfigured, normMid, recipientEngagementForDomain, type HubspotEmail, type RecipientEngagement } from "./hubspot";
 
 const isUs = (a: string) => a.endsWith("@snagged.com") || a.endsWith("@snagged.co");
 
@@ -107,9 +108,18 @@ export type DealThread = {
   // they engaged in a back-and-forth, not just submitted a form and went silent.
   // (For a pitched thread: they replied to our outreach.)
   repliedAfterUs: boolean;
-  // For pitched threads only: was the outreach a cold mass send (HubSpot blast /
-  // sequence) or an individual 1:1 pitch? null for inbound.
+  // For pitched threads only: was the outreach a cold mass send (HubSpot
+  // sequence) or an individual 1:1 pitch? null for inbound. Sourced from the
+  // HubSpot CRM email log (hs_sequence_id), heuristic fallback when not logged.
   pitchKind: "mass" | "individual" | null;
+  // The HubSpot sequence/campaign name behind a mass pitch (e.g. "Domain Owner
+  // Initial Outreach Sequence"), when known. null for 1:1 / inbound / unlogged.
+  sequenceName: string | null;
+  // HubSpot send-engagement for OUR outreach to this party (pitched threads):
+  // count of our sends opened / clicked / replied-to. null when not in HubSpot.
+  opens: number | null;
+  clicks: number | null;
+  replies: number | null;
   party: string;
   partyEmail: string | null;
   budget: string | null; // a budget BAND from the form ("$5K to $25K")
@@ -154,8 +164,15 @@ export type DealReport = {
   inboundEngaged: number;
   activeNegotiations: number;
   pitched: number;
-  pitchedMass: number; // cold mass sends (HubSpot)
+  pitchedMass: number; // cold mass sends (HubSpot sequences)
   pitchedIndividual: number; // 1:1 outreach
+  // How pitch type was determined: "hubspot" when the CRM email log was consulted
+  // (authoritative), "heuristic" when it wasn't configured (Gmail-header fallback).
+  // Doubles as the cache schema marker so pre-HubSpot reports rebuild.
+  pitchSource: "hubspot" | "heuristic";
+  // Cold outreach via HubSpot sequences — full audience + engagement, sourced
+  // straight from HubSpot. null when HubSpot isn't configured.
+  cold: ColdOutreach | null;
   // Naming-exercise pitches: this domain appearing in a client's pitch sheet.
   pitchExercises: PitchExercise[];
   // Owner engagement start, from the completed Snagged brokerage DocuSign.
@@ -163,6 +180,38 @@ export type DealReport = {
   // Sale outcome, from Escrow.com (null if never went to escrow).
   sale: SaleStatus | null;
   threads: DealThread[];
+};
+
+// Cold outreach (HubSpot sequences) — sourced directly from the HubSpot CRM email
+// log (the FULL audience, not just threads in the deal mailboxes). One row per
+// external recipient of a sequence naming this domain.
+export type ColdRecipient = {
+  party: string;
+  email: string;
+  sends: number;
+  opened: boolean;
+  clicked: boolean;
+  replied: boolean; // they replied to our cold send
+  responded: boolean; // replied OR became a two-way thread in the mailboxes
+  // Emails in the back-and-forth with THIS recipient — the full thread length when
+  // a deal-mailbox thread exists, else the count of our sequence steps they
+  // replied to. The per-person drill-down behind the "responded" count.
+  chain: number;
+  active: boolean; // matching live two-way negotiation (recent, not declined)
+  lastSent: string; // YYYY-MM-DD
+  sequenceName: string | null;
+  outcome: string | null; // from a matching deal-mailbox thread, when one exists
+  offer: string | null;
+};
+export type ColdOutreach = {
+  recipients: number;
+  sends: number;
+  opened: number; // # UNIQUE recipients who opened ≥1 send
+  clicked: number; // # unique recipients who clicked
+  replied: number; // # unique recipients who replied (never a sum of reply emails)
+  responded: number; // # unique recipients who responded (replied OR two-way thread)
+  active: number; // # that turned into a live negotiation
+  rows: ColdRecipient[];
 };
 
 const SALE_RANK: Record<SaleStage, number> = { opened: 1, agreed: 2, payment_secured: 3, sold: 4 };
@@ -315,12 +364,22 @@ function resolveExternalParty(ms: GmailMessage[], sellerEmails: Set<string>, sel
 
 export async function buildDealReport(domain: string): Promise<DealReport> {
   domain = domain.toLowerCase().replace(/^www\./, "");
-  const [msgs, sale, representingSince, pitchExercises] = await Promise.all([
+  const [msgs, sale, representingSince, pitchExercises, recipients] = await Promise.all([
     collect(domain),
     detectSale(domain),
     detectRepresentingSince(domain),
     findPitchExercises(domain).catch(() => [] as PitchExercise[]),
+    recipientEngagementForDomain(domain).catch(() => [] as RecipientEngagement[]),
   ]);
+
+  // Authoritative pitch-type classification from the HubSpot CRM email log:
+  // join every collected message to its logged engagement by RFC Message-ID, so a
+  // pitch sent via a sequence (mass) is told apart from a logged 1:1 (individual),
+  // with the sequence name in hand. Best-effort — empty map ⇒ Gmail-header fallback.
+  const hsByMid: Map<string, HubspotEmail> = await classifyMessageIds(msgs.map((m) => m.mid));
+  // The full outbound audience for this domain (cold + 1:1), keyed by recipient
+  // email — powers the cold roster and the per-thread engagement metrics.
+  const engByEmail = new Map<string, RecipientEngagement>(recipients.map((r) => [r.email.toLowerCase(), r]));
 
   // Group into conversations by Gmail THREAD ID — the real conversation boundary.
   // Grouping by subject over-merged DISTINCT buyers who happened to get the same
@@ -403,23 +462,40 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
     // the all-time "did they ever respond after we did" signal.
     const firstUsDate = usMsgs.length ? usMsgs[0].date : Infinity;
     const repliedAfterUs = themMsgs.some((m) => m.date > firstUsDate);
-    // Pitch type (pitched threads only): a HubSpot/ESP blast on any of our sends
-    // → mass; otherwise an individual 1:1 pitch.
-    const pitchKind: "mass" | "individual" | null =
-      origin === "pitched" ? (usMsgs.some((m) => m.bulk) ? "mass" : "individual") : null;
+    // Pitch type (pitched threads only). Prefer the HubSpot CRM email log: if any
+    // of our sends in the thread was a sequence send → mass (carry its name);
+    // else, if HubSpot logged any send 1:1 → individual. Fall back to the Gmail
+    // header heuristic only when none of our sends are in the HubSpot log.
+    let pitchKind: "mass" | "individual" | null = null;
+    let sequenceName: string | null = null;
+    if (origin === "pitched") {
+      const hsSends = usMsgs.map((m) => hsByMid.get(normMid(m.mid))).filter((h): h is HubspotEmail => !!h && h.direction === "outbound");
+      if (hsSends.length) {
+        const seq = hsSends.find((h) => h.kind === "mass");
+        pitchKind = seq ? "mass" : "individual";
+        sequenceName = seq?.sequenceName || null;
+      } else {
+        pitchKind = usMsgs.some((m) => m.bulk) ? "mass" : "individual"; // fallback
+      }
+    }
 
     const fm = formMatch[0] || null;
     // Buyer identity: the form's contact, else the resolved external party
     // (From/To/Cc/forwarded). Never us or the seller.
     const party = (fm?.name || extParty?.name || "").trim();
     const partyEmail = fm?.email || extParty?.email || null;
+    // HubSpot send-engagement for our outreach to this party (pitched threads).
+    const eng = partyEmail ? engByEmail.get(partyEmail.toLowerCase()) : undefined;
 
     const emailDom = (partyEmail || "").split("@")[1]?.toLowerCase() || "";
     const qualified = hasBudget(fm?.budget) || (!!emailDom && !FREE_EMAIL.has(emailDom)) || ms.length >= 3 || (hasUs && hasThem);
 
     threads.push({
       subject: ms[ms.length - 1].subject,
-      origin, active, stale, declined, hasForm, qualified, repliedAfterUs, pitchKind,
+      origin, active, stale, declined, hasForm, qualified, repliedAfterUs, pitchKind, sequenceName,
+      opens: origin === "pitched" && eng ? eng.opened : null,
+      clicks: origin === "pitched" && eng ? eng.clicked : null,
+      replies: origin === "pitched" && eng ? eng.replied : null,
       party: party || "—",
       partyEmail,
       budget: fm && hasBudget(fm.budget) ? fm.budget : null,
@@ -454,7 +530,11 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
       keep.outcome = keep.outcome || drop.outcome;
       keep.qualified = keep.qualified || drop.qualified;
       keep.repliedAfterUs = keep.repliedAfterUs || drop.repliedAfterUs;
-      keep.pitchKind = keep.pitchKind || drop.pitchKind;
+      // Prefer a mass classification (a sequence send anywhere makes the pitch mass)
+      // and keep whichever side carries the sequence name.
+      if (drop.pitchKind === "mass") keep.pitchKind = "mass";
+      else keep.pitchKind = keep.pitchKind || drop.pitchKind;
+      keep.sequenceName = keep.sequenceName || drop.sequenceName;
       if (drop.last > keep.last) keep.last = drop.last;
       if (drop.first < keep.first) keep.first = drop.first;
     };
@@ -469,6 +549,18 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
 
   final.sort((a, b) => (a.last < b.last ? 1 : -1));
   const pitchedThreads = final.filter((t) => t.origin === "pitched");
+
+  // Cold-outreach bucket: the full HubSpot sequence audience for this domain,
+  // enriched with any matching deal-mailbox thread (real outcome / live status).
+  const threadByEmail = new Map<string, DealThread>();
+  for (const t of final) {
+    if (!t.partyEmail) continue;
+    const k = t.partyEmail.toLowerCase();
+    const ex = threadByEmail.get(k);
+    if (!ex || t.messages > ex.messages) threadByEmail.set(k, t);
+  }
+  const cold: ColdOutreach | null = hubspotConfigured() ? buildCold(recipients, threadByEmail) : null;
+
   return {
     domain,
     inbound: final.filter((t) => t.origin === "inbound").length,
@@ -478,10 +570,53 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
     pitched: pitchedThreads.length,
     pitchedMass: pitchedThreads.filter((t) => t.pitchKind === "mass").length,
     pitchedIndividual: pitchedThreads.filter((t) => t.pitchKind === "individual").length,
+    pitchSource: hubspotConfigured() ? "hubspot" : "heuristic",
+    cold,
     pitchExercises,
     representingSince,
     sale,
     threads: final,
+  };
+}
+
+// Build the cold-outreach roster from the HubSpot sequence audience, enriching
+// each recipient with the matching deal-mailbox thread (when a cold send turned
+// into a real exchange). Responders sort to the top, then most-recently-sent.
+function buildCold(recipients: RecipientEngagement[], threadByEmail: Map<string, DealThread>): ColdOutreach {
+  const rows: ColdRecipient[] = recipients
+    .filter((r) => r.kind === "mass")
+    .map((r) => {
+      const t = threadByEmail.get(r.email.toLowerCase());
+      const replied = r.replied > 0;
+      const responded = replied || !!(t && t.repliedAfterUs);
+      return {
+        party: (t && t.party !== "—" ? t.party : "") || r.name || r.email.split("@")[0],
+        email: r.email,
+        sends: r.sends,
+        opened: r.opened > 0,
+        clicked: r.clicked > 0,
+        replied,
+        responded,
+        // Real conversation length when we have the thread, else the # of our
+        // sends they replied to (0 when they never responded).
+        chain: t ? t.messages : r.replied,
+        active: !!(t && t.active),
+        lastSent: ymd(r.lastSent),
+        sequenceName: r.sequenceName,
+        outcome: t?.outcome || null,
+        offer: t?.offer || null,
+      };
+    })
+    .sort((a, b) => (a.responded !== b.responded ? (a.responded ? -1 : 1) : a.lastSent < b.lastSent ? 1 : -1));
+  return {
+    recipients: rows.length,
+    sends: rows.reduce((s, r) => s + r.sends, 0),
+    opened: rows.filter((r) => r.opened).length,
+    clicked: rows.filter((r) => r.clicked).length,
+    replied: rows.filter((r) => r.replied).length,
+    responded: rows.filter((r) => r.responded).length,
+    active: rows.filter((r) => r.active).length,
+    rows,
   };
 }
 

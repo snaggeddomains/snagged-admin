@@ -15,12 +15,39 @@ rebuild). Enhancements this session:
   GoDaddy/Afternic brokers (e.g. Jason Villalobos, afternicsales@godaddy.com) never count as a
   buyer counterparty. A real buyer they FORWARD still surfaces (form / forwarded headers); a
   broker-only thread is dropped.
-- **Cold mass vs individual pitch.** `lib/gmail.ts` `looksBulk()` flags a HubSpot/ESP mass send
-  (List-Unsubscribe / Precedence:bulk / X-Mailer / HubSpot tracking infra in the body) → each
-  message gets `bulk`. Pitched threads get `pitchKind: "mass" | "individual"`; report adds
-  `pitchedMass`/`pitchedIndividual`; UI shows a Mass/1:1 chip. **Phased — Gmail heuristic now;
-  wiring the real HubSpot API (private-app token) for authoritative sequence-vs-1:1 + pitch
-  records is the planned next step (Rob to provide the token).**
+- **Cold mass vs individual pitch — now HubSpot-authoritative (2026-06-17).** Pitch type is
+  classified from the **HubSpot CRM email log** (`lib/hubspot.ts`, private-app token
+  `HUBSPOT_TOKEN`; scopes `sales-email-read` + `automation.sequences.read` + `content`). The
+  join key is the **RFC Message-ID**: HubSpot stores it as `hs_email_message_id`, which equals
+  our `GmailMessage.mid` — so `classifyMessageIds(mids)` maps each of our sends to its logged
+  engagement. An outbound send carrying an `hs_sequence_id` is a **sequence (mass)** send (its
+  name resolved via `/automation/v4/sequences?userId=`, self-discovered from the token); a
+  logged 1:1 is **individual**; `INCOMING_EMAIL` is inbound. The old Gmail `looksBulk()` header
+  heuristic remains the **fallback** for sends not in the HubSpot log. `DealThread` carries
+  `pitchKind` + `sequenceName` + per-thread `opens/clicks/replies`; report carries
+  `pitchSource: "hubspot" | "heuristic"` (also the cache marker).
+- **Three-bucket report (2026-06-17).** The drill-down is split into **1 · Inbound** (form /
+  buyer-initiated, Gmail), **2 · Pitched 1:1** (individual outreach + naming-exercise sheet
+  pitches), and **3 · Cold outreach (HubSpot sequences)**. Each bucket leads with its own metric
+  cards and a responded/no-response toggle. Buckets 2 & 3 show HubSpot engagement (opens/clicks/
+  replies). The cold bucket is the **FULL HubSpot sequence audience** (every recipient of a
+  sequence naming the domain, not just threads in the deal mailboxes) via
+  `recipientEngagementForDomain(domain)` (`hs_email_subject CONTAINS_TOKEN domain` + literal
+  guard, aggregated per `hs_email_to_email` → sends/opens/clicks/replies + name + sequence);
+  rows are enriched with the matching deal-mailbox thread's outcome/active when a cold send
+  became a real exchange (`buildCold` in marketplace-deals.ts). `DealReport.cold: ColdOutreach`.
+  Mass pitched-Gmail-threads are NOT shown in bucket 2 (they live in bucket 3) when HubSpot is
+  on; without HubSpot, bucket 2 shows all pitched threads with a Mass/1:1 chip.
+- **Unique-people metrics + chain drill-down (2026-06-17).** Every bucket's Opened / Clicked /
+  Responded headline counts **unique individuals**, never a sum of reply emails (one recipient
+  who generated a 100-email back-and-forth still counts as ONE responder). The "Responded" metric
+  card is **clickable** → flips the bucket's toggle to the responded breakdown. Each cold roster
+  row carries `chain` (the real conversation length — the matching deal-mailbox thread's message
+  count, else the # of sequence steps the recipient replied to), shown as "💬 N in chain"; the
+  pitched-1:1 rows show the chain as "· N msg". `ColdOutreach` adds a `responded` aggregate.
+- **Pitch-scan sharpening (`lib/pitch-scan.ts`).** The weekly scan drops sent messages HubSpot
+  logged as `INCOMING_EMAIL` (buyer replies mis-filed in Sent) and annotates confirmed cold
+  sequence sends with their sequence name in the digest.
 - **Naming-exercise pitches (Google Sheets).** `lib/marketplace-pitch-sheets.ts` reads the
   per-client pitch-exercise workbooks (where we pitch a client a curated domain shortlist) via
   the SAME service account (`marketplace-pipeline@snagged-pipeline...`, plain SA token — NO
@@ -28,10 +55,11 @@ rebuild). Enhancements this session:
   link-shared or shared to the SA email). **Small explicit registry** `EXERCISES` (sheet id →
   client); **exact-domain** match across every tab (tolerant of header/headerless tabs + an
   SLD/TLD split tab). A hit = a pitch of that domain to that client → `DealReport.pitchExercises`,
-  counted in "Pitched to buyers" + its own sub-table. Add an engagement = add one line to
+  counted in bucket 2 (Pitched 1:1) + its own sub-table. Add an engagement = add one line to
   `EXERCISES`. `lib/sheets.ts` gained `getSheetMeta` (title + tab list).
-- **Cache schema marker:** `readCache` ignores reports cached before these fields existed
-  (`inboundEngaged === undefined`) so old rows rebuild instead of rendering zeros.
+- **Cache schema marker:** `readCache` ignores reports cached before the HubSpot wiring existed
+  (`pitchSource === undefined`; prior marker was `inboundEngaged`) so old rows rebuild instead
+  of serving the old Gmail-heuristic classification.
 
 # Working agreements
 

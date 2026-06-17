@@ -25,10 +25,11 @@ async function readCache(domain: string): Promise<{ report: DealReport; generate
   if (!isDbConfigured()) return null;
   try {
     const { data } = await getDb().from(TABLE).select("report,generated_at").eq("domain", domain).maybeSingle();
-    // Ignore reports cached before the engagement/pitch-type/exercise fields
-    // existed — `inboundEngaged` is the schema marker — so they rebuild fresh
-    // instead of rendering zeros for the new metrics.
-    if (data?.report && (data.report as Record<string, unknown>).inboundEngaged !== undefined) {
+    // Ignore reports cached before the HubSpot pitch-classification existed
+    // (`pitchSource` is the current schema marker; `inboundEngaged` was the prior
+    // one) so they rebuild fresh with the authoritative sequence-vs-1:1 signal
+    // instead of serving the old Gmail-heuristic classification.
+    if (data?.report && (data.report as Record<string, unknown>).pitchSource !== undefined) {
       return { report: data.report as DealReport, generatedAt: data.generated_at };
     }
   } catch { /* table may not exist yet — treat as miss */ }
