@@ -59,6 +59,33 @@ function rowExtras(cells: string[], matched: string): { price: string | null; no
   return { price: price || null, note: note && note !== price ? note.slice(0, 200) : null };
 }
 
+// Every domain currently tracked across ALL registered exercise sheets — the set
+// the weekly pitch-scan diffs against to find email pitches not yet on a sheet.
+// Fail-soft per workbook/tab; returns lowercased bare domains.
+export async function allExerciseDomains(): Promise<Set<string>> {
+  const out = new Set<string>();
+  await Promise.all(
+    EXERCISES.map(async ({ id }) => {
+      let meta: { title: string; tabs: string[] };
+      try {
+        meta = await getSheetMeta(id);
+      } catch {
+        return;
+      }
+      for (const tab of meta.tabs) {
+        let rows: string[][] = [];
+        try {
+          rows = await getSheetValues(id, `${tab}!A1:Z2000`);
+        } catch {
+          continue;
+        }
+        for (const cells of rows) for (const d of rowDomains(cells)) out.add(d);
+      }
+    }),
+  );
+  return out;
+}
+
 // Find every pitch-exercise the given domain appears in (exact match). Fail-soft
 // per workbook/tab so one unreadable sheet never sinks the report.
 export async function findPitchExercises(domain: string): Promise<PitchExercise[]> {

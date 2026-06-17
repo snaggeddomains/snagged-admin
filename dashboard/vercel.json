@@ -7,6 +7,7 @@
     { "path": "/api/cron/snap-watchdog", "schedule": "0 11,12 * * *" },
     { "path": "/api/cron/sedo-net-new", "schedule": "0 10,11,17,18,23,0 * * *" },
     { "path": "/api/cron/x-ads-sync", "schedule": "0 6,14,22 * * *" },
-    { "path": "/api/cron/newsletter-sync", "schedule": "0 12 * * 1" }
+    { "path": "/api/cron/newsletter-sync", "schedule": "0 12 * * 1" },
+    { "path": "/api/cron/pitch-scan", "schedule": "0 13 * * 1" }
   ]
 }
