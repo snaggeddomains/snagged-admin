@@ -530,11 +530,28 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
       keep.outcome = keep.outcome || drop.outcome;
       keep.qualified = keep.qualified || drop.qualified;
       keep.repliedAfterUs = keep.repliedAfterUs || drop.repliedAfterUs;
+      // A marketplace form submission ANYWHERE means the buyer came to us first —
+      // that's an inbound inquiry, even if we later pitched them in a separate
+      // thread (which on its own looks "pitched"). Inbound wins, and we carry the
+      // form's budget/intent onto the kept (richer) conversation.
+      if (drop.origin === "inbound" || drop.hasForm) {
+        keep.origin = "inbound";
+        keep.hasForm = keep.hasForm || drop.hasForm;
+        keep.budget = keep.budget || drop.budget;
+        keep.intent = keep.intent || drop.intent;
+        keep.pitchKind = null;
+        keep.opens = keep.opens ?? drop.opens;
+        keep.clicks = keep.clicks ?? drop.clicks;
+        keep.replies = keep.replies ?? drop.replies;
+      }
       // Prefer a mass classification (a sequence send anywhere makes the pitch mass)
-      // and keep whichever side carries the sequence name.
-      if (drop.pitchKind === "mass") keep.pitchKind = "mass";
-      else keep.pitchKind = keep.pitchKind || drop.pitchKind;
-      keep.sequenceName = keep.sequenceName || drop.sequenceName;
+      // and keep whichever side carries the sequence name — but only while the row
+      // is still a pitch (an inbound form above overrides this).
+      if (keep.origin === "pitched") {
+        if (drop.pitchKind === "mass") keep.pitchKind = "mass";
+        else keep.pitchKind = keep.pitchKind || drop.pitchKind;
+        keep.sequenceName = keep.sequenceName || drop.sequenceName;
+      }
       if (drop.last > keep.last) keep.last = drop.last;
       if (drop.first < keep.first) keep.first = drop.first;
     };
