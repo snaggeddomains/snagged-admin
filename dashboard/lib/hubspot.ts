@@ -87,6 +87,86 @@ async function getSequenceNames(): Promise<Map<string, string>> {
   return map;
 }
 
+// One external recipient's outbound engagement for a domain, aggregated across
+// all of our sends naming that domain in the HubSpot CRM email log.
+export type RecipientEngagement = {
+  email: string;
+  name: string | null;
+  kind: PitchKind; // mass if ANY send was a sequence, else individual (1:1)
+  sequenceName: string | null;
+  sends: number;
+  opened: number; // # of sends opened (open_count > 0)
+  clicked: number;
+  replied: number; // # of sends the recipient replied to
+  lastSent: number; // epoch ms of the most recent send
+};
+
+// Pull every OUTBOUND send naming `domain` from the HubSpot CRM email log and
+// aggregate it per external recipient — the full cold/1:1 audience with opens,
+// clicks and replies. Powers the cold-outreach roster (kind === "mass") and the
+// 1:1 pitched engagement metrics (looked up by recipient email). Best-effort:
+// returns [] if HubSpot isn't configured or errors.
+export async function recipientEngagementForDomain(domain: string): Promise<RecipientEngagement[]> {
+  const d = domain.toLowerCase();
+  if (!hubspotConfigured() || !d) return [];
+  const props = [
+    "hs_email_subject", "hs_email_to_email", "hs_email_to_firstname", "hs_email_to_lastname",
+    "hs_sequence_id", "hs_email_open_count", "hs_email_click_count", "hs_email_reply_count",
+    "hs_timestamp",
+  ];
+  type Agg = { email: string; name: string | null; seqId: string | null; sends: number; opened: number; clicked: number; replied: number; lastSent: number };
+  const byEmail = new Map<string, Agg>();
+  try {
+    const seqNames = await getSequenceNames();
+    let after: string | undefined;
+    do {
+      const body: Record<string, unknown> = {
+        limit: 100,
+        properties: props,
+        // CONTAINS_TOKEN tokenizes "Domain.com" → matches the pitch subject; a
+        // client-side literal-substring guard below removes any loose token match.
+        filterGroups: [{ filters: [
+          { propertyName: "hs_email_subject", operator: "CONTAINS_TOKEN", value: d },
+          { propertyName: "hs_email_direction", operator: "EQ", value: "EMAIL" },
+        ] }],
+      };
+      if (after) body.after = after;
+      const r = (await hpost("/crm/v3/objects/emails/search", body)) as {
+        results?: { properties: Record<string, string | null> }[]; paging?: { next?: { after?: string } };
+      };
+      for (const e of r.results || []) {
+        const p = e.properties || {};
+        if (!(p.hs_email_subject || "").toLowerCase().includes(d)) continue; // literal guard
+        const email = (p.hs_email_to_email || "").toLowerCase();
+        if (!email) continue;
+        const a = byEmail.get(email) || { email, name: null, seqId: null, sends: 0, opened: 0, clicked: 0, replied: 0, lastSent: 0 };
+        a.sends += 1;
+        if (Number(p.hs_email_open_count) > 0) a.opened += 1;
+        if (Number(p.hs_email_click_count) > 0) a.clicked += 1;
+        if (Number(p.hs_email_reply_count) > 0) a.replied += 1;
+        if (p.hs_sequence_id) a.seqId = p.hs_sequence_id;
+        const nm = [p.hs_email_to_firstname, p.hs_email_to_lastname].filter(Boolean).join(" ").trim();
+        if (nm && !a.name) a.name = nm;
+        const ts = Date.parse(p.hs_timestamp || "") || 0;
+        if (ts > a.lastSent) a.lastSent = ts;
+        byEmail.set(email, a);
+      }
+      after = r.paging?.next?.after;
+    } while (after);
+    return [...byEmail.values()].map((a) => ({
+      email: a.email,
+      name: a.name,
+      kind: (a.seqId ? "mass" : "individual") as PitchKind,
+      sequenceName: a.seqId ? seqNames.get(String(a.seqId)) || null : null,
+      sends: a.sends,
+      opened: a.opened,
+      clicked: a.clicked,
+      replied: a.replied,
+      lastSent: a.lastSent,
+    }));
+  } catch { return []; }
+}
+
 // Classify a set of RFC Message-IDs against HubSpot's logged emails. Returns a map
 // keyed by normalized message-id → {direction, kind, sequenceName}. Only the ids
 // HubSpot actually has are present (callers fall back to the Gmail heuristic for

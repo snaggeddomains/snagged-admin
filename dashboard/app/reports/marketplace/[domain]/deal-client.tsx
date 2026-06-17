@@ -8,14 +8,21 @@ type DealThread = {
   subject: string; origin: "inbound" | "pitched"; active: boolean; stale: boolean; declined: boolean;
   hasForm: boolean; qualified: boolean; repliedAfterUs: boolean; pitchKind: "mass" | "individual" | null;
   sequenceName: string | null;
+  opens: number | null; clicks: number | null; replies: number | null;
   party: string; partyEmail: string | null;
   budget: string | null; offer: string | null; intent: string | null; outcome: string | null;
   messages: number; first: string; last: string; lastSnippet: string;
 };
 type PitchExercise = { client: string; description?: string | null; sheetTitle: string; tab: string; url: string; price: string | null; note: string | null };
+type ColdRecipient = {
+  party: string; email: string; sends: number; opened: boolean; clicked: boolean; replied: boolean;
+  responded: boolean; active: boolean; lastSent: string; sequenceName: string | null; outcome: string | null; offer: string | null;
+};
+type ColdOutreach = { recipients: number; sends: number; opened: number; clicked: number; replied: number; active: number; rows: ColdRecipient[] };
 type DealReport = {
   domain: string; inbound: number; inboundQualified: number; inboundEngaged: number; activeNegotiations: number;
-  pitched: number; pitchedMass: number; pitchedIndividual: number; pitchSource?: "hubspot" | "heuristic"; pitchExercises: PitchExercise[];
+  pitched: number; pitchedMass: number; pitchedIndividual: number; pitchSource?: "hubspot" | "heuristic";
+  cold: ColdOutreach | null; pitchExercises: PitchExercise[];
   representingSince: string | null; sale: SaleStatus | null; threads: DealThread[];
 };
 type GaRow = { views: number; sessions: number; users: number; inquiryStarts: number; clicks: number; inquiries: number };
@@ -101,6 +108,38 @@ function PitchTypeChip({ kind, sequenceName }: { kind: "mass" | "individual" | n
   );
 }
 
+// Inline opens/clicks/replies engagement, from the HubSpot send log. A dash when
+// we have no HubSpot data for this party.
+function EngageCell({ opens, clicks, replies }: { opens: number | null; clicks: number | null; replies: number | null }) {
+  if (opens == null && clicks == null && replies == null) return <span className="muted">—</span>;
+  const pill = (n: number, label: string, color: string) => (
+    <span title={`${n} ${label}`} style={{ fontSize: 11.5, fontWeight: 700, color: n > 0 ? color : "#b3ab9b", whiteSpace: "nowrap" }}>{n} {label}</span>
+  );
+  return (
+    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+      {pill(opens || 0, "opened", "#2f6f8a")}
+      {pill(clicks || 0, "clicked", "#8a6d3b")}
+      {pill(replies || 0, "replied", "#2f7d4f")}
+    </div>
+  );
+}
+
+// A small two-option segmented toggle (used for the responded/all filters).
+function SegToggle<T extends string>({ value, onChange, options }: { value: T; onChange: (v: T) => void; options: [T, string][] }) {
+  return (
+    <div style={{ display: "inline-flex", border: "1px solid #d8d0bf", borderRadius: 8, overflow: "hidden", marginBottom: 8 }}>
+      {options.map(([k, lbl]) => (
+        <button key={k} onClick={() => onChange(k)} style={{ padding: "5px 12px", fontSize: 12.5, border: "none", cursor: "pointer", background: value === k ? NAVY : "#fff", color: value === k ? "#fff" : NAVY, fontWeight: value === k ? 700 : 500 }}>
+          {lbl}
+        </button>
+      ))}
+    </div>
+  );
+}
+function MiniBadge({ on, label, color }: { on: boolean; label: string; color: string }) {
+  return <span style={{ fontSize: 11.5, fontWeight: 700, color: on ? color : "#b3ab9b", whiteSpace: "nowrap" }}>{on ? "✓" : "·"} {label}</span>;
+}
+
 function NlList({ title, items, color }: { title: string; items: NlFeature[]; color: string }) {
   return (
     <div style={{ flex: "1 1 340px", minWidth: 300 }}>
@@ -147,6 +186,8 @@ export default function DealClient({ domain }: { domain: string }) {
   const [msg, setMsg] = useState("");
   const [showLowQ, setShowLowQ] = useState(false);
   const [inboundView, setInboundView] = useState<"all" | "engaged">("all");
+  const [pitchView, setPitchView] = useState<"all" | "responded">("all");
+  const [coldView, setColdView] = useState<"all" | "responded" | "noresp">("all");
   const [copied, setCopied] = useState(false);
   const share = async () => {
     try { await navigator.clipboard.writeText(window.location.href); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch { /* clipboard blocked */ }
@@ -194,9 +235,27 @@ export default function DealClient({ domain }: { domain: string }) {
   const inboundShown = inboundPool
     .filter((t) => inboundView === "all" || t.repliedAfterUs)
     .sort((a, b) => rank(a) - rank(b) || (a.last < b.last ? 1 : -1));
-  // Section 2 — pitched (our outreach).
-  const pitched = threads.filter((t) => t.origin === "pitched").sort((a, b) => rank(a) - rank(b) || (a.last < b.last ? 1 : -1));
+  // Section 2 — pitched 1:1 (our individual outreach). When the cold roster is
+  // available (HubSpot), the mass/sequence pitches live in their own bucket below,
+  // so the 1:1 section excludes them; without HubSpot, show all pitched threads.
+  const cold = rep?.cold || null;
+  const pitchedAll = threads.filter((t) => t.origin === "pitched");
+  const pitched1on1 = pitchedAll
+    .filter((t) => !cold || t.pitchKind !== "mass")
+    .sort((a, b) => rank(a) - rank(b) || (a.last < b.last ? 1 : -1));
+  const pitchResponded = (t: DealThread) => (t.replies || 0) > 0 || t.repliedAfterUs;
+  const pitch1RespondedCount = pitched1on1.filter(pitchResponded).length;
+  const pitched1Shown = pitched1on1.filter((t) => pitchView === "all" || pitchResponded(t));
   const exercises = rep?.pitchExercises || [];
+
+  const hsOn = rep?.pitchSource === "hubspot";
+  const p1Opened = pitched1on1.filter((t) => (t.opens || 0) > 0).length;
+  const p1Clicked = pitched1on1.filter((t) => (t.clicks || 0) > 0).length;
+  const p1Replied = pitched1on1.filter((t) => (t.replies || 0) > 0).length;
+  const p1Active = pitched1on1.filter((t) => t.active).length;
+
+  // Section 3 — cold outreach (HubSpot sequences), full audience.
+  const coldRows = (cold?.rows || []).filter((r) => coldView === "all" || (coldView === "responded" ? r.responded : !r.responded));
 
   return (
     <main>
@@ -246,36 +305,17 @@ export default function DealClient({ domain }: { domain: string }) {
 
       {rep && (
         <>
-          <h2 style={{ fontSize: "1.18rem", margin: "20px 0 6px" }}>Deal activity <span className="muted" style={{ fontWeight: 400, fontSize: 12 }}>(all-time, from email)</span></h2>
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <h2 style={{ fontSize: "1.18rem", margin: "20px 0 6px" }}>Deal activity <span className="muted" style={{ fontWeight: 400, fontSize: 12 }}>(all-time · email{hsOn ? " + HubSpot" : ""})</span></h2>
+          <NewsletterSection features={data?.newsletterFeatures || []} />
+
+          {/* ───────── Bucket 1: Inbound ───────── */}
+          <h3 style={{ fontSize: 16.5, margin: "22px 0 6px" }}>1 · Inbound inquiries &amp; negotiations <span className="muted" style={{ fontWeight: 400, fontSize: 12.5 }}>— buyers who came to us</span></h3>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 10 }}>
             <AggCard label="Inbound inquiries" value={rep.inboundQualified} sub={`${rep.inbound} total incl. low-quality`} accent />
             <AggCard label="Responded after we did" value={rep.inboundEngaged} sub={`real back-and-forth of ${rep.inboundQualified}`} />
             <AggCard label="Active negotiations" value={rep.activeNegotiations} sub="live two-way (≤45d, not declined)" />
-            <AggCard
-              label="Pitched to buyers"
-              value={rep.pitched + exercises.length}
-              sub={[
-                rep.pitchedIndividual ? `${rep.pitchedIndividual} individual` : "",
-                rep.pitchedMass ? `${rep.pitchedMass} mass` : "",
-                exercises.length ? `${exercises.length} naming-exercise` : "",
-              ].filter(Boolean).join(" · ") || "our proactive outreach"}
-            />
           </div>
-          <NewsletterSection features={data?.newsletterFeatures || []} />
-
-          {/* Section 1: Inbound & negotiations */}
-          <h3 style={{ fontSize: 16.5, margin: "20px 0 4px" }}>Inbound inquiries &amp; negotiations</h3>
-          <div style={{ display: "inline-flex", border: "1px solid #d8d0bf", borderRadius: 8, overflow: "hidden", marginBottom: 8 }}>
-            {([["all", `All (${inboundPool.length})`], ["engaged", `Responded after our reply (${engagedCount})`]] as const).map(([k, lbl]) => (
-              <button
-                key={k}
-                onClick={() => setInboundView(k)}
-                style={{ padding: "5px 12px", fontSize: 12.5, border: "none", cursor: "pointer", background: inboundView === k ? NAVY : "#fff", color: inboundView === k ? "#fff" : NAVY, fontWeight: inboundView === k ? 700 : 500 }}
-              >
-                {lbl}
-              </button>
-            ))}
-          </div>
+          <SegToggle value={inboundView} onChange={setInboundView} options={[["all", `All (${inboundPool.length})`], ["engaged", `Responded after our reply (${engagedCount})`]]} />
           <p className="muted" style={{ fontSize: 12, margin: "0 0 6px" }}>
             “Responded after our reply” = the buyer wrote back after we answered — a real two-way exchange, not just a submitted lead form.
           </p>
@@ -307,31 +347,39 @@ export default function DealClient({ domain }: { domain: string }) {
             </button>
           )}
 
-          {/* Section 2: Pitched */}
-          <h3 style={{ fontSize: 16.5, margin: "24px 0 4px" }}>Pitched to buyers</h3>
-          {pitched.length === 0 && exercises.length === 0 ? <p className="muted" style={{ fontSize: 13 }}>None.</p> : null}
-          {pitched.length > 0 && (
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ borderCollapse: "collapse", width: "100%" }}>
-                <thead><tr><th style={head}>Pitched to</th><th style={head}>Type</th><th style={head}>Status</th><th style={head}>Last contact</th><th style={{ ...head, width: "42%" }}>What happened</th></tr></thead>
-                <tbody>
-                  {pitched.map((t, i) => (
-                    <tr key={i}>
-                      <td style={cell}><div style={{ fontWeight: 600 }}>{t.party}</div>{t.partyEmail && <div className="muted" style={{ fontSize: 11 }}>{t.partyEmail}</div>}</td>
-                      <td style={cell}><PitchTypeChip kind={t.pitchKind} sequenceName={t.sequenceName} /></td>
-                      <td style={cell}><StatusBadge t={t} /></td>
-                      <td style={{ ...cell, whiteSpace: "nowrap" }}>{t.last}<span className="muted" style={{ fontSize: 11 }}> · {t.messages} msg</span></td>
-                      <td style={cell}>{t.outcome || <span className="muted">{t.lastSnippet || "—"}</span>}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          {/* ───────── Bucket 2: Pitched 1:1 ───────── */}
+          <h3 style={{ fontSize: 16.5, margin: "28px 0 6px" }}>2 · Pitched 1:1 <span className="muted" style={{ fontWeight: 400, fontSize: 12.5 }}>— individual outreach &amp; naming-exercise pitches</span></h3>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 10 }}>
+            <AggCard label="People pitched 1:1" value={pitched1on1.length + exercises.length} sub={exercises.length ? `incl. ${exercises.length} naming-exercise` : "individual outreach"} accent />
+            {hsOn && <><StatCard label="Opened" value={p1Opened} /><StatCard label="Clicked" value={p1Clicked} /><StatCard label="Replied" value={p1Replied} /></>}
+            <StatCard label="Active" value={p1Active} />
+          </div>
+          {pitched1on1.length === 0 && exercises.length === 0 ? <p className="muted" style={{ fontSize: 13 }}>None.</p> : null}
+          {pitched1on1.length > 0 && (
+            <>
+              <SegToggle value={pitchView} onChange={setPitchView} options={[["all", `All (${pitched1on1.length})`], ["responded", `Responded (${pitch1RespondedCount})`]]} />
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ borderCollapse: "collapse", width: "100%" }}>
+                  <thead><tr><th style={head}>Pitched to</th><th style={head}>{hsOn ? "Engagement" : "Type"}</th><th style={head}>Status</th><th style={head}>Last contact</th><th style={{ ...head, width: "38%" }}>What happened</th></tr></thead>
+                  <tbody>
+                    {pitched1Shown.map((t, i) => (
+                      <tr key={i}>
+                        <td style={cell}><div style={{ fontWeight: 600 }}>{t.party}</div>{t.partyEmail && <div className="muted" style={{ fontSize: 11 }}>{t.partyEmail}</div>}</td>
+                        <td style={cell}>{hsOn ? <EngageCell opens={t.opens} clicks={t.clicks} replies={t.replies} /> : <PitchTypeChip kind={t.pitchKind} sequenceName={t.sequenceName} />}</td>
+                        <td style={cell}><StatusBadge t={t} /></td>
+                        <td style={{ ...cell, whiteSpace: "nowrap" }}>{t.last}<span className="muted" style={{ fontSize: 11 }}> · {t.messages} msg</span></td>
+                        <td style={cell}>{t.outcome || <span className="muted">{t.lastSnippet || "—"}</span>}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
 
           {/* Naming-exercise pitches: this domain on a client's pitch sheet. */}
           {exercises.length > 0 && (
-            <div style={{ marginTop: pitched.length ? 14 : 4 }}>
+            <div style={{ marginTop: pitched1on1.length ? 14 : 4 }}>
               <div style={{ fontWeight: 700, fontSize: 13.5, color: NAVY, marginBottom: 6 }}>
                 Naming-exercise pitches <span className="muted" style={{ fontWeight: 400 }}>· included in a client&apos;s curated domain shortlist</span>
               </div>
@@ -357,6 +405,66 @@ export default function DealClient({ domain }: { domain: string }) {
                 </table>
               </div>
             </div>
+          )}
+
+          {/* ───────── Bucket 3: Cold outreach (HubSpot sequences) ───────── */}
+          {cold && (
+            <>
+              <h3 style={{ fontSize: 16.5, margin: "28px 0 6px" }}>3 · Cold outreach <span className="muted" style={{ fontWeight: 400, fontSize: 12.5 }}>— HubSpot sequences (the cold campaign)</span></h3>
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 10 }}>
+                <AggCard label="Recipients" value={cold.recipients} sub={`${fmt(cold.sends)} sends`} accent />
+                <StatCard label="Opened" value={cold.opened} />
+                <StatCard label="Clicked" value={cold.clicked} />
+                <StatCard label="Replied" value={cold.replied} accent />
+                <StatCard label="Active" value={cold.active} />
+              </div>
+              {cold.rows.length === 0 ? <p className="muted" style={{ fontSize: 13 }}>No cold sequence sends for this domain.</p> : (
+                <>
+                  <SegToggle
+                    value={coldView}
+                    onChange={setColdView}
+                    options={[["all", `All (${cold.rows.length})`], ["responded", `Responded (${cold.rows.filter((r) => r.responded).length})`], ["noresp", `No response (${cold.rows.filter((r) => !r.responded).length})`]]}
+                  />
+                  <div style={{ overflowX: "auto" }}>
+                    <table style={{ borderCollapse: "collapse", width: "100%" }}>
+                      <thead><tr>
+                        <th style={head}>Recipient</th><th style={head}>Sends</th><th style={head}>Engagement</th>
+                        <th style={head}>Status</th><th style={head}>Last sent</th><th style={{ ...head, width: "34%" }}>Sequence / outcome</th>
+                      </tr></thead>
+                      <tbody>
+                        {coldRows.map((r, i) => (
+                          <tr key={i}>
+                            <td style={cell}><div style={{ fontWeight: 600 }}>{r.party}</div><div className="muted" style={{ fontSize: 11 }}>{r.email}</div></td>
+                            <td style={{ ...cell, whiteSpace: "nowrap" }}>{r.sends}</td>
+                            <td style={cell}>
+                              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                                <MiniBadge on={r.opened} label="opened" color="#2f6f8a" />
+                                <MiniBadge on={r.clicked} label="clicked" color="#8a6d3b" />
+                                <MiniBadge on={r.replied} label="replied" color="#2f7d4f" />
+                              </div>
+                            </td>
+                            <td style={cell}>
+                              {r.active
+                                ? <span style={{ fontSize: 12.5, fontWeight: 700, color: CORAL, border: `1px solid ${CORAL}`, borderRadius: 999, padding: "1px 8px", whiteSpace: "nowrap" }}>Active</span>
+                                : r.responded
+                                  ? <span style={{ fontSize: 12.5, fontWeight: 700, color: "#2f7d4f", border: "1px solid #2f7d4f", borderRadius: 999, padding: "1px 8px", whiteSpace: "nowrap" }}>Responded</span>
+                                  : <span className="muted" style={{ fontSize: 12 }}>No response</span>}
+                            </td>
+                            <td style={{ ...cell, whiteSpace: "nowrap" }}>{r.lastSent}</td>
+                            <td style={cell}>
+                              {r.outcome ? <div>{r.outcome}</div> : null}
+                              {r.offer && <div style={{ fontWeight: 600, color: NAVY, fontSize: 13 }}>{r.offer}</div>}
+                              {r.sequenceName && <div className="muted" style={{ fontSize: 11, marginTop: r.outcome ? 3 : 0 }}>📋 {r.sequenceName}</div>}
+                              {!r.outcome && !r.sequenceName && <span className="muted">—</span>}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )}
+            </>
           )}
         </>
       )}
