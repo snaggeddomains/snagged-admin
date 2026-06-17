@@ -16,6 +16,11 @@ import { dealMailboxes, getThread, searchThreadIds, type GmailMessage } from "./
 import { findPitchExercises, type PitchExercise } from "./marketplace-pitch-sheets";
 import { classifyMessageIds, hubspotConfigured, normMid, recipientEngagementForDomain, type HubspotEmail, type RecipientEngagement } from "./hubspot";
 
+// Bump whenever the report's computation changes in a way that should invalidate
+// cached rows (the route's readCache requires the current version). History:
+// 1 = HubSpot three-bucket; 2 = form-submitters-are-inbound + paused exercises.
+export const REPORT_VERSION = 2;
+
 const isUs = (a: string) => a.endsWith("@snagged.com") || a.endsWith("@snagged.co");
 
 // Marketplace BROKERS / platforms (GoDaddy + its Afternic arm). They FORWARD
@@ -156,6 +161,7 @@ export type SaleStatus = {
 };
 
 export type DealReport = {
+  reportVersion: number; // schema/computation version — the cache-invalidation marker
   domain: string;
   inbound: number;
   inboundQualified: number;
@@ -579,6 +585,7 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
   const cold: ColdOutreach | null = hubspotConfigured() ? buildCold(recipients, threadByEmail) : null;
 
   return {
+    reportVersion: REPORT_VERSION,
     domain,
     inbound: final.filter((t) => t.origin === "inbound").length,
     inboundQualified: final.filter((t) => t.origin === "inbound" && t.qualified).length,
