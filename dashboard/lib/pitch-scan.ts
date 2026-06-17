@@ -11,6 +11,7 @@
 
 import { searchMessages, getMessage, type GmailMessage } from "./gmail";
 import { allExerciseDomains } from "./marketplace-pitch-sheets";
+import { classifyMessageIds, normMid } from "./hubspot";
 
 // The mailbox we scan — the owner who sends the pitches. Override via env.
 const PITCH_MAILBOX = process.env.PITCH_SCAN_MAILBOX || "rob@snagged.com";
@@ -58,6 +59,8 @@ export type PitchSuggestion = {
   date: string; // YYYY-MM-DD
   subject: string;
   link: string; // gmail thread link
+  viaSequence: boolean; // HubSpot logged this send as part of a sequence (mass)
+  sequenceName: string | null; // the sequence/campaign name, when known
 };
 
 export type PitchScanResult = { mailbox: string; scanned: number; candidates: number; suggestions: PitchSuggestion[] };
@@ -67,13 +70,28 @@ export async function scanPitchSuggestions(days = 10): Promise<PitchScanResult> 
   const ids = await searchMessages(PITCH_MAILBOX, `in:sent newer_than:${days}d`, 300).catch(() => []);
   const tracked = await allExerciseDomains().catch(() => new Set<string>());
 
-  // newest-first per (domain,recipient); dedupe.
-  const byKey = new Map<string, PitchSuggestion>();
+  // Fetch the sent messages first so we can batch-classify them against HubSpot.
+  const msgs: GmailMessage[] = [];
   let scanned = 0;
   for (const { id } of ids) {
     let m: GmailMessage;
     try { m = await getMessage(PITCH_MAILBOX, id); } catch { continue; }
     scanned++;
+    msgs.push(m);
+  }
+
+  // HubSpot sharpening of outbound-vs-inbound: a message HubSpot logged as
+  // INCOMING_EMAIL is a buyer REPLY that Gmail filed under Sent (a thread we own),
+  // never an outbound pitch → drop it. A logged outbound send is a CONFIRMED pitch
+  // and we surface whether it went via a sequence (cold) + its name. Best-effort:
+  // an empty map (HubSpot unconfigured / errored) leaves the heuristic untouched.
+  const hsByMid = await classifyMessageIds(msgs.map((m) => m.mid));
+
+  // newest-first per (domain,recipient); dedupe.
+  const byKey = new Map<string, PitchSuggestion>();
+  for (const m of msgs) {
+    const hs = hsByMid.get(normMid(m.mid));
+    if (hs?.direction === "inbound") continue; // a reply mis-filed in Sent, not a pitch
     if (!isUs(m.from)) continue; // only mail WE sent
     if (NOISE_SUBJECT.test(m.subject)) continue;
     const rcpt = firstRecipient(m.to);
@@ -91,6 +109,8 @@ export async function scanPitchSuggestions(days = 10): Promise<PitchScanResult> 
       date,
       subject: m.subject.slice(0, 120),
       link: `https://mail.google.com/mail/u/0/#search/rfc822msgid:${encodeURIComponent(m.mid)}`,
+      viaSequence: hs?.kind === "mass",
+      sequenceName: hs?.sequenceName || null,
     };
     const ex = byKey.get(key);
     if (!ex || cand.date > ex.date) byKey.set(key, cand);
@@ -105,7 +125,7 @@ export function renderPitchDigest(r: PitchScanResult): { subject: string; html: 
   const rows = r.suggestions
     .map(
       (s) => `<tr>
-        <td style="padding:8px 12px;border-bottom:1px solid #eee;font-weight:600">${esc(s.domain)}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #eee;font-weight:600">${esc(s.domain)}${s.viaSequence ? `<br><span style="display:inline-block;margin-top:3px;color:#8a6d3b;font-size:11px;font-weight:700">📋 Cold sequence${s.sequenceName ? `: ${esc(s.sequenceName)}` : ""}</span>` : ""}</td>
         <td style="padding:8px 12px;border-bottom:1px solid #eee">${esc(s.toName)}<br><span style="color:#888;font-size:12px">${esc(s.toEmail)}</span></td>
         <td style="padding:8px 12px;border-bottom:1px solid #eee;white-space:nowrap">${esc(s.date)}</td>
         <td style="padding:8px 12px;border-bottom:1px solid #eee"><a href="${esc(s.link)}" style="color:#c0492f;text-decoration:none">${esc(s.subject)}</a></td>

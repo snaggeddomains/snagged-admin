@@ -14,6 +14,7 @@
 
 import { dealMailboxes, getThread, searchThreadIds, type GmailMessage } from "./gmail";
 import { findPitchExercises, type PitchExercise } from "./marketplace-pitch-sheets";
+import { classifyMessageIds, hubspotConfigured, normMid, type HubspotEmail } from "./hubspot";
 
 const isUs = (a: string) => a.endsWith("@snagged.com") || a.endsWith("@snagged.co");
 
@@ -107,9 +108,13 @@ export type DealThread = {
   // they engaged in a back-and-forth, not just submitted a form and went silent.
   // (For a pitched thread: they replied to our outreach.)
   repliedAfterUs: boolean;
-  // For pitched threads only: was the outreach a cold mass send (HubSpot blast /
-  // sequence) or an individual 1:1 pitch? null for inbound.
+  // For pitched threads only: was the outreach a cold mass send (HubSpot
+  // sequence) or an individual 1:1 pitch? null for inbound. Sourced from the
+  // HubSpot CRM email log (hs_sequence_id), heuristic fallback when not logged.
   pitchKind: "mass" | "individual" | null;
+  // The HubSpot sequence/campaign name behind a mass pitch (e.g. "Domain Owner
+  // Initial Outreach Sequence"), when known. null for 1:1 / inbound / unlogged.
+  sequenceName: string | null;
   party: string;
   partyEmail: string | null;
   budget: string | null; // a budget BAND from the form ("$5K to $25K")
@@ -154,8 +159,12 @@ export type DealReport = {
   inboundEngaged: number;
   activeNegotiations: number;
   pitched: number;
-  pitchedMass: number; // cold mass sends (HubSpot)
+  pitchedMass: number; // cold mass sends (HubSpot sequences)
   pitchedIndividual: number; // 1:1 outreach
+  // How pitch type was determined: "hubspot" when the CRM email log was consulted
+  // (authoritative), "heuristic" when it wasn't configured (Gmail-header fallback).
+  // Doubles as the cache schema marker so pre-HubSpot reports rebuild.
+  pitchSource: "hubspot" | "heuristic";
   // Naming-exercise pitches: this domain appearing in a client's pitch sheet.
   pitchExercises: PitchExercise[];
   // Owner engagement start, from the completed Snagged brokerage DocuSign.
@@ -322,6 +331,12 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
     findPitchExercises(domain).catch(() => [] as PitchExercise[]),
   ]);
 
+  // Authoritative pitch-type classification from the HubSpot CRM email log:
+  // join every collected message to its logged engagement by RFC Message-ID, so a
+  // pitch sent via a sequence (mass) is told apart from a logged 1:1 (individual),
+  // with the sequence name in hand. Best-effort — empty map ⇒ Gmail-header fallback.
+  const hsByMid: Map<string, HubspotEmail> = await classifyMessageIds(msgs.map((m) => m.mid));
+
   // Group into conversations by Gmail THREAD ID — the real conversation boundary.
   // Grouping by subject over-merged DISTINCT buyers who happened to get the same
   // pitch subject (e.g. Rob's "Strategic Opportunity: <domain>" sent to many
@@ -403,10 +418,22 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
     // the all-time "did they ever respond after we did" signal.
     const firstUsDate = usMsgs.length ? usMsgs[0].date : Infinity;
     const repliedAfterUs = themMsgs.some((m) => m.date > firstUsDate);
-    // Pitch type (pitched threads only): a HubSpot/ESP blast on any of our sends
-    // → mass; otherwise an individual 1:1 pitch.
-    const pitchKind: "mass" | "individual" | null =
-      origin === "pitched" ? (usMsgs.some((m) => m.bulk) ? "mass" : "individual") : null;
+    // Pitch type (pitched threads only). Prefer the HubSpot CRM email log: if any
+    // of our sends in the thread was a sequence send → mass (carry its name);
+    // else, if HubSpot logged any send 1:1 → individual. Fall back to the Gmail
+    // header heuristic only when none of our sends are in the HubSpot log.
+    let pitchKind: "mass" | "individual" | null = null;
+    let sequenceName: string | null = null;
+    if (origin === "pitched") {
+      const hsSends = usMsgs.map((m) => hsByMid.get(normMid(m.mid))).filter((h): h is HubspotEmail => !!h && h.direction === "outbound");
+      if (hsSends.length) {
+        const seq = hsSends.find((h) => h.kind === "mass");
+        pitchKind = seq ? "mass" : "individual";
+        sequenceName = seq?.sequenceName || null;
+      } else {
+        pitchKind = usMsgs.some((m) => m.bulk) ? "mass" : "individual"; // fallback
+      }
+    }
 
     const fm = formMatch[0] || null;
     // Buyer identity: the form's contact, else the resolved external party
@@ -419,7 +446,7 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
 
     threads.push({
       subject: ms[ms.length - 1].subject,
-      origin, active, stale, declined, hasForm, qualified, repliedAfterUs, pitchKind,
+      origin, active, stale, declined, hasForm, qualified, repliedAfterUs, pitchKind, sequenceName,
       party: party || "—",
       partyEmail,
       budget: fm && hasBudget(fm.budget) ? fm.budget : null,
@@ -454,7 +481,11 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
       keep.outcome = keep.outcome || drop.outcome;
       keep.qualified = keep.qualified || drop.qualified;
       keep.repliedAfterUs = keep.repliedAfterUs || drop.repliedAfterUs;
-      keep.pitchKind = keep.pitchKind || drop.pitchKind;
+      // Prefer a mass classification (a sequence send anywhere makes the pitch mass)
+      // and keep whichever side carries the sequence name.
+      if (drop.pitchKind === "mass") keep.pitchKind = "mass";
+      else keep.pitchKind = keep.pitchKind || drop.pitchKind;
+      keep.sequenceName = keep.sequenceName || drop.sequenceName;
       if (drop.last > keep.last) keep.last = drop.last;
       if (drop.first < keep.first) keep.first = drop.first;
     };
@@ -478,6 +509,7 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
     pitched: pitchedThreads.length,
     pitchedMass: pitchedThreads.filter((t) => t.pitchKind === "mass").length,
     pitchedIndividual: pitchedThreads.filter((t) => t.pitchKind === "individual").length,
+    pitchSource: hubspotConfigured() ? "hubspot" : "heuristic",
     pitchExercises,
     representingSince,
     sale,

@@ -7,6 +7,7 @@ type SaleStatus = { stage: string; label: string; opened: string | null; closed:
 type DealThread = {
   subject: string; origin: "inbound" | "pitched"; active: boolean; stale: boolean; declined: boolean;
   hasForm: boolean; qualified: boolean; repliedAfterUs: boolean; pitchKind: "mass" | "individual" | null;
+  sequenceName: string | null;
   party: string; partyEmail: string | null;
   budget: string | null; offer: string | null; intent: string | null; outcome: string | null;
   messages: number; first: string; last: string; lastSnippet: string;
@@ -14,7 +15,7 @@ type DealThread = {
 type PitchExercise = { client: string; description?: string | null; sheetTitle: string; tab: string; url: string; price: string | null; note: string | null };
 type DealReport = {
   domain: string; inbound: number; inboundQualified: number; inboundEngaged: number; activeNegotiations: number;
-  pitched: number; pitchedMass: number; pitchedIndividual: number; pitchExercises: PitchExercise[];
+  pitched: number; pitchedMass: number; pitchedIndividual: number; pitchSource?: "hubspot" | "heuristic"; pitchExercises: PitchExercise[];
   representingSince: string | null; sale: SaleStatus | null; threads: DealThread[];
 };
 type GaRow = { views: number; sessions: number; users: number; inquiryStarts: number; clicks: number; inquiries: number };
@@ -82,15 +83,21 @@ function StatusBadge({ t }: { t: DealThread }) {
   return <span style={{ fontSize: 12.5, fontWeight: 700, color: s.color, border: `1px solid ${s.color}`, borderRadius: 999, padding: "1px 8px", whiteSpace: "nowrap" }}>{s.label}</span>;
 }
 
-// Cold mass send (HubSpot blast/sequence) vs an individual 1:1 pitch.
-function PitchTypeChip({ kind }: { kind: "mass" | "individual" | null }) {
+// Cold mass send (HubSpot sequence) vs an individual 1:1 pitch. For a mass send
+// the HubSpot sequence/campaign name is shown beneath the chip when known.
+function PitchTypeChip({ kind, sequenceName }: { kind: "mass" | "individual" | null; sequenceName?: string | null }) {
   if (!kind) return <span className="muted">—</span>;
   const mass = kind === "mass";
   const color = mass ? "#8a6d3b" : "#2f7d4f";
   return (
-    <span title={mass ? "Cold mass send (HubSpot)" : "Individual 1:1 outreach"} style={{ fontSize: 12, fontWeight: 700, color, border: `1px solid ${color}`, borderRadius: 999, padding: "1px 8px", whiteSpace: "nowrap" }}>
-      {mass ? "Mass" : "1:1"}
-    </span>
+    <div>
+      <span title={mass ? "Cold mass send (HubSpot sequence)" : "Individual 1:1 outreach"} style={{ fontSize: 12, fontWeight: 700, color, border: `1px solid ${color}`, borderRadius: 999, padding: "1px 8px", whiteSpace: "nowrap" }}>
+        {mass ? "Mass" : "1:1"}
+      </span>
+      {mass && sequenceName && (
+        <div className="muted" title="HubSpot sequence" style={{ fontSize: 11, marginTop: 3, lineHeight: 1.3, maxWidth: 200 }}>📋 {sequenceName}</div>
+      )}
+    </div>
   );
 }
 
@@ -311,7 +318,7 @@ export default function DealClient({ domain }: { domain: string }) {
                   {pitched.map((t, i) => (
                     <tr key={i}>
                       <td style={cell}><div style={{ fontWeight: 600 }}>{t.party}</div>{t.partyEmail && <div className="muted" style={{ fontSize: 11 }}>{t.partyEmail}</div>}</td>
-                      <td style={cell}><PitchTypeChip kind={t.pitchKind} /></td>
+                      <td style={cell}><PitchTypeChip kind={t.pitchKind} sequenceName={t.sequenceName} /></td>
                       <td style={cell}><StatusBadge t={t} /></td>
                       <td style={{ ...cell, whiteSpace: "nowrap" }}>{t.last}<span className="muted" style={{ fontSize: 11 }}> · {t.messages} msg</span></td>
                       <td style={cell}>{t.outcome || <span className="muted">{t.lastSnippet || "—"}</span>}</td>
