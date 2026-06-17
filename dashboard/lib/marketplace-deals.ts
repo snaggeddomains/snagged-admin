@@ -20,8 +20,8 @@ import { classifyMessageIds, hubspotConfigured, normMid, recipientEngagementForD
 // cached rows (the route's readCache requires the current version). History:
 // 1 = HubSpot three-bucket; 2 = form-submitters-are-inbound + paused exercises;
 // 3 = name/email normalization (parser fix, mailto strip, greeting/HubSpot names)
-// + probable-spam flag.
-export const REPORT_VERSION = 3;
+// + probable-spam flag; 4 = cold-outreach conversational result column.
+export const REPORT_VERSION = 4;
 
 const isUs = (a: string) => a.endsWith("@snagged.com") || a.endsWith("@snagged.co");
 
@@ -658,6 +658,18 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
   };
 }
 
+// What actually happened with a cold recipient — the LLM recap when we have the
+// thread, else a deterministic result from the thread's signals. "" (→ "No
+// response" in the UI) when they never engaged.
+function coldResult(t: DealThread | undefined, responded: boolean): string | null {
+  if (t?.outcome) return t.outcome; // LLM "what happened" (offer / declined / price / quiet)
+  if (t?.declined) return "Declined";
+  if (t?.active) return "In active conversation";
+  if (t?.offer) return `Made an offer (${t.offer})`;
+  if (responded) return "Replied — conversation went quiet";
+  return null; // no response
+}
+
 // Build the cold-outreach roster from the HubSpot sequence audience, enriching
 // each recipient with the matching deal-mailbox thread (when a cold send turned
 // into a real exchange). Responders sort to the top, then most-recently-sent.
@@ -682,7 +694,7 @@ function buildCold(recipients: RecipientEngagement[], threadByEmail: Map<string,
         active: !!(t && t.active),
         lastSent: ymd(r.lastSent),
         sequenceName: r.sequenceName,
-        outcome: t?.outcome || null,
+        outcome: coldResult(t, responded),
         offer: t?.offer || null,
       };
     })
@@ -722,10 +734,17 @@ function buildTranscript(ms: GmailMessage[], us: (m: GmailMessage) => boolean): 
 async function applyRecaps(domain: string, threads: DealThread[], transcripts: ThreadTranscript[], env: NodeJS.ProcessEnv): Promise<void> {
   try {
     const { recapThreads } = await import("./marketplace-deal-recaps");
-    const items = threads.map((t, i) => ({
-      idx: i, party: t.party, origin: t.origin,
-      subject: t.subject, transcript: transcripts[i]?.lines.join("\n") || "",
-    }));
+    // Prioritize threads with a real conversation (active / replied / offer /
+    // longer) so the recap's per-call thread cap isn't spent on dead-end inbound
+    // forms — cold responders need their outcome too. idx maps back to the thread,
+    // so reordering here is safe.
+    const items = threads
+      .map((t, i) => ({
+        idx: i, party: t.party, origin: t.origin,
+        subject: t.subject, transcript: transcripts[i]?.lines.join("\n") || "",
+        w: (t.active ? 8 : 0) + (t.repliedAfterUs ? 4 : 0) + (t.offer ? 2 : 0) + Math.min(t.messages, 3),
+      }))
+      .sort((a, b) => b.w - a.w);
     const recaps = await recapThreads(domain, items, env);
     for (const [i, r] of recaps) {
       const t = threads[i];

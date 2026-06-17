@@ -452,7 +452,7 @@ export default function DealClient({ domain }: { domain: string }) {
                     <table style={{ borderCollapse: "collapse", width: "100%" }}>
                       <thead><tr>
                         <th style={head}>Recipient</th><th style={head}>Sends</th><th style={head}>Engagement</th>
-                        <th style={head}>Status</th><th style={head}>Last sent</th><th style={{ ...head, width: "34%" }}>Sequence / outcome</th>
+                        <th style={head}>Status</th><th style={head}>Last sent</th><th style={{ ...head, width: "36%" }}>Result</th>
                       </tr></thead>
                       <tbody>
                         {coldRows.map((r, i) => (
@@ -476,10 +476,11 @@ export default function DealClient({ domain }: { domain: string }) {
                             </td>
                             <td style={{ ...cell, whiteSpace: "nowrap" }}>{r.lastSent}</td>
                             <td style={cell}>
-                              {r.outcome ? <div>{r.outcome}</div> : null}
-                              {r.offer && <div style={{ fontWeight: 600, color: NAVY, fontSize: 13 }}>{r.offer}</div>}
-                              {r.sequenceName && <div className="muted" style={{ fontSize: 11, marginTop: r.outcome ? 3 : 0 }}>📋 {r.sequenceName}</div>}
-                              {!r.outcome && !r.sequenceName && <span className="muted">—</span>}
+                              {r.outcome
+                                ? <div style={{ fontWeight: r.responded ? 600 : 400, color: r.responded ? NAVY : "var(--muted,#857c6c)" }}>{r.outcome}</div>
+                                : <span className="muted">No response</span>}
+                              {r.offer && <div style={{ fontWeight: 700, color: CORAL, fontSize: 13, marginTop: 2 }}>{r.offer}</div>}
+                              {r.sequenceName && <div className="muted" style={{ fontSize: 10.5, marginTop: 3, opacity: .8 }}>via {r.sequenceName}</div>}
                             </td>
                           </tr>
                         ))}

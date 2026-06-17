@@ -17,7 +17,8 @@ const SYSTEM = (domain: string) =>
   `For each thread, return:\n` +
   `- "outcome": a single factual clause (max 14 words) describing what happened / the current state — e.g. ` +
   `"Offered $8k, we countered at $20k, awaiting reply", "Went quiet after our reply", "Asked for price, no follow-up", ` +
-  `"Declined — over budget", "Agreed terms, moved to escrow". No fluff, no quotes of email text.\n` +
+  `"Declined — over budget", "Said our price was too high", "Not interested", "Agreed terms, moved to escrow". ` +
+  `Capture the real result: did they make an offer, decline, balk at the price, or go quiet? No fluff, no quotes of email text.\n` +
   `- "offer": the BUYER's specific dollar offer if they named one, as "$12,000". This is what the BUYER offered to PAY — ` +
   `NEVER our asking/list price that we quoted them. null if the buyer never named an offer.\n` +
   `Return ONLY a JSON array: [{"idx":0,"outcome":"...","offer":"$X"|null}, ...] for every thread given.`;
