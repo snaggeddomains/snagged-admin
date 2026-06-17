@@ -4,10 +4,16 @@
 // pitch of that domain to that client — surfaced under "Pitched to buyers" in
 // the marketplace deal report.
 //
-// SOURCING: a small explicit registry (sheet id -> client). Add an engagement by
-// adding a line here. The sheets are read with the same service account the rest
-// of the report uses (plain SA token, no impersonation); each must be shared with
+// SOURCING: a self-serve **index sheet** (the "Pitch Exercises Index") maps each
+// engagement's workbook -> client. Add an engagement by adding a row there — no
+// code change. Columns: `Sheet URL | Client | Active?` (Client optional, falls
+// back to the workbook title; Active? = no/false/paused to pause without
+// deleting). The sheets are read with the same service account the rest of the
+// report uses (plain SA token, no impersonation); the index AND each exercise
+// workbook must be shared with
 // marketplace-pipeline@snagged-pipeline.iam.gserviceaccount.com (or link-shared).
+// If the index is unreadable we fall back to FALLBACK_EXERCISES so the report
+// never goes blank.
 //
 // MATCHING is EXACT-DOMAIN. Tabs vary in shape (header rows, headerless "Grant
 // Picks", an SLD/TLD split tab), so we don't trust column positions — we scan
@@ -25,11 +31,47 @@ export type PitchExercise = {
   note: string | null; // adjacent comment/notes, if any
 };
 
-// The registry. `client` is explicit so we don't guess it from the title.
-const EXERCISES: { id: string; client: string }[] = [
+// The index sheet (owned by Rob, shared to the SA). Override via env.
+const INDEX_SHEET_ID = process.env.PITCH_INDEX_SHEET_ID || "1vIcs49EDtWOlCQuUKC0_B-sUQE-1M1ZEovJ9-mW-siA";
+
+// Used only when the index sheet can't be read — keeps the report alive.
+const FALLBACK_EXERCISES: { id: string; client: string }[] = [
   { id: "1KEmJml9MQlooHWkIaTGqa9ZE7TUokkC1sFZoYyLSOts", client: "Raycast" },
   { id: "14JPhUL3fWZ-W_HGDu3Fd4ZCorvgXBxs-FszAUgC_Wlc", client: "Timeglass" },
 ];
+
+const SHEET_ID_RE = /\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/;
+const PAUSED = new Set(["no", "false", "off", "paused", "inactive", "0", "n"]);
+function extractSheetId(s: string): string | null {
+  const v = (s || "").trim();
+  const m = SHEET_ID_RE.exec(v);
+  if (m) return m[1];
+  return /^[a-zA-Z0-9_-]{30,}$/.test(v) ? v : null; // tolerate a bare id
+}
+
+// Read the registry from the index sheet (5-min in-process cache). Each row is
+// `Sheet URL | Client | Active?`; paused rows and unparseable URLs are skipped.
+let _registry: { at: number; rows: { id: string; client: string }[] } | null = null;
+async function getExercises(): Promise<{ id: string; client: string }[]> {
+  if (_registry && Date.now() - _registry.at < 5 * 60_000) return _registry.rows;
+  try {
+    const rows = await getSheetValues(INDEX_SHEET_ID, "Exercises!A2:C200");
+    const out: { id: string; client: string }[] = [];
+    for (const r of rows) {
+      const id = extractSheetId(r[0] || "");
+      if (!id) continue;
+      if (PAUSED.has((r[2] || "yes").trim().toLowerCase())) continue;
+      out.push({ id, client: (r[1] || "").trim() });
+    }
+    if (out.length) {
+      _registry = { at: Date.now(), rows: out };
+      return out;
+    }
+  } catch {
+    // index unreadable — fall through to the hardcoded fallback
+  }
+  return FALLBACK_EXERCISES;
+}
 
 const sheetUrl = (id: string) => `https://docs.google.com/spreadsheets/d/${id}/edit`;
 const DOMAIN_RE = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9-]+)+$/i;
@@ -64,8 +106,9 @@ function rowExtras(cells: string[], matched: string): { price: string | null; no
 // Fail-soft per workbook/tab; returns lowercased bare domains.
 export async function allExerciseDomains(): Promise<Set<string>> {
   const out = new Set<string>();
+  const exercises = await getExercises();
   await Promise.all(
-    EXERCISES.map(async ({ id }) => {
+    exercises.map(async ({ id }) => {
       let meta: { title: string; tabs: string[] };
       try {
         meta = await getSheetMeta(id);
@@ -92,14 +135,16 @@ export async function findPitchExercises(domain: string): Promise<PitchExercise[
   const target = norm(domain);
   if (!target) return [];
   const found: PitchExercise[] = [];
+  const exercises = await getExercises();
   await Promise.all(
-    EXERCISES.map(async ({ id, client }) => {
+    exercises.map(async ({ id, client }) => {
       let meta: { title: string; tabs: string[] };
       try {
         meta = await getSheetMeta(id);
       } catch {
         return; // sheet not shared / unreadable — skip silently
       }
+      const clientName = client || meta.title; // index Client is optional
       for (const tab of meta.tabs) {
         let rows: string[][] = [];
         try {
@@ -110,7 +155,7 @@ export async function findPitchExercises(domain: string): Promise<PitchExercise[
         for (const cells of rows) {
           if (!rowDomains(cells).has(target)) continue;
           const { price, note } = rowExtras(cells, target);
-          found.push({ client, sheetTitle: meta.title, tab, url: sheetUrl(id), price, note });
+          found.push({ client: clientName, sheetTitle: meta.title, tab, url: sheetUrl(id), price, note });
           break; // one credit per (client, tab) is enough
         }
       }
