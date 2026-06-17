@@ -13,7 +13,7 @@ type DealThread = {
   budget: string | null; offer: string | null; intent: string | null; outcome: string | null;
   messages: number; first: string; last: string; lastSnippet: string;
 };
-type PitchExercise = { client: string; description?: string | null; sheetTitle: string; tab: string; url: string; price: string | null; note: string | null };
+type PitchExercise = { client: string; description?: string | null; paused?: boolean; sheetTitle: string; tab: string; url: string; price: string | null; note: string | null };
 type ColdRecipient = {
   party: string; email: string; sends: number; opened: boolean; clicked: boolean; replied: boolean;
   responded: boolean; chain: number; active: boolean; lastSent: string; sequenceName: string | null; outcome: string | null; offer: string | null;
@@ -394,7 +394,8 @@ export default function DealClient({ domain }: { domain: string }) {
                     {exercises.map((e, i) => (
                       <tr key={i}>
                         <td style={cell}>
-                          <span style={{ fontWeight: 600 }}>{e.client}</span>
+                          <span style={{ fontWeight: 600, color: e.paused ? "#8a8275" : NAVY }}>{e.client}</span>
+                          {e.paused && <span title="Engagement paused / past in the index" style={{ marginLeft: 6, fontSize: 11, fontWeight: 700, color: "#8a8275", border: "1px solid #cfc7b6", borderRadius: 999, padding: "1px 7px", whiteSpace: "nowrap" }}>Past</span>}
                           {e.description && <div className="muted" style={{ fontSize: 11, marginTop: 2 }}>{e.description}</div>}
                         </td>
                         <td style={cell}>

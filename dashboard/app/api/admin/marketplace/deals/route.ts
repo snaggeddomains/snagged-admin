@@ -9,7 +9,7 @@ import { getCurrentUser } from "@/lib/session";
 import { canReports } from "@/lib/permissions";
 import { analyticsReport, gaConfigured, type MarketplaceReport } from "@/lib/ga";
 import { getNewsletterFeatures, summarizeNewsletter } from "@/lib/newsletter";
-import { buildDealReport, type DealReport } from "@/lib/marketplace-deals";
+import { buildDealReport, REPORT_VERSION, type DealReport } from "@/lib/marketplace-deals";
 import { gmailConfigured } from "@/lib/gmail";
 import { getDb, isDbConfigured } from "@/lib/supabase";
 
@@ -25,11 +25,10 @@ async function readCache(domain: string): Promise<{ report: DealReport; generate
   if (!isDbConfigured()) return null;
   try {
     const { data } = await getDb().from(TABLE).select("report,generated_at").eq("domain", domain).maybeSingle();
-    // Ignore reports cached before the HubSpot pitch-classification existed
-    // (`pitchSource` is the current schema marker; `inboundEngaged` was the prior
-    // one) so they rebuild fresh with the authoritative sequence-vs-1:1 signal
-    // instead of serving the old Gmail-heuristic classification.
-    if (data?.report && (data.report as Record<string, unknown>).pitchSource !== undefined) {
+    // Rebuild any report cached under an older computation (the `reportVersion`
+    // marker is bumped in marketplace-deals.ts whenever the logic changes) so a
+    // stale cache never serves an outdated categorization.
+    if (data?.report && (data.report as Record<string, unknown>).reportVersion === REPORT_VERSION) {
       return { report: data.report as DealReport, generatedAt: data.generated_at };
     }
   } catch { /* table may not exist yet — treat as miss */ }
