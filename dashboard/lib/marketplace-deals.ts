@@ -193,6 +193,10 @@ export type ColdRecipient = {
   clicked: boolean;
   replied: boolean; // they replied to our cold send
   responded: boolean; // replied OR became a two-way thread in the mailboxes
+  // Emails in the back-and-forth with THIS recipient — the full thread length when
+  // a deal-mailbox thread exists, else the count of our sequence steps they
+  // replied to. The per-person drill-down behind the "responded" count.
+  chain: number;
   active: boolean; // matching live two-way negotiation (recent, not declined)
   lastSent: string; // YYYY-MM-DD
   sequenceName: string | null;
@@ -202,9 +206,10 @@ export type ColdRecipient = {
 export type ColdOutreach = {
   recipients: number;
   sends: number;
-  opened: number; // # recipients who opened ≥1 send
-  clicked: number;
-  replied: number;
+  opened: number; // # UNIQUE recipients who opened ≥1 send
+  clicked: number; // # unique recipients who clicked
+  replied: number; // # unique recipients who replied (never a sum of reply emails)
+  responded: number; // # unique recipients who responded (replied OR two-way thread)
   active: number; // # that turned into a live negotiation
   rows: ColdRecipient[];
 };
@@ -583,6 +588,7 @@ function buildCold(recipients: RecipientEngagement[], threadByEmail: Map<string,
     .map((r) => {
       const t = threadByEmail.get(r.email.toLowerCase());
       const replied = r.replied > 0;
+      const responded = replied || !!(t && t.repliedAfterUs);
       return {
         party: (t && t.party !== "—" ? t.party : "") || r.name || r.email.split("@")[0],
         email: r.email,
@@ -590,7 +596,10 @@ function buildCold(recipients: RecipientEngagement[], threadByEmail: Map<string,
         opened: r.opened > 0,
         clicked: r.clicked > 0,
         replied,
-        responded: replied || !!(t && t.repliedAfterUs),
+        responded,
+        // Real conversation length when we have the thread, else the # of our
+        // sends they replied to (0 when they never responded).
+        chain: t ? t.messages : r.replied,
         active: !!(t && t.active),
         lastSent: ymd(r.lastSent),
         sequenceName: r.sequenceName,
@@ -605,6 +614,7 @@ function buildCold(recipients: RecipientEngagement[], threadByEmail: Map<string,
     opened: rows.filter((r) => r.opened).length,
     clicked: rows.filter((r) => r.clicked).length,
     replied: rows.filter((r) => r.replied).length,
+    responded: rows.filter((r) => r.responded).length,
     active: rows.filter((r) => r.active).length,
     rows,
   };

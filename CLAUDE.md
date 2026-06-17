@@ -38,6 +38,13 @@ rebuild). Enhancements this session:
   became a real exchange (`buildCold` in marketplace-deals.ts). `DealReport.cold: ColdOutreach`.
   Mass pitched-Gmail-threads are NOT shown in bucket 2 (they live in bucket 3) when HubSpot is
   on; without HubSpot, bucket 2 shows all pitched threads with a Mass/1:1 chip.
+- **Unique-people metrics + chain drill-down (2026-06-17).** Every bucket's Opened / Clicked /
+  Responded headline counts **unique individuals**, never a sum of reply emails (one recipient
+  who generated a 100-email back-and-forth still counts as ONE responder). The "Responded" metric
+  card is **clickable** → flips the bucket's toggle to the responded breakdown. Each cold roster
+  row carries `chain` (the real conversation length — the matching deal-mailbox thread's message
+  count, else the # of sequence steps the recipient replied to), shown as "💬 N in chain"; the
+  pitched-1:1 rows show the chain as "· N msg". `ColdOutreach` adds a `responded` aggregate.
 - **Pitch-scan sharpening (`lib/pitch-scan.ts`).** The weekly scan drops sent messages HubSpot
   logged as `INCOMING_EMAIL` (buyer replies mis-filed in Sent) and annotates confirmed cold
   sequence sends with their sequence name in the digest.

@@ -16,9 +16,9 @@ type DealThread = {
 type PitchExercise = { client: string; description?: string | null; sheetTitle: string; tab: string; url: string; price: string | null; note: string | null };
 type ColdRecipient = {
   party: string; email: string; sends: number; opened: boolean; clicked: boolean; replied: boolean;
-  responded: boolean; active: boolean; lastSent: string; sequenceName: string | null; outcome: string | null; offer: string | null;
+  responded: boolean; chain: number; active: boolean; lastSent: string; sequenceName: string | null; outcome: string | null; offer: string | null;
 };
-type ColdOutreach = { recipients: number; sends: number; opened: number; clicked: number; replied: number; active: number; rows: ColdRecipient[] };
+type ColdOutreach = { recipients: number; sends: number; opened: number; clicked: number; replied: number; responded: number; active: number; rows: ColdRecipient[] };
 type DealReport = {
   domain: string; inbound: number; inboundQualified: number; inboundEngaged: number; activeNegotiations: number;
   pitched: number; pitchedMass: number; pitchedIndividual: number; pitchSource?: "hubspot" | "heuristic";
@@ -53,11 +53,15 @@ const PRESETS: { key: Preset; label: string }[] = [
   { key: "365", label: "Last 12 months" }, { key: "all", label: "All time" }, { key: "custom", label: "Custom" },
 ];
 
-function StatCard({ label, value, accent }: { label: string; value: number; accent?: boolean }) {
+function StatCard({ label, value, accent, onClick, hint }: { label: string; value: number; accent?: boolean; onClick?: () => void; hint?: string }) {
   return (
-    <div style={{ border: "1px solid #e3ddcf", borderRadius: 10, padding: "12px 16px", minWidth: 120, flex: "1 1 120px" }}>
+    <div
+      onClick={onClick}
+      title={onClick ? hint || "Click to break down" : undefined}
+      style={{ border: `1px solid ${onClick ? "#d8d0bf" : "#e3ddcf"}`, borderRadius: 10, padding: "12px 16px", minWidth: 120, flex: "1 1 120px", cursor: onClick ? "pointer" : "default" }}
+    >
       <div style={{ fontSize: 30, fontWeight: 800, color: accent ? CORAL : NAVY }}>{fmt(value)}</div>
-      <div className="muted" style={{ fontSize: 13.5, marginTop: 2 }}>{label}</div>
+      <div className="muted" style={{ fontSize: 13.5, marginTop: 2 }}>{label}{onClick && <span style={{ color: CORAL }}> ›</span>}</div>
     </div>
   );
 }
@@ -251,7 +255,6 @@ export default function DealClient({ domain }: { domain: string }) {
   const hsOn = rep?.pitchSource === "hubspot";
   const p1Opened = pitched1on1.filter((t) => (t.opens || 0) > 0).length;
   const p1Clicked = pitched1on1.filter((t) => (t.clicks || 0) > 0).length;
-  const p1Replied = pitched1on1.filter((t) => (t.replies || 0) > 0).length;
   const p1Active = pitched1on1.filter((t) => t.active).length;
 
   // Section 3 — cold outreach (HubSpot sequences), full audience.
@@ -351,7 +354,8 @@ export default function DealClient({ domain }: { domain: string }) {
           <h3 style={{ fontSize: 16.5, margin: "28px 0 6px" }}>2 · Pitched 1:1 <span className="muted" style={{ fontWeight: 400, fontSize: 12.5 }}>— individual outreach &amp; naming-exercise pitches</span></h3>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 10 }}>
             <AggCard label="People pitched 1:1" value={pitched1on1.length + exercises.length} sub={exercises.length ? `incl. ${exercises.length} naming-exercise` : "individual outreach"} accent />
-            {hsOn && <><StatCard label="Opened" value={p1Opened} /><StatCard label="Clicked" value={p1Clicked} /><StatCard label="Replied" value={p1Replied} /></>}
+            {hsOn && <><StatCard label="Opened" value={p1Opened} /><StatCard label="Clicked" value={p1Clicked} /></>}
+            <StatCard label="Responded" value={pitch1RespondedCount} hint="People who replied — click to see who" onClick={() => setPitchView("responded")} />
             <StatCard label="Active" value={p1Active} />
           </div>
           {pitched1on1.length === 0 && exercises.length === 0 ? <p className="muted" style={{ fontSize: 13 }}>None.</p> : null}
@@ -415,7 +419,7 @@ export default function DealClient({ domain }: { domain: string }) {
                 <AggCard label="Recipients" value={cold.recipients} sub={`${fmt(cold.sends)} sends`} accent />
                 <StatCard label="Opened" value={cold.opened} />
                 <StatCard label="Clicked" value={cold.clicked} />
-                <StatCard label="Replied" value={cold.replied} accent />
+                <StatCard label="Responded" value={cold.responded} accent hint="Unique people who replied — click to see who" onClick={() => setColdView("responded")} />
                 <StatCard label="Active" value={cold.active} />
               </div>
               {cold.rows.length === 0 ? <p className="muted" style={{ fontSize: 13 }}>No cold sequence sends for this domain.</p> : (
@@ -437,10 +441,11 @@ export default function DealClient({ domain }: { domain: string }) {
                             <td style={cell}><div style={{ fontWeight: 600 }}>{r.party}</div><div className="muted" style={{ fontSize: 11 }}>{r.email}</div></td>
                             <td style={{ ...cell, whiteSpace: "nowrap" }}>{r.sends}</td>
                             <td style={cell}>
-                              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
                                 <MiniBadge on={r.opened} label="opened" color="#2f6f8a" />
                                 <MiniBadge on={r.clicked} label="clicked" color="#8a6d3b" />
                                 <MiniBadge on={r.replied} label="replied" color="#2f7d4f" />
+                                {r.responded && r.chain > 1 && <span title="Emails in the back-and-forth" style={{ fontSize: 11, color: NAVY, fontWeight: 600, whiteSpace: "nowrap" }}>💬 {r.chain} in chain</span>}
                               </div>
                             </td>
                             <td style={cell}>
