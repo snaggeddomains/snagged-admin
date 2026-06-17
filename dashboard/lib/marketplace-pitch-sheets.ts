@@ -24,6 +24,7 @@ import { getSheetValues, getSheetMeta } from "./sheets";
 
 export type PitchExercise = {
   client: string; // who we pitched (the engagement)
+  description: string | null; // color on the type of company (from the index)
   sheetTitle: string; // workbook title
   tab: string; // which tab the domain was found on
   url: string; // link to the workbook
@@ -35,9 +36,9 @@ export type PitchExercise = {
 const INDEX_SHEET_ID = process.env.PITCH_INDEX_SHEET_ID || "1vIcs49EDtWOlCQuUKC0_B-sUQE-1M1ZEovJ9-mW-siA";
 
 // Used only when the index sheet can't be read — keeps the report alive.
-const FALLBACK_EXERCISES: { id: string; client: string }[] = [
-  { id: "1KEmJml9MQlooHWkIaTGqa9ZE7TUokkC1sFZoYyLSOts", client: "Raycast" },
-  { id: "14JPhUL3fWZ-W_HGDu3Fd4ZCorvgXBxs-FszAUgC_Wlc", client: "Timeglass" },
+const FALLBACK_EXERCISES: { id: string; client: string; description: string | null }[] = [
+  { id: "1KEmJml9MQlooHWkIaTGqa9ZE7TUokkC1sFZoYyLSOts", client: "Raycast", description: null },
+  { id: "14JPhUL3fWZ-W_HGDu3Fd4ZCorvgXBxs-FszAUgC_Wlc", client: "Timeglass", description: null },
 ];
 
 const SHEET_ID_RE = /\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/;
@@ -50,18 +51,20 @@ function extractSheetId(s: string): string | null {
 }
 
 // Read the registry from the index sheet (5-min in-process cache). Each row is
-// `Sheet URL | Client | Active?`; paused rows and unparseable URLs are skipped.
-let _registry: { at: number; rows: { id: string; client: string }[] } | null = null;
-async function getExercises(): Promise<{ id: string; client: string }[]> {
+// `Sheet URL | Client | Client Description | Active?`; paused rows and unparseable
+// URLs are skipped.
+type ExerciseRow = { id: string; client: string; description: string | null };
+let _registry: { at: number; rows: ExerciseRow[] } | null = null;
+async function getExercises(): Promise<ExerciseRow[]> {
   if (_registry && Date.now() - _registry.at < 5 * 60_000) return _registry.rows;
   try {
-    const rows = await getSheetValues(INDEX_SHEET_ID, "Exercises!A2:C200");
-    const out: { id: string; client: string }[] = [];
+    const rows = await getSheetValues(INDEX_SHEET_ID, "Exercises!A2:D200");
+    const out: ExerciseRow[] = [];
     for (const r of rows) {
       const id = extractSheetId(r[0] || "");
       if (!id) continue;
-      if (PAUSED.has((r[2] || "yes").trim().toLowerCase())) continue;
-      out.push({ id, client: (r[1] || "").trim() });
+      if (PAUSED.has((r[3] || "yes").trim().toLowerCase())) continue;
+      out.push({ id, client: (r[1] || "").trim(), description: (r[2] || "").trim() || null });
     }
     if (out.length) {
       _registry = { at: Date.now(), rows: out };
@@ -137,7 +140,7 @@ export async function findPitchExercises(domain: string): Promise<PitchExercise[
   const found: PitchExercise[] = [];
   const exercises = await getExercises();
   await Promise.all(
-    exercises.map(async ({ id, client }) => {
+    exercises.map(async ({ id, client, description }) => {
       let meta: { title: string; tabs: string[] };
       try {
         meta = await getSheetMeta(id);
@@ -155,7 +158,7 @@ export async function findPitchExercises(domain: string): Promise<PitchExercise[
         for (const cells of rows) {
           if (!rowDomains(cells).has(target)) continue;
           const { price, note } = rowExtras(cells, target);
-          found.push({ client: clientName, sheetTitle: meta.title, tab, url: sheetUrl(id), price, note });
+          found.push({ client: clientName, description, sheetTitle: meta.title, tab, url: sheetUrl(id), price, note });
           break; // one credit per (client, tab) is enough
         }
       }
