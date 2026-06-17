@@ -13,8 +13,17 @@
 // + a 46-msg Efty negotiation). Read-only; see lib/gmail.ts.
 
 import { dealMailboxes, getThread, searchThreadIds, type GmailMessage } from "./gmail";
+import { findPitchExercises, type PitchExercise } from "./marketplace-pitch-sheets";
 
 const isUs = (a: string) => a.endsWith("@snagged.com") || a.endsWith("@snagged.co");
+
+// Marketplace BROKERS / platforms (GoDaddy + its Afternic arm). They FORWARD
+// buyer inquiries and run their own outreach (e.g. "Afternic Sales", Jason
+// Villalobos @ GoDaddy) — but the broker is NOT the buyer, so they're suppressed
+// as a counterparty everywhere: they never occupy a row or a count. A real buyer
+// the broker forwards still surfaces (from the form / forwarded headers); a
+// broker-only thread with no underlying buyer is dropped as noise.
+const BROKER_DOMAINS = ["godaddy.com", "afternic.com"];
 
 // System/automation senders that are never a human counterparty. Form
 // notifications are DELIVERED by some of these (zapiermail/superhuman/
@@ -35,6 +44,7 @@ const SYSTEM_ADDRS = new Set(["sharing@superhuman.com", "reminder@superhuman.com
 function isSystem(addr: string, name = ""): boolean {
   if (SYSTEM_ADDRS.has(addr)) return true;
   if (SYSTEM_DOMAINS.some((d) => addr.includes(d))) return true;
+  if (BROKER_DOMAINS.some((d) => addr.endsWith("@" + d) || addr.endsWith("." + d))) return true;
   if (/via asana/i.test(name)) return true;
   return false;
 }
@@ -93,6 +103,13 @@ export type DealThread = {
   declined: boolean; // buyer signalled they're out
   hasForm: boolean;
   qualified: boolean; // a credible buyer (real budget / business email / engaged)
+  // True two-way exchange: the buyer sent a message AFTER our first reply — i.e.
+  // they engaged in a back-and-forth, not just submitted a form and went silent.
+  // (For a pitched thread: they replied to our outreach.)
+  repliedAfterUs: boolean;
+  // For pitched threads only: was the outreach a cold mass send (HubSpot blast /
+  // sequence) or an individual 1:1 pitch? null for inbound.
+  pitchKind: "mass" | "individual" | null;
   party: string;
   partyEmail: string | null;
   budget: string | null; // a budget BAND from the form ("$5K to $25K")
@@ -132,8 +149,15 @@ export type DealReport = {
   domain: string;
   inbound: number;
   inboundQualified: number;
+  // Qualified inbound that became a real back-and-forth (buyer replied after our
+  // reply) — the "X actually responded after we did" number vs. form-and-gone.
+  inboundEngaged: number;
   activeNegotiations: number;
   pitched: number;
+  pitchedMass: number; // cold mass sends (HubSpot)
+  pitchedIndividual: number; // 1:1 outreach
+  // Naming-exercise pitches: this domain appearing in a client's pitch sheet.
+  pitchExercises: PitchExercise[];
   // Owner engagement start, from the completed Snagged brokerage DocuSign.
   representingSince: string | null;
   // Sale outcome, from Escrow.com (null if never went to escrow).
@@ -291,10 +315,11 @@ function resolveExternalParty(ms: GmailMessage[], sellerEmails: Set<string>, sel
 
 export async function buildDealReport(domain: string): Promise<DealReport> {
   domain = domain.toLowerCase().replace(/^www\./, "");
-  const [msgs, sale, representingSince] = await Promise.all([
+  const [msgs, sale, representingSince, pitchExercises] = await Promise.all([
     collect(domain),
     detectSale(domain),
     detectRepresentingSince(domain),
+    findPitchExercises(domain).catch(() => [] as PitchExercise[]),
   ]);
 
   // Group into conversations by Gmail THREAD ID — the real conversation boundary.
@@ -373,6 +398,15 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
     const recentThem = themMsgs.slice(-2).map((m) => `${m.subject}\n${m.body}`).join("\n");
     const declined = DECLINE.test(recentThem);
     const active = hasUs && hasThem && !stale && !declined;
+    // Real two-way: a buyer message dated after our FIRST reply (so they engaged
+    // beyond the initial form / our cold pitch). active is recency-gated; this is
+    // the all-time "did they ever respond after we did" signal.
+    const firstUsDate = usMsgs.length ? usMsgs[0].date : Infinity;
+    const repliedAfterUs = themMsgs.some((m) => m.date > firstUsDate);
+    // Pitch type (pitched threads only): a HubSpot/ESP blast on any of our sends
+    // → mass; otherwise an individual 1:1 pitch.
+    const pitchKind: "mass" | "individual" | null =
+      origin === "pitched" ? (usMsgs.some((m) => m.bulk) ? "mass" : "individual") : null;
 
     const fm = formMatch[0] || null;
     // Buyer identity: the form's contact, else the resolved external party
@@ -385,7 +419,7 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
 
     threads.push({
       subject: ms[ms.length - 1].subject,
-      origin, active, stale, declined, hasForm, qualified,
+      origin, active, stale, declined, hasForm, qualified, repliedAfterUs, pitchKind,
       party: party || "—",
       partyEmail,
       budget: fm && hasBudget(fm.budget) ? fm.budget : null,
@@ -419,6 +453,8 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
       keep.offer = keep.offer || drop.offer;
       keep.outcome = keep.outcome || drop.outcome;
       keep.qualified = keep.qualified || drop.qualified;
+      keep.repliedAfterUs = keep.repliedAfterUs || drop.repliedAfterUs;
+      keep.pitchKind = keep.pitchKind || drop.pitchKind;
       if (drop.last > keep.last) keep.last = drop.last;
       if (drop.first < keep.first) keep.first = drop.first;
     };
@@ -432,12 +468,17 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
   });
 
   final.sort((a, b) => (a.last < b.last ? 1 : -1));
+  const pitchedThreads = final.filter((t) => t.origin === "pitched");
   return {
     domain,
     inbound: final.filter((t) => t.origin === "inbound").length,
     inboundQualified: final.filter((t) => t.origin === "inbound" && t.qualified).length,
+    inboundEngaged: final.filter((t) => t.origin === "inbound" && t.qualified && t.repliedAfterUs).length,
     activeNegotiations: final.filter((t) => t.active).length,
-    pitched: final.filter((t) => t.origin === "pitched").length,
+    pitched: pitchedThreads.length,
+    pitchedMass: pitchedThreads.filter((t) => t.pitchKind === "mass").length,
+    pitchedIndividual: pitchedThreads.filter((t) => t.pitchKind === "individual").length,
+    pitchExercises,
     representingSince,
     sale,
     threads: final,

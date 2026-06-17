@@ -25,7 +25,12 @@ async function readCache(domain: string): Promise<{ report: DealReport; generate
   if (!isDbConfigured()) return null;
   try {
     const { data } = await getDb().from(TABLE).select("report,generated_at").eq("domain", domain).maybeSingle();
-    if (data?.report) return { report: data.report as DealReport, generatedAt: data.generated_at };
+    // Ignore reports cached before the engagement/pitch-type/exercise fields
+    // existed — `inboundEngaged` is the schema marker — so they rebuild fresh
+    // instead of rendering zeros for the new metrics.
+    if (data?.report && (data.report as Record<string, unknown>).inboundEngaged !== undefined) {
+      return { report: data.report as DealReport, generatedAt: data.generated_at };
+    }
   } catch { /* table may not exist yet — treat as miss */ }
   return null;
 }
