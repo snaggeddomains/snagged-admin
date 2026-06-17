@@ -18,8 +18,10 @@ import { classifyMessageIds, hubspotConfigured, normMid, recipientEngagementForD
 
 // Bump whenever the report's computation changes in a way that should invalidate
 // cached rows (the route's readCache requires the current version). History:
-// 1 = HubSpot three-bucket; 2 = form-submitters-are-inbound + paused exercises.
-export const REPORT_VERSION = 2;
+// 1 = HubSpot three-bucket; 2 = form-submitters-are-inbound + paused exercises;
+// 3 = name/email normalization (parser fix, mailto strip, greeting/HubSpot names)
+// + probable-spam flag.
+export const REPORT_VERSION = 3;
 
 const isUs = (a: string) => a.endsWith("@snagged.com") || a.endsWith("@snagged.co");
 
@@ -68,6 +70,39 @@ function normSubject(s: string): string {
 }
 const sld = (d: string) => d.split(".")[0];
 
+// Pull one clean address out of a raw header/field value that may carry a mailto:
+// hyperlink or angle-bracket noise — Gmail renders a linked address as
+// "x@y.com<mailto:x@y.com>" or "<mailto:x@y.com> x@y.com". Returns "" if none.
+const cleanEmail = (s: string): string => ((s || "").match(/[\w.\-+]+@[\w.\-]+\.[a-z]{2,}/i) || [""])[0].toLowerCase();
+
+// The first name we addressed the buyer by in our own outreach ("Hi George,").
+// Reliable for pitched threads where the recipient address carries no display
+// name and they aren't in HubSpot — we still know who we wrote to. Scans our sent
+// messages; ignores generic greetings ("Hi there/all/team").
+function greetingName(usMsgs: GmailMessage[]): string {
+  for (const m of usMsgs) {
+    const g = (m.body || "").match(/\b(?:hi|hello|hey|dear)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b/);
+    if (g) {
+      const n = g[1].trim();
+      if (!/^(there|all|team|sir|madam|folks|everyone|guys)$/i.test(n)) return n;
+    }
+  }
+  return "";
+}
+const titleCase = (s: string) => s.replace(/\b[a-z]/g, (c) => c.toUpperCase());
+
+// A form inquiry whose message is short, shows no domain-buying intent, and never
+// became a two-way exchange is probably spam (e.g. "account balance", "godfather
+// front streeter"). Conservative — only flags clear, dead-end junk.
+const SPAM_INTENT = /\b(domain|buy|buying|purchas|acquir|interest|offer|price|pricing|sell|sale|website|web ?site|brand|business|startup|compan|budget|inquir|avail|cost|how much|negotiat|deal|invest|\.(com|co|ai|io|net|org))\b/i;
+function looksSpam(message: string, hasForm: boolean, repliedAfterUs: boolean): boolean {
+  if (!hasForm || repliedAfterUs) return false; // judge dead-end form submissions only
+  const msg = (message || "").trim();
+  if (msg.length < 2) return false; // an empty message isn't enough to call spam
+  if (SPAM_INTENT.test(msg)) return false; // any buying-intent signal → not spam
+  return msg.split(/\s+/).length <= 8; // short + zero intent + no reply → junk
+}
+
 type Form = { domain: string; name: string; email: string; budget: string; offer: string; message: string; intent: string };
 // Parse a structured inquiry-form body. Handles all three historical formats:
 // marketplace@ / newer Zapier ("Domain Name: X.com") and the older Superhuman/
@@ -88,7 +123,8 @@ function parseForm(m: GmailMessage): Form | null {
   return {
     domain: dnRaw.toLowerCase().replace(/^www\./, "").split(/[\s,]+/)[0],
     name: (field("Name") || m.fromName || "").slice(0, 60),
-    email: (field("Email") || "").slice(0, 80),
+    email: cleanEmail(field("Email")), // strip mailto: hyperlink noise → bare address
+
     budget: field("Budget").slice(0, 40), // a budget BAND (marketplace form)
     offer: offer && offer !== "-" && /\d/.test(offer) ? offer.slice(0, 40) : "", // a specific $ offer (Efty)
     message: field("Message").slice(0, 400),
@@ -113,6 +149,10 @@ export type DealThread = {
   // they engaged in a back-and-forth, not just submitted a form and went silent.
   // (For a pitched thread: they replied to our outreach.)
   repliedAfterUs: boolean;
+  // Probable spam: a dead-end form submission whose message is unrelated to
+  // buying a domain (e.g. "account balance"). Excluded from the inbound counts
+  // and hidden behind the report's "Probable spam" filter.
+  spam: boolean;
   // For pitched threads only: was the outreach a cold mass send (HubSpot
   // sequence) or an individual 1:1 pitch? null for inbound. Sourced from the
   // HubSpot CRM email log (hs_sequence_id), heuristic fallback when not logged.
@@ -315,9 +355,16 @@ async function collect(domain: string): Promise<GmailMessage[]> {
 // {name,email} pairs from a To/Cc header string.
 function addrsIn(h: string): { name: string; email: string }[] {
   const out: { name: string; email: string }[] = [];
-  const re = /(?:"?([^"<>,]+?)"?\s*)?<?\s*([\w.\-+]+@[\w.\-]+)\s*>?/g;
+  // Two shapes: `Name <email>` (name captured) or a bare `email` (no name). The
+  // old single pattern had a lazy name group that, on a BARE address, peeled the
+  // first character off as a "name" (mohebullah727@gmail.com → name "m" + email
+  // "ohebullah727@…") which also corrupted the address. Match them separately.
+  const re = /"?([^"<>,]+?)"?\s*<\s*([\w.\-+]+@[\w.\-]+)\s*>|([\w.\-+]+@[\w.\-]+)/g;
   let m: RegExpExecArray | null;
-  while ((m = re.exec(h || ""))) out.push({ name: (m[1] || "").trim(), email: m[2].toLowerCase() });
+  while ((m = re.exec(h || ""))) {
+    if (m[2]) out.push({ name: (m[1] || "").trim(), email: m[2].toLowerCase() });
+    else if (m[3]) out.push({ name: "", email: m[3].toLowerCase() });
+  }
   return out;
 }
 // Participants from FORWARDED message headers inside a body — "From: Name <email>"
@@ -486,19 +533,26 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
     }
 
     const fm = formMatch[0] || null;
-    // Buyer identity: the form's contact, else the resolved external party
-    // (From/To/Cc/forwarded). Never us or the seller.
-    const party = (fm?.name || extParty?.name || "").trim();
-    const partyEmail = fm?.email || extParty?.email || null;
+    // Buyer email: the form's contact, else the resolved external party — always
+    // normalized to a bare address (mailto: hyperlink noise stripped).
+    const partyEmail = (cleanEmail(fm?.email || "") || extParty?.email || "").toLowerCase() || null;
     // HubSpot send-engagement for our outreach to this party (pitched threads).
-    const eng = partyEmail ? engByEmail.get(partyEmail.toLowerCase()) : undefined;
+    const eng = partyEmail ? engByEmail.get(partyEmail) : undefined;
+    // Buyer name, best available: the form's Name → HubSpot first/last → an email
+    // display name → the first name WE addressed them by ("Hi George,") → a
+    // humanized email local-part. Never a single stray letter (the old To-header
+    // parser bug) or us/the seller.
+    const localName = partyEmail ? titleCase(partyEmail.split("@")[0].replace(/[._\-+]+/g, " ").trim()) : "";
+    const party = (fm?.name || eng?.name || extParty?.name || greetingName(usMsgs) || localName || "").trim();
 
     const emailDom = (partyEmail || "").split("@")[1]?.toLowerCase() || "";
     const qualified = hasBudget(fm?.budget) || (!!emailDom && !FREE_EMAIL.has(emailDom)) || ms.length >= 3 || (hasUs && hasThem);
+    // Clear, dead-end junk form submissions (unrelated short message, no reply).
+    const spam = looksSpam(fm?.message || "", hasForm, repliedAfterUs);
 
     threads.push({
       subject: ms[ms.length - 1].subject,
-      origin, active, stale, declined, hasForm, qualified, repliedAfterUs, pitchKind, sequenceName,
+      origin, active, stale, declined, hasForm, qualified, repliedAfterUs, spam, pitchKind, sequenceName,
       opens: origin === "pitched" && eng ? eng.opened : null,
       clicks: origin === "pitched" && eng ? eng.clicked : null,
       replies: origin === "pitched" && eng ? eng.replied : null,
@@ -536,6 +590,7 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
       keep.outcome = keep.outcome || drop.outcome;
       keep.qualified = keep.qualified || drop.qualified;
       keep.repliedAfterUs = keep.repliedAfterUs || drop.repliedAfterUs;
+      keep.spam = keep.spam && drop.spam; // any non-spam thread for this buyer clears it
       // A marketplace form submission ANYWHERE means the buyer came to us first —
       // that's an inbound inquiry, even if we later pitched them in a separate
       // thread (which on its own looks "pitched"). Inbound wins, and we carry the
@@ -587,9 +642,9 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
   return {
     reportVersion: REPORT_VERSION,
     domain,
-    inbound: final.filter((t) => t.origin === "inbound").length,
-    inboundQualified: final.filter((t) => t.origin === "inbound" && t.qualified).length,
-    inboundEngaged: final.filter((t) => t.origin === "inbound" && t.qualified && t.repliedAfterUs).length,
+    inbound: final.filter((t) => t.origin === "inbound" && !t.spam).length,
+    inboundQualified: final.filter((t) => t.origin === "inbound" && t.qualified && !t.spam).length,
+    inboundEngaged: final.filter((t) => t.origin === "inbound" && t.qualified && t.repliedAfterUs && !t.spam).length,
     activeNegotiations: final.filter((t) => t.active).length,
     pitched: pitchedThreads.length,
     pitchedMass: pitchedThreads.filter((t) => t.pitchKind === "mass").length,
@@ -614,7 +669,7 @@ function buildCold(recipients: RecipientEngagement[], threadByEmail: Map<string,
       const replied = r.replied > 0;
       const responded = replied || !!(t && t.repliedAfterUs);
       return {
-        party: (t && t.party !== "—" ? t.party : "") || r.name || r.email.split("@")[0],
+        party: r.name || (t && t.party !== "—" ? t.party : "") || titleCase(r.email.split("@")[0].replace(/[._\-+]+/g, " ").trim()),
         email: r.email,
         sends: r.sends,
         opened: r.opened > 0,
