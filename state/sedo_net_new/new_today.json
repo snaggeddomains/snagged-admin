@@ -1,11 +1,9 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 1,
   "domains": [
-    "couriers.com",
-    "rashid.com",
-    "ied.co"
+    "hashtags.co"
   ],
-  "generated_at": "2026-06-18T17:01:09.664832+00:00",
+  "generated_at": "2026-06-18T23:01:02.777521+00:00",
   "source": "sedo_net_new"
 }
