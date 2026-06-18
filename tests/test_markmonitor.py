@@ -45,3 +45,24 @@ def test_extract_collapses_subdomains_to_registrable_host():
 def test_extract_dedupes_and_lowercases():
     html = "<body>Spark.com SPARK.COM spark.com</body>"
     assert src.extract_domains(html) == ["spark.com"]
+
+
+def test_listings_capture_price_after_domain():
+    assert src.extract_listings("<body>spark.com $12,500</body>") == {"spark.com": 12500}
+
+
+def test_listings_capture_usd_suffix():
+    assert src.extract_listings("<body>shiny.com 5000 USD</body>") == {"shiny.com": 5000}
+
+
+def test_listings_make_an_offer_has_none_price():
+    assert src.extract_listings("<body>nimbus.ai make an offer</body>") == {"nimbus.ai": None}
+
+
+def test_listings_do_not_borrow_neighbor_price():
+    got = src.extract_listings("<body>alpha.com $100 beta.com $9,000</body>")
+    assert got == {"alpha.com": 100, "beta.com": 9000}
+
+
+def test_listings_ignore_bare_numbers_and_years():
+    assert src.extract_listings("<body>spark.com founded 2021, 12 sales</body>") == {"spark.com": None}

@@ -111,38 +111,72 @@ def _fetch_via_scrape_do(url: str) -> str:
 # Strip the parts of the document that carry infra domains (scripts/styles/head).
 _STRIP_RE = re.compile(r"(?is)<(script|style|head|noscript)\b.*?</\1>")
 
+# An asking / BIN price near a listing: "$12,500", "$995", "12500 USD". Requires
+# a $ prefix or USD suffix + ≥3 digits so bare years/counts don't match.
+PRICE_RE = re.compile(r"\$\s?([0-9][0-9,]{2,}(?:\.\d{2})?)|([0-9][0-9,]{2,})\s?USD", re.I)
 
-def extract_domains(html: str) -> list[str]:
-    """Domain names from the page BODY (scripts/styles/head removed), minus the
-    denylist. Lowercased, registrable host only, deduped, sorted."""
+
+def _find_price(s: str) -> int | None:
+    pm = PRICE_RE.search(s)
+    if not pm:
+        return None
+    raw = (pm.group(1) or pm.group(2)).replace(",", "")
+    try:
+        v = int(float(raw))
+    except ValueError:
+        return None
+    return v if 100 <= v <= 100_000_000 else None
+
+
+def extract_listings(html: str) -> dict[str, int | None]:
+    """Map each for-sale domain → asking price (or None for make-an-offer).
+
+    Body only (scripts/styles/head stripped), denylist removed. The price is the
+    nearest currency amount in the listing's neighbourhood — searched in the
+    window after the domain (then just before it), bounded by the adjacent domain
+    matches so we don't borrow a neighbour's price. First non-null price wins."""
     body = _STRIP_RE.sub(" ", html or "")
-    found: set[str] = set()
-    for m in DOMAIN_RE.finditer(body):
-        d = m.group(1).lower().lstrip(".")
-        # registrable host = last two labels (drop any leading subdomain like www.)
-        parts = d.split(".")
-        host = ".".join(parts[-2:])
+    matches = list(DOMAIN_RE.finditer(body))
+    out: dict[str, int | None] = {}
+    for i, m in enumerate(matches):
+        host = ".".join(m.group(1).lower().lstrip(".").split(".")[-2:])
         if host in DENY_HOSTS:
             continue
-        found.add(host)
-    return sorted(found)
+        nxt = matches[i + 1].start() if i + 1 < len(matches) else len(body)
+        prev_end = matches[i - 1].end() if i > 0 else 0
+        fwd = body[m.end():min(nxt, m.end() + 500)]
+        back = body[max(prev_end, m.start() - 150):m.start()]
+        price = _find_price(fwd) or _find_price(back)
+        if host not in out or (out[host] is None and price is not None):
+            out[host] = price
+    return out
 
 
-def publish_to_sheet(domains: list[str], today: str) -> None:
-    """Mirror the FULL extracted list to the source's review spreadsheet
-    (rebuilt each run). Best-effort — never fails the universe ingest."""
+def extract_domains(html: str) -> list[str]:
+    """Sorted unique registrable hosts (convenience wrapper over extract_listings)."""
+    return sorted(extract_listings(html).keys())
+
+
+def publish_to_sheet(listings: dict[str, int | None], today: str) -> None:
+    """Mirror the FULL extracted list (with asking price when present) to the
+    source's review spreadsheet (rebuilt each run). Best-effort — never fails the
+    universe ingest."""
     src_cfg = config.get_source(SOURCE_ID)
     sheet_id = src_cfg.get("output_sheet_id")
     if not sheet_id:
         return
-    rows = [{"domain": d, "source": SOURCE_ID, "date_added": today} for d in domains]
+    rows = [
+        {"domain": d, "price": (listings[d] if listings[d] is not None else ""),
+         "source": SOURCE_ID, "date_added": today}
+        for d in sorted(listings)
+    ]
     sheets_pub.write_rows(
         spreadsheet_id=sheet_id,
         tab="MarkMonitor",
         mode=sheets_pub.OwnershipMode.REBUILD_OWNED_SLICE,
         source=SOURCE_ID,
         rows=rows,
-        default_header=["domain", "source", "date_added"],
+        default_header=["domain", "price", "source", "date_added"],
     )
 
 
@@ -152,10 +186,15 @@ def run() -> int:
 
     print("[1/3] Fetching MarkMonitor make-an-offer page via scrape.do")
     html = _fetch_via_scrape_do(LISTING_URL)
-    raw_domains = extract_domains(html)
-    print(f"      page bytes: {len(html):,} · domain candidates: {len(raw_domains):,}")
+    listings = extract_listings(html)
+    raw_domains = sorted(listings)
+    priced = {d: p for d, p in listings.items() if p}
+    print(f"      page bytes: {len(html):,} · domain candidates: {len(raw_domains):,} "
+          f"· with asking price: {len(priced):,}")
     if raw_domains:
         print("      sample: " + ", ".join(raw_domains[:40]))
+        if priced:
+            print("      priced sample: " + ", ".join(f"{d} ${p:,}" for d, p in list(priced.items())[:10]))
     else:
         # Self-diagnose without another round-trip: show a body snippet so the
         # parser can be tuned from the workflow log.
@@ -165,7 +204,7 @@ def run() -> int:
 
     print("[2/3] Applying universe filter")
     universe_entries: list[dict[str, Any]] = [
-        {"domain": d, "price": None}
+        {"domain": d, "price": listings.get(d)}
         for d in raw_domains
         if univ.passes_universe_filter(d)
     ]
@@ -183,7 +222,7 @@ def run() -> int:
 
     # Mirror the full extracted list to the review spreadsheet (best-effort).
     try:
-        publish_to_sheet(raw_domains, today)
+        publish_to_sheet(listings, today)
         print(f"      mirrored {len(raw_domains):,} domains to review sheet")
     except Exception as e:  # noqa: BLE001
         print(f"      sheet mirror skipped: {e}")
