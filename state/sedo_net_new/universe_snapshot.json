@@ -4,24 +4,40 @@
     "price": 88999.0
   },
   {
-    "domain": "padang.com",
-    "price": 35000.0
+    "domain": "couriers.com",
+    "price": 250000.0
   },
   {
-    "domain": "malang.com",
-    "price": 88800.0
+    "domain": "imaxshow.com",
+    "price": 368.0
+  },
+  {
+    "domain": "padang.com",
+    "price": 35000.0
   },
   {
     "domain": "balang.com",
     "price": 1500.0
   },
   {
+    "domain": "malang.com",
+    "price": 88800.0
+  },
+  {
+    "domain": "rashid.com",
+    "price": 70000.0
+  },
+  {
+    "domain": "livherbal.com",
+    "price": 5054.0
+  },
+  {
     "domain": "beaminster.com",
     "price": 13595.0
   },
   {
-    "domain": "paraiso.ai",
-    "price": 240000.0
+    "domain": "lowimpedance.com",
+    "price": 895.0
   },
   {
     "domain": "derwent.net",
@@ -32,23 +48,11 @@
     "price": 1500.0
   },
   {
-    "domain": "bowind.net",
-    "price": 175.0
+    "domain": "jail.net",
+    "price": 15000.0
   },
   {
-    "domain": "honeys.net",
-    "price": 4899.0
-  },
-  {
-    "domain": "legals.co",
-    "price": 29260.0
-  },
-  {
-    "domain": "particularly.net",
-    "price": 1995.0
-  },
-  {
-    "domain": "rey.co",
-    "price": 30516.0
+    "domain": "ied.co",
+    "price": 26264.0
   }
 ]

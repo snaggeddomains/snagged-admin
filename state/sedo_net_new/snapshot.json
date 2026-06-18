@@ -1,10 +1,26 @@
 [
   {
+    "currency": "GBP",
+    "domain": "couriers.com",
+    "end_time_utc": "2026-06-18T13:14:44+00:00",
+    "price": 250000.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=couriers.com"
+  },
+  {
     "currency": "USD",
-    "domain": "rey.co",
-    "end_time_utc": "2026-06-18T02:33:20+00:00",
-    "price": 30516.0,
+    "domain": "rashid.com",
+    "end_time_utc": "2026-06-18T16:32:18+00:00",
+    "price": 70000.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=rashid.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "ied.co",
+    "end_time_utc": "2026-06-18T17:26:45+00:00",
+    "price": 26264.0,
     "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=rey.co"
+    "url": "https://sedo.com/search/details/?domain=ied.co"
   }
 ]
