@@ -66,3 +66,39 @@ def test_listings_do_not_borrow_neighbor_price():
 
 def test_listings_ignore_bare_numbers_and_years():
     assert src.extract_listings("<body>spark.com founded 2021, 12 sales</body>") == {"spark.com": None}
+
+
+def test_listings_price_less_row_does_not_borrow_next_rows_price():
+    # Real bug: voicemail.com has no price (–); the $10,000 belongs to vvv.us on
+    # the NEXT row. .us isn't a core TLD, but it must still bound the price scan.
+    html = (
+        "<body>"
+        "voces.com &ndash; <a>Make Offer</a> "
+        "voicemail.com &ndash; <a>Make Offer</a> "
+        "vvv.us $10,000 <a>Make Offer</a> "
+        "walletpop.com &ndash; <a>Make Offer</a>"
+        "</body>"
+    )
+    got = src.extract_listings(html)
+    assert got.get("voicemail.com") is None
+    assert got.get("voces.com") is None
+    assert got.get("walletpop.com") is None
+    # .us is non-core, so it isn't emitted, but its presence fixed the alignment.
+    assert "vvv.us" not in got
+
+
+def test_listings_each_row_keeps_its_own_price():
+    html = (
+        "<body>"
+        "viewvalue.com $5,000 <a>Make Offer</a> "
+        "virtual.us $25,000 <a>Make Offer</a> "
+        "visto.com $150,000 <a>Make Offer</a> "
+        "visto.net $15,000 <a>Make Offer</a> "
+        "vistocorp.com $250 <a>Make Offer</a>"
+        "</body>"
+    )
+    got = src.extract_listings(html)
+    assert got["viewvalue.com"] == 5000  # not borrowing virtual.us's $25k
+    assert got["visto.com"] == 150000
+    assert got["visto.net"] == 15000
+    assert got["vistocorp.com"] == 250

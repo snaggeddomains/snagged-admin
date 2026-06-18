@@ -5,8 +5,10 @@ make-an-offer page. The page sits behind Cloudflare, so we fetch it through
 scrape.do super-proxies (render=true — the listing grid may be JS-hydrated),
 exactly like the Oxley / NameJet sources.
 
-Tier-2 source (brokered third-party inventory, not Snagged-owned). Prices are
-not captured (each domain is "make an offer" — no list price on the grid).
+Tier-2 source (brokered third-party inventory, not Snagged-owned). Asking prices
+ARE captured when listed (many rows show a price; the rest are "make an offer").
+Parsing is row-aware so a priced row never leaks its price onto a price-less
+neighbour (see extract_listings).
 
 Extraction is deliberately defensive: the page's exact markup hasn't been
 inspected directly (Cloudflare blocks the sandbox), so we strip <head>/<script>/
@@ -42,12 +44,24 @@ LISTING_URL = "https://www.markmonitor.com/domains-for-sale/make-an-offer/"
 SCRAPE_DO_BASE = "https://api.scrape.do/"
 REQUEST_TIMEOUT = 180
 
-# Domain-like tokens in the page body. Restricted to the TLDs the universe cares
-# about so asset hosts (.png/.svg/etc.) and exotic TLDs never match.
-DOMAIN_RE = re.compile(
-    r"\b([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.(?:com|net|org|io|ai|co|xyz|dev|app|tv))\b",
+# Listing-domain tokens. Two regexes on purpose:
+#  • CORE_DOMAIN_RE — the TLDs the universe cares about (what we ingest to the DB).
+#  • ANY_DOMAIN_RE  — ANY plausible TLD (.us, .tv, .info, …). Used to delimit rows
+#    so a non-core domain (e.g. vvv.us) still acts as a boundary and its price
+#    can't leak back onto the previous in-list domain. The grid lists names on
+#    many TLDs; ignoring them broke price alignment (off-by-a-row).
+CORE_TLDS = ("com", "net", "org", "io", "ai", "co", "xyz", "dev", "app", "tv")
+CORE_DOMAIN_RE = re.compile(
+    r"\b([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.(?:" + "|".join(CORE_TLDS) + r"))\b",
     re.IGNORECASE,
 )
+ANY_DOMAIN_RE = re.compile(
+    r"\b([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z]{2,24})+)\b",
+    re.IGNORECASE,
+)
+# The per-listing call-to-action button that terminates every row ("Make Offer" /
+# "Make an Offer"). It sits AFTER the domain + price, so it bounds the price scan.
+ROW_DELIM_RE = re.compile(r"make\s+(?:an\s+)?offer", re.IGNORECASE)
 
 # MarkMonitor's own + common infra/social/CDN hosts that appear in chrome, not
 # the for-sale grid. The universe filter catches most junk; this kills the
@@ -128,25 +142,47 @@ def _find_price(s: str) -> int | None:
     return v if 100 <= v <= 100_000_000 else None
 
 
+def _registrable(raw: str) -> str:
+    """Collapse a matched host to its registrable form (last two labels), dropping
+    a leading www. — e.g. shop.lumina.com → lumina.com, www.vvv.us → vvv.us."""
+    host = raw.lower().lstrip(".")
+    if host.startswith("www."):
+        host = host[4:]
+    return ".".join(host.split(".")[-2:])
+
+
 def extract_listings(html: str) -> dict[str, int | None]:
     """Map each for-sale domain → asking price (or None for make-an-offer).
 
-    Body only (scripts/styles/head stripped), denylist removed. The price is the
-    nearest currency amount in the listing's neighbourhood — searched in the
-    window after the domain (then just before it), bounded by the adjacent domain
-    matches so we don't borrow a neighbour's price. First non-null price wins."""
+    Row-aware. The grid renders one listing per row as `domain · price · "Make
+    Offer"`, so a domain's price is the currency amount in the segment AFTER the
+    domain and BEFORE the next boundary — whichever comes first of (a) the next
+    domain of ANY TLD or (b) the next "Make Offer" button. Using any-TLD domains
+    AND the row button as boundaries stops a priced row (e.g. vvv.us $10,000)
+    from leaking its price onto a price-less neighbour above it (voicemail.com –).
+    Only the core-TLD names are *kept* (the universe set); non-core domains still
+    participate as boundaries so alignment is correct. First non-null price wins."""
     body = _STRIP_RE.sub(" ", html or "")
-    matches = list(DOMAIN_RE.finditer(body))
+    # Every plausible domain (any TLD) is a boundary; core-TLD ones are the rows
+    # we actually emit.
+    all_doms = list(ANY_DOMAIN_RE.finditer(body))
+    starts = [m.start() for m in all_doms]
+    delims = [m.start() for m in ROW_DELIM_RE.finditer(body)]
+    di = 0  # walking pointer into delims (positions are ascending)
     out: dict[str, int | None] = {}
-    for i, m in enumerate(matches):
-        host = ".".join(m.group(1).lower().lstrip(".").split(".")[-2:])
-        if host in DENY_HOSTS:
+    for i, m in enumerate(all_doms):
+        host = _registrable(m.group(1))
+        # Keep only core-TLD listings; non-core still acted as a boundary above.
+        # (Checked on the registrable host so subdomains like shop.lumina.com pass.)
+        if host.rsplit(".", 1)[-1] not in CORE_TLDS or host in DENY_HOSTS:
             continue
-        nxt = matches[i + 1].start() if i + 1 < len(matches) else len(body)
-        prev_end = matches[i - 1].end() if i > 0 else 0
-        fwd = body[m.end():min(nxt, m.end() + 500)]
-        back = body[max(prev_end, m.start() - 150):m.start()]
-        price = _find_price(fwd) or _find_price(back)
+        next_dom = starts[i + 1] if i + 1 < len(starts) else len(body)
+        # nearest "Make Offer" at/after this domain's end
+        while di < len(delims) and delims[di] < m.end():
+            di += 1
+        next_del = delims[di] if di < len(delims) else len(body)
+        seg = body[m.end():min(next_dom, next_del)]
+        price = _find_price(seg)
         if host not in out or (out[host] is None and price is not None):
             out[host] = price
     return out
