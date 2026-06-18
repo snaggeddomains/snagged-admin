@@ -25,8 +25,9 @@ import { getNotes } from "./marketplace-notes";
 // + probable-spam flag; 4 = cold-outreach conversational result column;
 // 5 = firm-offers table; 6 = verbatim buyer pull-quotes + conversation highlights;
 // 7 = offers table also includes credible stated budgets (kind offer|budget);
-// 8 = offers table also folds in off-platform offers from the broker notes.
-export const REPORT_VERSION = 8;
+// 8 = offers table also folds in off-platform offers from the broker notes;
+// 9 = buyer-name resolution trusts the human-verified greeting over stray form words.
+export const REPORT_VERSION = 9;
 
 const isUs = (a: string) => a.endsWith("@snagged.com") || a.endsWith("@snagged.co");
 
@@ -613,7 +614,20 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
     // humanized email local-part. Never a single stray letter (the old To-header
     // parser bug) or us/the seller.
     const localName = partyEmail ? titleCase(partyEmail.split("@")[0].replace(/[._\-+]+/g, " ").trim()) : "";
-    const party = (fm?.name || eng?.name || extParty?.name || greetingName(usMsgs) || localName || "").trim();
+    const greet = greetingName(usMsgs);
+    const formish = (fm?.name || eng?.name || extParty?.name || "").trim();
+    // The first name WE addressed them by ("Hi Chris,"), when it matches their
+    // email local-part, is human-verified ground truth. So if the form/CRM/header
+    // name contradicts it (e.g. a stray word like "Sharing" for chris@hacken.co),
+    // trust the verified name; if they agree, keep the (often fuller) form name.
+    const aligns = (a: string, b: string) => {
+      const x = a.toLowerCase(), y = b.toLowerCase();
+      return !!x && !!y && (x.includes(y) || y.includes(x));
+    };
+    const verified = greet && (!localName || aligns(greet, localName)) ? greet : "";
+    const party = (
+      formish && (!verified || aligns(formish, verified)) ? formish : (verified || greet || localName)
+    ).trim();
 
     const emailDom = (partyEmail || "").split("@")[1]?.toLowerCase() || "";
     const qualified = hasBudget(fm?.budget) || (!!emailDom && !FREE_EMAIL.has(emailDom)) || ms.length >= 3 || (hasUs && hasThem);
