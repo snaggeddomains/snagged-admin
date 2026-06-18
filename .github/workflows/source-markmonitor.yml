@@ -27,6 +27,7 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           SUPABASE_URL:                ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY:   ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          ANTHROPIC_API_KEY:           ${{ secrets.ANTHROPIC_API_KEY }}
         run: pipeline run markmonitor
       - name: Commit state changes
         if: ${{ !cancelled() }}
