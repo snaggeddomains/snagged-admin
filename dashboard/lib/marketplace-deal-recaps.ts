@@ -10,6 +10,48 @@ const MODEL = process.env.DEAL_RECAP_MODEL || "claude-haiku-4-5-20251001";
 
 export type QuoteKind = "interest" | "objection" | "price" | "praise" | "other";
 export type ThreadRecap = { offer: string | null; outcome: string; quote: string | null; quoteKind: QuoteKind | null };
+
+// A concrete offer pulled out of the free-text broker notes (off-platform deals
+// the broker logged — text/WhatsApp/phone/verbal). Folded into the report's
+// offers table alongside the email/CRM offers.
+export type NoteOffer = { party: string; amount: string; date: string; channel: string; outcome: string };
+
+// Extract concrete dollar offers stated in the broker notes for a domain. Returns
+// [] on no key / no notes / nothing concrete. Server-only; one small Anthropic call.
+export async function extractNoteOffers(domain: string, notesText: string, env: NodeJS.ProcessEnv): Promise<NoteOffer[]> {
+  const key = env.ANTHROPIC_API_KEY;
+  const notes = (notesText || "").trim();
+  if (!key || !notes) return [];
+  const system =
+    `From the broker notes about ${domain} (a domain we sell), extract ONLY concrete dollar OFFERS — where someone offered, or was explicitly willing to pay, a specific $ amount. ` +
+    `Return STRICT JSON: an array [{"party":"","amount":"$X","date":"","channel":"","outcome":""}]. ` +
+    `party = the buyer/investor name if given (else ""); amount = "$X" as written; date = as written (else ""); ` +
+    `channel = how it came in if stated (e.g. "WhatsApp","Phone","Text","Email") else ""; outcome = what happened (e.g. "declined — too low", "open, awaiting follow-up"). ` +
+    `Include every distinct named offer. Do NOT include vague interest, budgets/ranges with no offer, or our asking price. Return [] if no concrete offer is stated.`;
+  try {
+    const res = await fetch(ANTHROPIC_URL, {
+      method: "POST",
+      headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+      body: JSON.stringify({ model: MODEL, max_tokens: 1200, system, messages: [{ role: "user", content: notes.slice(0, 4000) }] }),
+    });
+    if (!res.ok) return [];
+    const data = (await res.json()) as { content?: { type: string; text?: string }[] };
+    const text = (data.content || []).filter((b) => b.type === "text").map((b) => b.text || "").join("");
+    const arr = parseArray(text);
+    return arr
+      .filter((o): o is Record<string, unknown> => !!o && typeof o === "object" && /\d/.test(String((o as Record<string, unknown>).amount || "")))
+      .slice(0, 20)
+      .map((o) => ({
+        party: String(o.party || "").trim().slice(0, 120),
+        amount: String(o.amount || "").trim().slice(0, 24),
+        date: String(o.date || "").trim().slice(0, 24),
+        channel: String(o.channel || "").trim().slice(0, 24),
+        outcome: String(o.outcome || "").trim().slice(0, 160),
+      }));
+  } catch {
+    return [];
+  }
+}
 export type RecapItem = { idx: number; party: string; origin: "inbound" | "pitched"; subject: string; transcript: string };
 
 const SYSTEM = (domain: string) =>

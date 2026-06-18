@@ -16,6 +16,7 @@ import { dealMailboxes, getThread, searchThreadIds, type GmailMessage } from "./
 import { findPitchExercises, type PitchExercise } from "./marketplace-pitch-sheets";
 import { classifyMessageIds, hubspotConfigured, normMid, recipientEngagementForDomain, type HubspotEmail, type RecipientEngagement } from "./hubspot";
 import type { QuoteKind } from "./marketplace-deal-recaps";
+import { getNotes } from "./marketplace-notes";
 
 // Bump whenever the report's computation changes in a way that should invalidate
 // cached rows (the route's readCache requires the current version). History:
@@ -23,8 +24,9 @@ import type { QuoteKind } from "./marketplace-deal-recaps";
 // 3 = name/email normalization (parser fix, mailto strip, greeting/HubSpot names)
 // + probable-spam flag; 4 = cold-outreach conversational result column;
 // 5 = firm-offers table; 6 = verbatim buyer pull-quotes + conversation highlights;
-// 7 = offers table also includes credible stated budgets (kind offer|budget).
-export const REPORT_VERSION = 7;
+// 7 = offers table also includes credible stated budgets (kind offer|budget);
+// 8 = offers table also folds in off-platform offers from the broker notes.
+export const REPORT_VERSION = 8;
 
 const isUs = (a: string) => a.endsWith("@snagged.com") || a.endsWith("@snagged.co");
 
@@ -298,6 +300,10 @@ export type OfferRow = {
   kind: "offer" | "budget"; // a named offer vs a stated inquiry budget
   date: string; // YYYY-MM-DD (last activity on the thread)
   origin: "inbound" | "pitched";
+  // For an offer logged off-platform via the broker notes (text/WhatsApp/phone):
+  // the channel it came in on. null for email/CRM-sourced offers/budgets — those
+  // use `origin` (Inbound/Pitched) as the source label.
+  channel: string | null;
   outcome: string | null;
 };
 
@@ -711,7 +717,7 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
   // inquiry (kind "budget"). Both show traction, so both belong here; a low floor
   // drops junk/parse-noise, and the report is editable so anything too low can be
   // pruned. Highest first; an offer wins over a budget on the same thread.
-  const offers: OfferRow[] = final
+  const threadOffers: OfferRow[] = final
     .map((t): OfferRow | null => {
       const isOffer = !!t.offer;
       const raw = t.offer || (hasBudget(t.budget ?? undefined) ? (t.budget as string) : null);
@@ -726,10 +732,41 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
         kind: isOffer ? "offer" : "budget",
         date: t.last,
         origin: t.origin,
+        channel: null,
         outcome: t.outcome,
       };
     })
-    .filter((o): o is OfferRow => o !== null)
+    .filter((o): o is OfferRow => o !== null);
+
+  // Off-platform offers the broker logged in the per-domain notes (text/WhatsApp/
+  // phone/verbal) — extracted so they sit in the SAME offers table as the email/CRM
+  // ones. Best-effort; the notes + LLM may be absent. So the admin view and the
+  // generated client Doc show an identical offers list.
+  const noteOffers: OfferRow[] = await (async () => {
+    try {
+      const n = await getNotes(domain);
+      if (!n.notes?.trim()) return [];
+      const { extractNoteOffers } = await import("./marketplace-deal-recaps");
+      const ext = await extractNoteOffers(domain, n.notes, process.env);
+      return ext
+        .map((o): OfferRow => ({
+          party: o.party || "—",
+          email: null,
+          amount: o.amount,
+          amountNum: parseAmount(o.amount),
+          kind: "offer",
+          date: o.date || "",
+          origin: "inbound",
+          channel: o.channel || "Direct",
+          outcome: o.outcome || null,
+        }))
+        .filter((o) => o.amountNum >= OFFER_FLOOR);
+    } catch {
+      return [];
+    }
+  })();
+
+  const offers: OfferRow[] = [...threadOffers, ...noteOffers]
     .sort((a, b) => b.amountNum - a.amountNum || (a.date < b.date ? 1 : -1));
 
   const highlights = buildHighlights(final);

@@ -97,15 +97,17 @@ rebuild). Enhancements this session:
   review before sending". Facts-only prompt; **no client-facing internal jargon**
   ("off-platform"/"CRM"/"HubSpot"/"sequence" banned in output). Client Doc also drops
   the quote category labels (OBJECTION/ON PRICE) and renames §02 to "Proactive outreach".
-- **Offers table = offers AND stated budgets (2026-06-18).** `DealReport.offers` is no
-  longer firm-offers-only: it includes every credible dollar figure a buyer put on the
-  table — a named offer (`kind:"offer"`) OR a stated inquiry budget (`kind:"budget"`,
-  e.g. Adam Shellard's $50k) — so the report shows traction. `parseAmount` handles
-  commas/K/M and takes the top of a band ("$5K to $25K"→25000); an `OFFER_FLOOR` of
-  $1,000 drops parse noise ("5 figures"→5) and not-credible tiny amounts. Budget rows
-  are labeled "stated budget" in both the admin table and the client Doc (header →
-  "what buyers put on the table" / "OFFER / BUDGET"); the Doc is editable so anything
-  too low can be pruned. REPORT_VERSION → 7.
+- **Offers table = offers + stated budgets + note offers (2026-06-18).** `DealReport.offers`
+  (built in `buildDealReport`, so the admin view AND the client Doc render an identical
+  list) now includes every credible dollar figure a buyer put on the table: a named
+  offer (`kind:"offer"`), a stated inquiry budget (`kind:"budget"`, e.g. Adam Shellard's
+  $50k), AND offers the broker logged in the per-domain Notes (`extractNoteOffers` in
+  `lib/marketplace-deal-recaps.ts` — one Haiku call over the notes text; `channel` set to
+  WhatsApp/Phone/etc, shown as the SOURCE). `parseAmount` handles commas/K/M and band
+  tops ("$5K to $25K"→25000); `OFFER_FLOOR` $1,000 drops parse noise ("5 figures"→5).
+  Budget rows are labeled "stated budget". The Doc just renders `report.offers` (no
+  separate merge); `draftReportNarrative` now only drafts summary/outlook (offers are
+  upstream). REPORT_VERSION → 8.
 - **Cache schema marker:** `readCache` ignores reports cached before the HubSpot wiring existed
   (`pitchSource === undefined`; prior marker was `inboundEngaged`) so old rows rebuild instead
   of serving the old Gmail-heuristic classification.

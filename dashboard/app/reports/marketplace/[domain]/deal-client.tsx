@@ -22,7 +22,7 @@ type ColdRecipient = {
   responded: boolean; chain: number; active: boolean; lastSent: string; sequenceName: string | null; outcome: string | null; offer: string | null;
 };
 type ColdOutreach = { recipients: number; sends: number; opened: number; clicked: number; replied: number; responded: number; active: number; rows: ColdRecipient[] };
-type OfferRow = { party: string; email: string | null; amount: string; amountNum: number; kind: "offer" | "budget"; date: string; origin: "inbound" | "pitched"; outcome: string | null };
+type OfferRow = { party: string; email: string | null; amount: string; amountNum: number; kind: "offer" | "budget"; date: string; origin: "inbound" | "pitched"; channel: string | null; outcome: string | null };
 type DealReport = {
   domain: string; inbound: number; inboundQualified: number; inboundEngaged: number; activeNegotiations: number;
   pitched: number; pitchedMass: number; pitchedIndividual: number; pitchSource?: "hubspot" | "heuristic";
@@ -425,7 +425,7 @@ export default function DealClient({ domain }: { domain: string }) {
                         <td style={cell}><div style={{ fontWeight: 600 }}>{o.party}</div>{o.email && <div className="muted" style={{ fontSize: 11 }}>{o.email}</div>}</td>
                         <td style={{ ...cell, whiteSpace: "nowrap" }}><span style={{ fontFamily: "Fraunces, Georgia, serif", fontWeight: 700, fontSize: 18, color: CORAL }}>{o.amount}</span>{o.kind === "budget" && <div className="muted" style={{ fontSize: 10 }}>stated budget</div>}</td>
                         <td style={{ ...cell, whiteSpace: "nowrap" }}>{o.date}</td>
-                        <td style={cell}><span style={{ fontSize: 12, color: o.origin === "inbound" ? "#2f7d4f" : "#5a4ec0" }}>{o.origin === "inbound" ? "Inbound" : "Pitched"}</span></td>
+                        <td style={cell}><span style={{ fontSize: 12, color: o.channel ? NAVY : o.origin === "inbound" ? "#2f7d4f" : "#5a4ec0" }}>{o.channel || (o.origin === "inbound" ? "Inbound" : "Pitched")}</span></td>
                         <td style={cell}>{o.outcome || <span className="muted">—</span>}</td>
                       </tr>
                     ))}

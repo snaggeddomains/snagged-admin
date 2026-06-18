@@ -59,16 +59,11 @@ export type ReportInput = {
   notes?: string | null;
   // Drafted narrative (LLM, best-effort), both fed by the full report + notes.
   // When present they replace the manual placeholders. generateReportDoc fills
-  // these in when execSummary is not supplied.
+  // these in when execSummary is not supplied. (Note-derived OFFERS are folded
+  // into report.offers upstream in marketplace-deals.ts, not here.)
   execSummary?: string | null; // → Executive summary
   whatsNext?: string | null; // → "What's next" plan
-  // Off-platform offers the LLM pulled OUT of the broker notes (text/WhatsApp/
-  // phone), merged into the Offers-received table. generateReportDoc fills these.
-  noteOffers?: NoteOffer[] | null;
 };
-
-// A concrete offer extracted from the free-text broker notes (off-platform).
-export type NoteOffer = { party: string; amount: string; date: string; outcome: string; channel: string };
 
 const NAVY = "#254254", CORAL = "#c0492f", CORAL_SOFT = "#e07a5f", LINE = "#e3ddcf", MUTED = "#857c6c", GREEN = "#2f7d4f";
 
@@ -100,19 +95,19 @@ export function buildReportHtml(input: ReportInput): string {
   // labels stay client-facing (the channel, "Inbound", "Pitched" — no internal jargon).
   const th = `text-align:left;padding:7pt 10pt;font-size:8.5pt;letter-spacing:1px;color:${MUTED};`;
   const td = `border-top:1px solid ${LINE};padding:7pt 10pt;vertical-align:top;`;
-  const num = (s: string) => Number((s || "").replace(/[^0-9]/g, "")) || 0;
+  // r.offers already unifies email/CRM offers, stated budgets, AND off-platform
+  // offers from the broker notes (built in marketplace-deals.ts), so the Doc and
+  // the admin view show an identical list. Source = the channel for a note offer,
+  // else Inbound/Pitched.
   type OfferLine = { party: string; email: string | null; amount: string; amountNum: number; date: string; source: string; sourceColor: string; outcome: string | null; isBudget: boolean };
-  const allOffers: OfferLine[] = [
-    ...(r.offers || []).map((o) => ({
+  const allOffers: OfferLine[] = (r.offers || [])
+    .map((o) => ({
       party: o.party, email: o.email, amount: o.amount, amountNum: o.amountNum, date: o.date,
-      source: o.origin === "inbound" ? "Inbound" : "Pitched", sourceColor: o.origin === "inbound" ? GREEN : "#5a4ec0",
+      source: o.channel || (o.origin === "inbound" ? "Inbound" : "Pitched"),
+      sourceColor: o.channel ? NAVY : o.origin === "inbound" ? GREEN : "#5a4ec0",
       outcome: o.outcome, isBudget: o.kind === "budget",
-    })),
-    ...((input.noteOffers || []).map((o) => ({
-      party: o.party || "—", email: null, amount: o.amount, amountNum: num(o.amount), date: o.date || "",
-      source: (o.channel || "Direct"), sourceColor: NAVY, outcome: o.outcome || null, isBudget: false,
-    }))),
-  ].sort((a, b) => b.amountNum - a.amountNum || (a.date < b.date ? 1 : -1));
+    }))
+    .sort((a, b) => b.amountNum - a.amountNum || (a.date < b.date ? 1 : -1));
   const offerRows = allOffers.map((o) => `<tr>
     <td style="${td}"><b style="color:${NAVY};">${esc(o.party)}</b>${o.email ? `<br><span style="color:${MUTED};font-size:9pt;">${esc(o.email)}</span>` : ""}</td>
     <td style="${td}white-space:nowrap;"><span style="font-family:'Fraunces',Georgia,serif;font-weight:700;color:${CORAL};font-size:14pt;">${esc(o.amount)}</span>${o.isBudget ? `<br><span style="color:${MUTED};font-size:8pt;">stated budget</span>` : ""}</td>
@@ -280,8 +275,8 @@ async function domainFolder(token: string, domain: string): Promise<string> {
 // driver. Empty when no API key (the Doc then shows manual placeholders +
 // a verbatim notes fallback). Server-only.
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
-export async function draftReportNarrative(input: ReportInput): Promise<{ summary: string; outlook: string; offers: NoteOffer[] }> {
-  const empty = { summary: "", outlook: "", offers: [] as NoteOffer[] };
+export async function draftReportNarrative(input: ReportInput): Promise<{ summary: string; outlook: string }> {
+  const empty = { summary: "", outlook: "" };
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) return empty;
   const { domain, report: r } = input;
@@ -305,14 +300,13 @@ export async function draftReportNarrative(input: ReportInput): Promise<{ summar
     facts.push("Representative buyer quotes: " + r.highlights.slice(0, 5).map((q) => `"${q.text}" [${q.kind}]`).join(" | "));
   }
   const notes = (input.notes || "").trim();
-  if (notes) facts.push(`Broker notes — activity not in email/CRM (offers via text/WhatsApp/phone, verbal context, owner instructions). Decompose these: any concrete dollar OFFER → the "offers" array; the rest of the context → weave into the summary and plan:\n${notes.slice(0, 3000)}`);
+  if (notes) facts.push(`Broker notes — activity & context not in email (offers via text/WhatsApp/phone, verbal context, owner instructions). Any concrete dollar offers in here are ALREADY in the offers list above; weave the rest of this context into the summary and plan:\n${notes.slice(0, 3000)}`);
 
   const system =
     `You write the prose for a domain owner's activity report, prepared by Snagged — the owner's domain broker (write as "we"). ` +
-    `Return STRICT JSON: {"summary":"...","outlook":"...","offers":[{"party":"","amount":"$X","date":"","channel":"","outcome":""}]}. ` +
+    `Return STRICT JSON: {"summary":"...","outlook":"..."}. ` +
     `"summary" = the executive summary, 3–5 sentences, one paragraph: the level of demand this period, the most promising conversations and any firm offers, and our read on price/positioning. ` +
     `"outlook" = the "What's next" plan, 2–4 sentences: the concrete next steps from here (re-engage the warmest prospects, expand into adjacent buyer categories, keep the name in founder naming searches, act on any live offer). ` +
-    `"offers" = ONLY concrete dollar offers explicitly stated in the broker notes (someone offered a specific $ amount). For each: party (name if given, else ""), amount ("$X"), date (as written, else ""), channel (e.g. "WhatsApp", "Phone", "Text", "Email" — or "" if unclear), outcome (what happened, e.g. "declined — seeking higher"). Empty array if the notes name no concrete offer. Do NOT include budgets/ranges or offers already in the email/CRM "Firm offers" list above. ` +
     `Confident and professional but factual. Use ONLY the facts provided — never invent numbers, names, or offers. Reflect the notes' context where relevant. ` +
     `Write for the CLIENT: do NOT use internal jargon like "off-platform", "CRM", "HubSpot", or "sequence" in any output text. ` +
     `No greeting, no sign-off, no markdown, no headers. Refer to the domain by name.`;
@@ -332,23 +326,10 @@ export async function draftReportNarrative(input: ReportInput): Promise<{ summar
     const text = (data.content || []).filter((b) => b.type === "text").map((b) => b.text || "").join("");
     const s = text.indexOf("{"), e = text.lastIndexOf("}");
     if (s < 0 || e <= s) return empty;
-    const obj = JSON.parse(text.slice(s, e + 1)) as { summary?: string; outlook?: string; offers?: Partial<NoteOffer>[] };
-    const offers: NoteOffer[] = Array.isArray(obj.offers)
-      ? obj.offers
-          .filter((o) => o && /\d/.test(String(o.amount || "")))
-          .slice(0, 12)
-          .map((o) => ({
-            party: (o.party || "").toString().trim().slice(0, 120),
-            amount: (o.amount || "").toString().trim().slice(0, 24),
-            date: (o.date || "").toString().trim().slice(0, 24),
-            outcome: (o.outcome || "").toString().trim().slice(0, 160),
-            channel: (o.channel || "").toString().trim().slice(0, 24),
-          }))
-      : [];
+    const obj = JSON.parse(text.slice(s, e + 1)) as { summary?: string; outlook?: string };
     return {
       summary: (obj.summary || "").toString().trim().slice(0, 1200),
       outlook: (obj.outlook || "").toString().trim().slice(0, 900),
-      offers,
     };
   } catch {
     return empty;
@@ -360,14 +341,14 @@ export async function draftReportNarrative(input: ReportInput): Promise<{ summar
 export async function generateReportDoc(input: ReportInput): Promise<{ docUrl: string; folderUrl: string; name: string }> {
   const token = await googleAccessToken(SCOPE, subjectUser());
   const folder = await domainFolder(token, input.domain);
-  // Draft the report prose (exec summary + what's-next) AND decompose the notes
-  // (offers → table, context → prose), folding in metrics + offers + highlights +
-  // notes, unless the caller already supplied a summary. Best-effort — falls back
-  // to the manual placeholders + verbatim notes.
+  // Draft the report prose (exec summary + what's-next) from the full report +
+  // notes, unless the caller already supplied a summary. Note-derived OFFERS are
+  // already in report.offers (built upstream). Best-effort — falls back to the
+  // manual placeholders + verbatim notes.
   let withProse = input;
   if (input.execSummary == null) {
-    const { summary, outlook, offers } = await draftReportNarrative(input);
-    withProse = { ...input, execSummary: summary, whatsNext: input.whatsNext ?? outlook, noteOffers: input.noteOffers ?? offers };
+    const { summary, outlook } = await draftReportNarrative(input);
+    withProse = { ...input, execSummary: summary, whatsNext: input.whatsNext ?? outlook };
   }
   const html = buildReportHtml(withProse);
   const Domain = input.domain.charAt(0).toUpperCase() + input.domain.slice(1);
