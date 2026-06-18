@@ -102,8 +102,9 @@ export function buildReportHtml(input: ReportInput): string {
     .join("<br>");
   const listingLink = `&#9656; <a href="https://www.snagged.com/domains/${esc(domain.replace(/\./g, "-"))}" style="color:${CORAL};">Marketplace listing — ${esc(domain)}</a>`;
 
-  // curated-search chips (anonymized: use the company-type description, never the client name)
-  const chips = exercises.map((e) => `<span style="display:inline-block;border:1px solid ${LINE};border-radius:12pt;padding:4pt 10pt;margin:0 6pt 6pt 0;font-size:10pt;color:${NAVY};">${esc(e.description || "A funded startup naming exercise")}</span>`).join(" ");
+  // curated-search bullets (anonymized: use the company-type description, never the client name).
+  // Rendered as emphasized 11pt bullets — pitching to funded startups is a key differentiator.
+  const bullets = exercises.map((e) => `<tr><td width="22" valign="top" style="border:none;padding:4pt 0;color:${CORAL};font-size:11pt;font-weight:700;line-height:1.4;">▸</td><td valign="top" style="border:none;padding:4pt 0;font-size:11pt;font-weight:600;color:${NAVY};line-height:1.4;">${esc(e.description || "A funded startup naming exercise")}</td></tr>`).join("");
 
   return `<!doctype html><html><head><meta charset="utf-8"></head>
 <body style="font-family:'Inter',Arial,sans-serif;color:#2a2a28;font-size:11pt;line-height:1.5;margin:0;">
@@ -153,7 +154,7 @@ ${r.pitchedIndividual ? `<p style="margin:10pt 0 0 0;">Plus <b style="color:${NA
 
 ${exercises.length ? `${sectionHead("03", "Curated name searches", "in front of founders & CEOs")}
 <p style="margin:0 0 8pt 0;">A major part of our distribution is the naming work we do for venture-backed startups. Founders and CEOs rely on Snagged to know which premium domains are actually available when they name or rebrand a company — and when ${esc(Domain)} fits a brief, we put it directly in front of them. This period it was included in <b style="color:${NAVY};">${fmt(exercises.length)} curated name searches</b> prepared for funded companies:</p>
-<p style="margin:0 0 6pt 0;">${chips}</p>
+<table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;border:none;margin:0 0 8pt 0;">${bullets}</table>
 <table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;"><tr><td style="background-color:${NAVY};padding:14pt 16pt;color:#eaf0f3;"><div style="font-family:'Fraunces',Georgia,serif;font-size:12pt;font-weight:600;color:#ffffff;">Why this matters</div><div style="font-size:10pt;margin-top:4pt;color:#cdd8de;">These aren't cold lists — they're founders in active decision-making with budget and urgency. Each inclusion puts ${esc(Domain)} on the shortlist for a company's permanent identity, the highest-intent audience a domain can reach.</div></td></tr></table>` : ""}
 
 ${sectionHead("04", "Marketing & exposure")}
