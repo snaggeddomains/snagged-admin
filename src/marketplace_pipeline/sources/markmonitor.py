@@ -31,6 +31,7 @@ from .. import config, state
 from ..usage_log import record_usage
 from ..filters import universe as univ
 from ..universe import supabase_writer
+from ..publishers import sheets as sheets_pub
 
 SOURCE_ID = "markmonitor"
 SOURCE_LABEL = "MarkMonitor"
@@ -100,6 +101,24 @@ def extract_domains(html: str) -> list[str]:
     return sorted(found)
 
 
+def publish_to_sheet(domains: list[str], today: str) -> None:
+    """Mirror the FULL extracted list to the source's review spreadsheet
+    (rebuilt each run). Best-effort — never fails the universe ingest."""
+    src_cfg = config.get_source(SOURCE_ID)
+    sheet_id = src_cfg.get("output_sheet_id")
+    if not sheet_id:
+        return
+    rows = [{"domain": d, "source": SOURCE_ID, "date_added": today} for d in domains]
+    sheets_pub.write_rows(
+        spreadsheet_id=sheet_id,
+        tab="MarkMonitor",
+        mode=sheets_pub.OwnershipMode.REBUILD_OWNED_SLICE,
+        source=SOURCE_ID,
+        rows=rows,
+        default_header=["domain", "source", "date_added"],
+    )
+
+
 def run() -> int:
     config.get_source(SOURCE_ID)
     today = datetime.now(timezone.utc).date().isoformat()
@@ -134,6 +153,13 @@ def run() -> int:
               f"net-new {stats.get('rows_new', 0):,}")
     else:
         print(f"      skipped: {stats.get('reason')}")
+
+    # Mirror the full extracted list to the review spreadsheet (best-effort).
+    try:
+        publish_to_sheet(raw_domains, today)
+        print(f"      mirrored {len(raw_domains):,} domains to review sheet")
+    except Exception as e:  # noqa: BLE001
+        print(f"      sheet mirror skipped: {e}")
 
     state.write_json(SOURCE_ID, "run_status.json", {
         "source": SOURCE_ID,

@@ -271,6 +271,9 @@ sources:
     kind: scrape_html
     schedule_utc: "20 10 * * *"   # ~6:20 AM ET
     enabled: true
+    # Full extracted list is mirrored to this Google Sheet each run (rebuilt) for
+    # easy review/export — separate from the name_universe ingest.
+    output_sheet_id: "1id4_gOBFF0L8Wl9ZyJbbfXtrSEaIE2yino2pTY_EzMU"
     notes: |
       MarkMonitor (Clarivate) "Make an Offer" — curated premium domains.
       Cloudflare-protected, so fetched via scrape.do super-proxies
