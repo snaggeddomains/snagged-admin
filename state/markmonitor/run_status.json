@@ -1,0 +1,7 @@
+{
+  "error": "502 Server Error: Bad Gateway for url: https://api.scrape.do/?token=c18d01bc2b4c450f99e34c0c8ba33e2805b045c9645&url=https%3A%2F%2Fwww.markmonitor.com%2Fdomains-for-sale%2Fmake-an-offer%2F&render=true&super=true&geoCode=us",
+  "generated_at": "2026-06-18T02:20:29.079773+00:00",
+  "label": "MarkMonitor",
+  "source": "markmonitor",
+  "status": "failed"
+}
