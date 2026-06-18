@@ -1,11 +1,10 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 2,
   "domains": [
-    "pure.ai",
-    "autopsy.co",
-    "crenshaw.co"
+    "chaste.ai",
+    "christian.com"
   ],
-  "generated_at": "2026-06-17T08:15:32.130520+00:00",
+  "generated_at": "2026-06-18T08:17:09.174680+00:00",
   "source": "afternic"
 }
