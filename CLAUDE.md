@@ -83,6 +83,14 @@ rebuild). Enhancements this session:
   off-platform activity" section (after Offers). Best-effort read (empty when the
   table/DB is absent); save surfaces a clear "run the migration" error on 42P01.
   **One-time migration:** `scripts/marketplace_deal_notes.sql` on the admin project.
+- **LLM-drafted report prose (2026-06-18).** `draftReportNarrative` (one Anthropic
+  call, `DEAL_SUMMARY_MODEL`||`DEAL_RECAP_MODEL`||Haiku) drafts BOTH the **executive
+  summary** and the **"What's next"** plan from the FULL report (inbound/qualified/
+  engaged counts, active negs, proactive/cold engagement, firm offers, a few
+  verbatim buyer highlights) AND the broker notes — notes are ONE input, never the
+  sole driver. `generateReportDoc` fills `execSummary`/`whatsNext` on `ReportInput`
+  when not supplied (best-effort → manual placeholders on no API key). Both render
+  as "Draft — review before sending". Facts-only prompt (never invent numbers/names).
 - **Cache schema marker:** `readCache` ignores reports cached before the HubSpot wiring existed
   (`pitchSource === undefined`; prior marker was `inboundEngaged`) so old rows rebuild instead
   of serving the old Gmail-heuristic classification.

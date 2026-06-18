@@ -642,6 +642,7 @@ export default function DealClient({ domain }: { domain: string }) {
             ? <span style={{ fontSize: 12, color: CORAL }}>Unsaved changes</span>
             : notesSavedAt && <span className="muted" style={{ fontSize: 12 }}>Last saved {ago(notesSavedAt)}</span>}
         </div>
+        <p className="muted" style={{ fontSize: 11.5, marginTop: 7 }}>ℹ️ Saved notes are included in the generated client report — shown verbatim in a “Notes &amp; off-platform activity” section, and factored into the drafted executive summary.</p>
       </div>
     </main>
   );

@@ -57,6 +57,11 @@ export type ReportInput = {
   // Broker-maintained free-text notes (off-platform offers/context). Rendered
   // verbatim into the Doc when present. Optional.
   notes?: string | null;
+  // Drafted narrative (LLM, best-effort), both fed by the full report + notes.
+  // When present they replace the manual placeholders. generateReportDoc fills
+  // these in when execSummary is not supplied.
+  execSummary?: string | null; // → Executive summary
+  whatsNext?: string | null; // → "What's next" plan
 };
 
 const NAVY = "#254254", CORAL = "#c0492f", CORAL_SOFT = "#e07a5f", LINE = "#e3ddcf", MUTED = "#857c6c", GREEN = "#2f7d4f";
@@ -69,7 +74,7 @@ function sectionHead(num: string, title: string, tag = ""): string {
 }
 
 export function buildReportHtml(input: ReportInput): string {
-  const { domain, host, from, to, report, ga, newsletter, notes } = input;
+  const { domain, host, from, to, report, ga, newsletter, notes, execSummary, whatsNext } = input;
   const r = report;
   const cold = r.cold;
   const exercises = r.pitchExercises || [];
@@ -163,7 +168,10 @@ ${highlights.map(quoteCallout).join("\n")}`
 <table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin-top:18pt;"><tr>
 <td style="background-color:#ffffff;border:1px solid ${LINE};border-left:4px solid ${CORAL};padding:14pt 16pt;">
   <div style="font-family:'Fraunces',Georgia,serif;font-size:13pt;font-weight:700;color:${NAVY};">Executive summary</div>
-  <div style="color:#9a8f78;font-style:italic;margin-top:5pt;">[ Write a short personal note here before sending — the level of demand this period, the most promising conversations, and our read on price and positioning for ${esc(Domain)}. ]</div>
+  ${(execSummary || "").trim()
+    ? `<div style="margin-top:6pt;color:#33312c;line-height:1.55;">${esc((execSummary as string).trim()).replace(/\r?\n/g, "<br>")}</div>
+  <div style="color:#b3a994;font-style:italic;font-size:8.5pt;margin-top:7pt;">Draft — review and personalize before sending.</div>`
+    : `<div style="color:#9a8f78;font-style:italic;margin-top:5pt;">[ Write a short personal note here before sending — the level of demand this period, the most promising conversations, and our read on price and positioning for ${esc(Domain)}. ]</div>`}
 </td></tr></table>
 
 ${sectionHead("01", "Inbound demand", "buyers who came to us")}
@@ -208,7 +216,10 @@ ${sectionHead("05", "Where things stand", "status & momentum")}
 <p style="margin:0;">Demand is broad-based across multiple industries. ${r.activeNegotiations ? `<b style="color:${NAVY};">${fmt(r.activeNegotiations)} live ${r.activeNegotiations === 1 ? "negotiation is" : "negotiations are"} open.</b> ` : ""}${r.sale ? `Sale status: <b style="color:${NAVY};">${esc(r.sale.label)}</b>.` : `No offer has been accepted yet — several conversations sit at the price-discovery stage, typical for a premium name and exactly where our follow-up cadence does its work.`}</p>
 
 ${sectionHead("06", "What's next", "our plan from here")}
-<p style="margin:0;color:#9a8f78;font-style:italic;">[ Finalize before sending. Draft: re-engage the warmest prospects from this cycle, expand outreach into adjacent buyer categories, keep ${esc(Domain)} in rotation for upcoming founder name searches, and surface any serious offer to you immediately. ]</p>
+${(whatsNext || "").trim()
+    ? `<p style="margin:0;color:#33312c;line-height:1.55;">${esc((whatsNext as string).trim()).replace(/\r?\n/g, "<br>")}</p>
+<p style="margin:6pt 0 0 0;color:#b3a994;font-style:italic;font-size:8.5pt;">Draft — review and personalize before sending.</p>`
+    : `<p style="margin:0;color:#9a8f78;font-style:italic;">[ Finalize before sending. Draft: re-engage the warmest prospects from this cycle, expand outreach into adjacent buyer categories, keep ${esc(Domain)} in rotation for upcoming founder name searches, and surface any serious offer to you immediately. ]</p>`}
 
 ${sectionHead("07", "The bottom line")}
 <table width="100%" cellpadding="0" cellspacing="0" style="border:none;border-collapse:collapse;"><tr>
@@ -241,12 +252,87 @@ async function domainFolder(token: string, domain: string): Promise<string> {
   return created.id as string;
 }
 
+// Draft the report's prose (best-effort LLM), in ONE call: the executive summary
+// AND the forward-looking "What's next" plan. Both are fed by the FULL report —
+// metrics, firm offers, verbatim buyer highlights — AND the broker's off-platform
+// notes, since the notes can carry data relevant to the whole report (not just the
+// summary). Notes are one input, never the sole driver. Returns empty strings when
+// there's no API key (the Doc then shows the manual placeholders). Server-only.
+const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
+export async function draftReportNarrative(input: ReportInput): Promise<{ summary: string; outlook: string }> {
+  const empty = { summary: "", outlook: "" };
+  const key = process.env.ANTHROPIC_API_KEY;
+  if (!key) return empty;
+  const { domain, report: r } = input;
+  const cold = r.cold;
+  const exercises = r.pitchExercises || [];
+  const proactive = (cold?.recipients || 0) + (r.pitchedIndividual || 0) + exercises.length;
+  const offer = topOffer(r);
+  const facts: string[] = [
+    `Domain: ${domain}`,
+    `Inbound contacts: ${r.inbound} (qualified: ${r.inboundQualified}; became two-way negotiations: ${r.inboundEngaged})`,
+    `Active live negotiations: ${r.activeNegotiations}`,
+    `Proactively pitched: ${proactive}${exercises.length ? ` (incl. ${exercises.length} funded-startup naming searches)` : ""}`,
+  ];
+  if (cold) facts.push(`Cold outreach: ${cold.recipients} prospects, ${cold.opened} opened, ${cold.replied} replied`);
+  if (offer) facts.push(`Highest stated budget/offer: ${offer}`);
+  if (r.sale) facts.push(`Sale status: ${r.sale.label}`);
+  if ((r.offers || []).length) {
+    facts.push("Firm offers: " + r.offers.slice(0, 6).map((o) => `${o.amount}${o.outcome ? ` (${o.outcome})` : ""}`).join("; "));
+  }
+  if ((r.highlights || []).length) {
+    facts.push("Representative buyer quotes: " + r.highlights.slice(0, 5).map((q) => `"${q.text}" [${q.kind}]`).join(" | "));
+  }
+  const notes = (input.notes || "").trim();
+  if (notes) facts.push(`Broker notes — OFF-PLATFORM activity not in email/CRM (offers via text/WhatsApp/phone, verbal context, owner instructions). Important — factor these into BOTH the summary and the plan:\n${notes.slice(0, 3000)}`);
+
+  const system =
+    `You write the prose for a domain owner's activity report, prepared by Snagged — the owner's domain broker (write as "we"). ` +
+    `Return STRICT JSON: {"summary":"...","outlook":"..."}. ` +
+    `"summary" = the executive summary, 3–5 sentences, one paragraph: the level of demand this period, the most promising conversations and any firm or off-platform offers, and our read on price/positioning. ` +
+    `"outlook" = the "What's next" plan, 2–4 sentences: the concrete next steps from here (re-engage the warmest prospects, expand into adjacent buyer categories, keep the name in founder naming searches, act on any live/off-platform offer). ` +
+    `Confident and professional but factual. Use ONLY the facts provided — never invent numbers, names, or offers. Reflect the broker notes where relevant. ` +
+    `No greeting, no sign-off, no markdown, no headers. Refer to the domain by name.`;
+  try {
+    const res = await fetch(ANTHROPIC_URL, {
+      method: "POST",
+      headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+      body: JSON.stringify({
+        model: process.env.DEAL_SUMMARY_MODEL || process.env.DEAL_RECAP_MODEL || "claude-haiku-4-5-20251001",
+        max_tokens: 700,
+        system,
+        messages: [{ role: "user", content: `Write the report prose from these facts:\n\n${facts.join("\n")}` }],
+      }),
+    });
+    if (!res.ok) return empty;
+    const data = (await res.json()) as { content?: { type: string; text?: string }[] };
+    const text = (data.content || []).filter((b) => b.type === "text").map((b) => b.text || "").join("");
+    const s = text.indexOf("{"), e = text.lastIndexOf("}");
+    if (s < 0 || e <= s) return empty;
+    const obj = JSON.parse(text.slice(s, e + 1)) as { summary?: string; outlook?: string };
+    return {
+      summary: (obj.summary || "").toString().trim().slice(0, 1200),
+      outlook: (obj.outlook || "").toString().trim().slice(0, 900),
+    };
+  } catch {
+    return empty;
+  }
+}
+
 // Generate the Doc: build HTML, import into the per-domain subfolder under a
 // timestamped name (never overwrites). Returns the Doc + folder links.
 export async function generateReportDoc(input: ReportInput): Promise<{ docUrl: string; folderUrl: string; name: string }> {
   const token = await googleAccessToken(SCOPE, subjectUser());
   const folder = await domainFolder(token, input.domain);
-  const html = buildReportHtml(input);
+  // Draft the report prose (exec summary + what's-next), folding in metrics +
+  // offers + highlights + notes, unless the caller already supplied a summary.
+  // Best-effort — falls back to the manual placeholders.
+  let withProse = input;
+  if (input.execSummary == null) {
+    const { summary, outlook } = await draftReportNarrative(input);
+    withProse = { ...input, execSummary: summary, whatsNext: input.whatsNext ?? outlook };
+  }
+  const html = buildReportHtml(withProse);
   const Domain = input.domain.charAt(0).toUpperCase() + input.domain.slice(1);
   const now = new Date();
   const p = (x: number) => String(x).padStart(2, "0");
