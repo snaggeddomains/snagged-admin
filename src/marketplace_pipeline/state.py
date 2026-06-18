@@ -6,12 +6,46 @@ reads previous snapshots at run start and commits new ones at run end.
 from __future__ import annotations
 
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 STATE_DIR = REPO_ROOT / "state"
+
+
+# ── Secret redaction ─────────────────────────────────────────────────────────
+# State JSON is committed to a PUBLIC repo. Source errors often carry the failing
+# request URL (e.g. scrape.do `?token=…`, an Efty `/partner/feed/token/<TOKEN>/`),
+# which would leak live credentials into git history. Scrub token-like values from
+# every string before writing. Patterns are deliberately narrow so they only hit
+# secrets in URLs/headers — plain domains and prose are untouched.
+_SECRET_QS = re.compile(
+    r"(?i)(?:(?<=[?&\s\"'])|^)"  # at a query-param / whitespace / quote boundary, or string start
+    r"((?:token|api[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret|secret|password|pwd|signature|sig|auth|authorization|key)=)"
+    r"[^&\s\"'#]+"
+)
+_SECRET_PATH = re.compile(
+    r"(?i)(/(?:token|api[_-]?key|apikey|key|secret|access[_-]?token|auth)/)[^/\s\"'#?]+"
+)
+_BEARER = re.compile(r"(?i)(bearer\s+)[A-Za-z0-9._\-]{8,}")
+_REDACTED = r"\1***REDACTED***"
+
+
+def redact_secrets(obj: Any) -> Any:
+    """Recursively mask credential-like values (URL token/key params, `/token/<x>/`
+    path segments, `Bearer <x>` headers) in any JSON-serializable structure."""
+    if isinstance(obj, str):
+        s = _SECRET_QS.sub(_REDACTED, obj)
+        s = _SECRET_PATH.sub(_REDACTED, s)
+        s = _BEARER.sub(_REDACTED, s)
+        return s
+    if isinstance(obj, dict):
+        return {k: redact_secrets(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [redact_secrets(v) for v in obj]
+    return obj
 
 
 def state_path(source: str, filename: str) -> Path:
@@ -28,6 +62,9 @@ def read_json(source: str, filename: str, default: Any = None) -> Any:
 def write_json(source: str, filename: str, data: Any) -> None:
     p = state_path(source, filename)
     p.parent.mkdir(parents=True, exist_ok=True)
+    # Scrub any leaked credentials (token/key URLs in error strings, etc.) before
+    # this JSON is committed to the public repo.
+    data = redact_secrets(data)
     p.write_text(json.dumps(data, indent=2, default=str, sort_keys=True) + "\n")
 
 

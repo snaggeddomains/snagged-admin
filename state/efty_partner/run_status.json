@@ -1,5 +1,5 @@
 {
-  "error": "504 Server Error: Gateway Timeout for url: https://efty.com/partner/feed/token/640677654bf924ed61392d5393d5781db75edfa275cd3b62edc5e390319ed718/",
+  "error": "504 Server Error: Gateway Timeout for url: https://efty.com/partner/feed/token/***REDACTED***/",
   "generated_at": "2026-06-18T09:35:21.606535+00:00",
   "label": "Efty",
   "source": "efty_partner",
