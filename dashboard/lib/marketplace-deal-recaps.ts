@@ -8,7 +8,8 @@
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = process.env.DEAL_RECAP_MODEL || "claude-haiku-4-5-20251001";
 
-export type ThreadRecap = { offer: string | null; outcome: string };
+export type QuoteKind = "interest" | "objection" | "price" | "praise" | "other";
+export type ThreadRecap = { offer: string | null; outcome: string; quote: string | null; quoteKind: QuoteKind | null };
 export type RecapItem = { idx: number; party: string; origin: "inbound" | "pitched"; subject: string; transcript: string };
 
 const SYSTEM = (domain: string) =>
@@ -21,7 +22,13 @@ const SYSTEM = (domain: string) =>
   `Capture the real result: did they make an offer, decline, balk at the price, or go quiet? No fluff, no quotes of email text.\n` +
   `- "offer": the BUYER's specific dollar offer if they named one, as "$12,000". This is what the BUYER offered to PAY — ` +
   `NEVER our asking/list price that we quoted them. null if the buyer never named an offer.\n` +
-  `Return ONLY a JSON array: [{"idx":0,"outcome":"...","offer":"$X"|null}, ...] for every thread given.`;
+  `- "quote": the single most telling VERBATIM sentence or phrase from the OTHER PARTY's own words (lines NOT tagged "US:") ` +
+  `that best conveys their stance — genuine interest in the name, an objection, a reaction to price, or praise of the domain. ` +
+  `Copy their wording exactly (you may trim to the key clause, max ~28 words). Strip any names, emails, phone numbers, signatures, and links. ` +
+  `Prefer something a domain owner would find revealing about real demand or pricing. null if the other party said nothing substantive ` +
+  `(e.g. a bare form submission, "interested", or only our own words exist). Never quote our ("US:") side. Never invent words.\n` +
+  `- "quoteKind": one of "interest" | "objection" | "price" | "praise" | "other" classifying that quote, or null when quote is null.\n` +
+  `Return ONLY a JSON array: [{"idx":0,"outcome":"...","offer":"$X"|null,"quote":"..."|null,"quoteKind":"price"|null}, ...] for every thread given.`;
 
 function parseArray(text: string): unknown[] {
   const start = text.indexOf("[");
@@ -48,7 +55,7 @@ export async function recapThreads(domain: string, items: RecapItem[], env: Node
     const res = await fetch(ANTHROPIC_URL, {
       method: "POST",
       headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-      body: JSON.stringify({ model: MODEL, max_tokens: 2000, system: SYSTEM(domain), messages: [{ role: "user", content: user }] }),
+      body: JSON.stringify({ model: MODEL, max_tokens: 3000, system: SYSTEM(domain), messages: [{ role: "user", content: user }] }),
     });
     if (!res.ok) return out;
     const data = (await res.json()) as { content?: { type: string; text?: string }[] };
@@ -57,13 +64,21 @@ export async function recapThreads(domain: string, items: RecapItem[], env: Node
     return out;
   }
 
+  const KINDS = new Set<QuoteKind>(["interest", "objection", "price", "praise", "other"]);
   for (const row of parseArray(text)) {
     if (!row || typeof row !== "object") continue;
-    const r = row as { idx?: number; outcome?: string; offer?: string | null };
+    const r = row as { idx?: number; outcome?: string; offer?: string | null; quote?: string | null; quoteKind?: string | null };
     if (typeof r.idx !== "number") continue;
     const offer = r.offer && /\d/.test(String(r.offer)) ? String(r.offer).trim() : null;
     const outcome = (r.outcome || "").toString().trim().slice(0, 140);
-    if (outcome || offer) out.set(r.idx, { offer, outcome });
+    // Verbatim buyer quote: trim surrounding quotes/whitespace, bound the length,
+    // and drop anything that's too short to be meaningful.
+    let quote = (r.quote == null ? "" : String(r.quote)).trim().replace(/^["“”']+|["“”']+$/g, "").trim();
+    if (quote.length < 8) quote = "";
+    quote = quote.slice(0, 240);
+    const kind = (r.quoteKind && KINDS.has(r.quoteKind as QuoteKind) ? (r.quoteKind as QuoteKind) : null);
+    const quoteKind = quote ? kind || "other" : null;
+    if (outcome || offer || quote) out.set(r.idx, { offer, outcome, quote: quote || null, quoteKind });
   }
   return out;
 }

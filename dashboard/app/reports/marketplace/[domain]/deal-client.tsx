@@ -11,8 +11,11 @@ type DealThread = {
   opens: number | null; clicks: number | null; replies: number | null;
   party: string; partyEmail: string | null;
   budget: string | null; offer: string | null; intent: string | null; outcome: string | null;
+  quote: string | null; quoteKind: QuoteKind | null;
   messages: number; first: string; last: string; lastSnippet: string;
 };
+type QuoteKind = "interest" | "objection" | "price" | "praise" | "other";
+type DealQuote = { text: string; kind: QuoteKind; party: string; attribution: string; origin: "inbound" | "pitched"; date: string; offer: string | null };
 type PitchExercise = { client: string; description?: string | null; paused?: boolean; sheetTitle: string; tab: string; url: string; price: string | null; note: string | null };
 type ColdRecipient = {
   party: string; email: string; sends: number; opened: boolean; clicked: boolean; replied: boolean;
@@ -23,7 +26,7 @@ type OfferRow = { party: string; email: string | null; amount: string; amountNum
 type DealReport = {
   domain: string; inbound: number; inboundQualified: number; inboundEngaged: number; activeNegotiations: number;
   pitched: number; pitchedMass: number; pitchedIndividual: number; pitchSource?: "hubspot" | "heuristic";
-  cold: ColdOutreach | null; offers: OfferRow[]; pitchExercises: PitchExercise[];
+  cold: ColdOutreach | null; offers: OfferRow[]; highlights: DealQuote[]; pitchExercises: PitchExercise[];
   representingSince: string | null; sale: SaleStatus | null; threads: DealThread[];
 };
 type GaRow = { views: number; sessions: number; users: number; inquiryStarts: number; clicks: number; inquiries: number };
@@ -72,6 +75,27 @@ function AggCard({ label, value, sub, accent }: { label: string; value: number; 
       <div style={{ fontSize: 38, fontWeight: 800, color: accent ? CORAL : NAVY }}>{fmt(value)}</div>
       <div style={{ fontSize: 15, fontWeight: 600, marginTop: 2 }}>{label}</div>
       {sub && <div className="muted" style={{ fontSize: 12.5, marginTop: 2 }}>{sub}</div>}
+    </div>
+  );
+}
+
+const QUOTE_KIND: Record<QuoteKind, { label: string; color: string }> = {
+  interest: { label: "Interest", color: "#2f7d4f" },
+  objection: { label: "Objection", color: "#b8741f" },
+  price: { label: "On price", color: CORAL },
+  praise: { label: "Praise", color: "#2f7d4f" },
+  other: { label: "Feedback", color: NAVY },
+};
+function QuoteCard({ q }: { q: DealQuote }) {
+  const k = QUOTE_KIND[q.kind] || QUOTE_KIND.other;
+  return (
+    <div style={{ border: "1px solid #e3ddcf", borderLeft: `4px solid ${k.color}`, borderRadius: 8, padding: "12px 14px", background: "#fbf8ef" }}>
+      <div style={{ fontSize: 10, letterSpacing: 1, fontWeight: 700, color: k.color, textTransform: "uppercase" }}>{k.label}</div>
+      <div style={{ fontFamily: "Fraunces, Georgia, serif", fontSize: 14.5, fontStyle: "italic", color: NAVY, lineHeight: 1.4, margin: "5px 0 8px" }}>&ldquo;{q.text}&rdquo;</div>
+      <div className="muted" style={{ fontSize: 12 }}>
+        — {q.party && q.party !== "—" ? q.party : q.attribution}
+        <span style={{ opacity: 0.7 }}> · {q.attribution}{q.date ? ` · ${q.date}` : ""}</span>
+      </div>
     </div>
   );
 }
@@ -370,6 +394,17 @@ export default function DealClient({ domain }: { domain: string }) {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+
+          {/* Conversation highlights — verbatim buyer/prospect pull-quotes */}
+          {(rep.highlights || []).length > 0 && (
+            <div style={{ margin: "16px 0 4px" }}>
+              <h3 style={{ fontSize: 16.5, margin: "10px 0 4px" }}>💬 In their own words <span className="muted" style={{ fontWeight: 400, fontSize: 12.5 }}>— verbatim from conversations (curate before sending to a client)</span></h3>
+              <div style={{ height: 2, background: `linear-gradient(90deg, ${CORAL}, transparent)`, borderRadius: 2, margin: "0 0 10px" }} />
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 10 }}>
+                {rep.highlights.map((q, i) => <QuoteCard key={i} q={q} />)}
               </div>
             </div>
           )}

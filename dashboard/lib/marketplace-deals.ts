@@ -15,14 +15,15 @@
 import { dealMailboxes, getThread, searchThreadIds, type GmailMessage } from "./gmail";
 import { findPitchExercises, type PitchExercise } from "./marketplace-pitch-sheets";
 import { classifyMessageIds, hubspotConfigured, normMid, recipientEngagementForDomain, type HubspotEmail, type RecipientEngagement } from "./hubspot";
+import type { QuoteKind } from "./marketplace-deal-recaps";
 
 // Bump whenever the report's computation changes in a way that should invalidate
 // cached rows (the route's readCache requires the current version). History:
 // 1 = HubSpot three-bucket; 2 = form-submitters-are-inbound + paused exercises;
 // 3 = name/email normalization (parser fix, mailto strip, greeting/HubSpot names)
 // + probable-spam flag; 4 = cold-outreach conversational result column;
-// 5 = firm-offers table.
-export const REPORT_VERSION = 5;
+// 5 = firm-offers table; 6 = verbatim buyer pull-quotes + conversation highlights.
+export const REPORT_VERSION = 6;
 
 const isUs = (a: string) => a.endsWith("@snagged.com") || a.endsWith("@snagged.co");
 
@@ -172,6 +173,11 @@ export type DealThread = {
   offer: string | null; // a specific offer amount ("$50,000") — LLM > structured
   intent: string | null;
   outcome: string | null; // one-line "what happened" (LLM recap)
+  // A verbatim snippet of the OTHER party's own words (interest / objection /
+  // price reaction / praise), extracted by the LLM recap. Powers the report's
+  // "what buyers are saying" pull-quotes. null when they said nothing substantive.
+  quote: string | null;
+  quoteKind: QuoteKind | null;
   messages: number;
   first: string; // YYYY-MM-DD
   last: string;
@@ -222,6 +228,11 @@ export type DealReport = {
   cold: ColdOutreach | null;
   // Firm offers received (specific dollar amounts buyers named), highest first.
   offers: OfferRow[];
+  // Verbatim buyer pull-quotes for the report — the most telling things buyers
+  // and prospects actually said (interest / objections / price feedback / praise),
+  // curated and de-duped across all threads. Drives the "What buyers are saying"
+  // callouts. `attribution` is anonymized (origin + offer), safe for a client doc.
+  highlights: DealQuote[];
   // Naming-exercise pitches: this domain appearing in a client's pitch sheet.
   pitchExercises: PitchExercise[];
   // Owner engagement start, from the completed Snagged brokerage DocuSign.
@@ -261,6 +272,19 @@ export type ColdOutreach = {
   responded: number; // # unique recipients who responded (replied OR two-way thread)
   active: number; // # that turned into a live negotiation
   rows: ColdRecipient[];
+};
+
+// A curated verbatim pull-quote from a buyer/prospect conversation. `party` is the
+// real name (admin view); `attribution` is an anonymized, client-safe label
+// ("A buyer who offered $25,000", "A fintech prospect we pitched").
+export type DealQuote = {
+  text: string;
+  kind: QuoteKind;
+  party: string;
+  attribution: string;
+  origin: "inbound" | "pitched";
+  date: string; // YYYY-MM-DD
+  offer: string | null;
 };
 
 // A firm offer received — a specific dollar amount a buyer named (the LLM recap's
@@ -577,6 +601,8 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
       offer: formatOffer(fm?.offer),
       intent: fm?.intent || null,
       outcome: null,
+      quote: null,
+      quoteKind: null,
       messages: ms.length,
       first: ymd(ms[0].date),
       last: ymd(ms[ms.length - 1].date),
@@ -603,6 +629,7 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
       keep.active = keep.active || drop.active;
       keep.offer = keep.offer || drop.offer;
       keep.outcome = keep.outcome || drop.outcome;
+      if (!keep.quote && drop.quote) { keep.quote = drop.quote; keep.quoteKind = drop.quoteKind; }
       keep.qualified = keep.qualified || drop.qualified;
       keep.repliedAfterUs = keep.repliedAfterUs || drop.repliedAfterUs;
       keep.spam = keep.spam && drop.spam; // any non-spam thread for this buyer clears it
@@ -669,6 +696,8 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
     }))
     .sort((a, b) => b.amountNum - a.amountNum || (a.date < b.date ? 1 : -1));
 
+  const highlights = buildHighlights(final);
+
   return {
     reportVersion: REPORT_VERSION,
     domain,
@@ -682,11 +711,53 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
     pitchSource: hubspotConfigured() ? "hubspot" : "heuristic",
     cold,
     offers,
+    highlights,
     pitchExercises,
     representingSince,
     sale,
     threads: final,
   };
+}
+
+// Curate the verbatim buyer pull-quotes for the report. Picks the most telling
+// quotes across all (non-spam) threads, de-dupes, and balances the mix so the
+// "what buyers are saying" section isn't all one note. Attribution is anonymized
+// (origin + offer) so the client doc never exposes our lead list.
+function buildHighlights(threads: DealThread[]): DealQuote[] {
+  const attributionFor = (t: DealThread): string => {
+    if (t.offer) return `A buyer who offered ${t.offer}`;
+    if (t.origin === "inbound") return t.qualified ? "A qualified inbound buyer" : "An inbound inquiry";
+    return "A prospect we pitched";
+  };
+  const seen = new Set<string>();
+  const quotes: (DealQuote & { w: number })[] = [];
+  for (const t of threads) {
+    if (!t.quote || t.spam) continue;
+    const norm = t.quote.toLowerCase().replace(/\s+/g, " ").trim();
+    if (seen.has(norm)) continue;
+    seen.add(norm);
+    quotes.push({
+      text: t.quote,
+      kind: t.quoteKind || "other",
+      party: t.party,
+      attribution: attributionFor(t),
+      origin: t.origin,
+      date: t.last,
+      offer: t.offer,
+      // Weight: a real offer and active negotiations lead, then engaged buyers,
+      // longer conversations, and recency. Price/objection quotes are the most
+      // useful "meat" for an owner, so nudge them up.
+      w:
+        (t.offer ? 6 : 0) +
+        (t.active ? 4 : 0) +
+        (t.repliedAfterUs ? 3 : 0) +
+        (t.quoteKind === "price" || t.quoteKind === "objection" ? 2 : 0) +
+        (t.quoteKind === "interest" || t.quoteKind === "praise" ? 1 : 0) +
+        Math.min(t.messages, 3),
+    });
+  }
+  quotes.sort((a, b) => b.w - a.w || (a.date < b.date ? 1 : -1));
+  return quotes.slice(0, 8).map(({ w, ...q }) => q); // eslint-disable-line @typescript-eslint/no-unused-vars
 }
 
 // What actually happened with a cold recipient — the LLM recap when we have the
@@ -782,6 +853,7 @@ async function applyRecaps(domain: string, threads: DealThread[], transcripts: T
       if (!t) continue;
       if (r.outcome) t.outcome = r.outcome;
       if (r.offer) t.offer = r.offer; // LLM-extracted buyer offer beats the structured one
+      if (r.quote) { t.quote = r.quote; t.quoteKind = r.quoteKind; }
     }
   } catch {
     /* recaps are enrichment only — never block the report */

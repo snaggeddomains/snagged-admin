@@ -106,6 +106,26 @@ export function buildReportHtml(input: ReportInput): string {
   // Rendered as emphasized 11pt bullets — pitching to funded startups is a key differentiator.
   const bullets = exercises.map((e) => `<tr><td width="22" valign="top" style="border:none;padding:4pt 0;color:${CORAL};font-size:11pt;font-weight:700;line-height:1.4;">▸</td><td valign="top" style="border:none;padding:4pt 0;font-size:11pt;font-weight:600;color:${NAVY};line-height:1.4;">${esc(e.description || "A funded startup naming exercise")}</td></tr>`).join("");
 
+  // "In their own words" — verbatim buyer/prospect pull-quotes, color-coded by
+  // kind. Attribution is the report's anonymized label (never the lead's identity).
+  const KIND_LABEL: Record<string, string> = { interest: "Interest", objection: "Objection", price: "On price", praise: "Praise", other: "Feedback" };
+  const KIND_COLOR: Record<string, string> = { interest: GREEN, objection: "#b8741f", price: CORAL, praise: GREEN, other: NAVY };
+  const quoteCallout = (q: { text: string; kind: string; attribution: string; date: string }) => {
+    const c = KIND_COLOR[q.kind] || NAVY;
+    return `<table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:0 0 9pt 0;"><tr>
+  <td style="border:1px solid ${LINE};border-left:4px solid ${c};background-color:#fbf8ef;padding:12pt 16pt;">
+    <div style="font-size:8pt;letter-spacing:1.5px;color:${c};font-weight:bold;">${esc((KIND_LABEL[q.kind] || "Feedback").toUpperCase())}</div>
+    <div style="font-family:'Fraunces',Georgia,serif;font-size:13pt;font-style:italic;color:${NAVY};line-height:1.45;margin-top:5pt;">&#8220;${esc(q.text)}&#8221;</div>
+    <div style="font-size:9.5pt;color:${MUTED};margin-top:8pt;">— ${esc(q.attribution)}${q.date ? ` &middot; ${esc(prettyDate(q.date))}` : ""}</div>
+  </td></tr></table>`;
+  };
+  const highlights = (r.highlights || []).slice(0, 6);
+  const quotesBlock = highlights.length
+    ? `<h2 style="font-family:'Fraunces',Georgia,serif;color:${NAVY};font-size:16pt;margin:22pt 0 2pt 0;">&#128172; In their own words <span style="font-size:9pt;color:${MUTED};font-family:Arial;">— verbatim from buyer &amp; prospect conversations</span></h2><hr style="border:none;border-top:2px solid ${CORAL};width:38%;margin:0 0 10pt 0;">
+<p style="margin:0 0 10pt 0;">Behind the numbers are real conversations. A representative sample of what buyers and prospects have actually told us about ${esc(Domain)} — interest, objections, and feedback on price:</p>
+${highlights.map(quoteCallout).join("\n")}`
+    : "";
+
   return `<!doctype html><html><head><meta charset="utf-8"></head>
 <body style="font-family:'Inter',Arial,sans-serif;color:#2a2a28;font-size:11pt;line-height:1.5;margin:0;">
 
@@ -137,6 +157,8 @@ ${sectionHead("01", "Inbound demand", "buyers who came to us")}
 <p style="margin:0 0 8pt 0;">${esc(Domain)} attracts unsolicited interest — a strong signal of the name's pull. This period we logged <b style="color:${NAVY};">${fmt(r.inbound)} inbound contacts</b>, of which <b style="color:${NAVY};">${fmt(r.inboundQualified)} were qualified</b> (credible buyer, business email, or stated budget), and <b style="color:${NAVY};">${fmt(r.inboundEngaged)} became genuine two-way negotiations</b> after our reply.${offer ? ` Highest stated budget: <b style="color:${NAVY};">${esc(offer)}</b>.` : ""}</p>
 
 ${offersBlock}
+
+${quotesBlock}
 
 ${cold ? `${sectionHead("02", "Proactive cold outreach", "tracked in HubSpot")}
 <table width="100%" cellpadding="0" cellspacing="0" style="border:none;border-collapse:collapse;"><tr>

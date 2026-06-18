@@ -57,6 +57,21 @@ rebuild). Enhancements this session:
   SLD/TLD split tab). A hit = a pitch of that domain to that client → `DealReport.pitchExercises`,
   counted in bucket 2 (Pitched 1:1) + its own sub-table. Add an engagement = add one line to
   `EXERCISES`. `lib/sheets.ts` gained `getSheetMeta` (title + tab list).
+- **Verbatim buyer pull-quotes (2026-06-18).** The per-thread recap LLM call
+  (`lib/marketplace-deal-recaps.ts`) now ALSO returns a `quote` (the single most
+  telling VERBATIM line from the OTHER party — interest / objection / price reaction /
+  praise, names+emails+links stripped) + a `quoteKind`. `DealThread` carries
+  `quote`/`quoteKind`; `buildHighlights` curates a de-duped, balanced top-8 into
+  `DealReport.highlights: DealQuote[]` (each with an ANONYMIZED `attribution` —
+  "A buyer who offered $25,000", "A fintech prospect we pitched" — never the lead's
+  identity, so the client doc is safe). Surfaced as color-coded callouts: a "💬 In
+  their own words" block in the admin report (`QuoteCard`, real name shown for
+  curation) and in the client Doc (`quoteCallout` in `client-report-doc.ts`,
+  anonymized attribution). REPORT_VERSION → 6.
+- **Client Doc curated-search emphasis (2026-06-18).** The funded-startup naming-
+  exercise entries in section 03 render as emphasized 11pt bullets (coral marker,
+  semibold navy) instead of small chips — pitching to funded startups is a key
+  differentiator.
 - **Cache schema marker:** `readCache` ignores reports cached before the HubSpot wiring existed
   (`pitchSource === undefined`; prior marker was `inboundEngaged`) so old rows rebuild instead
   of serving the old Gmail-heuristic classification.
