@@ -110,10 +110,10 @@ export function buildReportHtml(input: ReportInput): string {
 
 <table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;"><tr>
 <td style="background-color:${NAVY};padding:48pt 40pt 44pt 40pt;" align="center">
-  <p align="center" style="margin:0;"><img src="${wordmark}" alt="Snagged" width="128" style="display:block;"></p>
-  <p align="center" style="margin:26pt 0 0 0;"><img src="${flameUrl}" alt="${esc(Domain)}" width="58" style="display:block;"></p>
-  <div style="text-align:center;color:${CORAL_SOFT};font-size:9pt;letter-spacing:3px;font-weight:bold;margin-top:22pt;">PREPARED FOR THE OWNER OF</div>
-  <div style="text-align:center;font-family:'Fraunces',Georgia,serif;font-size:46pt;font-weight:600;color:#ffffff;line-height:1.02;margin-top:6pt;">${esc(Domain)}</div>
+  <p align="center" style="margin:0;"><img src="${wordmark}" alt="Snagged" width="180" style="display:block;"></p>
+  <p align="center" style="margin:28pt 0 0 0;"><img src="${flameUrl}" alt="${esc(Domain)}" width="92" style="display:block;"></p>
+  <div style="text-align:center;color:${CORAL_SOFT};font-size:9pt;letter-spacing:3px;font-weight:bold;margin-top:24pt;">PREPARED FOR THE OWNER OF</div>
+  <div style="text-align:center;font-family:'Fraunces',Georgia,serif;font-size:50pt;font-weight:600;color:#ffffff;line-height:1.02;margin-top:6pt;">${esc(Domain)}</div>
   <div style="text-align:center;color:${CORAL_SOFT};font-size:15pt;line-height:1;letter-spacing:2px;margin-top:14pt;">━━━━</div>
   <div style="text-align:center;color:#aebcc4;font-size:10pt;margin-top:14pt;">Domain Activity Report &nbsp;&middot;&nbsp; ${esc(periodLabel(from, to))} &nbsp;&middot;&nbsp; Status: <b style="color:#ffffff;">${status}</b></div>
 </td></tr></table>
