@@ -193,8 +193,30 @@ export default function DealClient({ domain }: { domain: string }) {
   const [pitchView, setPitchView] = useState<"all" | "responded">("all");
   const [coldView, setColdView] = useState<"all" | "responded" | "noresp">("all");
   const [copied, setCopied] = useState(false);
+  const [genBusy, setGenBusy] = useState(false);
+  const [genDoc, setGenDoc] = useState<{ docUrl: string; folderUrl: string } | null>(null);
+  const [genErr, setGenErr] = useState("");
   const share = async () => {
     try { await navigator.clipboard.writeText(window.location.href); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch { /* clipboard blocked */ }
+  };
+  // Generate the client-facing Google Doc (live data → branded Doc in the
+  // per-domain Drive subfolder, timestamped — never overwrites a prior version).
+  const generateDoc = async () => {
+    setGenBusy(true); setGenErr(""); setGenDoc(null);
+    try {
+      const res = await fetch("/api/admin/marketplace/report-doc", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ domain, from: range.from, to: range.to }),
+      });
+      const j = await res.json();
+      if (!res.ok || !j.ok) throw new Error(j.error || `Failed (${res.status})`);
+      setGenDoc({ docUrl: j.docUrl, folderUrl: j.folderUrl });
+      window.open(j.docUrl, "_blank", "noopener");
+    } catch (e) {
+      setGenErr(String((e as Error)?.message || e));
+    } finally {
+      setGenBusy(false);
+    }
   };
 
   const range = useMemo(() => {
@@ -281,7 +303,17 @@ export default function DealClient({ domain }: { domain: string }) {
         )}
         {rep?.representingSince && <span className="muted" style={{ fontSize: 12 }}>Representing since {rep.representingSince}</span>}
         <button onClick={share} style={{ ...BTN, marginLeft: "auto" }} title="Copy a shareable link to this report">{copied ? "✓ Link copied" : "🔗 Share"}</button>
+        <button onClick={() => void generateDoc()} disabled={genBusy} style={{ ...BTN, borderColor: CORAL, color: CORAL, fontWeight: 700 }} title="Generate a branded client activity report as a Google Doc (saved to the Drive folder)">{genBusy ? "Generating…" : "📄 Generate client report"}</button>
       </div>
+      {(genDoc || genErr || genBusy) && (
+        <div style={{ fontSize: 12.5, margin: "2px 0 0" }}>
+          {genBusy && <span className="loading-pulse" style={{ color: CORAL }}>Building the Google Doc — pulling live activity, this can take a moment…</span>}
+          {genErr && <span style={{ color: CORAL }}>Report error: {genErr}</span>}
+          {genDoc && !genBusy && (
+            <span>✓ Doc created — <a href={genDoc.docUrl} target="_blank" rel="noreferrer" style={{ color: CORAL, fontWeight: 600 }}>open it ↗</a> · <a href={genDoc.folderUrl} target="_blank" rel="noreferrer" style={{ color: NAVY }}>domain folder ↗</a> <span className="muted">(saved as a new dated version)</span></span>
+          )}
+        </div>
+      )}
 
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "12px 0 4px" }}>
         <span className="muted" style={{ fontSize: 12 }}>Window:</span>

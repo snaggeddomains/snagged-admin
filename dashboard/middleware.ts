@@ -18,7 +18,7 @@ export const config = {
   // page + the browser's "Add to Home Screen" install can fetch them before the
   // user is authenticated, plus /login itself and the CRON_SECRET-gated
   // /api/cron routes (Vercel Cron has no session).
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|brand|fonts|icons|manifest.webmanifest|login|api/login|api/cron|api/inbound).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|brand|fonts|icons|manifest.webmanifest|login|api/login|api/cron|api/inbound|api/og-mark).*)"],
 };
 
 export async function middleware(req: NextRequest) {
