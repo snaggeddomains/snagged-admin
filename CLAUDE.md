@@ -78,19 +78,25 @@ rebuild). Enhancements this session:
   verbal context, next steps). Saved per-domain to `marketplace_deal_notes`
   (`lib/marketplace-notes.ts` `getNotes`/`saveNotes`; API
   `app/api/admin/marketplace/notes/route.ts`, GET+POST, gated `reports.marketplace`,
-  records `updated_by`). The report-doc route reads the notes and `buildReportHtml`
-  folds them VERBATIM (line breaks preserved) into the client Doc as a "📌 Notes &
-  off-platform activity" section (after Offers). Best-effort read (empty when the
-  table/DB is absent); save surfaces a clear "run the migration" error on 42P01.
-  **One-time migration:** `scripts/marketplace_deal_notes.sql` on the admin project.
-- **LLM-drafted report prose (2026-06-18).** `draftReportNarrative` (one Anthropic
-  call, `DEAL_SUMMARY_MODEL`||`DEAL_RECAP_MODEL`||Haiku) drafts BOTH the **executive
-  summary** and the **"What's next"** plan from the FULL report (inbound/qualified/
-  engaged counts, active negs, proactive/cold engagement, firm offers, a few
-  verbatim buyer highlights) AND the broker notes — notes are ONE input, never the
-  sole driver. `generateReportDoc` fills `execSummary`/`whatsNext` on `ReportInput`
-  when not supplied (best-effort → manual placeholders on no API key). Both render
-  as "Draft — review before sending". Facts-only prompt (never invent numbers/names).
+  records `updated_by`). Best-effort read (empty when the table/DB is absent); save
+  surfaces a clear "run the migration / reload schema" error on 42P01/PGRST205.
+  **One-time migration:** `scripts/marketplace_deal_notes.sql` on the **domain-owner-
+  research** project (the admin `SUPABASE_URL` project, where `marketplace_deal_reports`
+  lives) — then `NOTIFY pgrst, 'reload schema';` so PostgREST sees the new table.
+- **LLM-drafted prose + notes DECOMPOSED across the report (2026-06-18).**
+  `draftReportNarrative` (one Anthropic call, `DEAL_SUMMARY_MODEL`||`DEAL_RECAP_MODEL`||
+  Haiku) returns `{summary, outlook, offers[]}` from the FULL report (inbound/
+  qualified/engaged, active negs, proactive engagement, firm offers, verbatim
+  highlights) AND the broker notes. The notes are **integrated, not dumped**: any
+  concrete dollar offer in the notes → `offers[]` → merged into the **Offers received**
+  table (sorted with the email/CRM offers; SOURCE = the channel e.g. "WhatsApp"); the
+  rest of the notes' context → woven into the **summary** + **What's next**. The
+  verbatim notes section now only renders as a **fallback when the LLM didn't run**
+  (no API key) so context is never lost. `generateReportDoc` fills `execSummary`/
+  `whatsNext`/`noteOffers` on `ReportInput`. Both prose blocks render as "Draft —
+  review before sending". Facts-only prompt; **no client-facing internal jargon**
+  ("off-platform"/"CRM"/"HubSpot"/"sequence" banned in output). Client Doc also drops
+  the quote category labels (OBJECTION/ON PRICE) and renames §02 to "Proactive outreach".
 - **Cache schema marker:** `readCache` ignores reports cached before the HubSpot wiring existed
   (`pitchSource === undefined`; prior marker was `inboundEngaged`) so old rows rebuild instead
   of serving the old Gmail-heuristic classification.
