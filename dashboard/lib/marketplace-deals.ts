@@ -26,8 +26,9 @@ import { getNotes } from "./marketplace-notes";
 // 5 = firm-offers table; 6 = verbatim buyer pull-quotes + conversation highlights;
 // 7 = offers table also includes credible stated budgets (kind offer|budget);
 // 8 = offers table also folds in off-platform offers from the broker notes;
-// 9 = buyer-name resolution trusts the human-verified greeting over stray form words.
-export const REPORT_VERSION = 9;
+// 9 = buyer-name resolution trusts the human-verified greeting over stray form words;
+// 10 = report carries inboundSpam + inboundLowQuality (low-value activity volume).
+export const REPORT_VERSION = 10;
 
 const isUs = (a: string) => a.endsWith("@snagged.com") || a.endsWith("@snagged.co");
 
@@ -219,6 +220,11 @@ export type DealReport = {
   // Qualified inbound that became a real back-and-forth (buyer replied after our
   // reply) — the "X actually responded after we did" number vs. form-and-gone.
   inboundEngaged: number;
+  // Low-value inbound volume, filtered OUT of the headline counts above but worth
+  // showing as activity: probable spam, plus credible-but-unqualified "tire-kicker"
+  // inquiries (no budget/business email, never a two-way exchange).
+  inboundSpam: number;
+  inboundLowQuality: number;
   activeNegotiations: number;
   pitched: number;
   pitchedMass: number; // cold mass sends (HubSpot sequences)
@@ -791,6 +797,8 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
     inbound: final.filter((t) => t.origin === "inbound" && !t.spam).length,
     inboundQualified: final.filter((t) => t.origin === "inbound" && t.qualified && !t.spam).length,
     inboundEngaged: final.filter((t) => t.origin === "inbound" && t.qualified && t.repliedAfterUs && !t.spam).length,
+    inboundSpam: final.filter((t) => t.origin === "inbound" && t.spam).length,
+    inboundLowQuality: final.filter((t) => t.origin === "inbound" && !t.spam && !t.qualified).length,
     activeNegotiations: final.filter((t) => t.active).length,
     pitched: pitchedThreads.length,
     pitchedMass: pitchedThreads.filter((t) => t.pitchKind === "mass").length,

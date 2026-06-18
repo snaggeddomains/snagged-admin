@@ -88,6 +88,9 @@ export function buildReportHtml(input: ReportInput): string {
   const touchpoints = (r.inbound || 0) + proactive;
   const offer = topOffer(r);
   const status = r.sale ? esc(r.sale.label) : "Active";
+  // Low-value inbound volume (probable spam + unqualified tire-kickers), filtered
+  // out of the headline counts but worth showing as a sign of organic demand.
+  const lowValue = (r.inboundSpam || 0) + (r.inboundLowQuality || 0);
 
   // Firm-offers table. Unifies the email/CRM offers (r.offers) with any concrete
   // offers the LLM pulled out of the broker notes (input.noteOffers), so a deal
@@ -190,6 +193,9 @@ ${highlights.map(quoteCallout).join("\n")}`
 
 ${sectionHead("01", "Inbound demand", "buyers who came to us")}
 <p style="margin:0 0 8pt 0;">${esc(Domain)} attracts unsolicited interest — a strong signal of the name's pull. This period we logged <b style="color:${NAVY};">${fmt(r.inbound)} inbound contacts</b>, of which <b style="color:${NAVY};">${fmt(r.inboundQualified)} were qualified</b> (credible buyer, business email, or stated budget), and <b style="color:${NAVY};">${fmt(r.inboundEngaged)} became genuine two-way negotiations</b> after our reply.${offer ? ` Highest stated budget: <b style="color:${NAVY};">${esc(offer)}</b>.` : ""}</p>
+${lowValue >= 5 ? `<table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:2pt 0 0 0;"><tr>
+  <td style="border:1px solid ${LINE};border-left:4px solid ${CORAL_SOFT};background-color:#faf6ec;padding:10pt 14pt;color:#5a5446;font-size:10pt;">On top of the qualified conversations above, ${esc(Domain)} drew roughly <b style="color:${NAVY};">${fmt(lowValue)} additional low-value or speculative inquiries</b> this period (low-ball budgets, tire-kickers, or probable spam). We filter these out so the figures above reflect serious buyers — but the steady volume is itself a sign of the name's organic pull.</td>
+</tr></table>` : ""}
 
 ${offersBlock}
 
@@ -291,6 +297,8 @@ export async function draftReportNarrative(input: ReportInput): Promise<{ summar
     `Proactively pitched: ${proactive}${exercises.length ? ` (incl. ${exercises.length} funded-startup naming searches)` : ""}`,
   ];
   if (cold) facts.push(`Cold outreach: ${cold.recipients} prospects, ${cold.opened} opened, ${cold.replied} replied`);
+  const lowVal = (r.inboundSpam || 0) + (r.inboundLowQuality || 0);
+  if (lowVal >= 5) facts.push(`Also ~${lowVal} low-value/speculative inquiries (low-ball, tire-kickers, spam) — filtered out, but show organic demand.`);
   if (offer) facts.push(`Highest stated budget/offer: ${offer}`);
   if (r.sale) facts.push(`Sale status: ${r.sale.label}`);
   if ((r.offers || []).length) {
