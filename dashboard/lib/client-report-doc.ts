@@ -78,7 +78,7 @@ export function buildReportHtml(input: ReportInput): string {
   const responders = (r.inboundEngaged || 0) + (cold?.responded || 0);
   const touchpoints = (r.inbound || 0) + proactive;
   const offer = topOffer(r);
-  const status = r.sale ? esc(r.sale.label) : "Actively marketed";
+  const status = r.sale ? esc(r.sale.label) : "Active";
 
   // Firm-offers table (only when we've actually received offers).
   const th = `text-align:left;padding:7pt 10pt;font-size:8.5pt;letter-spacing:1px;color:${MUTED};`;
