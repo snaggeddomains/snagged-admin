@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import os
 import re
+import time
 from datetime import datetime, timezone
 from typing import Any
 
@@ -63,22 +64,48 @@ DENY_HOSTS = {
 }
 
 
-def _fetch_via_scrape_do(url: str) -> str:
-    """Fetch a Cloudflare-protected URL through scrape.do (rendered)."""
+CHALLENGE_RE = re.compile(
+    r"just a moment|cf-browser-verification|challenge-platform|attention required", re.I
+)
+
+
+def _scrape_do_once(url: str, *, render: bool, timeout: int) -> str:
     token = os.environ.get("SCRAPE_DO_TOKEN")
     if not token:
         raise RuntimeError("SCRAPE_DO_TOKEN must be set")
-    params = {
-        "token": token,
-        "url": url,
-        "render": "true",   # the grid may be JS-hydrated
-        "super": "true",    # residential proxies for CF bypass
-        "geoCode": "us",
-    }
-    resp = requests.get(SCRAPE_DO_BASE, params=params, timeout=REQUEST_TIMEOUT)
+    params: dict[str, str] = {"token": token, "url": url, "super": "true", "geoCode": "us"}
+    if render:
+        params.update({"render": "true", "waitUntil": "domcontentloaded", "customWait": "6000"})
+    resp = requests.get(SCRAPE_DO_BASE, params=params, timeout=timeout)
     resp.raise_for_status()
     record_usage("scrape_do.request", 1, "snap")
     return resp.text
+
+
+def _fetch_via_scrape_do(url: str) -> str:
+    """Fetch a Cloudflare-protected URL through scrape.do, robustly.
+
+    The make-an-offer grid is most likely server-rendered HTML, so try the fast
+    non-render path first — render=true 502'd (scrape.do JS-render timeout). Fall
+    back to a rendered fetch, retry transient 5xx with backoff, and reject
+    Cloudflare challenge shells."""
+    if not os.environ.get("SCRAPE_DO_TOKEN"):
+        raise RuntimeError("SCRAPE_DO_TOKEN must be set")
+    attempts = [("no-render", False, 90), ("render", True, 150), ("render", True, 150)]
+    last_err: Any = None
+    for label, render, timeout in attempts:
+        try:
+            html = _scrape_do_once(url, render=render, timeout=timeout)
+            if html and not CHALLENGE_RE.search(html[:2000]):
+                print(f"      scrape.do ok via {label} ({len(html):,} bytes)")
+                return html
+            last_err = f"{label}: challenge/empty response"
+            print(f"      scrape.do {label}: challenge/empty, trying next")
+        except Exception as e:  # noqa: BLE001
+            last_err = f"{label}: {e}"
+            print(f"      scrape.do {label} failed: {e}")
+        time.sleep(3)
+    raise RuntimeError(f"scrape.do exhausted all attempts ({last_err})")
 
 
 # Strip the parts of the document that carry infra domains (scripts/styles/head).
@@ -160,6 +187,26 @@ def run() -> int:
         print(f"      mirrored {len(raw_domains):,} domains to review sheet")
     except Exception as e:  # noqa: BLE001
         print(f"      sheet mirror skipped: {e}")
+
+    # Auto-enrich just the MarkMonitor net-new (best-effort, cost-guarded:
+    # enrich-batch auto runs realtime when cheap, else submits a 50%-off async
+    # batch — so a huge first run submits async and returns fast rather than
+    # blowing the runner timeout). Skipped when nothing is new / no API key.
+    new_count = stats.get("rows_new", 0) if stats.get("status") == "ok" else 0
+    if new_count and os.environ.get("ANTHROPIC_API_KEY"):
+        import subprocess
+        print(f"[4/4] Auto-enriching {new_count:,} net-new rows (enrich-batch auto)")
+        try:
+            subprocess.run(
+                ["pipeline", "enrich-batch", "auto", "--target", "universe",
+                 "--source", SOURCE_ID, "--new-since", today,
+                 "--min-batch-saving", "5", "--commit"],
+                check=False, timeout=300,
+            )
+        except Exception as e:  # noqa: BLE001
+            print(f"      auto-enrich skipped: {e}")
+    elif new_count:
+        print("[4/4] Auto-enrich skipped: ANTHROPIC_API_KEY not set")
 
     state.write_json(SOURCE_ID, "run_status.json", {
         "source": SOURCE_ID,
