@@ -80,6 +80,20 @@ export function buildReportHtml(input: ReportInput): string {
   const offer = topOffer(r);
   const status = r.sale ? esc(r.sale.label) : "Actively marketed";
 
+  // Firm-offers table (only when we've actually received offers).
+  const th = `text-align:left;padding:7pt 10pt;font-size:8.5pt;letter-spacing:1px;color:${MUTED};`;
+  const td = `border-top:1px solid ${LINE};padding:7pt 10pt;vertical-align:top;`;
+  const offerRows = (r.offers || []).map((o) => `<tr>
+    <td style="${td}"><b style="color:${NAVY};">${esc(o.party)}</b>${o.email ? `<br><span style="color:${MUTED};font-size:9pt;">${esc(o.email)}</span>` : ""}</td>
+    <td style="${td}white-space:nowrap;font-family:'Fraunces',Georgia,serif;font-weight:700;color:${CORAL};font-size:14pt;">${esc(o.amount)}</td>
+    <td style="${td}white-space:nowrap;color:${NAVY};">${esc(o.date)}</td>
+    <td style="${td}color:${o.origin === "inbound" ? GREEN : "#5a4ec0"};font-size:10pt;">${o.origin === "inbound" ? "Inbound" : "Pitched"}</td>
+    <td style="${td}color:#43403a;">${esc(o.outcome || "—")}</td></tr>`).join("");
+  const offersBlock = (r.offers || []).length
+    ? `<h2 style="font-family:'Fraunces',Georgia,serif;color:${NAVY};font-size:16pt;margin:20pt 0 2pt 0;">💰 Offers received <span style="font-size:9pt;color:${MUTED};font-family:Arial;">— firm amounts buyers named</span></h2><hr style="border:none;border-top:2px solid ${CORAL};width:38%;margin:0 0 10pt 0;">
+<table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;border:1px solid ${LINE};"><thead><tr style="background-color:#efe7d3;"><th style="${th}">FROM</th><th style="${th}">OFFER</th><th style="${th}">DATE</th><th style="${th}">SOURCE</th><th style="${th}">WHAT HAPPENED</th></tr></thead><tbody>${offerRows}</tbody></table>`
+    : "";
+
   // newsletter split + links
   const spotlights = newsletter.filter((f) => f.type === "for_sale");
   const content = newsletter.filter((f) => f.type === "content");
@@ -120,6 +134,8 @@ export function buildReportHtml(input: ReportInput): string {
 
 ${sectionHead("01", "Inbound demand", "buyers who came to us")}
 <p style="margin:0 0 8pt 0;">${esc(Domain)} attracts unsolicited interest — a strong signal of the name's pull. This period we logged <b style="color:${NAVY};">${fmt(r.inbound)} inbound contacts</b>, of which <b style="color:${NAVY};">${fmt(r.inboundQualified)} were qualified</b> (credible buyer, business email, or stated budget), and <b style="color:${NAVY};">${fmt(r.inboundEngaged)} became genuine two-way negotiations</b> after our reply.${offer ? ` Highest stated budget: <b style="color:${NAVY};">${esc(offer)}</b>.` : ""}</p>
+
+${offersBlock}
 
 ${cold ? `${sectionHead("02", "Proactive cold outreach", "tracked in HubSpot")}
 <table width="100%" cellpadding="0" cellspacing="0" style="border:none;border-collapse:collapse;"><tr>

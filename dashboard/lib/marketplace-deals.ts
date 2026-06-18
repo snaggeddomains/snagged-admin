@@ -20,8 +20,9 @@ import { classifyMessageIds, hubspotConfigured, normMid, recipientEngagementForD
 // cached rows (the route's readCache requires the current version). History:
 // 1 = HubSpot three-bucket; 2 = form-submitters-are-inbound + paused exercises;
 // 3 = name/email normalization (parser fix, mailto strip, greeting/HubSpot names)
-// + probable-spam flag; 4 = cold-outreach conversational result column.
-export const REPORT_VERSION = 4;
+// + probable-spam flag; 4 = cold-outreach conversational result column;
+// 5 = firm-offers table.
+export const REPORT_VERSION = 5;
 
 const isUs = (a: string) => a.endsWith("@snagged.com") || a.endsWith("@snagged.co");
 
@@ -219,6 +220,8 @@ export type DealReport = {
   // Cold outreach via HubSpot sequences — full audience + engagement, sourced
   // straight from HubSpot. null when HubSpot isn't configured.
   cold: ColdOutreach | null;
+  // Firm offers received (specific dollar amounts buyers named), highest first.
+  offers: OfferRow[];
   // Naming-exercise pitches: this domain appearing in a client's pitch sheet.
   pitchExercises: PitchExercise[];
   // Owner engagement start, from the completed Snagged brokerage DocuSign.
@@ -258,6 +261,18 @@ export type ColdOutreach = {
   responded: number; // # unique recipients who responded (replied OR two-way thread)
   active: number; // # that turned into a live negotiation
   rows: ColdRecipient[];
+};
+
+// A firm offer received — a specific dollar amount a buyer named (the LLM recap's
+// buyer offer, or the structured Efty offer), distinct from our ask price.
+export type OfferRow = {
+  party: string;
+  email: string | null;
+  amount: string; // "$50,000"
+  amountNum: number;
+  date: string; // YYYY-MM-DD (last activity on the thread)
+  origin: "inbound" | "pitched";
+  outcome: string | null;
 };
 
 const SALE_RANK: Record<SaleStage, number> = { opened: 1, agreed: 2, payment_secured: 3, sold: 4 };
@@ -639,6 +654,21 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
   }
   const cold: ColdOutreach | null = hubspotConfigured() ? buildCold(recipients, threadByEmail) : null;
 
+  // Firm offers received — a specific dollar amount a buyer named (not a budget
+  // band, not our ask). Highest first. Drawn from the de-duped per-buyer threads.
+  const offers: OfferRow[] = final
+    .filter((t) => t.offer)
+    .map((t) => ({
+      party: t.party,
+      email: t.partyEmail,
+      amount: t.offer as string,
+      amountNum: Number((t.offer || "").replace(/[^0-9]/g, "")) || 0,
+      date: t.last,
+      origin: t.origin,
+      outcome: t.outcome,
+    }))
+    .sort((a, b) => b.amountNum - a.amountNum || (a.date < b.date ? 1 : -1));
+
   return {
     reportVersion: REPORT_VERSION,
     domain,
@@ -651,6 +681,7 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
     pitchedIndividual: pitchedThreads.filter((t) => t.pitchKind === "individual").length,
     pitchSource: hubspotConfigured() ? "hubspot" : "heuristic",
     cold,
+    offers,
     pitchExercises,
     representingSince,
     sale,

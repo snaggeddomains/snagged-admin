@@ -19,10 +19,11 @@ type ColdRecipient = {
   responded: boolean; chain: number; active: boolean; lastSent: string; sequenceName: string | null; outcome: string | null; offer: string | null;
 };
 type ColdOutreach = { recipients: number; sends: number; opened: number; clicked: number; replied: number; responded: number; active: number; rows: ColdRecipient[] };
+type OfferRow = { party: string; email: string | null; amount: string; amountNum: number; date: string; origin: "inbound" | "pitched"; outcome: string | null };
 type DealReport = {
   domain: string; inbound: number; inboundQualified: number; inboundEngaged: number; activeNegotiations: number;
   pitched: number; pitchedMass: number; pitchedIndividual: number; pitchSource?: "hubspot" | "heuristic";
-  cold: ColdOutreach | null; pitchExercises: PitchExercise[];
+  cold: ColdOutreach | null; offers: OfferRow[]; pitchExercises: PitchExercise[];
   representingSince: string | null; sale: SaleStatus | null; threads: DealThread[];
 };
 type GaRow = { views: number; sessions: number; users: number; inquiryStarts: number; clicks: number; inquiries: number };
@@ -348,6 +349,31 @@ export default function DealClient({ domain }: { domain: string }) {
       {rep && (
         <>
           <h2 style={{ fontSize: "1.18rem", margin: "20px 0 6px" }}>Deal activity <span className="muted" style={{ fontWeight: 400, fontSize: 12 }}>(all-time · email{hsOn ? " + HubSpot" : ""})</span></h2>
+
+          {/* Firm offers received */}
+          {(rep.offers || []).length > 0 && (
+            <div style={{ margin: "6px 0 4px" }}>
+              <h3 style={{ fontSize: 16.5, margin: "10px 0 4px" }}>💰 Offers received <span className="muted" style={{ fontWeight: 400, fontSize: 12.5 }}>— firm amounts buyers named</span></h3>
+              <div style={{ height: 2, background: `linear-gradient(90deg, ${CORAL}, transparent)`, borderRadius: 2, margin: "0 0 10px" }} />
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ borderCollapse: "collapse", width: "100%" }}>
+                  <thead><tr><th style={head}>From</th><th style={head}>Offer</th><th style={head}>Date</th><th style={head}>Source</th><th style={{ ...head, width: "40%" }}>What happened</th></tr></thead>
+                  <tbody>
+                    {rep.offers.map((o, i) => (
+                      <tr key={i}>
+                        <td style={cell}><div style={{ fontWeight: 600 }}>{o.party}</div>{o.email && <div className="muted" style={{ fontSize: 11 }}>{o.email}</div>}</td>
+                        <td style={{ ...cell, whiteSpace: "nowrap" }}><span style={{ fontFamily: "Fraunces, Georgia, serif", fontWeight: 700, fontSize: 18, color: CORAL }}>{o.amount}</span></td>
+                        <td style={{ ...cell, whiteSpace: "nowrap" }}>{o.date}</td>
+                        <td style={cell}><span style={{ fontSize: 12, color: o.origin === "inbound" ? "#2f7d4f" : "#5a4ec0" }}>{o.origin === "inbound" ? "Inbound" : "Pitched"}</span></td>
+                        <td style={cell}>{o.outcome || <span className="muted">—</span>}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
           <NewsletterSection features={data?.newsletterFeatures || []} />
 
           {/* ───────── Bucket 1: Inbound ───────── */}
