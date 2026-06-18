@@ -44,9 +44,10 @@ export async function saveNotes(domain: string, notes: string, updatedBy: string
     .from(TABLE)
     .upsert({ domain, notes: clean, updated_at: updatedAt, updated_by: updatedBy }, { onConflict: "domain" });
   if (error) {
-    // 42P01 = undefined_table — the one-time migration hasn't been run yet.
-    if (error.code === "42P01" || /does not exist/i.test(error.message)) {
-      throw new Error("Notes table not set up yet — run scripts/marketplace_deal_notes.sql on the admin Supabase project.");
+    // 42P01 = undefined_table; PGRST205 = table missing from PostgREST's schema
+    // cache (e.g. just created — needs a `NOTIFY pgrst, 'reload schema';`).
+    if (error.code === "42P01" || error.code === "PGRST205" || /does not exist|schema cache/i.test(error.message)) {
+      throw new Error("Notes table isn't ready yet — run scripts/marketplace_deal_notes.sql on domain-owner-research, then `NOTIFY pgrst, 'reload schema';`.");
     }
     throw new Error(error.message);
   }
