@@ -74,6 +74,15 @@ MAX_PAGES = 300          # safety cap — would cover 3,000 domains, way
 REQUEST_TIMEOUT = 120
 SCRAPE_DO_BASE = "https://api.scrape.do/"
 
+# Transient scrape.do/upstream statuses worth retrying: 429 rate-limit +
+# standard 5xx (scrape.do returns 502 Bad Gateway on a proxy/origin blip) +
+# Cloudflare origin/edge codes (520-527). Without a retry, a single one-off
+# 502 from scrape.do fails the whole Oxley source mid-pagination and cascades
+# into failing the nightly SNAP orchestrator — this mirrors the retry already
+# proven in efty_partner.fetch_feed + markmonitor._fetch_via_scrape_do.
+_RETRYABLE_STATUS = {429, 500, 502, 503, 504, 520, 521, 522, 523, 524, 525, 526, 527}
+_MAX_ATTEMPTS = 4
+
 # Match the /domain/<sld.tld>/ hrefs in the fragment HTML.
 DOMAIN_LINK_PATTERN = re.compile(
     r"/domain/([a-z0-9][a-z0-9-]{1,62}\.(?:com|net|org|io|ai|co|xyz|app|dev))/?",
@@ -96,7 +105,11 @@ def _build_oxley_url(offset: int) -> str:
 
 def _fetch_via_scrape_do(url: str) -> str:
     """Fetch a URL through scrape.do super-proxies. No render needed —
-    the AJAX endpoint returns a plain HTML fragment, not a JS-driven SPA."""
+    the AJAX endpoint returns a plain HTML fragment, not a JS-driven SPA.
+
+    Retries transient scrape.do/upstream failures (429 + 5xx/Cloudflare codes,
+    plus connection-level errors) with exponential backoff so a one-off proxy
+    blip (e.g. a 502 Bad Gateway) doesn't fail the source mid-pagination."""
     token = os.environ.get("SCRAPE_DO_TOKEN")
     if not token:
         raise RuntimeError("SCRAPE_DO_TOKEN must be set")
@@ -106,10 +119,35 @@ def _fetch_via_scrape_do(url: str) -> str:
         "super": "true",
         "geoCode": "us",
     }
-    resp = requests.get(SCRAPE_DO_BASE, params=params, timeout=REQUEST_TIMEOUT)
-    resp.raise_for_status()
-    record_usage("scrape_do.request", 1, "snap")
-    return resp.text
+    last_exc: Exception | None = None
+    for attempt in range(1, _MAX_ATTEMPTS + 1):
+        try:
+            resp = requests.get(SCRAPE_DO_BASE, params=params, timeout=REQUEST_TIMEOUT)
+        except requests.exceptions.RequestException as exc:
+            # Connection reset / timeout / DNS — treat as transient.
+            last_exc = exc
+            if attempt == _MAX_ATTEMPTS:
+                raise
+            delay = 2 ** attempt
+            print(f"      scrape.do {type(exc).__name__} (attempt "
+                  f"{attempt}/{_MAX_ATTEMPTS}); retrying in {delay}s")
+            time.sleep(delay)
+            continue
+
+        if resp.status_code in _RETRYABLE_STATUS and attempt < _MAX_ATTEMPTS:
+            delay = 2 ** attempt
+            print(f"      scrape.do HTTP {resp.status_code} (attempt "
+                  f"{attempt}/{_MAX_ATTEMPTS}); retrying in {delay}s")
+            time.sleep(delay)
+            continue
+
+        resp.raise_for_status()
+        record_usage("scrape_do.request", 1, "snap")
+        return resp.text
+    # Loop always returns or raises above; this satisfies the type checker.
+    if last_exc:
+        raise last_exc
+    raise RuntimeError("scrape.do fetch failed after retries")
 
 
 def extract_domains(html: str) -> list[str]:
