@@ -54,6 +54,9 @@ function topOffer(report: DealReport): string | null {
 export type ReportInput = {
   domain: string; host: string; from: string; to: string;
   report: DealReport; ga: ListingRow | null; newsletter: NewsletterFeature[];
+  // Broker-maintained free-text notes (off-platform offers/context). Rendered
+  // verbatim into the Doc when present. Optional.
+  notes?: string | null;
 };
 
 const NAVY = "#254254", CORAL = "#c0492f", CORAL_SOFT = "#e07a5f", LINE = "#e3ddcf", MUTED = "#857c6c", GREEN = "#2f7d4f";
@@ -66,7 +69,7 @@ function sectionHead(num: string, title: string, tag = ""): string {
 }
 
 export function buildReportHtml(input: ReportInput): string {
-  const { domain, host, from, to, report, ga, newsletter } = input;
+  const { domain, host, from, to, report, ga, newsletter, notes } = input;
   const r = report;
   const cold = r.cold;
   const exercises = r.pitchExercises || [];
@@ -119,6 +122,16 @@ export function buildReportHtml(input: ReportInput): string {
     <div style="font-size:9.5pt;color:${MUTED};margin-top:8pt;">— ${esc(q.attribution)}${q.date ? ` &middot; ${esc(prettyDate(q.date))}` : ""}</div>
   </td></tr></table>`;
   };
+  // Broker notes — off-platform activity (text/WhatsApp offers, calls, context)
+  // the broker typed in. Rendered verbatim (line breaks preserved) when present.
+  const notesText = (notes || "").trim();
+  const notesBlock = notesText
+    ? `<h2 style="font-family:'Fraunces',Georgia,serif;color:${NAVY};font-size:16pt;margin:22pt 0 2pt 0;">&#128204; Notes &amp; off-platform activity <span style="font-size:9pt;color:${MUTED};font-family:Arial;">— offers &amp; context from outside email</span></h2><hr style="border:none;border-top:2px solid ${CORAL};width:38%;margin:0 0 10pt 0;">
+<table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:0 0 4pt 0;"><tr>
+  <td style="border:1px solid ${LINE};border-left:4px solid ${CORAL};background-color:#fbf8ef;padding:14pt 16pt;color:#33312c;font-size:11pt;line-height:1.55;">${esc(notesText).replace(/\r?\n/g, "<br>")}</td>
+</tr></table>`
+    : "";
+
   const highlights = (r.highlights || []).slice(0, 6);
   const quotesBlock = highlights.length
     ? `<h2 style="font-family:'Fraunces',Georgia,serif;color:${NAVY};font-size:16pt;margin:22pt 0 2pt 0;">&#128172; In their own words <span style="font-size:9pt;color:${MUTED};font-family:Arial;">— verbatim from buyer &amp; prospect conversations</span></h2><hr style="border:none;border-top:2px solid ${CORAL};width:38%;margin:0 0 10pt 0;">
@@ -157,6 +170,8 @@ ${sectionHead("01", "Inbound demand", "buyers who came to us")}
 <p style="margin:0 0 8pt 0;">${esc(Domain)} attracts unsolicited interest — a strong signal of the name's pull. This period we logged <b style="color:${NAVY};">${fmt(r.inbound)} inbound contacts</b>, of which <b style="color:${NAVY};">${fmt(r.inboundQualified)} were qualified</b> (credible buyer, business email, or stated budget), and <b style="color:${NAVY};">${fmt(r.inboundEngaged)} became genuine two-way negotiations</b> after our reply.${offer ? ` Highest stated budget: <b style="color:${NAVY};">${esc(offer)}</b>.` : ""}</p>
 
 ${offersBlock}
+
+${notesBlock}
 
 ${quotesBlock}
 

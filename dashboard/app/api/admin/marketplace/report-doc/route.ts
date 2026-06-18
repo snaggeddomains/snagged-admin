@@ -10,6 +10,7 @@ import { buildDealReport } from "@/lib/marketplace-deals";
 import { analyticsReport, gaConfigured, type MarketplaceReport } from "@/lib/ga";
 import { getNewsletterFeatures } from "@/lib/newsletter";
 import { generateReportDoc, clientReportConfigured } from "@/lib/client-report-doc";
+import { getNotes } from "@/lib/marketplace-notes";
 import { gmailConfigured } from "@/lib/gmail";
 
 export const runtime = "nodejs";
@@ -33,7 +34,7 @@ export async function POST(req: NextRequest) {
   const to = isDate(body.to || null) ? body.to! : etYmd(new Date());
 
   try {
-    const [report, ga, nl] = await Promise.all([
+    const [report, ga, nl, notes] = await Promise.all([
       buildDealReport(domain),
       (async () => {
         if (!gaConfigured()) return null;
@@ -43,10 +44,11 @@ export async function POST(req: NextRequest) {
         } catch { return null; }
       })(),
       getNewsletterFeatures().then((f) => f[domain] || []).catch(() => []),
+      getNotes(domain).then((n) => n.notes).catch(() => ""),
     ]);
 
     const host = req.nextUrl.origin;
-    const out = await generateReportDoc({ domain, host, from, to, report, ga, newsletter: nl });
+    const out = await generateReportDoc({ domain, host, from, to, report, ga, newsletter: nl, notes });
     return NextResponse.json({ ok: true, ...out });
   } catch (e) {
     return NextResponse.json({ ok: false, error: String((e as Error)?.message || e) }, { status: 500 });

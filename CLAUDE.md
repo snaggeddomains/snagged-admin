@@ -72,6 +72,17 @@ rebuild). Enhancements this session:
   exercise entries in section 03 render as emphasized 11pt bullets (coral marker,
   semibold navy) instead of small chips — pitching to funded startups is a key
   differentiator.
+- **Broker notes — off-platform activity (2026-06-18).** A free-text Notes box at
+  the bottom of each domain's deal report (`📝 Notes` in `deal-client.tsx`) for
+  activity that never lands in Gmail/HubSpot (offers over text/WhatsApp/phone,
+  verbal context, next steps). Saved per-domain to `marketplace_deal_notes`
+  (`lib/marketplace-notes.ts` `getNotes`/`saveNotes`; API
+  `app/api/admin/marketplace/notes/route.ts`, GET+POST, gated `reports.marketplace`,
+  records `updated_by`). The report-doc route reads the notes and `buildReportHtml`
+  folds them VERBATIM (line breaks preserved) into the client Doc as a "📌 Notes &
+  off-platform activity" section (after Offers). Best-effort read (empty when the
+  table/DB is absent); save surfaces a clear "run the migration" error on 42P01.
+  **One-time migration:** `scripts/marketplace_deal_notes.sql` on the admin project.
 - **Cache schema marker:** `readCache` ignores reports cached before the HubSpot wiring existed
   (`pitchSource === undefined`; prior marker was `inboundEngaged`) so old rows rebuild instead
   of serving the old Gmail-heuristic classification.

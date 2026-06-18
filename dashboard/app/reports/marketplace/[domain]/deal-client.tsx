@@ -221,6 +221,12 @@ export default function DealClient({ domain }: { domain: string }) {
   const [genBusy, setGenBusy] = useState(false);
   const [genDoc, setGenDoc] = useState<{ docUrl: string; folderUrl: string } | null>(null);
   const [genErr, setGenErr] = useState("");
+  // Broker notes (off-platform activity) — loaded per-domain, saved on demand,
+  // folded into the generated client Doc.
+  const [notes, setNotes] = useState("");
+  const [notesSavedAt, setNotesSavedAt] = useState<string | null>(null);
+  const [notesDirty, setNotesDirty] = useState(false);
+  const [notesSaving, setNotesSaving] = useState(false);
   const share = async () => {
     try { await navigator.clipboard.writeText(window.location.href); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch { /* clipboard blocked */ }
   };
@@ -269,6 +275,37 @@ export default function DealClient({ domain }: { domain: string }) {
   }, [domain, range.from, range.to]);
 
   useEffect(() => { void load(); }, [load]);
+
+  // Load the saved broker notes for this domain (independent of the date range).
+  useEffect(() => {
+    let cancel = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/admin/marketplace/notes?domain=${encodeURIComponent(domain)}`, { cache: "no-store" });
+        const j = await res.json();
+        if (!cancel && res.ok && j.ok) { setNotes(j.notes || ""); setNotesSavedAt(j.updatedAt || null); setNotesDirty(false); }
+      } catch { /* notes are optional */ }
+    })();
+    return () => { cancel = true; };
+  }, [domain]);
+
+  const saveNotes = async () => {
+    setNotesSaving(true);
+    try {
+      const res = await fetch("/api/admin/marketplace/notes", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ domain, notes }),
+      });
+      const j = await res.json();
+      if (!res.ok || !j.ok) throw new Error(j.error || `Failed (${res.status})`);
+      setNotesSavedAt(j.updatedAt || new Date().toISOString());
+      setNotesDirty(false);
+    } catch (e) {
+      setMsg(String((e as Error)?.message || e));
+    } finally {
+      setNotesSaving(false);
+    }
+  };
 
   const rep = data?.deals.report;
   const ga = data?.ga;
@@ -587,6 +624,25 @@ export default function DealClient({ domain }: { domain: string }) {
         </>
       )}
       {!loading && !rep && data && <p className="muted" style={{ fontSize: 13 }}>No deal data.</p>}
+
+      {/* Broker notes — off-platform activity (text/WhatsApp/phone offers, verbal
+          context). Saved per domain and folded into the generated client Doc. */}
+      <div style={{ marginTop: 30, paddingTop: 18, borderTop: "1px solid #e3ddcf" }}>
+        <h3 style={{ fontSize: 16.5, margin: "0 0 4px" }}>📝 Notes <span className="muted" style={{ fontWeight: 400, fontSize: 12.5 }}>— off-platform activity (text / WhatsApp / phone offers, context). Saved per domain &amp; included in the generated client report.</span></h3>
+        <textarea
+          value={notes}
+          onChange={(e) => { setNotes(e.target.value); setNotesDirty(true); }}
+          placeholder="e.g. Buyer offered $40k over WhatsApp on Jun 12 — we countered at $75k, awaiting reply. Verbal interest from a fintech founder by phone. Owner wants to hold above $60k."
+          rows={6}
+          style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", fontSize: 13.5, lineHeight: 1.5, borderRadius: 10, border: `1px solid ${notesDirty ? CORAL : "#d8d0bf"}`, fontFamily: "inherit", resize: "vertical", color: NAVY }}
+        />
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 8 }}>
+          <button onClick={() => void saveNotes()} disabled={notesSaving || !notesDirty} style={{ ...BTN, borderColor: CORAL, color: notesDirty ? CORAL : "#9a9486", fontWeight: 700, cursor: notesDirty ? "pointer" : "default" }}>{notesSaving ? "Saving…" : notesDirty ? "Save notes" : "Saved"}</button>
+          {notesDirty
+            ? <span style={{ fontSize: 12, color: CORAL }}>Unsaved changes</span>
+            : notesSavedAt && <span className="muted" style={{ fontSize: 12 }}>Last saved {ago(notesSavedAt)}</span>}
+        </div>
+      </div>
     </main>
   );
 }
