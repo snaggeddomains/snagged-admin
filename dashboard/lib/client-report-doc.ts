@@ -101,27 +101,27 @@ export function buildReportHtml(input: ReportInput): string {
   const th = `text-align:left;padding:7pt 10pt;font-size:8.5pt;letter-spacing:1px;color:${MUTED};`;
   const td = `border-top:1px solid ${LINE};padding:7pt 10pt;vertical-align:top;`;
   const num = (s: string) => Number((s || "").replace(/[^0-9]/g, "")) || 0;
-  type OfferLine = { party: string; email: string | null; amount: string; amountNum: number; date: string; source: string; sourceColor: string; outcome: string | null };
+  type OfferLine = { party: string; email: string | null; amount: string; amountNum: number; date: string; source: string; sourceColor: string; outcome: string | null; isBudget: boolean };
   const allOffers: OfferLine[] = [
     ...(r.offers || []).map((o) => ({
       party: o.party, email: o.email, amount: o.amount, amountNum: o.amountNum, date: o.date,
       source: o.origin === "inbound" ? "Inbound" : "Pitched", sourceColor: o.origin === "inbound" ? GREEN : "#5a4ec0",
-      outcome: o.outcome,
+      outcome: o.outcome, isBudget: o.kind === "budget",
     })),
     ...((input.noteOffers || []).map((o) => ({
       party: o.party || "—", email: null, amount: o.amount, amountNum: num(o.amount), date: o.date || "",
-      source: (o.channel || "Direct"), sourceColor: NAVY, outcome: o.outcome || null,
+      source: (o.channel || "Direct"), sourceColor: NAVY, outcome: o.outcome || null, isBudget: false,
     }))),
   ].sort((a, b) => b.amountNum - a.amountNum || (a.date < b.date ? 1 : -1));
   const offerRows = allOffers.map((o) => `<tr>
     <td style="${td}"><b style="color:${NAVY};">${esc(o.party)}</b>${o.email ? `<br><span style="color:${MUTED};font-size:9pt;">${esc(o.email)}</span>` : ""}</td>
-    <td style="${td}white-space:nowrap;font-family:'Fraunces',Georgia,serif;font-weight:700;color:${CORAL};font-size:14pt;">${esc(o.amount)}</td>
+    <td style="${td}white-space:nowrap;"><span style="font-family:'Fraunces',Georgia,serif;font-weight:700;color:${CORAL};font-size:14pt;">${esc(o.amount)}</span>${o.isBudget ? `<br><span style="color:${MUTED};font-size:8pt;">stated budget</span>` : ""}</td>
     <td style="${td}white-space:nowrap;color:${NAVY};">${esc(o.date)}</td>
     <td style="${td}color:${o.sourceColor};font-size:10pt;">${esc(o.source)}</td>
     <td style="${td}color:#43403a;">${esc(o.outcome || "—")}</td></tr>`).join("");
   const offersBlock = allOffers.length
-    ? `<h2 style="font-family:'Fraunces',Georgia,serif;color:${NAVY};font-size:16pt;margin:20pt 0 2pt 0;">💰 Offers received <span style="font-size:9pt;color:${MUTED};font-family:Arial;">— firm amounts buyers named</span></h2><hr style="border:none;border-top:2px solid ${CORAL};width:38%;margin:0 0 10pt 0;">
-<table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;border:1px solid ${LINE};"><thead><tr style="background-color:#efe7d3;"><th style="${th}">FROM</th><th style="${th}">OFFER</th><th style="${th}">DATE</th><th style="${th}">SOURCE</th><th style="${th}">WHAT HAPPENED</th></tr></thead><tbody>${offerRows}</tbody></table>`
+    ? `<h2 style="font-family:'Fraunces',Georgia,serif;color:${NAVY};font-size:16pt;margin:20pt 0 2pt 0;">💰 Offers received <span style="font-size:9pt;color:${MUTED};font-family:Arial;">— what buyers put on the table</span></h2><hr style="border:none;border-top:2px solid ${CORAL};width:38%;margin:0 0 10pt 0;">
+<table width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;border:1px solid ${LINE};"><thead><tr style="background-color:#efe7d3;"><th style="${th}">FROM</th><th style="${th}">OFFER / BUDGET</th><th style="${th}">DATE</th><th style="${th}">SOURCE</th><th style="${th}">WHAT HAPPENED</th></tr></thead><tbody>${offerRows}</tbody></table>`
     : "";
 
   // newsletter split + links
@@ -299,7 +299,7 @@ export async function draftReportNarrative(input: ReportInput): Promise<{ summar
   if (offer) facts.push(`Highest stated budget/offer: ${offer}`);
   if (r.sale) facts.push(`Sale status: ${r.sale.label}`);
   if ((r.offers || []).length) {
-    facts.push("Firm offers: " + r.offers.slice(0, 6).map((o) => `${o.amount}${o.outcome ? ` (${o.outcome})` : ""}`).join("; "));
+    facts.push("Offers & stated budgets buyers put forward: " + r.offers.slice(0, 8).map((o) => `${o.amount}${o.kind === "budget" ? " (stated budget)" : ""}${o.outcome ? ` — ${o.outcome}` : ""}`).join("; "));
   }
   if ((r.highlights || []).length) {
     facts.push("Representative buyer quotes: " + r.highlights.slice(0, 5).map((q) => `"${q.text}" [${q.kind}]`).join(" | "));

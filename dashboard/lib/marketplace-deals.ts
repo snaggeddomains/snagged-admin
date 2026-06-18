@@ -22,8 +22,9 @@ import type { QuoteKind } from "./marketplace-deal-recaps";
 // 1 = HubSpot three-bucket; 2 = form-submitters-are-inbound + paused exercises;
 // 3 = name/email normalization (parser fix, mailto strip, greeting/HubSpot names)
 // + probable-spam flag; 4 = cold-outreach conversational result column;
-// 5 = firm-offers table; 6 = verbatim buyer pull-quotes + conversation highlights.
-export const REPORT_VERSION = 6;
+// 5 = firm-offers table; 6 = verbatim buyer pull-quotes + conversation highlights;
+// 7 = offers table also includes credible stated budgets (kind offer|budget).
+export const REPORT_VERSION = 7;
 
 const isUs = (a: string) => a.endsWith("@snagged.com") || a.endsWith("@snagged.co");
 
@@ -292,12 +293,36 @@ export type DealQuote = {
 export type OfferRow = {
   party: string;
   email: string | null;
-  amount: string; // "$50,000"
+  amount: string; // "$50,000" (firm offer) or a budget band ("$5K to $25K")
   amountNum: number;
+  kind: "offer" | "budget"; // a named offer vs a stated inquiry budget
   date: string; // YYYY-MM-DD (last activity on the thread)
   origin: "inbound" | "pitched";
   outcome: string | null;
 };
+
+// Smallest dollar figure worth showing as an offer/budget — drops parse noise
+// ("5 figures" → 5) and not-credible tiny amounts. Editable report can prune more.
+const OFFER_FLOOR = 1000;
+
+// Parse a dollar figure from a free-text offer/budget string, handling commas and
+// K/M suffixes, and taking the TOP of a range/band ("$5K to $25K" → 25000,
+// "$5K or less" → 5000, "$50,000" → 50000). Returns 0 when no number is present.
+function parseAmount(s?: string | null): number {
+  if (!s) return 0;
+  let max = 0;
+  const re = /([0-9][0-9,]*(?:\.[0-9]+)?)\s*([kKmM])?/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(s))) {
+    let n = parseFloat(m[1].replace(/,/g, ""));
+    if (!n) continue;
+    const suf = (m[2] || "").toLowerCase();
+    if (suf === "k") n *= 1000;
+    else if (suf === "m") n *= 1_000_000;
+    if (n > max) max = n;
+  }
+  return Math.round(max);
+}
 
 const SALE_RANK: Record<SaleStage, number> = { opened: 1, agreed: 2, payment_secured: 3, sold: 4 };
 function escrowStage(subject: string): SaleStage | null {
@@ -681,19 +706,30 @@ export async function buildDealReport(domain: string): Promise<DealReport> {
   }
   const cold: ColdOutreach | null = hubspotConfigured() ? buildCold(recipients, threadByEmail) : null;
 
-  // Firm offers received — a specific dollar amount a buyer named (not a budget
-  // band, not our ask). Highest first. Drawn from the de-duped per-buyer threads.
+  // Offers & budgets received — every credible dollar figure a buyer put on the
+  // table: a firm offer they named (kind "offer") OR a stated budget from their
+  // inquiry (kind "budget"). Both show traction, so both belong here; a low floor
+  // drops junk/parse-noise, and the report is editable so anything too low can be
+  // pruned. Highest first; an offer wins over a budget on the same thread.
   const offers: OfferRow[] = final
-    .filter((t) => t.offer)
-    .map((t) => ({
-      party: t.party,
-      email: t.partyEmail,
-      amount: t.offer as string,
-      amountNum: Number((t.offer || "").replace(/[^0-9]/g, "")) || 0,
-      date: t.last,
-      origin: t.origin,
-      outcome: t.outcome,
-    }))
+    .map((t): OfferRow | null => {
+      const isOffer = !!t.offer;
+      const raw = t.offer || (hasBudget(t.budget ?? undefined) ? (t.budget as string) : null);
+      if (!raw) return null;
+      const amountNum = parseAmount(raw);
+      if (amountNum < OFFER_FLOOR) return null;
+      return {
+        party: t.party,
+        email: t.partyEmail,
+        amount: raw,
+        amountNum,
+        kind: isOffer ? "offer" : "budget",
+        date: t.last,
+        origin: t.origin,
+        outcome: t.outcome,
+      };
+    })
+    .filter((o): o is OfferRow => o !== null)
     .sort((a, b) => b.amountNum - a.amountNum || (a.date < b.date ? 1 : -1));
 
   const highlights = buildHighlights(final);
