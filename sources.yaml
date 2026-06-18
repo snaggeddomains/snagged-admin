@@ -266,6 +266,22 @@ sources:
       Tier 2 (brokered third-party inventory, not Snagged-owned).
       Prices not captured — they live on individual /domain/ pages.
 
+  - source_id: markmonitor
+    product: snap
+    kind: scrape_html
+    schedule_utc: "20 10 * * *"   # ~6:20 AM ET
+    enabled: true
+    notes: |
+      MarkMonitor (Clarivate) "Make an Offer" — curated premium domains.
+      Cloudflare-protected, so fetched via scrape.do super-proxies
+      (render=true). Defensive body extraction (strip head/scripts/styles,
+      domain-token regex, infra/social denylist) → universe filter.
+
+      Tier 2 (brokered third-party inventory, not Snagged-owned). Prices not
+      captured — every listing is "make an offer". Daily net-new via the
+      universe upsert (count_new). Pagination not yet handled — extend if the
+      grid turns out to be paged once the first run's log shows the structure.
+
   - source_id: braden_pollack_portfolio
     product: snap
     kind: google_doc

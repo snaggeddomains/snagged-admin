@@ -1,0 +1,35 @@
+name: 'Source: markmonitor'
+
+# Scheduling is owned by "SNAP Orchestrator" (snap-orchestrator.yml). Only
+# workflow_dispatch remains so this source can still be (re)run individually.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: source-markmonitor
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Run markmonitor
+        env:
+          SCRAPE_DO_TOKEN:             ${{ secrets.SCRAPE_DO_TOKEN }}
+          SUPABASE_NAMING_URL:         ${{ secrets.SUPABASE_NAMING_URL }}
+          SUPABASE_NAMING_SERVICE_KEY: ${{ secrets.SUPABASE_NAMING_SERVICE_KEY }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          SUPABASE_URL:                ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY:   ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: pipeline run markmonitor
+      - name: Commit state changes
+        if: ${{ !cancelled() }}
+        uses: ./.github/actions/commit-state
+        with:
+          message: "markmonitor: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
