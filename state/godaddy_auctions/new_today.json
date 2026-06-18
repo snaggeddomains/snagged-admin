@@ -1,7 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-06-17T09:35:18.293140+00:00",
+  "count": 2,
+  "domains": [
+    "chopsticks.org",
+    "wichita.org"
+  ],
+  "generated_at": "2026-06-18T09:36:56.264248+00:00",
   "source": "godaddy_auctions"
 }

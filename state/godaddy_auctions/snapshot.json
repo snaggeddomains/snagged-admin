@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "bid_count": 18,
+    "domain": "chopsticks.org",
+    "end_time_utc": "2026-06-18T16:29:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/chopsticks-org-706883126?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 116.0
+  },
+  {
+    "bid_count": 7,
+    "domain": "wichita.org",
+    "end_time_utc": "2026-06-18T20:56:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/wichita-org-705898307?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 90.0
+  }
+]

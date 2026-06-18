@@ -1,16 +1,23 @@
 {
   "capped": false,
-  "count": 8,
+  "count": 15,
   "domains": [
-    "vindictive.ai",
-    "macklemore.org",
-    "shrinkage.co",
-    "tryin.org",
-    "weakness.io",
-    "medals.ai",
-    "hounds.ai",
-    "completeness.ai"
+    "neglect.ai",
+    "battlefields.ai",
+    "establishing.org",
+    "pfft.org",
+    "regarded.org",
+    "souza.ai",
+    "ahhh.ai",
+    "hander.org",
+    "fcc.ai",
+    "hillary.io",
+    "staten.ai",
+    "bantu.ai",
+    "enlargement.ai",
+    "seeger.ai",
+    "yoghurt.ai"
   ],
-  "generated_at": "2026-06-17T09:34:16.090890+00:00",
+  "generated_at": "2026-06-18T09:35:52.826541+00:00",
   "source": "namecheap_auctions"
 }

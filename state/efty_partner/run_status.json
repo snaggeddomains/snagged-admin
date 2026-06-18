@@ -1,12 +1,7 @@
 {
-  "dropped_count": 0,
-  "generated_at": "2026-06-17T09:33:43.321357+00:00",
+  "error": "504 Server Error: Gateway Timeout for url: https://efty.com/partner/feed/token/640677654bf924ed61392d5393d5781db75edfa275cd3b62edc5e390319ed718/",
+  "generated_at": "2026-06-18T09:35:21.606535+00:00",
   "label": "Efty",
-  "new_count": 0,
-  "price_change_count": 0,
-  "qualified_count": 3109,
-  "scored_count": 453229,
-  "slack_posted": true,
   "source": "efty_partner",
-  "status": "ok"
+  "status": "failed"
 }

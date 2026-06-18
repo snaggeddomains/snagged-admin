@@ -1,20 +1,14 @@
 {
   "capped": false,
-  "count": 12,
+  "count": 6,
   "domains": [
-    "execute.ai",
-    "deploy.ai",
-    "ballroom.ai",
-    "immersion.ai",
-    "roam.ai",
-    "swarm.ai",
-    "electrolyte.com",
-    "carbide.com",
-    "quetta.com",
-    "lift.org",
-    "ascent.co",
-    "sweats.co"
+    "crew.ai",
+    "guests.ai",
+    "rooted.com",
+    "indies.ai",
+    "supervisory.com",
+    "sculptures.ai"
   ],
-  "generated_at": "2026-06-17T09:20:10.669792+00:00",
+  "generated_at": "2026-06-18T09:20:17.840007+00:00",
   "source": "atom_daily"
 }

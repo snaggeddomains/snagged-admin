@@ -1,10 +1,11 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 3,
   "domains": [
-    "softness.ai",
-    "newest.ai"
+    "ballroom.ai",
+    "furious.ai",
+    "els.ai"
   ],
-  "generated_at": "2026-06-17T09:04:01.821080+00:00",
+  "generated_at": "2026-06-18T09:03:54.161723+00:00",
   "source": "namecheap_bin"
 }
