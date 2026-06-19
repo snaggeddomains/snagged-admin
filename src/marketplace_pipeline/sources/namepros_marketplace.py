@@ -198,6 +198,56 @@ def _fetch(url: str) -> str:
     raise RuntimeError("scrape.do exhausted")
 
 
+def _page_url(n: int) -> str:
+    """XenForo marketplace pagination: page 1 is the base URL, page N is /page-N."""
+    return LISTING_URL if n <= 1 else f"{LISTING_URL}page-{n}"
+
+
+def _widget_count(html: str) -> int:
+    """How many real marketplace price widgets are on a page (the listing count)."""
+    return sum(1 for b in INFO_RE.findall(_STRIP_RE.sub(" ", html or ""))
+               if "$" in b or LISTING_LABEL_RE.search(b))
+
+
+def _fetch_pages(max_pages: int) -> str:
+    """The buy-domains page shows only the newest ~30 listings, so qualifying names
+    a few pages deep were never seen — paginate and combine. Stops early when a
+    page returns no listing widgets (past the end) or a fetch fails. The combined
+    HTML feeds extract_listings (regex-based, so concatenation is safe; dedup by
+    host keeps the first price)."""
+    parts: list[str] = []
+    for n in range(1, max(1, max_pages) + 1):
+        try:
+            html = _fetch(_page_url(n))
+        except Exception as e:  # noqa: BLE001
+            print(f"      page {n}: fetch failed ({e}) — stopping pagination")
+            break
+        widgets = _widget_count(html)
+        print(f"      page {n}: {widgets} listing widget(s)")
+        if n > 1 and widgets == 0:
+            break  # past the last page of listings
+        parts.append(html)
+        if n < max_pages:
+            time.sleep(1)
+    return "\n".join(parts)
+
+
+def _probe(combined_html: str, listings: dict[str, int | None], probe_domains: list[str]) -> None:
+    """Diagnostic: for each domain of interest, report whether it appears on the
+    fetched pages at all, whether it passes the shape filter, and whether it was
+    captured — so a 'why didn't X show up?' is answered from the log, not guessed."""
+    body = _STRIP_RE.sub(" ", combined_html or "").lower()
+    for raw in probe_domains:
+        d = raw.strip().lower().lstrip(".")
+        if not d:
+            continue
+        in_page = d in body
+        print(f"      [probe] {d}: on_page={in_page} shape_ok={shape_ok(d)} captured={d in listings}")
+        if in_page and d not in listings:
+            idx = body.find(d)
+            print("        ctx: " + re.sub(r"\s+", " ", body[max(0, idx - 70):idx + 170]))
+
+
 def _dump_price_markup(html: str, listings: dict[str, int | None]) -> None:
     """Census the listing price blocks so the workflow log shows the true price
     ceiling (how many listings even carry a fixed price vs. Make-offer) and a
@@ -227,8 +277,9 @@ def run() -> int:
     snap_cfg = reg["products"]["snap"]
     today = datetime.now(timezone.utc).date().isoformat()
 
-    print("[1/4] Fetching NamePros buy-domains via scrape.do")
-    html = _fetch(LISTING_URL)
+    max_pages = int(os.environ.get("NAMEPROS_MAX_PAGES") or src_cfg.get("max_pages") or 5)
+    print(f"[1/4] Fetching NamePros buy-domains via scrape.do (up to {max_pages} page(s))")
+    html = _fetch_pages(max_pages)
     listings = extract_listings(html)
     priced = {d: p for d, p in listings.items() if p}
     domains = sorted(listings)
@@ -237,6 +288,10 @@ def run() -> int:
         print("      sample: " + ", ".join(
             f"{d}" + (f" ${listings[d]:,}" if listings[d] else "") for d in domains[:40]))
         _dump_price_markup(html, listings)
+
+    probe = [d for d in (os.environ.get("NAMEPROS_PROBE") or "").replace(",", " ").split() if d]
+    if probe:
+        _probe(html, listings, probe)
 
     # SNAP Opportunities report + admin drill-down read this.
     state.write_new_today(SOURCE_ID, domains)

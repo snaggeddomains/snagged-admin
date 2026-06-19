@@ -3,7 +3,16 @@ name: 'Source: namepros_marketplace'
 # Manual dispatch for now (PROBE phase). Scheduling will move to the SNAP
 # orchestrator once the parser is finalized from the first run's log.
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      probe:
+        description: "Comma-separated domains to diagnose (logs on_page/shape_ok/captured)"
+        required: false
+        default: ""
+      pages:
+        description: "Max marketplace pages to fetch"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -28,6 +37,8 @@ jobs:
           SLACK_BOT_TOKEN:             ${{ secrets.SLACK_BOT_TOKEN }}
           SUPABASE_URL:                ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY:   ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NAMEPROS_PROBE:              ${{ inputs.probe }}
+          NAMEPROS_MAX_PAGES:          ${{ inputs.pages }}
         run: pipeline run namepros_marketplace
       - name: Commit state changes
         if: ${{ !cancelled() }}

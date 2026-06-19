@@ -290,12 +290,14 @@ sources:
     kind: scrape_html
     schedule_utc: "40 10 * * *"   # ~6:40 AM ET (after markmonitor)
     enabled: true
+    max_pages: 8                  # paginate the buy-domains feed (newest ~30/page)
     notes: |
       NamePros marketplace (buy-domains) — flag for-sale domains meeting our buy
       criteria (one/short word or short numeric, popular/phrase TLD, no hyphens;
       price judged vs. value). Cloudflare-protected -> fetched via scrape.do.
-      PROBE phase: the first run dumps the listing structure to the workflow log so
-      the parser can be finalized before the review-sheet + Slack publish is turned on.
+      Paginates `max_pages` of the feed (each page ~30 newest listings) so
+      qualifying names a few pages deep aren't missed. Real listings only (the
+      `<ul class=info>` Bid/BIN price widget); price read from the widget.
 
   - source_id: braden_pollack_portfolio
     product: snap
