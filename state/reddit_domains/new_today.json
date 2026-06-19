@@ -1,9 +1,7 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "spiritual.com"
-  ],
-  "generated_at": "2026-06-19T23:21:29.834729+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-06-19T23:26:13.616753+00:00",
   "source": "reddit_domains"
 }
