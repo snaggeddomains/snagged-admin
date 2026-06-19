@@ -1,6 +1,6 @@
 {
   "capped": false,
-  "count": 43,
+  "count": 34,
   "domains": [
     "1882.org",
     "63482.com",
@@ -14,8 +14,7 @@
     "backup.now",
     "bedroom.net",
     "belle.com",
-    "courage.co",
-    "curated.net",
+    "combust.co",
     "eliminator.co",
     "enterprises.io",
     "freelancer.cc",
@@ -23,16 +22,12 @@
     "inhalers.com",
     "kar.net",
     "lll.xyz",
+    "mast.vc",
     "maths.vc",
     "nondescript.ai",
-    "oyf.ai",
-    "phk.net",
     "prestige.cc",
-    "prx.gg",
+    "prestige.co",
     "reliability.vc",
-    "renegades.org",
-    "rzt.ai",
-    "rzu.ai",
     "sabotage.co",
     "seller.co",
     "service.xyz",
@@ -40,12 +35,8 @@
     "sublimation.io",
     "syringes.com",
     "threshold.ai",
-    "usps.xyz",
-    "vvo.me",
-    "vxs.net",
-    "yah.io",
-    "yhj.xyz"
+    "yah.io"
   ],
-  "generated_at": "2026-06-19T14:51:55.213022+00:00",
+  "generated_at": "2026-06-19T15:01:17.577836+00:00",
   "source": "namepros_marketplace"
 }
