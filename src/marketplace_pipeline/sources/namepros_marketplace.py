@@ -164,15 +164,17 @@ def _fetch(url: str) -> str:
 
 
 def _dump_price_markup(html: str, listings: dict[str, int | None]) -> None:
-    """Log the raw markup around the first listing so price-pairing can be tightened
-    from the workflow log without another blind round-trip."""
+    """Census the listing price blocks so the workflow log shows the true price
+    ceiling (how many listings even carry a fixed price vs. Make-offer) and a
+    real sample, without another blind round-trip. NamePros renders each price in
+    a `<ul class="info">` block; a block with no `$` is a Make-offer listing."""
     body = _STRIP_RE.sub(" ", html or "")
-    target = next(iter(listings), None)
-    if not target:
-        return
-    idx = body.lower().find(target)
-    if idx >= 0:
-        print("      [markup sample] " + re.sub(r"\s+", " ", body[max(0, idx - 80):idx + 220]))
+    blocks = INFO_RE.findall(body)
+    with_price = sum(1 for b in blocks if "$" in b)
+    print(f"      [info census] {len(blocks)} class=info blocks · {with_price} carry a $price")
+    sample = next((b for b in blocks if "$" in b), blocks[0] if blocks else "")
+    if sample:
+        print("      [info sample] " + re.sub(r"\s+", " ", sample)[:200])
 
 
 def _sheet_rows(listings: dict[str, int | None], today: str) -> list[dict[str, Any]]:
