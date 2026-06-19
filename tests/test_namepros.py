@@ -34,8 +34,15 @@ def test_shape_rejects_hyphens_and_long_numbers_and_odd_tlds():
 def test_shape_short_numeric_and_short_alpha():
     assert src.shape_ok("404.io")        # 3-digit
     assert src.shape_ok("1882.org")      # 4-digit
-    assert src.shape_ok("hd.com")        # 2 alpha — short premium
+    assert src.shape_ok("hd.com")        # 2 alpha — short premium (.com)
     assert not src.shape_ok("99999999.com")  # 8 digits
+
+
+def test_short_alpha_premium_is_com_only():
+    assert src.shape_ok("xyz.com")       # LLL.com premium kept
+    assert src.shape_ok("art.io")        # short but a real word -> kept
+    assert not src.shape_ok("rzt.ai")    # random 3-letter non-.com -> dropped
+    assert not src.shape_ok("phk.net")   # random 3-letter non-.com -> dropped
 
 
 def test_extract_listings_pulls_domain_and_nearby_price():

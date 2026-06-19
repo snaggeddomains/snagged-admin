@@ -105,8 +105,10 @@ def shape_ok(domain: str) -> bool:
         return len(sld) <= SHORT_NUM_MAX
     if not re.fullmatch(r"[a-z]+", sld):
         return False  # pure alpha only (no alnum mixes)
-    if len(sld) <= SHORT_ALPHA_MAX:
-        return True  # short premium — kept regardless of dictionary
+    if len(sld) <= SHORT_ALPHA_MAX and tld == "com":
+        return True  # LL/LLL.com — the genuine short-.com premium market
+    # Everything else (incl. short strings on non-.com) must be a real word, so
+    # random 3-letter combos like oyf.ai / rzt.ai / phk.net are dropped.
     return is_clean_word(sld, NAMEPROS_MIN_ZIPF)
 
 
