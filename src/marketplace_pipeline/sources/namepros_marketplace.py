@@ -44,10 +44,11 @@ LISTING_URL = "https://www.namepros.com/marketplace/buy-domains/"
 SEARCH_URL = "https://www.namepros.com/search/?q={q}&o=date"  # per-domain jump to the listing
 SCRAPE_DO_BASE = "https://api.scrape.do/"
 
-# Inclusive shape filter — popular + phrase/brandable TLDs.
+# Inclusive shape filter — popular + phrase/brandable TLDs. (.cc excluded — too
+# low-value and prone to one seller's bundle flooding the day.)
 POPULAR_TLDS = {
     "com", "net", "org", "io", "ai", "co", "app", "dev", "xyz", "tv", "me",
-    "now", "gg", "sh", "vc", "to", "so", "fm", "cc", "ist",
+    "now", "gg", "sh", "vc", "to", "so", "fm", "ist",
 }
 # NamePros' own + common infra/CDN/social hosts that pepper the page chrome.
 DENY_HOSTS = {

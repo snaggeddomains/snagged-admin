@@ -27,6 +27,7 @@ def test_shape_rejects_hyphens_and_long_numbers_and_odd_tlds():
     assert not src.shape_ok("my-domain.com")      # hyphen
     assert not src.shape_ok("123456.com")          # 6-digit number (> short)
     assert not src.shape_ok("backup.zzzz")         # TLD not in the popular/phrase set
+    assert not src.shape_ok("garden.cc")           # .cc excluded (low value / bundle flooding)
     assert not src.shape_ok("a1b2.com")            # alnum mix
     assert not src.shape_ok("ab.co.com")           # multi-label host
 
