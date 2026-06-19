@@ -44,7 +44,13 @@ export async function middleware(req: NextRequest) {
   // bounced the POST to /login and returned 405. Everything else under
   // /research/api/* stays gated.
   const isResearchAuthApi = p === "/research/api/login" || p === "/research/api/me";
-  if (isResetPage || isResearchAsset || isResearchAuthApi) {
+  // The public report SHARE route (/research/r/<slug>) renders link-preview meta
+  // ("Domain Owner Report — <domain>") for crawlers, then redirects a real visitor
+  // into the gated SPA. It must be reachable WITHOUT a session, or the preview
+  // crawler (no cookie) gets bounced to /login and unfurls the generic app card.
+  // It exposes only the domain (already in the URL), never report content.
+  const isResearchShare = /^\/research\/r(\/|$)/.test(p);
+  if (isResetPage || isResearchAsset || isResearchAuthApi || isResearchShare) {
     return NextResponse.next();
   }
 
