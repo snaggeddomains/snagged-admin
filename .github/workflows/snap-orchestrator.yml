@@ -93,8 +93,10 @@ jobs:
 
           # afternic is NOT here anymore — it runs on its own scheduled workflow
           # (source-afternic.yml). See the timeout-minutes comment above.
+          # namepros_marketplace ALSO decoupled — its own Vercel cron dispatches
+          # source-namepros-marketplace.yml 3x/day (6 AM/1 PM/7 PM ET), mirroring Sedo.
           # ATOM stays after a quick first source so its ">4 AM ET" feed is ready.
-          SOURCES="namecheap_bin atom_daily snagged_snap_sheet rob_purchases_sheet snagged_marketplace_sheet berserk_snap_sheet oxley markmonitor namepros_marketplace braden_pollack_portfolio efty_partner auctions_publish auctions_watchdog"
+          SOURCES="namecheap_bin atom_daily snagged_snap_sheet rob_purchases_sheet snagged_marketplace_sheet berserk_snap_sheet oxley markmonitor braden_pollack_portfolio efty_partner auctions_publish auctions_watchdog"
           for s in $SOURCES; do
             echo "::group::pipeline run $s"
             if pipeline run "$s"; then

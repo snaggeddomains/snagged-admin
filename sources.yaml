@@ -288,7 +288,9 @@ sources:
   - source_id: namepros_marketplace
     product: snap
     kind: scrape_html
-    schedule_utc: "40 10 * * *"   # ~6:40 AM ET (after markmonitor)
+    # 3x/day at 6 AM / 1 PM / 7 PM ET, dispatched by Vercel cron /api/cron/namepros
+    # (mirrors the Sedo sweep; DST-proof). Decoupled from the SNAP orchestrator.
+    schedule_utc: "0 10,17,23 * * *"
     enabled: true
     max_pages: 8                  # paginate the buy-domains feed (newest ~30/page)
     drill_max: 80                 # fetch up to N bundle threads for domains hidden in the post body
@@ -299,6 +301,20 @@ sources:
       Paginates `max_pages` of the feed (each page ~30 newest listings) so
       qualifying names a few pages deep aren't missed. Real listings only (the
       `<ul class=info>` Bid/BIN price widget); price read from the widget.
+
+  - source_id: reddit_domains
+    product: snap
+    kind: json_api
+    # 3x/day at 6 AM / 1 PM / 7 PM ET, dispatched by Vercel cron /api/cron/reddit-domains
+    # (mirrors the Sedo / NamePros sweeps; DST-proof).
+    schedule_utc: "0 10,17,23 * * *"
+    enabled: true
+    notes: |
+      Reddit r/Domains monitor — scans the subreddit's newest posts and flags
+      domains meeting the SAME buy criteria as NamePros (popular TLD, no hyphen,
+      single dictionary word or short premium). Public JSON fetched directly with
+      a UA, falling back to scrape.do when the datacenter IP is blocked. Link =
+      the Reddit post permalink; price = nearest amount in the post.
 
   - source_id: braden_pollack_portfolio
     product: snap

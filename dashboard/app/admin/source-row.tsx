@@ -84,6 +84,8 @@ function forSaleUrl(source: string | null, domain: string): string {
   // NamePros: the per-listing thread URL is normally carried on the row (d.link);
   // this is only the fallback for a domain without one — land on NamePros, not the bare domain.
   if (s.includes("namepros")) return `https://www.namepros.com/search/?q=${d}&o=date`;
+  // Reddit r/Domains: the post permalink is normally on the row (d.link); fallback to a sub search.
+  if (s.includes("reddit")) return `https://www.reddit.com/r/Domains/search/?q=${d}&restrict_sr=1`;
   return `https://${domain}`;
 }
 function fmtPrice(p: number | null): string {

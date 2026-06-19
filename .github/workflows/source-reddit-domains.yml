@@ -1,24 +1,15 @@
-name: 'Source: namepros_marketplace'
+name: 'Source: reddit_domains'
 
-# Manual dispatch for now (PROBE phase). Scheduling will move to the SNAP
-# orchestrator once the parser is finalized from the first run's log.
+# Dispatched 3x/day by Vercel cron (/api/cron/reddit-domains) at 6 AM/1 PM/7 PM ET,
+# mirroring the Sedo / NamePros sweeps. Manual dispatch also available.
 on:
-  workflow_dispatch:
-    inputs:
-      probe:
-        description: "Comma-separated domains to diagnose (logs on_page/shape_ok/captured)"
-        required: false
-        default: ""
-      pages:
-        description: "Max marketplace pages to fetch"
-        required: false
-        default: ""
+  workflow_dispatch: {}
 
 permissions:
   contents: write
 
 concurrency:
-  group: source-namepros-marketplace
+  group: source-reddit-domains
   cancel-in-progress: false
 
 jobs:
@@ -28,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-      - name: Run namepros_marketplace
+      - name: Run reddit_domains
         env:
           SCRAPE_DO_TOKEN:             ${{ secrets.SCRAPE_DO_TOKEN }}
           SUPABASE_NAMING_URL:         ${{ secrets.SUPABASE_NAMING_URL }}
@@ -38,11 +29,9 @@ jobs:
           SLACK_CHANNEL_SNAP:          ${{ vars.SLACK_CHANNEL_SNAP }}
           SUPABASE_URL:                ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY:   ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          NAMEPROS_PROBE:              ${{ inputs.probe }}
-          NAMEPROS_MAX_PAGES:          ${{ inputs.pages }}
-        run: pipeline run namepros_marketplace
+        run: pipeline run reddit_domains
       - name: Commit state changes
         if: ${{ !cancelled() }}
         uses: ./.github/actions/commit-state
         with:
-          message: "namepros_marketplace: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          message: "reddit_domains: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
