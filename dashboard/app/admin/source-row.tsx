@@ -34,6 +34,7 @@ type Dom = {
   enriched: boolean;
   price: number | null;
   best_price_source: string | null;
+  link?: string | null;
 };
 
 type Auc = {
@@ -80,6 +81,9 @@ function forSaleUrl(source: string | null, domain: string): string {
   if (s.includes("namecheap")) return `https://www.namecheap.com/market/?term=${d}`;
   if (s.includes("brandbucket")) return `https://www.brandbucket.com/search?search=${encodeURIComponent(label)}`;
   if (s.includes("oxley")) return `https://oxley.io/domain/${domain}`;
+  // NamePros: the per-listing thread URL is normally carried on the row (d.link);
+  // this is only the fallback for a domain without one — land on NamePros, not the bare domain.
+  if (s.includes("namepros")) return `https://www.namepros.com/search/?q=${d}&o=date`;
   return `https://${domain}`;
 }
 function fmtPrice(p: number | null): string {
@@ -144,7 +148,7 @@ function NewTodayList({
                 <td style={{ padding: "6px 10px", textAlign: "right", color: "var(--navy-2)", whiteSpace: "nowrap" }}>{fmtPrice(d.price)}</td>
                 <td style={{ padding: "6px 10px" }}>{d.enriched ? "✓" : "—"}</td>
                 <td style={{ padding: "6px 10px", whiteSpace: "nowrap" }}>
-                  <a href={forSaleUrl(d.best_price_source || sourceId, d.domain)} target="_blank" rel="noopener noreferrer" className="link-out">
+                  <a href={d.link || forSaleUrl(d.best_price_source || sourceId, d.domain)} target="_blank" rel="noopener noreferrer" className="link-out">
                     for sale ↗
                   </a>
                 </td>

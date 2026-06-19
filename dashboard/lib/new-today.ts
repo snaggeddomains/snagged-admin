@@ -22,6 +22,7 @@ export type NewTodayDomain = {
   enriched: boolean;
   price: number | null;
   best_price_source: string | null; // which marketplace the price came from
+  link?: string | null; // direct listing URL when the source persisted one (state/<source>/links.json)
 };
 
 export type NewTodayResult = {
@@ -117,6 +118,25 @@ export async function listLiveAuctions(sourceId: string): Promise<LiveAuctionsRe
   return { source: sourceId, auctions: auctions.slice(0, DISPLAY_CAP) };
 }
 
+// Direct per-domain listing URLs a source persisted this run
+// (state/<source>/links.json = { "<domain>": "<url>", ... }). Best-effort: most
+// sources don't write one, so a miss just means no deep link.
+async function feedLinks(sourceId: string): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+  try {
+    const raw = await getFile(`state/${sourceId}/links.json`);
+    if (raw) {
+      const j = JSON.parse(raw) as Record<string, unknown>;
+      for (const [d, u] of Object.entries(j)) {
+        if (typeof u === "string" && u) map.set(String(d).toLowerCase(), u);
+      }
+    }
+  } catch {
+    // Missing/malformed — no deep links for this source.
+  }
+  return map;
+}
+
 export async function listNewTodayDomains(sourceId: string): Promise<NewTodayResult> {
   // 1) Authoritative feed-new list, if the source persisted one this run.
   let feedDomains: string[] | null = null;
@@ -135,6 +155,7 @@ export async function listNewTodayDomains(sourceId: string): Promise<NewTodayRes
   if (feedDomains) {
     const domains = feedDomains.slice(0, DISPLAY_CAP);
     const enr = await enrichmentFor(domains);
+    const links = await feedLinks(sourceId); // direct listing URLs, if persisted
     const out: NewTodayDomain[] = domains.map((d) => {
       const e = enr.get(d);
       return {
@@ -144,6 +165,7 @@ export async function listNewTodayDomains(sourceId: string): Promise<NewTodayRes
         enriched: e?.c != null,
         price: e?.price ?? null,
         best_price_source: e?.ps ?? null,
+        link: links.get(d) ?? null,
       };
     });
     out.sort((a, b) => (b.quality_score ?? -1) - (a.quality_score ?? -1));

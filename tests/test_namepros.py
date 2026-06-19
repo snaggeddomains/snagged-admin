@@ -13,6 +13,16 @@ def test_shape_accepts_user_examples():
         assert src.shape_ok(d), d
 
 
+def test_shape_rejects_made_up_brandables():
+    # The quality complaint: made-up brandables (not dictionary words) must drop;
+    # real single words must pass.
+    for d in ["jobonly.com", "preformer.com", "furnishiq.com", "payolia.com",
+              "soclear.com", "spectranex.com", "taxbo.com", "hokul.com"]:
+        assert not src.shape_ok(d), d
+    for d in ["song.com", "lobster.io", "garden.org", "harbor.com"]:
+        assert src.shape_ok(d), d
+
+
 def test_shape_rejects_hyphens_and_long_numbers_and_odd_tlds():
     assert not src.shape_ok("my-domain.com")      # hyphen
     assert not src.shape_ok("123456.com")          # 6-digit number (> short)
@@ -24,16 +34,16 @@ def test_shape_rejects_hyphens_and_long_numbers_and_odd_tlds():
 def test_shape_short_numeric_and_short_alpha():
     assert src.shape_ok("404.io")        # 3-digit
     assert src.shape_ok("1882.org")      # 4-digit
-    assert src.shape_ok("hd.com")        # 2 alpha
+    assert src.shape_ok("hd.com")        # 2 alpha — short premium
     assert not src.shape_ok("99999999.com")  # 8 digits
 
 
 def test_extract_listings_pulls_domain_and_nearby_price():
-    html = "<div>candy.com $100,000</div><div>1882.org — $325</div><div>plainword.io</div>"
+    html = "<div>candy.com $100,000</div><div>garden.org — $325</div><div>harbor.io</div>"
     got = src.extract_listings(html)  # dict host -> price|None
     assert got.get("candy.com") == 100000
-    assert got.get("1882.org") == 325
-    assert "plainword.io" in got and got["plainword.io"] is None
+    assert got.get("garden.org") == 325
+    assert "harbor.io" in got and got["harbor.io"] is None
 
 
 def test_extract_handles_k_suffix():
@@ -52,14 +62,14 @@ def test_extract_real_namepros_info_block():
     # An href to the seller profile (a namepros.com URL) sits between title+price
     # and previously truncated the window before the price.
     html = (
-        '<h3><a href="https://www.namepros.com/members/x">voirdrama.org</a></h3>'
+        '<h3><a href="https://www.namepros.com/members/x">harbor.org</a></h3>'
         '<ul class="info"><li>Bid</li><li>$605</li>'
         '<li title="Time left"><time data-expires="1782244800">4d 5h</time></li></ul>'
         '<h3><a href="/marketplace/x">backup.now</a></h3>'
         '<ul class="info"><li>BIN</li><li>$777</li></ul>'
     )
     got = src.extract_listings(html)
-    assert got.get("voirdrama.org") == 605   # not 1782244800 (the epoch)
+    assert got.get("harbor.org") == 605   # not 1782244800 (the epoch)
     assert got.get("backup.now") == 777
 
 
@@ -76,13 +86,13 @@ def test_real_listings_drop_page_chrome():
     # escrow.com / fontawesome.com must not show up as "good deals".
     html = (
         '<footer><a>escrow.com</a> <a>fontawesome.com</a> <a>domaining.com</a></footer>'
-        '<h3><a href="/m/x">azzyai.com</a></h3>'
+        '<h3><a href="/m/x">garden.com</a></h3>'
         '<ul class="info"><li>Bid</li><li>$29</li>'
         '<li><time data-expires="1782331200">5d</time></li></ul>'
     )
     got = src.extract_listings(html)
-    assert set(got) == {"azzyai.com"}
-    assert got["azzyai.com"] == 29
+    assert set(got) == {"garden.com"}
+    assert got["garden.com"] == 29
 
 
 def test_legacy_fallback_when_no_info_widgets():
@@ -91,3 +101,36 @@ def test_legacy_fallback_when_no_info_widgets():
     html = "<div>candy.com $50</div>"
     got = src.extract_listings(html)
     assert got.get("candy.com") == 50
+
+
+# ── Forum thread listings (the PRIMARY format — the good seller posts) ──────────
+THREAD_HTML = (
+    '<div class="structitem-title">'
+    '<a data-preview-url="/threads/backup-now-777-today-only.1390401/preview">'
+    'backup.now - $777 today only</a></div>'
+    '<div class="structitem-title">'
+    '<a data-preview-url="/threads/1882-org-quick-sale.1390356/preview">'
+    '1882.org - quick sale</a></div>'
+    '<div class="structitem-title">'
+    '<a data-preview-url="/threads/nondescript-ai.1389601/preview">'
+    'nondescript.ai for $135</a></div>'
+)
+
+
+def test_thread_listings_captured_with_price():
+    got = src.extract_listings(THREAD_HTML)
+    assert got.get("backup.now") == 777
+    assert got.get("nondescript.ai") == 135
+    assert "1882.org" in got and got["1882.org"] is None  # "quick sale" — no price
+
+
+def test_thread_listing_urls():
+    links = src.extract_links(THREAD_HTML)
+    assert links.get("backup.now") == "https://www.namepros.com/threads/backup-now-777-today-only.1390401"
+    assert links.get("1882.org") == "https://www.namepros.com/threads/1882-org-quick-sale.1390356"
+
+
+def test_thread_drops_made_up_domains_in_title():
+    html = ('<a data-preview-url="/threads/x.1/preview">jobonly.com fire sale $99</a>')
+    got = src.extract_listings(html)
+    assert "jobonly.com" not in got  # not a dictionary word
