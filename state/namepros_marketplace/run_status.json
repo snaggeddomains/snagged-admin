@@ -1,7 +1,9 @@
 {
-  "generated_at": "2026-06-19T13:55:20.220906+00:00",
+  "generated_at": "2026-06-19T14:04:10.943764+00:00",
   "label": "NamePros Marketplace",
-  "probe": true,
+  "new_count": 108,
+  "priced_count": 21,
+  "slack_posted": false,
   "source": "namepros_marketplace",
   "status": "ok"
 }
