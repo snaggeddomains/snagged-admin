@@ -1,34 +1,34 @@
 [
   {
-    "currency": "GBP",
-    "domain": "couriers.com",
-    "end_time_utc": "2026-06-18T13:14:44+00:00",
-    "price": 250000.0,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=couriers.com"
+    "currency": "USD",
+    "domain": "corgi.co",
+    "end_time_utc": "2026-06-19T01:21:10+00:00",
+    "price": 37500.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=corgi.co"
   },
   {
     "currency": "USD",
-    "domain": "rashid.com",
-    "end_time_utc": "2026-06-18T16:32:18+00:00",
-    "price": 70000.0,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=rashid.com"
-  },
-  {
-    "currency": "EUR",
-    "domain": "hashtags.co",
-    "end_time_utc": "2026-06-18T21:39:00+00:00",
-    "price": 18995.0,
+    "domain": "lobo.co",
+    "end_time_utc": "2026-06-19T01:21:13+00:00",
+    "price": 59995.0,
     "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=hashtags.co"
+    "url": "https://sedo.com/search/details/?domain=lobo.co"
   },
   {
     "currency": "USD",
-    "domain": "ied.co",
-    "end_time_utc": "2026-06-18T17:26:45+00:00",
-    "price": 26264.0,
+    "domain": "omar.co",
+    "end_time_utc": "2026-06-19T01:21:11+00:00",
+    "price": 59995.0,
     "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=ied.co"
+    "url": "https://sedo.com/search/details/?domain=omar.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "oof.co",
+    "end_time_utc": "2026-06-19T03:14:11+00:00",
+    "price": 22000.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=oof.co"
   }
 ]
