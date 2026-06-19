@@ -1,12 +1,9 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 1,
   "domains": [
-    "omar.co",
-    "lobo.co",
-    "corgi.co",
-    "oof.co"
+    "approaches.com"
   ],
-  "generated_at": "2026-06-19T10:01:17.362292+00:00",
+  "generated_at": "2026-06-19T17:01:07.511196+00:00",
   "source": "sedo_net_new"
 }

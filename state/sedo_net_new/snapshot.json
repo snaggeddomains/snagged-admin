@@ -1,34 +1,10 @@
 [
   {
     "currency": "USD",
-    "domain": "corgi.co",
-    "end_time_utc": "2026-06-19T01:21:10+00:00",
-    "price": 37500.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=corgi.co"
-  },
-  {
-    "currency": "USD",
-    "domain": "lobo.co",
-    "end_time_utc": "2026-06-19T01:21:13+00:00",
-    "price": 59995.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=lobo.co"
-  },
-  {
-    "currency": "USD",
-    "domain": "omar.co",
-    "end_time_utc": "2026-06-19T01:21:11+00:00",
-    "price": 59995.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=omar.co"
-  },
-  {
-    "currency": "USD",
-    "domain": "oof.co",
-    "end_time_utc": "2026-06-19T03:14:11+00:00",
-    "price": 22000.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=oof.co"
+    "domain": "approaches.com",
+    "end_time_utc": "2026-06-19T17:48:34+00:00",
+    "price": 100000.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=approaches.com"
   }
 ]
