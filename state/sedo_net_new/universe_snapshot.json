@@ -4,10 +4,6 @@
     "price": 8970.0
   },
   {
-    "domain": "sweatvip.com",
-    "price": 1995.0
-  },
-  {
     "domain": "linkscall.com",
     "price": 2995.0
   },
@@ -16,15 +12,11 @@
     "price": 100000.0
   },
   {
-    "domain": "chased.net",
-    "price": 2495.0
+    "domain": "jiangnan.net",
+    "price": 4565.0
   },
   {
     "domain": "fishnet.co",
     "price": 3995.0
-  },
-  {
-    "domain": "autocentre.co",
-    "price": 4888.0
   }
 ]
