@@ -219,6 +219,8 @@ def _parse_post_domains(text: str, url: str) -> dict[str, tuple[int | None, str]
     for i, (start, end, host) in enumerate(spots):
         if COMP_CONTEXT_RE.search(text[max(0, start - 40):start]):
             continue  # "sold like <host>" / "comparable to <host>" — a reference
+        if _embedded_in_phrase(text, start):
+            continue  # glued to a preceding word — a phrase / space-split domain
         nxt = spots[i + 1][0] if i + 1 < len(spots) else len(text)
         price = _find_price(text[end:min(nxt, end + 120)])
         if host not in out or (out[host][0] is None and price is not None):
@@ -416,6 +418,30 @@ def _dump_price_markup(html: str, listings: dict[str, int | None]) -> None:
     sample = next((b for b in blocks if "$" in b), blocks[0] if blocks else "")
     if sample:
         print("      [info sample] " + re.sub(r"\s+", " ", sample)[:200])
+
+
+# Words that legitimately precede a domain in a sale title ("Selling backup.now",
+# "for sale candy.com"). A domain preceded by ANY OTHER standalone word is likely
+# embedded in a phrase or a space-split domain ("Anti spiritual.com" = the seller's
+# antispiritual.com), so we skip it rather than flag the wrong name.
+SALE_STOPWORDS = {
+    "selling", "sell", "sells", "sale", "sales", "buy", "buying", "bought", "get",
+    "grab", "premium", "rare", "brandable", "brand", "name", "names", "domain",
+    "domains", "listing", "list", "my", "the", "a", "an", "for", "offer", "offers",
+    "offering", "price", "priced", "asking", "bin", "auction", "available", "avail",
+    "snag", "new", "hot", "fresh", "cheap", "quick", "reduced", "firm", "lease",
+    "want", "wts", "wtb", "is", "now", "today", "only", "and", "or", "with",
+}
+_PRIOR_WORD_RE = re.compile(r"(?:^|\s)([A-Za-z]{2,})\s$")
+
+
+def _embedded_in_phrase(text: str, start: int) -> bool:
+    """True if the domain at `start` is glued to a preceding standalone word that
+    is NOT a sale word — i.e. it's part of a phrase / space-split domain and the
+    bare host is probably the wrong name. (A preceding domain's TLD like '.com '
+    is not a standalone word, so multi-domain lists still pass.)"""
+    m = _PRIOR_WORD_RE.search(text[max(0, start - 40):start])
+    return bool(m) and m.group(1).lower() not in SALE_STOPWORDS
 
 
 def slack_line(domain: str, price: int | None, url: str | None) -> str:

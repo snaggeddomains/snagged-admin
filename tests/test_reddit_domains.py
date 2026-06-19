@@ -43,6 +43,24 @@ def test_hyphenated_host_does_not_yield_subspan():
     assert "spiritual.com" not in listings
 
 
+def test_space_split_domain_is_not_flagged_as_bare_sld():
+    # The real post: "for sale: Anti spiritual.com BIN: $150" — the domain is
+    # antispiritual.com; we must NOT flag the bare spiritual.com.
+    data = {"data": {"children": [_post(title="for sale: Anti spiritual.com BIN: $150")]}}
+    listings, _ = src.extract_listings(data)
+    assert "spiritual.com" not in listings
+
+
+def test_multi_domain_sale_list_all_kept():
+    # A clean multi-domain sale list must still capture each (the prior token is a
+    # domain TLD, not a standalone word).
+    data = {"data": {"children": [
+        _post(title="For sale: person.com thought.com garden.io - make offer"),
+    ]}}
+    listings, _ = src.extract_listings(data)
+    assert {"person.com", "thought.com", "garden.io"} <= set(listings)
+
+
 def test_extract_applies_same_shape_filter_and_drops_junk():
     data = {"data": {"children": [
         _post(title="jobonly.com and spectranex.com for sale $100"),  # made-up brandables

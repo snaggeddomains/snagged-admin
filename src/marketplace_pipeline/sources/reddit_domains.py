@@ -31,7 +31,9 @@ from ..usage_log import record_usage
 from ..publishers import sheets as sheets_pub
 from ..publishers import slack as slack_pub
 # Identical buy criteria + parsing helpers as the NamePros source.
-from .namepros_marketplace import shape_ok, _find_price, DOMAIN_RE, COMP_CONTEXT_RE, slack_line
+from .namepros_marketplace import (
+    shape_ok, _find_price, DOMAIN_RE, COMP_CONTEXT_RE, slack_line, _embedded_in_phrase,
+)
 
 # r/Domains is mostly appraisal / discussion ("what's this worth", "rate my
 # name"), not sales — so a post must actually look like a SALE before we mine it
@@ -108,6 +110,8 @@ def extract_listings(data: dict) -> tuple[dict[str, int | None], dict[str, str]]
                 continue
             if COMP_CONTEXT_RE.search(text[max(0, dm.start() - 40):dm.start()]):
                 continue  # "sold like <host>" / "comparable to <host>" — a reference
+            if _embedded_in_phrase(text, dm.start()):
+                continue  # "Anti spiritual.com" — glued to a word; wrong/partial name
             price = _find_price(text[dm.end():dm.end() + 120])
             if host not in listings:
                 listings[host] = price
