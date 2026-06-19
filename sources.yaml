@@ -285,6 +285,18 @@ sources:
       universe upsert (count_new). Pagination not yet handled — extend if the
       grid turns out to be paged once the first run's log shows the structure.
 
+  - source_id: namepros_marketplace
+    product: snap
+    kind: scrape_html
+    schedule_utc: "40 10 * * *"   # ~6:40 AM ET (after markmonitor)
+    enabled: true
+    notes: |
+      NamePros marketplace (buy-domains) — flag for-sale domains meeting our buy
+      criteria (one/short word or short numeric, popular/phrase TLD, no hyphens;
+      price judged vs. value). Cloudflare-protected -> fetched via scrape.do.
+      PROBE phase: the first run dumps the listing structure to the workflow log so
+      the parser can be finalized before the review-sheet + Slack publish is turned on.
+
   - source_id: braden_pollack_portfolio
     product: snap
     kind: google_doc

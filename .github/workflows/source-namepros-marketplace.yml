@@ -1,0 +1,36 @@
+name: 'Source: namepros_marketplace'
+
+# Manual dispatch for now (PROBE phase). Scheduling will move to the SNAP
+# orchestrator once the parser is finalized from the first run's log.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: source-namepros-marketplace
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Run namepros_marketplace
+        env:
+          SCRAPE_DO_TOKEN:             ${{ secrets.SCRAPE_DO_TOKEN }}
+          SUPABASE_NAMING_URL:         ${{ secrets.SUPABASE_NAMING_URL }}
+          SUPABASE_NAMING_SERVICE_KEY: ${{ secrets.SUPABASE_NAMING_SERVICE_KEY }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          SLACK_BOT_TOKEN:             ${{ secrets.SLACK_BOT_TOKEN }}
+          SUPABASE_URL:                ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY:   ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: pipeline run namepros_marketplace
+      - name: Commit state changes
+        if: ${{ !cancelled() }}
+        uses: ./.github/actions/commit-state
+        with:
+          message: "namepros_marketplace: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
