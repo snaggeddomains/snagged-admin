@@ -104,39 +104,44 @@ def _find_price(s: str) -> int | None:
     return v if 1 <= v <= 100_000_000 else None
 
 
+DOMAIN_LOOKBACK = 600  # chars before an info widget to find its listing's domain
+
+
 def extract_listings(html: str) -> dict[str, int | None]:
     """Map each REAL marketplace listing domain → its asking price (or None).
     Body only (scripts/styles/head stripped), denylist removed, deduped (first
-    non-null price wins). A real listing is a shape-ok domain title immediately
-    followed by its `<ul class="info">` Bid/BIN/Make-offer widget — requiring
-    that widget drops page-chrome domains (escrow.com, fontawesome.com, article
-    links, …) that aren't actually for sale. The window is bounded by the NEXT
-    shape-ok domain (not any href/profile host in between, which would truncate
-    it before the price). Falls back to the legacy nearest-price scan only if the
-    page has NO info widgets at all (markup changed), so we never return nothing."""
+    non-null price wins).
+
+    A real NamePros listing is a `<ul class="info">` Bid/BIN/Make-offer price
+    widget; the domain is its title just before it. We iterate the widgets (one
+    per listing) and bind each to the NEAREST shape-ok domain before it — driving
+    off the widget (not the domain) avoids two traps: page-chrome domains with no
+    widget (escrow.com, fontawesome.com, article links) never get counted, and
+    the domain's duplicate occurrence in its own `/marketplace/…/domain` href no
+    longer truncates the search before the price. Falls back to the legacy
+    nearest-price scan only if the page has NO widgets at all (markup changed)."""
     body = _STRIP_RE.sub(" ", html or "")
-    # Only shape-ok domains anchor a listing — profile/CDN/href hosts in between
-    # must NOT bound the window or they steal the price slot.
-    spots = [(m.group(1).lower().lstrip("."), m.start(), m.end())
-             for m in DOMAIN_RE.finditer(body)]
-    spots = [(h, s, e) for (h, s, e) in spots if shape_ok(h)]
 
     listings: dict[str, int | None] = {}
-    for i, (host, _s, end) in enumerate(spots):
-        nxt = spots[i + 1][1] if i + 1 < len(spots) else len(body)
-        block = _listing_info_block(body[end:nxt])
-        if block is None:
-            continue  # not a marketplace row — page chrome / link / article
+    for m in INFO_RE.finditer(body):
+        block = m.group(1)
+        if "$" not in block and not LISTING_LABEL_RE.search(block):
+            continue  # an info list that isn't a marketplace price widget
+        host = _nearest_domain_before(body, m.start())
+        if not host:
+            continue
         price = _find_price(block)
         if host not in listings or (listings[host] is None and price is not None):
             listings[host] = price
     if listings:
         return listings
 
-    # Fallback: a page with no info widgets (markup changed) — generic nearest
+    # Fallback: a page with no price widgets (markup changed) — generic nearest
     # price after each shape-ok domain, bounded by the next one.
+    spots = [(mm.group(1).lower().lstrip("."), mm.end())
+             for mm in DOMAIN_RE.finditer(body) if shape_ok(mm.group(1))]
     out: dict[str, int | None] = {}
-    for i, (host, _s, end) in enumerate(spots):
+    for i, (host, end) in enumerate(spots):
         nxt = spots[i + 1][1] if i + 1 < len(spots) else len(body)
         price = _find_price(body[end:min(nxt, end + 400)])
         if host not in out or (out[host] is None and price is not None):
@@ -144,18 +149,14 @@ def extract_listings(html: str) -> dict[str, int | None]:
     return out
 
 
-def _listing_info_block(window: str) -> str | None:
-    """Return the listing's `<ul class="info">…</ul>` inner markup if the window
-    after a domain title holds one that looks like a marketplace price widget (a
-    `$price` or a Bid/BIN/Buy-Now/Make-offer/Price label), else None. The
-    `data-expires` time-left tag is a unix epoch, not a price, and is ignored by
-    `_find_price` (no `$`, no trailing `usd`)."""
-    m = INFO_RE.search(window or "")
-    if not m:
-        return None
-    block = m.group(1)
-    if "$" in block or LISTING_LABEL_RE.search(block):
-        return block
+def _nearest_domain_before(body: str, pos: int) -> str | None:
+    """The closest shape-ok domain in the `DOMAIN_LOOKBACK` chars before `pos`
+    (the listing's domain title, which sits just before its price widget)."""
+    start = max(0, pos - DOMAIN_LOOKBACK)
+    hosts = [mm.group(1).lower().lstrip(".") for mm in DOMAIN_RE.finditer(body, start, pos)]
+    for host in reversed(hosts):  # nearest first
+        if shape_ok(host):
+            return host
     return None
 
 
