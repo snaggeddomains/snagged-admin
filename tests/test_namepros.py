@@ -68,3 +68,26 @@ def test_extract_make_offer_listing_has_no_price():
             '<li><time data-expires="1782244800">2d</time></li></ul>')
     got = src.extract_listings(html)
     assert "candy.com" in got and got["candy.com"] is None
+
+
+def test_real_listings_drop_page_chrome():
+    # When real listings (info widgets) are present, shape-ok domains that are
+    # just page chrome (footer/article links with no info widget) are dropped —
+    # escrow.com / fontawesome.com must not show up as "good deals".
+    html = (
+        '<footer><a>escrow.com</a> <a>fontawesome.com</a> <a>domaining.com</a></footer>'
+        '<h3><a href="/m/x">azzyai.com</a></h3>'
+        '<ul class="info"><li>Bid</li><li>$29</li>'
+        '<li><time data-expires="1782331200">5d</time></li></ul>'
+    )
+    got = src.extract_listings(html)
+    assert set(got) == {"azzyai.com"}
+    assert got["azzyai.com"] == 29
+
+
+def test_legacy_fallback_when_no_info_widgets():
+    # If the page has NO info widgets at all (markup changed), fall back to the
+    # generic nearest-price scan so we never silently return nothing.
+    html = "<div>candy.com $50</div>"
+    got = src.extract_listings(html)
+    assert got.get("candy.com") == 50

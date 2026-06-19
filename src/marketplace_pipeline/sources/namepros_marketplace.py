@@ -61,8 +61,12 @@ DOMAIN_RE = re.compile(r"\b([a-z0-9][a-z0-9-]{0,62}\.[a-z]{2,5})\b", re.IGNORECA
 PRICE_RE = re.compile(r"\$\s?([0-9][0-9,]*(?:\.\d+)?)\s?([km])?|\b([0-9][0-9,]{2,})\s?usd\b", re.IGNORECASE)
 # NamePros renders each listing's price in a `<ul class="info"><li>Bid|BIN|Price|
 # Buy Now|Make offer</li><li>$NNN</li>…<time data-expires…></time></ul>` block
-# right after the domain title — pull the price straight out of that list.
+# right after the domain title — pull the price straight out of that list. The
+# PRESENCE of this widget is also what distinguishes a real marketplace listing
+# from a domain that's just a footer/article/nav link on the page (escrow.com,
+# fontawesome.com, domaining.com, …), which we must NOT flag as a "good deal".
 INFO_RE = re.compile(r'class="info"(.*?)</ul>', re.IGNORECASE | re.DOTALL)
+LISTING_LABEL_RE = re.compile(r"\b(bid|bin|buy now|make offer|offer|price)\b", re.IGNORECASE)
 _STRIP_RE = re.compile(r"(?is)<(script|style|head|noscript)\b.*?</\1>")
 CHALLENGE_RE = re.compile(r"just a moment|cf-browser-verification|attention required", re.I)
 
@@ -101,39 +105,58 @@ def _find_price(s: str) -> int | None:
 
 
 def extract_listings(html: str) -> dict[str, int | None]:
-    """Map each shape-passing listing domain → its asking price (or None).
+    """Map each REAL marketplace listing domain → its asking price (or None).
     Body only (scripts/styles/head stripped), denylist removed, deduped (first
-    non-null price wins). Each listing's price lives in the `<ul class="info">`
-    block right after the domain title, so we take that first; the window is
-    bounded by the NEXT shape-ok listing (not any href/profile domain in between,
-    which used to truncate the window before the price) with a generic
-    nearest-price fallback."""
+    non-null price wins). A real listing is a shape-ok domain title immediately
+    followed by its `<ul class="info">` Bid/BIN/Make-offer widget — requiring
+    that widget drops page-chrome domains (escrow.com, fontawesome.com, article
+    links, …) that aren't actually for sale. The window is bounded by the NEXT
+    shape-ok domain (not any href/profile host in between, which would truncate
+    it before the price). Falls back to the legacy nearest-price scan only if the
+    page has NO info widgets at all (markup changed), so we never return nothing."""
     body = _STRIP_RE.sub(" ", html or "")
     # Only shape-ok domains anchor a listing — profile/CDN/href hosts in between
     # must NOT bound the window or they steal the price slot.
     spots = [(m.group(1).lower().lstrip("."), m.start(), m.end())
              for m in DOMAIN_RE.finditer(body)]
     spots = [(h, s, e) for (h, s, e) in spots if shape_ok(h)]
+
+    listings: dict[str, int | None] = {}
+    for i, (host, _s, end) in enumerate(spots):
+        nxt = spots[i + 1][1] if i + 1 < len(spots) else len(body)
+        block = _listing_info_block(body[end:nxt])
+        if block is None:
+            continue  # not a marketplace row — page chrome / link / article
+        price = _find_price(block)
+        if host not in listings or (listings[host] is None and price is not None):
+            listings[host] = price
+    if listings:
+        return listings
+
+    # Fallback: a page with no info widgets (markup changed) — generic nearest
+    # price after each shape-ok domain, bounded by the next one.
     out: dict[str, int | None] = {}
     for i, (host, _s, end) in enumerate(spots):
         nxt = spots[i + 1][1] if i + 1 < len(spots) else len(body)
-        window = body[end:nxt]
-        price = _price_from_info(window)
-        if price is None:
-            price = _find_price(window[:400])
+        price = _find_price(body[end:min(nxt, end + 400)])
         if host not in out or (out[host] is None and price is not None):
             out[host] = price
     return out
 
 
-def _price_from_info(window: str) -> int | None:
-    """Pull the price out of the listing's `<ul class="info"><li>Bid|BIN|Price…
-    </li><li>$NNN</li>…</ul>` block (the `data-expires` time-left tag is ignored
-    — it's a unix epoch, not a price, and lives in its own <li>)."""
+def _listing_info_block(window: str) -> str | None:
+    """Return the listing's `<ul class="info">…</ul>` inner markup if the window
+    after a domain title holds one that looks like a marketplace price widget (a
+    `$price` or a Bid/BIN/Buy-Now/Make-offer/Price label), else None. The
+    `data-expires` time-left tag is a unix epoch, not a price, and is ignored by
+    `_find_price` (no `$`, no trailing `usd`)."""
     m = INFO_RE.search(window or "")
     if not m:
         return None
-    return _find_price(m.group(1))
+    block = m.group(1)
+    if "$" in block or LISTING_LABEL_RE.search(block):
+        return block
+    return None
 
 
 def _scrape_do_once(url: str, *, render: bool, timeout: int) -> str:
