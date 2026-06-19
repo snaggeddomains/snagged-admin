@@ -1,0 +1,13 @@
+{
+  "capped": false,
+  "count": 5,
+  "domains": [
+    "antivirus.net",
+    "eindhoven.com",
+    "gmail.com",
+    "park.io",
+    "spiritual.com"
+  ],
+  "generated_at": "2026-06-19T23:15:06.669796+00:00",
+  "source": "reddit_domains"
+}
