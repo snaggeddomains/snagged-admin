@@ -291,6 +291,7 @@ sources:
     schedule_utc: "40 10 * * *"   # ~6:40 AM ET (after markmonitor)
     enabled: true
     max_pages: 8                  # paginate the buy-domains feed (newest ~30/page)
+    drill_max: 25                 # fetch up to N bundle threads for domains hidden in the post body
     notes: |
       NamePros marketplace (buy-domains) — flag for-sale domains meeting our buy
       criteria (one/short word or short numeric, popular/phrase TLD, no hyphens;

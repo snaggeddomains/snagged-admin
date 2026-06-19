@@ -141,3 +141,19 @@ def test_thread_drops_made_up_domains_in_title():
     html = ('<a data-preview-url="/threads/x.1/preview">jobonly.com fire sale $99</a>')
     got = src.extract_listings(html)
     assert "jobonly.com" not in got  # not a dictionary word
+
+
+def test_looks_bundle_flags_multi_domain_titles():
+    assert src._looks_bundle(".ai for $135 ushuaia nondescript.ai adriano alliteration")  # .tld for
+    assert src._looks_bundle("pick any domain for only $60 7142.net 9645.net")            # 2+ domains
+    assert src._looks_bundle("premium .com names lot - dm for list")                       # keyword
+    assert not src._looks_bundle("backup.now - $777 today only")                           # single listing
+
+
+def test_parse_post_domains_extracts_list_with_prices():
+    post = ("Selling my .ai bundle: alliteration.ai - $135, nondescript.ai - $135, "
+            "and a junk one zzqxw.ai too.")
+    got = src._parse_post_domains(post, "https://www.namepros.com/threads/x.1")
+    assert got["alliteration.ai"] == (135, "https://www.namepros.com/threads/x.1")
+    assert got["nondescript.ai"][0] == 135
+    assert "zzqxw.ai" not in got  # not a dictionary word

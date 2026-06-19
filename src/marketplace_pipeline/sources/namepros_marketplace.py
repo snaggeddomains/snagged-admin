@@ -82,6 +82,13 @@ LISTING_LABEL_RE = re.compile(r"\b(bid|bin|buy now|make offer|offer|price)\b", r
 # a secondary pass; it's mostly low-quality churn the dictionary gate drops.)
 THREAD_RE = re.compile(r'data-preview-url="(/threads/[^"#?]+)"[^>]*>([^<]+)</a>', re.IGNORECASE)
 NAMEPROS_BASE = "https://www.namepros.com"
+# A title that looks like a MULTI-domain bundle — its full inventory lives in the
+# post body, not the title, so it's worth drilling into (e.g. the ".ai for $135 …"
+# bundle that holds alliteration.ai). Single "domain - $price" titles are skipped.
+BUNDLE_KW_RE = re.compile(
+    r"\b(pick|lots?|bundle|packages?|portfolio|bulk|batch|combo|names?|each|multiple|several|list)\b",
+    re.IGNORECASE)
+TLD_FOR_RE = re.compile(r"\.[a-z]{2,5}\s+for\b", re.IGNORECASE)  # ".ai for $135"
 _STRIP_RE = re.compile(r"(?is)<(script|style|head|noscript)\b.*?</\1>")
 CHALLENGE_RE = re.compile(r"just a moment|cf-browser-verification|attention required", re.I)
 
@@ -133,16 +140,22 @@ def _find_price(s: str) -> int | None:
 DOMAIN_LOOKBACK = 400  # chars before an info widget to find its listing's domain
 
 
-def _parse_threads(html: str) -> dict[str, tuple[int | None, str]]:
-    """Parse the buy-domains forum thread rows → {domain: (price, listing_url)}.
-    Each row's title (`…>backup.now - $777 today only</a>`) carries the domain(s)
-    and asking price; the `data-preview-url` path is the public listing URL. A
-    title can name several domains (a multi-domain thread) — each shape-ok one
-    gets the title's price + the same thread URL."""
-    out: dict[str, tuple[int | None, str]] = {}
+def _thread_rows(html: str) -> list[tuple[str, str]]:
+    """Each buy-domains forum thread row as (listing_url, title)."""
+    rows: list[tuple[str, str]] = []
     for m in THREAD_RE.finditer(html or ""):
         path, title = m.group(1), m.group(2)
-        url = NAMEPROS_BASE + path.replace("/preview", "")
+        rows.append((NAMEPROS_BASE + path.replace("/preview", ""), title))
+    return rows
+
+
+def _parse_threads(html: str) -> dict[str, tuple[int | None, str]]:
+    """Parse the buy-domains forum thread rows → {domain: (price, listing_url)}.
+    Each row's title (`backup.now - $777 today only`) carries the domain(s) and
+    asking price; the `data-preview-url` path is the public listing URL. A title
+    can name several domains — each shape-ok one gets the title's price + URL."""
+    out: dict[str, tuple[int | None, str]] = {}
+    for url, title in _thread_rows(html):
         price = _find_price(title)
         for dm in DOMAIN_RE.finditer(title):
             host = dm.group(1).lower().lstrip(".")
@@ -150,6 +163,41 @@ def _parse_threads(html: str) -> dict[str, tuple[int | None, str]]:
                 continue
             if host not in out or (out[host][0] is None and price is not None):
                 out[host] = (price, url)
+    return out
+
+
+def _looks_bundle(title: str) -> bool:
+    """A title worth drilling into: it lists 2+ domains, uses bundle wording
+    (pick/lot/bundle/names/…), has a `.tld for $X` pattern, or quotes 2+ prices —
+    all signals the full domain list is in the post body, not the title."""
+    t = title or ""
+    dom_tokens = sum(1 for m in DOMAIN_RE.finditer(t) if shape_ok(m.group(1)))
+    if dom_tokens >= 2:
+        return True
+    return bool(BUNDLE_KW_RE.search(t) or TLD_FOR_RE.search(t) or t.count("$") >= 2)
+
+
+def _post_body(html: str) -> str:
+    """The first post's region of a thread page (XenForo `bbWrapper`) — where a
+    multi-domain seller lists every domain + price. Bounded so thread REPLIES
+    don't pollute the parse."""
+    body = _STRIP_RE.sub(" ", html or "")
+    i = body.lower().find("bbwrapper")
+    if i < 0:
+        i = body.lower().find("message-body")
+    return body[i:i + 12000] if i >= 0 else body[:12000]
+
+
+def _parse_post_domains(text: str, url: str) -> dict[str, tuple[int | None, str]]:
+    """Domains + nearest prices listed in a thread post → {domain: (price, url)}."""
+    spots = [(m.start(), m.end(), m.group(1).lower().lstrip("."))
+             for m in DOMAIN_RE.finditer(text) if shape_ok(m.group(1))]
+    out: dict[str, tuple[int | None, str]] = {}
+    for i, (_s, end, host) in enumerate(spots):
+        nxt = spots[i + 1][0] if i + 1 < len(spots) else len(text)
+        price = _find_price(text[end:min(nxt, end + 120)])
+        if host not in out or (out[host][0] is None and price is not None):
+            out[host] = (price, url)
     return out
 
 
@@ -282,6 +330,39 @@ def _fetch_pages(max_pages: int) -> str:
     return "\n".join(parts)
 
 
+def _drill_bundles(html: str, cap: int) -> dict[str, tuple[int | None, str]]:
+    """Fetch the bundle-looking threads (capped) and pull every domain + price
+    from their post bodies — the inventory that the list-page title hides (e.g.
+    alliteration.ai inside a multi-domain `.ai` thread). Each fetch is a scrape.do
+    call, so this is capped and limited to titles `_looks_bundle` flags."""
+    if cap <= 0:
+        return {}
+    seen: set[str] = set()
+    cands: list[tuple[str, str]] = []
+    for url, title in _thread_rows(html):
+        if url in seen:
+            continue
+        seen.add(url)
+        if _looks_bundle(title):
+            cands.append((url, title))
+    if not cands:
+        return {}
+    print(f"      drilling {min(len(cands), cap)} of {len(cands)} bundle thread(s)")
+    out: dict[str, tuple[int | None, str]] = {}
+    for url, _title in cands[:cap]:
+        try:
+            thtml = _fetch(url)
+        except Exception as e:  # noqa: BLE001
+            print(f"      drill failed {url}: {e}")
+            continue
+        found = _parse_post_domains(_post_body(thtml), url)
+        for host, val in found.items():
+            if host not in out or (out[host][0] is None and val[0] is not None):
+                out[host] = val
+        time.sleep(1)
+    return out
+
+
 def _probe(combined_html: str, listings: dict[str, int | None], probe_domains: list[str]) -> None:
     """Diagnostic: for each domain of interest, report whether it appears on the
     fetched pages at all, whether it passes the shape filter, and whether it was
@@ -332,6 +413,23 @@ def run() -> int:
     html = _fetch_pages(max_pages)
     listings = extract_listings(html)
     links = extract_links(html)
+
+    # Drill flagged multi-domain bundle threads for inventory hidden in the post
+    # body (e.g. alliteration.ai). Capped — each thread is a scrape.do call.
+    drill_max = int(os.environ.get("NAMEPROS_DRILL_MAX") or src_cfg.get("drill_max") or 25)
+    print(f"[1b/4] Drilling bundle threads (cap {drill_max})")
+    drilled = _drill_bundles(html, drill_max)
+    added = 0
+    for host, (price, url) in drilled.items():
+        if host not in listings:
+            listings[host] = price
+            added += 1
+        elif listings[host] is None and price is not None:
+            listings[host] = price
+        links.setdefault(host, url)
+    if added:
+        print(f"      bundle drill added {added} domain(s) not in any title")
+
     priced = {d: p for d, p in listings.items() if p}
     domains = sorted(listings)
     print(f"      good-deal candidates: {len(domains):,} · with asking price: {len(priced):,}")
