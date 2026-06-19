@@ -1,7 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-06-18T09:35:29.108474+00:00",
+  "count": 2,
+  "domains": [
+    "playstation.io",
+    "pumps.io"
+  ],
+  "generated_at": "2026-06-19T09:34:33.906425+00:00",
   "source": "parkio_auctions"
 }

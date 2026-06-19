@@ -1,11 +1,9 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 1,
   "domains": [
-    "ballroom.ai",
-    "furious.ai",
-    "els.ai"
+    "african.ai"
   ],
-  "generated_at": "2026-06-18T09:03:54.161723+00:00",
+  "generated_at": "2026-06-19T09:02:49.635337+00:00",
   "source": "namecheap_bin"
 }

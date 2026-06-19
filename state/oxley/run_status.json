@@ -1,7 +1,10 @@
 {
-  "error": "502 Server Error: Bad Gateway for url: https://api.scrape.do/?token=***REDACTED***&url=https%3A%2F%2Foxley.com%2Fajax%2Fmarket_themes%2Fdomain_overview_table%2Fuser_id%2F7192%2Foffset%2F1000%2Ffilters%2F%257B%2522portfolio_price_min%2522%253A%2522%2522%252C%2522portfolio_price_max%2522%253A%2522%2522%252C%2522form-extensions%2522%253A%2522all%2522%252C%2522form-categories%2522%253A%2522all%2522%252C%2522age_val_min%2522%253A%25222%2522%252C%2522age_val_max%2522%253A%252236%2522%252C%2522length_val_min%2522%253A%25222%2522%252C%2522length_val_max%2522%253A%252216%2522%252C%2522%2522%253A%2522%2522%257D%2Fkeyword%2F%2F&super=true&geoCode=us",
-  "generated_at": "2026-06-18T09:30:49.395012+00:00",
+  "generated_at": "2026-06-19T09:27:32.960255+00:00",
   "label": "Oxley",
+  "new_count": 0,
+  "raw_count": 1447,
   "source": "oxley",
-  "status": "failed"
+  "status": "ok",
+  "supabase_status": "ok",
+  "universe_count": 742
 }
