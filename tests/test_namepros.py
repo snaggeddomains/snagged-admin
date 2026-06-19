@@ -44,3 +44,27 @@ def test_extract_drops_infra_and_keeps_only_shape_passers():
     html = "<a>nameproscdn.com</a> <a>namepros.com</a> <a>my-brand.com</a> <span>candy.com $50</span>"
     got = src.extract_listings(html)
     assert set(got) == {"candy.com"}  # CDN/self + hyphen all dropped
+
+
+def test_extract_real_namepros_info_block():
+    # The real markup: domain title <h3>, then the price in a <ul class="info">,
+    # then a data-expires time tag (a unix epoch that must NOT be read as price).
+    # An href to the seller profile (a namepros.com URL) sits between title+price
+    # and previously truncated the window before the price.
+    html = (
+        '<h3><a href="https://www.namepros.com/members/x">voirdrama.org</a></h3>'
+        '<ul class="info"><li>Bid</li><li>$605</li>'
+        '<li title="Time left"><time data-expires="1782244800">4d 5h</time></li></ul>'
+        '<h3><a href="/marketplace/x">backup.now</a></h3>'
+        '<ul class="info"><li>BIN</li><li>$777</li></ul>'
+    )
+    got = src.extract_listings(html)
+    assert got.get("voirdrama.org") == 605   # not 1782244800 (the epoch)
+    assert got.get("backup.now") == 777
+
+
+def test_extract_make_offer_listing_has_no_price():
+    html = ('<h3><a>candy.com</a></h3><ul class="info"><li>Make offer</li>'
+            '<li><time data-expires="1782244800">2d</time></li></ul>')
+    got = src.extract_listings(html)
+    assert "candy.com" in got and got["candy.com"] is None
