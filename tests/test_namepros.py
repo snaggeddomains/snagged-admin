@@ -30,12 +30,17 @@ def test_shape_short_numeric_and_short_alpha():
 
 def test_extract_listings_pulls_domain_and_nearby_price():
     html = "<div>candy.com $100,000</div><div>1882.org — $325</div><div>plainword.io</div>"
-    got = {L["domain"]: L["price"] for L in src.extract_listings(html)}
+    got = src.extract_listings(html)  # dict host -> price|None
     assert got.get("candy.com") == 100000
     assert got.get("1882.org") == 325
-    assert got.get("plainword.io") is None
+    assert "plainword.io" in got and got["plainword.io"] is None
 
 
 def test_extract_handles_k_suffix():
-    got = {L["domain"]: L["price"] for L in src.extract_listings("<p>shiny.ai $2.5k</p>")}
-    assert got.get("shiny.ai") == 2500
+    assert src.extract_listings("<p>shiny.ai $2.5k</p>").get("shiny.ai") == 2500
+
+
+def test_extract_drops_infra_and_keeps_only_shape_passers():
+    html = "<a>nameproscdn.com</a> <a>namepros.com</a> <a>my-brand.com</a> <span>candy.com $50</span>"
+    got = src.extract_listings(html)
+    assert set(got) == {"candy.com"}  # CDN/self + hyphen all dropped
