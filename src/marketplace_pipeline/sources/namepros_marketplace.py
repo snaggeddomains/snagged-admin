@@ -50,13 +50,27 @@ POPULAR_TLDS = {
     "com", "net", "org", "io", "ai", "co", "app", "dev", "xyz", "tv", "me",
     "now", "gg", "sh", "vc", "to", "so", "fm", "ist",
 }
-# NamePros' own + common infra/CDN/social hosts that pepper the page chrome.
+# NamePros' own + common infra/CDN/social hosts that pepper the page chrome, PLUS
+# major platforms / registrars / marketplaces that show up inside thread posts as
+# comps or references (e.g. "sold like ebay.com", "list on godaddy") — never the
+# domain actually being sold, so they must not leak in via the post-body drill.
 DENY_HOSTS = {
     "namepros.com", "nameproscdn.com", "google.com", "googleapis.com", "gstatic.com",
     "schema.org", "purl.org", "w3.org", "jsdelivr.net", "cloudflare.com", "gravatar.com",
     "youtube.com", "facebook.com", "twitter.com", "x.com", "paypal.com", "googletagmanager.com",
     "doubleclick.net", "cloudflareinsights.com", "gtld-servers.net",
+    # Comp / reference / platform domains (not listings):
+    "ebay.com", "amazon.com", "apple.com", "microsoft.com", "netflix.com", "google.org",
+    "instagram.com", "linkedin.com", "tiktok.com", "reddit.com", "pinterest.com",
+    "wikipedia.org", "medium.com", "github.com", "shopify.com", "stripe.com",
+    # Registrars / marketplaces / domain-industry sites:
+    "godaddy.com", "spaceship.com", "namecheap.com", "dynadot.com", "porkbun.com",
+    "sedo.com", "afternic.com", "dan.com", "atom.com", "brandbucket.com", "squadhelp.com",
+    "escrow.com", "namebio.com", "godaddy.net", "uniregistry.com", "epik.com",
 }
+# A thread-post drill must not borrow a price from a "comp" sentence
+# ("sold for", "comparable", "similar to", "like ebay.com").
+COMP_CONTEXT_RE = re.compile(r"\b(sold|comp|comparable|similar|example|apprais|reg(?:ister|istered)? at|as seen)\b", re.IGNORECASE)
 SHORT_NUM_MAX = 5     # <= this many digits = short numeric, qualifies
 SHORT_ALPHA_MAX = 3   # <= this many letters = short premium (LL/LLL), kept regardless of dictionary
 # Word-quality gate: an alpha SLD must be a real dictionary word at this zipf or
@@ -180,21 +194,25 @@ def _looks_bundle(title: str) -> bool:
 
 def _post_body(html: str) -> str:
     """The first post's region of a thread page (XenForo `bbWrapper`) — where a
-    multi-domain seller lists every domain + price. Bounded so thread REPLIES
-    don't pollute the parse."""
+    multi-domain seller lists every domain + price. Bounded tightly so thread
+    REPLIES (other users' offers / mentions) don't pollute the parse."""
     body = _STRIP_RE.sub(" ", html or "")
     i = body.lower().find("bbwrapper")
     if i < 0:
         i = body.lower().find("message-body")
-    return body[i:i + 12000] if i >= 0 else body[:12000]
+    return body[i:i + 6000] if i >= 0 else body[:6000]
 
 
 def _parse_post_domains(text: str, url: str) -> dict[str, tuple[int | None, str]]:
-    """Domains + nearest prices listed in a thread post → {domain: (price, url)}."""
+    """Domains + nearest prices listed in a thread post → {domain: (price, url)}.
+    A domain sitting in a 'comp' sentence (sold for / similar to / appraised) is
+    skipped — it's a reference, not the inventory being sold."""
     spots = [(m.start(), m.end(), m.group(1).lower().lstrip("."))
              for m in DOMAIN_RE.finditer(text) if shape_ok(m.group(1))]
     out: dict[str, tuple[int | None, str]] = {}
-    for i, (_s, end, host) in enumerate(spots):
+    for i, (start, end, host) in enumerate(spots):
+        if COMP_CONTEXT_RE.search(text[max(0, start - 40):start]):
+            continue  # "sold like <host>" / "comparable to <host>" — a reference
         nxt = spots[i + 1][0] if i + 1 < len(spots) else len(text)
         price = _find_price(text[end:min(nxt, end + 120)])
         if host not in out or (out[host][0] is None and price is not None):

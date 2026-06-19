@@ -158,3 +158,14 @@ def test_parse_post_domains_extracts_list_with_prices():
     assert got["alliteration.ai"] == (135, "https://www.namepros.com/threads/x.1")
     assert got["nondescript.ai"][0] == 135
     assert "zzqxw.ai" not in got  # not a dictionary word
+
+
+def test_parse_post_drops_comps_and_brands():
+    post = ("Premium one-worder candy.com here. Comparable: sold like medicine.com. "
+            "List anywhere — even godaddy.com or ebay.com. Real deal: garden.io - $500.")
+    got = src._parse_post_domains(post, "u")
+    assert "candy.com" in got
+    assert got["garden.io"][0] == 500
+    assert "medicine.com" not in got   # "sold like" comp context
+    assert "godaddy.com" not in got    # platform denylist
+    assert "ebay.com" not in got       # platform denylist
