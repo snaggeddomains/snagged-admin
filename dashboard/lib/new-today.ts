@@ -137,6 +137,25 @@ async function feedLinks(sourceId: string): Promise<Map<string, string>> {
   return map;
 }
 
+// The source's own captured asking price per domain
+// (state/<source>/snapshot.json = { "<domain>": <price|null> }). For listings not
+// in name_universe (e.g. NamePros), this is the only price we have, so prefer it.
+async function feedPrices(sourceId: string): Promise<Map<string, number>> {
+  const map = new Map<string, number>();
+  try {
+    const raw = await getFile(`state/${sourceId}/snapshot.json`);
+    if (raw) {
+      const j = JSON.parse(raw) as Record<string, unknown>;
+      for (const [d, p] of Object.entries(j)) {
+        if (typeof p === "number" && p > 0) map.set(String(d).toLowerCase(), p);
+      }
+    }
+  } catch {
+    // Missing/malformed — fall back to universe price.
+  }
+  return map;
+}
+
 export async function listNewTodayDomains(sourceId: string): Promise<NewTodayResult> {
   // 1) Authoritative feed-new list, if the source persisted one this run.
   let feedDomains: string[] | null = null;
@@ -155,16 +174,18 @@ export async function listNewTodayDomains(sourceId: string): Promise<NewTodayRes
   if (feedDomains) {
     const domains = feedDomains.slice(0, DISPLAY_CAP);
     const enr = await enrichmentFor(domains);
-    const links = await feedLinks(sourceId); // direct listing URLs, if persisted
+    const links = await feedLinks(sourceId);   // direct listing URLs, if persisted
+    const prices = await feedPrices(sourceId); // the source's own asking price, if persisted
     const out: NewTodayDomain[] = domains.map((d) => {
       const e = enr.get(d);
+      const askPrice = prices.get(d) ?? null; // the listing's own asking price
       return {
         domain: d,
         quality_score: e?.q ?? null,
         category: e?.c ?? null,
         enriched: e?.c != null,
-        price: e?.price ?? null,
-        best_price_source: e?.ps ?? null,
+        price: askPrice ?? e?.price ?? null,
+        best_price_source: askPrice != null ? sourceId : (e?.ps ?? null),
         link: links.get(d) ?? null,
       };
     });
