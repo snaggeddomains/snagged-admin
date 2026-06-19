@@ -24,12 +24,36 @@ from typing import Any
 
 import requests
 
+import re
+
 from .. import config, state
 from ..usage_log import record_usage
 from ..publishers import sheets as sheets_pub
 from ..publishers import slack as slack_pub
 # Identical buy criteria + parsing helpers as the NamePros source.
-from .namepros_marketplace import shape_ok, _find_price, DOMAIN_RE, COMP_CONTEXT_RE
+from .namepros_marketplace import shape_ok, _find_price, DOMAIN_RE, COMP_CONTEXT_RE, slack_line
+
+# r/Domains is mostly appraisal / discussion ("what's this worth", "rate my
+# name"), not sales — so a post must actually look like a SALE before we mine it
+# for names, or the feed fills with domains that aren't for sale.
+SALE_SIGNAL_RE = re.compile(
+    r"\b(for ?sale|selling|sell|sale|\$|usd|bin|buy ?now|make ?offer|offers?|"
+    r"auction|asking|obo|priced?|reduced|firm|lease|take ?over)\b",
+    re.IGNORECASE)
+# Appraisal / discussion posts to exclude even if they trip a weak signal.
+APPRAISAL_RE = re.compile(
+    r"\b(apprais|what.{0,6}worth|how much.{0,6}worth|rate my|thoughts on|"
+    r"feedback|opinion|what do you think|is this|value of|evaluate)\b",
+    re.IGNORECASE)
+
+
+def _is_sale_post(p: dict) -> bool:
+    """A post worth mining: a sale signal present and not an appraisal/discussion."""
+    flair = (p.get("link_flair_text") or "")
+    hay = f"{flair}\n{p.get('title') or ''}\n{p.get('selftext') or ''}"
+    if APPRAISAL_RE.search(hay) and "$" not in hay and not re.search(r"\bfor ?sale\b", hay, re.I):
+        return False
+    return bool(SALE_SIGNAL_RE.search(hay))
 
 SOURCE_ID = "reddit_domains"
 SOURCE_LABEL = "Reddit r/Domains"
@@ -74,6 +98,8 @@ def extract_listings(data: dict) -> tuple[dict[str, int | None], dict[str, str]]
     links: dict[str, str] = {}
     for ch in posts:
         p = (ch or {}).get("data") or {}
+        if not _is_sale_post(p):
+            continue  # appraisal / discussion / not a sale — skip the whole post
         permalink = PERMALINK_BASE + (p.get("permalink") or "")
         text = f"{p.get('title') or ''}\n{p.get('selftext') or ''}"
         for dm in DOMAIN_RE.finditer(text):
@@ -145,7 +171,7 @@ def run() -> int:
         channel = os.environ.get(snap_cfg.get("slack_channel_env", ""), "") or os.environ.get("SLACK_CHANNEL_SNAP", "")
         if channel:
             top = sorted(priced.items(), key=lambda kv: kv[1])[:15] if priced else [(d, None) for d in domains[:15]]
-            lines = [f"• {d}" + (f" — ${p:,}" if p else "") for d, p in top]
+            lines = [slack_line(d, p, links.get(d)) for d, p in top]
             text = (f":mag: *r/Domains good deals* — {len(domains)} candidate(s) today "
                     f"({len(priced)} priced)\n" + "\n".join(lines))
             if sheet_url:

@@ -67,6 +67,10 @@ DENY_HOSTS = {
     "godaddy.com", "spaceship.com", "namecheap.com", "dynadot.com", "porkbun.com",
     "sedo.com", "afternic.com", "dan.com", "atom.com", "brandbucket.com", "squadhelp.com",
     "escrow.com", "namebio.com", "godaddy.net", "uniregistry.com", "epik.com",
+    "park.io", "sav.com", "bodis.com", "parkingcrew.com",
+    # Free email / contact providers (show up as a poster's contact, never a listing):
+    "gmail.com", "outlook.com", "hotmail.com", "yahoo.com", "icloud.com", "aol.com",
+    "proton.me", "protonmail.com", "gmx.com", "mail.com", "ymail.com",
 }
 # A thread-post drill must not borrow a price from a "comp" sentence
 # ("sold for", "comparable", "similar to", "like ebay.com").
@@ -79,7 +83,9 @@ SHORT_ALPHA_MAX = 3   # <= this many letters = short premium (LL/LLL), kept rega
 # nondescript 2.64) — but still far above made-up brandables (jobonly/hokul/
 # spectranex = 0.00). Tunable via NAMEPROS_MIN_ZIPF.
 NAMEPROS_MIN_ZIPF = float(os.environ.get("NAMEPROS_MIN_ZIPF") or 2.3)
-DOMAIN_RE = re.compile(r"\b([a-z0-9][a-z0-9-]{0,62}\.[a-z]{2,5})\b", re.IGNORECASE)
+# The leading (?<![a-z0-9-]) stops a sub-span match inside a longer hyphenated
+# host — e.g. it must NOT pull "spiritual.com" out of "anti-spiritual.com".
+DOMAIN_RE = re.compile(r"(?<![a-z0-9-])([a-z0-9][a-z0-9-]{0,62}\.[a-z]{2,5})\b", re.IGNORECASE)
 # A nearby asking/BIN price: "$777", "$12,500", "$1.2k", "USD 500", "BIN $99".
 PRICE_RE = re.compile(r"\$\s?([0-9][0-9,]*(?:\.\d+)?)\s?([km])?|\b([0-9][0-9,]{2,})\s?usd\b", re.IGNORECASE)
 # NamePros renders each listing's price in a `<ul class="info"><li>Bid|BIN|Price|
@@ -412,6 +418,12 @@ def _dump_price_markup(html: str, listings: dict[str, int | None]) -> None:
         print("      [info sample] " + re.sub(r"\s+", " ", sample)[:200])
 
 
+def slack_line(domain: str, price: int | None, url: str | None) -> str:
+    """A Slack mrkdwn bullet that links the domain to its actual listing post/page."""
+    label = f"<{url}|{domain}>" if url else domain
+    return f"• {label}" + (f" — ${price:,}" if price else "")
+
+
 def _sheet_rows(listings: dict[str, int | None], links: dict[str, str], today: str) -> list[dict[str, Any]]:
     return [
         {"domain": d, "price": (listings[d] if listings[d] is not None else ""),
@@ -491,7 +503,7 @@ def run() -> int:
         channel = os.environ.get(snap_cfg.get("slack_channel_env", ""), "") or os.environ.get("SLACK_CHANNEL_SNAP", "")
         if channel:
             top = sorted(priced.items(), key=lambda kv: kv[1])[:15] if priced else [(d, None) for d in domains[:15]]
-            lines = [f"• {d}" + (f" — ${p:,}" if p else "") for d, p in top]
+            lines = [slack_line(d, p, links.get(d)) for d, p in top]
             text = (f":mag: *NamePros good deals* — {len(domains)} candidate(s) today "
                     f"({len(priced)} priced)\n" + "\n".join(lines))
             if sheet_url:
