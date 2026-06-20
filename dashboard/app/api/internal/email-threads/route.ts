@@ -17,16 +17,22 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-function authorized(req: NextRequest): boolean {
+function authStatus(req: NextRequest): "ok" | "unconfigured" | "mismatch" {
   const secret = process.env.RESEARCH_INTERNAL_SECRET || "";
-  if (!secret) return false;
-  const got = req.headers.get("x-internal-secret") || "";
-  return got === secret;
+  if (!secret) return "unconfigured";
+  const got = (req.headers.get("x-internal-secret") || "").trim();
+  return got === secret.trim() ? "ok" : "mismatch";
 }
 
 export async function GET(req: NextRequest) {
-  if (!authorized(req)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = authStatus(req);
+  if (auth === "unconfigured") {
+    // The admin project has no RESEARCH_INTERNAL_SECRET at runtime (unset, or set
+    // but not yet redeployed). Distinct from a mismatch so it's obvious which side.
+    return NextResponse.json({ error: "Server has no RESEARCH_INTERNAL_SECRET configured (set it on snagged-admin and redeploy)." }, { status: 503 });
+  }
+  if (auth === "mismatch") {
+    return NextResponse.json({ error: "Secret mismatch — RESEARCH_INTERNAL_SECRET differs between the research and admin projects." }, { status: 401 });
   }
   if (!gmailConfigured()) {
     return NextResponse.json({ error: "Gmail not configured" }, { status: 503 });
