@@ -112,6 +112,20 @@ rebuild). Enhancements this session:
   (`pitchSource === undefined`; prior marker was `inboundEngaged`) so old rows rebuild instead
   of serving the old Gmail-heuristic classification.
 
+# Internal Gmail endpoint for research chat (2026-06-20)
+
+`app/api/internal/email-threads/route.ts` lets the **research app's** Domain Owner
+chat ingest email threads (so the user stops copy-pasting). Reuses `lib/gmail.ts`
+(`dealMailboxes` / `searchMessages` / `getMessage` / `getThread`), read-only, over
+the deal mailboxes only (mailbox param constrained to `dealMailboxes()`). Auth =
+shared secret header `x-internal-secret` == `RESEARCH_INTERNAL_SECRET` (NOT the
+session — it's server-to-server). `GET ?q=<query>` → thread candidates; `GET
+?action=thread&mailbox=&thread_id=` → full thread text. `middleware.ts` matcher
+excludes `api/internal` (machine-to-machine, no cookie). **Env:** set
+`RESEARCH_INTERNAL_SECRET` here AND in the research project (same value). Research
+side: `domain-owner-research` `lib/email/threads.js` + `api/chat-email.js` (see that
+repo's CLAUDE.md "Chat email ingestion").
+
 # Working agreements
 
 ## Probes and one-shot scripts: run locally by default
