@@ -2,8 +2,8 @@
   "capped": false,
   "count": 1,
   "domains": [
-    "clams.org"
+    "zigzag.org"
   ],
-  "generated_at": "2026-06-19T15:11:42.112308+00:00",
+  "generated_at": "2026-06-20T15:08:32.725247+00:00",
   "source": "namejet_email_digest"
 }
