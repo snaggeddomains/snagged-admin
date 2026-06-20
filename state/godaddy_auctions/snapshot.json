@@ -1,18 +1,1 @@
-[
-  {
-    "bid_count": 64,
-    "domain": "pedal.com",
-    "end_time_utc": "2026-06-19T16:56:00+00:00",
-    "link": "https://www.godaddy.com/domain-auctions/pedal-com-706551287?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 69000.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "ukrainians.co",
-    "end_time_utc": "2026-06-19T18:38:00+00:00",
-    "link": "https://www.godaddy.com/domain-auctions/ukrainians-co-707197027?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1.0
-  }
-]
+[]

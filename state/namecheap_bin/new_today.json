@@ -1,9 +1,10 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 2,
   "domains": [
-    "african.ai"
+    "badger.co",
+    "sentry.co"
   ],
-  "generated_at": "2026-06-19T09:02:49.635337+00:00",
+  "generated_at": "2026-06-20T09:03:46.665792+00:00",
   "source": "namecheap_bin"
 }
