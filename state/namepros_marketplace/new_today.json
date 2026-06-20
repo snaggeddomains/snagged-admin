@@ -1,6 +1,6 @@
 {
   "capped": false,
-  "count": 37,
+  "count": 38,
   "domains": [
     "1882.org",
     "63482.com",
@@ -19,7 +19,6 @@
     "hyped.org",
     "inhalers.com",
     "kar.net",
-    "kart.com",
     "lll.xyz",
     "low.vc",
     "maths.vc",
@@ -27,6 +26,7 @@
     "nondescript.ai",
     "protocol.com",
     "put.vc",
+    "quinta.net",
     "reliability.vc",
     "renders.co",
     "sabotage.co",
@@ -38,8 +38,9 @@
     "sublimation.io",
     "syringes.com",
     "technology.xyz",
-    "threshold.ai"
+    "threshold.ai",
+    "unusual.me"
   ],
-  "generated_at": "2026-06-20T17:06:20.568412+00:00",
+  "generated_at": "2026-06-20T17:15:24.821796+00:00",
   "source": "namepros_marketplace"
 }
