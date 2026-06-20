@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-06-20T17:00:39.341920+00:00",
+  "generated_at": "2026-06-20T23:01:21.990589+00:00",
   "label": "Sedo",
-  "new_count": 0,
-  "slack_posted": false,
+  "new_count": 6,
+  "slack_posted": true,
   "source": "sedo_net_new",
   "status": "ok",
-  "total_filtered": 1
+  "total_filtered": 6
 }

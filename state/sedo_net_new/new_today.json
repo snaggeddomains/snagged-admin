@@ -1,7 +1,14 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-06-20T17:00:39.342105+00:00",
+  "count": 6,
+  "domains": [
+    "ricans.com",
+    "parishes.com",
+    "mindanao.com",
+    "frigates.com",
+    "embraces.com",
+    "dumfries.com"
+  ],
+  "generated_at": "2026-06-20T23:01:21.990765+00:00",
   "source": "sedo_net_new"
 }

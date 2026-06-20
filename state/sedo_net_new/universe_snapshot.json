@@ -1,18 +1,470 @@
 [
   {
-    "domain": "posts.com",
-    "price": 1500000.0
+    "domain": "bechers.com",
+    "price": null
   },
   {
-    "domain": "lowered.net",
-    "price": 3595.0
+    "domain": "usablog.com",
+    "price": 1288.0
   },
   {
-    "domain": "bounded.net",
-    "price": 4495.0
+    "domain": "nicolee.com",
+    "price": null
   },
   {
-    "domain": "filser.co",
-    "price": 1988.0
+    "domain": "servane.com",
+    "price": null
+  },
+  {
+    "domain": "marylin.com",
+    "price": null
+  },
+  {
+    "domain": "melland.com",
+    "price": null
+  },
+  {
+    "domain": "waregem.com",
+    "price": null
+  },
+  {
+    "domain": "patsies.com",
+    "price": null
+  },
+  {
+    "domain": "rainham.com",
+    "price": null
+  },
+  {
+    "domain": "gravies.com",
+    "price": null
+  },
+  {
+    "domain": "earlham.com",
+    "price": null
+  },
+  {
+    "domain": "hornell.com",
+    "price": null
+  },
+  {
+    "domain": "josiahs.com",
+    "price": null
+  },
+  {
+    "domain": "beetham.com",
+    "price": null
+  },
+  {
+    "domain": "unities.com",
+    "price": null
+  },
+  {
+    "domain": "wathens.com",
+    "price": null
+  },
+  {
+    "domain": "mickley.com",
+    "price": null
+  },
+  {
+    "domain": "joshuas.com",
+    "price": null
+  },
+  {
+    "domain": "helimax.com",
+    "price": null
+  },
+  {
+    "domain": "saloons.com",
+    "price": null
+  },
+  {
+    "domain": "scarles.com",
+    "price": null
+  },
+  {
+    "domain": "tramore.com",
+    "price": null
+  },
+  {
+    "domain": "gatsbys.com",
+    "price": null
+  },
+  {
+    "domain": "crispian.com",
+    "price": null
+  },
+  {
+    "domain": "deanie.com",
+    "price": null
+  },
+  {
+    "domain": "borger.com",
+    "price": null
+  },
+  {
+    "domain": "chelseas.com",
+    "price": null
+  },
+  {
+    "domain": "dumfries.com",
+    "price": null
+  },
+  {
+    "domain": "espect.com",
+    "price": null
+  },
+  {
+    "domain": "callands.com",
+    "price": null
+  },
+  {
+    "domain": "amsberry.com",
+    "price": null
+  },
+  {
+    "domain": "naiche.com",
+    "price": null
+  },
+  {
+    "domain": "senada.com",
+    "price": null
+  },
+  {
+    "domain": "persse.com",
+    "price": null
+  },
+  {
+    "domain": "thornham.com",
+    "price": null
+  },
+  {
+    "domain": "eurell.com",
+    "price": null
+  },
+  {
+    "domain": "brauning.com",
+    "price": null
+  },
+  {
+    "domain": "juicys.com",
+    "price": null
+  },
+  {
+    "domain": "jamaicas.com",
+    "price": null
+  },
+  {
+    "domain": "leiste.com",
+    "price": null
+  },
+  {
+    "domain": "frigates.com",
+    "price": null
+  },
+  {
+    "domain": "grethe.com",
+    "price": null
+  },
+  {
+    "domain": "parishes.com",
+    "price": null
+  },
+  {
+    "domain": "framus.com",
+    "price": null
+  },
+  {
+    "domain": "semear.com",
+    "price": null
+  },
+  {
+    "domain": "laurah.com",
+    "price": null
+  },
+  {
+    "domain": "ricans.com",
+    "price": null
+  },
+  {
+    "domain": "lenape.com",
+    "price": null
+  },
+  {
+    "domain": "meppen.com",
+    "price": null
+  },
+  {
+    "domain": "uscode.com",
+    "price": null
+  },
+  {
+    "domain": "bailie.com",
+    "price": 203320.0
+  },
+  {
+    "domain": "hitori.com",
+    "price": null
+  },
+  {
+    "domain": "midhurst.com",
+    "price": null
+  },
+  {
+    "domain": "quilters.com",
+    "price": null
+  },
+  {
+    "domain": "ritchies.com",
+    "price": null
+  },
+  {
+    "domain": "crispers.com",
+    "price": null
+  },
+  {
+    "domain": "bonanzas.com",
+    "price": null
+  },
+  {
+    "domain": "debacles.com",
+    "price": null
+  },
+  {
+    "domain": "jaxons.com",
+    "price": null
+  },
+  {
+    "domain": "grasmere.com",
+    "price": null
+  },
+  {
+    "domain": "bolbec.com",
+    "price": null
+  },
+  {
+    "domain": "codlea.com",
+    "price": null
+  },
+  {
+    "domain": "leahurst.com",
+    "price": null
+  },
+  {
+    "domain": "ruston.com",
+    "price": null
+  },
+  {
+    "domain": "raptures.com",
+    "price": null
+  },
+  {
+    "domain": "strnad.com",
+    "price": null
+  },
+  {
+    "domain": "petaling.com",
+    "price": null
+  },
+  {
+    "domain": "embraces.com",
+    "price": null
+  },
+  {
+    "domain": "ronans.com",
+    "price": null
+  },
+  {
+    "domain": "mindanao.com",
+    "price": null
+  },
+  {
+    "domain": "reinbeck.com",
+    "price": null
+  },
+  {
+    "domain": "oxenhope.com",
+    "price": null
+  },
+  {
+    "domain": "hepburns.com",
+    "price": null
+  },
+  {
+    "domain": "ladywood.com",
+    "price": null
+  },
+  {
+    "domain": "pedaling.com",
+    "price": null
+  },
+  {
+    "domain": "stratham.com",
+    "price": null
+  },
+  {
+    "domain": "toddling.com",
+    "price": null
+  },
+  {
+    "domain": "sandbach.com",
+    "price": null
+  },
+  {
+    "domain": "whitpain.com",
+    "price": null
+  },
+  {
+    "domain": "earlwood.com",
+    "price": null
+  },
+  {
+    "domain": "brockham.com",
+    "price": null
+  },
+  {
+    "domain": "dioceses.com",
+    "price": null
+  },
+  {
+    "domain": "matemo.com",
+    "price": null
+  },
+  {
+    "domain": "fasham.com",
+    "price": null
+  },
+  {
+    "domain": "limmen.com",
+    "price": null
+  },
+  {
+    "domain": "maumee.com",
+    "price": null
+  },
+  {
+    "domain": "baylea.com",
+    "price": null
+  },
+  {
+    "domain": "charlean.com",
+    "price": null
+  },
+  {
+    "domain": "comicloud.com",
+    "price": 3995.0
+  },
+  {
+    "domain": "braselton.com",
+    "price": null
+  },
+  {
+    "domain": "ostbayern.com",
+    "price": null
+  },
+  {
+    "domain": "sheerness.com",
+    "price": null
+  },
+  {
+    "domain": "nanotubes.com",
+    "price": null
+  },
+  {
+    "domain": "lumberton.com",
+    "price": null
+  },
+  {
+    "domain": "needville.com",
+    "price": null
+  },
+  {
+    "domain": "troutdale.com",
+    "price": null
+  },
+  {
+    "domain": "squeaking.com",
+    "price": null
+  },
+  {
+    "domain": "roughneck.com",
+    "price": null
+  },
+  {
+    "domain": "fifes.com",
+    "price": null
+  },
+  {
+    "domain": "lewistown.com",
+    "price": null
+  },
+  {
+    "domain": "daleville.com",
+    "price": null
+  },
+  {
+    "domain": "mackworth.com",
+    "price": null
+  },
+  {
+    "domain": "marchmont.com",
+    "price": null
+  },
+  {
+    "domain": "rockyford.com",
+    "price": null
+  },
+  {
+    "domain": "coralwood.com",
+    "price": 3888.0
+  },
+  {
+    "domain": "painswick.com",
+    "price": null
+  },
+  {
+    "domain": "ruleville.com",
+    "price": null
+  },
+  {
+    "domain": "kingstown.com",
+    "price": null
+  },
+  {
+    "domain": "riverdell.com",
+    "price": null
+  },
+  {
+    "domain": "deserters.com",
+    "price": 4995.0
+  },
+  {
+    "domain": "charterers.com",
+    "price": null
+  },
+  {
+    "domain": "brownville.com",
+    "price": null
+  },
+  {
+    "domain": "sherbourne.com",
+    "price": null
+  },
+  {
+    "domain": "rolesville.com",
+    "price": null
+  },
+  {
+    "domain": "saskatoons.com",
+    "price": null
+  },
+  {
+    "domain": "hayesville.com",
+    "price": null
+  },
+  {
+    "domain": "eastpointe.com",
+    "price": null
   }
 ]
