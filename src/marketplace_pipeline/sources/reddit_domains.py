@@ -175,7 +175,7 @@ def run() -> int:
         channel = os.environ.get(snap_cfg.get("slack_channel_env", ""), "") or os.environ.get("SLACK_CHANNEL_SNAP", "")
         if channel:
             top = sorted(priced.items(), key=lambda kv: kv[1])[:15] if priced else [(d, None) for d in domains[:15]]
-            lines = [slack_line(d, p, links.get(d)) for d, p in top]
+            lines = [slack_line(d, p, links.get(d) or f"https://www.reddit.com/r/Domains/search/?q={d}&restrict_sr=1") for d, p in top]
             text = (f":mag: *r/Domains good deals* — {len(domains)} candidate(s) today "
                     f"({len(priced)} priced)\n" + "\n".join(lines))
             if sheet_url:
