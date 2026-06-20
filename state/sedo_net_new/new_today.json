@@ -1,9 +1,7 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "posts.com"
-  ],
-  "generated_at": "2026-06-20T10:01:01.506027+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-06-20T17:00:39.342105+00:00",
   "source": "sedo_net_new"
 }
