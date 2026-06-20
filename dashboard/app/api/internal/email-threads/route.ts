@@ -32,7 +32,14 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Server has no RESEARCH_INTERNAL_SECRET configured (set it on snagged-admin and redeploy)." }, { status: 503 });
   }
   if (auth === "mismatch") {
-    return NextResponse.json({ error: "Secret mismatch — RESEARCH_INTERNAL_SECRET differs between the research and admin projects." }, { status: 401 });
+    // Report lengths (NOT the secrets) so a mismatch is debuggable: equal lengths
+    // but mismatch => genuinely different values; unequal => a truncated/partial paste.
+    const serverLen = (process.env.RESEARCH_INTERNAL_SECRET || "").trim().length;
+    const recvLen = (req.headers.get("x-internal-secret") || "").trim().length;
+    return NextResponse.json(
+      { error: `Secret mismatch (admin has ${serverLen} chars, research sent ${recvLen}) — set RESEARCH_INTERNAL_SECRET to the same value in both projects and redeploy both.` },
+      { status: 401 },
+    );
   }
   if (!gmailConfigured()) {
     return NextResponse.json({ error: "Gmail not configured" }, { status: 503 });
