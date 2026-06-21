@@ -44,13 +44,23 @@ SNAPSHOT_FILE = "snapshot.json"
 
 
 def _market_quality(row: dict[str, Any], domain: str) -> bool:
-    """A name with proven auction demand/value, kept even when it misses the word
-    filter. Still requires an allowed TLD + a clean alpha (or short-numeric) SLD so
-    junk/hyphen/long-spam strings don't ride in on a stray bid."""
+    """A PREMIUM-shape name with proven auction demand/value, kept even when it
+    misses the SNAP word filter (e.g. sniffle.com — a real single word, but zipf
+    2.21 < 2.8). Premium shape = a single real word (any length), a short brandable
+    (<=6 letters), or a short number (<=4 digits) — NOT multi-word/long compounds
+    like worldweathernetwork.org or marketingresults.com (those score zipf 0 and
+    aren't short, so they're rejected even with bids). Requires an allowed TLD and
+    no hyphen, plus a demand/value signal."""
     sld, tld = flt.extract_sld_tld(domain)
     if not sld or not flt.is_allowed_tld(tld) or "-" in sld:
         return False
-    if not (sld.isalpha() or (sld.isdigit() and len(sld) <= 6)):
+    if sld.isdigit():
+        premium_shape = len(sld) <= 4
+    elif sld.isalpha():
+        premium_shape = len(sld) <= 6 or flt.freq(sld) >= 1.5  # short brandable OR a single real word
+    else:
+        premium_shape = False
+    if not premium_shape:
         return False
     bids = int(row.get("numberOfBids") or 0)
     price = _parse_price(row.get("price")) or 0

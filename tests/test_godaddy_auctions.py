@@ -107,6 +107,17 @@ def test_parse_auctions_market_override_keeps_shape_gate(now):
     assert out == []
 
 
+def test_parse_auctions_market_override_rejects_multiword(now):
+    # Long multi-word compounds (zipf 0, not short) don't ride in on bids.
+    for d in ("worldweathernetwork.org", "marketingresults.com", "friscoobgyn.com"):
+        assert src.parse_auctions([_row(domain=d, bids=99, price="$9,000")], now=now) == [], d
+
+
+def test_parse_auctions_market_override_keeps_short_brandable(now):
+    out = src.parse_auctions([_row(domain="bullz.com", bids=20, price="$2,000")], now=now)
+    assert [r["domain"] for r in out] == ["bullz.com"]
+
+
 def test_parse_auctions_skips_adult(now):
     rows = [{**_row(), "isAdult": True}]
     assert src.parse_auctions(rows, now=now) == []
