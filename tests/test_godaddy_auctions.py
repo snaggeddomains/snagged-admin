@@ -82,6 +82,31 @@ def test_parse_auctions_accepts_clean_row(now):
     assert out[0]["platform"] == "GoDaddy"
 
 
+def test_parse_auctions_keeps_low_freq_word_with_market_signal(now):
+    # 'sniffle' is below the SNAP word cutoff (zipf 2.21) but 52 bids => market override.
+    out = src.parse_auctions([_row(domain="sniffle.com", bids=52, price="$6,100")], now=now)
+    assert [r["domain"] for r in out] == ["sniffle.com"]
+
+
+def test_parse_auctions_market_override_on_valuation(now):
+    row = _row(domain="sniffle.com", bids=0, price="$5")
+    row["valuation"] = "$11,033"
+    out = src.parse_auctions([row], now=now)
+    assert [r["domain"] for r in out] == ["sniffle.com"]
+
+
+def test_parse_auctions_market_override_needs_signal(now):
+    # Same low-freq word, no demand/value => still filtered out.
+    out = src.parse_auctions([_row(domain="sniffle.com", bids=0, price="$5")], now=now)
+    assert out == []
+
+
+def test_parse_auctions_market_override_keeps_shape_gate(now):
+    # A hyphenated name can't ride in on bids.
+    out = src.parse_auctions([_row(domain="anti-spiritual.com", bids=99, price="$9,000")], now=now)
+    assert out == []
+
+
 def test_parse_auctions_skips_adult(now):
     rows = [{**_row(), "isAdult": True}]
     assert src.parse_auctions(rows, now=now) == []

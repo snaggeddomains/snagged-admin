@@ -31,8 +31,31 @@ BASE_URL = "https://inventory.auctions.godaddy.com/"
 DUMP_NAMES = ("auctions_ending_today.json.zip", "auctions_ending_tomorrow.json.zip")
 HORIZON_HOURS = 48
 
+# Market-signal override: an auction with real demand/value is a good lead even if
+# the SLD's dictionary frequency is below the SNAP word cutoff (e.g. sniffle.com —
+# 52 bids, $6,100, $11k GoValue, but "sniffle" is zipf 2.21 < 2.8). Any one of these
+# (on a sane alpha/short shape + allowed TLD) keeps it.
+MIN_BIDS = int(os.environ.get("GODADDY_MIN_BIDS") or 5)
+MIN_PRICE = float(os.environ.get("GODADDY_MIN_PRICE") or 1000)
+MIN_VALUATION = float(os.environ.get("GODADDY_MIN_VALUATION") or 10000)
+
 SHEET_URL_TEMPLATE = "https://docs.google.com/spreadsheets/d/{sheet_id}/edit"
 SNAPSHOT_FILE = "snapshot.json"
+
+
+def _market_quality(row: dict[str, Any], domain: str) -> bool:
+    """A name with proven auction demand/value, kept even when it misses the word
+    filter. Still requires an allowed TLD + a clean alpha (or short-numeric) SLD so
+    junk/hyphen/long-spam strings don't ride in on a stray bid."""
+    sld, tld = flt.extract_sld_tld(domain)
+    if not sld or not flt.is_allowed_tld(tld) or "-" in sld:
+        return False
+    if not (sld.isalpha() or (sld.isdigit() and len(sld) <= 6)):
+        return False
+    bids = int(row.get("numberOfBids") or 0)
+    price = _parse_price(row.get("price")) or 0
+    valuation = _parse_price(row.get("valuation")) or 0
+    return bids >= MIN_BIDS or price >= MIN_PRICE or valuation >= MIN_VALUATION
 
 
 def _parse_time(value: str | None) -> datetime | None:
@@ -90,7 +113,9 @@ def parse_auctions(
         if row.get("isAdult"):
             continue
         domain = (row.get("domainName") or "").strip().lower()
-        if not domain or not flt.allow_domain(domain):
+        # Keep dictionary-word names (SNAP filter) OR names with real auction demand
+        # / value (so a contested, valuable name isn't vetoed by word frequency).
+        if not domain or not (flt.allow_domain(domain) or _market_quality(row, domain)):
             continue
         # Today + tomorrow zips may overlap; dedupe within this run.
         if domain in seen_domains:
