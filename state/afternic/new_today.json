@@ -1,11 +1,10 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 2,
   "domains": [
-    "titties.co",
-    "artistically.co",
-    "outcry.co"
+    "dickinson.ai",
+    "capabilities.io"
   ],
-  "generated_at": "2026-06-20T08:11:07.959551+00:00",
+  "generated_at": "2026-06-21T08:14:11.768392+00:00",
   "source": "afternic"
 }
