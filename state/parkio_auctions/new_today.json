@@ -1,9 +1,7 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "promptly.org"
-  ],
-  "generated_at": "2026-06-20T09:33:42.956917+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-06-21T09:33:51.755005+00:00",
   "source": "parkio_auctions"
 }

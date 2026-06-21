@@ -1,23 +1,19 @@
 {
   "capped": false,
-  "count": 15,
+  "count": 11,
   "domains": [
-    "dhabi.ai",
-    "wears.io",
-    "formerly.io",
-    "manifests.org",
-    "cough.io",
-    "deir.ai",
-    "insoluble.ai",
-    "cuter.org",
-    "opaque.org",
-    "perpetuity.ai",
-    "ores.ai",
-    "parrots.ai",
-    "afoot.ai",
-    "explored.ai",
-    "swept.org"
+    "counts.org",
+    "amplification.org",
+    "shoddy.org",
+    "according.io",
+    "problematic.io",
+    "orissa.ai",
+    "linings.org",
+    "spits.org",
+    "colored.co",
+    "widescreen.ai",
+    "secretariat.ai"
   ],
-  "generated_at": "2026-06-20T09:34:01.400871+00:00",
+  "generated_at": "2026-06-21T09:34:15.965869+00:00",
   "source": "namecheap_auctions"
 }

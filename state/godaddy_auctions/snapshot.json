@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "bid_count": 0,
+    "domain": "fleetwood.co",
+    "end_time_utc": "2026-06-21T17:27:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/fleetwood-co-707581655?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 1.0
+  }
+]

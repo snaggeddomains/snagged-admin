@@ -1,7 +1,18 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-06-20T09:21:32.096606+00:00",
+  "count": 10,
+  "domains": [
+    "disc.ai",
+    "swollen.com",
+    "retrieve.ai",
+    "bidder.ai",
+    "thinker.ai",
+    "organiser.ai",
+    "femur.ai",
+    "ims.ai",
+    "carolinas.co",
+    "fatherland.org"
+  ],
+  "generated_at": "2026-06-21T09:20:47.074960+00:00",
   "source": "atom_daily"
 }
