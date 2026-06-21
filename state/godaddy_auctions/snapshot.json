@@ -1,35 +1,11 @@
 [
   {
-    "bid_count": 11,
-    "domain": "pjvf.com",
-    "end_time_utc": "2026-06-21T16:31:00+00:00",
-    "link": "https://www.godaddy.com/domain-auctions/pjvf-com-707502760?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 106.0
-  },
-  {
-    "bid_count": 16,
-    "domain": "rhkw.com",
-    "end_time_utc": "2026-06-21T16:55:00+00:00",
-    "link": "https://www.godaddy.com/domain-auctions/rhkw-com-706915485?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 106.0
-  },
-  {
     "bid_count": 61,
     "domain": "bullz.com",
     "end_time_utc": "2026-06-21T17:12:00+00:00",
     "link": "https://www.godaddy.com/domain-auctions/bullz-com-707523130?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
     "price": 1825.0
-  },
-  {
-    "bid_count": 7,
-    "domain": "zbato.org",
-    "end_time_utc": "2026-06-21T17:26:00+00:00",
-    "link": "https://www.godaddy.com/domain-auctions/zbato-org-706960199?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 105.0
   },
   {
     "bid_count": 0,
@@ -56,22 +32,6 @@
     "price": 5049.0
   },
   {
-    "bid_count": 7,
-    "domain": "eeyc.com",
-    "end_time_utc": "2026-06-21T18:35:00+00:00",
-    "link": "https://www.godaddy.com/domain-auctions/eeyc-com-707046706?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 237.0
-  },
-  {
-    "bid_count": 7,
-    "domain": "ecbcs.org",
-    "end_time_utc": "2026-06-21T18:35:00+00:00",
-    "link": "https://www.godaddy.com/domain-auctions/ecbcs-org-707047608?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 115.0
-  },
-  {
     "bid_count": 15,
     "domain": "rgrill.com",
     "end_time_utc": "2026-06-21T18:36:00+00:00",
@@ -86,21 +46,5 @@
     "link": "https://www.godaddy.com/domain-auctions/nametag-org-707308808?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
     "price": 1025.0
-  },
-  {
-    "bid_count": 37,
-    "domain": "wuex.com",
-    "end_time_utc": "2026-06-21T20:47:00+00:00",
-    "link": "https://www.godaddy.com/domain-auctions/wuex-com-707507100?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1100.0
-  },
-  {
-    "bid_count": 6,
-    "domain": "cetpa.org",
-    "end_time_utc": "2026-06-21T21:18:00+00:00",
-    "link": "https://www.godaddy.com/domain-auctions/cetpa-org-707318990?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 35.0
   }
 ]
