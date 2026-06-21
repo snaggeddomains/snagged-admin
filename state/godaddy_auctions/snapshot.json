@@ -1,10 +1,394 @@
 [
   {
+    "bid_count": 6,
+    "domain": "friscoobgyn.com",
+    "end_time_utc": "2026-06-21T16:00:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/friscoobgyn-com-707535685?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 382.0
+  },
+  {
+    "bid_count": 12,
+    "domain": "restaurantdivino.com",
+    "end_time_utc": "2026-06-21T16:16:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/restaurantdivino-com-706283597?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 405.0
+  },
+  {
+    "bid_count": 11,
+    "domain": "pjvf.com",
+    "end_time_utc": "2026-06-21T16:31:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/pjvf-com-707502760?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 106.0
+  },
+  {
+    "bid_count": 12,
+    "domain": "86055.com",
+    "end_time_utc": "2026-06-21T16:48:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/86055-com-707489495?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 56.0
+  },
+  {
+    "bid_count": 16,
+    "domain": "rhkw.com",
+    "end_time_utc": "2026-06-21T16:55:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/rhkw-com-706915485?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 106.0
+  },
+  {
+    "bid_count": 14,
+    "domain": "marketingresults.com",
+    "end_time_utc": "2026-06-21T16:59:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/marketingresults-com-707540186?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 510.0
+  },
+  {
+    "bid_count": 61,
+    "domain": "bullz.com",
+    "end_time_utc": "2026-06-21T17:12:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/bullz-com-707523130?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 1825.0
+  },
+  {
+    "bid_count": 7,
+    "domain": "emilyhenderson.com",
+    "end_time_utc": "2026-06-21T17:14:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/emilyhenderson-com-707533317?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 55.0
+  },
+  {
+    "bid_count": 5,
+    "domain": "worldweathernetwork.org",
+    "end_time_utc": "2026-06-21T17:23:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/worldweathernetwork-org-707312600?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 85.0
+  },
+  {
+    "bid_count": 11,
+    "domain": "missuniversespain.net",
+    "end_time_utc": "2026-06-21T17:24:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/missuniversespain-net-706921686?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 155.0
+  },
+  {
+    "bid_count": 7,
+    "domain": "zbato.org",
+    "end_time_utc": "2026-06-21T17:26:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/zbato-org-706960199?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 105.0
+  },
+  {
     "bid_count": 0,
     "domain": "fleetwood.co",
     "end_time_utc": "2026-06-21T17:27:00+00:00",
     "link": "https://www.godaddy.com/domain-auctions/fleetwood-co-707581655?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
     "price": 1.0
+  },
+  {
+    "bid_count": 26,
+    "domain": "jesustees.com",
+    "end_time_utc": "2026-06-21T17:30:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/jesustees-com-707525082?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 360.0
+  },
+  {
+    "bid_count": 7,
+    "domain": "nuitmagazine.com",
+    "end_time_utc": "2026-06-21T17:35:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/nuitmagazine-com-706904007?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 227.0
+  },
+  {
+    "bid_count": 7,
+    "domain": "keyalpha.com",
+    "end_time_utc": "2026-06-21T17:38:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/keyalpha-com-707531956?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 26.0
+  },
+  {
+    "bid_count": 5,
+    "domain": "organichaircare.com",
+    "end_time_utc": "2026-06-21T17:40:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/organichaircare-com-707509282?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 54.0
+  },
+  {
+    "bid_count": 7,
+    "domain": "keepportlandweird.com",
+    "end_time_utc": "2026-06-21T17:46:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/keepportlandweird-com-706905258?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 265.0
+  },
+  {
+    "bid_count": 16,
+    "domain": "nextserve.com",
+    "end_time_utc": "2026-06-21T17:47:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/nextserve-com-706568783?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 124.0
+  },
+  {
+    "bid_count": 6,
+    "domain": "greatpatriots.com",
+    "end_time_utc": "2026-06-21T17:55:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/greatpatriots-com-707522881?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 21.0
+  },
+  {
+    "bid_count": 52,
+    "domain": "sniffle.com",
+    "end_time_utc": "2026-06-21T17:57:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/sniffle-com-707540379?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 6100.0
+  },
+  {
+    "bid_count": 34,
+    "domain": "plasticlogic.com",
+    "end_time_utc": "2026-06-21T18:31:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/plasticlogic-com-706835592?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 425.0
+  },
+  {
+    "bid_count": 38,
+    "domain": "mithra.com",
+    "end_time_utc": "2026-06-21T18:33:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/mithra-com-706295287?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 5049.0
+  },
+  {
+    "bid_count": 7,
+    "domain": "eeyc.com",
+    "end_time_utc": "2026-06-21T18:35:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/eeyc-com-707046706?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 237.0
+  },
+  {
+    "bid_count": 7,
+    "domain": "ecbcs.org",
+    "end_time_utc": "2026-06-21T18:35:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/ecbcs-org-707047608?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 115.0
+  },
+  {
+    "bid_count": 15,
+    "domain": "rgrill.com",
+    "end_time_utc": "2026-06-21T18:36:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/rgrill-com-707488086?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 1525.0
+  },
+  {
+    "bid_count": 5,
+    "domain": "bitcoincasino.net",
+    "end_time_utc": "2026-06-21T18:45:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/bitcoincasino-net-706968819?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 30.0
+  },
+  {
+    "bid_count": 7,
+    "domain": "aibeats.com",
+    "end_time_utc": "2026-06-21T18:53:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/aibeats-com-707538064?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 199.0
+  },
+  {
+    "bid_count": 7,
+    "domain": "copperclean.com",
+    "end_time_utc": "2026-06-21T18:53:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/copperclean-com-707532730?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 565.0
+  },
+  {
+    "bid_count": 9,
+    "domain": "agentframe.com",
+    "end_time_utc": "2026-06-21T18:57:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/agentframe-com-707499269?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 52.0
+  },
+  {
+    "bid_count": 40,
+    "domain": "coffeeme.com",
+    "end_time_utc": "2026-06-21T19:02:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/coffeeme-com-707521193?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 405.0
+  },
+  {
+    "bid_count": 18,
+    "domain": "thinkfashion.com",
+    "end_time_utc": "2026-06-21T19:07:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/thinkfashion-com-707494816?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 214.0
+  },
+  {
+    "bid_count": 20,
+    "domain": "nametag.org",
+    "end_time_utc": "2026-06-21T19:16:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/nametag-org-707308808?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 1025.0
+  },
+  {
+    "bid_count": 5,
+    "domain": "locksbrasserie.com",
+    "end_time_utc": "2026-06-21T19:35:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/locksbrasserie-com-707521866?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 56.0
+  },
+  {
+    "bid_count": 5,
+    "domain": "uniquecabinets.com",
+    "end_time_utc": "2026-06-21T19:43:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/uniquecabinets-com-707538056?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 20.0
+  },
+  {
+    "bid_count": 5,
+    "domain": "simpleselling.com",
+    "end_time_utc": "2026-06-21T20:03:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/simpleselling-com-707500284?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 21.0
+  },
+  {
+    "bid_count": 7,
+    "domain": "ghostalleyespresso.com",
+    "end_time_utc": "2026-06-21T20:15:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/ghostalleyespresso-com-706835790?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 898.0
+  },
+  {
+    "bid_count": 5,
+    "domain": "nscpconferences.org",
+    "end_time_utc": "2026-06-21T20:27:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/nscpconferences-org-706914802?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 65.0
+  },
+  {
+    "bid_count": 5,
+    "domain": "thefrikitiki.com",
+    "end_time_utc": "2026-06-21T20:32:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/thefrikitiki-com-707516110?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 260.0
+  },
+  {
+    "bid_count": 37,
+    "domain": "wuex.com",
+    "end_time_utc": "2026-06-21T20:47:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/wuex-com-707507100?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 1100.0
+  },
+  {
+    "bid_count": 20,
+    "domain": "srilankaguardian.org",
+    "end_time_utc": "2026-06-21T20:48:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/srilankaguardian-org-706276400?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 348.0
+  },
+  {
+    "bid_count": 7,
+    "domain": "74657.com",
+    "end_time_utc": "2026-06-21T20:48:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/74657-com-707521375?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 31.0
+  },
+  {
+    "bid_count": 8,
+    "domain": "pricepoints.com",
+    "end_time_utc": "2026-06-21T20:51:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/pricepoints-com-706276354?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 461.0
+  },
+  {
+    "bid_count": 7,
+    "domain": "constructiongrammar.org",
+    "end_time_utc": "2026-06-21T21:00:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/constructiongrammar-org-706907934?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 355.0
+  },
+  {
+    "bid_count": 5,
+    "domain": "lizswhereyatdiner.com",
+    "end_time_utc": "2026-06-21T21:12:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/lizswhereyatdiner-com-707522597?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 260.0
+  },
+  {
+    "bid_count": 7,
+    "domain": "tarapacaenelmundo.com",
+    "end_time_utc": "2026-06-21T21:17:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/tarapacaenelmundo-com-706830502?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 127.0
+  },
+  {
+    "bid_count": 5,
+    "domain": "sixcents.com",
+    "end_time_utc": "2026-06-21T21:18:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/sixcents-com-706550124?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 16.0
+  },
+  {
+    "bid_count": 6,
+    "domain": "cetpa.org",
+    "end_time_utc": "2026-06-21T21:18:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/cetpa-org-707318990?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 35.0
+  },
+  {
+    "bid_count": 7,
+    "domain": "tomjenkinsbbq.net",
+    "end_time_utc": "2026-06-21T21:24:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/tomjenkinsbbq-net-707581659?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 260.0
+  },
+  {
+    "bid_count": 5,
+    "domain": "pmsuryaghar.org",
+    "end_time_utc": "2026-06-21T21:25:00+00:00",
+    "link": "https://www.godaddy.com/domain-auctions/pmsuryaghar-org-707308818?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 93.0
   }
 ]
