@@ -450,6 +450,28 @@ def slack_line(domain: str, price: int | None, url: str | None) -> str:
     return f"• {label}" + (f" — ${price:,}" if price else "")
 
 
+SEEN_FILE = "seen.json"      # cumulative set of domains ever surfaced (net-new gating)
+SEEN_CAP = 50_000            # keep the committed state file bounded
+
+
+def load_seen() -> set[str]:
+    data = state.read_json(SOURCE_ID, SEEN_FILE, default={}) or {}
+    return {str(d).strip().lower() for d in (data.get("domains") or [])}
+
+
+def save_seen(seen: set[str]) -> None:
+    """Persist the cumulative seen-set (most-recent kept if capped)."""
+    domains = sorted(seen)
+    if len(domains) > SEEN_CAP:
+        domains = domains[-SEEN_CAP:]
+    state.write_json(SOURCE_ID, SEEN_FILE, {
+        "source": SOURCE_ID,
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "count": len(domains),
+        "domains": domains,
+    })
+
+
 def _sheet_rows(listings: dict[str, int | None], links: dict[str, str], today: str) -> list[dict[str, Any]]:
     return [
         {"domain": d, "price": (listings[d] if listings[d] is not None else ""),
@@ -487,12 +509,17 @@ def run() -> int:
     if added:
         print(f"      bundle drill added {added} domain(s) not in any title")
 
-    priced = {d: p for d, p in listings.items() if p}
-    domains = sorted(listings)
-    print(f"      good-deal candidates: {len(domains):,} · with asking price: {len(priced):,}")
+    # Net-new gating: only alert on domains we haven't surfaced in a prior run.
+    seen = load_seen()
+    all_domains = sorted(listings)
+    new_listings = {d: listings[d] for d in all_domains if d not in seen}
+    priced = {d: p for d, p in new_listings.items() if p}
+    domains = sorted(new_listings)
+    print(f"      candidates on page: {len(all_domains):,} · net-new (not seen before): "
+          f"{len(domains):,} · net-new with asking price: {len(priced):,}")
     if domains:
         print("      sample: " + ", ".join(
-            f"{d}" + (f" ${listings[d]:,}" if listings[d] else "") for d in domains[:40]))
+            f"{d}" + (f" ${new_listings[d]:,}" if new_listings[d] else "") for d in domains[:40]))
         _dump_price_markup(html, listings)
 
     probe = [d for d in (os.environ.get("NAMEPROS_PROBE") or "").replace(",", " ").split() if d]
@@ -532,7 +559,7 @@ def run() -> int:
             # Always link to NamePros (thread when known, else a NamePros search) so
             # Slack doesn't auto-link the bare domain text to the parked site.
             lines = [slack_line(d, p, links.get(d) or SEARCH_URL.format(q=d)) for d, p in top]
-            text = (f":mag: *NamePros good deals* — {len(domains)} candidate(s) today "
+            text = (f":mag: *NamePros good deals* — {len(domains)} *new* candidate(s) "
                     f"({len(priced)} priced)\n" + "\n".join(lines))
             if sheet_url:
                 text += f"\n<{sheet_url}|Full list →>"
@@ -547,10 +574,15 @@ def run() -> int:
     else:
         print("[3/4] Slack skipped (no candidates or SLACK_BOT_TOKEN)")
 
+    # Remember everything seen on the page (incl. names with no price) so a future
+    # run never re-alerts them — net-new only going forward.
+    save_seen(seen | set(all_domains))
+
     state.write_json(SOURCE_ID, "run_status.json", {
         "source": SOURCE_ID, "label": SOURCE_LABEL, "status": "ok",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "new_count": len(domains), "priced_count": len(priced),
+        "candidates_on_page": len(all_domains), "seen_total": len(seen | set(all_domains)),
         "slack_posted": posted,
     })
     print("[4/4] DONE")

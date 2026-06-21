@@ -1,0 +1,39 @@
+name: 'One-shot: Brandable made-up .coms -> Google Sheet'
+
+# Publishes data/brandables/*.csv to a NEW Google Sheet shared with the owner.
+# Uses the pipeline service account (Drive + Sheets). Manual dispatch.
+on:
+  workflow_dispatch:
+    inputs:
+      title:
+        description: "Spreadsheet title"
+        required: false
+        default: "Brandable Made-Up .coms — for sale"
+      share:
+        description: "Email to share the sheet with (writer)"
+        required: false
+        default: "rob@snagged.com"
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Build sheet
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          python3 scripts/make_brand_sheet.py \
+            --csv scripts/brandables/brandables_top100.csv --tab "Top 100" \
+            --csv scripts/brandables/brandables_full.csv --tab "All (4300+)" \
+            --title "${{ inputs.title }}" \
+            --share "${{ inputs.share }}" | tee /tmp/out.txt
+      - name: Surface URL
+        if: ${{ !cancelled() }}
+        run: |
+          grep SPREADSHEET_URL /tmp/out.txt >> "$GITHUB_STEP_SUMMARY" || true

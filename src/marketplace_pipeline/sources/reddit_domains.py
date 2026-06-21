@@ -138,9 +138,16 @@ def run() -> int:
     print("[1/4] Fetching r/Domains newest posts")
     data = _fetch_json()
     listings, links = extract_listings(data)
-    priced = {d: p for d, p in listings.items() if p}
-    domains = sorted(listings)
-    print(f"      good-deal candidates: {len(domains):,} · with asking price: {len(priced):,}")
+
+    # Net-new gating: only alert on posts we haven't surfaced in a prior run.
+    seen_data = state.read_json(SOURCE_ID, "seen.json", default={}) or {}
+    seen = {str(d).strip().lower() for d in (seen_data.get("domains") or [])}
+    all_domains = sorted(listings)
+    new_listings = {d: listings[d] for d in all_domains if d not in seen}
+    priced = {d: p for d, p in new_listings.items() if p}
+    domains = sorted(new_listings)
+    print(f"      candidates on page: {len(all_domains):,} · net-new (not seen before): "
+          f"{len(domains):,} · net-new with asking price: {len(priced):,}")
     if domains:
         print("      sample: " + ", ".join(
             f"{d}" + (f" ${listings[d]:,}" if listings[d] else "") for d in domains[:40]))
@@ -176,7 +183,7 @@ def run() -> int:
         if channel:
             top = sorted(priced.items(), key=lambda kv: kv[1])[:15] if priced else [(d, None) for d in domains[:15]]
             lines = [slack_line(d, p, links.get(d) or f"https://www.reddit.com/r/Domains/search/?q={d}&restrict_sr=1") for d, p in top]
-            text = (f":mag: *r/Domains good deals* — {len(domains)} candidate(s) today "
+            text = (f":mag: *r/Domains good deals* — {len(domains)} *new* candidate(s) "
                     f"({len(priced)} priced)\n" + "\n".join(lines))
             if sheet_url:
                 text += f"\n<{sheet_url}|Full list →>"
@@ -191,10 +198,21 @@ def run() -> int:
     else:
         print("[3/4] Slack skipped (no candidates or SLACK_BOT_TOKEN)")
 
+    # Remember everything seen this run so a future run never re-alerts it.
+    merged = sorted(seen | set(all_domains))
+    if len(merged) > 50_000:
+        merged = merged[-50_000:]
+    state.write_json(SOURCE_ID, "seen.json", {
+        "source": SOURCE_ID,
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "count": len(merged), "domains": merged,
+    })
+
     state.write_json(SOURCE_ID, "run_status.json", {
         "source": SOURCE_ID, "label": SOURCE_LABEL, "status": "ok",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "new_count": len(domains), "priced_count": len(priced),
+        "candidates_on_page": len(all_domains), "seen_total": len(merged),
         "slack_posted": posted,
     })
     print("[4/4] DONE")
