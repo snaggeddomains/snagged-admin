@@ -1,50 +1,330 @@
 [
   {
     "currency": "USD",
-    "domain": "dumfries.com",
-    "end_time_utc": "2026-06-20T21:48:25+00:00",
-    "price": null,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=dumfries.com"
+    "domain": "ground.ai",
+    "end_time_utc": "2026-06-21T08:45:03+00:00",
+    "price": 1299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=ground.ai"
   },
   {
     "currency": "USD",
-    "domain": "frigates.com",
-    "end_time_utc": "2026-06-20T21:49:45+00:00",
-    "price": null,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=frigates.com"
+    "domain": "insights.ai",
+    "end_time_utc": "2026-06-21T02:20:10+00:00",
+    "price": 250000.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=insights.ai"
   },
   {
     "currency": "USD",
-    "domain": "parishes.com",
-    "end_time_utc": "2026-06-20T21:49:53+00:00",
-    "price": null,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=parishes.com"
+    "domain": "garland.ai",
+    "end_time_utc": "2026-06-21T08:45:38+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=garland.ai"
   },
   {
     "currency": "USD",
-    "domain": "ricans.com",
-    "end_time_utc": "2026-06-20T21:50:02+00:00",
-    "price": null,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=ricans.com"
+    "domain": "pageant.ai",
+    "end_time_utc": "2026-06-21T08:46:16+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=pageant.ai"
   },
   {
     "currency": "USD",
-    "domain": "embraces.com",
-    "end_time_utc": "2026-06-20T21:49:39+00:00",
-    "price": null,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=embraces.com"
+    "domain": "rockers.ai",
+    "end_time_utc": "2026-06-21T09:45:02+00:00",
+    "price": 99888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=rockers.ai"
   },
   {
     "currency": "USD",
-    "domain": "mindanao.com",
-    "end_time_utc": "2026-06-20T21:49:47+00:00",
-    "price": null,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=mindanao.com"
+    "domain": "incense.ai",
+    "end_time_utc": "2026-06-21T08:46:21+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=incense.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "stopper.ai",
+    "end_time_utc": "2026-06-21T08:46:26+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=stopper.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "convent.ai",
+    "end_time_utc": "2026-06-21T08:45:44+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=convent.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "parlour.ai",
+    "end_time_utc": "2026-06-21T08:45:38+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=parlour.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "hippies.ai",
+    "end_time_utc": "2026-06-21T09:46:18+00:00",
+    "price": 99888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=hippies.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "midland.ai",
+    "end_time_utc": "2026-06-21T08:45:44+00:00",
+    "price": 399888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=midland.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "marquis.ai",
+    "end_time_utc": "2026-06-21T08:45:38+00:00",
+    "price": 399888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=marquis.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "cultures.ai",
+    "end_time_utc": "2026-06-21T08:46:36+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=cultures.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "stucco.ai",
+    "end_time_utc": "2026-06-21T08:46:26+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=stucco.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "blower.ai",
+    "end_time_utc": "2026-06-21T08:46:06+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=blower.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "rodent.ai",
+    "end_time_utc": "2026-06-21T08:46:31+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=rodent.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "smuggler.ai",
+    "end_time_utc": "2026-06-21T08:45:44+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=smuggler.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "madden.ai",
+    "end_time_utc": "2026-06-21T08:45:44+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=madden.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "spinning.ai",
+    "end_time_utc": "2026-06-21T08:45:49+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=spinning.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "fowler.ai",
+    "end_time_utc": "2026-06-21T08:46:06+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=fowler.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "hamper.ai",
+    "end_time_utc": "2026-06-21T08:46:06+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=hamper.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "bethel.ai",
+    "end_time_utc": "2026-06-21T08:45:13+00:00",
+    "price": 399888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=bethel.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "derelict.ai",
+    "end_time_utc": "2026-06-21T09:44:32+00:00",
+    "price": 99888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=derelict.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "dearth.ai",
+    "end_time_utc": "2026-06-21T09:46:19+00:00",
+    "price": 99888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=dearth.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "suburban.ai",
+    "end_time_utc": "2026-06-21T08:45:38+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=suburban.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "vapour.ai",
+    "end_time_utc": "2026-06-21T08:45:18+00:00",
+    "price": 399888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=vapour.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "providers.ai",
+    "end_time_utc": "2026-06-21T08:46:13+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=providers.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "dispenser.ai",
+    "end_time_utc": "2026-06-21T08:46:13+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=dispenser.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "enclosure.ai",
+    "end_time_utc": "2026-06-21T08:45:49+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=enclosure.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "massa.ai",
+    "end_time_utc": "2026-06-21T08:45:24+00:00",
+    "price": 399888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=massa.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "hurst.ai",
+    "end_time_utc": "2026-06-21T08:46:16+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=hurst.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "refer.ai",
+    "end_time_utc": "2026-06-21T08:44:58+00:00",
+    "price": 1299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=refer.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "worth.ai",
+    "end_time_utc": "2026-06-21T08:44:02+00:00",
+    "price": 1299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=worth.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "odour.ai",
+    "end_time_utc": "2026-06-21T09:44:58+00:00",
+    "price": 99888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=odour.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "winch.ai",
+    "end_time_utc": "2026-06-21T08:46:06+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=winch.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "brow.ai",
+    "end_time_utc": "2026-06-21T08:46:36+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=brow.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "burr.ai",
+    "end_time_utc": "2026-06-21T08:45:49+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=burr.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "associated.ai",
+    "end_time_utc": "2026-06-21T08:46:31+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=associated.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "condominium.ai",
+    "end_time_utc": "2026-06-21T08:45:54+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=condominium.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "yer.ai",
+    "end_time_utc": "2026-06-21T08:45:28+00:00",
+    "price": 399888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=yer.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "distributors.ai",
+    "end_time_utc": "2026-06-21T08:45:54+00:00",
+    "price": 299888.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=distributors.ai"
   }
 ]
