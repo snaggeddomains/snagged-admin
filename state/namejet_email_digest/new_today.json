@@ -1,9 +1,7 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "zigzag.org"
-  ],
-  "generated_at": "2026-06-20T15:08:32.725247+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-06-21T15:08:12.684172+00:00",
   "source": "namejet_email_digest"
 }
