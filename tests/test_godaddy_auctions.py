@@ -113,9 +113,17 @@ def test_parse_auctions_market_override_rejects_multiword(now):
         assert src.parse_auctions([_row(domain=d, bids=99, price="$9,000")], now=now) == [], d
 
 
-def test_parse_auctions_market_override_keeps_short_brandable(now):
-    out = src.parse_auctions([_row(domain="bullz.com", bids=20, price="$2,000")], now=now)
-    assert [r["domain"] for r in out] == ["bullz.com"]
+def test_parse_auctions_market_override_keeps_near_word(now):
+    # A brandable within one edit of a common word (bulls/grill) stays.
+    for d in ("bullz.com", "rgrill.com"):
+        out = src.parse_auctions([_row(domain=d, bids=20, price="$2,000")], now=now)
+        assert [r["domain"] for r in out] == [d], d
+
+
+def test_parse_auctions_market_override_rejects_random_short(now):
+    # Just being a short .com is NOT enough — random consonant strings are dropped.
+    for d in ("pjvf.com", "rhkw.com", "eeyc.com", "wuex.com"):
+        assert src.parse_auctions([_row(domain=d, bids=99, price="$9,000")], now=now) == [], d
 
 
 def test_parse_auctions_skips_adult(now):

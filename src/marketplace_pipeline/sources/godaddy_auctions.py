@@ -14,6 +14,7 @@ import json
 import os
 import zipfile
 from datetime import datetime, timedelta, timezone
+from functools import lru_cache
 from typing import Any
 
 import requests
@@ -43,21 +44,49 @@ SHEET_URL_TEMPLATE = "https://docs.google.com/spreadsheets/d/{sheet_id}/edit"
 SNAPSHOT_FILE = "snapshot.json"
 
 
+WORD_ZIPF = 1.5      # a name IS a real word at/above this (sniffle = 2.21)
+NEARWORD_ZIPF = 3.0  # an edit-1 target must be a COMMON word (bulls/grill), not a rare/proper noun
+
+
+@lru_cache(maxsize=None)
+def _near_word(sld: str) -> bool:
+    """True if `sld` is within one edit (delete/insert/substitute a letter) of a
+    common word — i.e. a word with a dropped or swapped letter, like bullz->bulls,
+    rgrill->grill, flickr->flicker. Random consonant strings (pjvf, rhkw, wuex)
+    aren't near any common word, so they're rejected."""
+    if not (3 <= len(sld) <= 8) or not sld.isalpha():
+        return False
+    letters = "abcdefghijklmnopqrstuvwxyz"
+    for i in range(len(sld)):  # deletions
+        if flt.freq(sld[:i] + sld[i + 1:]) >= NEARWORD_ZIPF:
+            return True
+    for i in range(len(sld) + 1):  # insertions
+        for c in letters:
+            if flt.freq(sld[:i] + c + sld[i:]) >= NEARWORD_ZIPF:
+                return True
+    for i in range(len(sld)):  # substitutions
+        for c in letters:
+            if c != sld[i] and flt.freq(sld[:i] + c + sld[i + 1:]) >= NEARWORD_ZIPF:
+                return True
+    return False
+
+
 def _market_quality(row: dict[str, Any], domain: str) -> bool:
     """A PREMIUM-shape name with proven auction demand/value, kept even when it
     misses the SNAP word filter (e.g. sniffle.com — a real single word, but zipf
-    2.21 < 2.8). Premium shape = a single real word (any length), a short brandable
-    (<=6 letters), or a short number (<=4 digits) — NOT multi-word/long compounds
-    like worldweathernetwork.org or marketingresults.com (those score zipf 0 and
-    aren't short, so they're rejected even with bids). Requires an allowed TLD and
-    no hyphen, plus a demand/value signal."""
+    2.21 < 2.8). Premium shape = a real word (WORD_ZIPF+, any length), a WORD-LIKE
+    brandable (within one edit of a common word — bullz->bulls, rgrill->grill), an
+    LL/LLL string (<=3 letters, the premium short market), or a short number (<=4
+    digits). NOT random 4+ consonant strings (pjvf/rhkw/wuex) and NOT multi-word
+    compounds (worldweathernetwork/marketingresults). Requires an allowed TLD, no
+    hyphen, and a demand/value signal."""
     sld, tld = flt.extract_sld_tld(domain)
     if not sld or not flt.is_allowed_tld(tld) or "-" in sld:
         return False
     if sld.isdigit():
         premium_shape = len(sld) <= 4
     elif sld.isalpha():
-        premium_shape = len(sld) <= 6 or flt.freq(sld) >= 1.5  # short brandable OR a single real word
+        premium_shape = len(sld) <= 3 or flt.freq(sld) >= WORD_ZIPF or _near_word(sld)
     else:
         premium_shape = False
     if not premium_shape:
