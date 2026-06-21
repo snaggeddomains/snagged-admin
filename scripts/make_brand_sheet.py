@@ -46,6 +46,9 @@ def main() -> int:
     ap.add_argument("--tab", action="append", default=[],
                     help="tab name per --csv (same order)")
     ap.add_argument("--title", required=True)
+    ap.add_argument("--folder", default=os.environ.get("DRIVE_FOLDER_ID", ""),
+                    help="Drive folder id to create the sheet in (SA must have "
+                         "write access; avoids the SA My-Drive quota 403)")
     ap.add_argument("--share", action="append", default=[],
                     help="email(s) to share as writer")
     args = ap.parse_args()
@@ -57,20 +60,38 @@ def main() -> int:
     drive = build("drive", "v3", credentials=creds, cache_discovery=False)
 
     tabs = args.tab or [f"Sheet{i+1}" for i in range(len(args.csv))]
-    # create with the first tab, then add the rest
-    spreadsheet = sheets.spreadsheets().create(body={
-        "properties": {"title": args.title},
-        "sheets": [{"properties": {"title": tabs[0]}}],
-    }).execute()
-    ssid = spreadsheet["spreadsheetId"]
-    url = spreadsheet["spreadsheetUrl"]
 
-    requests = []
-    for t in tabs[1:]:
-        requests.append({"addSheet": {"properties": {"title": t}}})
-    if requests:
-        sheets.spreadsheets().batchUpdate(
-            spreadsheetId=ssid, body={"requests": requests}).execute()
+    if args.folder:
+        # Create inside a folder the SA can write to (service accounts have no
+        # personal My-Drive quota, so a bare spreadsheets.create() 403s).
+        meta = drive.files().create(
+            body={"name": args.title,
+                  "mimeType": "application/vnd.google-apps.spreadsheet",
+                  "parents": [args.folder]},
+            fields="id,webViewLink",
+            supportsAllDrives=True,
+        ).execute()
+        ssid = meta["id"]
+        url = meta.get("webViewLink") or f"https://docs.google.com/spreadsheets/d/{ssid}/edit"
+        # rename the default first tab to tabs[0], add the rest
+        m0 = sheets.spreadsheets().get(spreadsheetId=ssid).execute()
+        first_id = m0["sheets"][0]["properties"]["sheetId"]
+        reqs = [{"updateSheetProperties": {
+            "properties": {"sheetId": first_id, "title": tabs[0]},
+            "fields": "title"}}]
+        for t in tabs[1:]:
+            reqs.append({"addSheet": {"properties": {"title": t}}})
+        sheets.spreadsheets().batchUpdate(spreadsheetId=ssid, body={"requests": reqs}).execute()
+    else:
+        spreadsheet = sheets.spreadsheets().create(body={
+            "properties": {"title": args.title},
+            "sheets": [{"properties": {"title": tabs[0]}}],
+        }).execute()
+        ssid = spreadsheet["spreadsheetId"]
+        url = spreadsheet["spreadsheetUrl"]
+        if len(tabs) > 1:
+            sheets.spreadsheets().batchUpdate(spreadsheetId=ssid, body={"requests": [
+                {"addSheet": {"properties": {"title": t}}} for t in tabs[1:]]}).execute()
 
     for path, tab in zip(args.csv, tabs):
         rows = _read_csv(path)
@@ -99,6 +120,7 @@ def main() -> int:
         drive.permissions().create(
             fileId=ssid,
             sendNotificationEmail=True,
+            supportsAllDrives=True,
             body={"type": "user", "role": "writer", "emailAddress": email},
         ).execute()
         print(f"shared with {email}")

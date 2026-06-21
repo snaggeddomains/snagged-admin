@@ -13,6 +13,10 @@ on:
         description: "Email to share the sheet with (writer)"
         required: false
         default: "rob@snagged.com"
+      folder:
+        description: "Drive folder id to create the sheet in (SA-writable Shared Drive)"
+        required: false
+        default: "15HLcwq685L0VEuDioiBkf0_17BWkEEdl"
 
 permissions:
   contents: read
@@ -28,10 +32,12 @@ jobs:
         env:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
         run: |
+          set -o pipefail
           python3 scripts/make_brand_sheet.py \
             --csv scripts/brandables/brandables_top100.csv --tab "Top 100" \
             --csv scripts/brandables/brandables_full.csv --tab "All (4300+)" \
             --title "${{ inputs.title }}" \
+            --folder "${{ inputs.folder }}" \
             --share "${{ inputs.share }}" | tee /tmp/out.txt
       - name: Surface URL
         if: ${{ !cancelled() }}
