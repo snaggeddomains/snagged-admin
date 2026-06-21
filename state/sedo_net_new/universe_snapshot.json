@@ -1,15 +1,15 @@
 [
   {
-    "domain": "venting.com",
-    "price": 85000.0
+    "domain": "junliang.com",
+    "price": 14950.0
   },
   {
     "domain": "ground.ai",
     "price": 1299888.0
   },
   {
-    "domain": "insights.ai",
-    "price": 250000.0
+    "domain": "hawkstones.com",
+    "price": 397.0
   },
   {
     "domain": "garland.ai",
@@ -36,8 +36,8 @@
     "price": 299888.0
   },
   {
-    "domain": "netstat.ai",
-    "price": 3888.0
+    "domain": "hippies.ai",
+    "price": 99888.0
   },
   {
     "domain": "parlour.ai",
@@ -49,10 +49,6 @@
   },
   {
     "domain": "backhoe.ai",
-    "price": 99888.0
-  },
-  {
-    "domain": "hippies.ai",
     "price": 99888.0
   },
   {
@@ -116,16 +112,16 @@
     "price": 99888.0
   },
   {
-    "domain": "dearth.ai",
-    "price": 99888.0
-  },
-  {
     "domain": "suburban.ai",
     "price": 299888.0
   },
   {
     "domain": "vapour.ai",
     "price": 399888.0
+  },
+  {
+    "domain": "dearth.ai",
+    "price": 99888.0
   },
   {
     "domain": "providers.ai",
@@ -168,10 +164,6 @@
     "price": 299888.0
   },
   {
-    "domain": "leefranklin.com",
-    "price": 944.0
-  },
-  {
     "domain": "vigilantism.com",
     "price": 8595.0
   },
@@ -196,10 +188,6 @@
     "price": 299888.0
   },
   {
-    "domain": "compressive.ai",
-    "price": null
-  },
-  {
     "domain": "yer.ai",
     "price": 399888.0
   },
@@ -208,7 +196,15 @@
     "price": 299888.0
   },
   {
+    "domain": "eurocoin.net",
+    "price": 690.0
+  },
+  {
     "domain": "lianas.net",
     "price": 2795.0
+  },
+  {
+    "domain": "provestra.co",
+    "price": 1000.0
   }
 ]
