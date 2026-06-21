@@ -162,7 +162,11 @@ def parse_rows(html: str, *, now: datetime | None = None) -> tuple[list[dict[str
             drops["no_link"] += 1
             continue
         domain = a.get_text(strip=True).lower()
-        if not flt.allow_domain(domain):
+        min_bid_el = tr.find("span", class_="resultsMinimumBid")
+        bidders_el = tr.find("div", class_="biddersCount")
+        price = parse_money(min_bid_el.get_text(strip=True) if min_bid_el else None)
+        bid_count = parse_int_str(bidders_el.get_text(strip=True) if bidders_el else None)
+        if not flt.auction_keep(domain, bids=bid_count or 0, price=price or 0):
             drops["filter"] += 1
             continue
         status_cell = tr.find("td", class_="status")
@@ -182,14 +186,12 @@ def parse_rows(html: str, *, now: datetime | None = None) -> tuple[list[dict[str
         if hours_to_close < 0 or hours_to_close > HOURS_AHEAD:
             drops["out_of_horizon"] += 1
             continue
-        min_bid_el = tr.find("span", class_="resultsMinimumBid")
-        bidders_el = tr.find("div", class_="biddersCount")
         out.append({
             "domain": domain,
             "platform": PLATFORM,
             "end_time_utc": closing_dt.isoformat(),
-            "price": parse_money(min_bid_el.get_text(strip=True) if min_bid_el else None),
-            "bid_count": parse_int_str(bidders_el.get_text(strip=True) if bidders_el else None),
+            "price": price,
+            "bid_count": bid_count,
             "link": f"https://www.namejet.com/domain/{domain}.action",
             "status": status,
         })

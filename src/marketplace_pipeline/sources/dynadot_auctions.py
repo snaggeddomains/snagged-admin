@@ -67,7 +67,10 @@ def _fetch_page(
 def _normalize_row(row: dict[str, Any]) -> dict[str, Any] | None:
     """Apply the standard SNAP filter and produce the AuctionListing-shaped dict."""
     domain = (row.get("utf_name") or row.get("domain") or "").strip().lower()
-    if not domain or not flt.allow_domain(domain):
+    if not domain or not flt.auction_keep(
+        domain, bids=flt.to_num(row.get("bids")),
+        price=flt.to_num(row.get("current_bid_price") or row.get("price")),
+    ):
         return None
     end_ts = row.get("end_time_stamp")
     if not isinstance(end_ts, (int, float)):

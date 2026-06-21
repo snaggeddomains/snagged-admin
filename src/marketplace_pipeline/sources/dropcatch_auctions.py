@@ -70,7 +70,13 @@ def parse_auctions(html: str, *, now: datetime | None = None) -> list[dict[str, 
         if not domain_link:
             continue
         domain = domain_link.get_text(strip=True).lower()
-        if not flt.allow_domain(domain):
+        _price_el = card.select_one("span#domainPrice")
+        _bids_el = card.select_one("span#bidCount")
+        if not flt.auction_keep(
+            domain,
+            bids=flt.to_num(_bids_el.get_text(strip=True) if _bids_el else 0),
+            price=flt.to_num(_price_el.get_text(strip=True) if _price_el else 0),
+        ):
             continue
         time_el = card.select_one("time#time-remaining")
         time_text = time_el.get_text(strip=True) if time_el else ""

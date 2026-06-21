@@ -66,7 +66,9 @@ def parse_auctions(payload: dict[str, Any], *, now: datetime | None = None) -> l
     out: list[dict[str, Any]] = []
     for a in raw_auctions:
         name = a.get("name")
-        if not name or not flt.allow_domain(name):
+        if not name or not flt.auction_keep(
+            name, bids=flt.to_num(a.get("num_bids")), price=flt.to_num(a.get("price")),
+        ):
             continue
         close_dt = _parse_close_date(a.get("close_date"))
         if not close_dt or close_dt < now or close_dt > cutoff:

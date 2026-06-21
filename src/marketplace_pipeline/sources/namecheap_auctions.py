@@ -56,7 +56,10 @@ def parse_auctions(rows: list[dict[str, str]], *, now: datetime | None = None) -
     out: list[dict[str, Any]] = []
     for sale in rows:
         domain = (sale.get("name") or "").strip().lower()
-        if not domain or not flt.allow_domain(domain):
+        if not domain or not flt.auction_keep(
+            domain, bids=flt.to_num(sale.get("bidCount")),
+            price=flt.to_num(sale.get("price") or sale.get("startPrice")),
+        ):
             continue
         end_dt = _parse_dt(sale.get("endDate"))
         if not end_dt:

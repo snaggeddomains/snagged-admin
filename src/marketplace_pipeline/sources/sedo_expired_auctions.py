@@ -107,7 +107,10 @@ def parse_auctions(rows: list[dict[str, str]]) -> list[dict[str, Any]]:
             continue
         if not (SLD_LENGTH_MIN <= len(sld) <= SLD_LENGTH_MAX):
             continue
-        if not flt.allow_domain(domain):
+        if not flt.auction_keep(
+            domain, bids=flt.to_num(row.get("Bids Count")),
+            price=flt.to_num(row.get("Current Bid")),
+        ):
             continue
         end_dt = _parse_end_time(row.get("Auction End Date"))
         if not end_dt:

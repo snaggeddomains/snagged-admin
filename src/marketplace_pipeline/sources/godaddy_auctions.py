@@ -14,7 +14,6 @@ import json
 import os
 import zipfile
 from datetime import datetime, timedelta, timezone
-from functools import lru_cache
 from typing import Any
 
 import requests
@@ -36,65 +35,11 @@ HORIZON_HOURS = 48
 # the SLD's dictionary frequency is below the SNAP word cutoff (e.g. sniffle.com —
 # 52 bids, $6,100, $11k GoValue, but "sniffle" is zipf 2.21 < 2.8). Any one of these
 # (on a sane alpha/short shape + allowed TLD) keeps it.
-MIN_BIDS = int(os.environ.get("GODADDY_MIN_BIDS") or 5)
-MIN_PRICE = float(os.environ.get("GODADDY_MIN_PRICE") or 1000)
-MIN_VALUATION = float(os.environ.get("GODADDY_MIN_VALUATION") or 10000)
-
+# Auctions with real demand/value are kept even below the SNAP word filter — the
+# shared market-signal-on-premium-shape gate (flt.auction_keep) handles this for
+# every auction source. GoDaddy additionally passes its `valuation` (GoValue).
 SHEET_URL_TEMPLATE = "https://docs.google.com/spreadsheets/d/{sheet_id}/edit"
 SNAPSHOT_FILE = "snapshot.json"
-
-
-WORD_ZIPF = 1.5      # a name IS a real word at/above this (sniffle = 2.21)
-NEARWORD_ZIPF = 3.0  # an edit-1 target must be a COMMON word (bulls/grill), not a rare/proper noun
-
-
-@lru_cache(maxsize=None)
-def _near_word(sld: str) -> bool:
-    """True if `sld` is within one edit (delete/insert/substitute a letter) of a
-    common word — i.e. a word with a dropped or swapped letter, like bullz->bulls,
-    rgrill->grill, flickr->flicker. Random consonant strings (pjvf, rhkw, wuex)
-    aren't near any common word, so they're rejected."""
-    if not (3 <= len(sld) <= 8) or not sld.isalpha():
-        return False
-    letters = "abcdefghijklmnopqrstuvwxyz"
-    for i in range(len(sld)):  # deletions
-        if flt.freq(sld[:i] + sld[i + 1:]) >= NEARWORD_ZIPF:
-            return True
-    for i in range(len(sld) + 1):  # insertions
-        for c in letters:
-            if flt.freq(sld[:i] + c + sld[i:]) >= NEARWORD_ZIPF:
-                return True
-    for i in range(len(sld)):  # substitutions
-        for c in letters:
-            if c != sld[i] and flt.freq(sld[:i] + c + sld[i + 1:]) >= NEARWORD_ZIPF:
-                return True
-    return False
-
-
-def _market_quality(row: dict[str, Any], domain: str) -> bool:
-    """A PREMIUM-shape name with proven auction demand/value, kept even when it
-    misses the SNAP word filter (e.g. sniffle.com — a real single word, but zipf
-    2.21 < 2.8). Premium shape = a real word (WORD_ZIPF+, any length), a WORD-LIKE
-    brandable (within one edit of a common word — bullz->bulls, rgrill->grill), an
-    LL/LLL string (<=3 letters, the premium short market), or a short number (<=4
-    digits). NOT random 4+ consonant strings (pjvf/rhkw/wuex) and NOT multi-word
-    compounds (worldweathernetwork/marketingresults). Requires an allowed TLD, no
-    hyphen, and a demand/value signal."""
-    sld, tld = flt.extract_sld_tld(domain)
-    if not sld or not flt.is_allowed_tld(tld) or "-" in sld:
-        return False
-    if sld.isdigit():
-        premium_shape = len(sld) <= 4
-    elif sld.isalpha():
-        premium_shape = len(sld) <= 3 or flt.freq(sld) >= WORD_ZIPF or _near_word(sld)
-    else:
-        premium_shape = False
-    if not premium_shape:
-        return False
-    bids = int(row.get("numberOfBids") or 0)
-    price = _parse_price(row.get("price")) or 0
-    valuation = _parse_price(row.get("valuation")) or 0
-    return bids >= MIN_BIDS or price >= MIN_PRICE or valuation >= MIN_VALUATION
 
 
 def _parse_time(value: str | None) -> datetime | None:
@@ -153,8 +98,13 @@ def parse_auctions(
             continue
         domain = (row.get("domainName") or "").strip().lower()
         # Keep dictionary-word names (SNAP filter) OR names with real auction demand
-        # / value (so a contested, valuable name isn't vetoed by word frequency).
-        if not domain or not (flt.allow_domain(domain) or _market_quality(row, domain)):
+        # / value (premium shape + bids/price/GoValue) — see flt.auction_keep.
+        if not domain or not flt.auction_keep(
+            domain,
+            bids=int(row.get("numberOfBids") or 0),
+            price=_parse_price(row.get("price")) or 0,
+            valuation=_parse_price(row.get("valuation")) or 0,
+        ):
             continue
         # Today + tomorrow zips may overlap; dedupe within this run.
         if domain in seen_domains:

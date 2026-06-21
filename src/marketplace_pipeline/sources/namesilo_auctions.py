@@ -91,7 +91,10 @@ def _row_end_time(row: dict[str, Any]) -> datetime | None:
 
 def _normalize_row(row: dict[str, Any], *, now: datetime, cutoff: datetime) -> dict[str, Any] | None:
     domain = (row.get("domainName") or row.get("domain") or "").strip().lower()
-    if not domain or not flt.allow_domain(domain):
+    if not domain or not flt.auction_keep(
+        domain, bids=flt.to_num(row.get("bidsQuantity")),
+        price=flt.to_num(row.get("currentBid") or row.get("openingBid")),
+    ):
         return None
     end_time = _row_end_time(row)
     if not end_time or not (now <= end_time <= cutoff):

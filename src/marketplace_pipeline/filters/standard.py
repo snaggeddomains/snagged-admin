@@ -145,3 +145,77 @@ def allow_domain(domain: str) -> bool:
     if is_three_letter_com(sld, tld):
         return True
     return passes_word_filter(sld, min_zipf_for_tld(tld))
+
+
+# ── Auction market-signal override ──────────────────────────────────────────
+# An auction with real demand/value is proven quality, so a name people are
+# actively bidding on is worth surfacing even if its dictionary frequency is below
+# the SNAP word cutoff (e.g. sniffle.com — zipf 2.21, but 52 bids / $11k value).
+# Still gated to a PREMIUM shape so random/multi-word strings don't ride in on bids.
+WORD_ZIPF = 1.5       # a name IS a real word at/above this (sniffle = 2.21)
+NEARWORD_ZIPF = 3.0   # an edit-1 target must be a COMMON word (bulls/grill), not rare/proper
+AUCTION_MIN_BIDS = int(os.environ.get("AUCTION_MIN_BIDS") or 5)
+AUCTION_MIN_PRICE = float(os.environ.get("AUCTION_MIN_PRICE") or 1000)
+AUCTION_MIN_VALUATION = float(os.environ.get("AUCTION_MIN_VALUATION") or 10000)
+
+
+def to_num(x) -> float:
+    """Coerce a raw price/bid value ('$1,200', '52', 7, None) to a float (0 on junk)."""
+    if x in (None, ""):
+        return 0.0
+    try:
+        return float(str(x).replace("$", "").replace(",", "").strip())
+    except (ValueError, TypeError):
+        return 0.0
+
+
+@lru_cache(maxsize=None)
+def near_word(sld: str) -> bool:
+    """True if `sld` is within one edit (delete/insert/substitute a letter) of a
+    common word — a word with a dropped/swapped letter (bullz->bulls, rgrill->grill,
+    flickr->flicker). Random consonant strings (pjvf, rhkw, wuex) match nothing."""
+    if not (3 <= len(sld) <= 8) or not sld.isalpha():
+        return False
+    letters = "abcdefghijklmnopqrstuvwxyz"
+    for i in range(len(sld)):  # deletions
+        if _freq(sld[:i] + sld[i + 1:]) >= NEARWORD_ZIPF:
+            return True
+    for i in range(len(sld) + 1):  # insertions
+        for c in letters:
+            if _freq(sld[:i] + c + sld[i:]) >= NEARWORD_ZIPF:
+                return True
+    for i in range(len(sld)):  # substitutions
+        for c in letters:
+            if c != sld[i] and _freq(sld[:i] + c + sld[i + 1:]) >= NEARWORD_ZIPF:
+                return True
+    return False
+
+
+def premium_shape(domain: str) -> bool:
+    """A name worth surfacing on market signal alone: allowed TLD, no hyphen, and
+    the SLD is a real word (any length), an LL/LLL string (<=3 letters), a
+    word-like brandable (near a common word), or a short number (<=4 digits).
+    Excludes random consonant strings and multi-word/long compounds."""
+    sld, tld = extract_sld_tld(domain)
+    if not sld or not is_allowed_tld(tld) or "-" in sld:
+        return False
+    if sld.isdigit():
+        return len(sld) <= 4
+    if sld.isalpha():
+        return len(sld) <= 3 or _freq(sld) >= WORD_ZIPF or near_word(sld)
+    return False
+
+
+def market_quality(domain: str, *, bids=0, price=0, valuation=0) -> bool:
+    """Premium shape + a real demand/value signal (bids / current bid / valuation)."""
+    if not premium_shape(domain):
+        return False
+    return ((bids or 0) >= AUCTION_MIN_BIDS
+            or (price or 0) >= AUCTION_MIN_PRICE
+            or (valuation or 0) >= AUCTION_MIN_VALUATION)
+
+
+def auction_keep(domain: str, *, bids=0, price=0, valuation=0) -> bool:
+    """Keep an auction name if it passes the SNAP word filter OR has real market
+    signal on a premium shape. Use this in auction sources instead of allow_domain."""
+    return allow_domain(domain) or market_quality(domain, bids=bids, price=price, valuation=valuation)
