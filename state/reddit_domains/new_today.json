@@ -1,7 +1,9 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-06-22T10:00:51.201011+00:00",
+  "count": 1,
+  "domains": [
+    "simply.com"
+  ],
+  "generated_at": "2026-06-22T17:01:00.550126+00:00",
   "source": "reddit_domains"
 }

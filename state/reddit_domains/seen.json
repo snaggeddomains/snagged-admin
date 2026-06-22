@@ -1,6 +1,8 @@
 {
-  "count": 0,
-  "domains": [],
+  "count": 1,
+  "domains": [
+    "simply.com"
+  ],
   "source": "reddit_domains",
-  "updated_at": "2026-06-22T10:00:51.201596+00:00"
+  "updated_at": "2026-06-22T17:01:00.827743+00:00"
 }
