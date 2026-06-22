@@ -1,0 +1,38 @@
+name: 'One-shot: Read a Google Sheet (SA, read-only)'
+
+# Dumps a sheet's tab list + values/formulas for a tab, to inspect sheets shared
+# with the pipeline service account. Read-only.
+on:
+  workflow_dispatch:
+    inputs:
+      id:
+        description: "Spreadsheet id"
+        required: true
+      gid:
+        description: "Tab gid to dump (blank = all tabs)"
+        required: false
+        default: ""
+      all:
+        description: "Dump all tabs (true/false)"
+        required: false
+        default: "false"
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Read sheet
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          set -o pipefail
+          python3 scripts/read_sheet.py \
+            --id "${{ inputs.id }}" \
+            ${{ inputs.gid && format('--gid {0}', inputs.gid) || '' }} \
+            ${{ inputs.all == 'true' && '--all' || '' }}
