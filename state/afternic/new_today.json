@@ -1,10 +1,13 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 5,
   "domains": [
-    "dickinson.ai",
-    "capabilities.io"
+    "physically.ai",
+    "suspicion.ai",
+    "theatrical.ai",
+    "posts.com",
+    "add.com"
   ],
-  "generated_at": "2026-06-21T08:14:11.768392+00:00",
+  "generated_at": "2026-06-22T08:12:41.613602+00:00",
   "source": "afternic"
 }
