@@ -89,6 +89,57 @@ def onset_ok(s):
 def syllables(s):
     return len(re.findall(r"[aeiou]+", s))
 
+# ---- negativity gate: drop names that read as / rhyme with negative or icky words ----
+# Icky/negative ROOTS — reject if contained as a substring (depus -> "pus").
+NEG_SUBSTR = {
+    "doom","dumb","dum","pus","piss","pis","fart","crap","damn","hell","dead","die",
+    "kill","sick","fail","loss","lose","scam","fraud","scum","slum","bum","rot","germ",
+    "tox","mort","necro","vomit","vom","puke","puk","barf","gore","grim","dread","dire",
+    "bleak","gloom","grief","hate","ugly","dirt","dung","decay","worm","leech","slug",
+    "creep","sewer","trash","waste","junk","numb","dull","sour","war","bomb","drug",
+    "debt","mold","muck","smut","scar","sore","pest","vile","grime","sludge","stink",
+    "reek","stench","fetus","feces","anus","mucus","snot","turd","poop","butt","ass",
+    "hag","curse","demon","devil","evil","sin","crime","jail","pain","ache","pox","wart",
+    "scab","maim","slay","mourn","tomb","grave","rust","blight","plague","virus","fungus",
+    "moron","idiot","dork","derp","lame","weak","sag","droop","murk","dreary",
+}
+# Full negative/taboo WORDS — reject if within one edit (detus~fetus, dumer~dumber).
+NEG_WORDS = {
+    "fetus","dumber","doomer","doom","gloom","tumor","sewer","vomit","feces","anus",
+    "mucus","virus","fungus","bogus","puss","slum","scum","dumb","numb","grim","dire",
+    "vile","sour","dull","sick","fail","loser","demon","devil","evil","curse","death",
+    "dead","kill","hate","ugly","dirty","nasty","gross","creep","leech","slug","worm",
+    "germ","toxic","poison","crime","jail","plague","blight","rotten","moldy","murky",
+    "dreary","gloomy","moron","idiot","lamer","weaker","sadder","sicker","badder","damn",
+}
+
+def _edit_le1(a, b):
+    """True if a and b are within one insertion/deletion/substitution."""
+    if a == b:
+        return True
+    la, lb = len(a), len(b)
+    if abs(la - lb) > 1:
+        return False
+    if la == lb:
+        return sum(x != y for x, y in zip(a, b)) == 1
+    if la > lb:
+        a, b = b, a                      # ensure a is the shorter
+    i = j = diff = 0
+    while i < len(a) and j < len(b):
+        if a[i] != b[j]:
+            diff += 1
+            if diff > 1:
+                return False
+            j += 1                       # skip the extra char in the longer string
+        else:
+            i += 1; j += 1
+    return True
+
+def negative(s):
+    if any(r in s for r in NEG_SUBSTR):
+        return True
+    return any(_edit_le1(s, w) for w in NEG_WORDS)
+
 def clean(s):
     if not (4 <= len(s) <= 8):
         return False
@@ -106,6 +157,8 @@ def clean(s):
            for i in range(1, len(s) - 1)):
         return False
     if soft_g(s):
+        return False
+    if negative(s):                           # sounds negative / has an icky root
         return False
     if any(d in s for d in BAD_DIGRAPH):
         return False
