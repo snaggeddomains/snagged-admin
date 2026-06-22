@@ -46,6 +46,9 @@ def main() -> int:
     ap.add_argument("--tab", action="append", default=[],
                     help="tab name per --csv (same order)")
     ap.add_argument("--title", required=True)
+    ap.add_argument("--spreadsheet-id", default="",
+                    help="update this EXISTING spreadsheet in place (clear+rewrite "
+                         "tabs) instead of creating a new one")
     ap.add_argument("--folder", default=os.environ.get("DRIVE_FOLDER_ID", ""),
                     help="Drive folder id to create the sheet in (SA must have "
                          "write access; avoids the SA My-Drive quota 403)")
@@ -61,7 +64,20 @@ def main() -> int:
 
     tabs = args.tab or [f"Sheet{i+1}" for i in range(len(args.csv))]
 
-    if args.folder:
+    if args.spreadsheet_id:
+        # Update the existing sheet in place: ensure every target tab exists +
+        # clear it (so a shorter list doesn't leave stale rows behind).
+        ssid = args.spreadsheet_id
+        meta = sheets.spreadsheets().get(spreadsheetId=ssid).execute()
+        url = meta.get("spreadsheetUrl") or f"https://docs.google.com/spreadsheets/d/{ssid}/edit"
+        existing = {s["properties"]["title"] for s in meta["sheets"]}
+        addreqs = [{"addSheet": {"properties": {"title": t}}}
+                   for t in tabs if t not in existing]
+        if addreqs:
+            sheets.spreadsheets().batchUpdate(spreadsheetId=ssid, body={"requests": addreqs}).execute()
+        for t in tabs:
+            sheets.spreadsheets().values().clear(spreadsheetId=ssid, range=t).execute()
+    elif args.folder:
         # Create inside a folder the SA can write to (service accounts have no
         # personal My-Drive quota, so a bare spreadsheets.create() 403s).
         meta = drive.files().create(
@@ -116,7 +132,8 @@ def main() -> int:
         ]}).execute()
         print(f"wrote {len(rows)-1} rows to tab '{tab}'")
 
-    for email in args.share:
+    # only (re)share on first creation — an in-place update is already shared
+    for email in (args.share if not args.spreadsheet_id else []):
         drive.permissions().create(
             fileId=ssid,
             sendNotificationEmail=True,

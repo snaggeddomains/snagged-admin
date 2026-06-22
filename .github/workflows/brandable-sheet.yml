@@ -9,6 +9,10 @@ on:
         description: "Spreadsheet title"
         required: false
         default: "Brandable Made-Up .coms — for sale"
+      spreadsheet_id:
+        description: "Existing spreadsheet id to update in place (blank = create new)"
+        required: false
+        default: "1do9T60t-deBGCZQq7bQoM9xgYFnpRn9sTtet7yKx3eo"
       share:
         description: "Email to share the sheet with (writer)"
         required: false
@@ -37,6 +41,7 @@ jobs:
             --csv scripts/brandables/brandables_top100.csv --tab "Top 100" \
             --csv scripts/brandables/brandables_full.csv --tab "All (4300+)" \
             --title "${{ inputs.title }}" \
+            --spreadsheet-id "${{ inputs.spreadsheet_id }}" \
             --folder "${{ inputs.folder }}" \
             --share "${{ inputs.share }}" | tee /tmp/out.txt
       - name: Surface URL
