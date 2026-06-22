@@ -75,14 +75,16 @@ above it = clean enough.
 
 ## Reuse in SNAP + auction runs
 `marketplace_pipeline/filters/mub.py` is the runtime gate (same definition, faithful
-to this sheet — verified all sheet names return `is_mub=True`). It uses the committed
-`scripts/brandables/mub_ngrams.json` for the word-likeness floor and `wordfreq` for
-the made-up check. Wired in:
-- **Auctions** — `auctions/slack.py format_section` prefixes MUB names with ✨ and adds
-  `(N ✨ MUB)` to each source header (covers every auction source at once). The morning
-  consolidated report (`auctions/orchestrator.py`) also leads with a **"✨ MUB picks"**
-  roundup — every MUB hit across all auction sources, deduped and ranked by
-  `mub_brandable` (best first).
+to this sheet — verified all sheet names return `is_mub=True`). It is self-contained
+and committed-data-driven: `scripts/brandables/mub_ngrams.json` for the word-likeness
+floor and `scripts/brandables/words.txt` (the english_words set) for the made-up
+check. **Do not use wordfreq for made-up** — it rates junk 3-letter fragments (amb,
+rino, ino) as words and would falsely flag coined names (ambrino = amb+rino) as
+concatenations. Wired in:
+- **Auctions (morning report)** — `auctions/orchestrator.py` posts a **standalone
+  "✨ MUB picks" message** (its own post, not mixed into the per-source sections):
+  every MUB hit across all auction sources, deduped, ranked by `mub_brandable` (best
+  first), each tagged with its source. The per-source watchlist sections stay clean.
 - **SNAP good deals** — `namepros_marketplace` + `reddit_domains` mark MUB lines with ✨
   and add `· N ✨ MUB` to the headline.
 

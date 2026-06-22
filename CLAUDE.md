@@ -149,15 +149,18 @@ sync with the code. Pipeline:
   2–3 syllables; negative/icky/suggestive sound excluded (root substrings, ≤1-edit to
   a negative word, sensitive-word rhyme like `habido`~libido). Re-run: `python3
   scripts/tighten_brandables.py` then dispatch the workflow with the `spreadsheet_id`.
-- **Runtime gate `filters/mub.py`** (`is_mub`/`mub_mark`/`count_mub`) flags MUB-grade
-  coined `.com`s live in SNAP + auction runs — ✨ marker + `(N ✨ MUB)` header in the
-  **auction** Slack sections (`auctions/slack.py format_section`, one spot = all auction
-  sources) and the **SNAP good-deals** posts (`namepros_marketplace` + `reddit_domains`).
-  Same definition as the sheet (verified every sheet name returns `is_mub=True`); uses
-  the committed `scripts/brandables/mub_ngrams.json` (word-like floor) + `wordfreq`
-  (made-up). The **morning auctions report** (`auctions/orchestrator.py`) leads with a
-  **"✨ MUB picks"** roundup — every MUB hit across all auction sources, deduped + ranked
-  by `mub.mub_brandable` (best first). Tests: `tests/test_mub.py`.
+- **Runtime gate `filters/mub.py`** (`is_mub`/`mub_mark`/`count_mub`/`mub_brandable`)
+  flags MUB-grade coined `.com`s in SNAP + auction runs. Same definition as the sheet
+  (verified every sheet name returns `is_mub=True`); **committed-data-driven** —
+  `scripts/brandables/mub_ngrams.json` (word-like floor) + `scripts/brandables/words.txt`
+  (english_words set for the made-up check). **NB: do NOT use wordfreq for made-up** — it
+  rates junk fragments (amb/rino/ino) as words and falsely flags coined names
+  (ambrino=amb+rino) as concats; that broke CI once. Wiring: the **morning auctions
+  report** (`auctions/orchestrator.py`) posts a **standalone "✨ MUB picks"** message
+  (its own post, ranked by `mub_brandable`, each tagged with its source — NOT mixed into
+  the per-source watchlist sections); **SNAP good-deals** (`namepros_marketplace` +
+  `reddit_domains`) mark MUB lines with ✨ + `· N ✨ MUB` in the headline. Tests:
+  `tests/test_mub.py`.
 
 # Working agreements
 

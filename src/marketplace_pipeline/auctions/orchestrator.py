@@ -90,8 +90,10 @@ def _run_one(source_id: str) -> dict[str, Any]:
 
 
 def _mub_section(all_listings: list[dict[str, Any]]) -> list[str] | None:
-    """A roundup of every MUB (Made-Up Brandable) .com across all auction sources,
-    ranked best-first, surfaced at the TOP of the morning report. None if no hits."""
+    """The body of a STANDALONE "✨ MUB picks" post: every MUB (Made-Up Brandable)
+    .com across all auction sources, deduped, ranked best-first, each tagged with its
+    source for provenance. None if no hits. (Posted separately, not mixed into the
+    per-source watchlist sections.)"""
     from ..filters import mub
     picks: list[tuple[float, dict[str, Any]]] = []
     seen: set[str] = set()
@@ -108,7 +110,7 @@ def _mub_section(all_listings: list[dict[str, Any]]) -> list[str] | None:
         return None
     picks.sort(key=lambda x: -x[0])
     lines = [f"✨ *MUB picks* — {len(picks)} made-up brandable .com(s) in today's auctions"]
-    for _, L in picks[:15]:
+    for _, L in picks[:20]:
         price = L.get("price")
         if price in (None, ""):
             price_str = "—"
@@ -119,9 +121,12 @@ def _mub_section(all_listings: list[dict[str, Any]]) -> list[str] | None:
                 price_str = f"${price}"
         link = L.get("link")
         link_suffix = f"  <{link}|link>" if link else ""
-        lines.append(f"• {L.get('domain','')}  {price_str}  ends {L.get('time_left','')}{link_suffix}")
-    if len(picks) > 15:
-        lines.append(f"… and {len(picks) - 15} more")
+        src = L.get("platform") or L.get("source") or ""
+        src_suffix = f"  _{src}_" if src else ""
+        lines.append(f"• {L.get('domain','')}  {price_str}  ends {L.get('time_left','')}"
+                     f"{link_suffix}{src_suffix}")
+    if len(picks) > 20:
+        lines.append(f"… and {len(picks) - 20} more")
     return lines
 
 
@@ -211,13 +216,23 @@ def run() -> int:
         fail_line = [f"_Failed sources: {', '.join(s['label'] for s in failed)}_"]
         sections.append(fail_line)
 
+    from ..publishers import slack as slack_pub
+
+    # MUB picks go out as their OWN post (own section in the morning report), so
+    # they aren't mixed into the per-source watchlist. Posted first => sits on top.
+    if mub_section:
+        mub_text = "\n".join(mub_section)
+        mub_posted = slack_pub.post(
+            channel=slack_channel,
+            text=mub_text,
+            dedupe_key=slack_pub.make_fingerprint(mub_text),
+            source=ORCHESTRATOR_ID,
+        )
+        print(f"  MUB picks slack posted: {mub_posted}")
+
     if sections:
-        from ..publishers import slack as slack_pub
         body_lines = ["*Auctions watchlist*"]
         body_lines.append("")
-        if mub_section:                 # ✨ MUB roundup leads the morning report
-            body_lines.extend(mub_section)
-            body_lines.append("")
         for sec in sections:
             body_lines.extend(sec)
             body_lines.append("")

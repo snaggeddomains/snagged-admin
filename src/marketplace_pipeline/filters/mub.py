@@ -6,7 +6,7 @@ A reusable runtime gate so SNAP + auction runs can flag MUB-grade coined .coms
   * hard gates — pure string (banned letters c/k/x/q/y, soft-g, digraphs, double
     letters, adjacent vowels, intervocalic s/l, back-vowel-before-cluster, terminal
     i, valid onsets/clusters, 4-8 chars, 2-3 syllables),
-  * made-up — wordfreq zipf (reuses filters.standard.freq); rejects real words and
+  * made-up — membership in the committed english_words set; rejects real words and
     two-real-word concatenations,
   * not negative/icky/suggestive — inline lexicon + edit-1 + sensitive-word rhyme,
   * the Ambrino word-likeness floor — from the committed n-gram table
@@ -31,7 +31,6 @@ OK_ONSET2 = {"bl", "br", "dr", "fl", "fr", "gl", "gr", "pl", "pr", "sl", "sm",
 OK_TRIPLE = ("mbr", "ndr", "ntr", "str", "ngl", "mbl", "ldr", "mpr", "ntl", "nstr")
 BAD_DIGRAPH = ("ph", "gh", "ck", "wh", "ch", "kn", "gn", "ps", "pn", "mn")
 
-REALWORD_ZIPF = 2.5     # at/above this a token IS a dictionary word (so: not made-up)
 
 NEG_SUBSTR = {
     "doom","dumb","dum","pus","piss","pis","fart","crap","damn","hell","dead","die",
@@ -99,19 +98,21 @@ def _score(s: str) -> float:
     sc -= sum(c in "jwz" for c in s) * 1.5
     return sc
 
-# ---- made-up check (wordfreq, lazy so the module imports without it) ----
-def _zipf(w: str) -> float:
-    try:
-        from .standard import freq
-        return freq(w)
-    except Exception:
-        return 0.0
+# ---- made-up check (real dictionary set — same source the sheet uses) ----
+# NB: do NOT use wordfreq zipf here — it assigns junk 3-letter fragments (amb, rino,
+# ino) a high frequency, which falsely flags coined names (ambrino=amb+rino) as
+# two-word concatenations. Membership in the curated english_words set is exact.
+_WORDS_PATH = os.path.join(_HERE, "..", "..", "..", "scripts", "brandables", "words.txt")
+try:
+    WORDSET = set(open(_WORDS_PATH, encoding="utf-8").read().split())
+except Exception:
+    WORDSET = set()
 
 def _made_up(s: str) -> bool:
-    if _zipf(s) >= REALWORD_ZIPF:
-        return False                              # it's a real word
-    for i in range(2, len(s) - 1):                # two real words glued = not coined
-        if _zipf(s[:i]) >= REALWORD_ZIPF and _zipf(s[i:]) >= REALWORD_ZIPF:
+    if s in WORDSET:                              # it's a real word
+        return False
+    for i in range(2, len(s) - 1):               # two real words glued = not coined
+        if s[:i] in WORDSET and s[i:] in WORDSET:
             return False
     return True
 
