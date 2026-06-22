@@ -1,10 +1,50 @@
 [
   {
-    "bid_count": 0,
-    "domain": "naacp.co",
-    "end_time_utc": "2026-06-21T19:29:59+00:00",
-    "link": "https://www.dynadot.com/market/auction/40042795.html",
+    "bid_count": 36,
+    "domain": "eqi.net",
+    "end_time_utc": "2026-06-22T13:44:54+00:00",
+    "link": "https://www.dynadot.com/market/auction/40082924.html",
     "platform": "Dynadot",
-    "price": 7.99
+    "price": 388.3
+  },
+  {
+    "bid_count": 24,
+    "domain": "worong.net",
+    "end_time_utc": "2026-06-22T13:59:56+00:00",
+    "link": "https://www.dynadot.com/market/auction/40081691.html",
+    "platform": "Dynadot",
+    "price": 66.15
+  },
+  {
+    "bid_count": 8,
+    "domain": "graaze.com",
+    "end_time_utc": "2026-06-22T17:43:05+00:00",
+    "link": "https://www.dynadot.com/market/auction/40072448.html",
+    "platform": "Dynadot",
+    "price": 14.0
+  },
+  {
+    "bid_count": 8,
+    "domain": "fydora.com",
+    "end_time_utc": "2026-06-22T18:03:28+00:00",
+    "link": "https://www.dynadot.com/market/auction/40065168.html",
+    "platform": "Dynadot",
+    "price": 16.99
+  },
+  {
+    "bid_count": 4,
+    "domain": "tully.org",
+    "end_time_utc": "2026-06-22T19:22:18+00:00",
+    "link": "https://www.dynadot.com/market/auction/40102508.html",
+    "platform": "Dynadot",
+    "price": 14.0
+  },
+  {
+    "bid_count": 23,
+    "domain": "rjb.org",
+    "end_time_utc": "2026-06-22T20:30:34+00:00",
+    "link": "https://www.dynadot.com/market/auction/40103509.html",
+    "platform": "Dynadot",
+    "price": 78.0
   }
 ]

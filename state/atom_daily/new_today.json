@@ -1,18 +1,11 @@
 {
   "capped": false,
-  "count": 10,
+  "count": 3,
   "domains": [
-    "disc.ai",
-    "swollen.com",
-    "retrieve.ai",
-    "bidder.ai",
-    "thinker.ai",
-    "organiser.ai",
-    "femur.ai",
-    "ims.ai",
-    "carolinas.co",
-    "fatherland.org"
+    "exception.com",
+    "burkina.org",
+    "pathogenesis.org"
   ],
-  "generated_at": "2026-06-21T09:20:47.074960+00:00",
+  "generated_at": "2026-06-22T09:19:50.976532+00:00",
   "source": "atom_daily"
 }
