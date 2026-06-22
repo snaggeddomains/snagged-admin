@@ -100,6 +100,11 @@ def clean(s):
         return False
     if not (VOWELS & set(s)):
         return False
+    # intervocalic 's' (voices to /z/: derosa->"deroza") and 'l' (invites doubling:
+    # demila->"demilla", darilo->"darillo") break the sound<->spelling lock.
+    if any(s[i] in "sl" and s[i-1] in VOWELS and s[i+1] in VOWELS
+           for i in range(1, len(s) - 1)):
+        return False
     if soft_g(s):
         return False
     if any(d in s for d in BAD_DIGRAPH):
