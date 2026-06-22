@@ -7,8 +7,14 @@ digraphs dropped), no adjacent-vowel blur, pure easy CV structure. Ranked by how
 word-like the actual letter sequences are (mean log bigram frequency from the
 68K english_words list) so they "sound like words."
 """
-import csv, re, math
+import csv, re, math, json, os
 from functools import lru_cache
+
+_HERE = os.path.dirname(os.path.abspath(__file__))
+try:
+    CONNOTATION = json.load(open(os.path.join(_HERE, "brandables", "connotation.json")))
+except Exception:
+    CONNOTATION = {}
 
 VOWELS = set("aeiou")
 # c, x, q, y AND k deliberately excluded: a hard /k/ sound can't be unambiguously
@@ -137,10 +143,24 @@ def _edit_le1(a, b):
             i += 1; j += 1
     return True
 
+# Awkward / suggestive words to keep a wide berth from — reject on a shared rime
+# (last 4 chars) or near-match, so habido (~libido) is dropped.
+SENSITIVE = {
+    "libido","herpes","semen","urine","penis","vagina","scrotum","phallus","gonad",
+    "viagra","syphilis","feces","mucus","rectum","genital","areola","abscess","pustule",
+}
+
 def negative(s):
     if any(r in s for r in NEG_SUBSTR):
         return True
-    return any(_edit_le1(s, w) for w in NEG_WORDS)
+    if any(_edit_le1(s, w) for w in NEG_WORDS):
+        return True
+    for w in SENSITIVE:
+        if len(s) >= 4 and s[-4:] == w[-4:]:      # shares the rime (habido~libido)
+            return True
+        if _edit_le1(s, w):
+            return True
+    return False
 
 def clean(s):
     if not (4 <= len(s) <= 8):
@@ -148,6 +168,8 @@ def clean(s):
     if any(ch not in ALLOWED for ch in s):   # kills c, x, q, y, and anything odd
         return False
     if has_double(s):
+        return False
+    if s[-1] == "i":                          # terminal "ee" is i/y/ie ambiguous (Brandi/Brandy)
         return False
     if adjacent_vowels(s):                    # no ai/ea/io blur — pure CV reads clean
         return False
@@ -160,8 +182,20 @@ def clean(s):
         return False
     if soft_g(s):
         return False
+    # back-vowel before a consonant cluster flips when heard: prontus->"prawntis"
+    # (o->"aw", u->"uh/oo"). 'a/e/i' before a cluster are stable (ambrino's "am").
+    for i, ch in enumerate(s):
+        if ch in "ou":
+            k = 0
+            j = i + 1
+            while j < len(s) and s[j] in CONS:
+                k += 1; j += 1
+            if k >= 2:
+                return False
     if negative(s):                           # sounds negative / has an icky root
         return False
+    if CONNOTATION.get(s) in ("negative", "somewhat negative"):
+        return False                          # positive or neutral only
     if any(d in s for d in BAD_DIGRAPH):
         return False
     if not cons_runs_ok(s) or not onset_ok(s):
@@ -206,12 +240,36 @@ def score(s):
     sc -= sum(c in "jwz" for c in s) * 1.5            # readable but less word-like
     return sc
 
+def brandable_raw(s):
+    """Would a startup name a company/product this? Punchy length, 2-3 syllables,
+    smooth (few clusters), a modern vowel ending or a crisp consonant ending, a
+    strong onset — the things that make Vexa / Venmo / Asana / Stripe feel like
+    brands. (Clarity is handled separately by the Ambrino floor.)"""
+    from collections import Counter as _C
+    n = len(s); syl = syllables(s); b = 0.0
+    b += {4: 8, 5: 9, 6: 9, 7: 6, 8: 2}.get(n, 1)        # punchy length (4-letter brands rock)
+    b += {2: 10, 3: 8, 4: 2}.get(syl, 0)                 # 2-3 syllables is the sweet spot
+    clusters = sum(1 for i in range(n - 1) if s[i] in CONS and s[i + 1] in CONS)
+    b += max(0.0, 4 - clusters * 2)                      # smooth beats chunky
+    b += (len(set(s)) / n) * 8                           # variety — a brand isn't "Dened"
+    b -= sum(v - 1 for ch, v in _C(s).items() if ch in CONS and v > 1) * 3
+    if s[-1] in "oa":     b += 6                          # modern vowel ending (Venmo, Asana)
+    elif s[-1] == "e":    b += 2
+    elif s[-1] in "nrtpd": b += 4                         # crisp consonant ending (Stripe-ish)
+    if s[0] in "bdgptv":  b += 3                          # strong, plosive onset
+    b += min(2, sum(c in "vz" for c in s)) * 1.5          # v/z read as "brand-y"
+    b += wordlikeness(s) * 2                              # still has to feel like a word
+    if n > 7:   b -= (n - 7) * 2
+    if syl > 3: b -= (syl - 3) * 3
+    return b
+
 # Universal, always-resolving link: GoDaddy domain search shows availability +
 # the live aftermarket BIN/make-offer for any .com (GoDaddy aggregates Afternic).
 def buy_link(dom):
     return f"https://www.godaddy.com/domainsearch/find?domainToCheck={dom}"
 
 # ---- load existing candidate pool (the prior full set already has price/source) ----
+# each row: {wl, br, sld, dom, price, source, link}
 rows = list(csv.DictReader(open("scripts/brandables/brandables_full.csv")))
 out = []
 for r in rows:
@@ -219,32 +277,37 @@ for r in rows:
     sld = dom[:-4] if dom.endswith(".com") else dom
     if not clean(sld):
         continue
-    out.append((round(score(sld), 3), sld, dom, r["ask_price_usd"], r["source"], buy_link(dom)))
+    out.append({"wl": round(score(sld), 3), "br": round(brandable_raw(sld), 3),
+                "sld": sld, "dom": dom, "price": r["ask_price_usd"],
+                "source": r["source"], "link": buy_link(dom)})
 
-# Floor: keep only names at least as clean/word-like as Ambrino (the gold-standard
-# example). Computed on the same raw model so the bar is principled, not arbitrary.
-FLOOR_NAME = "ambrino"
-floor = score(FLOOR_NAME)
+# Clarity GATE: keep only names at least as clean/word-like as Ambrino (the
+# gold-standard for sound<->spelling). Then RANK by startup-brandability.
+floor = score("ambrino")
 before = len(out)
-out = [t for t in out if t[0] >= floor]
-print(f"Ambrino floor: raw {round(floor,3)} — kept {len(out)} of {before} (>= Ambrino)")
+out = [t for t in out if t["wl"] >= floor]
+print(f"Ambrino clarity floor: wl {round(floor,3)} — kept {len(out)} of {before}")
 
-out.sort(key=lambda x: -x[0])
-# rescale raw scores to a friendly 0-100 "ease" scale for display
-if out:
-    hi = out[0][0]; lo = out[-1][0]; rng = (hi - lo) or 1
-    out = [(round(60 + 40 * (sc - lo) / rng, 1), sld, dom, price, source, link)
-           for sc, sld, dom, price, source, link in out]
+def rescale(rows, key, out_key):
+    if not rows:
+        return
+    hi = max(r[key] for r in rows); lo = min(r[key] for r in rows); rng = (hi - lo) or 1
+    for r in rows:
+        r[out_key] = round(60 + 40 * (r[key] - lo) / rng, 1)
+
+rescale(out, "wl", "wordlike")
+rescale(out, "br", "brandable")
+out.sort(key=lambda r: -r["br"])              # rank by brandability
 print("tightened candidates:", len(out))
-print("\nTOP 60:")
-for sc, sld, dom, price, source, link in out[:60]:
-    print(f"  {dom:<14} {sc:>6}  {price:>10}  {source}")
+print("\nTOP 60 (by brandability):")
+for r in out[:60]:
+    print(f"  {r['dom']:<14} brand={r['brandable']:>5} word={r['wordlike']:>5}  {r['price']:>10}  {r['source']}")
 
-# diverse top 100 (cap per 2-letter prefix)
+# diverse top list (cap per 2-letter prefix)
 def curated(rows, n=100, per=5):
     res, seen = [], {}
     for row in rows:
-        pre = row[1][:2]
+        pre = row["sld"][:2]
         if seen.get(pre, 0) >= per:
             continue
         seen[pre] = seen.get(pre, 0) + 1
@@ -253,21 +316,20 @@ def curated(rows, n=100, per=5):
             break
     return res
 
-topset = {r[1] for r in curated(out, 100, 5)}
+topset = {r["sld"] for r in curated(out, 100, 5)}
 
 def write_csv(path, rows, top_only=False):
     with open(path, "w", newline="") as f:
         w = csv.writer(f)
-        w.writerow(["rank", "domain", "wordlike_score", "ask_price_usd", "source", "link"]
-                   if top_only else
-                   ["rank", "domain", "curated_top100", "wordlike_score", "ask_price_usd", "source", "link"])
-        rank = 0
-        for sc, sld, dom, price, source, link in rows:
-            rank += 1
-            if top_only:
-                w.writerow([rank, dom, sc, price, source, link])
-            else:
-                w.writerow([rank, dom, "★" if sld in topset else "", sc, price, source, link])
+        w.writerow(["rank", "domain", "brandable_score", "wordlike_score",
+                    "ask_price_usd", "source", "link"] if top_only else
+                   ["rank", "domain", "curated_top100", "brandable_score",
+                    "wordlike_score", "ask_price_usd", "source", "link"])
+        for rank, r in enumerate(rows, 1):
+            base = [rank, r["dom"]]
+            tail = [r["brandable"], r["wordlike"], r["price"], r["source"], r["link"]]
+            w.writerow(base + tail if top_only else
+                       base + ["★" if r["sld"] in topset else ""] + tail)
 
 write_csv("scripts/brandables/brandables_full.csv", out, top_only=False)
 write_csv("scripts/brandables/brandables_top100.csv", curated(out, 100, 5), top_only=True)
