@@ -30,6 +30,10 @@ OK_ONSET2 = {"bl", "br", "dr", "fl", "fr", "gl", "gr", "pl", "pr", "sl", "sm",
              "sn", "sp", "st", "sw", "tr", "tw", "th", "sh", "vr"}
 OK_TRIPLE = ("mbr", "ndr", "ntr", "str", "ngl", "mbl", "ldr", "mpr", "ntl", "nstr")
 BAD_DIGRAPH = ("ph", "gh", "ck", "wh", "ch", "kn", "gn", "ps", "pn", "mn")
+# Clear two-syllable vowel hiatus that reads one way (lor-i-an, stud-io, vide-o).
+# Everything else adjacent-vowel is a diphthong digraph (ai/ea/oo/au/ou…) that
+# blurs to one ambiguous-to-spell sound and stays banned.
+HIATUS_OK = ("ia", "io", "eo", "ua", "uo")
 
 
 NEG_SUBSTR = {
@@ -194,8 +198,12 @@ def _gates_ok(s: str) -> bool:
         return False
     if s[-1] == "i":                                       # brandi/brandy
         return False
-    if any(s[i] in VOWELS and s[i+1] in VOWELS for i in range(len(s)-1)):
-        return False                                       # adjacent vowels
+    for i in range(len(s) - 1):                            # adjacent vowels
+        if s[i] in VOWELS and s[i+1] in VOWELS and s[i:i+2] not in HIATUS_OK:
+            return False                                   # diphthong digraph blur
+    if any(s[i] in VOWELS and s[i+1] in VOWELS and s[i+2] in VOWELS
+           for i in range(len(s) - 2)):
+        return False                                       # never 3+ vowels in a row
     if not (VOWELS & set(s)):
         return False
     if any(s[i] in "sl" and s[i-1] in VOWELS and s[i+1] in VOWELS

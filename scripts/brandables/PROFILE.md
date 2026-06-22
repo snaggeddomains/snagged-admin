@@ -19,7 +19,9 @@ Implemented in `scripts/tighten_brandables.py`; published to the Google Sheet vi
 - `.com` only; length **4–8**; letters only.
 - **2–3 syllables**.
 - **No double letters** (no `tt`, `ll`, …).
-- **No adjacent vowels** — no `ai`/`ea`/`io` blur; vowels sit between consonants.
+- **Adjacent vowels** — clear two-syllable hiatus is allowed (`ia`/`io`/`eo`/`ua`/`uo`,
+  e.g. lor-i-an, stud-io, vide-o); diphthong digraphs that blur to one ambiguous-to-
+  spell sound (`ai`/`ea`/`oo`/`au`/`ou`/`oa`/`ei`/`ie`…) and any 3+ vowel run stay banned.
 - Valid word-initial consonant onsets only; medial consonant runs ≤2 **unless** a
   comfortable blend (`mbr`,`ndr`,`ntr`,`str`,`ngl`,`mbl`,`ldr`,`mpr`,`ntl`,`nstr`).
 

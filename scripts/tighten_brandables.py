@@ -68,8 +68,16 @@ BAD_DIGRAPH = ("ph","gh","ck","wh","ch","ck","kn","gn","ps","pn","mn")
 def has_double(s):
     return any(s[i] == s[i+1] for i in range(len(s)-1))
 
+HIATUS_OK = ("ia", "io", "eo", "ua", "uo")   # clear 2-syllable hiatus (lor-i-an)
+
 def adjacent_vowels(s):
-    return any(s[i] in VOWELS and s[i+1] in VOWELS for i in range(len(s)-1))
+    # True = has a BAD adjacent-vowel blur. Allow clear hiatus pairs (ia/io/eo/ua/uo);
+    # ban diphthong digraphs (ai/ea/oo/au/ou…) and any 3+ vowel run.
+    for i in range(len(s) - 1):
+        if s[i] in VOWELS and s[i+1] in VOWELS and s[i:i+2] not in HIATUS_OK:
+            return True
+    return any(s[i] in VOWELS and s[i+1] in VOWELS and s[i+2] in VOWELS
+               for i in range(len(s) - 2))
 
 def soft_g(s):
     return any(s[i] == "g" and i+1 < len(s) and s[i+1] in "ei" for i in range(len(s)))
