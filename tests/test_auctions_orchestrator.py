@@ -90,6 +90,25 @@ def test_build_slack_sections_skips_listings_without_end_time():
     assert "b.com" not in flat
 
 
+# ---------- _all_enriched ----------
+
+def test_all_enriched_returns_flat_list_of_ok_producers():
+    # Regression: _all_enriched previously ended with `return out, all_enriched`,
+    # referencing an undefined name -> NameError at runtime, which crashed
+    # auctions_publish when building the MUB roundup. It must return a single
+    # flat list of the OK producers' enriched listings.
+    state.write_json("src_a", "snapshot.json", [
+        {"domain": "a.com", "end_time_utc": "2026-05-29T10:00:00+00:00"},
+    ])
+    statuses = [
+        {"source": "src_a", "label": "Source A", "status": "ok",     "generated_at": "x"},
+        {"source": "src_b", "label": "Source B", "status": "failed", "generated_at": "x"},
+    ]
+    enriched = orchestrator._all_enriched(statuses)
+    assert isinstance(enriched, list)
+    assert [L["domain"] for L in enriched] == ["a.com"]
+
+
 # ---------- watchdog: no orchestrator status ----------
 
 def test_watchdog_no_status_file_skips():

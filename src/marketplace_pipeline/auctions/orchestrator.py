@@ -164,7 +164,7 @@ def _all_enriched(statuses: list[dict[str, Any]]) -> list[dict[str, Any]]:
     for s in statuses:
         if s["status"] == "ok":
             out.extend(_enrich_snapshot(s["source"]))
-    return out, all_enriched
+    return out
 
 
 def run() -> int:
