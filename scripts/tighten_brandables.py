@@ -11,7 +11,9 @@ import csv, re, math
 from functools import lru_cache
 
 VOWELS = set("aeiou")
-CONS = set("bdfghjklmnprstvwz")          # note: c, x, q, y deliberately excluded
+# c, x, q, y AND k deliberately excluded: a hard /k/ sound can't be unambiguously
+# spelled from hearing it (Karina vs Carina, Kerema vs Cerema) — so no k either.
+CONS = set("bdfghjlmnprstvwz")
 ALLOWED = VOWELS | CONS                  # the full allowed alphabet
 
 # ---- word-likeness model: bigram + trigram log-freq from the wordlist ----
