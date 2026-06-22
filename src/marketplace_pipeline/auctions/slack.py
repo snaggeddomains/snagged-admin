@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from ..filters import mub
 from ..publishers import slack as slack_pub
 
 
@@ -16,12 +17,15 @@ def format_section(*, label: str, listings: list[dict[str, Any]], top_n: int = 1
     """Return a list of message lines for one auction source.
 
     Lines look like:
-        *Park.io* — 47 auctions
-        • example.com  $42  ends 2d 3h
+        *Park.io* — 47 auctions (3 ✨ MUB)
+        • ✨ ambrino.com  $42  ends 2d 3h
         • foo.com      $120 ends 4h 12m
         ...
+    A ✨ marks a MUB (Made-Up Brandable) name — see scripts/brandables/PROFILE.md.
     """
-    lines: list[str] = [f"*{label}* — {len(listings)} auctions"]
+    mub_n = mub.count_mub(x.get("domain", "") for x in listings)
+    header = f"*{label}* — {len(listings)} auctions" + (f" ({mub_n} ✨ MUB)" if mub_n else "")
+    lines: list[str] = [header]
     if not listings:
         lines.append("_(none)_")
         return lines
@@ -43,7 +47,7 @@ def format_section(*, label: str, listings: list[dict[str, Any]], top_n: int = 1
         link = x.get("link")
         # Domain rendered plain; "link" hyperlink at end if a URL exists.
         link_suffix = f"  <{link}|link>" if link else ""
-        lines.append(f"• {domain}  {price_str}  ends {time_left}{link_suffix}")
+        lines.append(f"• {mub.mub_mark(domain)}{domain}  {price_str}  ends {time_left}{link_suffix}")
 
     if len(listings) > top_n:
         lines.append(f"… and {len(listings) - top_n} more")

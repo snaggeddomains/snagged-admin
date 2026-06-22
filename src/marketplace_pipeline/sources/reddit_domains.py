@@ -183,8 +183,11 @@ def run() -> int:
         if channel:
             top = sorted(priced.items(), key=lambda kv: kv[1])[:15] if priced else [(d, None) for d in domains[:15]]
             lines = [slack_line(d, p, links.get(d) or f"https://www.reddit.com/r/Domains/search/?q={d}&restrict_sr=1") for d, p in top]
+            from ..filters import mub
+            mub_n = mub.count_mub(domains)
             text = (f":mag: *r/Domains good deals* — {len(domains)} *new* candidate(s) "
-                    f"({len(priced)} priced)\n" + "\n".join(lines))
+                    f"({len(priced)} priced" + (f" · {mub_n} ✨ MUB" if mub_n else "") + ")\n"
+                    + "\n".join(lines))
             if sheet_url:
                 text += f"\n<{sheet_url}|Full list →>"
             try:

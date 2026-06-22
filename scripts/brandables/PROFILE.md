@@ -73,6 +73,19 @@ above it = clean enough.
   BIN/make-offer).
 - Two tabs: **Top** (prefix-diversified, ≤5 per 2-letter prefix) + **All (ranked)**.
 
+## Reuse in SNAP + auction runs
+`marketplace_pipeline/filters/mub.py` is the runtime gate (same definition, faithful
+to this sheet — verified all sheet names return `is_mub=True`). It uses the committed
+`scripts/brandables/mub_ngrams.json` for the word-likeness floor and `wordfreq` for
+the made-up check. Wired in:
+- **Auctions** — `auctions/slack.py format_section` prefixes MUB names with ✨ and adds
+  `(N ✨ MUB)` to each source header (covers every auction source at once).
+- **SNAP good deals** — `namepros_marketplace` + `reddit_domains` mark MUB lines with ✨
+  and add `· N ✨ MUB` to the headline.
+
+`is_mub(domain)` (single-label `.com` only) · `mub_mark(domain)` → "✨ "/"" ·
+`count_mub(domains)`.
+
 ## Re-run
 ```
 python3 scripts/tighten_brandables.py            # regenerate the two CSVs

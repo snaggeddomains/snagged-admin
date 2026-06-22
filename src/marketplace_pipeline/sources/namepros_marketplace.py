@@ -445,9 +445,11 @@ def _embedded_in_phrase(text: str, start: int) -> bool:
 
 
 def slack_line(domain: str, price: int | None, url: str | None) -> str:
-    """A Slack mrkdwn bullet that links the domain to its actual listing post/page."""
+    """A Slack mrkdwn bullet that links the domain to its actual listing post/page.
+    A leading ✨ marks a MUB (Made-Up Brandable) name (scripts/brandables/PROFILE.md)."""
+    from ..filters import mub
     label = f"<{url}|{domain}>" if url else domain
-    return f"• {label}" + (f" — ${price:,}" if price else "")
+    return f"• {mub.mub_mark(domain)}{label}" + (f" — ${price:,}" if price else "")
 
 
 SEEN_FILE = "seen.json"      # cumulative set of domains ever surfaced (net-new gating)
@@ -559,8 +561,11 @@ def run() -> int:
             # Always link to NamePros (thread when known, else a NamePros search) so
             # Slack doesn't auto-link the bare domain text to the parked site.
             lines = [slack_line(d, p, links.get(d) or SEARCH_URL.format(q=d)) for d, p in top]
+            from ..filters import mub
+            mub_n = mub.count_mub(domains)
             text = (f":mag: *NamePros good deals* — {len(domains)} *new* candidate(s) "
-                    f"({len(priced)} priced)\n" + "\n".join(lines))
+                    f"({len(priced)} priced" + (f" · {mub_n} ✨ MUB" if mub_n else "") + ")\n"
+                    + "\n".join(lines))
             if sheet_url:
                 text += f"\n<{sheet_url}|Full list →>"
             try:

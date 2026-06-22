@@ -149,6 +149,13 @@ sync with the code. Pipeline:
   2–3 syllables; negative/icky/suggestive sound excluded (root substrings, ≤1-edit to
   a negative word, sensitive-word rhyme like `habido`~libido). Re-run: `python3
   scripts/tighten_brandables.py` then dispatch the workflow with the `spreadsheet_id`.
+- **Runtime gate `filters/mub.py`** (`is_mub`/`mub_mark`/`count_mub`) flags MUB-grade
+  coined `.com`s live in SNAP + auction runs — ✨ marker + `(N ✨ MUB)` header in the
+  **auction** Slack sections (`auctions/slack.py format_section`, one spot = all auction
+  sources) and the **SNAP good-deals** posts (`namepros_marketplace` + `reddit_domains`).
+  Same definition as the sheet (verified every sheet name returns `is_mub=True`); uses
+  the committed `scripts/brandables/mub_ngrams.json` (word-like floor) + `wordfreq`
+  (made-up). Tests: `tests/test_mub.py`.
 
 # Working agreements
 
