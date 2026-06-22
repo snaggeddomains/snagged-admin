@@ -130,36 +130,41 @@ def _mub_section(all_listings: list[dict[str, Any]]) -> list[str] | None:
     return lines
 
 
-def _build_slack_sections(statuses: list[dict[str, Any]]) -> tuple[list[list[str]], list[dict[str, Any]]]:
-    """For each OK producer, read its snapshot.json and build a Slack section.
-    Also returns the flat list of all enriched listings (for the MUB roundup)."""
-    sections: list[list[str]] = []
-    all_enriched: list[dict[str, Any]] = []
+def _enrich_snapshot(source: str) -> list[dict[str, Any]]:
+    """Read a producer's snapshot.json and add time_left for rendering."""
     now = datetime.now(timezone.utc)
+    snapshot = state.read_json(source, "snapshot.json", default=[]) or []
+    out: list[dict[str, Any]] = []
+    for L in snapshot:
+        end = L.get("end_time_utc")
+        if not end:
+            continue
+        try:
+            end_dt = datetime.fromisoformat(str(end).replace("Z", "+00:00"))
+        except (ValueError, TypeError):
+            continue
+        out.append({**L, "time_left": auctions_sheet.format_time_left(end_dt, now=now)})
+    return out
+
+
+def _build_slack_sections(statuses: list[dict[str, Any]]) -> list[list[str]]:
+    """For each OK producer, read its snapshot.json and build a Slack section."""
+    sections: list[list[str]] = []
     for s in statuses:
         if s["status"] != "ok":
             continue
-        snapshot = state.read_json(s["source"], "snapshot.json", default=[])
-        if not snapshot:
-            sections.append(auctions_slack.format_section(label=s["label"], listings=[]))
-            continue
-        # Enrich with time_left for nice rendering
-        enriched: list[dict[str, Any]] = []
-        for L in snapshot:
-            end = L.get("end_time_utc")
-            if not end:
-                continue
-            try:
-                end_dt = datetime.fromisoformat(str(end).replace("Z", "+00:00"))
-            except (ValueError, TypeError):
-                continue
-            enriched.append({
-                **L,
-                "time_left": auctions_sheet.format_time_left(end_dt, now=now),
-            })
-        all_enriched.extend(enriched)
+        enriched = _enrich_snapshot(s["source"])
         sections.append(auctions_slack.format_section(label=s["label"], listings=enriched))
-    return sections, all_enriched
+    return sections
+
+
+def _all_enriched(statuses: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Flat list of all OK producers' enriched listings (for the MUB roundup)."""
+    out: list[dict[str, Any]] = []
+    for s in statuses:
+        if s["status"] == "ok":
+            out.extend(_enrich_snapshot(s["source"]))
+    return out, all_enriched
 
 
 def run() -> int:
@@ -208,8 +213,8 @@ def run() -> int:
 
     # Build + post consolidated Slack
     print("auctions_publish: building consolidated Slack message")
-    sections, all_enriched = _build_slack_sections(statuses)
-    mub_section = _mub_section(all_enriched)
+    sections = _build_slack_sections(statuses)
+    mub_section = _mub_section(_all_enriched(statuses))
     failed = [s for s in statuses if s["status"] == "failed"]
     if failed:
         # Footer line about failed sources so they're visible

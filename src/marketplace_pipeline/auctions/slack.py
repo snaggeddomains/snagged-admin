@@ -44,7 +44,7 @@ def format_section(*, label: str, listings: list[dict[str, Any]], top_n: int = 1
         link = x.get("link")
         # Domain rendered plain; "link" hyperlink at end if a URL exists.
         link_suffix = f"  <{link}|link>" if link else ""
-        lines.append(f"• {mub.mub_mark(domain)}{domain}  {price_str}  ends {time_left}{link_suffix}")
+        lines.append(f"• {domain}  {price_str}  ends {time_left}{link_suffix}")
 
     if len(listings) > top_n:
         lines.append(f"… and {len(listings) - top_n} more")
