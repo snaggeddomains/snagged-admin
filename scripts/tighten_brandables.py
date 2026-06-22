@@ -63,7 +63,7 @@ def wordlikeness(sld):
 OK_ONSET2 = {"bl","br","dr","fl","fr","gl","gr","pl","pr","sl","sm","sn","sp",
              "st","sw","tr","tw","th","sh","vr"}
 OK_TRIPLE = ("mbr","ndr","ntr","str","ngl","mbl","ldr","mpr","ntl","nstr")
-BAD_DIGRAPH = ("ph","gh","ck","wh","ch","ck","kn","gn","ps","pn","mn")
+BAD_DIGRAPH = ("ph","gh","ck","wh","kn","gn","ps","pn","mn")   # 'ch' allowed (archmont)
 
 def has_double(s):
     return any(s[i] == s[i+1] for i in range(len(s)-1))
@@ -179,7 +179,10 @@ def negative(s):
 def clean(s):
     if not (4 <= len(s) <= 8):
         return False
-    if any(ch not in ALLOWED for ch in s):   # kills c, x, q, y, and anything odd
+    if any(ch not in ALLOWED and ch != "c" for ch in s):   # kills k, x, q, y, anything odd
+        return False
+    if any(s[i] == "c" and (i + 1 >= len(s) or s[i+1] != "h")
+           for i in range(len(s))):             # 'c' only inside 'ch' (archmont)
         return False
     if has_double(s):
         return False
@@ -196,15 +199,15 @@ def clean(s):
         return False
     if soft_g(s):
         return False
-    # back-vowel before a consonant cluster flips when heard: prontus->"prawntis"
-    # (o->"aw", u->"uh/oo"). 'a/e/i' before a cluster are stable (ambrino's "am").
+    # back-vowel before a consonant PILE-UP (softened to 3+ so o/u + a 2-cluster
+    # like "mont"/"pront" is allowed — archmont). 'a/e/i' clusters were always fine.
     for i, ch in enumerate(s):
         if ch in "ou":
             k = 0
             j = i + 1
             while j < len(s) and s[j] in CONS:
                 k += 1; j += 1
-            if k >= 2:
+            if k >= 3:
                 return False
     if negative(s):                           # sounds negative / has an icky root
         return False
@@ -297,7 +300,8 @@ for r in rows:
 
 # Clarity GATE: keep only names at least as clean/word-like as Ambrino (the
 # gold-standard for sound<->spelling). Then RANK by startup-brandability.
-floor = score("ambrino")
+BLESSED = ("ambrino", "batino", "boga", "ditora", "pentero", "lorian", "archmont")
+floor = min(score(b) for b in BLESSED)   # calibrated to the lowest user-blessed example
 before = len(out)
 out = [t for t in out if t["wl"] >= floor]
 print(f"Ambrino clarity floor: wl {round(floor,3)} — kept {len(out)} of {before}")

@@ -29,7 +29,7 @@ ALLOWED = VOWELS | CONS
 OK_ONSET2 = {"bl", "br", "dr", "fl", "fr", "gl", "gr", "pl", "pr", "sl", "sm",
              "sn", "sp", "st", "sw", "tr", "tw", "th", "sh", "vr"}
 OK_TRIPLE = ("mbr", "ndr", "ntr", "str", "ngl", "mbl", "ldr", "mpr", "ntl", "nstr")
-BAD_DIGRAPH = ("ph", "gh", "ck", "wh", "ch", "kn", "gn", "ps", "pn", "mn")
+BAD_DIGRAPH = ("ph", "gh", "ck", "wh", "kn", "gn", "ps", "pn", "mn")  # 'ch' allowed (archmont)
 # Clear two-syllable vowel hiatus that reads one way (lor-i-an, stud-io, vide-o).
 # Everything else adjacent-vowel is a diphthong digraph (ai/ea/oo/au/ou…) that
 # blurs to one ambiguous-to-spell sound and stays banned.
@@ -192,7 +192,10 @@ def _gates_ok(s: str) -> bool:
     """Pure-string MUB gates (everything except made-up + the word-like floor)."""
     if not (4 <= len(s) <= 8):
         return False
-    if any(ch not in ALLOWED for ch in s):                 # c k x q y / anything odd
+    if any(ch not in ALLOWED and ch != "c" for ch in s):   # k x q y / anything odd
+        return False
+    if any(s[i] == "c" and (i + 1 >= len(s) or s[i+1] != "h")
+           for i in range(len(s))):                         # 'c' only inside 'ch'
         return False
     if any(s[i] == s[i+1] for i in range(len(s)-1)):       # no double letters
         return False
@@ -211,12 +214,12 @@ def _gates_ok(s: str) -> bool:
         return False
     if any(s[i] == "g" and i+1 < len(s) and s[i+1] in "ei" for i in range(len(s))):
         return False                                       # soft g
-    for i, ch in enumerate(s):                             # back vowel before cluster
-        if ch in "ou":
-            k = 0; j = i + 1
+    for i, ch in enumerate(s):                             # back vowel before a PILE-UP
+        if ch in "ou":                                     # (softened: 2-cluster like
+            k = 0; j = i + 1                               #  "mont"/"pront" now ok)
             while j < len(s) and s[j] in CONS:
                 k += 1; j += 1
-            if k >= 2:
+            if k >= 3:
                 return False
     if any(d in s for d in BAD_DIGRAPH):
         return False
@@ -228,9 +231,13 @@ def _gates_ok(s: str) -> bool:
         return False
     return True
 
+# The clarity floor is calibrated to the LOWEST user-blessed example (calibrate-by-
+# example). Ambrino set the original bar; archmont is the current lowest good one.
+BLESSED = ("ambrino", "batino", "boga", "ditora", "pentero", "lorian", "archmont")
+
 @lru_cache(maxsize=8192)
 def _floor() -> float:
-    return _score("ambrino")
+    return min(_score(b) for b in BLESSED)
 
 def split_domain(domain: str):
     """(sld, tld) for a single-label domain, else (None, None)."""

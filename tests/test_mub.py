@@ -8,7 +8,8 @@ from marketplace_pipeline.filters import mub
 
 
 def test_in_profile_names_pass():
-    for d in ("ambrino.com", "batino.com", "boga.com", "ditora.com", "pentero.com"):
+    for d in ("ambrino.com", "batino.com", "boga.com", "ditora.com", "pentero.com",
+              "lorian.com", "archmont.com"):
         assert mub.is_mub(d), d
 
 
@@ -19,11 +20,11 @@ def test_k_and_c_excluded():
 
 
 def test_spelling_traps_excluded():
-    assert not mub.is_mub("prontus.com")   # back vowel before cluster -> "prawntis"
     assert not mub.is_mub("brandi.com")    # terminal i (Brandi/Brandy)
     assert not mub.is_mub("derosa.com")    # intervocalic s -> /z/
     assert not mub.is_mub("demila.com")    # intervocalic l -> doubling
     assert not mub.is_mub("google.com")    # double letter
+    assert not mub.is_mub("carina.com")    # bare c (not 'ch') -> K/C ambiguity
 
 
 def test_negative_and_sensitive_excluded():

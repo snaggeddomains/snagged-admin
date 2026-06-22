@@ -143,10 +143,12 @@ sync with the code. Pipeline:
   updates an existing sheet **in place** (clears/rewrites tabs, drops stale tabs);
   blank creates a new one in the SA-writable Shared Drive folder. Live sheet:
   `1do9T60t-deBGCZQq7bQoM9xgYFnpRn9sTtet7yKx3eo`.
-- Gates (drop on any): banned letters `c k x q y`, soft-g, `ph/gh/ck/wh/ch` digraphs,
-  double letters, adjacent vowels, intervocalic `s`/`l`, back-vowel(`o`/`u`)-before-
-  cluster (`prontus`→"prawntis"), terminal `i` (`brandi`/Brandy); must be made-up +
-  2–3 syllables; negative/icky/suggestive sound excluded (root substrings, ≤1-edit to
+- Gates (drop on any): banned letters `k x q y` + **bare** `c` (but `ch` is allowed —
+  `c` only before `h`, archmont), soft-g, `ph/gh/ck/wh` digraphs, double letters,
+  adjacent vowels EXCEPT clear hiatus `ia/io/eo/ua/uo` (lorian), intervocalic `s`/`l`,
+  back-vowel(`o`/`u`)-before-a-**3+** -consonant pile-up (softened from 2+ so "mont"/
+  "pront" pass), terminal `i` (`brandi`/Brandy); must be made-up + 2–3 syllables;
+  clarity floor = lowest blessed example (`BLESSED`; archmont is currently lowest); negative/icky/suggestive sound excluded (root substrings, ≤1-edit to
   a negative word, sensitive-word rhyme like `habido`~libido). Re-run: `python3
   scripts/tighten_brandables.py` then dispatch the workflow with the `spreadsheet_id`.
 - **Runtime gate `filters/mub.py`** (`is_mub`/`mub_mark`/`count_mub`/`mub_brandable`)

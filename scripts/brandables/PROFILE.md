@@ -26,17 +26,18 @@ Implemented in `scripts/tighten_brandables.py`; published to the Google Sheet vi
   comfortable blend (`mbr`,`ndr`,`ntr`,`str`,`ngl`,`mbl`,`ldr`,`mpr`,`ntl`,`nstr`).
 
 **Sound↔spelling lock — banned letters/patterns (each breaks the 1:1 mapping)**
-- **`c`** — sounds like K or S (cat/cent). **`k`** — a hard `/k/` can't be spelled
-  unambiguously by ear (Karina/Carina, Kerema/Cerema). So the `/k/` phoneme is out
-  entirely.
+- **bare `c`** — sounds like K or S (cat/cent). **`k`** — a hard `/k/` can't be spelled
+  unambiguously by ear (Karina/Carina, Kerema/Cerema). So the standalone `/k/` is out.
+  **Exception: `ch` is allowed** (the /tʃ/ in arch — archmont); a `c` is permitted only
+  when it's immediately followed by `h`.
 - **`x`** (ks/z), **`q`** (needs qu), **`y`** (vowel/consonant ambiguity).
 - **Soft `g`** — no `g` before `e`/`i` (gem vs get).
-- **Digraphs** `ph`,`gh`,`ck`,`wh`,`ch` (+ silent `kn`/`gn`/`ps`/`pn`/`mn`).
+- **Digraphs** `ph`,`gh`,`ck`,`wh` (+ silent `kn`/`gn`/`ps`/`pn`/`mn`). (`ch` is allowed.)
 - **Intervocalic `s`** — voices to /z/ (`derosa`→"deroza").
 - **Intervocalic `l`** — invites doubling (`demila`→"demilla", `darilo`→"darillo").
   (Word-**final** `l`/`s` are fine: `gonel`, `arinos`.)
-- **Back vowel before a cluster** — `o`/`u` followed by 2+ consonants flips by ear
-  (`prontus`→"prawntis"). (`a`/`e`/`i` before a cluster are stable — Ambrino's "am".)
+- **Back vowel before a consonant PILE-UP** — `o`/`u` followed by **3+** consonants
+  (softened from 2+ so a 2-cluster like "mont"/"pront" passes — archmont).
 - **Terminal `i`** — a final "ee" sound spelled `i` is i/y/ie ambiguous
   (`brandi`/Brandy).
 
@@ -53,9 +54,11 @@ Implemented in `scripts/tighten_brandables.py`; published to the Google Sheet vi
   (committed map `scripts/brandables/connotation.json`; positive/neutral pass).
 
 ## The clarity floor (the gate)
-`wordlike_score` is computed for every candidate; we keep only names scoring **≥
-Ambrino** (`floor = score("ambrino")`). Ambrino is the calibration point — at or
-above it = clean enough.
+`wordlike_score` is computed for every candidate; we keep only names scoring **≥ the
+lowest user-blessed example** (`floor = min(score(b) for b in BLESSED)`, where
+`BLESSED = ambrino, batino, boga, ditora, pentero, lorian, archmont`). Ambrino set the
+original bar; **archmont is currently the lowest**, so it sets the floor. Add a new
+blessed example below archmont and the floor (and the list) widens with it.
 
 ## Scores (both shown on the sheet)
 - **`wordlike_score`** (0–100): how word-like the letter sequences are — mean log
