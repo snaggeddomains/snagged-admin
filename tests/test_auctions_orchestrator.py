@@ -90,6 +90,37 @@ def test_build_slack_sections_skips_listings_without_end_time():
     assert "b.com" not in flat
 
 
+# ---------- _all_enriched + _mub_section (the standalone MUB picks post) ----------
+
+def test_all_enriched_flattens_ok_producers():
+    state.write_json("src_a", "snapshot.json", [
+        {"domain": "ambrino.com", "end_time_utc": "2026-05-29T10:00:00+00:00", "platform": "GoDaddy"},
+    ])
+    statuses = [
+        {"source": "src_a", "label": "Source A", "status": "ok", "generated_at": "x"},
+        {"source": "src_b", "label": "Source B", "status": "failed", "generated_at": "x"},
+    ]
+    rows = orchestrator._all_enriched(statuses)
+    assert [r["domain"] for r in rows] == ["ambrino.com"]
+    assert rows[0]["time_left"]            # enriched
+
+
+def test_mub_section_picks_only_mub_with_source():
+    listings = [
+        {"domain": "ambrino.com", "price": 120, "time_left": "2d", "platform": "Dynadot"},
+        {"domain": "google.com", "price": 50, "time_left": "4h", "platform": "GoDaddy"},
+    ]
+    section = orchestrator._mub_section(listings)
+    flat = "\n".join(section)
+    assert "MUB picks" in flat
+    assert "ambrino.com" in flat and "Dynadot" in flat
+    assert "google.com" not in flat
+
+
+def test_mub_section_none_when_no_hits():
+    assert orchestrator._mub_section([{"domain": "google.com", "time_left": "4h"}]) is None
+
+
 # ---------- watchdog: no orchestrator status ----------
 
 def test_watchdog_no_status_file_skips():
