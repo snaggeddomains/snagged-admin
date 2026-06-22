@@ -1,5 +1,5 @@
 {
-  "count": 59,
+  "count": 68,
   "domains": [
     "1882.org",
     "63482.com",
@@ -11,6 +11,7 @@
     "affaires.ai",
     "am.app",
     "apollo.io",
+    "balanced.now",
     "bikini.com",
     "colonic.co",
     "diseases.io",
@@ -22,7 +23,9 @@
     "fundy.org",
     "furlough.org",
     "g.com",
+    "grunt.net",
     "h.com",
+    "happening.co",
     "homicides.net",
     "hots.ai",
     "housemaid.org",
@@ -39,9 +42,13 @@
     "n.com",
     "narcotic.org",
     "nondescript.ai",
+    "ornamentation.com",
     "p.com",
+    "physical.co",
+    "pluto.com",
     "protocol.com",
     "put.vc",
+    "quotes.xyz",
     "r.com",
     "reinvestment.io",
     "reliability.vc",
@@ -59,8 +66,10 @@
     "syringes.com",
     "t.com",
     "technology.xyz",
-    "threshold.ai"
+    "threshold.ai",
+    "transitions.net",
+    "viaduct.net"
   ],
   "source": "namepros_marketplace",
-  "updated_at": "2026-06-22T10:05:40.210224+00:00"
+  "updated_at": "2026-06-22T17:06:54.891012+00:00"
 }
