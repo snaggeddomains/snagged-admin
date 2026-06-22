@@ -39,7 +39,7 @@ jobs:
           set -o pipefail
           python3 scripts/make_brand_sheet.py \
             --csv scripts/brandables/brandables_top100.csv --tab "Top 100" \
-            --csv scripts/brandables/brandables_full.csv --tab "All (4300+)" \
+            --csv scripts/brandables/brandables_full.csv --tab "All (ranked)" \
             --title "${{ inputs.title }}" \
             --spreadsheet-id "${{ inputs.spreadsheet_id }}" \
             --folder "${{ inputs.folder }}" \

@@ -75,6 +75,12 @@ def main() -> int:
                    for t in tabs if t not in existing]
         if addreqs:
             sheets.spreadsheets().batchUpdate(spreadsheetId=ssid, body={"requests": addreqs}).execute()
+            meta = sheets.spreadsheets().get(spreadsheetId=ssid).execute()
+        # drop any leftover tab not in the target set (dedicated sheet — keep it clean)
+        delreqs = [{"deleteSheet": {"sheetId": s["properties"]["sheetId"]}}
+                   for s in meta["sheets"] if s["properties"]["title"] not in tabs]
+        if delreqs:
+            sheets.spreadsheets().batchUpdate(spreadsheetId=ssid, body={"requests": delreqs}).execute()
         for t in tabs:
             sheets.spreadsheets().values().clear(spreadsheetId=ssid, range=t).execute()
     elif args.folder:

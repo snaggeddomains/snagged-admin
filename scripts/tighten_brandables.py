@@ -161,6 +161,14 @@ for r in rows:
         continue
     out.append((round(score(sld), 3), sld, dom, r["ask_price_usd"], r["source"], buy_link(dom)))
 
+# Floor: keep only names at least as clean/word-like as Ambrino (the gold-standard
+# example). Computed on the same raw model so the bar is principled, not arbitrary.
+FLOOR_NAME = "ambrino"
+floor = score(FLOOR_NAME)
+before = len(out)
+out = [t for t in out if t[0] >= floor]
+print(f"Ambrino floor: raw {round(floor,3)} — kept {len(out)} of {before} (>= Ambrino)")
+
 out.sort(key=lambda x: -x[0])
 # rescale raw scores to a friendly 0-100 "ease" scale for display
 if out:
