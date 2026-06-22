@@ -126,6 +126,30 @@ excludes `api/internal` (machine-to-machine, no cookie). **Env:** set
 side: `domain-owner-research` `lib/email/threads.js` + `api/chat-email.js` (see that
 repo's CLAUDE.md "Chat email ingestion").
 
+# MUB — "Made-Up Brandable" naming profile (2026-06-22)
+
+Saved ruleset for picking brandable, **coined** `.com`s with a strict two-way
+sound↔spelling lock, positive/neutral connotation, and startup-name feel (gold
+standard: **Ambrino**). **Full spec: `scripts/brandables/PROFILE.md`** — keep it in
+sync with the code. Pipeline:
+- `scripts/tighten_brandables.py` — applies the MUB gates + two scores
+  (`wordlike_score` = sound/spelling clarity, the **Ambrino floor** is the gate;
+  `brandable_score` = startup-name-ability, the sheet is **ranked** by it). Reads the
+  candidate pool, writes `scripts/brandables/brandables_{full,top100}.csv`.
+- `scripts/brandables/connotation.json` — committed DB connotation map (positive/
+  neutral only; negative/somewhat-negative dropped).
+- `scripts/make_brand_sheet.py` + `.github/workflows/brandable-sheet.yml` — publishes
+  to a Google Sheet (SA Drive+Sheets creds live only in CI). `spreadsheet_id` input
+  updates an existing sheet **in place** (clears/rewrites tabs, drops stale tabs);
+  blank creates a new one in the SA-writable Shared Drive folder. Live sheet:
+  `1do9T60t-deBGCZQq7bQoM9xgYFnpRn9sTtet7yKx3eo`.
+- Gates (drop on any): banned letters `c k x q y`, soft-g, `ph/gh/ck/wh/ch` digraphs,
+  double letters, adjacent vowels, intervocalic `s`/`l`, back-vowel(`o`/`u`)-before-
+  cluster (`prontus`→"prawntis"), terminal `i` (`brandi`/Brandy); must be made-up +
+  2–3 syllables; negative/icky/suggestive sound excluded (root substrings, ≤1-edit to
+  a negative word, sensitive-word rhyme like `habido`~libido). Re-run: `python3
+  scripts/tighten_brandables.py` then dispatch the workflow with the `spreadsheet_id`.
+
 # Working agreements
 
 ## Probes and one-shot scripts: run locally by default

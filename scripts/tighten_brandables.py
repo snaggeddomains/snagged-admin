@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
-"""Tighten the brandables list to the cleanest, most word-like, unambiguous names.
+"""MUB profile — "Made-Up Brandable" (aka "Made-Up Word, Brandable").
 
-Rules tuned to Ambrino-style picks: no double letters, no spelling-trap letters
-(c/x/q dropped — 'c' sounds like k OR s; soft-g, y-as-vowel, ph/gh/ck/wh/ch
-digraphs dropped), no adjacent-vowel blur, pure easy CV structure. Ranked by how
-word-like the actual letter sequences are (mean log bigram frequency from the
-68K english_words list) so they "sound like words."
+The saved ruleset for brandable, coined .com names with a strict two-way
+sound<->spelling lock (spell-from-hearing == read-and-say), positive/neutral
+connotation, and startup-name feel. Gold standard: Ambrino.
+
+FULL SPEC: scripts/brandables/PROFILE.md  (keep that file in sync with this code).
+
+Summary: drop spelling-trap letters (c/k/x/q/y), soft-g, ph/gh/ck/wh/ch digraphs,
+double letters, adjacent vowels, intervocalic s/l, back-vowel-before-cluster
+(prontus->"prawntis"), terminal i (brandi/brandy); require made-up + 2-3 syllables;
+exclude negative/icky/suggestive sound; keep only names >= Ambrino on wordlike_score
+(the clarity floor); RANK by brandable_score (startup-name-ability).
 """
 import csv, re, math, json, os
 from functools import lru_cache
