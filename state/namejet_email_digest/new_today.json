@@ -1,7 +1,11 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-06-21T15:08:12.684172+00:00",
+  "count": 3,
+  "domains": [
+    "shay.com",
+    "stalker.org",
+    "dials.com"
+  ],
+  "generated_at": "2026-06-22T15:08:37.161449+00:00",
   "source": "namejet_email_digest"
 }
