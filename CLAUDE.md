@@ -155,7 +155,9 @@ sync with the code. Pipeline:
   sources) and the **SNAP good-deals** posts (`namepros_marketplace` + `reddit_domains`).
   Same definition as the sheet (verified every sheet name returns `is_mub=True`); uses
   the committed `scripts/brandables/mub_ngrams.json` (word-like floor) + `wordfreq`
-  (made-up). Tests: `tests/test_mub.py`.
+  (made-up). The **morning auctions report** (`auctions/orchestrator.py`) leads with a
+  **"✨ MUB picks"** roundup — every MUB hit across all auction sources, deduped + ranked
+  by `mub.mub_brandable` (best first). Tests: `tests/test_mub.py`.
 
 # Working agreements
 

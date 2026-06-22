@@ -89,9 +89,47 @@ def _run_one(source_id: str) -> dict[str, Any]:
         os.environ.pop(auctions.ORCHESTRATOR_ENV, None)
 
 
-def _build_slack_sections(statuses: list[dict[str, Any]]) -> list[list[str]]:
-    """For each OK producer, read its snapshot.json and build a Slack section."""
+def _mub_section(all_listings: list[dict[str, Any]]) -> list[str] | None:
+    """A roundup of every MUB (Made-Up Brandable) .com across all auction sources,
+    ranked best-first, surfaced at the TOP of the morning report. None if no hits."""
+    from ..filters import mub
+    picks: list[tuple[float, dict[str, Any]]] = []
+    seen: set[str] = set()
+    for L in all_listings:
+        d = (L.get("domain") or "").strip().lower()
+        if d in seen:
+            continue
+        score = mub.mub_brandable(d)
+        if score is None:
+            continue
+        seen.add(d)
+        picks.append((score, L))
+    if not picks:
+        return None
+    picks.sort(key=lambda x: -x[0])
+    lines = [f"✨ *MUB picks* — {len(picks)} made-up brandable .com(s) in today's auctions"]
+    for _, L in picks[:15]:
+        price = L.get("price")
+        if price in (None, ""):
+            price_str = "—"
+        else:
+            try:
+                p = float(price); price_str = f"${p:,.0f}"
+            except (TypeError, ValueError):
+                price_str = f"${price}"
+        link = L.get("link")
+        link_suffix = f"  <{link}|link>" if link else ""
+        lines.append(f"• {L.get('domain','')}  {price_str}  ends {L.get('time_left','')}{link_suffix}")
+    if len(picks) > 15:
+        lines.append(f"… and {len(picks) - 15} more")
+    return lines
+
+
+def _build_slack_sections(statuses: list[dict[str, Any]]) -> tuple[list[list[str]], list[dict[str, Any]]]:
+    """For each OK producer, read its snapshot.json and build a Slack section.
+    Also returns the flat list of all enriched listings (for the MUB roundup)."""
     sections: list[list[str]] = []
+    all_enriched: list[dict[str, Any]] = []
     now = datetime.now(timezone.utc)
     for s in statuses:
         if s["status"] != "ok":
@@ -114,8 +152,9 @@ def _build_slack_sections(statuses: list[dict[str, Any]]) -> list[list[str]]:
                 **L,
                 "time_left": auctions_sheet.format_time_left(end_dt, now=now),
             })
+        all_enriched.extend(enriched)
         sections.append(auctions_slack.format_section(label=s["label"], listings=enriched))
-    return sections
+    return sections, all_enriched
 
 
 def run() -> int:
@@ -164,7 +203,8 @@ def run() -> int:
 
     # Build + post consolidated Slack
     print("auctions_publish: building consolidated Slack message")
-    sections = _build_slack_sections(statuses)
+    sections, all_enriched = _build_slack_sections(statuses)
+    mub_section = _mub_section(all_enriched)
     failed = [s for s in statuses if s["status"] == "failed"]
     if failed:
         # Footer line about failed sources so they're visible
@@ -175,6 +215,9 @@ def run() -> int:
         from ..publishers import slack as slack_pub
         body_lines = ["*Auctions watchlist*"]
         body_lines.append("")
+        if mub_section:                 # ✨ MUB roundup leads the morning report
+            body_lines.extend(mub_section)
+            body_lines.append("")
         for sec in sections:
             body_lines.extend(sec)
             body_lines.append("")

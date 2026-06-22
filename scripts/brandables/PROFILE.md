@@ -79,7 +79,10 @@ to this sheet — verified all sheet names return `is_mub=True`). It uses the co
 `scripts/brandables/mub_ngrams.json` for the word-likeness floor and `wordfreq` for
 the made-up check. Wired in:
 - **Auctions** — `auctions/slack.py format_section` prefixes MUB names with ✨ and adds
-  `(N ✨ MUB)` to each source header (covers every auction source at once).
+  `(N ✨ MUB)` to each source header (covers every auction source at once). The morning
+  consolidated report (`auctions/orchestrator.py`) also leads with a **"✨ MUB picks"**
+  roundup — every MUB hit across all auction sources, deduped and ranked by
+  `mub_brandable` (best first).
 - **SNAP good deals** — `namepros_marketplace` + `reddit_domains` mark MUB lines with ✨
   and add `· N ✨ MUB` to the headline.
 

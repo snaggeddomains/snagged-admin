@@ -242,6 +242,33 @@ def is_mub(domain: str) -> bool:
         return False
     return _score(sld) >= _floor()
 
+def _brandable(s: str) -> float:
+    """Startup-name-ability (== tighten_brandables.brandable_raw): punchy length,
+    2-3 syllables, smooth, modern/crisp ending, strong onset, variety."""
+    from collections import Counter
+    n = len(s); syl = _syllables(s); b = 0.0
+    b += {4: 8, 5: 9, 6: 9, 7: 6, 8: 2}.get(n, 1)
+    b += {2: 10, 3: 8, 4: 2}.get(syl, 0)
+    clusters = sum(1 for i in range(n - 1) if s[i] in CONS and s[i + 1] in CONS)
+    b += max(0.0, 4 - clusters * 2)
+    b += (len(set(s)) / n) * 8
+    b -= sum(v - 1 for ch, v in Counter(s).items() if ch in CONS and v > 1) * 3
+    if s[-1] in "oa":      b += 6
+    elif s[-1] == "e":     b += 2
+    elif s[-1] in "nrtpd": b += 4
+    if s[0] in "bdgptv":   b += 3
+    b += min(2, sum(c in "vz" for c in s)) * 1.5
+    b += _wordlike(s) * 2
+    if n > 7:   b -= (n - 7) * 2
+    if syl > 3: b -= (syl - 3) * 3
+    return b
+
+def mub_brandable(domain: str):
+    """Brandability score for ranking MUB hits (higher = better), or None if not MUB."""
+    if not is_mub(domain):
+        return None
+    return _brandable(split_domain(domain)[0])
+
 def mub_mark(domain: str) -> str:
     """'✨ ' if domain is MUB, else '' — for prefixing Slack lines."""
     try:
