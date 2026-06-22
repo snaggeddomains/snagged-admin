@@ -11,7 +11,7 @@ from __future__ import annotations
 import argparse, json, os
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
-MAX_ROWS = 300
+MAX_ROWS = 2000
 MAX_COLS = 30
 
 
