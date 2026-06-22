@@ -41,6 +41,8 @@ def _dump(title, values, formulas):
         cells = [str(c) for c in row[:MAX_COLS]]
         if any(c.strip() for c in cells):
             print(f"R{r}\t" + "\t".join(cells))
+    if formulas is None:
+        return
     print(f"----- FORMULAS in {title} -----")
     for r, row in enumerate(formulas[:MAX_ROWS], 1):
         for c, val in enumerate(row[:MAX_COLS], 1):
@@ -59,7 +61,9 @@ def main() -> int:
     ap.add_argument("--id", required=True)
     ap.add_argument("--gid", type=int, default=None)
     ap.add_argument("--tab", default=None)
+    ap.add_argument("--tabs", default=None, help="comma-separated tab names")
     ap.add_argument("--all", action="store_true")
+    ap.add_argument("--values-only", action="store_true")
     args = ap.parse_args()
 
     from googleapiclient.discovery import build
@@ -72,18 +76,20 @@ def main() -> int:
         p = s["properties"]; g = p.get("gridProperties", {})
         print(f"  - {p['title']} | {p['sheetId']} | {g.get('rowCount')}x{g.get('columnCount')}")
 
+    want_tabs = set(t.strip() for t in (args.tabs or "").split(",") if t.strip())
     targets = []
     for s in sheets:
         p = s["properties"]
-        if args.all or (args.gid is not None and p["sheetId"] == args.gid) or (args.tab and p["title"] == args.tab):
+        if (args.all or (args.gid is not None and p["sheetId"] == args.gid)
+                or (args.tab and p["title"] == args.tab) or (p["title"] in want_tabs)):
             targets.append(p["title"])
-    if not targets and args.gid is None and not args.tab:
+    if not targets and args.gid is None and not args.tab and not want_tabs:
         targets = [s["properties"]["title"] for s in sheets]
 
     for title in targets:
         try:
-            _dump(title, _grid(svc, args.id, title, "FORMATTED_VALUE"),
-                  _grid(svc, args.id, title, "FORMULA"))
+            formulas = None if args.values_only else _grid(svc, args.id, title, "FORMULA")
+            _dump(title, _grid(svc, args.id, title, "FORMATTED_VALUE"), formulas)
         except Exception as e:
             print(f"  (failed to read '{title}': {e})")
     return 0

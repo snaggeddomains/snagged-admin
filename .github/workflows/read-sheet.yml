@@ -16,6 +16,14 @@ on:
         description: "Dump all tabs (true/false)"
         required: false
         default: "false"
+      tabs:
+        description: "Comma-separated tab names to dump"
+        required: false
+        default: ""
+      values_only:
+        description: "Skip formulas (true/false)"
+        required: false
+        default: "false"
 
 permissions:
   contents: read
@@ -35,4 +43,6 @@ jobs:
           python3 scripts/read_sheet.py \
             --id "${{ inputs.id }}" \
             ${{ inputs.gid && format('--gid {0}', inputs.gid) || '' }} \
+            ${{ inputs.tabs && format('--tabs "{0}"', inputs.tabs) || '' }} \
+            ${{ inputs.values_only == 'true' && '--values-only' || '' }} \
             ${{ inputs.all == 'true' && '--all' || '' }}
