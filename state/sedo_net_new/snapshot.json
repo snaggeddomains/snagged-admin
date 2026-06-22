@@ -9,10 +9,10 @@
   },
   {
     "currency": "USD",
-    "domain": "necessarily.co",
-    "end_time_utc": "2026-06-22T02:04:52+00:00",
-    "price": 175.0,
+    "domain": "catalina.co",
+    "end_time_utc": "2026-06-22T15:18:48+00:00",
+    "price": null,
     "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=necessarily.co"
+    "url": "https://sedo.com/search/details/?domain=catalina.co"
   }
 ]
