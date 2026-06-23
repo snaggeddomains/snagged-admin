@@ -57,15 +57,10 @@ export default function TopBar({
         </nav>
       )}
 
-      {/* In-app back / refresh / share — shown on the Admin + Reports surfaces so
-          they match the Research module's header chrome (and stay useful in the
-          installed PWA, where there's no browser back/refresh). Pinned just left of
-          the bell + account cluster. */}
-      <NavControls current={current} />
-
-      {/* Desktop: bell + account avatar on the right (mirrors Research). Hidden
-          on mobile (moves to the hamburger menu). */}
+      {/* Desktop: in-app back/refresh/share + bell + account avatar, grouped at the
+          top-right (mirrors Research). Hidden on mobile (moves to the hamburger). */}
       <span className="topbar__account" style={{ display: "flex", alignItems: "center", gap: 14 }}>
+        <NavControls current={current} />
         <NotificationsBell />
         <span className="topbar__avatar"><AccountAvatar email={user.email} /></span>
       </span>
@@ -138,7 +133,7 @@ function NavControls({ current }: { current?: "research" | "admin" | "reports" }
     }
   };
   return (
-    <span className="topbar__pwa-nav" style={{ display: "inline-flex", alignItems: "center", gap: 2, marginLeft: "auto" }}>
+    <span className="topbar__pwa-nav" style={{ display: "inline-flex", alignItems: "center", gap: 2 }}>
       <button type="button" aria-label="Back" title="Back" onClick={() => window.history.back()} style={btn}>
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
       </button>
