@@ -1,14 +1,9 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 1,
   "domains": [
-    "sydnee.com",
-    "painto.com",
-    "mclm.com",
-    "zyke.com",
-    "tsly.com",
-    "sought.io"
+    "510.net"
   ],
-  "generated_at": "2026-06-22T09:32:08.712671+00:00",
+  "generated_at": "2026-06-23T09:34:19.670487+00:00",
   "source": "parkio_auctions"
 }

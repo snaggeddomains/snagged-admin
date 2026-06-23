@@ -1,14 +1,12 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 4,
   "domains": [
-    "eqi.net",
-    "worong.net",
-    "graaze.com",
-    "fydora.com",
-    "tully.org",
-    "rjb.org"
+    "unattractive.org",
+    "janeiro.org",
+    "immediately.io",
+    "lamborghini.org"
   ],
-  "generated_at": "2026-06-22T09:36:09.411130+00:00",
+  "generated_at": "2026-06-23T09:38:49.038569+00:00",
   "source": "dynadot_auctions"
 }

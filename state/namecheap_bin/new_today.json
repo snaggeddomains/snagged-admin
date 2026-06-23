@@ -1,7 +1,9 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-06-22T09:02:51.098906+00:00",
+  "count": 1,
+  "domains": [
+    "freebies.ai"
+  ],
+  "generated_at": "2026-06-23T09:03:30.568298+00:00",
   "source": "namecheap_bin"
 }

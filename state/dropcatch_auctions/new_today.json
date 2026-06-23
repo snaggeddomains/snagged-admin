@@ -1,20 +1,15 @@
 {
   "capped": false,
-  "count": 12,
+  "count": 7,
   "domains": [
-    "5219.com",
-    "abom.com",
-    "onao.com",
-    "hfm.net",
-    "zyam.com",
-    "aorah.com",
     "hardman.com",
     "itn.org",
     "nexh.com",
     "midfield.com",
+    "huci.com",
     "dipn.com",
     "ooos.com"
   ],
-  "generated_at": "2026-06-22T09:36:18.190655+00:00",
+  "generated_at": "2026-06-23T09:38:58.712655+00:00",
   "source": "dropcatch_auctions"
 }
