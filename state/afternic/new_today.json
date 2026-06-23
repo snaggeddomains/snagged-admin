@@ -1,13 +1,9 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 1,
   "domains": [
-    "physically.ai",
-    "suspicion.ai",
-    "theatrical.ai",
-    "posts.com",
-    "add.com"
+    "underpaid.ai"
   ],
-  "generated_at": "2026-06-22T08:12:41.613602+00:00",
+  "generated_at": "2026-06-23T08:16:42.091413+00:00",
   "source": "afternic"
 }
