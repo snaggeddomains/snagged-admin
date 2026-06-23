@@ -1,9 +1,7 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "beverley.co"
-  ],
-  "generated_at": "2026-06-23T10:01:02.746370+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-06-23T17:01:16.400836+00:00",
   "source": "reddit_domains"
 }
