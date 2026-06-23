@@ -4,7 +4,59 @@
     "price": 8995.0
   },
   {
+    "domain": "renting.ai",
+    "price": 1000000.0
+  },
+  {
+    "domain": "eyesight.ai",
+    "price": 500000.0
+  },
+  {
+    "domain": "bacons.ai",
+    "price": 1991.0
+  },
+  {
+    "domain": "optician.ai",
+    "price": 700000.0
+  },
+  {
+    "domain": "correctly.ai",
+    "price": 150000.0
+  },
+  {
+    "domain": "continuous.ai",
+    "price": 300000.0
+  },
+  {
+    "domain": "thy.ai",
+    "price": 98888.0
+  },
+  {
     "domain": "spinster.net",
     "price": 2695.0
+  },
+  {
+    "domain": "chantel.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "denisa.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "begley.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "biomarin.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "hannie.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "oranda.co",
+    "price": 1988.0
   }
 ]
