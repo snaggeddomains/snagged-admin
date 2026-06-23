@@ -476,6 +476,10 @@ anything (matches the main research project). Run per project:
 schemaname='public' loop execute format('alter table public.%I enable row level
 security;', r.tablename); end loop; end $$;`
 
+**Done:** Master + naming, and the **`snagged-zone-index`** project (the zone DB
+behind Nameserver Search; reads via `ZONE_SUPABASE_SERVICE_KEY`) — RLS enabled with
+no policies **2026-06-23**, clearing the `rls_disabled_in_public` advisor on each.
+
 # Session handoff — 2026-06-02 (imports + notifications + permissions)
 
 Shipped to `main` (both repos) this session:
