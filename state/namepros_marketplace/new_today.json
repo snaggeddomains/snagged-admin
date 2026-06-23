@@ -1,19 +1,9 @@
 {
   "capped": false,
-  "count": 11,
+  "count": 1,
   "domains": [
-    "announces.xyz",
-    "coloration.io",
-    "difficulties.xyz",
-    "drove.app",
-    "gadget.now",
-    "largely.xyz",
-    "mixed.now",
-    "mound.co",
-    "physically.io",
-    "responded.xyz",
-    "sich.xyz"
+    "tensor.org"
   ],
-  "generated_at": "2026-06-23T17:07:40.555124+00:00",
+  "generated_at": "2026-06-23T23:06:29.311624+00:00",
   "source": "namepros_marketplace"
 }
