@@ -1,17 +1,21 @@
 {
   "capped": false,
-  "count": 9,
+  "count": 13,
   "domains": [
-    "5945.xyz",
-    "88882.xyz",
-    "891.ai",
-    "dominion.com",
-    "gxu.com",
-    "lil.co",
-    "mav.vc",
-    "mortgages.xyz",
-    "piercings.io"
+    "12335.com",
+    "12360.com",
+    "544.io",
+    "67830.com",
+    "backpacks.io",
+    "breathing.io",
+    "compel.co",
+    "convince.co",
+    "doha.io",
+    "hobbies.io",
+    "overt.co",
+    "oxq.com",
+    "yah.io"
   ],
-  "generated_at": "2026-06-22T23:06:56.080591+00:00",
+  "generated_at": "2026-06-23T10:07:56.203002+00:00",
   "source": "namepros_marketplace"
 }
