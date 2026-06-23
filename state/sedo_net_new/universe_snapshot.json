@@ -1,7 +1,7 @@
 [
   {
-    "domain": "venomtech.com",
-    "price": 8995.0
+    "domain": "smithdown.com",
+    "price": 8000.0
   },
   {
     "domain": "renting.ai",
@@ -28,12 +28,16 @@
     "price": 300000.0
   },
   {
+    "domain": "repairauto.ai",
+    "price": 98000.0
+  },
+  {
     "domain": "thy.ai",
     "price": 98888.0
   },
   {
-    "domain": "spinster.net",
-    "price": 2695.0
+    "domain": "headed.net",
+    "price": 4195.0
   },
   {
     "domain": "chantel.co",
@@ -58,5 +62,9 @@
   {
     "domain": "oranda.co",
     "price": 1988.0
+  },
+  {
+    "domain": "repairauto.co",
+    "price": 48700.0
   }
 ]
