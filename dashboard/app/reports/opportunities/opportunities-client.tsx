@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
 
 type SnapOpp = { domain: string; quality_score: number | null; category: string | null; enriched: boolean; price: number | null; best_price_source: string | null; source: string };
-type AucOpp = { domain: string; price: number | null; endTimeUtc: string | null; bidCount: number | null; link: string | null; source: string };
+type AucOpp = { domain: string; price: number | null; endTimeUtc: string | null; bidCount: number | null; link: string | null; quality_score: number | null; source: string };
 type Report = { snap: SnapOpp[]; auctions: AucOpp[]; snapSources: number; auctionSources: number; generatedAt: string };
 
 const usd = (n: number | null) => (n == null ? "—" : `$${Math.round(n).toLocaleString()}`);
@@ -71,6 +71,13 @@ function CountdownBadge({ end, now }: { end: string | null; now: number }) {
   const [bg, fg] = c.ended ? ["#ececec", "#8a8a8a"] : c.soon ? ["#fbe7e0", "#c0492f"] : ["#e8eef2", "#254254"];
   return <span style={{ display: "inline-block", minWidth: 92, textAlign: "center", padding: "3px 8px", borderRadius: 6, fontSize: 12.5, fontWeight: 700, fontVariantNumeric: "tabular-nums", background: bg, color: fg }}>{c.text}</span>;
 }
+// Pipeline quality_score badge (green ≥4 / amber ≥2 / grey else); "—" when the
+// name carries no score (not enriched / not in name_universe).
+function QualityCell({ q }: { q: number | null }) {
+  if (q == null) return <span className="muted">—</span>;
+  const [bg, fg] = q >= 4 ? ["#e3efe6", "#2f7d4f"] : q >= 2 ? ["#fdf0d4", "#946200"] : ["#f0eee8", "#7a7568"];
+  return <span style={{ display: "inline-block", minWidth: 34, textAlign: "center", padding: "1px 7px", borderRadius: 6, fontSize: 12.5, fontWeight: 700, background: bg, color: fg }}>{q.toFixed(1)}</span>;
+}
 function Stat({ label, value, accent }: { label: string; value: number; accent?: boolean }) {
   return (
     <div style={{ border: "1px solid #e3ddcf", borderRadius: 10, padding: "10px 16px", minWidth: 120, flex: "1 1 120px" }}>
@@ -103,6 +110,7 @@ function cmp(a: number | string, b: number | string, dir: 1 | -1): number {
 function sortAuctions(rows: AucOpp[], { key, dir }: Sort): AucOpp[] {
   const v = (a: AucOpp): number | string =>
     key === "domain" ? a.domain : key === "price" ? (a.price ?? -1) : key === "bids" ? (a.bidCount ?? -1)
+      : key === "quality" ? (a.quality_score ?? -1)
       : key === "source" ? sourceDisplay(a.source).name : (a.endTimeUtc ? new Date(a.endTimeUtc).getTime() : Infinity);
   return [...rows].sort((a, b) => cmp(v(a), v(b), dir));
 }
@@ -175,6 +183,7 @@ export default function OpportunitiesClient() {
                 <thead><tr>
                   <SortHeader label="Domain" k="domain" sort={aucSort} setSort={setAucSort} />
                   <SortHeader label="Price" k="price" sort={aucSort} setSort={setAucSort} align="right" />
+                  <SortHeader label="Quality" k="quality" sort={aucSort} setSort={setAucSort} />
                   <SortHeader label="Ends in" k="ends" sort={aucSort} setSort={setAucSort} />
                   <SortHeader label="Source" k="source" sort={aucSort} setSort={setAucSort} />
                   <th></th>
@@ -184,6 +193,7 @@ export default function OpportunitiesClient() {
                     <tr key={a.domain + a.source + i}>
                       <td className="mono" style={{ fontWeight: 600 }}>{a.domain}</td>
                       <td className="right" style={{ fontWeight: 600 }}>{usd(a.price)}</td>
+                      <td><QualityCell q={a.quality_score} /></td>
                       <td><CountdownBadge end={a.endTimeUtc} now={now} />{a.bidCount != null ? <span className="muted" style={{ fontSize: 11, marginLeft: 8 }}>{a.bidCount} bid{a.bidCount === 1 ? "" : "s"}</span> : null}</td>
                       <td><SourcePill source={a.source} /></td>
                       <td className="right">{a.link ? <a href={a.link} target="_blank" rel="noreferrer" style={linkBtn}>Bid →</a> : null}</td>
@@ -212,11 +222,7 @@ export default function OpportunitiesClient() {
                     <tr key={d.domain + d.source + i}>
                       <td className="mono" style={{ fontWeight: 600 }}>{d.domain}</td>
                       <td className="right">{usd(d.price)}</td>
-                      <td>
-                        {d.quality_score == null ? <span className="muted">—</span> : (
-                          <span style={{ display: "inline-block", minWidth: 34, textAlign: "center", padding: "1px 7px", borderRadius: 6, fontSize: 12.5, fontWeight: 700, background: d.quality_score >= 4 ? "#e3efe6" : d.quality_score >= 2 ? "#fdf0d4" : "#f0eee8", color: d.quality_score >= 4 ? "#2f7d4f" : d.quality_score >= 2 ? "#946200" : "#7a7568" }}>{d.quality_score.toFixed(1)}</span>
-                        )}
-                      </td>
+                      <td><QualityCell q={d.quality_score} /></td>
                       <td><SourcePill source={d.source} /></td>
                       <td className="right"><a href={snapLink(d.domain, d.source)} target="_blank" rel="noreferrer" style={linkBtn}>View →</a></td>
                     </tr>

@@ -42,6 +42,7 @@ type Auc = {
   endTimeUtc: string | null;
   bidCount: number | null;
   link: string | null;
+  quality_score: number | null;
 };
 
 const COLS = 6;
@@ -159,8 +160,9 @@ function NewTodayList({
 }
 
 // Auction sources: the current LIVE auctions from snapshot.json. These names
-// never enter the universe, so there's no quality/enrichment — show the auction
-// facts (price, time-left, link to bid) instead.
+// never enter the universe, so quality is best-effort — shown only when the name
+// also lives in name_universe (else "—") — alongside the auction facts (price,
+// bids, time-left, link to bid).
 function AuctionList({ list, sourceId }: { list: Auc[] | null | "loading"; sourceId: string }) {
   if (list === "loading")
     return <div className="muted" style={{ fontSize: 12.5, padding: "10px 12px" }}>loading auctions…</div>;
@@ -176,6 +178,7 @@ function AuctionList({ list, sourceId }: { list: Auc[] | null | "loading"; sourc
             <tr style={{ textAlign: "left", color: "var(--navy-3)", background: "var(--cream-2, #fbf7ec)", position: "sticky", top: 0 }}>
               <th style={{ padding: "6px 10px", whiteSpace: "nowrap" }}>Domain</th>
               <th style={{ padding: "6px 10px", textAlign: "right", whiteSpace: "nowrap" }}>Price</th>
+              <th style={{ padding: "6px 10px", textAlign: "right", whiteSpace: "nowrap" }}>Quality</th>
               <th style={{ padding: "6px 10px", textAlign: "right", whiteSpace: "nowrap" }}>Bids</th>
               <th style={{ padding: "6px 10px", textAlign: "right", whiteSpace: "nowrap" }}>Ends</th>
               <th style={{ padding: "6px 10px", whiteSpace: "nowrap" }}>Link</th>
@@ -187,6 +190,7 @@ function AuctionList({ list, sourceId }: { list: Auc[] | null | "loading"; sourc
               <tr key={a.domain} style={{ borderTop: "1px solid var(--line, #f1ece0)" }}>
                 <td style={{ padding: "6px 10px", fontFamily: "monospace", color: "var(--navy)", whiteSpace: "nowrap" }}>{a.domain}</td>
                 <td style={{ padding: "6px 10px", textAlign: "right", color: "var(--navy-2)", whiteSpace: "nowrap" }}>{fmtPrice(a.price)}</td>
+                <td style={{ padding: "6px 10px", textAlign: "right", color: "var(--navy-2)", whiteSpace: "nowrap" }}>{a.quality_score != null ? a.quality_score.toFixed(2) : "—"}</td>
                 <td style={{ padding: "6px 10px", textAlign: "right", color: "var(--navy-2)", whiteSpace: "nowrap" }}>{a.bidCount ?? "—"}</td>
                 <td style={{ padding: "6px 10px", textAlign: "right", color: "var(--navy-2)", whiteSpace: "nowrap" }}>{fmtEnds(a.endTimeUtc)}</td>
                 <td style={{ padding: "6px 10px", whiteSpace: "nowrap" }}>
