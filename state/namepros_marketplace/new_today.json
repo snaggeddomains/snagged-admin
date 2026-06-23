@@ -1,21 +1,19 @@
 {
   "capped": false,
-  "count": 13,
+  "count": 11,
   "domains": [
-    "12335.com",
-    "12360.com",
-    "544.io",
-    "67830.com",
-    "backpacks.io",
-    "breathing.io",
-    "compel.co",
-    "convince.co",
-    "doha.io",
-    "hobbies.io",
-    "overt.co",
-    "oxq.com",
-    "yah.io"
+    "announces.xyz",
+    "coloration.io",
+    "difficulties.xyz",
+    "drove.app",
+    "gadget.now",
+    "largely.xyz",
+    "mixed.now",
+    "mound.co",
+    "physically.io",
+    "responded.xyz",
+    "sich.xyz"
   ],
-  "generated_at": "2026-06-23T10:07:56.203002+00:00",
+  "generated_at": "2026-06-23T17:07:40.555124+00:00",
   "source": "namepros_marketplace"
 }
