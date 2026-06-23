@@ -33,14 +33,18 @@ export type NewTodayResult = {
 
 // A single live auction from a source's snapshot.json (the current qualifying
 // set the auctions watchlist publishes). Auction names deliberately do NOT enter
-// name_universe / get enriched (only SNAP does), so they have no quality/category
-// — the drill-down shows the auction facts instead (price, end time, link).
+// name_universe / get enriched (only SNAP does), so the drill-down shows the
+// auction facts (price, end time, link). We DO best-effort attach the pipeline
+// `quality_score` for any auction name that ALSO happens to live in name_universe
+// (from a marketplace feed) — same number SNAP shows; null when the name isn't
+// in the universe.
 export type AuctionListing = {
   domain: string;
   price: number | null;
   endTimeUtc: string | null;
   bidCount: number | null;
   link: string | null;
+  quality_score: number | null;
 };
 
 export type LiveAuctionsResult = {
@@ -111,11 +115,21 @@ export async function listLiveAuctions(sourceId: string): Promise<LiveAuctionsRe
       endTimeUtc: r.end_time_utc != null ? String(r.end_time_utc) : null,
       bidCount: typeof r.bid_count === "number" ? r.bid_count : null,
       link: r.link != null ? String(r.link) : null,
+      quality_score: null,
     });
   }
   // Soonest-ending first (snapshots are already sorted this way, but be safe).
   auctions.sort((a, b) => String(a.endTimeUtc || "").localeCompare(String(b.endTimeUtc || "")));
-  return { source: sourceId, auctions: auctions.slice(0, DISPLAY_CAP) };
+  const shown = auctions.slice(0, DISPLAY_CAP);
+  // Best-effort: attach the same quality_score SNAP shows for any auction name
+  // that also exists in name_universe. Names not in the universe stay null ("—").
+  try {
+    const enr = await enrichmentFor(shown.map((a) => a.domain));
+    for (const a of shown) a.quality_score = enr.get(a.domain)?.q ?? null;
+  } catch {
+    // Enrichment lookup failed — leave scores null, still return the auctions.
+  }
+  return { source: sourceId, auctions: shown };
 }
 
 // Direct per-domain listing URLs a source persisted this run
