@@ -1,18 +1,1 @@
-[
-  {
-    "currency": "USD",
-    "domain": "cease.ai",
-    "end_time_utc": "2026-06-22T19:58:59+00:00",
-    "price": 10495.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=cease.ai"
-  },
-  {
-    "currency": "USD",
-    "domain": "catalina.co",
-    "end_time_utc": "2026-06-22T15:18:48+00:00",
-    "price": null,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=catalina.co"
-  }
-]
+[]
