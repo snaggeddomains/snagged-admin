@@ -2,6 +2,7 @@
   "capped": false,
   "count": 0,
   "domains": [],
-  "generated_at": "2026-06-24T10:01:29.878367+00:00",
+  "generated_at": "2026-06-24T17:01:14.160082+00:00",
+  "mub": [],
   "source": "reddit_domains"
 }
