@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "bid_count": 0,
+    "domain": "spits.org",
+    "end_time_utc": "2026-06-25T15:00:00+00:00",
+    "link": "https://www.namesilo.com/auctions/spits.org",
+    "platform": "NameSilo",
+    "price": 1.0
+  },
+  {
+    "bid_count": 107,
+    "domain": "zyke.com",
+    "end_time_utc": "2026-06-25T15:00:00+00:00",
+    "link": "https://www.namesilo.com/auctions/zyke.com",
+    "platform": "NameSilo",
+    "price": 4150.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "colored.co",
+    "end_time_utc": "2026-06-25T15:00:00+00:00",
+    "link": "https://www.namesilo.com/auctions/colored.co",
+    "platform": "NameSilo",
+    "price": 1.0
+  }
+]

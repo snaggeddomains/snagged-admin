@@ -1,19 +1,19 @@
 [
   {
-    "bid_count": 50,
+    "bid_count": 51,
     "domain": "sydnee.com",
     "end_time_utc": "2026-06-24T18:43:00+00:00",
     "link": null,
     "platform": "Park.io",
-    "price": 592.0
+    "price": 602.0
   },
   {
-    "bid_count": 59,
+    "bid_count": 62,
     "domain": "painto.com",
     "end_time_utc": "2026-06-24T18:46:00+00:00",
     "link": null,
     "platform": "Park.io",
-    "price": 495.0
+    "price": 511.0
   },
   {
     "bid_count": 34,
@@ -32,12 +32,12 @@
     "price": 1030.0
   },
   {
-    "bid_count": 105,
+    "bid_count": 107,
     "domain": "zyke.com",
     "end_time_utc": "2026-06-25T15:00:00+00:00",
     "link": null,
     "platform": "Park.io",
-    "price": 4050.0
+    "price": 4150.0
   },
   {
     "bid_count": 6,

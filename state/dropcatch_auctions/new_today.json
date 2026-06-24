@@ -1,15 +1,19 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 11,
   "domains": [
-    "hardman.com",
     "itn.org",
+    "stalingrad.net",
     "nexh.com",
+    "defione.com",
     "midfield.com",
     "huci.com",
     "dipn.com",
-    "ooos.com"
+    "cytogenetics.com",
+    "ooos.com",
+    "dnox.com",
+    "dujm.com"
   ],
-  "generated_at": "2026-06-23T09:38:58.712655+00:00",
+  "generated_at": "2026-06-24T09:39:31.946818+00:00",
   "source": "dropcatch_auctions"
 }

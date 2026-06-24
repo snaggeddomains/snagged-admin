@@ -1,34 +1,18 @@
 [
   {
-    "bid_count": 0,
-    "domain": "unattractive.org",
-    "end_time_utc": "2026-06-23T17:32:25+00:00",
-    "link": "https://www.dynadot.com/market/auction/40112904.html",
+    "bid_count": 36,
+    "domain": "hche.com",
+    "end_time_utc": "2026-06-24T13:29:55+00:00",
+    "link": "https://www.dynadot.com/market/auction/40208774.html",
     "platform": "Dynadot",
-    "price": 7.99
+    "price": 524.78
   },
   {
-    "bid_count": 0,
-    "domain": "janeiro.org",
-    "end_time_utc": "2026-06-23T17:37:09+00:00",
-    "link": "https://www.dynadot.com/market/auction/40105075.html",
+    "bid_count": 56,
+    "domain": "mclm.com",
+    "end_time_utc": "2026-06-24T20:00:00+00:00",
+    "link": "https://www.dynadot.com/market/auction/39840416.html",
     "platform": "Dynadot",
-    "price": 7.99
-  },
-  {
-    "bid_count": 0,
-    "domain": "immediately.io",
-    "end_time_utc": "2026-06-23T17:53:57+00:00",
-    "link": "https://www.dynadot.com/market/auction/40113279.html",
-    "platform": "Dynadot",
-    "price": 7.99
-  },
-  {
-    "bid_count": 0,
-    "domain": "lamborghini.org",
-    "end_time_utc": "2026-06-23T20:30:24+00:00",
-    "link": "https://www.dynadot.com/market/auction/40150494.html",
-    "platform": "Dynadot",
-    "price": 7.99
+    "price": 1030.0
   }
 ]

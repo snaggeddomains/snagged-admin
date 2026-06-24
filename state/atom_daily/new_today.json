@@ -1,20 +1,15 @@
 {
   "capped": false,
-  "count": 12,
+  "count": 7,
   "domains": [
-    "definitely.ai",
-    "ideas.io",
-    "sandwich.io",
-    "hide.org",
-    "sand.org",
-    "disk.org",
-    "fluent.org",
-    "trainee.org",
-    "corgi.co",
-    "lobo.co",
-    "intensify.org",
-    "cme.org"
+    "techno.com",
+    "easter.io",
+    "capabilities.io",
+    "swingers.ai",
+    "farrow.ai",
+    "knot.co",
+    "keeper.org"
   ],
-  "generated_at": "2026-06-23T09:20:38.081297+00:00",
+  "generated_at": "2026-06-24T09:20:07.258804+00:00",
   "source": "atom_daily"
 }

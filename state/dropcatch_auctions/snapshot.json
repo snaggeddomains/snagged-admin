@@ -1,58 +1,90 @@
 [
   {
-    "bid_count": 88,
-    "domain": "hardman.com",
-    "end_time_utc": "2026-06-23T18:59:56.014524+00:00",
-    "link": "https://www.dropcatch.com/domain/Hardman.com",
-    "platform": "DropCatch",
-    "price": 2627.0
-  },
-  {
-    "bid_count": 33,
+    "bid_count": 37,
     "domain": "itn.org",
-    "end_time_utc": "2026-06-24T18:59:56.014524+00:00",
+    "end_time_utc": "2026-06-24T18:59:28.747462+00:00",
     "link": "https://www.dropcatch.com/domain/Itn.org",
     "platform": "DropCatch",
-    "price": 265.0
+    "price": 600.0
+  },
+  {
+    "bid_count": 7,
+    "domain": "stalingrad.net",
+    "end_time_utc": "2026-06-24T18:59:28.747462+00:00",
+    "link": "https://www.dropcatch.com/domain/Stalingrad.net",
+    "platform": "DropCatch",
+    "price": 275.0
   },
   {
     "bid_count": 50,
     "domain": "nexh.com",
-    "end_time_utc": "2026-06-24T18:59:56.014524+00:00",
+    "end_time_utc": "2026-06-24T18:59:28.747462+00:00",
     "link": "https://www.dropcatch.com/domain/Nexh.com",
     "platform": "DropCatch",
     "price": 242.0
   },
   {
-    "bid_count": 91,
+    "bid_count": 27,
+    "domain": "defione.com",
+    "end_time_utc": "2026-06-24T18:59:28.747462+00:00",
+    "link": "https://www.dropcatch.com/domain/DefiOne.com",
+    "platform": "DropCatch",
+    "price": 192.0
+  },
+  {
+    "bid_count": 103,
     "domain": "midfield.com",
-    "end_time_utc": "2026-06-25T18:59:56.014524+00:00",
+    "end_time_utc": "2026-06-25T18:59:28.747462+00:00",
     "link": "https://www.dropcatch.com/domain/Midfield.com",
     "platform": "DropCatch",
-    "price": 5577.0
+    "price": 9270.0
   },
   {
-    "bid_count": 87,
+    "bid_count": 94,
     "domain": "huci.com",
-    "end_time_utc": "2026-06-25T18:59:56.014524+00:00",
+    "end_time_utc": "2026-06-25T18:59:28.747462+00:00",
     "link": "https://www.dropcatch.com/domain/Huci.com",
     "platform": "DropCatch",
-    "price": 3200.0
+    "price": 3800.0
   },
   {
-    "bid_count": 74,
+    "bid_count": 76,
     "domain": "dipn.com",
-    "end_time_utc": "2026-06-25T18:59:56.014524+00:00",
+    "end_time_utc": "2026-06-25T18:59:28.747462+00:00",
     "link": "https://www.dropcatch.com/domain/Dipn.com",
     "platform": "DropCatch",
-    "price": 1011.0
+    "price": 1311.0
   },
   {
-    "bid_count": 23,
+    "bid_count": 39,
+    "domain": "cytogenetics.com",
+    "end_time_utc": "2026-06-26T18:59:28.747462+00:00",
+    "link": "https://www.dropcatch.com/domain/Cytogenetics.com",
+    "platform": "DropCatch",
+    "price": 703.0
+  },
+  {
+    "bid_count": 25,
     "domain": "ooos.com",
-    "end_time_utc": "2026-06-26T18:59:56.014524+00:00",
+    "end_time_utc": "2026-06-26T18:59:28.747462+00:00",
     "link": "https://www.dropcatch.com/domain/ooos.com",
     "platform": "DropCatch",
-    "price": 440.0
+    "price": 480.0
+  },
+  {
+    "bid_count": 68,
+    "domain": "dnox.com",
+    "end_time_utc": "2026-06-26T18:59:28.747462+00:00",
+    "link": "https://www.dropcatch.com/domain/Dnox.com",
+    "platform": "DropCatch",
+    "price": 141.0
+  },
+  {
+    "bid_count": 12,
+    "domain": "dujm.com",
+    "end_time_utc": "2026-06-29T18:59:28.747462+00:00",
+    "link": "https://www.dropcatch.com/domain/dujm.com",
+    "platform": "DropCatch",
+    "price": 130.0
   }
 ]
