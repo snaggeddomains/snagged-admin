@@ -62,6 +62,17 @@ def read_json(source: str, filename: str, default: Any = None) -> Any:
 def write_json(source: str, filename: str, data: Any) -> None:
     p = state_path(source, filename)
     p.parent.mkdir(parents=True, exist_ok=True)
+    # Precompute the MUB flag on auction snapshot rows so the opportunities report
+    # can filter by it without re-implementing the classifier. Scoped to
+    # snapshot.json LIST rows (auction listings: [{domain,...}, ...]); dict-shaped
+    # snapshots (SNAP {domain: price}) are left untouched. Best-effort — never let
+    # this break a write.
+    if filename == "snapshot.json" and isinstance(data, list):
+        try:
+            from .filters import mub
+            mub.annotate(data)
+        except Exception:
+            pass
     # Scrub any leaked credentials (token/key URLs in error strings, etc.) before
     # this JSON is committed to the public repo.
     data = redact_secrets(data)
@@ -106,12 +117,21 @@ def write_new_today(source: str, domains: list[str]) -> None:
             clean.append(dd)
             if len(clean) >= NEW_TODAY_CAP:
                 break
+        # Precompute the MUB (Made-Up Brandable) subset so the dashboard can
+        # filter by it without re-implementing the classifier. Best-effort: a
+        # failure here must never break recording new_today.
+        try:
+            from .filters import mub
+            mub_domains = mub.mub_only(clean)
+        except Exception:
+            mub_domains = []
         write_json(source, "new_today.json", {
             "source": source,
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "count": len(clean),
             "capped": len(clean) >= NEW_TODAY_CAP,
             "domains": clean,
+            "mub": mub_domains,
         })
     except Exception as e:  # pragma: no cover - defensive
         print(f"(could not write new_today for {source}: {e})")
