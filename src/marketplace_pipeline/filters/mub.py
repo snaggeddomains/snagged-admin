@@ -294,3 +294,28 @@ def mub_mark(domain: str) -> str:
 
 def count_mub(domains) -> int:
     return sum(1 for d in domains if is_mub(d))
+
+
+def _safe_is_mub(domain: str) -> bool:
+    """is_mub that never raises — for best-effort precompute paths."""
+    try:
+        return bool(is_mub(domain))
+    except Exception:
+        return False
+
+
+def mub_only(domains) -> list:
+    """Return just the MUB-grade domains from an iterable (order-preserving)."""
+    return [d for d in (domains or []) if _safe_is_mub(str(d))]
+
+
+def annotate(rows, key: str = "domain"):
+    """Set `is_mub` on each dict row in-place (best-effort) and return the list.
+
+    Used by producers to precompute the MUB flag into the snapshot the dashboard
+    reads, so the report can filter by MUB without a second implementation.
+    """
+    for r in rows or []:
+        if isinstance(r, dict):
+            r["is_mub"] = _safe_is_mub(str(r.get(key, "")))
+    return rows

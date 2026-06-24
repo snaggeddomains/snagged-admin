@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
 
-type SnapOpp = { domain: string; quality_score: number | null; category: string | null; enriched: boolean; price: number | null; best_price_source: string | null; source: string };
-type AucOpp = { domain: string; price: number | null; endTimeUtc: string | null; bidCount: number | null; link: string | null; quality_score: number | null; source: string };
+type SnapOpp = { domain: string; quality_score: number | null; category: string | null; enriched: boolean; price: number | null; best_price_source: string | null; num_words: number | null; is_mub: boolean | null; source: string };
+type AucOpp = { domain: string; price: number | null; endTimeUtc: string | null; bidCount: number | null; link: string | null; quality_score: number | null; num_words: number | null; is_mub: boolean | null; source: string };
 type Report = { snap: SnapOpp[]; auctions: AucOpp[]; snapSources: number; auctionSources: number; generatedAt: string };
 
 const usd = (n: number | null) => (n == null ? "—" : `$${Math.round(n).toLocaleString()}`);
+const tldOf = (domain: string) => { const i = domain.lastIndexOf("."); return i < 0 ? "" : domain.slice(i + 1).toLowerCase(); };
 
 // Known sources → a deliberate, distinct color + clean root name (no "Auctions").
 const SOURCE_STYLE: Record<string, { name: string; bg: string; fg: string }> = {
@@ -89,7 +90,7 @@ function Stat({ label, value, accent }: { label: string; value: number; accent?:
 
 // ── Sorting ──────────────────────────────────────────────────────────────────
 type Sort = { key: string; dir: 1 | -1 };
-const DEFAULT_DIR: Record<string, 1 | -1> = { ends: 1, domain: 1, category: 1, source: 1, price: -1, bids: -1, quality: -1 };
+const DEFAULT_DIR: Record<string, 1 | -1> = { ends: 1, domain: 1, category: 1, source: 1, tld: 1, price: -1, bids: -1, quality: -1 };
 function SortHeader({ label, k, sort, setSort, align }: { label: string; k: string; sort: Sort; setSort: (s: Sort) => void; align?: "right" }) {
   const active = sort.key === k;
   return (
@@ -110,15 +111,83 @@ function cmp(a: number | string, b: number | string, dir: 1 | -1): number {
 function sortAuctions(rows: AucOpp[], { key, dir }: Sort): AucOpp[] {
   const v = (a: AucOpp): number | string =>
     key === "domain" ? a.domain : key === "price" ? (a.price ?? -1) : key === "bids" ? (a.bidCount ?? -1)
-      : key === "quality" ? (a.quality_score ?? -1)
+      : key === "quality" ? (a.quality_score ?? -1) : key === "tld" ? tldOf(a.domain)
       : key === "source" ? sourceDisplay(a.source).name : (a.endTimeUtc ? new Date(a.endTimeUtc).getTime() : Infinity);
   return [...rows].sort((a, b) => cmp(v(a), v(b), dir));
 }
 function sortSnap(rows: SnapOpp[], { key, dir }: Sort): SnapOpp[] {
   const v = (d: SnapOpp): number | string =>
     key === "domain" ? d.domain : key === "category" ? (d.category ?? "~") : key === "price" ? (d.price ?? -1)
+      : key === "tld" ? tldOf(d.domain)
       : key === "source" ? sourceDisplay(d.source).name : (d.quality_score ?? -1);
   return [...rows].sort((a, b) => cmp(v(a), v(b), dir));
+}
+
+// ── Filters (shared across both tables) ───────────────────────────────────────
+type Filters = { priceMin: string; priceMax: string; source: string; tld: string; oneWord: "all" | "yes" | "no"; mub: boolean };
+const EMPTY_FILTERS: Filters = { priceMin: "", priceMax: "", source: "all", tld: "all", oneWord: "all", mub: false };
+// A row carries the common fields both tables share for filtering.
+function matchesFilters(row: { domain: string; price: number | null; source: string; num_words: number | null; is_mub: boolean | null }, f: Filters): boolean {
+  const min = f.priceMin === "" ? null : Number(f.priceMin);
+  const max = f.priceMax === "" ? null : Number(f.priceMax);
+  if (min != null && !Number.isNaN(min)) { if (row.price == null || row.price < min) return false; }
+  if (max != null && !Number.isNaN(max)) { if (row.price == null || row.price > max) return false; }
+  if (f.source !== "all" && row.source !== f.source) return false;
+  if (f.tld !== "all" && tldOf(row.domain) !== f.tld) return false;
+  if (f.oneWord === "yes" && row.num_words !== 1) return false;
+  if (f.oneWord === "no" && row.num_words === 1) return false;
+  if (f.mub && row.is_mub !== true) return false;
+  return true;
+}
+const filtersActive = (f: Filters) => f.priceMin !== "" || f.priceMax !== "" || f.source !== "all" || f.tld !== "all" || f.oneWord !== "all" || f.mub;
+
+const fInput: CSSProperties = { width: 78, padding: "5px 8px", borderRadius: 7, border: "1px solid #d9d2c2", background: "#fff", fontSize: 13 };
+const fSelect: CSSProperties = { padding: "5px 8px", borderRadius: 7, border: "1px solid #d9d2c2", background: "#fff", fontSize: 13 };
+const fLabel: CSSProperties = { fontSize: 11, fontWeight: 700, color: "var(--navy-3, #6b6450)", textTransform: "uppercase", letterSpacing: ".03em", marginRight: 2 };
+
+function FilterBar({ filters, setFilters, sources, tlds }: { filters: Filters; setFilters: (f: Filters) => void; sources: string[]; tlds: string[] }) {
+  const set = (patch: Partial<Filters>) => setFilters({ ...filters, ...patch });
+  const chip = (on: boolean): CSSProperties => ({
+    padding: "5px 11px", borderRadius: 999, border: "1px solid " + (on ? "var(--navy, #254254)" : "#d9d2c2"),
+    background: on ? "var(--navy, #254254)" : "#fff", color: on ? "#fff" : "var(--navy-2, #44486a)",
+    fontSize: 12.5, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap",
+  });
+  return (
+    <div style={{ display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap", padding: "12px 14px", border: "1px solid #e3ddcf", borderRadius: 10, background: "var(--cream-2, #fbf7ec)", margin: "10px 0 4px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <span style={fLabel}>Price</span>
+        <input style={fInput} type="number" inputMode="numeric" placeholder="min" value={filters.priceMin} onChange={(e) => set({ priceMin: e.target.value })} />
+        <span className="muted" style={{ fontSize: 12 }}>–</span>
+        <input style={fInput} type="number" inputMode="numeric" placeholder="max" value={filters.priceMax} onChange={(e) => set({ priceMax: e.target.value })} />
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <span style={fLabel}>Source</span>
+        <select style={fSelect} value={filters.source} onChange={(e) => set({ source: e.target.value })}>
+          <option value="all">All</option>
+          {sources.map((s) => <option key={s} value={s}>{sourceDisplay(s).name}</option>)}
+        </select>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <span style={fLabel}>TLD</span>
+        <select style={fSelect} value={filters.tld} onChange={(e) => set({ tld: e.target.value })}>
+          <option value="all">All</option>
+          {tlds.map((t) => <option key={t} value={t}>.{t}</option>)}
+        </select>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <span style={fLabel}>Words</span>
+        <select style={fSelect} value={filters.oneWord} onChange={(e) => set({ oneWord: e.target.value as Filters["oneWord"] })}>
+          <option value="all">Any</option>
+          <option value="yes">One-word</option>
+          <option value="no">Multi-word</option>
+        </select>
+      </div>
+      <button type="button" style={chip(filters.mub)} onClick={() => set({ mub: !filters.mub })} title="Made-Up Brandable">✨ MUB</button>
+      {filtersActive(filters) && (
+        <button type="button" onClick={() => setFilters(EMPTY_FILTERS)} style={{ fontSize: 12.5, background: "none", border: "none", color: "var(--coral-deep, #c0492f)", fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}>Clear</button>
+      )}
+    </div>
+  );
 }
 
 export default function OpportunitiesClient() {
@@ -128,6 +197,7 @@ export default function OpportunitiesClient() {
   const [now, setNow] = useState(() => Date.now());
   const [aucSort, setAucSort] = useState<Sort>({ key: "ends", dir: 1 });
   const [snapSort, setSnapSort] = useState<Sort>({ key: "quality", dir: -1 });
+  const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   // Quality floor is TLD-specific: .xyz is flooded with forgettable keyword combos
   // in the 2.x band, so it needs a higher bar (3.0); every other TLD keeps the 1.0
   // floor that just trims the 0.x drop junk.
@@ -148,8 +218,11 @@ export default function OpportunitiesClient() {
   useEffect(() => { const id = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(id); }, []);
 
   const endingSoon = report ? report.auctions.filter((a) => { const c = countdown(a.endTimeUtc, now); return c.soon && !c.ended; }).length : 0;
-  const auctions = report ? sortAuctions(report.auctions, aucSort) : [];
-  const snap = report ? sortSnap(report.snap, snapSort) : [];
+  // Option lists for the filter dropdowns — union across both tables, sorted.
+  const sourceOpts = report ? [...new Set([...report.auctions, ...report.snap].map((r) => r.source))].sort((a, b) => sourceDisplay(a).name.localeCompare(sourceDisplay(b).name)) : [];
+  const tldOpts = report ? [...new Set([...report.auctions, ...report.snap].map((r) => tldOf(r.domain)).filter(Boolean))].sort() : [];
+  const auctions = report ? sortAuctions(report.auctions.filter((a) => matchesFilters(a, filters)), aucSort) : [];
+  const snap = report ? sortSnap(report.snap.filter((d) => matchesFilters(d, filters)), snapSort) : [];
   const snapShown = snap.filter((d) => (d.quality_score ?? 0) >= floorFor(d.domain));
 
   return (
@@ -157,8 +230,8 @@ export default function OpportunitiesClient() {
       <style>{`.opp-table th, .opp-table td { padding-right: 24px; } .opp-table th.right, .opp-table td.right { padding-right: 52px; } .opp-table th:last-child, .opp-table td:last-child { padding-right: 0; }`}</style>
       <h1 style={{ fontSize: "1.25rem", marginBottom: 4 }}>SNAP opportunities</h1>
       <p className="muted" style={{ marginTop: 0, fontSize: 14 }}>
-        Everything the pipeline surfaced as new today — live auctions and SNAP candidates — in one place. Click any column to
-        sort (e.g. <strong>Ends in</strong> for time-sensitive names).
+        Everything the pipeline surfaced as new today — live auctions and SNAP candidates — in one place. Filter by price, source,
+        TLD, one-word, or <strong>✨ MUB</strong>; click any column to sort (e.g. <strong>Ends in</strong> for time-sensitive names).
       </p>
 
       <div style={{ display: "flex", gap: 12, alignItems: "center", margin: "14px 0", flexWrap: "wrap" }}>
@@ -176,12 +249,17 @@ export default function OpportunitiesClient() {
             <Stat label="Sources" value={report.auctionSources + report.snapSources} />
           </div>
 
+          <FilterBar filters={filters} setFilters={setFilters} sources={sourceOpts} tlds={tldOpts} />
+
           <section style={{ marginTop: 20 }}>
-            <h2 style={{ fontSize: 17 }}>Auctions <span className="muted" style={{ fontWeight: 400, fontSize: 13 }}>· {report.auctions.length} live · {report.auctionSources} sources</span></h2>
-            {report.auctions.length === 0 ? <p className="muted">No live auctions right now.</p> : (
+            <h2 style={{ fontSize: 17 }}>Auctions <span className="muted" style={{ fontWeight: 400, fontSize: 13 }}>· {filtersActive(filters) ? `${auctions.length.toLocaleString()} of ${report.auctions.length}` : `${report.auctions.length} live`} · {report.auctionSources} sources</span></h2>
+            {report.auctions.length === 0 ? <p className="muted">No live auctions right now.</p> : auctions.length === 0 ? (
+              <p className="muted">No live auctions match these filters.</p>
+            ) : (
               <div className="table-scroll"><table className="dash opp-table" style={{ width: "100%" }}>
                 <thead><tr>
                   <SortHeader label="Domain" k="domain" sort={aucSort} setSort={setAucSort} />
+                  <SortHeader label="TLD" k="tld" sort={aucSort} setSort={setAucSort} />
                   <SortHeader label="Price" k="price" sort={aucSort} setSort={setAucSort} align="right" />
                   <SortHeader label="Quality" k="quality" sort={aucSort} setSort={setAucSort} />
                   <SortHeader label="Ends in" k="ends" sort={aucSort} setSort={setAucSort} />
@@ -191,7 +269,8 @@ export default function OpportunitiesClient() {
                 <tbody>
                   {auctions.map((a, i) => (
                     <tr key={a.domain + a.source + i}>
-                      <td className="mono" style={{ fontWeight: 600 }}>{a.domain}</td>
+                      <td className="mono" style={{ fontWeight: 600 }}>{a.is_mub ? <span title="Made-Up Brandable">✨ </span> : null}{a.domain}</td>
+                      <td className="muted" style={{ fontSize: 12.5 }}>.{tldOf(a.domain)}</td>
                       <td className="right" style={{ fontWeight: 600 }}>{usd(a.price)}</td>
                       <td><QualityCell q={a.quality_score} /></td>
                       <td><CountdownBadge end={a.endTimeUtc} now={now} />{a.bidCount != null ? <span className="muted" style={{ fontSize: 11, marginLeft: 8 }}>{a.bidCount} bid{a.bidCount === 1 ? "" : "s"}</span> : null}</td>
@@ -205,13 +284,14 @@ export default function OpportunitiesClient() {
           </section>
 
           <section style={{ marginTop: 28 }}>
-            <h2 style={{ fontSize: 17 }}>Snap <span className="muted" style={{ fontWeight: 400, fontSize: 13 }}>· {snapShown.length.toLocaleString()} new today (quality ≥ {BASE_FLOOR.toFixed(1)}, ≥ {XYZ_FLOOR.toFixed(1)} for .xyz) · {report.snapSources} sources</span></h2>
+            <h2 style={{ fontSize: 17 }}>Snap <span className="muted" style={{ fontWeight: 400, fontSize: 13 }}>· {snapShown.length.toLocaleString()} {filtersActive(filters) ? "match" : "new today"} (quality ≥ {BASE_FLOOR.toFixed(1)}, ≥ {XYZ_FLOOR.toFixed(1)} for .xyz) · {report.snapSources} sources</span></h2>
             {report.snap.length === 0 ? <p className="muted">No new SNAP candidates today.</p> : snapShown.length === 0 ? (
-              <p className="muted">No names clear today&apos;s quality floor.</p>
+              <p className="muted">{filtersActive(filters) ? "No names match these filters." : "No names clear today’s quality floor."}</p>
             ) : (
               <div className="table-scroll"><table className="dash opp-table" style={{ width: "100%" }}>
                 <thead><tr>
                   <SortHeader label="Domain" k="domain" sort={snapSort} setSort={setSnapSort} />
+                  <SortHeader label="TLD" k="tld" sort={snapSort} setSort={setSnapSort} />
                   <SortHeader label="Price" k="price" sort={snapSort} setSort={setSnapSort} align="right" />
                   <SortHeader label="Quality" k="quality" sort={snapSort} setSort={setSnapSort} />
                   <SortHeader label="Source" k="source" sort={snapSort} setSort={setSnapSort} />
@@ -220,7 +300,8 @@ export default function OpportunitiesClient() {
                 <tbody>
                   {snapShown.map((d, i) => (
                     <tr key={d.domain + d.source + i}>
-                      <td className="mono" style={{ fontWeight: 600 }}>{d.domain}</td>
+                      <td className="mono" style={{ fontWeight: 600 }}>{d.is_mub ? <span title="Made-Up Brandable">✨ </span> : null}{d.domain}</td>
+                      <td className="muted" style={{ fontSize: 12.5 }}>.{tldOf(d.domain)}</td>
                       <td className="right">{usd(d.price)}</td>
                       <td><QualityCell q={d.quality_score} /></td>
                       <td><SourcePill source={d.source} /></td>

@@ -22,6 +22,8 @@ export type NewTodayDomain = {
   enriched: boolean;
   price: number | null;
   best_price_source: string | null; // which marketplace the price came from
+  num_words: number | null; // from universe (1 = one-word); null when not in universe
+  is_mub: boolean | null; // MUB (made-up brandable) flag, precomputed by the pipeline
   link?: string | null; // direct listing URL when the source persisted one (state/<source>/links.json)
 };
 
@@ -45,6 +47,8 @@ export type AuctionListing = {
   bidCount: number | null;
   link: string | null;
   quality_score: number | null;
+  num_words: number | null; // from universe (1 = one-word); null when not in universe
+  is_mub: boolean | null; // MUB flag from the producer's snapshot (pipeline-precomputed)
 };
 
 export type LiveAuctionsResult = {
@@ -59,8 +63,8 @@ function todayUTC(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-/** Look up quality_score/category for a set of domains in name_universe. */
-type Enr = { q: number | null; c: string | null; price: number | null; ps: string | null };
+/** Look up quality_score/category/num_words for a set of domains in name_universe. */
+type Enr = { q: number | null; c: string | null; price: number | null; ps: string | null; nw: number | null };
 async function enrichmentFor(domains: string[]): Promise<Map<string, Enr>> {
   const map = new Map<string, Enr>();
   if (!domains.length || !isNamingConfigured()) return map;
@@ -69,16 +73,17 @@ async function enrichmentFor(domains: string[]): Promise<Map<string, Enr>> {
     const chunk = domains.slice(i, i + IN_CHUNK);
     const { data, error } = await db
       .from("name_universe")
-      .select("domain,quality_score,category,best_price,best_price_source")
+      .select("domain,quality_score,category,best_price,best_price_source,num_words")
       .in("domain", chunk);
     if (error) throw new Error(`new-today enrichment: ${error.message || error.code || "request failed"}`);
     for (const r of data ?? []) {
-      const row = r as { domain?: unknown; quality_score?: unknown; category?: unknown; best_price?: unknown; best_price_source?: unknown };
+      const row = r as { domain?: unknown; quality_score?: unknown; category?: unknown; best_price?: unknown; best_price_source?: unknown; num_words?: unknown };
       map.set(String(row.domain || "").toLowerCase(), {
         q: typeof row.quality_score === "number" ? row.quality_score : null,
         c: row.category != null ? String(row.category) : null,
         price: typeof row.best_price === "number" ? row.best_price : null,
         ps: row.best_price_source != null ? String(row.best_price_source) : null,
+        nw: typeof row.num_words === "number" ? row.num_words : null,
       });
     }
   }
@@ -116,16 +121,24 @@ export async function listLiveAuctions(sourceId: string): Promise<LiveAuctionsRe
       bidCount: typeof r.bid_count === "number" ? r.bid_count : null,
       link: r.link != null ? String(r.link) : null,
       quality_score: null,
+      num_words: null,
+      // MUB is precomputed by the producer into the snapshot row (null on rows
+      // written before the pipeline started annotating).
+      is_mub: typeof r.is_mub === "boolean" ? r.is_mub : null,
     });
   }
   // Soonest-ending first (snapshots are already sorted this way, but be safe).
   auctions.sort((a, b) => String(a.endTimeUtc || "").localeCompare(String(b.endTimeUtc || "")));
   const shown = auctions.slice(0, DISPLAY_CAP);
-  // Best-effort: attach the same quality_score SNAP shows for any auction name
-  // that also exists in name_universe. Names not in the universe stay null ("—").
+  // Best-effort: attach the same quality_score + num_words (one-word) SNAP shows
+  // for any auction name that also exists in name_universe. Not-in-universe → null.
   try {
     const enr = await enrichmentFor(shown.map((a) => a.domain));
-    for (const a of shown) a.quality_score = enr.get(a.domain)?.q ?? null;
+    for (const a of shown) {
+      const e = enr.get(a.domain);
+      a.quality_score = e?.q ?? null;
+      a.num_words = e?.nw ?? null;
+    }
   } catch {
     // Enrichment lookup failed — leave scores null, still return the auctions.
   }
@@ -173,12 +186,16 @@ async function feedPrices(sourceId: string): Promise<Map<string, number>> {
 export async function listNewTodayDomains(sourceId: string): Promise<NewTodayResult> {
   // 1) Authoritative feed-new list, if the source persisted one this run.
   let feedDomains: string[] | null = null;
+  let feedMub: Set<string> | null = null; // MUB subset persisted alongside the domains
   try {
     const raw = await getFile(`state/${sourceId}/new_today.json`);
     if (raw) {
-      const j = JSON.parse(raw) as { domains?: unknown };
+      const j = JSON.parse(raw) as { domains?: unknown; mub?: unknown };
       if (Array.isArray(j.domains)) {
         feedDomains = j.domains.map((d) => String(d).toLowerCase()).filter(Boolean);
+      }
+      if (Array.isArray(j.mub)) {
+        feedMub = new Set(j.mub.map((d) => String(d).toLowerCase()));
       }
     }
   } catch {
@@ -200,6 +217,8 @@ export async function listNewTodayDomains(sourceId: string): Promise<NewTodayRes
         enriched: e?.c != null,
         price: askPrice ?? e?.price ?? null,
         best_price_source: askPrice != null ? sourceId : (e?.ps ?? null),
+        num_words: e?.nw ?? null,
+        is_mub: feedMub ? feedMub.has(d) : null,
         link: links.get(d) ?? null,
       };
     });
@@ -212,14 +231,14 @@ export async function listNewTodayDomains(sourceId: string): Promise<NewTodayRes
   const db = getNamingDb();
   const { data, error } = await db
     .from("name_universe")
-    .select("domain,quality_score,category,best_price,best_price_source")
+    .select("domain,quality_score,category,best_price,best_price_source,num_words")
     .contains("sources", [sourceId])
     .gte("first_seen", todayUTC())
     .order("quality_score", { ascending: false, nullsFirst: false })
     .limit(DISPLAY_CAP);
   if (error) throw new Error(`new-today universe: ${error.message || error.code || "request failed"}`);
   const out: NewTodayDomain[] = (data ?? []).map((r) => {
-    const row = r as { domain?: unknown; quality_score?: unknown; category?: unknown; best_price?: unknown; best_price_source?: unknown };
+    const row = r as { domain?: unknown; quality_score?: unknown; category?: unknown; best_price?: unknown; best_price_source?: unknown; num_words?: unknown };
     const category = row.category != null ? String(row.category) : null;
     return {
       domain: String(row.domain || ""),
@@ -228,6 +247,8 @@ export async function listNewTodayDomains(sourceId: string): Promise<NewTodayRes
       enriched: category != null,
       price: typeof row.best_price === "number" ? row.best_price : null,
       best_price_source: row.best_price_source != null ? String(row.best_price_source) : null,
+      num_words: typeof row.num_words === "number" ? row.num_words : null,
+      is_mub: null, // fallback path doesn't have the feed's MUB set
     };
   });
   return { source: sourceId, origin: "universe", domains: out };
