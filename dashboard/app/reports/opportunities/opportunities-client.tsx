@@ -124,8 +124,8 @@ function sortSnap(rows: SnapOpp[], { key, dir }: Sort): SnapOpp[] {
 }
 
 // ── Filters (shared across both tables) ───────────────────────────────────────
-type Filters = { priceMin: string; priceMax: string; source: string; tld: string; oneWord: "all" | "yes" | "no"; mub: boolean };
-const EMPTY_FILTERS: Filters = { priceMin: "", priceMax: "", source: "all", tld: "all", oneWord: "all", mub: false };
+type Filters = { priceMin: string; priceMax: string; source: string; tld: string; oneWord: "all" | "yes" | "no"; mub: "all" | "yes" | "no" };
+const EMPTY_FILTERS: Filters = { priceMin: "", priceMax: "", source: "all", tld: "all", oneWord: "all", mub: "all" };
 // A row carries the common fields both tables share for filtering.
 function matchesFilters(row: { domain: string; price: number | null; source: string; num_words: number | null; is_mub: boolean | null }, f: Filters): boolean {
   const min = f.priceMin === "" ? null : Number(f.priceMin);
@@ -136,10 +136,11 @@ function matchesFilters(row: { domain: string; price: number | null; source: str
   if (f.tld !== "all" && tldOf(row.domain) !== f.tld) return false;
   if (f.oneWord === "yes" && row.num_words !== 1) return false;
   if (f.oneWord === "no" && row.num_words === 1) return false;
-  if (f.mub && row.is_mub !== true) return false;
+  if (f.mub === "yes" && row.is_mub !== true) return false;
+  if (f.mub === "no" && row.is_mub === true) return false;
   return true;
 }
-const filtersActive = (f: Filters) => f.priceMin !== "" || f.priceMax !== "" || f.source !== "all" || f.tld !== "all" || f.oneWord !== "all" || f.mub;
+const filtersActive = (f: Filters) => f.priceMin !== "" || f.priceMax !== "" || f.source !== "all" || f.tld !== "all" || f.oneWord !== "all" || f.mub !== "all";
 
 const fInput: CSSProperties = { width: 78, padding: "5px 8px", borderRadius: 7, border: "1px solid #d9d2c2", background: "#fff", fontSize: 13 };
 const fSelect: CSSProperties = { padding: "5px 8px", borderRadius: 7, border: "1px solid #d9d2c2", background: "#fff", fontSize: 13 };
@@ -147,11 +148,6 @@ const fLabel: CSSProperties = { fontSize: 11, fontWeight: 700, color: "var(--nav
 
 function FilterBar({ filters, setFilters, sources, tlds }: { filters: Filters; setFilters: (f: Filters) => void; sources: string[]; tlds: string[] }) {
   const set = (patch: Partial<Filters>) => setFilters({ ...filters, ...patch });
-  const chip = (on: boolean): CSSProperties => ({
-    padding: "5px 11px", borderRadius: 999, border: "1px solid " + (on ? "var(--navy, #254254)" : "#d9d2c2"),
-    background: on ? "var(--navy, #254254)" : "#fff", color: on ? "#fff" : "var(--navy-2, #44486a)",
-    fontSize: 12.5, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap",
-  });
   return (
     <div style={{ display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap", padding: "12px 14px", border: "1px solid #e3ddcf", borderRadius: 10, background: "var(--cream-2, #fbf7ec)", margin: "10px 0 4px" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -182,7 +178,14 @@ function FilterBar({ filters, setFilters, sources, tlds }: { filters: Filters; s
           <option value="no">Multi-word</option>
         </select>
       </div>
-      <button type="button" style={chip(filters.mub)} onClick={() => set({ mub: !filters.mub })} title="Made-Up Brandable">✨ MUB</button>
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <span style={fLabel}>✨ MUB</span>
+        <select style={fSelect} value={filters.mub} onChange={(e) => set({ mub: e.target.value as Filters["mub"] })} title="Made-Up Brandable">
+          <option value="all">Any</option>
+          <option value="yes">MUB only</option>
+          <option value="no">Non-MUB</option>
+        </select>
+      </div>
       {filtersActive(filters) && (
         <button type="button" onClick={() => setFilters(EMPTY_FILTERS)} style={{ fontSize: 12.5, background: "none", border: "none", color: "var(--coral-deep, #c0492f)", fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}>Clear</button>
       )}
