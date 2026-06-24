@@ -1,9 +1,29 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 21,
   "domains": [
-    "tensor.org"
+    "555.ai",
+    "aneurysm.net",
+    "atrocities.org",
+    "bestselling.org",
+    "carefully.net",
+    "caterpillars.net",
+    "drips.net",
+    "hairspray.net",
+    "indefinite.co",
+    "infertile.org",
+    "malcolm.ai",
+    "mckenzie.org",
+    "originally.net",
+    "positively.org",
+    "pout.net",
+    "puts.net",
+    "ridiculous.net",
+    "sophisticated.net",
+    "spoof.xyz",
+    "subroutine.co",
+    "throughout.net"
   ],
-  "generated_at": "2026-06-23T23:06:29.311624+00:00",
+  "generated_at": "2026-06-24T10:06:16.750543+00:00",
   "source": "namepros_marketplace"
 }
