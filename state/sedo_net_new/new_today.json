@@ -1,7 +1,9 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-06-23T23:01:06.244662+00:00",
+  "count": 1,
+  "domains": [
+    "beaten.ai"
+  ],
+  "generated_at": "2026-06-24T10:00:53.012298+00:00",
   "source": "sedo_net_new"
 }

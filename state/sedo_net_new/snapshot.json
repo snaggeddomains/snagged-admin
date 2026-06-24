@@ -1,42 +1,10 @@
 [
   {
-    "currency": "GBP",
-    "domain": "eyesight.ai",
-    "end_time_utc": "2026-06-23T16:24:10+00:00",
-    "price": 500000.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=eyesight.ai"
-  },
-  {
-    "currency": "GBP",
-    "domain": "correctly.ai",
-    "end_time_utc": "2026-06-23T16:24:18+00:00",
-    "price": 150000.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=correctly.ai"
-  },
-  {
-    "currency": "GBP",
-    "domain": "continuous.ai",
-    "end_time_utc": "2026-06-23T16:24:33+00:00",
-    "price": 300000.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=continuous.ai"
-  },
-  {
     "currency": "USD",
-    "domain": "thy.ai",
-    "end_time_utc": "2026-06-23T16:26:38+00:00",
-    "price": 98888.0,
+    "domain": "beaten.ai",
+    "end_time_utc": "2026-06-24T03:53:43+00:00",
+    "price": 9999.0,
     "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=thy.ai"
-  },
-  {
-    "currency": "USD",
-    "domain": "toure.co",
-    "end_time_utc": "2026-06-23T13:47:09+00:00",
-    "price": 1988.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=toure.co"
+    "url": "https://sedo.com/search/details/?domain=beaten.ai"
   }
 ]
