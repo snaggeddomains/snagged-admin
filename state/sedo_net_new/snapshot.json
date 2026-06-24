@@ -1,12 +1,102 @@
 [
   {
     "currency": "USD",
+    "domain": "controls.ai",
+    "end_time_utc": "2026-06-24T22:53:45+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=controls.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "stakes.ai",
+    "end_time_utc": "2026-06-24T22:54:09+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=stakes.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "locked.ai",
+    "end_time_utc": "2026-06-24T22:53:36+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=locked.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "scarce.ai",
+    "end_time_utc": "2026-06-24T22:54:44+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=scarce.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "opens.ai",
+    "end_time_utc": "2026-06-24T22:54:59+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=opens.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "earns.ai",
+    "end_time_utc": "2026-06-24T22:53:29+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=earns.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "stops.ai",
+    "end_time_utc": "2026-06-24T22:54:42+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=stops.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "bait.ai",
+    "end_time_utc": "2026-06-24T22:54:12+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=bait.ai"
+  },
+  {
+    "currency": "USD",
     "domain": "mend.ai",
     "end_time_utc": "2026-06-24T16:58:07+00:00",
     "is_mub": false,
-    "price": 45000.0,
+    "price": 55000.0,
     "tld": "ai",
     "url": "https://sedo.com/search/details/?domain=mend.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "poo.ai",
+    "end_time_utc": "2026-06-24T22:53:56+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=poo.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "ssh.ai",
+    "end_time_utc": "2026-06-24T22:54:01+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=ssh.ai"
   },
   {
     "currency": "USD",
