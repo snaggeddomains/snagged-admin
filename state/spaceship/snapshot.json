@@ -1,22 +1,27 @@
 [
   {
     "domain": "strawberry.io",
+    "is_mub": false,
     "price": null
   },
   {
     "domain": "trycaddy.com",
+    "is_mub": false,
     "price": null
   },
   {
     "domain": "catunicorn.com",
+    "is_mub": false,
     "price": null
   },
   {
     "domain": "slayqueenz.com",
+    "is_mub": false,
     "price": null
   },
   {
     "domain": "onemillioniq.com",
+    "is_mub": false,
     "price": null
   }
 ]
