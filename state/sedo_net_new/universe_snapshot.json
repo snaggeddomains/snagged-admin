@@ -4,15 +4,35 @@
     "price": 17250.0
   },
   {
-    "domain": "shanling.ai",
-    "price": 100000.0
+    "domain": "rafing.com",
+    "price": 999.0
   },
   {
-    "domain": "beaten.ai",
-    "price": 9999.0
+    "domain": "snugglesox.com",
+    "price": 999.0
+  },
+  {
+    "domain": "mend.ai",
+    "price": 45000.0
+  },
+  {
+    "domain": "straws.co",
+    "price": 999.0
+  },
+  {
+    "domain": "curver.co",
+    "price": 999.0
+  },
+  {
+    "domain": "guangzhou.co",
+    "price": 999.0
   },
   {
     "domain": "europharma.co",
     "price": 1988.0
+  },
+  {
+    "domain": "cranberries.co",
+    "price": 999.0
   }
 ]

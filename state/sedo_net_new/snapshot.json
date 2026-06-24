@@ -1,10 +1,29 @@
 [
   {
     "currency": "USD",
-    "domain": "beaten.ai",
-    "end_time_utc": "2026-06-24T03:53:43+00:00",
-    "price": 9999.0,
+    "domain": "mend.ai",
+    "end_time_utc": "2026-06-24T16:58:07+00:00",
+    "is_mub": false,
+    "price": 45000.0,
     "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=beaten.ai"
+    "url": "https://sedo.com/search/details/?domain=mend.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "straws.co",
+    "end_time_utc": "2026-06-24T16:14:17+00:00",
+    "is_mub": false,
+    "price": 999.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=straws.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "guangzhou.co",
+    "end_time_utc": "2026-06-24T16:15:17+00:00",
+    "is_mub": false,
+    "price": 999.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=guangzhou.co"
   }
 ]
