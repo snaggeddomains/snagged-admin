@@ -7,7 +7,9 @@ import { loadSources } from "./sources";
 import { listNewTodayDomains, listLiveAuctions, type NewTodayDomain, type AuctionListing } from "./new-today";
 
 export type SnapOpportunity = NewTodayDomain & { source: string };
-export type AuctionOpportunity = AuctionListing & { source: string };
+// altSources = the OTHER platforms the same auction is syndicated to (the master
+// row's source is the canonical one; these are folded in as indicators).
+export type AuctionOpportunity = AuctionListing & { source: string; altSources?: string[] };
 export type OpportunitiesReport = {
   snap: SnapOpportunity[];
   auctions: AuctionOpportunity[];
@@ -60,8 +62,26 @@ export async function newOpportunities(): Promise<OpportunitiesReport> {
   const snap = [...byDomain.values()]
     .map((d): SnapOpportunity => ({ ...d, source: d.best_price_source || d.source }))
     .sort((a, b) => (b.quality_score ?? -1) - (a.quality_score ?? -1));
-  // Auctions: soonest-ending first (the countdown matters).
-  const auctions = aucLists.flat().sort((a, b) => String(a.endTimeUtc || "~").localeCompare(String(b.endTimeUtc || "~")));
+  // Auctions: the SAME auction is syndicated across platforms (e.g. zyke.com on
+  // Dynadot + Namecheap + Park.io + Namesilo, identical price/bids/end). Collapse
+  // to ONE row per domain. Master = the Namecheap listing when present (else the
+  // one with the most bids, else first); the other platforms are folded into
+  // altSources so the row still shows where else it's running. Soonest-ending first.
+  const aucByDomain = new Map<string, AuctionOpportunity[]>();
+  for (const a of aucLists.flat()) {
+    const key = String(a.domain || "").toLowerCase();
+    if (!key) continue;
+    (aucByDomain.get(key) ?? aucByDomain.set(key, []).get(key)!).push(a);
+  }
+  const auctions = [...aucByDomain.values()]
+    .map((group): AuctionOpportunity => {
+      const master =
+        group.find((a) => /namecheap/i.test(a.source)) ??
+        [...group].sort((a, b) => (b.bidCount ?? -1) - (a.bidCount ?? -1))[0];
+      const altSources = [...new Set(group.filter((a) => a !== master).map((a) => a.source))];
+      return altSources.length ? { ...master, altSources } : master;
+    })
+    .sort((a, b) => String(a.endTimeUtc || "~").localeCompare(String(b.endTimeUtc || "~")));
 
   return {
     snap,
