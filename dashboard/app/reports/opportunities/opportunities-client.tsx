@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
 
 type SnapOpp = { domain: string; quality_score: number | null; category: string | null; enriched: boolean; price: number | null; best_price_source: string | null; num_words: number | null; is_mub: boolean | null; source: string };
-type AucOpp = { domain: string; price: number | null; endTimeUtc: string | null; bidCount: number | null; link: string | null; quality_score: number | null; num_words: number | null; is_mub: boolean | null; source: string };
+type AucOpp = { domain: string; price: number | null; endTimeUtc: string | null; bidCount: number | null; link: string | null; quality_score: number | null; num_words: number | null; is_mub: boolean | null; source: string; altSources?: string[] };
 type Report = { snap: SnapOpp[]; auctions: AucOpp[]; snapSources: number; auctionSources: number; generatedAt: string };
 
 const usd = (n: number | null) => (n == null ? "—" : `$${Math.round(n).toLocaleString()}`);
@@ -277,7 +277,7 @@ export default function OpportunitiesClient() {
                       <td className="right" style={{ fontWeight: 600 }}>{usd(a.price)}</td>
                       <td><QualityCell q={a.quality_score} /></td>
                       <td><CountdownBadge end={a.endTimeUtc} now={now} />{a.bidCount != null ? <span className="muted" style={{ fontSize: 11, marginLeft: 8 }}>{a.bidCount} bid{a.bidCount === 1 ? "" : "s"}</span> : null}</td>
-                      <td><SourcePill source={a.source} /></td>
+                      <td><SourcePill source={a.source} />{a.altSources && a.altSources.length > 0 ? <span className="muted" style={{ fontSize: 11, marginLeft: 6, whiteSpace: "nowrap" }} title={`Also on ${a.altSources.map((s) => sourceDisplay(s).name).join(", ")}`}>+{a.altSources.length}</span> : null}</td>
                       <td className="right">{a.link ? <a href={a.link} target="_blank" rel="noreferrer" style={linkBtn}>Bid →</a> : null}</td>
                     </tr>
                   ))}
