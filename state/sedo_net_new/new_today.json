@@ -1,19 +1,10 @@
 {
   "capped": false,
-  "count": 10,
+  "count": 1,
   "domains": [
-    "stops.ai",
-    "stakes.ai",
-    "ssh.ai",
-    "scarce.ai",
-    "poo.ai",
-    "opens.ai",
-    "locked.ai",
-    "earns.ai",
-    "controls.ai",
-    "bait.ai"
+    "xyl.com"
   ],
-  "generated_at": "2026-06-24T23:00:56.990328+00:00",
+  "generated_at": "2026-06-25T10:01:07.182575+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
