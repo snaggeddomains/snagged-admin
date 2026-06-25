@@ -1,19 +1,18 @@
 {
   "capped": false,
-  "count": 10,
+  "count": 7,
   "domains": [
-    "cams.now",
-    "convention.vc",
-    "diagram.now",
-    "energize.co",
-    "escape.now",
-    "flights.now",
-    "gratitude.now",
-    "love.now",
-    "supermarket.org",
-    "watch.now"
+    "082.xyz",
+    "78887.xyz",
+    "approx.co",
+    "been.co",
+    "dom.vc",
+    "horta.net",
+    "isolates.org"
   ],
-  "generated_at": "2026-06-25T10:07:10.988205+00:00",
-  "mub": [],
+  "generated_at": "2026-06-25T17:06:28.582787+00:00",
+  "mub": [
+    "horta.net"
+  ],
   "source": "namepros_marketplace"
 }
