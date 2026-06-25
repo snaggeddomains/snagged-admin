@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "india.com"
-  ],
-  "generated_at": "2026-06-24T23:00:59.569003+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-06-25T10:01:49.700631+00:00",
   "mub": [],
   "source": "reddit_domains"
 }
