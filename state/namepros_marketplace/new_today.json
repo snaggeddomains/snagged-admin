@@ -1,18 +1,21 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 12,
   "domains": [
-    "082.xyz",
-    "78887.xyz",
-    "approx.co",
-    "been.co",
-    "dom.vc",
-    "horta.net",
-    "isolates.org"
+    "compound.xyz",
+    "emphatic.xyz",
+    "impregnable.xyz",
+    "inherent.xyz",
+    "marsupial.xyz",
+    "melodious.xyz",
+    "sidearm.xyz",
+    "silkworm.xyz",
+    "soliloquy.xyz",
+    "song.net",
+    "tier.xyz",
+    "web.com"
   ],
-  "generated_at": "2026-06-25T17:06:28.582787+00:00",
-  "mub": [
-    "horta.net"
-  ],
+  "generated_at": "2026-06-25T23:06:18.473549+00:00",
+  "mub": [],
   "source": "namepros_marketplace"
 }
