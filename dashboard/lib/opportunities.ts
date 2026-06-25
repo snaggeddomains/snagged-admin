@@ -69,7 +69,7 @@ export async function newOpportunities(): Promise<OpportunitiesReport> {
   // altSources so the row still shows where else it's running. Soonest-ending first.
   const aucByDomain = new Map<string, AuctionOpportunity[]>();
   for (const a of aucLists.flat()) {
-    const key = String(a.domain || "").toLowerCase();
+    const key = String(a.domain || "").trim().toLowerCase();
     if (!key) continue;
     (aucByDomain.get(key) ?? aucByDomain.set(key, []).get(key)!).push(a);
   }

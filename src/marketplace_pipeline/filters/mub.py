@@ -248,9 +248,15 @@ def split_domain(domain: str):
 
 @lru_cache(maxsize=65536)
 def is_mub(domain: str) -> bool:
-    """True if domain is a MUB-grade coined .com (single label)."""
+    """True if domain is a MUB-grade coined name (single label, ANY TLD).
+
+    The made-up + clarity gates (2-3 syllables, clean sound<->spelling, Ambrino
+    floor) are what define MUB; the TLD does not. (`.com` is still where the
+    brandable sheet sources from, but the runtime flag applies to .ai/.io/etc.
+    too — coined brandables show up on every TLD in the auction/SNAP feeds.)
+    """
     sld, tld = split_domain(domain)
-    if not sld or tld != "com":
+    if not sld:  # also rejects multi-label hosts (split_domain returns None)
         return False
     if not sld.isalpha() or not _gates_ok(sld):
         return False
