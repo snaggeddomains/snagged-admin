@@ -1,13 +1,19 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 10,
   "domains": [
-    "dilute.org",
-    "dprk.net",
-    "snapshots.net",
-    "sub.xyz"
+    "cams.now",
+    "convention.vc",
+    "diagram.now",
+    "energize.co",
+    "escape.now",
+    "flights.now",
+    "gratitude.now",
+    "love.now",
+    "supermarket.org",
+    "watch.now"
   ],
-  "generated_at": "2026-06-24T23:07:03.167500+00:00",
+  "generated_at": "2026-06-25T10:07:10.988205+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
