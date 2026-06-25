@@ -112,7 +112,7 @@ export async function listLiveAuctions(sourceId: string): Promise<LiveAuctionsRe
   const auctions: AuctionListing[] = [];
   for (const it of arr) {
     const r = it as Record<string, unknown>;
-    const domain = String(r.domain || "").toLowerCase();
+    const domain = String(r.domain || "").trim().toLowerCase();
     if (!domain) continue;
     auctions.push({
       domain,

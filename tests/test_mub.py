@@ -38,10 +38,13 @@ def test_real_words_excluded():
         assert not mub.is_mub(d), d
 
 
-def test_com_only():
-    assert not mub.is_mub("vexa.io")
-    assert not mub.is_mub("ambrino.net")
-    assert not mub.is_mub("ab.co.com")     # multi-label
+def test_all_tlds():
+    # MUB now applies to ANY TLD (the made-up + clarity gates define it, not .com).
+    assert mub.is_mub("ambrino.ai")
+    assert mub.is_mub("ambrino.net")
+    assert mub.is_mub("batino.io")
+    # ...but a multi-label host is still rejected (single label only).
+    assert not mub.is_mub("ab.co.com")
 
 
 def test_mark_and_count():
