@@ -1,15 +1,15 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 6,
   "domains": [
-    "turkz.com",
-    "egames.org",
-    "tylt.com",
-    "inline.net",
-    "vazt.com",
-    "vvda.com",
-    "marrakesh.net"
+    "dsiy.com",
+    "apolo.org",
+    "kwoa.com",
+    "tuyu.com",
+    "stics.com",
+    "tonit.com"
   ],
-  "generated_at": "2026-06-24T09:40:16.954388+00:00",
+  "generated_at": "2026-06-25T09:39:12.689699+00:00",
+  "mub": [],
   "source": "godaddy_auctions"
 }

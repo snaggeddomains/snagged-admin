@@ -1,58 +1,56 @@
 [
   {
-    "bid_count": 13,
-    "domain": "turkz.com",
-    "end_time_utc": "2026-06-24T16:13:00+00:00",
-    "link": "https://www.godaddy.com/domain-auctions/turkz-com-707442171?isc=json_ending_tomorrow",
+    "bid_count": 26,
+    "domain": "dsiy.com",
+    "end_time_utc": "2026-06-25T16:34:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/dsiy-com-708150011?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 53.0
+    "price": 244.0
   },
   {
-    "bid_count": 8,
-    "domain": "egames.org",
-    "end_time_utc": "2026-06-24T18:14:00+00:00",
-    "link": "https://www.godaddy.com/domain-auctions/egames-org-707346475?isc=json_ending_tomorrow",
+    "bid_count": 14,
+    "domain": "apolo.org",
+    "end_time_utc": "2026-06-25T17:16:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/apolo-org-708045542?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 127.0
+    "price": 588.0
   },
   {
-    "bid_count": 68,
-    "domain": "tylt.com",
-    "end_time_utc": "2026-06-24T18:16:00+00:00",
-    "link": "https://www.godaddy.com/domain-auctions/tylt-com-707984953?isc=json_ending_tomorrow",
+    "bid_count": 22,
+    "domain": "kwoa.com",
+    "end_time_utc": "2026-06-25T17:27:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/kwoa-com-708137486?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 6201.0
+    "price": 370.0
   },
   {
-    "bid_count": 7,
-    "domain": "inline.net",
-    "end_time_utc": "2026-06-24T19:11:00+00:00",
-    "link": "https://www.godaddy.com/domain-auctions/inline-net-707546643?isc=json_ending_tomorrow",
+    "bid_count": 83,
+    "domain": "tuyu.com",
+    "end_time_utc": "2026-06-25T17:35:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/tuyu-com-706827757?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 65.0
+    "price": 8999.0
   },
   {
-    "bid_count": 30,
-    "domain": "vazt.com",
-    "end_time_utc": "2026-06-24T20:33:00+00:00",
-    "link": "https://www.godaddy.com/domain-auctions/vazt-com-708039249?isc=json_ending_tomorrow",
+    "bid_count": 20,
+    "domain": "stics.com",
+    "end_time_utc": "2026-06-25T18:28:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/stics-com-707478644?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 449.0
+    "price": 828.0
   },
   {
-    "bid_count": 16,
-    "domain": "vvda.com",
-    "end_time_utc": "2026-06-24T20:39:00+00:00",
-    "link": "https://www.godaddy.com/domain-auctions/vvda-com-708036154?isc=json_ending_tomorrow",
+    "bid_count": 27,
+    "domain": "tonit.com",
+    "end_time_utc": "2026-06-25T18:59:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/tonit-com-708155549?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 153.0
-  },
-  {
-    "bid_count": 5,
-    "domain": "marrakesh.net",
-    "end_time_utc": "2026-06-24T20:47:00+00:00",
-    "link": "https://www.godaddy.com/domain-auctions/marrakesh-net-708035136?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 65.0
+    "price": 1075.0
   }
 ]

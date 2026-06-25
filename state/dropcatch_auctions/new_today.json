@@ -1,19 +1,23 @@
 {
   "capped": false,
-  "count": 11,
+  "count": 12,
   "domains": [
-    "itn.org",
-    "stalingrad.net",
-    "nexh.com",
-    "defione.com",
     "midfield.com",
     "huci.com",
     "dipn.com",
-    "cytogenetics.com",
+    "wanni.com",
     "ooos.com",
+    "cytogenetics.com",
     "dnox.com",
+    "tomsa.com",
+    "mrevents.com",
+    "acmen.com",
+    "wmed.com",
     "dujm.com"
   ],
-  "generated_at": "2026-06-24T09:39:31.946818+00:00",
+  "generated_at": "2026-06-25T09:38:27.804358+00:00",
+  "mub": [
+    "tomsa.com"
+  ],
   "source": "dropcatch_auctions"
 }

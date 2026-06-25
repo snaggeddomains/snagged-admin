@@ -1,40 +1,9 @@
 [
   {
-    "bid_count": 51,
-    "domain": "sydnee.com",
-    "end_time_utc": "2026-06-24T18:43:00+00:00",
-    "link": null,
-    "platform": "Park.io",
-    "price": 602.0
-  },
-  {
-    "bid_count": 62,
-    "domain": "painto.com",
-    "end_time_utc": "2026-06-24T18:46:00+00:00",
-    "link": null,
-    "platform": "Park.io",
-    "price": 511.0
-  },
-  {
-    "bid_count": 34,
-    "domain": "promptly.org",
-    "end_time_utc": "2026-06-24T18:47:00+00:00",
-    "link": null,
-    "platform": "Park.io",
-    "price": 580.0
-  },
-  {
-    "bid_count": 56,
-    "domain": "mclm.com",
-    "end_time_utc": "2026-06-24T20:00:00+00:00",
-    "link": null,
-    "platform": "Park.io",
-    "price": 1030.0
-  },
-  {
     "bid_count": 107,
     "domain": "zyke.com",
     "end_time_utc": "2026-06-25T15:00:00+00:00",
+    "is_mub": false,
     "link": null,
     "platform": "Park.io",
     "price": 4150.0
@@ -43,6 +12,7 @@
     "bid_count": 6,
     "domain": "playstation.io",
     "end_time_utc": "2026-06-25T16:41:01+00:00",
+    "is_mub": false,
     "link": null,
     "platform": "Park.io",
     "price": 117.0
@@ -51,22 +21,25 @@
     "bid_count": 3,
     "domain": "pumps.io",
     "end_time_utc": "2026-06-25T16:41:01+00:00",
+    "is_mub": false,
     "link": null,
     "platform": "Park.io",
     "price": 102.0
   },
   {
-    "bid_count": 44,
+    "bid_count": 47,
     "domain": "tsly.com",
     "end_time_utc": "2026-06-27T15:00:00+00:00",
+    "is_mub": false,
     "link": null,
     "platform": "Park.io",
-    "price": 355.0
+    "price": 440.0
   },
   {
     "bid_count": 2,
     "domain": "sought.io",
     "end_time_utc": "2026-06-28T16:41:01+00:00",
+    "is_mub": false,
     "link": null,
     "platform": "Park.io",
     "price": 99.0
@@ -75,6 +48,7 @@
     "bid_count": 47,
     "domain": "510.net",
     "end_time_utc": "2026-06-29T15:00:00+00:00",
+    "is_mub": false,
     "link": null,
     "platform": "Park.io",
     "price": 1009.0

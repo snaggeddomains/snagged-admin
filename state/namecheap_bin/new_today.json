@@ -1,7 +1,11 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-06-24T09:02:11.515224+00:00",
+  "count": 2,
+  "domains": [
+    "instructional.co",
+    "liquidation.ai"
+  ],
+  "generated_at": "2026-06-25T09:02:57.735423+00:00",
+  "mub": [],
   "source": "namecheap_bin"
 }
