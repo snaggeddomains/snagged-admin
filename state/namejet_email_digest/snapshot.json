@@ -1,34 +1,10 @@
 [
   {
-    "domain": "chilly.org",
-    "end_time_utc": "2026-06-26T01:00:00+00:00",
+    "domain": "dishes.org",
+    "end_time_utc": "2026-06-26T09:15:00+00:00",
     "is_mub": false,
-    "link": "https://www.namejet.com/domain/chilly.org.action",
+    "link": "https://www.namejet.com/domain/dishes.org.action",
     "platform": "NameJet",
-    "price": 69.0
-  },
-  {
-    "domain": "shay.com",
-    "end_time_utc": "2026-06-29T17:55:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namejet.com/domain/shay.com.action",
-    "platform": "NameJet",
-    "price": 69.0
-  },
-  {
-    "domain": "stalker.org",
-    "end_time_utc": "2026-06-25T01:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namejet.com/domain/stalker.org.action",
-    "platform": "NameJet",
-    "price": 69.0
-  },
-  {
-    "domain": "zigzag.org",
-    "end_time_utc": "2026-06-25T16:30:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namejet.com/domain/zigzag.org.action",
-    "platform": "NameJet",
-    "price": 69.0
+    "price": 79.0
   }
 ]
