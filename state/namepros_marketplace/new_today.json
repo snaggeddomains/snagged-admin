@@ -1,14 +1,16 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 7,
   "domains": [
-    "endo.net",
-    "fake.co",
-    "ip.xyz",
-    "pliocene.ai",
-    "tonality.xyz"
+    "510.net",
+    "bedroom.net",
+    "care.com",
+    "cheaper.now",
+    "cheat.now",
+    "labor.now",
+    "motorway.net"
   ],
-  "generated_at": "2026-06-26T17:07:34.148404+00:00",
+  "generated_at": "2026-06-26T23:06:17.734641+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
