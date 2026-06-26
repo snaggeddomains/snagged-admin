@@ -1,4 +1,8 @@
 {
-  "domains": [],
-  "updated_at": "2026-06-26T17:01:11.745110+00:00"
+  "domains": [
+    "beers.ai",
+    "liquidation.ai",
+    "submarines.ai"
+  ],
+  "updated_at": "2026-06-26T23:01:01.452640+00:00"
 }

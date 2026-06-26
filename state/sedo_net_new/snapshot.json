@@ -1,1 +1,29 @@
-[]
+[
+  {
+    "currency": "USD",
+    "domain": "beers.ai",
+    "end_time_utc": "2026-06-26T22:23:57+00:00",
+    "is_mub": false,
+    "price": 19994.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=beers.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "submarines.ai",
+    "end_time_utc": "2026-06-26T22:24:49+00:00",
+    "is_mub": false,
+    "price": 4994.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=submarines.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "liquidation.ai",
+    "end_time_utc": "2026-06-26T20:27:52+00:00",
+    "is_mub": false,
+    "price": 19995.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=liquidation.ai"
+  }
+]
