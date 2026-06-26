@@ -7,11 +7,13 @@ still TBD, we ingest that email automatically:
   1. A Gmail filter forwards noreply@namejet.com → a Resend Inbound address.
   2. Resend POSTs the email to /api/inbound/namejet (dashboard), which stashes
      the raw email in the naming-project table `namejet_inbound`.
-  3. THIS source (run daily by the auctions orchestrator) reads the latest
-     un-processed stashed email, parses the table, runs it through the SAME
-     auction option-filter as the Drive uploads, and publishes to the auctions
-     sheet + #auctions Slack — exactly like every other auction producer — then
-     marks the stash row processed.
+  3. THIS source (run daily by the auctions orchestrator, and event-driven on
+     each inbound email) reads EVERY un-processed stashed email, parses each
+     table, unions + dedupes the listings, runs them through the SAME auction
+     option-filter as the Drive uploads, and publishes to the auctions sheet +
+     #auctions Slack — exactly like every other auction producer — then marks
+     every processed stash row. Processing all (not just the latest) is what
+     lets a batch of forwarded emails all get cleansed + flagged.
 
 FAIL-SAFE: if nothing is stashed (or the naming creds/libs are missing) this
 writes a 'skipped' run_status and returns 0 — it never raises, so it can't turn
@@ -57,17 +59,23 @@ def _naming_client():
     return create_client(url, key)
 
 
-def _fetch_latest_stashed() -> tuple[str, str]:
-    """Return (row_id, html_or_text) of the most recent un-processed inbound
-    email, or raise _SkipIngest if there's nothing / it can't be read."""
+def _fetch_unprocessed(limit: int = 50) -> list[tuple[str, str]]:
+    """Return [(row_id, html_or_text), …] for EVERY un-processed inbound email
+    (oldest first), or raise _SkipIngest if there's nothing / it can't be read.
+
+    Multiple NameJet emails can be forwarded to the same inbound address and pile
+    up between runs (and the daily run only fires once); processing them all —
+    not just the latest — is what gets every forwarded email cleansed + flagged.
+    Rows with no body are skipped here but still marked processed by the caller so
+    they don't accumulate."""
     client = _naming_client()
     try:
         res = (
             client.table(INBOX_TABLE)
             .select("id, html, text")
             .is_("processed_at", "null")
-            .order("received_at", desc=True)
-            .limit(1)
+            .order("received_at", desc=False)
+            .limit(limit)
             .execute()
         )
     except Exception as e:
@@ -75,11 +83,11 @@ def _fetch_latest_stashed() -> tuple[str, str]:
     rows = res.data or []
     if not rows:
         raise _SkipIngest("no un-processed inbound email")
-    row = rows[0]
-    body = (row.get("html") or row.get("text") or "").strip()
-    if not body:
-        raise _SkipIngest("stashed email had no body")
-    return row["id"], body
+    out: list[tuple[str, str]] = []
+    for row in rows:
+        body = (row.get("html") or row.get("text") or "").strip()
+        out.append((row["id"], body))
+    return out
 
 
 def _mark_processed(row_id: str, listings_count: int) -> None:
@@ -146,15 +154,29 @@ def run() -> int:
     sheet_url = SHEET_URL_TEMPLATE.format(sheet_id=sheet_id)
     now = datetime.now(timezone.utc)
 
-    print("[1/5] Reading latest stashed NameJet email (Resend Inbound → namejet_inbound)")
+    print("[1/5] Reading ALL un-processed stashed NameJet emails (Resend Inbound → namejet_inbound)")
     try:
-        row_id, body = _fetch_latest_stashed()
+        stashed = _fetch_unprocessed()
     except _SkipIngest as e:
         return _skip(str(e))
+    print(f"      un-processed emails: {len(stashed)}")
 
-    print("[2/5] Parsing email table")
-    parsed = parse_email_listings(body)
-    print(f"      rows parsed: {len(parsed):,}")
+    print("[2/5] Parsing email tables (union + dedupe across all emails)")
+    parsed: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    per_email_count: dict[str, int] = {}
+    for row_id, body in stashed:
+        rows_i = parse_email_listings(body) if body else []
+        kept = 0
+        for L in rows_i:
+            if L["domain"] in seen:
+                continue
+            seen.add(L["domain"])
+            parsed.append(L)
+            kept += 1
+        per_email_count[row_id] = len(rows_i)
+        print(f"      email {str(row_id)[:8]}: parsed {len(rows_i):,} (new {kept:,})")
+    print(f"      rows parsed (unioned): {len(parsed):,}")
 
     print("[3/5] Applying auction option filter")
     listings = [
@@ -192,13 +214,17 @@ def run() -> int:
         )
         print(f"      slack posted: {posted}")
 
-    _mark_processed(row_id, len(listings))
+    # Mark EVERY processed email (with its own parsed-row count), so a batch of
+    # forwarded emails all clear instead of just the latest.
+    for rid, cnt in per_email_count.items():
+        _mark_processed(rid, cnt)
 
     state.write_json(SOURCE_ID, "run_status.json", {
         "source": SOURCE_ID,
         "label": SOURCE_LABEL,
         "status": "ok",
         "generated_at": datetime.now(timezone.utc).isoformat(),
+        "emails_processed": len(stashed),
         "new_count": sheet_stats["added"],
         "sheet_total_after": sheet_stats["total_after"],
         "deduped_against_existing": sheet_stats["deduped"],
