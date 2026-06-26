@@ -1,38 +1,20 @@
 [
   {
     "bid_count": 0,
-    "domain": "spits.org",
-    "end_time_utc": "2026-06-25T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/spits.org",
-    "platform": "NameSilo",
-    "price": 1.0
-  },
-  {
-    "bid_count": 107,
-    "domain": "zyke.com",
-    "end_time_utc": "2026-06-25T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/zyke.com",
-    "platform": "NameSilo",
-    "price": 4150.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "colored.co",
-    "end_time_utc": "2026-06-25T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/colored.co",
-    "platform": "NameSilo",
-    "price": 1.0
-  },
-  {
-    "bid_count": 0,
     "domain": "bribes.co",
     "end_time_utc": "2026-06-26T15:00:00+00:00",
     "is_mub": false,
     "link": "https://www.namesilo.com/auctions/bribes.co",
     "platform": "NameSilo",
     "price": 1.0
+  },
+  {
+    "bid_count": 47,
+    "domain": "tsly.com",
+    "end_time_utc": "2026-06-27T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namesilo.com/auctions/tsly.com",
+    "platform": "NameSilo",
+    "price": 440.0
   }
 ]

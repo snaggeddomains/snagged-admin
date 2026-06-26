@@ -2,13 +2,13 @@
   "capped": false,
   "count": 5,
   "domains": [
-    "recorders.ai",
-    "audubon.ai",
-    "ile.ai",
-    "atms.co",
-    "cappuccino.co"
+    "playstation.io",
+    "pumps.io",
+    "thumbs.co",
+    "trois.ai",
+    "sow.co"
   ],
-  "generated_at": "2026-06-25T09:20:11.530277+00:00",
+  "generated_at": "2026-06-26T09:19:29.311770+00:00",
   "mub": [],
   "source": "atom_daily"
 }
