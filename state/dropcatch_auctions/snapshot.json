@@ -1,110 +1,101 @@
 [
   {
-    "bid_count": 109,
-    "domain": "midfield.com",
-    "end_time_utc": "2026-06-25T18:59:25.874140+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Midfield.com",
-    "platform": "DropCatch",
-    "price": 12200.0
-  },
-  {
-    "bid_count": 100,
-    "domain": "huci.com",
-    "end_time_utc": "2026-06-25T18:59:25.874140+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Huci.com",
-    "platform": "DropCatch",
-    "price": 4400.0
-  },
-  {
-    "bid_count": 76,
-    "domain": "dipn.com",
-    "end_time_utc": "2026-06-25T18:59:25.874140+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Dipn.com",
-    "platform": "DropCatch",
-    "price": 1311.0
-  },
-  {
-    "bid_count": 33,
-    "domain": "wanni.com",
-    "end_time_utc": "2026-06-25T18:59:25.874140+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Wanni.com",
-    "platform": "DropCatch",
-    "price": 618.0
-  },
-  {
     "bid_count": 31,
     "domain": "ooos.com",
-    "end_time_utc": "2026-06-26T18:59:25.874140+00:00",
+    "end_time_utc": "2026-06-26T18:59:51.060433+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/ooos.com",
     "platform": "DropCatch",
     "price": 1033.0
   },
   {
-    "bid_count": 41,
+    "bid_count": 42,
     "domain": "cytogenetics.com",
-    "end_time_utc": "2026-06-26T18:59:25.874140+00:00",
+    "end_time_utc": "2026-06-26T18:59:51.060433+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Cytogenetics.com",
     "platform": "DropCatch",
-    "price": 753.0
+    "price": 803.0
   },
   {
-    "bid_count": 90,
+    "bid_count": 92,
     "domain": "dnox.com",
-    "end_time_utc": "2026-06-26T18:59:25.874140+00:00",
+    "end_time_utc": "2026-06-26T18:59:51.060433+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Dnox.com",
     "platform": "DropCatch",
-    "price": 552.0
+    "price": 750.0
   },
   {
-    "bid_count": 33,
+    "bid_count": 39,
     "domain": "tomsa.com",
-    "end_time_utc": "2026-06-26T18:59:25.874140+00:00",
+    "end_time_utc": "2026-06-26T18:59:51.060433+00:00",
     "is_mub": true,
     "link": "https://www.dropcatch.com/domain/Tomsa.com",
     "platform": "DropCatch",
-    "price": 300.0
+    "price": 402.0
   },
   {
-    "bid_count": 20,
+    "bid_count": 22,
     "domain": "mrevents.com",
-    "end_time_utc": "2026-06-26T18:59:25.874140+00:00",
+    "end_time_utc": "2026-06-26T18:59:51.060433+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/MrEvents.com",
     "platform": "DropCatch",
-    "price": 147.0
+    "price": 157.0
   },
   {
-    "bid_count": 15,
+    "bid_count": 17,
     "domain": "acmen.com",
-    "end_time_utc": "2026-06-26T18:59:25.874140+00:00",
+    "end_time_utc": "2026-06-26T18:59:51.060433+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Acmen.com",
     "platform": "DropCatch",
-    "price": 124.0
+    "price": 144.0
   },
   {
-    "bid_count": 76,
+    "bid_count": 50,
+    "domain": "riled.com",
+    "end_time_utc": "2026-06-29T18:59:51.060433+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Riled.com",
+    "platform": "DropCatch",
+    "price": 499.0
+  },
+  {
+    "bid_count": 91,
     "domain": "wmed.com",
-    "end_time_utc": "2026-06-29T18:59:25.874140+00:00",
+    "end_time_utc": "2026-06-29T18:59:51.060433+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Wmed.com",
     "platform": "DropCatch",
-    "price": 143.0
+    "price": 363.0
   },
   {
-    "bid_count": 12,
+    "bid_count": 46,
+    "domain": "bitox.com",
+    "end_time_utc": "2026-06-29T18:59:51.060433+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Bitox.com",
+    "platform": "DropCatch",
+    "price": 260.0
+  },
+  {
+    "bid_count": 14,
     "domain": "dujm.com",
-    "end_time_utc": "2026-06-29T18:59:25.874140+00:00",
+    "end_time_utc": "2026-06-29T18:59:51.060433+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/dujm.com",
     "platform": "DropCatch",
-    "price": 130.0
+    "price": 150.0
+  },
+  {
+    "bid_count": 33,
+    "domain": "hostint.org",
+    "end_time_utc": "2026-07-02T18:59:51.060433+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/hostint.org",
+    "platform": "DropCatch",
+    "price": 510.0
   }
 ]

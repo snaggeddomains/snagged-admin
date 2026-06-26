@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-06-25T09:20:22.825999+00:00",
+  "generated_at": "2026-06-26T09:19:38.369764+00:00",
   "label": "Berserk SNAP tracker (sheet)",
   "new_count": 0,
-  "raw_count": 4,
+  "raw_count": 18,
   "source": "berserk_snap_sheet",
   "status": "ok",
   "supabase_status": "ok",
-  "universe_count": 2
+  "universe_count": 10
 }
