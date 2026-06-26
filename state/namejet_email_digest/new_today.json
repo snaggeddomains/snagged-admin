@@ -1,12 +1,10 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 1,
   "domains": [
-    "chilly.org",
-    "improvements.org",
     "dishes.org"
   ],
-  "generated_at": "2026-06-26T15:13:08.740872+00:00",
+  "generated_at": "2026-06-26T15:43:18.267782+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
