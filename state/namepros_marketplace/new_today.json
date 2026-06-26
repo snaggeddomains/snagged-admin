@@ -1,11 +1,14 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 5,
   "domains": [
-    "buggy.co",
-    "safe.com"
+    "endo.net",
+    "fake.co",
+    "ip.xyz",
+    "pliocene.ai",
+    "tonality.xyz"
   ],
-  "generated_at": "2026-06-26T10:06:57.572956+00:00",
+  "generated_at": "2026-06-26T17:07:34.148404+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
