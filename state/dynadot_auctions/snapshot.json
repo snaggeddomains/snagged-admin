@@ -1,92 +1,29 @@
 [
   {
-    "bid_count": 19,
-    "domain": "cacos.com",
-    "end_time_utc": "2026-06-25T12:59:53+00:00",
+    "bid_count": 79,
+    "domain": "xiaoma.com",
+    "end_time_utc": "2026-06-26T13:29:55+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40214406.html",
+    "link": "https://www.dynadot.com/market/auction/40262987.html",
     "platform": "Dynadot",
-    "price": 220.0
-  },
-  {
-    "bid_count": 55,
-    "domain": "bzz.net",
-    "end_time_utc": "2026-06-25T13:44:53+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40212910.html",
-    "platform": "Dynadot",
-    "price": 488.29
-  },
-  {
-    "bid_count": 6,
-    "domain": "poweredm.com",
-    "end_time_utc": "2026-06-25T13:44:54+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40211886.html",
-    "platform": "Dynadot",
-    "price": 52.45
+    "price": 10503.5
   },
   {
     "bid_count": 0,
-    "domain": "colored.co",
-    "end_time_utc": "2026-06-25T15:00:00+00:00",
+    "domain": "bribes.co",
+    "end_time_utc": "2026-06-26T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/39250317.html",
+    "link": "https://www.dynadot.com/market/auction/39290831.html",
     "platform": "Dynadot",
     "price": 1.0
   },
   {
-    "bid_count": 0,
-    "domain": "spits.org",
-    "end_time_utc": "2026-06-25T15:00:00+00:00",
+    "bid_count": 88,
+    "domain": "lakas.com",
+    "end_time_utc": "2026-06-26T18:36:55+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/39249766.html",
+    "link": "https://www.dynadot.com/market/auction/40242051.html",
     "platform": "Dynadot",
-    "price": 1.0
-  },
-  {
-    "bid_count": 107,
-    "domain": "zyke.com",
-    "end_time_utc": "2026-06-25T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/39249798.html",
-    "platform": "Dynadot",
-    "price": 4150.0
-  },
-  {
-    "bid_count": 23,
-    "domain": "rmz.org",
-    "end_time_utc": "2026-06-25T16:05:46+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40239516.html",
-    "platform": "Dynadot",
-    "price": 235.0
-  },
-  {
-    "bid_count": 23,
-    "domain": "gemil.com",
-    "end_time_utc": "2026-06-25T18:46:51+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40196211.html",
-    "platform": "Dynadot",
-    "price": 100.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "marketplaces.co",
-    "end_time_utc": "2026-06-25T19:29:59+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40203496.html",
-    "platform": "Dynadot",
-    "price": 7.99
-  },
-  {
-    "bid_count": 53,
-    "domain": "dkil.com",
-    "end_time_utc": "2026-06-26T00:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40111946.html",
-    "platform": "Dynadot",
-    "price": 650.25
+    "price": 326.0
   }
 ]

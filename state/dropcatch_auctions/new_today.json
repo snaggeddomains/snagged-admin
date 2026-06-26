@@ -1,21 +1,20 @@
 {
   "capped": false,
-  "count": 12,
+  "count": 11,
   "domains": [
-    "midfield.com",
-    "huci.com",
-    "dipn.com",
-    "wanni.com",
     "ooos.com",
     "cytogenetics.com",
     "dnox.com",
     "tomsa.com",
     "mrevents.com",
     "acmen.com",
+    "riled.com",
     "wmed.com",
-    "dujm.com"
+    "bitox.com",
+    "dujm.com",
+    "hostint.org"
   ],
-  "generated_at": "2026-06-25T09:38:27.804358+00:00",
+  "generated_at": "2026-06-26T09:37:53.521968+00:00",
   "mub": [
     "tomsa.com"
   ],

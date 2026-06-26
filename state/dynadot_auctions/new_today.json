@@ -1,16 +1,10 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 1,
   "domains": [
-    "cacos.com",
-    "bzz.net",
-    "poweredm.com",
-    "rmz.org",
-    "gemil.com",
-    "marketplaces.co",
-    "dkil.com"
+    "xiaoma.com"
   ],
-  "generated_at": "2026-06-25T09:38:18.667936+00:00",
+  "generated_at": "2026-06-26T09:37:43.674229+00:00",
   "mub": [],
   "source": "dynadot_auctions"
 }

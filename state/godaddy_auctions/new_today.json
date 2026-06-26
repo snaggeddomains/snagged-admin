@@ -1,15 +1,17 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 8,
   "domains": [
-    "dsiy.com",
-    "apolo.org",
-    "kwoa.com",
-    "tuyu.com",
-    "stics.com",
-    "tonit.com"
+    "tongues.co",
+    "trikal.com",
+    "compartment.co",
+    "sakq.com",
+    "tqem.com",
+    "zigzag.net",
+    "organically.org",
+    "vblog.net"
   ],
-  "generated_at": "2026-06-25T09:39:12.689699+00:00",
+  "generated_at": "2026-06-26T09:38:35.630787+00:00",
   "mub": [],
   "source": "godaddy_auctions"
 }
