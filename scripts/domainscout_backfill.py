@@ -56,6 +56,9 @@ def track(domain: str, key: str, timeout: int = 20) -> tuple[int, str]:
             "Authorization": f"Bearer {key}",
             "Accept": "application/json",
             "Content-Type": "application/json",
+            # DomainScout sits behind Cloudflare, which 403s the default
+            # "Python-urllib/x" UA (error 1010). Send a normal UA.
+            "User-Agent": "snagged-domainscout-backfill/1.0 (+https://snagged.com)",
         },
     )
     try:
