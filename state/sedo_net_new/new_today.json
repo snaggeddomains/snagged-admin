@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-06-25T23:01:39.356474+00:00",
+  "count": 1,
+  "domains": [
+    "trampoline.com"
+  ],
+  "generated_at": "2026-06-26T10:01:52.583922+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
