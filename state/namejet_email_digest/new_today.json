@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "improvements.org"
-  ],
-  "generated_at": "2026-06-27T15:07:52.707491+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-06-27T15:13:14.774952+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
