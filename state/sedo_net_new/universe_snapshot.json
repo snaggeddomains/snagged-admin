@@ -1,42 +1,34 @@
 [
   {
-    "domain": "hunches.ai",
-    "price": 14994.0
+    "domain": "chuain.com",
+    "price": 3695.0
   },
   {
-    "domain": "putters.ai",
-    "price": 8994.0
-  },
-  {
-    "domain": "beers.ai",
-    "price": 19994.0
-  },
-  {
-    "domain": "resellers.ai",
-    "price": 24995.0
-  },
-  {
-    "domain": "infohistory.com",
-    "price": 299.0
-  },
-  {
-    "domain": "submarines.ai",
-    "price": 4994.0
-  },
-  {
-    "domain": "liquidation.ai",
-    "price": 19995.0
-  },
-  {
-    "domain": "freely.net",
-    "price": null
+    "domain": "lories.net",
+    "price": 1495.0
   },
   {
     "domain": "firebase.net",
     "price": 19888.0
   },
   {
-    "domain": "activations.net",
-    "price": 6994.0
+    "domain": "bribes.co",
+    "price": 250.0
+  },
+  {
+    "domain": "verado.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "kellys.co",
+    "price": 250.0
+  },
+  {
+    "domain": "weibo.co",
+    "price": 39613.0
+  },
+  {
+    "domain": "assimilated.net",
+    "price": 1795.0
   }
 ]
