@@ -1,74 +1,65 @@
 [
   {
-    "bid_count": 0,
-    "domain": "tongues.co",
-    "end_time_utc": "2026-06-26T16:24:00+00:00",
+    "bid_count": 13,
+    "domain": "koday.com",
+    "end_time_utc": "2026-06-27T16:23:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/tongues-co-708319857?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/koday-com-707147177?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 70.0
+  },
+  {
+    "bid_count": 16,
+    "domain": "rarez.com",
+    "end_time_utc": "2026-06-27T16:48:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/rarez-com-707055559?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 315.0
+  },
+  {
+    "bid_count": 34,
+    "domain": "eisner.com",
+    "end_time_utc": "2026-06-27T17:17:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/eisner-com-707877393?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 4494.0
+  },
+  {
+    "bid_count": 5,
+    "domain": "7889.net",
+    "end_time_utc": "2026-06-27T17:47:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/7889-net-708508230?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 18.0
+  },
+  {
+    "bid_count": 12,
+    "domain": "nqod.com",
+    "end_time_utc": "2026-06-27T19:41:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/nqod-com-708494129?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 103.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "dichotomy.co",
+    "end_time_utc": "2026-06-27T20:51:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/dichotomy-co-708510150?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
     "price": 1.0
   },
   {
-    "bid_count": 10,
-    "domain": "trikal.com",
-    "end_time_utc": "2026-06-26T17:52:00+00:00",
+    "bid_count": 21,
+    "domain": "klkk.com",
+    "end_time_utc": "2026-06-27T21:17:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/trikal-com-708316774?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/klkk-com-708503573?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 120.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "compartment.co",
-    "end_time_utc": "2026-06-26T17:58:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/compartment-co-708344586?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1.0
-  },
-  {
-    "bid_count": 7,
-    "domain": "sakq.com",
-    "end_time_utc": "2026-06-26T18:08:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/sakq-com-708316399?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 100.0
-  },
-  {
-    "bid_count": 7,
-    "domain": "tqem.com",
-    "end_time_utc": "2026-06-26T18:30:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/tqem-com-708318061?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 93.0
-  },
-  {
-    "bid_count": 40,
-    "domain": "zigzag.net",
-    "end_time_utc": "2026-06-26T19:10:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/zigzag-net-708343059?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 595.0
-  },
-  {
-    "bid_count": 4,
-    "domain": "organically.org",
-    "end_time_utc": "2026-06-26T19:33:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/organically-org-707621663?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 16.0
-  },
-  {
-    "bid_count": 9,
-    "domain": "vblog.net",
-    "end_time_utc": "2026-06-26T20:21:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/vblog-net-708338445?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 155.0
+    "price": 510.0
   }
 ]

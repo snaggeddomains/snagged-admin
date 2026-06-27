@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "swept.org"
-  ],
-  "generated_at": "2026-06-26T09:02:42.988111+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-06-27T09:02:23.369908+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

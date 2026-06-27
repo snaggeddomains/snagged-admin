@@ -1,17 +1,16 @@
 {
   "capped": false,
-  "count": 8,
+  "count": 7,
   "domains": [
-    "tongues.co",
-    "trikal.com",
-    "compartment.co",
-    "sakq.com",
-    "tqem.com",
-    "zigzag.net",
-    "organically.org",
-    "vblog.net"
+    "koday.com",
+    "rarez.com",
+    "eisner.com",
+    "7889.net",
+    "nqod.com",
+    "dichotomy.co",
+    "klkk.com"
   ],
-  "generated_at": "2026-06-26T09:38:35.630787+00:00",
+  "generated_at": "2026-06-27T09:39:57.994371+00:00",
   "mub": [],
   "source": "godaddy_auctions"
 }
