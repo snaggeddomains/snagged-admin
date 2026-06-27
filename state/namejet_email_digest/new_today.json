@@ -2,9 +2,9 @@
   "capped": false,
   "count": 1,
   "domains": [
-    "dishes.org"
+    "kinda.org"
   ],
-  "generated_at": "2026-06-26T15:43:18.267782+00:00",
+  "generated_at": "2026-06-27T15:06:39.240253+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
