@@ -1,16 +1,16 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 7,
   "domains": [
-    "estimated.io",
-    "gainers.net",
-    "jumpsuit.me",
-    "later.co",
-    "robo.com"
+    "42772.com",
+    "74200.com",
+    "88848.xyz",
+    "goodwood.org",
+    "ibo.xyz",
+    "maan.org",
+    "neymar.net"
   ],
-  "generated_at": "2026-06-27T10:06:23.036399+00:00",
-  "mub": [
-    "robo.com"
-  ],
+  "generated_at": "2026-06-27T17:06:48.830447+00:00",
+  "mub": [],
   "source": "namepros_marketplace"
 }
