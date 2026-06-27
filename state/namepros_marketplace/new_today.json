@@ -1,16 +1,16 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 5,
   "domains": [
-    "510.net",
-    "bedroom.net",
-    "care.com",
-    "cheaper.now",
-    "cheat.now",
-    "labor.now",
-    "motorway.net"
+    "estimated.io",
+    "gainers.net",
+    "jumpsuit.me",
+    "later.co",
+    "robo.com"
   ],
-  "generated_at": "2026-06-26T23:06:17.734641+00:00",
-  "mub": [],
+  "generated_at": "2026-06-27T10:06:23.036399+00:00",
+  "mub": [
+    "robo.com"
+  ],
   "source": "namepros_marketplace"
 }
