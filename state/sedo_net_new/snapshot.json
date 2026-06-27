@@ -7,14 +7,5 @@
     "price": 250.0,
     "tld": "co",
     "url": "https://sedo.com/search/details/?domain=bribes.co"
-  },
-  {
-    "currency": "USD",
-    "domain": "weibo.co",
-    "end_time_utc": "2026-06-27T03:42:05+00:00",
-    "is_mub": false,
-    "price": 39613.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=weibo.co"
   }
 ]
