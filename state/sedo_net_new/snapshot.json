@@ -1,11 +1,11 @@
 [
   {
     "currency": "USD",
-    "domain": "bribes.co",
-    "end_time_utc": "2026-06-27T09:29:35+00:00",
+    "domain": "duplex.ai",
+    "end_time_utc": "2026-06-27T17:25:15+00:00",
     "is_mub": false,
-    "price": 250.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=bribes.co"
+    "price": null,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=duplex.ai"
   }
 ]

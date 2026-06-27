@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-06-27T17:01:18.451035+00:00",
+  "count": 1,
+  "domains": [
+    "duplex.ai"
+  ],
+  "generated_at": "2026-06-27T23:01:19.077035+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
