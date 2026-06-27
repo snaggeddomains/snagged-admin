@@ -1,10 +1,12 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 3,
   "domains": [
-    "diseases.co"
+    "alleged.ai",
+    "specialise.ai",
+    "worth.ai"
   ],
-  "generated_at": "2026-06-26T08:16:26.888883+00:00",
+  "generated_at": "2026-06-27T08:18:13.724328+00:00",
   "mub": [],
   "source": "afternic"
 }
