@@ -2,9 +2,9 @@
   "capped": false,
   "count": 1,
   "domains": [
-    "kinda.org"
+    "improvements.org"
   ],
-  "generated_at": "2026-06-27T15:06:39.240253+00:00",
+  "generated_at": "2026-06-27T15:07:52.707491+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
