@@ -173,6 +173,22 @@ module key (MODULES + CATALOG, group Reports) and put Corporate Portfolios
 also admits a portfolio-only (or opportunities-only) user since those pages live under
 the section but aren't `reports.*` keys. The research SPA mirrors this (see that repo).
 
+# Internal transaction-comps endpoint for SNAP Eval (2026-06-28)
+
+`app/api/internal/sales-comps/route.ts` lets the research app's **SNAP Eval** pull
+REAL comparable sale prices from the Snagged Domain Tracker's **"Master Txns List"**
+tab (`SNAGGED_TRACKER_SHEET_ID`, range `'Master Txns List'!A1:Z20000`). Columns are
+**auto-detected by content** (the domain column = most domain-shaped values; the
+price column = most money-dense non-domain column, preferring a sale/price header),
+so the tab's exact headers don't have to be hard-coded. Auth = shared secret
+`x-internal-secret` == `RESEARCH_INTERNAL_SECRET` (same as the email-threads
+endpoint; `middleware.ts` already excludes `api/internal`). `GET ?sld=&tld=&len=`
+returns `{deals:[{domain,price,date,relation}]}` where `relation` is `same_sld`
+(exact word, any TLD) / `same_tld` (same extension, similar length). Parsed deals
+cached in-memory 5 min (a 25-name batch doesn't re-read the sheet 25×). Reuses the
+existing Google SA (must be shared on the sheet — it already is, for the revenue
+report). Research side: `domain-owner-research` `lib/evaluate/trackerComps.js`.
+
 # Internal Gmail endpoint for research chat (2026-06-20)
 
 `app/api/internal/email-threads/route.ts` lets the **research app's** Domain Owner
