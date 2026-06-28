@@ -38,6 +38,7 @@ export const MODULES = [
   "research.sales", // Sales Research Agent — find buyers for a domain we're selling
   "research.beeper", // Beeper — RDAP drop watcher (alert when a domain's status changes)
   "research.whois", // Whois — basic free RDAP/WHOIS domain lookup
+  "research.evaluate", // SNAP Eval — should-we-buy-it acquisition/resale scorecard
 ] as const;
 export type ModuleKey = (typeof MODULES)[number];
 
@@ -157,7 +158,8 @@ export const CATALOG: CatalogEntry[] = [
   { key: "reports", label: "Reports — full access (analytics + cost)", group: "Reports", kind: "module" },
   { key: "reports.analytics", label: "Reports — Site Analytics", group: "Reports", kind: "action" },
   { key: "reports.marketplace", label: "Reports — Marketplace (per-domain)", group: "Reports", kind: "action" },
-  { key: "reports.opportunities", label: "Reports — SNAP Opportunities (snap + auctions)", group: "Reports", kind: "action" },
+  { key: "research.evaluate", label: "SNAP Eval (acquisition / resale scorecard)", group: "SNAP", kind: "module" },
+  { key: "reports.opportunities", label: "SNAP Opportunities (snap + auctions)", group: "SNAP", kind: "action" },
   { key: "reports.chat", label: "Reports — Chat Analytics (LLM Q&A)", group: "Reports", kind: "action" },
   { key: "reports.cost", label: "Reports — API cost & usage", group: "Reports", kind: "action" },
   { key: "research.domain_owner", label: "Domain Owner research", group: "Research", kind: "module" },
