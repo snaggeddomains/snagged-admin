@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
-import Nav from "@/app/nav";
 import TopBar from "@/app/top-bar";
+import SectionChrome from "@/app/section-chrome";
 import { getCurrentUser } from "@/lib/session";
-import { canEnterAdmin, canAdmin, ADMIN_TABS } from "@/lib/permissions";
+import { canEnterAdmin } from "@/lib/permissions";
 
 // The Admin module shell: global TopBar (cross-module switching + account),
 // the admin sub-nav, and the module-level gate. Middleware guarantees an
@@ -27,13 +27,9 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     );
   }
 
-  // Per-tab gating: only show the tabs this user can actually open.
-  const tabs = ADMIN_TABS.filter((t) => canAdmin(user, t.perm)).map((t) => ({ href: t.href, label: t.label }));
-
   return (
     <>
-      <TopBar user={user} current="admin" />
-      <Nav tabs={tabs} />
+      <SectionChrome user={user} />
       {children}
     </>
   );

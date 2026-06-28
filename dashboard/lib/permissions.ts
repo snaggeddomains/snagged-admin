@@ -39,6 +39,7 @@ export const MODULES = [
   "research.beeper", // Beeper — RDAP drop watcher (alert when a domain's status changes)
   "research.whois", // Whois — basic free RDAP/WHOIS domain lookup
   "research.evaluate", // SNAP Eval — should-we-buy-it acquisition/resale scorecard
+  "research.portfolio", // Corporate Portfolios — reverse-WHOIS a company → its premium domains (lives in Reports)
 ] as const;
 export type ModuleKey = (typeof MODULES)[number];
 
@@ -106,6 +107,24 @@ export const REPORTS_TABS: { href: string; label: string; perm: ModuleKey | Acti
   { href: "/reports/marketplace", label: "Marketplace", perm: "reports.marketplace" },
   { href: "/reports/chat", label: "Chat", perm: "reports.chat" },
   { href: "/reports/cost", label: "Cost & usage", perm: "reports.cost" },
+  // Corporate Portfolios lives in the research app (/research/portfolio) but
+  // belongs to the Reports section. Nav renders /research/* as a full-nav anchor.
+  { href: "/research/portfolio", label: "Corporate Portfolios", perm: "research.portfolio" },
+];
+
+// The Research section's hub/menu entries (the research app serves each page).
+// This is the curated entry list (the research SPA has its own full tool sub-nav).
+export const RESEARCH_TABS: { href: string; label: string; perm: ModuleKey | ActionKey }[] = [
+  { href: "/research", label: "Domain Owner", perm: "research.domain_owner" },
+  { href: "/research/trademark", label: "Trademark", perm: "research.trademark" },
+  { href: "/research/appraisal", label: "Appraisal", perm: "research.appraisal" },
+  { href: "/research/naming", label: "Naming Exercise", perm: "research.naming" },
+  { href: "/research/dbscreen", label: "Domain DB Screen", perm: "research.dbscreen" },
+  { href: "/research/dbsearch", label: "Domain Name Search", perm: "research.dbsearch" },
+  { href: "/research/nameserver", label: "Nameserver Search", perm: "research.nameserver" },
+  { href: "/research/sales", label: "Sales Research", perm: "research.sales" },
+  { href: "/research/beeper", label: "Beeper (drop watch)", perm: "research.beeper" },
+  { href: "/research/whois", label: "Whois (domain lookup)", perm: "research.whois" },
 ];
 
 // SNAP — its own top-level workspace (peer to Research/Admin/Reports). Two tools,
@@ -185,4 +204,5 @@ export const CATALOG: CatalogEntry[] = [
   { key: "research.sales", label: "Sales Research", group: "Research", kind: "module" },
   { key: "research.beeper", label: "Beeper (drop watch)", group: "Research", kind: "module" },
   { key: "research.whois", label: "Whois (domain lookup)", group: "Research", kind: "module" },
+  { key: "research.portfolio", label: "Corporate Portfolios", group: "Reports", kind: "module" },
 ];

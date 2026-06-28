@@ -1,41 +1,24 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
-import { userCan, canEnterReports, canReports } from "@/lib/permissions";
+import { visibleSections, sectionTabs } from "@/lib/navigation";
 import TopBar from "./top-bar";
 
 export const dynamic = "force-dynamic";
 
-// The umbrella landing hub. After login, users land here and see the modules
-// they have access to. New modules are added by appending to the lists below.
+// /research/* is the separate research app (served via rewrite) — use a full-nav
+// anchor to avoid a client-side RSC fetch that would 404. Everything else is a
+// same-app <Link>.
+function TaskLink({ href, label }: { href: string; label: string }) {
+  return href.startsWith("/research") ? <a href={href}>{label}</a> : <Link href={href}>{label}</Link>;
+}
+
+// The umbrella landing hub. Every card + tile is derived from the navigation
+// registry (lib/navigation.ts) — add a section or a tab there, not here.
 export default async function Hub() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-
-  const researchTasks = [
-    { key: "research.domain_owner", label: "Domain Owner", href: "/research" },
-    { key: "research.trademark", label: "Trademark", href: "/research/trademark" },
-    { key: "research.appraisal", label: "Appraisal", href: "/research/appraisal" },
-    { key: "research.naming", label: "Naming Exercise", href: "/research/naming" },
-    { key: "research.dbscreen", label: "Domain DB Screen", href: "/research/dbscreen" },
-    { key: "research.dbsearch", label: "Domain Name Search", href: "/research/dbsearch" },
-    { key: "research.nameserver", label: "Nameserver Search", href: "/research/nameserver" },
-    { key: "research.sales", label: "Sales Research", href: "/research/sales" },
-    { key: "research.beeper", label: "Beeper (drop watch)", href: "/research/beeper" },
-    { key: "research.whois", label: "Whois (domain lookup)", href: "/research/whois" },
-  ].filter((t) => userCan(user, t.key as Parameters<typeof userCan>[1]));
-
-  const canResearch = researchTasks.length > 0;
-  const canAdmin = userCan(user, "admin");
-  const canReportsAccess = canEnterReports(user);
-
-  // SNAP — its own top-level workspace. SNAP Eval (should-we-buy-it scorecard) +
-  // SNAP Opportunities (the auctions/snap opportunity feed, surfaced from Reports).
-  const snapTasks = [
-    { label: "SNAP Eval", href: "/research/evaluate", show: userCan(user, "research.evaluate") },
-    { label: "SNAP Opportunities", href: "/reports/opportunities", show: canReports(user, "reports.opportunities") },
-  ].filter((t) => t.show);
-  const canSnap = snapTasks.length > 0;
+  const sections = visibleSections(user);
 
   return (
     <main>
@@ -53,70 +36,23 @@ export default async function Hub() {
       </div>
 
       <div className="hub-grid">
-        {canResearch && (
-          <section className="card hub-card">
-            <h2><Link href="/research">Research</Link></h2>
+        {sections.map((s) => (
+          <section key={s.key} className="card hub-card">
+            <h2><TaskLink href={s.href} label={s.label} /></h2>
             <p className="muted" style={{ marginTop: 0, fontSize: 14 }}>
-              Domain ownership, trademark, appraisal &amp; naming research.
+              {s.blurb}
             </p>
             <ul className="hub-tasks">
-              {researchTasks.map((t) => (
-                <li key={t.key}>
-                  <Link href={t.href}>{t.label}</Link>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        {canAdmin && (
-          <section className="card hub-card">
-            <h2><Link href="/admin">Admin</Link></h2>
-            <p className="muted" style={{ marginTop: 0, fontSize: 14 }}>
-              Marketplace pipeline dashboard — sources, schedule, configuration &amp; users.
-            </p>
-            <ul className="hub-tasks">
-              <li><Link href="/admin">Sources</Link></li>
-              <li><Link href="/admin/config">Configuration</Link></li>
-              <li><Link href="/admin/schedule">Schedule</Link></li>
-              <li><Link href="/admin/users">Users</Link></li>
-              <li><Link href="/admin/imports">Imports</Link></li>
-              <li><a href="/research/admin">Lessons</a></li>
-            </ul>
-          </section>
-        )}
-
-        {canSnap && (
-          <section className="card hub-card">
-            <h2><Link href="/research/evaluate">SNAP</Link></h2>
-            <p className="muted" style={{ marginTop: 0, fontSize: 14 }}>
-              Should we buy it? Acquisition/resale scoring &amp; the live opportunity feed.
-            </p>
-            <ul className="hub-tasks">
-              {snapTasks.map((t) => (
+              {sectionTabs(user, s.key).map((t) => (
                 <li key={t.href}>
-                  <Link href={t.href}>{t.label}</Link>
+                  <TaskLink href={t.href} label={t.label} />
                 </li>
               ))}
             </ul>
           </section>
-        )}
+        ))}
 
-        {canReportsAccess && (
-          <section className="card hub-card">
-            <h2><Link href="/reports">Reports</Link></h2>
-            <p className="muted" style={{ marginTop: 0, fontSize: 14 }}>
-              Site analytics across the business lines, SEO, revenue &amp; API cost.
-            </p>
-            <ul className="hub-tasks">
-              <li><Link href="/reports">Site analytics</Link></li>
-              <li><Link href="/reports/chat">Chat analytics</Link></li>
-              <li><Link href="/reports/cost">API cost &amp; usage</Link></li>
-            </ul>
-          </section>
-        )}
-
-        {!canResearch && !canAdmin && !canReportsAccess && (
+        {sections.length === 0 && (
           <p className="muted">
             You don&apos;t have access to any modules yet. Ask an administrator to grant
             permissions.

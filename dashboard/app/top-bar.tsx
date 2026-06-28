@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { userCan, MODULES, canEnterAdmin, canAdmin, ADMIN_TABS, canEnterReports, canReports, REPORTS_TABS, SNAP_TABS, type AppUser } from "@/lib/permissions";
+import { type AppUser } from "@/lib/permissions";
+import { visibleSections, sectionTabs, type SectionKey } from "@/lib/navigation";
 import NotificationsBell from "./notifications-bell";
 
 // The global chrome shared across every umbrella surface (hub, admin) and
@@ -15,26 +16,13 @@ export default function TopBar({
   current,
 }: {
   user: AppUser;
-  current?: "snap" | "research" | "admin" | "reports";
+  current?: SectionKey;
 }) {
-  const canResearch = MODULES.some((m) => m.startsWith("research.") && userCan(user, m));
-  const adminAccess = canEnterAdmin(user);
-  const reportsAccess = canEnterReports(user);
-  // SNAP — its own top-level workspace (SNAP Eval + SNAP Opportunities).
-  const snapAccess = userCan(user, "research.evaluate") || canReports(user, "reports.opportunities");
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  // The active module's section tabs live in the hamburger on mobile (.tab-nav is
-  // hidden there). Both Admin and Reports drive it from their own tab lists.
-  // A SNAP tab is gated by its own kind: SNAP Eval = the research.evaluate module,
-  // SNAP Opportunities = the reports.opportunities action (+ reports umbrella).
-  const snapTabAllowed = (perm: typeof SNAP_TABS[number]["perm"]) =>
-    perm === "reports.opportunities" ? canReports(user, perm) : userCan(user, perm as Parameters<typeof userCan>[1]);
-  const menuTabs =
-    current === "admin" ? ADMIN_TABS.filter((t) => canAdmin(user, t.perm))
-      : current === "reports" ? REPORTS_TABS.filter((t) => canReports(user, t.perm))
-        : current === "snap" ? SNAP_TABS.filter((t) => snapTabAllowed(t.perm))
-          : [];
+  // Everything below is derived from the navigation registry (lib/navigation.ts).
+  const sections = visibleSections(user);
+  const menuTabs = current ? sectionTabs(user, current) : [];
 
   return (
     <header className="topbar">
@@ -44,28 +32,17 @@ export default function TopBar({
         <span className="wm-a">Snagged</span>
       </Link>
 
-      {(snapAccess || canResearch || adminAccess || reportsAccess) && (
+      {sections.length > 0 && (
         <nav className="topbar__nav">
-          {canResearch && (
-            <a href="/research" className={current === "research" ? "active" : ""}>
-              Research
-            </a>
-          )}
-          {adminAccess && (
-            <Link href="/admin" className={current === "admin" ? "active" : ""}>
-              Admin
-            </Link>
-          )}
-          {snapAccess && (
-            <a href="/research/evaluate" className={current === "snap" ? "active" : ""}>
-              SNAP
-            </a>
-          )}
-          {reportsAccess && (
-            <Link href="/reports" className={current === "reports" ? "active" : ""}>
-              Reports
-            </Link>
-          )}
+          {sections.map((s) => {
+            const cls = current === s.key ? "active" : "";
+            // /research/* is the separate research app — full-nav anchor.
+            return s.href.startsWith("/research") ? (
+              <a key={s.key} href={s.href} className={cls}>{s.label}</a>
+            ) : (
+              <Link key={s.key} href={s.href} className={cls}>{s.label}</Link>
+            );
+          })}
         </nav>
       )}
 
@@ -93,17 +70,14 @@ export default function TopBar({
         {menuTabs.length > 0 && (
           <nav className="topbar__menu-nav">
             {menuTabs.map((t) => {
-              const isIndex = t.href === "/admin" || t.href === "/reports";
-              const active = isIndex ? pathname === t.href : pathname.startsWith(t.href);
-              return (
-                <Link
-                  key={t.href}
-                  href={t.href}
-                  className={active ? "active" : ""}
-                  onClick={() => setOpen(false)}
-                >
-                  {t.label}
-                </Link>
+              const isIndex = t.href === "/admin" || t.href === "/reports" || t.href === "/research";
+              const active = isIndex ? pathname === t.href : Boolean(pathname && pathname.startsWith(t.href));
+              const cls = active ? "active" : "";
+              // /research/* is the separate research app — full-nav anchor.
+              return t.href.startsWith("/research") ? (
+                <a key={t.href} href={t.href} className={cls} onClick={() => setOpen(false)}>{t.label}</a>
+              ) : (
+                <Link key={t.href} href={t.href} className={cls} onClick={() => setOpen(false)}>{t.label}</Link>
               );
             })}
           </nav>
@@ -121,7 +95,7 @@ export default function TopBar({
 // Admin + Reports surfaces (the hub landing doesn't need them). Share copies the
 // current page URL — uses the native share sheet on mobile, falls back to the
 // clipboard (with a brief "copied" confirmation), then to a prompt.
-function NavControls({ current }: { current?: "snap" | "research" | "admin" | "reports" }) {
+function NavControls({ current }: { current?: SectionKey }) {
   const [copied, setCopied] = useState(false);
   if (current !== "admin" && current !== "reports") return null;
   const btn: React.CSSProperties = {

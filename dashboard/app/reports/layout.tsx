@@ -1,13 +1,14 @@
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import TopBar from "@/app/top-bar";
-import ReportsChrome from "./reports-chrome";
+import SectionChrome from "@/app/section-chrome";
 import { getCurrentUser } from "@/lib/session";
-import { canEnterReports, canReports, userCan, REPORTS_TABS, SNAP_TABS } from "@/lib/permissions";
+import { canEnterReports } from "@/lib/permissions";
 
 // The Reports module shell — a top-level module (peer to Admin), with its own
-// permission so analytics can be granted without admin powers. Same chrome as
-// Admin: global TopBar + sub-nav (which collapses into the mobile hamburger).
+// permission so analytics can be granted without admin powers. The chrome
+// (TopBar + sub-nav) is the shared SectionChrome, which resolves the section from
+// the URL — so /reports/opportunities renders under SNAP automatically.
 export default async function ReportsLayout({ children }: { children: ReactNode }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/reports");
@@ -27,15 +28,9 @@ export default async function ReportsLayout({ children }: { children: ReactNode 
     );
   }
 
-  const reportsTabs = REPORTS_TABS.filter((t) => canReports(user, t.perm)).map((t) => ({ href: t.href, label: t.label }));
-  // SNAP sub-nav (Eval + Opportunities) — shown on /reports/opportunities, which
-  // belongs to the SNAP workspace. Each tab gated by its own kind.
-  const snapTabs = SNAP_TABS.filter((t) =>
-    t.perm === "reports.opportunities" ? canReports(user, t.perm) : userCan(user, t.perm as Parameters<typeof userCan>[1]),
-  ).map((t) => ({ href: t.href, label: t.label }));
   return (
     <>
-      <ReportsChrome user={user} reportsTabs={reportsTabs} snapTabs={snapTabs} />
+      <SectionChrome user={user} />
       {children}
     </>
   );

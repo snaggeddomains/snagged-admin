@@ -133,6 +133,46 @@ and stays in `REPORTS_TABS` for the in-Reports sub-nav).
   the shared main project (admin `SUPABASE_URL` == research `SUPABASE_URL`) for a
   domain's real offers — no new internal endpoint, cached read, fail-open.
 
+# Navigation registry — single source of truth for menus (2026-06-28)
+
+All umbrella menus derive from ONE registry: **`dashboard/lib/navigation.ts`**
+(`SECTIONS`). Adding a section or a tab is a one-line data change — never hand-edit
+the hub, header, or layouts again.
+
+- **`SECTIONS`** = the four top-level workspaces in order (Research · Admin · SNAP ·
+  Reports), each `{ key, label, href, blurb, tabs }`. The `tabs` reference the tab
+  arrays in `lib/permissions.ts` (`RESEARCH_TABS`, `ADMIN_TABS`, `SNAP_TABS`,
+  `REPORTS_TABS`) — those stay in permissions.ts (so `canEnterAdmin/Reports` can use
+  them without a cycle); navigation.ts builds the section structure + helpers on top.
+- **Helpers:** `visibleSections(user)` (header + hub, in order), `sectionTabs(user,
+  key)` (per-section gated tabs), `canTab` (routes a tab's perm to canAdmin/canReports/
+  userCan by namespace), `canEnterSection`, and **`sectionForPath(pathname)`** — the
+  longest-matching-tab-href resolver that lets a page live in one app but belong to
+  another section (e.g. `/reports/opportunities` → SNAP, `/research/portfolio` →
+  Reports).
+- **Consumers (all derive, none hardcode):** `app/page.tsx` (hub cards =
+  `visibleSections` × `sectionTabs`), `app/top-bar.tsx` (header = `visibleSections`,
+  mobile menu = `sectionTabs(current)`), and **`app/section-chrome.tsx`** — the single
+  shared chrome (`<TopBar current> + <Nav tabs>`) used by the admin + reports layouts,
+  which resolves the current section from the URL via `sectionForPath`. This replaced
+  the per-layout TopBar/Nav wiring and the old `reports-chrome.tsx` special case.
+- A tab whose `href` starts with `/research` is the research app → rendered as a
+  full-nav `<a>` (Nav/TopBar/hub all branch on this), so cross-app tabs just work.
+
+**Runbook — add a top-level section:** add its tab array + any new permission keys to
+`lib/permissions.ts` (MODULES/ACTIONS + CATALOG), then add one `NavSection` to
+`SECTIONS`. Done — card, header item, mobile menu, sub-nav all appear.
+**Runbook — add a tab:** add one row to that section's tab array in permissions.ts.
+**Runbook — move a tool between sections:** move its row to the other section's tab
+array (and update its CATALOG `group`). `sectionForPath` handles the URL→section
+mapping automatically.
+
+**Corporate Portfolios → Reports (2026-06-28):** added the missing `research.portfolio`
+module key (MODULES + CATALOG, group Reports) and put Corporate Portfolios
+(`/research/portfolio`, a research-app page) in `REPORTS_TABS`. `canEnterReports` now
+also admits a portfolio-only (or opportunities-only) user since those pages live under
+the section but aren't `reports.*` keys. The research SPA mirrors this (see that repo).
+
 # Internal Gmail endpoint for research chat (2026-06-20)
 
 `app/api/internal/email-threads/route.ts` lets the **research app's** Domain Owner
