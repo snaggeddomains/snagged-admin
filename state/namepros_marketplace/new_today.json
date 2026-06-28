@@ -1,13 +1,17 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 8,
   "domains": [
-    "crawl.co",
-    "cursive.co",
-    "hoodie.xyz",
-    "pare.net"
+    "067.xyz",
+    "40000.xyz",
+    "bandit.co",
+    "gott.xyz",
+    "octagonal.xyz",
+    "reheat.xyz",
+    "signals.co",
+    "trophy.co"
   ],
-  "generated_at": "2026-06-28T17:06:44.718904+00:00",
+  "generated_at": "2026-06-28T23:06:52.119349+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
