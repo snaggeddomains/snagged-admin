@@ -112,6 +112,27 @@ rebuild). Enhancements this session:
   (`pitchSource === undefined`; prior marker was `inboundEngaged`) so old rows rebuild instead
   of serving the old Gmail-heuristic classification.
 
+# SNAP top-level menu + SNAP Eval permission (2026-06-28)
+
+The hub (`dashboard/app/page.tsx`) gained a **SNAP** card — a top-level workspace
+peer to Research/Admin/Reports — holding two tiles: **SNAP Eval** (→
+`/research/evaluate`, the research app's new should-we-buy-it acquisition/resale
+scorecard, gated `research.evaluate`) and **SNAP Opportunities** (→
+`/reports/opportunities`, the existing snap+auctions feed, gated
+`reports.opportunities` via `canReports`). The Opportunities tile was **moved out of
+the Reports hub card** into SNAP (its page still lives under `/reports/opportunities`
+and stays in `REPORTS_TABS` for the in-Reports sub-nav).
+
+- **Permissions** (`dashboard/lib/permissions.ts`): new module `research.evaluate`
+  (stored flat `evaluate` via `storageKey`). CATALOG now has a **`SNAP` group** with
+  `research.evaluate` (module) + `reports.opportunities` (regrouped from Reports — key
+  unchanged, so no data migration). Grant `research.evaluate` per-user in the Users
+  editor; admins auto-pass. The SNAP Eval tool itself lives in the
+  **domain-owner-research** repo (see that repo's CLAUDE.md "SNAP Eval").
+- **Deal-history reuse:** SNAP Eval reads `marketplace_deal_reports` directly from
+  the shared main project (admin `SUPABASE_URL` == research `SUPABASE_URL`) for a
+  domain's real offers — no new internal endpoint, cached read, fail-open.
+
 # Internal Gmail endpoint for research chat (2026-06-20)
 
 `app/api/internal/email-threads/route.ts` lets the **research app's** Domain Owner

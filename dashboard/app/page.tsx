@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
-import { userCan, canEnterReports } from "@/lib/permissions";
+import { userCan, canEnterReports, canReports } from "@/lib/permissions";
 import TopBar from "./top-bar";
 
 export const dynamic = "force-dynamic";
@@ -29,6 +29,14 @@ export default async function Hub() {
   const canAdmin = userCan(user, "admin");
   const canReportsAccess = canEnterReports(user);
 
+  // SNAP — its own top-level workspace. SNAP Eval (should-we-buy-it scorecard) +
+  // SNAP Opportunities (the auctions/snap opportunity feed, surfaced from Reports).
+  const snapTasks = [
+    { label: "SNAP Eval", href: "/research/evaluate", show: userCan(user, "research.evaluate") },
+    { label: "SNAP Opportunities", href: "/reports/opportunities", show: canReports(user, "reports.opportunities") },
+  ].filter((t) => t.show);
+  const canSnap = snapTasks.length > 0;
+
   return (
     <main>
       <TopBar user={user} />
@@ -45,6 +53,22 @@ export default async function Hub() {
       </div>
 
       <div className="hub-grid">
+        {canSnap && (
+          <section className="card hub-card">
+            <h2><Link href="/research/evaluate">SNAP</Link></h2>
+            <p className="muted" style={{ marginTop: 0, fontSize: 14 }}>
+              Should we buy it? Acquisition/resale scoring &amp; the live opportunity feed.
+            </p>
+            <ul className="hub-tasks">
+              {snapTasks.map((t) => (
+                <li key={t.href}>
+                  <Link href={t.href}>{t.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
         {canResearch && (
           <section className="card hub-card">
             <h2><Link href="/research">Research</Link></h2>
@@ -87,7 +111,6 @@ export default async function Hub() {
             <ul className="hub-tasks">
               <li><Link href="/reports">Site analytics</Link></li>
               <li><Link href="/reports/chat">Chat analytics</Link></li>
-              <li><Link href="/reports/opportunities">SNAP opportunities</Link></li>
               <li><Link href="/reports/cost">API cost &amp; usage</Link></li>
             </ul>
           </section>
