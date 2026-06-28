@@ -1,65 +1,38 @@
 [
   {
-    "bid_count": 20,
-    "domain": "gbce.com",
-    "end_time_utc": "2026-06-27T12:59:54+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40308288.html",
-    "platform": "Dynadot",
-    "price": 872.56
-  },
-  {
     "bid_count": 5,
-    "domain": "disw.net",
-    "end_time_utc": "2026-06-27T13:29:56+00:00",
+    "domain": "quela.com",
+    "end_time_utc": "2026-06-28T12:59:53+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40307636.html",
+    "link": "https://www.dynadot.com/market/auction/40367581.html",
     "platform": "Dynadot",
-    "price": 37.65
+    "price": 147.4
   },
   {
-    "bid_count": 8,
-    "domain": "xiaok.com",
-    "end_time_utc": "2026-06-27T13:44:55+00:00",
+    "bid_count": 6,
+    "domain": "convext.com",
+    "end_time_utc": "2026-06-28T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40334538.html",
+    "link": "https://www.dynadot.com/market/auction/39378880.html",
     "platform": "Dynadot",
-    "price": 142.2
+    "price": 10.01
   },
   {
-    "bid_count": 5,
-    "domain": "xhamp.com",
-    "end_time_utc": "2026-06-27T13:59:57+00:00",
+    "bid_count": 0,
+    "domain": "mchugh.co",
+    "end_time_utc": "2026-06-28T19:29:59+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40308238.html",
+    "link": "https://www.dynadot.com/market/auction/40356728.html",
     "platform": "Dynadot",
-    "price": 50.95
+    "price": 7.99
   },
   {
-    "bid_count": 47,
-    "domain": "tsly.com",
-    "end_time_utc": "2026-06-27T15:00:00+00:00",
+    "bid_count": 37,
+    "domain": "ogaga.com",
+    "end_time_utc": "2026-06-29T00:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/39331345.html",
+    "link": "https://www.dynadot.com/market/auction/40355971.html",
     "platform": "Dynadot",
-    "price": 440.0
-  },
-  {
-    "bid_count": 4,
-    "domain": "willem.org",
-    "end_time_utc": "2026-06-27T16:01:04+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40347356.html",
-    "platform": "Dynadot",
-    "price": 14.0
-  },
-  {
-    "bid_count": 42,
-    "domain": "palermo.org",
-    "end_time_utc": "2026-06-27T19:06:18+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40292863.html",
-    "platform": "Dynadot",
-    "price": 331.0
+    "price": 94.99
   }
 ]

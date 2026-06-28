@@ -1,14 +1,12 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 3,
   "domains": [
-    "gbce.com",
-    "disw.net",
-    "xiaok.com",
-    "xhamp.com",
-    "willem.org"
+    "quela.com",
+    "mchugh.co",
+    "ogaga.com"
   ],
-  "generated_at": "2026-06-27T09:39:04.470983+00:00",
+  "generated_at": "2026-06-28T09:48:08.096937+00:00",
   "mub": [],
   "source": "dynadot_auctions"
 }

@@ -1,65 +1,47 @@
 [
   {
-    "bid_count": 13,
-    "domain": "koday.com",
-    "end_time_utc": "2026-06-27T16:23:00+00:00",
+    "bid_count": 10,
+    "domain": "sorrow.io",
+    "end_time_utc": "2026-06-28T16:08:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/koday-com-707147177?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/sorrow-io-708691384?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 70.0
+    "price": 50.0
   },
   {
-    "bid_count": 16,
-    "domain": "rarez.com",
-    "end_time_utc": "2026-06-27T16:48:00+00:00",
+    "bid_count": 8,
+    "domain": "nvade.com",
+    "end_time_utc": "2026-06-28T19:09:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/rarez-com-707055559?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/nvade-com-708683228?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 315.0
+    "price": 50.0
   },
   {
-    "bid_count": 34,
-    "domain": "eisner.com",
-    "end_time_utc": "2026-06-27T17:17:00+00:00",
+    "bid_count": 48,
+    "domain": "cabba.com",
+    "end_time_utc": "2026-06-28T20:42:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/eisner-com-707877393?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/cabba-com-708689888?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 4494.0
-  },
-  {
-    "bid_count": 5,
-    "domain": "7889.net",
-    "end_time_utc": "2026-06-27T17:47:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/7889-net-708508230?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 18.0
-  },
-  {
-    "bid_count": 12,
-    "domain": "nqod.com",
-    "end_time_utc": "2026-06-27T19:41:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/nqod-com-708494129?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 103.0
+    "price": 2651.0
   },
   {
     "bid_count": 0,
-    "domain": "dichotomy.co",
-    "end_time_utc": "2026-06-27T20:51:00+00:00",
+    "domain": "louisa.co",
+    "end_time_utc": "2026-06-28T21:14:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/dichotomy-co-708510150?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/louisa-co-708702693?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
     "price": 1.0
   },
   {
-    "bid_count": 21,
-    "domain": "klkk.com",
-    "end_time_utc": "2026-06-27T21:17:00+00:00",
+    "bid_count": 2,
+    "domain": "maris.org",
+    "end_time_utc": "2026-06-28T21:18:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/klkk-com-708503573?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/maris-org-708509805?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 510.0
+    "price": 6.0
   }
 ]

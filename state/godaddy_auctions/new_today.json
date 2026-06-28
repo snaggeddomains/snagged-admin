@@ -1,16 +1,14 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 5,
   "domains": [
-    "koday.com",
-    "rarez.com",
-    "eisner.com",
-    "7889.net",
-    "nqod.com",
-    "dichotomy.co",
-    "klkk.com"
+    "sorrow.io",
+    "nvade.com",
+    "cabba.com",
+    "louisa.co",
+    "maris.org"
   ],
-  "generated_at": "2026-06-27T09:39:57.994371+00:00",
+  "generated_at": "2026-06-28T09:43:02.440769+00:00",
   "mub": [],
   "source": "godaddy_auctions"
 }

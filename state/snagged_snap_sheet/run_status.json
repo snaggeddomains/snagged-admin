@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-06-27T09:19:42.773175+00:00",
+  "generated_at": "2026-06-28T09:20:54.009337+00:00",
   "label": "Snagged SNAP (sheet)",
   "new_count": 0,
-  "raw_count": 84,
+  "raw_count": 85,
   "source": "snagged_snap_sheet",
   "status": "ok",
   "supabase_status": "ok",

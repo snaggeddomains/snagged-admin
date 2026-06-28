@@ -1,26 +1,16 @@
 {
   "capped": false,
-  "count": 17,
+  "count": 7,
   "domains": [
-    "before.ai",
-    "always.ai",
-    "monday.ai",
-    "plate.ai",
-    "suck.ai",
-    "export.ai",
-    "retire.ai",
-    "midfield.com",
-    "cr.ai",
-    "shepherd.ai",
-    "sox.ai",
-    "intro.ai",
-    "zinc.ai",
-    "digestion.ai",
-    "signature.io",
-    "liquidation.ai",
-    "watchman.co"
+    "gives.ai",
+    "goodbye.ai",
+    "speeds.ai",
+    "bows.ai",
+    "intellectuals.ai",
+    "marginal.co",
+    "fond.org"
   ],
-  "generated_at": "2026-06-27T09:19:39.747938+00:00",
+  "generated_at": "2026-06-28T09:20:51.455123+00:00",
   "mub": [],
   "source": "atom_daily"
 }

@@ -1,23 +1,5 @@
 [
   {
-    "bid_count": 47,
-    "domain": "tsly.com",
-    "end_time_utc": "2026-06-27T15:00:00+00:00",
-    "is_mub": false,
-    "link": null,
-    "platform": "Park.io",
-    "price": 440.0
-  },
-  {
-    "bid_count": 42,
-    "domain": "palermo.org",
-    "end_time_utc": "2026-06-27T19:06:18+00:00",
-    "is_mub": false,
-    "link": null,
-    "platform": "Park.io",
-    "price": 331.0
-  },
-  {
     "bid_count": 14,
     "domain": "trumb.com",
     "end_time_utc": "2026-06-28T18:15:00+00:00",
@@ -27,22 +9,22 @@
     "price": 424.0
   },
   {
-    "bid_count": 47,
+    "bid_count": 49,
     "domain": "510.net",
     "end_time_utc": "2026-06-29T15:00:00+00:00",
     "is_mub": false,
     "link": null,
     "platform": "Park.io",
-    "price": 1009.0
+    "price": 1034.53
   },
   {
-    "bid_count": 25,
+    "bid_count": 27,
     "domain": "sfca.com",
     "end_time_utc": "2026-07-01T18:09:50+00:00",
     "is_mub": false,
     "link": null,
     "platform": "Park.io",
-    "price": 820.0
+    "price": 840.0
   },
   {
     "bid_count": 52,
