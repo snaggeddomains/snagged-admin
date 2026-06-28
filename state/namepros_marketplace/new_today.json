@@ -1,16 +1,15 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 6,
   "domains": [
-    "58885.xyz",
-    "grafton.net",
-    "lavish.co",
-    "murine.ai",
-    "separate.co",
-    "swan.co",
-    "verification.com"
+    "93113.com",
+    "carlton.net",
+    "consistency.io",
+    "negotiated.xyz",
+    "precedence.co",
+    "tara.tv"
   ],
-  "generated_at": "2026-06-27T23:06:12.181398+00:00",
+  "generated_at": "2026-06-28T10:06:47.812850+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
