@@ -15,11 +15,13 @@ export default function TopBar({
   current,
 }: {
   user: AppUser;
-  current?: "research" | "admin" | "reports";
+  current?: "snap" | "research" | "admin" | "reports";
 }) {
   const canResearch = MODULES.some((m) => m.startsWith("research.") && userCan(user, m));
   const adminAccess = canEnterAdmin(user);
   const reportsAccess = canEnterReports(user);
+  // SNAP — its own top-level workspace (SNAP Eval + SNAP Opportunities).
+  const snapAccess = userCan(user, "research.evaluate") || canReports(user, "reports.opportunities");
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   // The active module's section tabs live in the hamburger on mobile (.tab-nav is
@@ -37,8 +39,13 @@ export default function TopBar({
         <span className="wm-a">Snagged</span>
       </Link>
 
-      {(canResearch || adminAccess || reportsAccess) && (
+      {(snapAccess || canResearch || adminAccess || reportsAccess) && (
         <nav className="topbar__nav">
+          {snapAccess && (
+            <a href="/research/evaluate" className={current === "snap" ? "active" : ""}>
+              SNAP
+            </a>
+          )}
           {canResearch && (
             <a href="/research" className={current === "research" ? "active" : ""}>
               Research
