@@ -1,8 +1,12 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-06-28T15:08:25.026487+00:00",
+  "count": 3,
+  "domains": [
+    "improvements.org",
+    "anew.org",
+    "inert.org"
+  ],
+  "generated_at": "2026-06-28T15:10:24.729467+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
