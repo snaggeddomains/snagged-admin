@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { userCan, MODULES, canEnterAdmin, canAdmin, ADMIN_TABS, canEnterReports, canReports, REPORTS_TABS, type AppUser } from "@/lib/permissions";
+import { userCan, MODULES, canEnterAdmin, canAdmin, ADMIN_TABS, canEnterReports, canReports, REPORTS_TABS, SNAP_TABS, type AppUser } from "@/lib/permissions";
 import NotificationsBell from "./notifications-bell";
 
 // The global chrome shared across every umbrella surface (hub, admin) and
@@ -26,10 +26,15 @@ export default function TopBar({
   const pathname = usePathname();
   // The active module's section tabs live in the hamburger on mobile (.tab-nav is
   // hidden there). Both Admin and Reports drive it from their own tab lists.
+  // A SNAP tab is gated by its own kind: SNAP Eval = the research.evaluate module,
+  // SNAP Opportunities = the reports.opportunities action (+ reports umbrella).
+  const snapTabAllowed = (perm: typeof SNAP_TABS[number]["perm"]) =>
+    perm === "reports.opportunities" ? canReports(user, perm) : userCan(user, perm as Parameters<typeof userCan>[1]);
   const menuTabs =
     current === "admin" ? ADMIN_TABS.filter((t) => canAdmin(user, t.perm))
       : current === "reports" ? REPORTS_TABS.filter((t) => canReports(user, t.perm))
-        : [];
+        : current === "snap" ? SNAP_TABS.filter((t) => snapTabAllowed(t.perm))
+          : [];
 
   return (
     <header className="topbar">
@@ -41,11 +46,6 @@ export default function TopBar({
 
       {(snapAccess || canResearch || adminAccess || reportsAccess) && (
         <nav className="topbar__nav">
-          {snapAccess && (
-            <a href="/research/evaluate" className={current === "snap" ? "active" : ""}>
-              SNAP
-            </a>
-          )}
           {canResearch && (
             <a href="/research" className={current === "research" ? "active" : ""}>
               Research
@@ -55,6 +55,11 @@ export default function TopBar({
             <Link href="/admin" className={current === "admin" ? "active" : ""}>
               Admin
             </Link>
+          )}
+          {snapAccess && (
+            <a href="/research/evaluate" className={current === "snap" ? "active" : ""}>
+              SNAP
+            </a>
           )}
           {reportsAccess && (
             <Link href="/reports" className={current === "reports" ? "active" : ""}>
@@ -116,7 +121,7 @@ export default function TopBar({
 // Admin + Reports surfaces (the hub landing doesn't need them). Share copies the
 // current page URL — uses the native share sheet on mobile, falls back to the
 // clipboard (with a brief "copied" confirmation), then to a prompt.
-function NavControls({ current }: { current?: "research" | "admin" | "reports" }) {
+function NavControls({ current }: { current?: "snap" | "research" | "admin" | "reports" }) {
   const [copied, setCopied] = useState(false);
   if (current !== "admin" && current !== "reports") return null;
   const btn: React.CSSProperties = {

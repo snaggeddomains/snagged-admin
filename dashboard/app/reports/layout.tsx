@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
-import Nav from "@/app/nav";
 import TopBar from "@/app/top-bar";
+import ReportsChrome from "./reports-chrome";
 import { getCurrentUser } from "@/lib/session";
-import { canEnterReports, canReports, REPORTS_TABS } from "@/lib/permissions";
+import { canEnterReports, canReports, userCan, REPORTS_TABS, SNAP_TABS } from "@/lib/permissions";
 
 // The Reports module shell — a top-level module (peer to Admin), with its own
 // permission so analytics can be granted without admin powers. Same chrome as
@@ -27,11 +27,15 @@ export default async function ReportsLayout({ children }: { children: ReactNode 
     );
   }
 
-  const tabs = REPORTS_TABS.filter((t) => canReports(user, t.perm)).map((t) => ({ href: t.href, label: t.label }));
+  const reportsTabs = REPORTS_TABS.filter((t) => canReports(user, t.perm)).map((t) => ({ href: t.href, label: t.label }));
+  // SNAP sub-nav (Eval + Opportunities) — shown on /reports/opportunities, which
+  // belongs to the SNAP workspace. Each tab gated by its own kind.
+  const snapTabs = SNAP_TABS.filter((t) =>
+    t.perm === "reports.opportunities" ? canReports(user, t.perm) : userCan(user, t.perm as Parameters<typeof userCan>[1]),
+  ).map((t) => ({ href: t.href, label: t.label }));
   return (
     <>
-      <TopBar user={user} current="reports" />
-      <Nav tabs={tabs} />
+      <ReportsChrome user={user} reportsTabs={reportsTabs} snapTabs={snapTabs} />
       {children}
     </>
   );

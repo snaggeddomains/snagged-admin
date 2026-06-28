@@ -53,22 +53,6 @@ export default async function Hub() {
       </div>
 
       <div className="hub-grid">
-        {canSnap && (
-          <section className="card hub-card">
-            <h2><Link href="/research/evaluate">SNAP</Link></h2>
-            <p className="muted" style={{ marginTop: 0, fontSize: 14 }}>
-              Should we buy it? Acquisition/resale scoring &amp; the live opportunity feed.
-            </p>
-            <ul className="hub-tasks">
-              {snapTasks.map((t) => (
-                <li key={t.href}>
-                  <Link href={t.href}>{t.label}</Link>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
         {canResearch && (
           <section className="card hub-card">
             <h2><Link href="/research">Research</Link></h2>
@@ -98,6 +82,22 @@ export default async function Hub() {
               <li><Link href="/admin/users">Users</Link></li>
               <li><Link href="/admin/imports">Imports</Link></li>
               <li><a href="/research/admin">Lessons</a></li>
+            </ul>
+          </section>
+        )}
+
+        {canSnap && (
+          <section className="card hub-card">
+            <h2><Link href="/research/evaluate">SNAP</Link></h2>
+            <p className="muted" style={{ marginTop: 0, fontSize: 14 }}>
+              Should we buy it? Acquisition/resale scoring &amp; the live opportunity feed.
+            </p>
+            <ul className="hub-tasks">
+              {snapTasks.map((t) => (
+                <li key={t.href}>
+                  <Link href={t.href}>{t.label}</Link>
+                </li>
+              ))}
             </ul>
           </section>
         )}

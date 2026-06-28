@@ -105,8 +105,16 @@ export const REPORTS_TABS: { href: string; label: string; perm: ModuleKey | Acti
   { href: "/reports", label: "Site analytics", perm: "reports.analytics" },
   { href: "/reports/marketplace", label: "Marketplace", perm: "reports.marketplace" },
   { href: "/reports/chat", label: "Chat", perm: "reports.chat" },
-  { href: "/reports/opportunities", label: "SNAP opportunities", perm: "reports.opportunities" },
   { href: "/reports/cost", label: "Cost & usage", perm: "reports.cost" },
+];
+
+// SNAP — its own top-level workspace (peer to Research/Admin/Reports). Two tools,
+// each served by a different app: SNAP Eval (the research app) + SNAP Opportunities
+// (the auctions/snap feed, page still at /reports/opportunities). This drives the
+// SNAP section sub-nav in both the umbrella TopBar and the research SPA.
+export const SNAP_TABS: { href: string; label: string; perm: ModuleKey | ActionKey }[] = [
+  { href: "/research/evaluate", label: "SNAP Eval", perm: "research.evaluate" },
+  { href: "/reports/opportunities", label: "SNAP Opportunities", perm: "reports.opportunities" },
 ];
 
 // Can the user use this admin tab/key? is_admin and the `admin` umbrella both
@@ -133,6 +141,9 @@ export function canReports(user: AppUser | null, key: ModuleKey | ActionKey): bo
 export function canEnterReports(user: AppUser | null): boolean {
   if (!user) return false;
   if (user.is_admin || isGranted(user.permissions, "reports")) return true;
+  // SNAP Opportunities' page lives under /reports/* but is no longer a Reports tab,
+  // so admit a user who only holds reports.opportunities too.
+  if (isGranted(user.permissions, "reports.opportunities")) return true;
   return REPORTS_TABS.some((t) => isGranted(user.permissions, t.perm));
 }
 
