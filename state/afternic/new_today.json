@@ -1,12 +1,10 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 1,
   "domains": [
-    "alleged.ai",
-    "specialise.ai",
-    "worth.ai"
+    "displacement.co"
   ],
-  "generated_at": "2026-06-27T08:18:13.724328+00:00",
+  "generated_at": "2026-06-28T08:13:08.150331+00:00",
   "mub": [],
   "source": "afternic"
 }
