@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "oy.com"
-  ],
-  "generated_at": "2026-06-27T23:00:52.626366+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-06-28T10:01:10.367621+00:00",
   "mub": [],
   "source": "reddit_domains"
 }
