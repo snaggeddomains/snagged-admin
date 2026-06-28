@@ -1,15 +1,13 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 4,
   "domains": [
-    "93113.com",
-    "carlton.net",
-    "consistency.io",
-    "negotiated.xyz",
-    "precedence.co",
-    "tara.tv"
+    "crawl.co",
+    "cursive.co",
+    "hoodie.xyz",
+    "pare.net"
   ],
-  "generated_at": "2026-06-28T10:06:47.812850+00:00",
+  "generated_at": "2026-06-28T17:06:44.718904+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
