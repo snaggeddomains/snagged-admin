@@ -1,10 +1,21 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 10,
   "domains": [
-    "duplex.ai"
+    "laredo.com",
+    "rallies.com",
+    "wzc.com",
+    "lubbock.com",
+    "annette.com",
+    "juanita.com",
+    "soars.com",
+    "praises.com",
+    "brownsville.com",
+    "ordinances.com"
   ],
-  "generated_at": "2026-06-27T23:01:19.077035+00:00",
-  "mub": [],
+  "generated_at": "2026-06-28T10:00:40.620564+00:00",
+  "mub": [
+    "juanita.com"
+  ],
   "source": "sedo_net_new"
 }

@@ -1,11 +1,71 @@
 [
   {
+    "domain": "annette.com",
+    "price": 249888.0
+  },
+  {
+    "domain": "mirelle.com",
+    "price": 144888.0
+  },
+  {
+    "domain": "jourdan.com",
+    "price": 149888.0
+  },
+  {
+    "domain": "praises.com",
+    "price": 149888.0
+  },
+  {
+    "domain": "lubbock.com",
+    "price": 249888.0
+  },
+  {
+    "domain": "vineeth.com",
+    "price": 174888.0
+  },
+  {
+    "domain": "rallies.com",
+    "price": 324888.0
+  },
+  {
+    "domain": "lansing.com",
+    "price": 284888.0
+  },
+  {
     "domain": "medwebs.com",
     "price": 9888.0
   },
   {
     "domain": "koshiro.com",
     "price": 17888.0
+  },
+  {
+    "domain": "lessees.com",
+    "price": 7488.0
+  },
+  {
+    "domain": "juanita.com",
+    "price": 199888.0
+  },
+  {
+    "domain": "monahans.com",
+    "price": 24888.0
+  },
+  {
+    "domain": "whitelaw.com",
+    "price": 98888.0
+  },
+  {
+    "domain": "kitsap.com",
+    "price": 79888.0
+  },
+  {
+    "domain": "rushmere.com",
+    "price": 27488.0
+  },
+  {
+    "domain": "alaina.com",
+    "price": 249888.0
   },
   {
     "domain": "ameera.com",
@@ -28,20 +88,68 @@
     "price": 132388.0
   },
   {
+    "domain": "stacia.com",
+    "price": 87388.0
+  },
+  {
+    "domain": "geohealth.com",
+    "price": 74888.0
+  },
+  {
+    "domain": "buckleigh.com",
+    "price": 9888.0
+  },
+  {
     "domain": "bluefield.com",
     "price": 249888.0
   },
   {
-    "domain": "duplex.ai",
-    "price": null
+    "domain": "soars.com",
+    "price": 187388.0
   },
   {
-    "domain": "cornering.ai",
-    "price": 199995.0
+    "domain": "flintshire.com",
+    "price": 32488.0
+  },
+  {
+    "domain": "graceworld.com",
+    "price": 19888.0
+  },
+  {
+    "domain": "bellemeade.com",
+    "price": 24888.0
+  },
+  {
+    "domain": "prineville.com",
+    "price": 24888.0
+  },
+  {
+    "domain": "ordinances.com",
+    "price": 12488.0
+  },
+  {
+    "domain": "brownsville.com",
+    "price": 129888.0
+  },
+  {
+    "domain": "franciscans.com",
+    "price": 14888.0
   },
   {
     "domain": "coldharbour.com",
     "price": 27488.0
+  },
+  {
+    "domain": "gratefulness.com",
+    "price": 174888.0
+  },
+  {
+    "domain": "convergences.com",
+    "price": 34888.0
+  },
+  {
+    "domain": "genital.net",
+    "price": 2895.0
   },
   {
     "domain": "kingman.net",
@@ -80,12 +188,24 @@
     "price": 988.0
   },
   {
-    "domain": "culturally.net",
-    "price": 3895.0
+    "domain": "celia.net",
+    "price": 988.0
+  },
+  {
+    "domain": "preferable.net",
+    "price": 2095.0
+  },
+  {
+    "domain": "penh.net",
+    "price": 3195.0
   },
   {
     "domain": "glastonbury.net",
     "price": 588.0
+  },
+  {
+    "domain": "ucf.net",
+    "price": 6850.0
   },
   {
     "domain": "bankruptcies.net",
