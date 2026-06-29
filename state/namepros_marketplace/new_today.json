@@ -1,28 +1,17 @@
 {
   "capped": false,
-  "count": 17,
+  "count": 8,
   "domains": [
-    "86888.xyz",
-    "authors.io",
-    "demons.io",
-    "egon.org",
-    "encompass.co",
-    "evict.io",
-    "glamor.net",
-    "name.com",
-    "ohio.co",
-    "paperclip.vc",
-    "punish.io",
-    "reeves.ai",
-    "sitting.ai",
-    "slc.io",
-    "taekwondo.io",
-    "velvet.co",
-    "yoghurt.io"
+    "332.xyz",
+    "connoisseurs.xyz",
+    "crux.co",
+    "guerin.org",
+    "oxygen.to",
+    "pattison.net",
+    "search.vc",
+    "voltage.me"
   ],
-  "generated_at": "2026-06-29T10:06:16.839547+00:00",
-  "mub": [
-    "egon.org"
-  ],
+  "generated_at": "2026-06-29T17:06:22.134047+00:00",
+  "mub": [],
   "source": "namepros_marketplace"
 }
