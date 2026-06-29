@@ -1,17 +1,28 @@
 {
   "capped": false,
-  "count": 8,
+  "count": 17,
   "domains": [
-    "067.xyz",
-    "40000.xyz",
-    "bandit.co",
-    "gott.xyz",
-    "octagonal.xyz",
-    "reheat.xyz",
-    "signals.co",
-    "trophy.co"
+    "86888.xyz",
+    "authors.io",
+    "demons.io",
+    "egon.org",
+    "encompass.co",
+    "evict.io",
+    "glamor.net",
+    "name.com",
+    "ohio.co",
+    "paperclip.vc",
+    "punish.io",
+    "reeves.ai",
+    "sitting.ai",
+    "slc.io",
+    "taekwondo.io",
+    "velvet.co",
+    "yoghurt.io"
   ],
-  "generated_at": "2026-06-28T23:06:52.119349+00:00",
-  "mub": [],
+  "generated_at": "2026-06-29T10:06:16.839547+00:00",
+  "mub": [
+    "egon.org"
+  ],
   "source": "namepros_marketplace"
 }
