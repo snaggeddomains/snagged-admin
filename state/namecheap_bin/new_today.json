@@ -1,8 +1,13 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-06-28T09:03:10.064993+00:00",
+  "count": 4,
+  "domains": [
+    "famine.ai",
+    "mediocrity.ai",
+    "phineas.ai",
+    "subterranean.ai"
+  ],
+  "generated_at": "2026-06-29T09:02:47.331108+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

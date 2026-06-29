@@ -1,16 +1,18 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 9,
   "domains": [
-    "gives.ai",
-    "goodbye.ai",
-    "speeds.ai",
-    "bows.ai",
-    "intellectuals.ai",
-    "marginal.co",
-    "fond.org"
+    "sunset.ai",
+    "retired.co",
+    "ought.co",
+    "touched.co",
+    "bolder.com",
+    "dessert.io",
+    "hellenic.ai",
+    "mailer.co",
+    "turret.org"
   ],
-  "generated_at": "2026-06-28T09:20:51.455123+00:00",
+  "generated_at": "2026-06-29T09:20:00.109914+00:00",
   "mub": [],
   "source": "atom_daily"
 }

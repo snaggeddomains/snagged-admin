@@ -1,47 +1,38 @@
 [
   {
-    "bid_count": 10,
-    "domain": "sorrow.io",
-    "end_time_utc": "2026-06-28T16:08:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/sorrow-io-708691384?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 50.0
-  },
-  {
-    "bid_count": 8,
-    "domain": "nvade.com",
-    "end_time_utc": "2026-06-28T19:09:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/nvade-com-708683228?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 50.0
-  },
-  {
-    "bid_count": 48,
-    "domain": "cabba.com",
-    "end_time_utc": "2026-06-28T20:42:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/cabba-com-708689888?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 2651.0
-  },
-  {
     "bid_count": 0,
-    "domain": "louisa.co",
-    "end_time_utc": "2026-06-28T21:14:00+00:00",
+    "domain": "chomsky.co",
+    "end_time_utc": "2026-06-29T16:23:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/louisa-co-708702693?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/chomsky-co-708084162?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
     "price": 1.0
   },
   {
-    "bid_count": 2,
-    "domain": "maris.org",
-    "end_time_utc": "2026-06-28T21:18:00+00:00",
+    "bid_count": 9,
+    "domain": "prinks.com",
+    "end_time_utc": "2026-06-29T16:28:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/maris-org-708509805?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/prinks-com-708857253?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 6.0
+    "price": 110.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "overgrown.co",
+    "end_time_utc": "2026-06-29T18:38:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/overgrown-co-708891131?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 1.0
+  },
+  {
+    "bid_count": 22,
+    "domain": "pumps.net",
+    "end_time_utc": "2026-06-29T19:38:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/pumps-net-707444838?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 1161.0
   }
 ]

@@ -1,28 +1,22 @@
 {
   "capped": false,
-  "count": 19,
+  "count": 13,
   "domains": [
     "wmed.com",
     "riled.com",
     "bitox.com",
     "chalet.org",
-    "dujm.com",
     "jce.net",
-    "opaque.org",
-    "gazi.net",
-    "politex.com",
-    "xigar.com",
-    "strippr.com",
+    "progresso.net",
+    "dujm.com",
     "ozo.org",
     "nupd.com",
-    "tomasu.com",
     "towd.com",
     "grete.com",
-    "minicabs.com",
-    "fabrics.org",
-    "hostint.org"
+    "hostint.org",
+    "mozl.com"
   ],
-  "generated_at": "2026-06-28T09:48:14.134900+00:00",
+  "generated_at": "2026-06-29T09:38:12.757081+00:00",
   "mub": [
     "grete.com"
   ],

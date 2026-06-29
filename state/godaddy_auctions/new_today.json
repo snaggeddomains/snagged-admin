@@ -1,14 +1,13 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 4,
   "domains": [
-    "sorrow.io",
-    "nvade.com",
-    "cabba.com",
-    "louisa.co",
-    "maris.org"
+    "chomsky.co",
+    "prinks.com",
+    "overgrown.co",
+    "pumps.net"
   ],
-  "generated_at": "2026-06-28T09:43:02.440769+00:00",
+  "generated_at": "2026-06-29T09:38:50.091175+00:00",
   "mub": [],
   "source": "godaddy_auctions"
 }

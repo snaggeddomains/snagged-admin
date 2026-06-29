@@ -1,14 +1,5 @@
 [
   {
-    "bid_count": 14,
-    "domain": "trumb.com",
-    "end_time_utc": "2026-06-28T18:15:00+00:00",
-    "is_mub": false,
-    "link": null,
-    "platform": "Park.io",
-    "price": 424.0
-  },
-  {
     "bid_count": 49,
     "domain": "510.net",
     "end_time_utc": "2026-06-29T15:00:00+00:00",
