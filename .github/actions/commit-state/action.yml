@@ -42,6 +42,16 @@ runs:
           delay=${delays[$attempt]:-32}
           echo "Push rejected on attempt $attempt; sleeping ${delay}s, rebasing, and retrying."
           sleep "$delay"
-          git pull --rebase origin "$(git rev-parse --abbrev-ref HEAD)"
+          # state/ is machine-generated, last-write-wins data. When two runs of the
+          # same source pipeline push near-simultaneously they collide on the SAME
+          # state JSON, and a plain `git pull --rebase` dies on the conflict (this is
+          # what fails the job). Resolve by keeping THIS run's freshly-written state:
+          # during a rebase, "-X theirs" prefers the commit being replayed (ours). If
+          # it still can't apply, abort cleanly so the next loop re-fetches and retries
+          # rather than leaving a half-finished rebase and failing the job.
+          if ! git pull --rebase -X theirs origin "$(git rev-parse --abbrev-ref HEAD)"; then
+            echo "Rebase could not auto-resolve; aborting and retrying."
+            git rebase --abort 2>/dev/null || true
+          fi
           attempt=$((attempt + 1))
         done
