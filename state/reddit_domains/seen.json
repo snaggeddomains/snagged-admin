@@ -1,5 +1,5 @@
 {
-  "count": 7,
+  "count": 8,
   "domains": [
     "beverley.co",
     "dominion.com",
@@ -7,8 +7,9 @@
     "india.com",
     "name.com",
     "oy.com",
-    "simply.com"
+    "simply.com",
+    "tilts.net"
   ],
   "source": "reddit_domains",
-  "updated_at": "2026-06-28T23:01:17.066847+00:00"
+  "updated_at": "2026-06-29T10:01:57.780210+00:00"
 }
