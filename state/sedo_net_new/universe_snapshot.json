@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "domain": "spec.ai",
+    "price": 145000.0
+  },
+  {
+    "domain": "alcohols.net",
+    "price": 3499.0
+  },
+  {
+    "domain": "uniformed.net",
+    "price": 3499.0
+  },
+  {
+    "domain": "faye.net",
+    "price": 4988.0
+  },
+  {
+    "domain": "filser.co",
+    "price": 588.0
+  }
+]
