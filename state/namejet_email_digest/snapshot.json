@@ -1,17 +1,17 @@
 [
   {
-    "domain": "shay.com",
-    "end_time_utc": "2026-06-29T17:55:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namejet.com/domain/shay.com.action",
-    "platform": "NameJet",
-    "price": 69.0
-  },
-  {
     "domain": "verbal.org",
     "end_time_utc": "2026-06-30T01:00:00+00:00",
     "is_mub": false,
     "link": "https://www.namejet.com/domain/verbal.org.action",
+    "platform": "NameJet",
+    "price": 69.0
+  },
+  {
+    "domain": "shay.com",
+    "end_time_utc": "2026-06-29T17:55:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namejet.com/domain/shay.com.action",
     "platform": "NameJet",
     "price": 69.0
   }
