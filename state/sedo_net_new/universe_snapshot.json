@@ -4,27 +4,11 @@
     "price": 20000.0
   },
   {
-    "domain": "spec.ai",
-    "price": 145000.0
+    "domain": "thenceforth.com",
+    "price": 1495.0
   },
   {
     "domain": "irchester.net",
     "price": null
-  },
-  {
-    "domain": "filser.co",
-    "price": 588.0
-  },
-  {
-    "domain": "tomada.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "lynden.co",
-    "price": 1988.0
-  },
-  {
-    "domain": "portmann.co",
-    "price": 1988.0
   }
 ]
