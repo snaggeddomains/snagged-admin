@@ -2,9 +2,9 @@
   "capped": false,
   "count": 1,
   "domains": [
-    "spec.ai"
+    "appellate.ai"
   ],
-  "generated_at": "2026-06-29T10:01:27.620731+00:00",
+  "generated_at": "2026-06-29T17:02:26.413802+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
