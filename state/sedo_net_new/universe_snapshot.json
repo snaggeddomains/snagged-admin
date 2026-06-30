@@ -1,14 +1,30 @@
 [
   {
-    "domain": "appellate.ai",
-    "price": 20000.0
+    "domain": "lukacsi.com",
+    "price": 3288.0
   },
   {
-    "domain": "thenceforth.com",
-    "price": 1495.0
-  },
-  {
-    "domain": "irchester.net",
+    "domain": "rampant.net",
     "price": null
+  },
+  {
+    "domain": "bolden.net",
+    "price": 4595.0
+  },
+  {
+    "domain": "hooded.net",
+    "price": 4900.0
+  },
+  {
+    "domain": "outpouring.net",
+    "price": 1295.0
+  },
+  {
+    "domain": "orchestral.net",
+    "price": null
+  },
+  {
+    "domain": "faucets.co",
+    "price": 50000.0
   }
 ]
