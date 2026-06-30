@@ -1,15 +1,14 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 5,
   "domains": [
-    "astonish.net",
-    "bronte.net",
-    "gauge.co",
-    "throttle.co"
+    "88887.xyz",
+    "dancin.ai",
+    "giveaway.com",
+    "iain.ai",
+    "infomercials.ai"
   ],
-  "generated_at": "2026-06-30T17:06:12.300220+00:00",
-  "mub": [
-    "bronte.net"
-  ],
+  "generated_at": "2026-06-30T23:06:07.705385+00:00",
+  "mub": [],
   "source": "namepros_marketplace"
 }
