@@ -1,42 +1,22 @@
 [
   {
-    "domain": "lukacsi.com",
-    "price": 3288.0
+    "domain": "pokeren.com",
+    "price": 4599.0
   },
   {
     "domain": "raylees.com",
     "price": 190.0
   },
   {
-    "domain": "nagaur.com",
-    "price": 2995.0
-  },
-  {
     "domain": "loweth.com",
     "price": 5699.0
   },
   {
-    "domain": "rampant.net",
-    "price": null
+    "domain": "slumber.ai",
+    "price": 200000.0
   },
   {
-    "domain": "bolden.net",
-    "price": 4595.0
-  },
-  {
-    "domain": "hooded.net",
-    "price": 4900.0
-  },
-  {
-    "domain": "orchestral.net",
-    "price": null
-  },
-  {
-    "domain": "outpouring.net",
-    "price": 1295.0
-  },
-  {
-    "domain": "faucets.co",
-    "price": 50000.0
+    "domain": "upcoming.ai",
+    "price": 75000.0
   }
 ]

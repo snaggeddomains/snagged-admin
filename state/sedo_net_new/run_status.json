@@ -1,9 +1,7 @@
 {
-  "generated_at": "2026-06-30T17:01:45.701667+00:00",
+  "error": "<HttpError 503 when requesting https://sheets.googleapis.com/v4/spreadsheets/1FVgWVZMKDCVMXbkY0_SSfU73LCN29uyly7Tn6dUp8R8/values/%27Sedo%20Net-New%27%21A%3AZ?alt=json returned \"The service is currently unavailable.\". Details: \"The service is currently unavailable.\">",
+  "generated_at": "2026-06-30T23:01:30.534608+00:00",
   "label": "Sedo",
-  "new_count": 0,
-  "slack_posted": false,
   "source": "sedo_net_new",
-  "status": "ok",
-  "total_filtered": 0
+  "status": "failed"
 }
