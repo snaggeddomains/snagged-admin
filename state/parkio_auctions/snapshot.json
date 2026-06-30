@@ -1,14 +1,5 @@
 [
   {
-    "bid_count": 49,
-    "domain": "510.net",
-    "end_time_utc": "2026-06-29T15:00:00+00:00",
-    "is_mub": false,
-    "link": null,
-    "platform": "Park.io",
-    "price": 1034.53
-  },
-  {
     "bid_count": 27,
     "domain": "sfca.com",
     "end_time_utc": "2026-07-01T18:09:50+00:00",
@@ -18,22 +9,22 @@
     "price": 840.0
   },
   {
-    "bid_count": 52,
+    "bid_count": 57,
     "domain": "gdts.com",
     "end_time_utc": "2026-07-02T15:00:00+00:00",
     "is_mub": false,
     "link": null,
     "platform": "Park.io",
-    "price": 670.0
+    "price": 1195.0
   },
   {
-    "bid_count": 27,
+    "bid_count": 29,
     "domain": "separatists.com",
     "end_time_utc": "2026-07-02T15:00:00+00:00",
     "is_mub": false,
     "link": null,
     "platform": "Park.io",
-    "price": 661.0
+    "price": 788.0
   },
   {
     "bid_count": 17,
@@ -45,12 +36,12 @@
     "price": 565.0
   },
   {
-    "bid_count": 4,
+    "bid_count": 9,
     "domain": "accidents.io",
     "end_time_utc": "2026-07-02T16:41:01+00:00",
     "is_mub": false,
     "link": null,
     "platform": "Park.io",
-    "price": 107.0
+    "price": 217.0
   }
 ]

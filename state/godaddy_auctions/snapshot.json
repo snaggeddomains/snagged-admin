@@ -1,38 +1,29 @@
 [
   {
-    "bid_count": 0,
-    "domain": "chomsky.co",
-    "end_time_utc": "2026-06-29T16:23:00+00:00",
+    "bid_count": 27,
+    "domain": "palm.io",
+    "end_time_utc": "2026-06-30T17:26:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/chomsky-co-708084162?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/palm-io-709285150?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 1.0
+    "price": 2390.0
   },
   {
-    "bid_count": 9,
-    "domain": "prinks.com",
-    "end_time_utc": "2026-06-29T16:28:00+00:00",
+    "bid_count": 18,
+    "domain": "miika.com",
+    "end_time_utc": "2026-06-30T19:34:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/prinks-com-708857253?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/miika-com-709282198?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 110.0
+    "price": 91.0
   },
   {
-    "bid_count": 0,
-    "domain": "overgrown.co",
-    "end_time_utc": "2026-06-29T18:38:00+00:00",
+    "bid_count": 8,
+    "domain": "9118.net",
+    "end_time_utc": "2026-06-30T20:02:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/overgrown-co-708891131?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/9118-net-709292070?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 1.0
-  },
-  {
-    "bid_count": 22,
-    "domain": "pumps.net",
-    "end_time_utc": "2026-06-29T19:38:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/pumps-net-707444838?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1161.0
+    "price": 31.0
   }
 ]

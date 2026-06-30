@@ -1,20 +1,11 @@
 [
   {
-    "bid_count": 49,
-    "domain": "510.net",
-    "end_time_utc": "2026-06-29T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/510.net",
-    "platform": "NameSilo",
-    "price": 1034.53
-  },
-  {
-    "bid_count": 6,
+    "bid_count": 7,
     "domain": "onem.net",
     "end_time_utc": "2026-06-30T15:00:00+00:00",
     "is_mub": false,
     "link": "https://www.namesilo.com/auctions/onem.net",
     "platform": "NameSilo",
-    "price": 6.0
+    "price": 7.0
   }
 ]

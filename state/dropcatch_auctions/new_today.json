@@ -1,22 +1,16 @@
 {
   "capped": false,
-  "count": 13,
+  "count": 7,
   "domains": [
-    "wmed.com",
-    "riled.com",
-    "bitox.com",
-    "chalet.org",
-    "jce.net",
-    "progresso.net",
-    "dujm.com",
     "ozo.org",
     "nupd.com",
     "towd.com",
     "grete.com",
     "hostint.org",
+    "nurmi.com",
     "mozl.com"
   ],
-  "generated_at": "2026-06-29T09:38:12.757081+00:00",
+  "generated_at": "2026-06-30T09:39:30.434794+00:00",
   "mub": [
     "grete.com"
   ],

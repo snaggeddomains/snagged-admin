@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-06-29T09:26:22.022725+00:00",
+  "generated_at": "2026-06-30T09:27:23.470827+00:00",
   "label": "MarkMonitor",
   "new_count": 0,
-  "raw_count": 621,
+  "raw_count": 620,
   "source": "markmonitor",
   "status": "ok",
   "supabase_status": "ok",
-  "universe_count": 348
+  "universe_count": 347
 }
