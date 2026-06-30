@@ -4,6 +4,18 @@
     "price": 3288.0
   },
   {
+    "domain": "raylees.com",
+    "price": 190.0
+  },
+  {
+    "domain": "nagaur.com",
+    "price": 2995.0
+  },
+  {
+    "domain": "loweth.com",
+    "price": 5699.0
+  },
+  {
     "domain": "rampant.net",
     "price": null
   },
@@ -16,12 +28,12 @@
     "price": 4900.0
   },
   {
-    "domain": "outpouring.net",
-    "price": 1295.0
-  },
-  {
     "domain": "orchestral.net",
     "price": null
+  },
+  {
+    "domain": "outpouring.net",
+    "price": 1295.0
   },
   {
     "domain": "faucets.co",
