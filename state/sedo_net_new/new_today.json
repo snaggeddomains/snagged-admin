@@ -2,9 +2,9 @@
   "capped": false,
   "count": 1,
   "domains": [
-    "affected.ai"
+    "eap.com"
   ],
-  "generated_at": "2026-07-01T17:01:10.641685+00:00",
+  "generated_at": "2026-07-01T23:01:16.243874+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
