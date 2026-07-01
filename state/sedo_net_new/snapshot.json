@@ -1,11 +1,11 @@
 [
   {
     "currency": "USD",
-    "domain": "passers.com",
-    "end_time_utc": "2026-07-01T02:56:32+00:00",
+    "domain": "affected.ai",
+    "end_time_utc": "2026-07-01T13:38:40+00:00",
     "is_mub": false,
-    "price": 37378.0,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=passers.com"
+    "price": 4999.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=affected.ai"
   }
 ]
