@@ -1,14 +1,12 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 3,
   "domains": [
-    "88887.xyz",
-    "dancin.ai",
-    "giveaway.com",
-    "iain.ai",
-    "infomercials.ai"
+    "faster.co",
+    "humpty.xyz",
+    "tuo.xyz"
   ],
-  "generated_at": "2026-06-30T23:06:07.705385+00:00",
+  "generated_at": "2026-07-01T10:06:34.791547+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }

@@ -1,5 +1,5 @@
 {
-  "count": 256,
+  "count": 259,
   "domains": [
     "067.xyz",
     "082.xyz",
@@ -92,6 +92,7 @@
     "evict.io",
     "exl.com",
     "fake.co",
+    "faster.co",
     "ferdinand.com",
     "fiend.ai",
     "flights.now",
@@ -119,6 +120,7 @@
     "horta.net",
     "hots.ai",
     "housemaid.org",
+    "humpty.xyz",
     "hyped.org",
     "iain.ai",
     "ibo.xyz",
@@ -245,6 +247,7 @@
     "transitions.net",
     "trophy.co",
     "trucking.app",
+    "tuo.xyz",
     "velvet.co",
     "ventricle.ai",
     "verification.com",
@@ -259,5 +262,5 @@
     "yoghurt.io"
   ],
   "source": "namepros_marketplace",
-  "updated_at": "2026-06-30T23:06:07.835809+00:00"
+  "updated_at": "2026-07-01T10:06:35.004546+00:00"
 }
