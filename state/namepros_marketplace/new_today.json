@@ -1,16 +1,13 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 4,
   "domains": [
-    "d.com",
-    "huang.xyz",
-    "i.com",
-    "turpin.org",
-    "wall.tv"
+    "halves.co",
+    "inquiry.co",
+    "otters.org",
+    "salford.org"
   ],
-  "generated_at": "2026-07-01T17:07:14.307236+00:00",
-  "mub": [
-    "turpin.org"
-  ],
+  "generated_at": "2026-07-01T23:06:48.813434+00:00",
+  "mub": [],
   "source": "namepros_marketplace"
 }
