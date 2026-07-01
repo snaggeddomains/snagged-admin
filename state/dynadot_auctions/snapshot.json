@@ -1,38 +1,29 @@
 [
   {
-    "bid_count": 7,
-    "domain": "onem.net",
-    "end_time_utc": "2026-06-30T15:00:00+00:00",
+    "bid_count": 21,
+    "domain": "uazz.com",
+    "end_time_utc": "2026-07-01T12:59:53+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/39465935.html",
+    "link": "https://www.dynadot.com/market/auction/40479796.html",
     "platform": "Dynadot",
-    "price": 7.0
+    "price": 246.4
+  },
+  {
+    "bid_count": 5,
+    "domain": "0023.net",
+    "end_time_utc": "2026-07-01T13:14:55+00:00",
+    "is_mub": false,
+    "link": "https://www.dynadot.com/market/auction/40479528.html",
+    "platform": "Dynadot",
+    "price": 37.56
   },
   {
     "bid_count": 34,
-    "domain": "buqm.com",
-    "end_time_utc": "2026-06-30T18:10:17+00:00",
+    "domain": "sfca.com",
+    "end_time_utc": "2026-07-01T18:09:50+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40429046.html",
+    "link": "https://www.dynadot.com/market/auction/40462112.html",
     "platform": "Dynadot",
-    "price": 90.0
-  },
-  {
-    "bid_count": 8,
-    "domain": "slanco.com",
-    "end_time_utc": "2026-07-01T00:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40441113.html",
-    "platform": "Dynadot",
-    "price": 22.99
-  },
-  {
-    "bid_count": 10,
-    "domain": "vempe.com",
-    "end_time_utc": "2026-07-01T00:00:00+00:00",
-    "is_mub": true,
-    "link": "https://www.dynadot.com/market/auction/40440420.html",
-    "platform": "Dynadot",
-    "price": 59.0
+    "price": 918.0
   }
 ]

@@ -1,12 +1,22 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 13,
   "domains": [
-    "palm.io",
-    "miika.com",
-    "9118.net"
+    "ironman.org",
+    "sugarr.com",
+    "ihebrew.com",
+    "xskin.com",
+    "hsj.net",
+    "2238.com",
+    "plzn.com",
+    "exsports.com",
+    "jwzz.com",
+    "foxtail.io",
+    "gox.io",
+    "9315.com",
+    "901.co"
   ],
-  "generated_at": "2026-06-30T09:40:10.149563+00:00",
+  "generated_at": "2026-07-01T09:54:24.751171+00:00",
   "mub": [],
   "source": "godaddy_auctions"
 }

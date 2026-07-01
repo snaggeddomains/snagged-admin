@@ -1,11 +1,20 @@
 [
   {
-    "bid_count": 7,
-    "domain": "onem.net",
-    "end_time_utc": "2026-06-30T15:00:00+00:00",
+    "bid_count": 57,
+    "domain": "gdts.com",
+    "end_time_utc": "2026-07-02T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/onem.net",
+    "link": "https://www.namesilo.com/auctions/gdts.com",
     "platform": "NameSilo",
-    "price": 7.0
+    "price": 1195.0
+  },
+  {
+    "bid_count": 29,
+    "domain": "separatists.com",
+    "end_time_utc": "2026-07-02T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namesilo.com/auctions/separatists.com",
+    "platform": "NameSilo",
+    "price": 788.0
   }
 ]

@@ -1,14 +1,11 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 2,
   "domains": [
-    "buqm.com",
-    "slanco.com",
-    "vempe.com"
+    "uazz.com",
+    "0023.net"
   ],
-  "generated_at": "2026-06-30T09:39:22.255535+00:00",
-  "mub": [
-    "vempe.com"
-  ],
+  "generated_at": "2026-07-01T09:53:34.269364+00:00",
+  "mub": [],
   "source": "dynadot_auctions"
 }

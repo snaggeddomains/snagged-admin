@@ -1,16 +1,15 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 6,
   "domains": [
-    "ozo.org",
-    "nupd.com",
     "towd.com",
     "grete.com",
+    "fabrics.org",
     "hostint.org",
     "nurmi.com",
     "mozl.com"
   ],
-  "generated_at": "2026-06-30T09:39:30.434794+00:00",
+  "generated_at": "2026-07-01T09:53:43.221927+00:00",
   "mub": [
     "grete.com"
   ],

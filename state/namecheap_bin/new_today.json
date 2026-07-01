@@ -1,8 +1,11 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-06-30T09:02:51.000209+00:00",
+  "count": 2,
+  "domains": [
+    "upcoming.ai",
+    "nis.ai"
+  ],
+  "generated_at": "2026-07-01T09:04:20.688533+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

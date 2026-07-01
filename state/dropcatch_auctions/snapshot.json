@@ -1,44 +1,35 @@
 [
   {
-    "bid_count": 48,
-    "domain": "ozo.org",
-    "end_time_utc": "2026-06-30T18:59:29.454899+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Ozo.org",
-    "platform": "DropCatch",
-    "price": 393.0
-  },
-  {
-    "bid_count": 57,
-    "domain": "nupd.com",
-    "end_time_utc": "2026-06-30T18:59:29.454899+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Nupd.com",
-    "platform": "DropCatch",
-    "price": 266.0
-  },
-  {
-    "bid_count": 97,
+    "bid_count": 102,
     "domain": "towd.com",
-    "end_time_utc": "2026-07-01T18:59:29.454899+00:00",
+    "end_time_utc": "2026-07-01T18:59:42.138822+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Towd.com",
     "platform": "DropCatch",
-    "price": 900.0
+    "price": 1300.0
   },
   {
-    "bid_count": 41,
+    "bid_count": 43,
     "domain": "grete.com",
-    "end_time_utc": "2026-07-01T18:59:29.454899+00:00",
+    "end_time_utc": "2026-07-01T18:59:42.138822+00:00",
     "is_mub": true,
     "link": "https://www.dropcatch.com/domain/Grete.com",
     "platform": "DropCatch",
-    "price": 550.0
+    "price": 650.0
+  },
+  {
+    "bid_count": 14,
+    "domain": "fabrics.org",
+    "end_time_utc": "2026-07-01T18:59:42.138822+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Fabrics.org",
+    "platform": "DropCatch",
+    "price": 134.0
   },
   {
     "bid_count": 33,
     "domain": "hostint.org",
-    "end_time_utc": "2026-07-02T18:59:29.454899+00:00",
+    "end_time_utc": "2026-07-02T18:59:42.138822+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/hostint.org",
     "platform": "DropCatch",
@@ -47,19 +38,19 @@
   {
     "bid_count": 38,
     "domain": "nurmi.com",
-    "end_time_utc": "2026-07-02T18:59:29.454899+00:00",
+    "end_time_utc": "2026-07-02T18:59:42.138822+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Nurmi.com",
     "platform": "DropCatch",
     "price": 298.0
   },
   {
-    "bid_count": 76,
+    "bid_count": 81,
     "domain": "mozl.com",
-    "end_time_utc": "2026-07-03T18:59:29.454899+00:00",
+    "end_time_utc": "2026-07-03T18:59:42.138822+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Mozl.com",
     "platform": "DropCatch",
-    "price": 550.0
+    "price": 800.0
   }
 ]

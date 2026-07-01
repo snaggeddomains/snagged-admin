@@ -1,28 +1,15 @@
 {
   "capped": false,
-  "count": 17,
+  "count": 6,
   "domains": [
-    "succeeded.ai",
-    "hungary.ai",
-    "peru.ai",
-    "taxpayer.ai",
-    "nap.ai",
-    "psychedelic.com",
-    "video.org",
-    "labourers.com",
-    "defining.co",
-    "kiss.org",
-    "staying.org",
-    "florist.ai",
-    "risen.co",
-    "diversions.ai",
-    "interventions.co",
-    "revolutionize.ai",
-    "affiliations.co"
+    "takes.io",
+    "evolves.ai",
+    "quot.ai",
+    "trois.ai",
+    "pasteur.ai",
+    "plank.org"
   ],
-  "generated_at": "2026-06-30T09:20:49.992378+00:00",
-  "mub": [
-    "defining.co"
-  ],
+  "generated_at": "2026-07-01T09:32:38.540353+00:00",
+  "mub": [],
   "source": "atom_daily"
 }
