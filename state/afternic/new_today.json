@@ -1,11 +1,14 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 3,
   "domains": [
-    "hamas.co",
-    "itself.com"
+    "adherence.co",
+    "melodrama.org",
+    "limiting.co"
   ],
-  "generated_at": "2026-06-30T08:15:17.538192+00:00",
-  "mub": [],
+  "generated_at": "2026-07-02T08:16:55.900748+00:00",
+  "mub": [
+    "limiting.co"
+  ],
   "source": "afternic"
 }
