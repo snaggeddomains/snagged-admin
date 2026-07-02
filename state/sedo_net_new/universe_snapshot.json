@@ -1,30 +1,126 @@
 [
   {
-    "domain": "hightech.com",
-    "price": 1250000.0
+    "domain": "vinegars.com",
+    "price": 12321.0
   },
   {
-    "domain": "affected.ai",
-    "price": 4999.0
+    "domain": "twilights.com",
+    "price": 12321.0
   },
   {
-    "domain": "fils.ai",
-    "price": 4999.0
+    "domain": "selects.ai",
+    "price": 14888.0
   },
   {
-    "domain": "mirs.ai",
-    "price": 4999.0
+    "domain": "unilite.ai",
+    "price": 7888.0
   },
   {
-    "domain": "sunbed.net",
-    "price": 4999.0
+    "domain": "cooktop.ai",
+    "price": 49888.0
   },
   {
-    "domain": "netbook.co",
-    "price": 2450.0
+    "domain": "purepro.ai",
+    "price": 7888.0
   },
   {
-    "domain": "periodically.net",
-    "price": 1695.0
+    "domain": "imobile.ai",
+    "price": 14888.0
+  },
+  {
+    "domain": "proland.ai",
+    "price": 7888.0
+  },
+  {
+    "domain": "biovital.ai",
+    "price": 24888.0
+  },
+  {
+    "domain": "waterpro.ai",
+    "price": 14888.0
+  },
+  {
+    "domain": "delays.ai",
+    "price": 4888.0
+  },
+  {
+    "domain": "proart.ai",
+    "price": 14888.0
+  },
+  {
+    "domain": "uniweb.ai",
+    "price": 14888.0
+  },
+  {
+    "domain": "prokey.ai",
+    "price": 7888.0
+  },
+  {
+    "domain": "fincon.ai",
+    "price": 24888.0
+  },
+  {
+    "domain": "nugent.ai",
+    "price": 4888.0
+  },
+  {
+    "domain": "includes.ai",
+    "price": 14888.0
+  },
+  {
+    "domain": "curls.ai",
+    "price": 24888.0
+  },
+  {
+    "domain": "lymph.ai",
+    "price": 99888.0
+  },
+  {
+    "domain": "intercare.ai",
+    "price": 24888.0
+  },
+  {
+    "domain": "spilt.ai",
+    "price": 7888.0
+  },
+  {
+    "domain": "eurodrive.ai",
+    "price": 14888.0
+  },
+  {
+    "domain": "receptors.ai",
+    "price": 99888.0
+  },
+  {
+    "domain": "lipsticks.ai",
+    "price": 7888.0
+  },
+  {
+    "domain": "motorcars.ai",
+    "price": 7888.0
+  },
+  {
+    "domain": "clots.ai",
+    "price": 7888.0
+  },
+  {
+    "domain": "elms.ai",
+    "price": 24888.0
+  },
+  {
+    "domain": "sandwiches.ai",
+    "price": 7888.0
+  },
+  {
+    "domain": "duds.ai",
+    "price": 7888.0
+  },
+  {
+    "domain": "privileges.ai",
+    "price": 7888.0
+  },
+  {
+    "domain": "apts.ai",
+    "price": 7888.0
   }
 ]
