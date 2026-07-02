@@ -1,13 +1,14 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 5,
   "domains": [
-    "halves.co",
-    "inquiry.co",
-    "otters.org",
-    "salford.org"
+    "figueroa.co",
+    "however.io",
+    "internal.me",
+    "observes.org",
+    "qualifies.org"
   ],
-  "generated_at": "2026-07-01T23:06:48.813434+00:00",
+  "generated_at": "2026-07-02T10:06:03.950664+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
