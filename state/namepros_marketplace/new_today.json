@@ -1,14 +1,12 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 3,
   "domains": [
-    "78910.xyz",
-    "drama.now",
-    "sable.co",
-    "shadowy.net",
-    "spur.co"
+    "jackman.net",
+    "overall.co",
+    "synchronize.io"
   ],
-  "generated_at": "2026-07-02T17:06:28.115376+00:00",
+  "generated_at": "2026-07-02T23:07:07.796868+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
