@@ -1,14 +1,5 @@
 [
   {
-    "currency": "USD",
-    "domain": "kly.com",
-    "end_time_utc": "2026-07-02T12:34:02+00:00",
-    "is_mub": false,
-    "price": 959000.0,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=kly.com"
-  },
-  {
     "currency": "GBP",
     "domain": "offshore.co",
     "end_time_utc": "2026-07-02T14:44:22+00:00",
