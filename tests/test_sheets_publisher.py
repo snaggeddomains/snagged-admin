@@ -20,7 +20,9 @@ class _Executable:
     def __init__(self, result):
         self._result = result
 
-    def execute(self):
+    def execute(self, num_retries=0, **kwargs):
+        # Mirror googleapiclient's real execute() signature (it accepts num_retries for
+        # transient-error backoff) so the fake doesn't break when the caller passes it.
         return self._result
 
 
