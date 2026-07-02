@@ -1,110 +1,29 @@
 [
   {
     "currency": "USD",
-    "domain": "selects.ai",
-    "end_time_utc": "2026-07-02T03:31:55+00:00",
+    "domain": "kly.com",
+    "end_time_utc": "2026-07-02T12:34:02+00:00",
     "is_mub": false,
-    "price": 14888.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=selects.ai"
+    "price": 959000.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=kly.com"
+  },
+  {
+    "currency": "GBP",
+    "domain": "offshore.co",
+    "end_time_utc": "2026-07-02T14:44:22+00:00",
+    "is_mub": false,
+    "price": 24599.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=offshore.co"
   },
   {
     "currency": "USD",
-    "domain": "delays.ai",
-    "end_time_utc": "2026-07-02T03:32:06+00:00",
+    "domain": "bog.co",
+    "end_time_utc": "2026-07-02T17:11:22+00:00",
     "is_mub": false,
-    "price": 4888.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=delays.ai"
-  },
-  {
-    "currency": "USD",
-    "domain": "nugent.ai",
-    "end_time_utc": "2026-07-02T03:31:46+00:00",
-    "is_mub": false,
-    "price": 4888.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=nugent.ai"
-  },
-  {
-    "currency": "USD",
-    "domain": "includes.ai",
-    "end_time_utc": "2026-07-02T03:31:16+00:00",
-    "is_mub": false,
-    "price": 14888.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=includes.ai"
-  },
-  {
-    "currency": "USD",
-    "domain": "curls.ai",
-    "end_time_utc": "2026-07-02T03:31:51+00:00",
-    "is_mub": false,
-    "price": 24888.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=curls.ai"
-  },
-  {
-    "currency": "USD",
-    "domain": "lymph.ai",
-    "end_time_utc": "2026-07-02T03:31:26+00:00",
-    "is_mub": false,
-    "price": 99888.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=lymph.ai"
-  },
-  {
-    "currency": "USD",
-    "domain": "spilt.ai",
-    "end_time_utc": "2026-07-02T03:32:07+00:00",
-    "is_mub": false,
-    "price": 7888.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=spilt.ai"
-  },
-  {
-    "currency": "USD",
-    "domain": "receptors.ai",
-    "end_time_utc": "2026-07-02T03:31:25+00:00",
-    "is_mub": false,
-    "price": 99888.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=receptors.ai"
-  },
-  {
-    "currency": "USD",
-    "domain": "lipsticks.ai",
-    "end_time_utc": "2026-07-02T03:31:22+00:00",
-    "is_mub": false,
-    "price": 7888.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=lipsticks.ai"
-  },
-  {
-    "currency": "USD",
-    "domain": "clots.ai",
-    "end_time_utc": "2026-07-02T03:31:57+00:00",
-    "is_mub": false,
-    "price": 7888.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=clots.ai"
-  },
-  {
-    "currency": "USD",
-    "domain": "sandwiches.ai",
-    "end_time_utc": "2026-07-02T03:32:04+00:00",
-    "is_mub": false,
-    "price": 7888.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=sandwiches.ai"
-  },
-  {
-    "currency": "USD",
-    "domain": "privileges.ai",
-    "end_time_utc": "2026-07-02T03:32:10+00:00",
-    "is_mub": false,
-    "price": 7888.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=privileges.ai"
+    "price": 6000.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=bog.co"
   }
 ]

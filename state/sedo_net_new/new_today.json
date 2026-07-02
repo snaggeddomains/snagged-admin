@@ -1,21 +1,12 @@
 {
   "capped": false,
-  "count": 12,
+  "count": 3,
   "domains": [
-    "receptors.ai",
-    "lymph.ai",
-    "curls.ai",
-    "selects.ai",
-    "includes.ai",
-    "spilt.ai",
-    "sandwiches.ai",
-    "privileges.ai",
-    "lipsticks.ai",
-    "clots.ai",
-    "nugent.ai",
-    "delays.ai"
+    "kly.com",
+    "offshore.co",
+    "bog.co"
   ],
-  "generated_at": "2026-07-02T10:02:08.794371+00:00",
+  "generated_at": "2026-07-02T17:02:20.407950+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
