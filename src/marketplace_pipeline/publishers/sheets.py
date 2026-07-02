@@ -70,14 +70,14 @@ def _service():
 def _read_tab(service, spreadsheet_id: str, tab: str) -> list[list[Any]]:
     res = service.spreadsheets().values().get(
         spreadsheetId=spreadsheet_id, range=f"'{tab}'!A:Z",
-    ).execute()
+    ).execute(num_retries=5)
     return res.get("values", [])
 
 
 def _clear_and_write(service, spreadsheet_id: str, tab: str, rows: list[list[Any]]) -> None:
     service.spreadsheets().values().clear(
         spreadsheetId=spreadsheet_id, range=f"'{tab}'!A:Z",
-    ).execute()
+    ).execute(num_retries=5)
     if not rows:
         return
     service.spreadsheets().values().update(
@@ -85,7 +85,7 @@ def _clear_and_write(service, spreadsheet_id: str, tab: str, rows: list[list[Any
         range=f"'{tab}'!A1",
         valueInputOption="USER_ENTERED",
         body={"values": rows},
-    ).execute()
+    ).execute(num_retries=5)
 
 
 # ---------------------------------------------------------------------------
@@ -243,7 +243,7 @@ def _append_if_missing_impl(
             range=f"'{tab}'!A1",
             valueInputOption="USER_ENTERED",
             body={"values": [header]},
-        ).execute()
+        ).execute(num_retries=5)
         existing_keys: set[str] = set()
     else:
         header = existing[0]
@@ -277,7 +277,7 @@ def _append_if_missing_impl(
             valueInputOption="USER_ENTERED",
             insertDataOption="INSERT_ROWS",
             body={"values": to_append},
-        ).execute()
+        ).execute(num_retries=5)
 
     return {
         "added": len(to_append),
