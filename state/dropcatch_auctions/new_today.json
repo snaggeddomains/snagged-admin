@@ -1,17 +1,13 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 4,
   "domains": [
-    "towd.com",
-    "grete.com",
-    "fabrics.org",
-    "hostint.org",
     "nurmi.com",
-    "mozl.com"
+    "hostint.org",
+    "mozl.com",
+    "ombi.com"
   ],
-  "generated_at": "2026-07-01T09:53:43.221927+00:00",
-  "mub": [
-    "grete.com"
-  ],
+  "generated_at": "2026-07-02T09:39:17.987872+00:00",
+  "mub": [],
   "source": "dropcatch_auctions"
 }

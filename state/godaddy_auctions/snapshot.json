@@ -1,119 +1,101 @@
 [
   {
-    "bid_count": 32,
-    "domain": "ironman.org",
-    "end_time_utc": "2026-07-01T16:01:00+00:00",
+    "bid_count": 27,
+    "domain": "gsi.net",
+    "end_time_utc": "2026-07-02T16:20:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/ironman-org-708533267?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/gsi-net-709544409?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 675.0
-  },
-  {
-    "bid_count": 13,
-    "domain": "sugarr.com",
-    "end_time_utc": "2026-07-01T16:10:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/sugarr-com-709389936?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 137.0
-  },
-  {
-    "bid_count": 16,
-    "domain": "ihebrew.com",
-    "end_time_utc": "2026-07-01T16:15:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/ihebrew-com-707875563?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 73.0
-  },
-  {
-    "bid_count": 29,
-    "domain": "xskin.com",
-    "end_time_utc": "2026-07-01T16:34:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/xskin-com-709393294?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 230.0
-  },
-  {
-    "bid_count": 17,
-    "domain": "hsj.net",
-    "end_time_utc": "2026-07-01T17:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/hsj-net-708542795?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 202.0
-  },
-  {
-    "bid_count": 61,
-    "domain": "2238.com",
-    "end_time_utc": "2026-07-01T17:30:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/2238-com-709407084?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 6308.0
-  },
-  {
-    "bid_count": 13,
-    "domain": "plzn.com",
-    "end_time_utc": "2026-07-01T17:32:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/plzn-com-709391719?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 248.0
-  },
-  {
-    "bid_count": 18,
-    "domain": "exsports.com",
-    "end_time_utc": "2026-07-01T19:02:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/exsports-com-709403718?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 73.0
-  },
-  {
-    "bid_count": 25,
-    "domain": "jwzz.com",
-    "end_time_utc": "2026-07-01T19:56:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/jwzz-com-709408832?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 686.0
-  },
-  {
-    "bid_count": 21,
-    "domain": "foxtail.io",
-    "end_time_utc": "2026-07-01T20:20:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/foxtail-io-709408014?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 419.0
-  },
-  {
-    "bid_count": 18,
-    "domain": "gox.io",
-    "end_time_utc": "2026-07-01T20:24:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/gox-io-709383786?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 305.0
+    "price": 817.0
   },
   {
     "bid_count": 44,
-    "domain": "9315.com",
-    "end_time_utc": "2026-07-01T20:40:00+00:00",
+    "domain": "minm.com",
+    "end_time_utc": "2026-07-02T16:33:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/9315-com-709417496?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/minm-com-708752249?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 7100.0
+    "price": 1025.0
+  },
+  {
+    "bid_count": 40,
+    "domain": "5383.com",
+    "end_time_utc": "2026-07-02T16:50:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/5383-com-709529112?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 8166.0
+  },
+  {
+    "bid_count": 15,
+    "domain": "caribou.net",
+    "end_time_utc": "2026-07-02T16:59:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/caribou-net-709529296?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 112.0
+  },
+  {
+    "bid_count": 30,
+    "domain": "goodies.org",
+    "end_time_utc": "2026-07-02T17:26:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/goodies-org-709419086?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 510.0
+  },
+  {
+    "bid_count": 99,
+    "domain": "3435.com",
+    "end_time_utc": "2026-07-02T17:41:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/3435-com-709526687?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 32501.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "perishable.co",
+    "end_time_utc": "2026-07-02T17:45:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/perishable-co-709537141?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 1.0
+  },
+  {
+    "bid_count": 9,
+    "domain": "erxr.com",
+    "end_time_utc": "2026-07-02T18:59:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/erxr-com-709510490?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 241.0
   },
   {
     "bid_count": 11,
-    "domain": "901.co",
-    "end_time_utc": "2026-07-01T20:53:00+00:00",
+    "domain": "casax.com",
+    "end_time_utc": "2026-07-02T20:12:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/901-co-709385422?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/casax-com-708786238?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 51.0
+    "price": 121.0
+  },
+  {
+    "bid_count": 9,
+    "domain": "dissolves.com",
+    "end_time_utc": "2026-07-02T21:07:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/dissolves-com-709530192?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 80.0
+  },
+  {
+    "bid_count": 9,
+    "domain": "knacky.com",
+    "end_time_utc": "2026-07-02T21:15:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/knacky-com-708719803?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 210.0
   }
 ]

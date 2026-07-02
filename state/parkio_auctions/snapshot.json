@@ -1,21 +1,12 @@
 [
   {
-    "bid_count": 34,
-    "domain": "sfca.com",
-    "end_time_utc": "2026-07-01T18:09:50+00:00",
-    "is_mub": false,
-    "link": null,
-    "platform": "Park.io",
-    "price": 918.0
-  },
-  {
-    "bid_count": 57,
+    "bid_count": 66,
     "domain": "gdts.com",
     "end_time_utc": "2026-07-02T15:00:00+00:00",
     "is_mub": false,
     "link": null,
     "platform": "Park.io",
-    "price": 1195.0
+    "price": 1525.0
   },
   {
     "bid_count": 29,
@@ -27,13 +18,13 @@
     "price": 788.0
   },
   {
-    "bid_count": 28,
+    "bid_count": 30,
     "domain": "caqo.com",
     "end_time_utc": "2026-07-02T16:23:59+00:00",
     "is_mub": false,
     "link": null,
     "platform": "Park.io",
-    "price": 1060.0
+    "price": 1110.0
   },
   {
     "bid_count": 9,

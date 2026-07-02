@@ -1,22 +1,20 @@
 {
   "capped": false,
-  "count": 13,
+  "count": 11,
   "domains": [
-    "ironman.org",
-    "sugarr.com",
-    "ihebrew.com",
-    "xskin.com",
-    "hsj.net",
-    "2238.com",
-    "plzn.com",
-    "exsports.com",
-    "jwzz.com",
-    "foxtail.io",
-    "gox.io",
-    "9315.com",
-    "901.co"
+    "gsi.net",
+    "minm.com",
+    "5383.com",
+    "caribou.net",
+    "goodies.org",
+    "3435.com",
+    "perishable.co",
+    "erxr.com",
+    "casax.com",
+    "dissolves.com",
+    "knacky.com"
   ],
-  "generated_at": "2026-07-01T09:54:24.751171+00:00",
+  "generated_at": "2026-07-02T09:40:01.156564+00:00",
   "mub": [],
   "source": "godaddy_auctions"
 }

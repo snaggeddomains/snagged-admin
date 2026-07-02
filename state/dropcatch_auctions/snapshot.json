@@ -1,56 +1,38 @@
 [
   {
-    "bid_count": 102,
-    "domain": "towd.com",
-    "end_time_utc": "2026-07-01T18:59:42.138822+00:00",
+    "bid_count": 54,
+    "domain": "nurmi.com",
+    "end_time_utc": "2026-07-02T18:59:17.023597+00:00",
     "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Towd.com",
+    "link": "https://www.dropcatch.com/domain/Nurmi.com",
     "platform": "DropCatch",
-    "price": 1300.0
-  },
-  {
-    "bid_count": 43,
-    "domain": "grete.com",
-    "end_time_utc": "2026-07-01T18:59:42.138822+00:00",
-    "is_mub": true,
-    "link": "https://www.dropcatch.com/domain/Grete.com",
-    "platform": "DropCatch",
-    "price": 650.0
-  },
-  {
-    "bid_count": 14,
-    "domain": "fabrics.org",
-    "end_time_utc": "2026-07-01T18:59:42.138822+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Fabrics.org",
-    "platform": "DropCatch",
-    "price": 134.0
+    "price": 1000.0
   },
   {
     "bid_count": 33,
     "domain": "hostint.org",
-    "end_time_utc": "2026-07-02T18:59:42.138822+00:00",
+    "end_time_utc": "2026-07-02T18:59:17.023597+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/hostint.org",
     "platform": "DropCatch",
     "price": 510.0
   },
   {
-    "bid_count": 38,
-    "domain": "nurmi.com",
-    "end_time_utc": "2026-07-02T18:59:42.138822+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Nurmi.com",
-    "platform": "DropCatch",
-    "price": 298.0
-  },
-  {
     "bid_count": 81,
     "domain": "mozl.com",
-    "end_time_utc": "2026-07-03T18:59:42.138822+00:00",
+    "end_time_utc": "2026-07-03T18:59:17.023597+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Mozl.com",
     "platform": "DropCatch",
     "price": 800.0
+  },
+  {
+    "bid_count": 106,
+    "domain": "ombi.com",
+    "end_time_utc": "2026-07-06T18:59:17.023597+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Ombi.com",
+    "platform": "DropCatch",
+    "price": 1810.0
   }
 ]

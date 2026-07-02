@@ -1,15 +1,13 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 4,
   "domains": [
-    "takes.io",
-    "evolves.ai",
-    "quot.ai",
-    "trois.ai",
-    "pasteur.ai",
-    "plank.org"
+    "rushed.ai",
+    "easton.ai",
+    "crowds.io",
+    "lenox.ai"
   ],
-  "generated_at": "2026-07-01T09:32:38.540353+00:00",
+  "generated_at": "2026-07-02T09:20:43.853225+00:00",
   "mub": [],
   "source": "atom_daily"
 }
