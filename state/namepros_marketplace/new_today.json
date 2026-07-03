@@ -1,12 +1,16 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 7,
   "domains": [
-    "jackman.net",
-    "overall.co",
-    "synchronize.io"
+    "3927.xyz",
+    "agrippa.net",
+    "forbidden.co",
+    "irregular.co",
+    "probe.xyz",
+    "quantities.io",
+    "reside.co"
   ],
-  "generated_at": "2026-07-02T23:07:07.796868+00:00",
+  "generated_at": "2026-07-03T10:06:46.937237+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
