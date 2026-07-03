@@ -1,26 +1,30 @@
 [
   {
-    "domain": "evesham.com",
-    "price": 29900.0
+    "domain": "lawlyn.com",
+    "price": 175.0
   },
   {
-    "domain": "oswaldkirk.com",
-    "price": null
+    "domain": "bailie.com",
+    "price": 203320.0
   },
   {
-    "domain": "caribou.net",
-    "price": null
+    "domain": "boardour.com",
+    "price": 175.0
   },
   {
-    "domain": "endeavours.net",
-    "price": 458.0
+    "domain": "comicloud.com",
+    "price": 3995.0
   },
   {
-    "domain": "offshore.co",
-    "price": 24599.0
+    "domain": "revolt.net",
+    "price": 2588.0
   },
   {
-    "domain": "bog.co",
-    "price": 6000.0
+    "domain": "visioning.net",
+    "price": 1888.0
+  },
+  {
+    "domain": "mediating.net",
+    "price": 2688.0
   }
 ]
