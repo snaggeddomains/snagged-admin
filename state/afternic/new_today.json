@@ -1,14 +1,15 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 6,
   "domains": [
-    "adherence.co",
-    "melodrama.org",
-    "limiting.co"
+    "precisely.org",
+    "tumors.co",
+    "missionaries.co",
+    "repeatedly.org",
+    "enough.ai",
+    "quite.ai"
   ],
-  "generated_at": "2026-07-02T08:16:55.900748+00:00",
-  "mub": [
-    "limiting.co"
-  ],
+  "generated_at": "2026-07-03T08:14:53.293500+00:00",
+  "mub": [],
   "source": "afternic"
 }
