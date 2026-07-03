@@ -1,17 +1,5 @@
 [
   {
-    "domain": "lawlyn.com",
-    "price": 175.0
-  },
-  {
-    "domain": "bailie.com",
-    "price": 203320.0
-  },
-  {
-    "domain": "boardour.com",
-    "price": 175.0
-  },
-  {
     "domain": "comicloud.com",
     "price": 3995.0
   },
@@ -26,5 +14,9 @@
   {
     "domain": "mediating.net",
     "price": 2688.0
+  },
+  {
+    "domain": "motorboat.co",
+    "price": 19000.0
   }
 ]
