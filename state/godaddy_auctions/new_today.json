@@ -1,20 +1,15 @@
 {
   "capped": false,
-  "count": 11,
+  "count": 6,
   "domains": [
-    "gsi.net",
-    "minm.com",
-    "5383.com",
-    "caribou.net",
-    "goodies.org",
-    "3435.com",
-    "perishable.co",
-    "erxr.com",
-    "casax.com",
-    "dissolves.com",
-    "knacky.com"
+    "samutai.net",
+    "arysa.com",
+    "commission.org",
+    "huzb.com",
+    "ewatts.com",
+    "geas.com"
   ],
-  "generated_at": "2026-07-02T09:40:01.156564+00:00",
+  "generated_at": "2026-07-03T09:34:05.684985+00:00",
   "mub": [],
   "source": "godaddy_auctions"
 }

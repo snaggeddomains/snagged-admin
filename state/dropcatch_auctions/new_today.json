@@ -1,13 +1,15 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 6,
   "domains": [
-    "nurmi.com",
-    "hostint.org",
     "mozl.com",
-    "ombi.com"
+    "liuq.com",
+    "komie.net",
+    "ombi.com",
+    "wooop.com",
+    "gaxl.com"
   ],
-  "generated_at": "2026-07-02T09:39:17.987872+00:00",
+  "generated_at": "2026-07-03T09:33:21.672538+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }

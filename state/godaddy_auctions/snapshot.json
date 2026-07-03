@@ -1,101 +1,56 @@
 [
   {
-    "bid_count": 27,
-    "domain": "gsi.net",
-    "end_time_utc": "2026-07-02T16:20:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/gsi-net-709544409?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 817.0
-  },
-  {
-    "bid_count": 44,
-    "domain": "minm.com",
-    "end_time_utc": "2026-07-02T16:33:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/minm-com-708752249?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1025.0
-  },
-  {
-    "bid_count": 40,
-    "domain": "5383.com",
-    "end_time_utc": "2026-07-02T16:50:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/5383-com-709529112?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 8166.0
-  },
-  {
-    "bid_count": 15,
-    "domain": "caribou.net",
-    "end_time_utc": "2026-07-02T16:59:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/caribou-net-709529296?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 112.0
-  },
-  {
-    "bid_count": 30,
-    "domain": "goodies.org",
-    "end_time_utc": "2026-07-02T17:26:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/goodies-org-709419086?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 510.0
-  },
-  {
-    "bid_count": 99,
-    "domain": "3435.com",
-    "end_time_utc": "2026-07-02T17:41:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/3435-com-709526687?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 32501.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "perishable.co",
-    "end_time_utc": "2026-07-02T17:45:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/perishable-co-709537141?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1.0
-  },
-  {
     "bid_count": 9,
-    "domain": "erxr.com",
-    "end_time_utc": "2026-07-02T18:59:00+00:00",
+    "domain": "samutai.net",
+    "end_time_utc": "2026-07-03T17:38:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/erxr-com-709510490?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 241.0
-  },
-  {
-    "bid_count": 11,
-    "domain": "casax.com",
-    "end_time_utc": "2026-07-02T20:12:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/casax-com-708786238?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 121.0
-  },
-  {
-    "bid_count": 9,
-    "domain": "dissolves.com",
-    "end_time_utc": "2026-07-02T21:07:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/dissolves-com-709530192?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 80.0
-  },
-  {
-    "bid_count": 9,
-    "domain": "knacky.com",
-    "end_time_utc": "2026-07-02T21:15:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/knacky-com-708719803?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/samutai-net-709037757?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
     "price": 210.0
+  },
+  {
+    "bid_count": 5,
+    "domain": "arysa.com",
+    "end_time_utc": "2026-07-03T17:59:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/arysa-com-709970652?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 61.0
+  },
+  {
+    "bid_count": 59,
+    "domain": "commission.org",
+    "end_time_utc": "2026-07-03T17:59:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/commission-org-709514470?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 2350.0
+  },
+  {
+    "bid_count": 12,
+    "domain": "huzb.com",
+    "end_time_utc": "2026-07-03T18:38:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/huzb-com-709887224?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 171.0
+  },
+  {
+    "bid_count": 6,
+    "domain": "ewatts.com",
+    "end_time_utc": "2026-07-03T19:32:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/ewatts-com-709947712?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 26.0
+  },
+  {
+    "bid_count": 20,
+    "domain": "geas.com",
+    "end_time_utc": "2026-07-03T20:18:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/geas-com-709305257?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 2100.0
   }
 ]

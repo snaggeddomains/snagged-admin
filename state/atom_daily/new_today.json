@@ -2,12 +2,12 @@
   "capped": false,
   "count": 4,
   "domains": [
-    "rushed.ai",
-    "easton.ai",
-    "crowds.io",
-    "lenox.ai"
+    "world.io",
+    "dr.io",
+    "longer.io",
+    "chants.ai"
   ],
-  "generated_at": "2026-07-02T09:20:43.853225+00:00",
+  "generated_at": "2026-07-03T09:21:31.311508+00:00",
   "mub": [],
   "source": "atom_daily"
 }

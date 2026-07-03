@@ -1,38 +1,56 @@
 [
   {
-    "bid_count": 54,
-    "domain": "nurmi.com",
-    "end_time_utc": "2026-07-02T18:59:17.023597+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Nurmi.com",
-    "platform": "DropCatch",
-    "price": 1000.0
-  },
-  {
-    "bid_count": 33,
-    "domain": "hostint.org",
-    "end_time_utc": "2026-07-02T18:59:17.023597+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/hostint.org",
-    "platform": "DropCatch",
-    "price": 510.0
-  },
-  {
-    "bid_count": 81,
+    "bid_count": 87,
     "domain": "mozl.com",
-    "end_time_utc": "2026-07-03T18:59:17.023597+00:00",
+    "end_time_utc": "2026-07-03T18:59:20.757281+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Mozl.com",
     "platform": "DropCatch",
-    "price": 800.0
+    "price": 1200.0
   },
   {
-    "bid_count": 106,
+    "bid_count": 36,
+    "domain": "liuq.com",
+    "end_time_utc": "2026-07-03T18:59:20.757281+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Liuq.com",
+    "platform": "DropCatch",
+    "price": 104.0
+  },
+  {
+    "bid_count": 9,
+    "domain": "komie.net",
+    "end_time_utc": "2026-07-03T18:59:20.757281+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/komie.net",
+    "platform": "DropCatch",
+    "price": 99.0
+  },
+  {
+    "bid_count": 109,
     "domain": "ombi.com",
-    "end_time_utc": "2026-07-06T18:59:17.023597+00:00",
+    "end_time_utc": "2026-07-06T18:59:20.757281+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Ombi.com",
     "platform": "DropCatch",
-    "price": 1810.0
+    "price": 2106.0
+  },
+  {
+    "bid_count": 14,
+    "domain": "wooop.com",
+    "end_time_utc": "2026-07-06T18:59:20.757281+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Wooop.com",
+    "platform": "DropCatch",
+    "price": 179.0
+  },
+  {
+    "bid_count": 11,
+    "domain": "gaxl.com",
+    "end_time_utc": "2026-07-09T18:59:20.757281+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Gaxl.com",
+    "platform": "DropCatch",
+    "price": 154.0
   }
 ]

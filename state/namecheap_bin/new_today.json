@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "wrestler.ai"
-  ],
-  "generated_at": "2026-07-02T09:02:12.251577+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-07-03T09:02:45.114398+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }
