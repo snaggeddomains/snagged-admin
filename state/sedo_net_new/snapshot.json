@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "currency": "USD",
+    "domain": "tempted.co",
+    "end_time_utc": "2026-07-03T23:17:07+00:00",
+    "is_mub": false,
+    "price": 3995.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=tempted.co"
+  }
+]
