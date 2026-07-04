@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-03T15:09:32.605822+00:00",
+  "count": 1,
+  "domains": [
+    "verbal.org"
+  ],
+  "generated_at": "2026-07-04T15:05:27.995927+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
