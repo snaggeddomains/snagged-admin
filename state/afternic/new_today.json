@@ -1,15 +1,11 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 2,
   "domains": [
-    "precisely.org",
-    "tumors.co",
-    "missionaries.co",
-    "repeatedly.org",
-    "enough.ai",
-    "quite.ai"
+    "dilute.org",
+    "king.ai"
   ],
-  "generated_at": "2026-07-03T08:14:53.293500+00:00",
+  "generated_at": "2026-07-04T08:17:27.246155+00:00",
   "mub": [],
   "source": "afternic"
 }
