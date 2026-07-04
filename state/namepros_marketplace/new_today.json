@@ -1,19 +1,14 @@
 {
   "capped": false,
-  "count": 8,
+  "count": 5,
   "domains": [
-    "eastland.ai",
-    "eligible.co",
-    "emulate.org",
-    "exceed.tv",
-    "limousine.vc",
-    "madigan.net",
-    "ringside.co",
-    "zhejiang.tv"
+    "befriend.co",
+    "hello.com",
+    "pressures.org",
+    "sinuses.org",
+    "stresses.org"
   ],
-  "generated_at": "2026-07-04T10:06:41.009687+00:00",
-  "mub": [
-    "madigan.net"
-  ],
+  "generated_at": "2026-07-04T17:06:25.602593+00:00",
+  "mub": [],
   "source": "namepros_marketplace"
 }
