@@ -1,10 +1,19 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 8,
   "domains": [
-    "holodeck.io"
+    "eastland.ai",
+    "eligible.co",
+    "emulate.org",
+    "exceed.tv",
+    "limousine.vc",
+    "madigan.net",
+    "ringside.co",
+    "zhejiang.tv"
   ],
-  "generated_at": "2026-07-03T23:06:54.029676+00:00",
-  "mub": [],
+  "generated_at": "2026-07-04T10:06:41.009687+00:00",
+  "mub": [
+    "madigan.net"
+  ],
   "source": "namepros_marketplace"
 }
