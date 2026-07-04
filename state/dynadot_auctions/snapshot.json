@@ -1,29 +1,20 @@
 [
   {
-    "bid_count": 0,
-    "domain": "buren.org",
-    "end_time_utc": "2026-07-03T17:58:06+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40571911.html",
-    "platform": "Dynadot",
-    "price": 7.99
-  },
-  {
-    "bid_count": 0,
-    "domain": "sirens.co",
-    "end_time_utc": "2026-07-03T19:29:59+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40562926.html",
-    "platform": "Dynadot",
-    "price": 7.99
-  },
-  {
-    "bid_count": 0,
-    "domain": "eminem.co",
-    "end_time_utc": "2026-07-04T00:00:00+00:00",
+    "bid_count": 23,
+    "domain": "ihome.net",
+    "end_time_utc": "2026-07-04T13:59:59+00:00",
     "is_mub": true,
-    "link": "https://www.dynadot.com/market/auction/40467150.html",
+    "link": "https://www.dynadot.com/market/auction/40621626.html",
     "platform": "Dynadot",
-    "price": 1.0
+    "price": 314.81
+  },
+  {
+    "bid_count": 0,
+    "domain": "nationally.io",
+    "end_time_utc": "2026-07-04T19:09:11+00:00",
+    "is_mub": false,
+    "link": "https://www.dynadot.com/market/auction/40630232.html",
+    "platform": "Dynadot",
+    "price": 7.99
   }
 ]

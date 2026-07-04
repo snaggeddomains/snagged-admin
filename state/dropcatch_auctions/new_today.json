@@ -1,15 +1,18 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 9,
   "domains": [
-    "mozl.com",
-    "liuq.com",
-    "komie.net",
     "ombi.com",
     "wooop.com",
+    "hcoa.org",
+    "innovatively.com",
+    "airmet.com",
+    "factuals.com",
+    "dommy.com",
+    "fxnn.com",
     "gaxl.com"
   ],
-  "generated_at": "2026-07-03T09:33:21.672538+00:00",
+  "generated_at": "2026-07-04T09:39:42.201521+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }
