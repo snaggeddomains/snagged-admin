@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "tempted.co"
-  ],
-  "generated_at": "2026-07-03T23:01:42.732446+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-07-04T10:01:50.397931+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
