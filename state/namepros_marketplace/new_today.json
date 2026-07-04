@@ -1,14 +1,11 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 2,
   "domains": [
-    "befriend.co",
-    "hello.com",
-    "pressures.org",
-    "sinuses.org",
-    "stresses.org"
+    "cyber.com",
+    "emea.net"
   ],
-  "generated_at": "2026-07-04T17:06:25.602593+00:00",
+  "generated_at": "2026-07-04T23:06:07.927953+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
