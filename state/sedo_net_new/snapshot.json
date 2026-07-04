@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "currency": "USD",
+    "domain": "mishap.ai",
+    "end_time_utc": "2026-07-04T21:08:26+00:00",
+    "is_mub": false,
+    "price": 99999.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=mishap.ai"
+  }
+]
