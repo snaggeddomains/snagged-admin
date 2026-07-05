@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-05T17:00:44.327860+00:00",
+  "count": 1,
+  "domains": [
+    "raspy.ai"
+  ],
+  "generated_at": "2026-07-05T23:00:33.963206+00:00",
   "mub": [],
   "source": "reddit_domains"
 }
