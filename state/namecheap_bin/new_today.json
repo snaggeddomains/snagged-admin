@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "kimmy.ai"
-  ],
-  "generated_at": "2026-07-04T09:03:08.288347+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-07-05T09:02:25.548291+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

@@ -1,31 +1,13 @@
 {
   "capped": false,
-  "count": 22,
+  "count": 4,
   "domains": [
-    "pops.ai",
-    "doctor.io",
-    "coffee.io",
-    "dinner.io",
-    "coverage.io",
-    "basketball.io",
-    "dc.io",
-    "retired.co",
-    "tennis.io",
-    "restaurants.io",
-    "trends.io",
-    "touched.co",
-    "barn.io",
-    "acoustic.io",
-    "medicare.io",
-    "diagnostic.io",
-    "marginal.co",
-    "affiliations.co",
-    "sweats.co",
-    "watchman.co",
-    "mailer.co",
-    "turret.org"
+    "sitting.ai",
+    "near.io",
+    "circulation.io",
+    "excels.ai"
   ],
-  "generated_at": "2026-07-04T09:21:34.253478+00:00",
+  "generated_at": "2026-07-05T09:21:58.784860+00:00",
   "mub": [],
   "source": "atom_daily"
 }

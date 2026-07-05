@@ -1,11 +1,11 @@
 [
   {
-    "bid_count": 10,
+    "bid_count": 16,
     "domain": "esan.net",
     "end_time_utc": "2026-07-05T15:00:00+00:00",
     "is_mub": false,
     "link": "https://www.namesilo.com/auctions/esan.net",
     "platform": "NameSilo",
-    "price": 11.0
+    "price": 31.0
   }
 ]

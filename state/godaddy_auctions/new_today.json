@@ -1,20 +1,14 @@
 {
   "capped": false,
-  "count": 8,
+  "count": 5,
   "domains": [
-    "mugabe.org",
-    "flato.com",
-    "lwine.com",
-    "trajectories.org",
-    "vts.net",
-    "milkman.io",
-    "photobooth.org",
-    "covfefe.com"
+    "refund.org",
+    "forerunner.co",
+    "aptra.com",
+    "qvd.net",
+    "hoopo.com"
   ],
-  "generated_at": "2026-07-04T09:40:21.755574+00:00",
-  "mub": [
-    "mugabe.org",
-    "flato.com"
-  ],
+  "generated_at": "2026-07-05T09:41:00.744884+00:00",
+  "mub": [],
   "source": "godaddy_auctions"
 }

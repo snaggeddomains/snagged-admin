@@ -2,12 +2,10 @@
   "capped": false,
   "count": 2,
   "domains": [
-    "ihome.net",
-    "nationally.io"
+    "mpear.com",
+    "aisaa.com"
   ],
-  "generated_at": "2026-07-04T09:39:35.007289+00:00",
-  "mub": [
-    "ihome.net"
-  ],
+  "generated_at": "2026-07-05T09:40:13.678919+00:00",
+  "mub": [],
   "source": "dynadot_auctions"
 }

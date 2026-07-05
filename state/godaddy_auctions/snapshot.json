@@ -1,74 +1,47 @@
 [
   {
+    "bid_count": 55,
+    "domain": "refund.org",
+    "end_time_utc": "2026-07-05T17:56:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/refund-org-710133344?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 4800.0
+  },
+  {
     "bid_count": 0,
-    "domain": "mugabe.org",
-    "end_time_utc": "2026-07-04T16:07:00+00:00",
-    "is_mub": true,
-    "link": "https://www.godaddy.com/domain-auctions/mugabe-org-709228292?isc=json_ending_tomorrow",
+    "domain": "forerunner.co",
+    "end_time_utc": "2026-07-05T18:24:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/forerunner-co-710722691?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
     "price": 1.0
   },
   {
-    "bid_count": 28,
-    "domain": "flato.com",
-    "end_time_utc": "2026-07-04T17:35:00+00:00",
-    "is_mub": true,
-    "link": "https://www.godaddy.com/domain-auctions/flato-com-709342601?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 685.0
-  },
-  {
-    "bid_count": 7,
-    "domain": "lwine.com",
-    "end_time_utc": "2026-07-04T17:52:00+00:00",
+    "bid_count": 21,
+    "domain": "aptra.com",
+    "end_time_utc": "2026-07-05T19:57:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/lwine-com-710137312?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/aptra-com-710711281?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 27.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "trajectories.org",
-    "end_time_utc": "2026-07-04T19:40:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/trajectories-org-709979913?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1.0
-  },
-  {
-    "bid_count": 51,
-    "domain": "vts.net",
-    "end_time_utc": "2026-07-04T19:50:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/vts-net-710152614?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1050.0
-  },
-  {
-    "bid_count": 6,
-    "domain": "milkman.io",
-    "end_time_utc": "2026-07-04T20:15:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/milkman-io-710170638?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 26.0
+    "price": 130.0
   },
   {
     "bid_count": 9,
-    "domain": "photobooth.org",
-    "end_time_utc": "2026-07-04T20:37:00+00:00",
+    "domain": "qvd.net",
+    "end_time_utc": "2026-07-05T20:18:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/photobooth-org-709437723?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/qvd-net-710728490?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 171.0
+    "price": 160.0
   },
   {
-    "bid_count": 32,
-    "domain": "covfefe.com",
-    "end_time_utc": "2026-07-04T20:50:00+00:00",
+    "bid_count": 87,
+    "domain": "hoopo.com",
+    "end_time_utc": "2026-07-05T20:40:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/covfefe-com-710173851?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/hoopo-com-710717743?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 1988.0
+    "price": 3045.0
   }
 ]
