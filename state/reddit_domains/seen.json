@@ -1,6 +1,7 @@
 {
-  "count": 9,
+  "count": 10,
   "domains": [
+    "bar.com",
     "beverley.co",
     "dominion.com",
     "futa.co",
@@ -12,5 +13,5 @@
     "tilts.net"
   ],
   "source": "reddit_domains",
-  "updated_at": "2026-07-04T23:00:55.263749+00:00"
+  "updated_at": "2026-07-05T10:00:37.879595+00:00"
 }
