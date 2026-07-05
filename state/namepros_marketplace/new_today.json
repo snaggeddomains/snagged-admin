@@ -1,10 +1,16 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 7,
   "domains": [
-    "parser.co"
+    "agu.ai",
+    "asleep.xyz",
+    "borat.tv",
+    "custody.now",
+    "freely.co",
+    "lll.ai",
+    "serious.co"
   ],
-  "generated_at": "2026-07-05T17:06:41.516270+00:00",
+  "generated_at": "2026-07-05T23:07:32.655690+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
