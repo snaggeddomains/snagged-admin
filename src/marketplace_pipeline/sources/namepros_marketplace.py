@@ -234,6 +234,34 @@ def extract_links(html: str) -> dict[str, str]:
     return {d: u for d, (_p, u) in _parse_threads(html).items()}
 
 
+def backfill_links(html: str, domains, links: dict[str, str]) -> None:
+    """Give a thread URL to listing domains that the TITLE parse missed — the ones
+    captured via the info-widget / fallback scan in extract_listings (they'd otherwise
+    fall back to a NamePros *search* URL, which just lands on a search page). Bind each
+    to the NEAREST preceding thread row (`data-preview-url`) in the page, so its Slack /
+    sheet link opens the actual listing thread. Best-effort + in-place: only fills gaps."""
+    raw = html or ""
+    thread_pos = [(m.start(), NAMEPROS_BASE + m.group(1).replace("/preview", ""))
+                  for m in THREAD_RE.finditer(raw)]
+    if not thread_pos:
+        return
+    low = raw.lower()
+    for host in domains:
+        if host in links:
+            continue
+        i = low.find(host.lower())
+        if i < 0:
+            continue
+        url = None
+        for pos, u in thread_pos:  # nearest thread row starting at/before the domain
+            if pos <= i:
+                url = u
+            else:
+                break
+        if url:
+            links[host] = url
+
+
 def extract_listings(html: str) -> dict[str, int | None]:
     """Map each REAL marketplace listing domain → its asking price (or None).
     Deduped (first non-null price wins).
@@ -510,6 +538,10 @@ def run() -> int:
         links.setdefault(host, url)
     if added:
         print(f"      bundle drill added {added} domain(s) not in any title")
+
+    # Backfill thread URLs for listings the title parse missed (info-widget / fallback
+    # domains), so their Slack/sheet links open the real thread instead of a search page.
+    backfill_links(html, listings, links)
 
     # Net-new gating: only alert on domains we haven't surfaced in a prior run.
     seen = load_seen()

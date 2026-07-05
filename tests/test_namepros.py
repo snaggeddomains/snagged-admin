@@ -169,3 +169,18 @@ def test_parse_post_drops_comps_and_brands():
     assert "medicine.com" not in got   # "sold like" comp context
     assert "godaddy.com" not in got    # platform denylist
     assert "ebay.com" not in got       # platform denylist
+
+
+def test_backfill_links_binds_widget_only_domain_to_thread():
+    # A listing whose domain only appears in the info-widget (not the title the parser
+    # reads) must still link to its thread, not fall back to a NamePros search page.
+    html = (
+        '<a data-preview-url="/threads/impeccable-co.111/preview">impeccable.co - $500</a>'
+        '<a data-preview-url="/threads/lourdes-net.222/preview">Great one-word .net</a>'
+        '<ul class="info"><li>lourdes.net</li><li>Buy Now $1,200</li></ul>'
+    )
+    links = src.extract_links(html)
+    assert "lourdes.net" not in links  # title parse alone misses it
+    src.backfill_links(html, {"impeccable.co": 500, "lourdes.net": 1200}, links)
+    assert links["lourdes.net"] == "https://www.namepros.com/threads/lourdes-net.222"
+    assert links["impeccable.co"] == "https://www.namepros.com/threads/impeccable-co.111"
