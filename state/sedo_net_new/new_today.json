@@ -1,11 +1,8 @@
 {
   "capped": false,
-  "count": 2,
-  "domains": [
-    "russians.co",
-    "prize.co"
-  ],
-  "generated_at": "2026-07-05T10:01:08.784861+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-07-05T17:01:05.451342+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
