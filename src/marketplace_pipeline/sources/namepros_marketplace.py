@@ -41,7 +41,10 @@ SOURCE_LABEL = "NamePros Marketplace"
 SOURCE_TIER = 2
 
 LISTING_URL = "https://www.namepros.com/marketplace/buy-domains/"
-SEARCH_URL = "https://www.namepros.com/search/?q={q}&o=date"  # per-domain jump to the listing
+# Fallback ONLY when a domain has no captured thread URL. NamePros' own /search/?q=
+# renders a login-walled search FORM (no results), so use a Google site-search that
+# reliably lands on the actual thread instead.
+SEARCH_URL = "https://www.google.com/search?q=%22{q}%22+site:namepros.com"
 SCRAPE_DO_BASE = "https://api.scrape.do/"
 
 # Inclusive shape filter — popular + phrase/brandable TLDs. (.cc excluded — too
@@ -247,7 +250,7 @@ def backfill_links(html: str, domains, links: dict[str, str]) -> None:
         return
     low = raw.lower()
     for host in domains:
-        if host in links:
+        if links.get(host):  # already has a (truthy) thread URL
             continue
         i = low.find(host.lower())
         if i < 0:
