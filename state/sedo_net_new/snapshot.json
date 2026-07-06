@@ -1,15 +1,6 @@
 [
   {
     "currency": "GBP",
-    "domain": "permit.ai",
-    "end_time_utc": "2026-07-06T11:47:31+00:00",
-    "is_mub": false,
-    "price": 700000.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=permit.ai"
-  },
-  {
-    "currency": "GBP",
     "domain": "unspoken.ai",
     "end_time_utc": "2026-07-06T18:35:14+00:00",
     "is_mub": false,
@@ -34,5 +25,23 @@
     "price": 4777.0,
     "tld": "co",
     "url": "https://sedo.com/search/details/?domain=yunnan.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "selina.co",
+    "end_time_utc": "2026-07-07T00:32:53+00:00",
+    "is_mub": false,
+    "price": 15000.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=selina.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "frequent.co",
+    "end_time_utc": "2026-07-06T21:53:10+00:00",
+    "is_mub": false,
+    "price": 19488.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=frequent.co"
   }
 ]
