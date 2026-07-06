@@ -2,12 +2,12 @@
   "capped": false,
   "count": 4,
   "domains": [
-    "sitting.ai",
-    "near.io",
-    "circulation.io",
-    "excels.ai"
+    "baby.co",
+    "hospital.io",
+    "verbal.org",
+    "telephony.co"
   ],
-  "generated_at": "2026-07-05T09:21:58.784860+00:00",
+  "generated_at": "2026-07-06T09:22:44.088185+00:00",
   "mub": [],
   "source": "atom_daily"
 }

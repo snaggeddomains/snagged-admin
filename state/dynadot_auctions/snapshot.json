@@ -1,29 +1,29 @@
 [
   {
+    "bid_count": 13,
+    "domain": "packjet.com",
+    "end_time_utc": "2026-07-06T18:44:54+00:00",
+    "is_mub": false,
+    "link": "https://www.dynadot.com/market/auction/40687825.html",
+    "platform": "Dynadot",
+    "price": 36.0
+  },
+  {
     "bid_count": 9,
-    "domain": "mpear.com",
-    "end_time_utc": "2026-07-05T13:00:01+00:00",
+    "domain": "footfy.net",
+    "end_time_utc": "2026-07-06T20:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40662904.html",
+    "link": "https://www.dynadot.com/market/auction/40361478.html",
     "platform": "Dynadot",
-    "price": 58.24
+    "price": 305.0
   },
   {
-    "bid_count": 5,
-    "domain": "aisaa.com",
-    "end_time_utc": "2026-07-05T13:44:57+00:00",
+    "bid_count": 12,
+    "domain": "elbow.net",
+    "end_time_utc": "2026-07-07T00:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40664166.html",
+    "link": "https://www.dynadot.com/market/auction/40606558.html",
     "platform": "Dynadot",
-    "price": 50.95
-  },
-  {
-    "bid_count": 16,
-    "domain": "esan.net",
-    "end_time_utc": "2026-07-05T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/39688830.html",
-    "platform": "Dynadot",
-    "price": 31.0
+    "price": 112.79
   }
 ]

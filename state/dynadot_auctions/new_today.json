@@ -1,11 +1,12 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 3,
   "domains": [
-    "mpear.com",
-    "aisaa.com"
+    "packjet.com",
+    "footfy.net",
+    "elbow.net"
   ],
-  "generated_at": "2026-07-05T09:40:13.678919+00:00",
+  "generated_at": "2026-07-06T09:41:28.839869+00:00",
   "mub": [],
   "source": "dynadot_auctions"
 }

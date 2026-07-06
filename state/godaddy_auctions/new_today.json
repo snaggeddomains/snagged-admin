@@ -1,14 +1,21 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 10,
   "domains": [
-    "refund.org",
-    "forerunner.co",
-    "aptra.com",
-    "qvd.net",
-    "hoopo.com"
+    "citee.com",
+    "jorp.com",
+    "joyes.com",
+    "mummz.com",
+    "pcr.org",
+    "iered.org",
+    "ucpu.com",
+    "sahaba.com",
+    "diagnosis.net",
+    "precious.io"
   ],
-  "generated_at": "2026-07-05T09:41:00.744884+00:00",
-  "mub": [],
+  "generated_at": "2026-07-06T09:42:19.163444+00:00",
+  "mub": [
+    "sahaba.com"
+  ],
   "source": "godaddy_auctions"
 }

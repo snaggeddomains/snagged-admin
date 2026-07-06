@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-05T09:02:25.548291+00:00",
+  "count": 1,
+  "domains": [
+    "presley.ai"
+  ],
+  "generated_at": "2026-07-06T09:03:41.873947+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

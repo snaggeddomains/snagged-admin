@@ -18,12 +18,12 @@
     "price": 250.0
   },
   {
-    "bid_count": 51,
+    "bid_count": 57,
     "domain": "rcne.com",
     "end_time_utc": "2026-07-11T15:00:00+00:00",
     "is_mub": false,
     "link": null,
     "platform": "Park.io",
-    "price": 565.0
+    "price": 825.0
   }
 ]
