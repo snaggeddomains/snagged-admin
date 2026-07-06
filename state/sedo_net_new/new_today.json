@@ -1,8 +1,13 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-06T10:01:06.186054+00:00",
+  "count": 4,
+  "domains": [
+    "permit.ai",
+    "cha.ai",
+    "unspoken.ai",
+    "yunnan.co"
+  ],
+  "generated_at": "2026-07-06T17:01:02.348985+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
