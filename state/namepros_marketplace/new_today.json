@@ -1,16 +1,13 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 4,
   "domains": [
-    "cormorant.net",
-    "cymbals.io",
-    "freehold.net",
-    "oup.io",
-    "preference.co",
-    "reds.org",
-    "schedule.org"
+    "ai.com",
+    "holley.org",
+    "nie.xyz",
+    "xiu.xyz"
   ],
-  "generated_at": "2026-07-06T17:06:16.058780+00:00",
+  "generated_at": "2026-07-06T23:07:14.508286+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
