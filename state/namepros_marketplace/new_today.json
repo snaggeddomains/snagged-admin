@@ -1,14 +1,16 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 7,
   "domains": [
-    "idealism.ai",
-    "majesty.co",
-    "organiser.co",
-    "passive.co",
-    "undergo.ai"
+    "cormorant.net",
+    "cymbals.io",
+    "freehold.net",
+    "oup.io",
+    "preference.co",
+    "reds.org",
+    "schedule.org"
   ],
-  "generated_at": "2026-07-06T10:06:39.812116+00:00",
+  "generated_at": "2026-07-06T17:06:16.058780+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
