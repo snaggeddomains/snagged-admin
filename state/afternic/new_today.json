@@ -1,13 +1,10 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 1,
   "domains": [
-    "crenshaw.co",
-    "repeatedly.org",
-    "seizures.co",
-    "sent.ai"
+    "stiff.org"
   ],
-  "generated_at": "2026-07-05T08:15:13.028315+00:00",
+  "generated_at": "2026-07-06T08:17:37.841795+00:00",
   "mub": [],
   "source": "afternic"
 }
