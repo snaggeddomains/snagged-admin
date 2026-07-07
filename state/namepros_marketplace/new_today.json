@@ -1,13 +1,12 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 3,
   "domains": [
-    "ai.com",
-    "holley.org",
-    "nie.xyz",
-    "xiu.xyz"
+    "701.xyz",
+    "alcohols.net",
+    "gaia.ai"
   ],
-  "generated_at": "2026-07-06T23:07:14.508286+00:00",
+  "generated_at": "2026-07-07T10:05:42.360755+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
