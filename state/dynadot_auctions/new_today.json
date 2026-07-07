@@ -1,12 +1,11 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 2,
   "domains": [
-    "packjet.com",
-    "footfy.net",
-    "elbow.net"
+    "fayou.com",
+    "wikipedia.io"
   ],
-  "generated_at": "2026-07-06T09:41:28.839869+00:00",
+  "generated_at": "2026-07-07T09:40:21.028467+00:00",
   "mub": [],
   "source": "dynadot_auctions"
 }

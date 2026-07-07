@@ -1,21 +1,15 @@
 {
   "capped": false,
-  "count": 10,
+  "count": 6,
   "domains": [
-    "citee.com",
-    "jorp.com",
-    "joyes.com",
-    "mummz.com",
-    "pcr.org",
-    "iered.org",
-    "ucpu.com",
-    "sahaba.com",
-    "diagnosis.net",
-    "precious.io"
+    "salespeople.co",
+    "huego.com",
+    "diagnosis.org",
+    "xlogs.com",
+    "bluffs.co",
+    "higher.org"
   ],
-  "generated_at": "2026-07-06T09:42:19.163444+00:00",
-  "mub": [
-    "sahaba.com"
-  ],
+  "generated_at": "2026-07-07T09:41:09.227336+00:00",
+  "mub": [],
   "source": "godaddy_auctions"
 }

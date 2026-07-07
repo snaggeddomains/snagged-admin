@@ -1,17 +1,12 @@
 {
   "capped": false,
-  "count": 8,
+  "count": 3,
   "domains": [
-    "ombi.com",
-    "wooop.com",
-    "innovatively.com",
-    "hcoa.org",
-    "factuals.com",
     "dommy.com",
     "fxnn.com",
     "gaxl.com"
   ],
-  "generated_at": "2026-07-06T09:41:37.179928+00:00",
+  "generated_at": "2026-07-07T09:40:28.816532+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }

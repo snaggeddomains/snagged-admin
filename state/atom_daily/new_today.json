@@ -1,13 +1,11 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 2,
   "domains": [
-    "baby.co",
-    "hospital.io",
-    "verbal.org",
-    "telephony.co"
+    "cameron.com",
+    "facilitate.io"
   ],
-  "generated_at": "2026-07-06T09:22:44.088185+00:00",
+  "generated_at": "2026-07-07T09:22:19.336351+00:00",
   "mub": [],
   "source": "atom_daily"
 }

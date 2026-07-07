@@ -1,92 +1,56 @@
 [
   {
-    "bid_count": 28,
-    "domain": "citee.com",
-    "end_time_utc": "2026-07-06T16:48:00+00:00",
+    "bid_count": 0,
+    "domain": "salespeople.co",
+    "end_time_utc": "2026-07-07T16:13:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/citee-com-710857114?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/salespeople-co-711084694?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 343.0
+    "price": 1.0
+  },
+  {
+    "bid_count": 12,
+    "domain": "huego.com",
+    "end_time_utc": "2026-07-07T17:58:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/huego-com-711074629?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 410.0
   },
   {
     "bid_count": 33,
-    "domain": "jorp.com",
-    "end_time_utc": "2026-07-06T17:00:00+00:00",
+    "domain": "diagnosis.org",
+    "end_time_utc": "2026-07-07T18:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/jorp-com-710841760?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/diagnosis-org-710844034?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 600.0
+    "price": 809.0
   },
   {
-    "bid_count": 17,
-    "domain": "joyes.com",
-    "end_time_utc": "2026-07-06T17:31:00+00:00",
+    "bid_count": 5,
+    "domain": "xlogs.com",
+    "end_time_utc": "2026-07-07T19:26:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/joyes-com-710842509?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/xlogs-com-710096641?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 101.0
+    "price": 22.0
   },
   {
-    "bid_count": 7,
-    "domain": "mummz.com",
-    "end_time_utc": "2026-07-06T17:49:00+00:00",
+    "bid_count": 0,
+    "domain": "bluffs.co",
+    "end_time_utc": "2026-07-07T19:51:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/mummz-com-710854313?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/bluffs-co-711057149?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 250.0
+    "price": 1.0
   },
   {
-    "bid_count": 46,
-    "domain": "pcr.org",
-    "end_time_utc": "2026-07-06T18:11:00+00:00",
+    "bid_count": 32,
+    "domain": "higher.org",
+    "end_time_utc": "2026-07-07T21:03:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/pcr-org-710697160?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/higher-org-710868259?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 760.0
-  },
-  {
-    "bid_count": 21,
-    "domain": "iered.org",
-    "end_time_utc": "2026-07-06T18:28:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/iered-org-710725968?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1524.0
-  },
-  {
-    "bid_count": 25,
-    "domain": "ucpu.com",
-    "end_time_utc": "2026-07-06T19:20:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/ucpu-com-710844134?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 226.0
-  },
-  {
-    "bid_count": 27,
-    "domain": "sahaba.com",
-    "end_time_utc": "2026-07-06T20:47:00+00:00",
-    "is_mub": true,
-    "link": "https://www.godaddy.com/domain-auctions/sahaba-com-709555328?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 479.0
-  },
-  {
-    "bid_count": 37,
-    "domain": "diagnosis.net",
-    "end_time_utc": "2026-07-06T20:56:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/diagnosis-net-710874358?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 987.0
-  },
-  {
-    "bid_count": 19,
-    "domain": "precious.io",
-    "end_time_utc": "2026-07-06T21:04:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/precious-io-709670904?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 680.0
+    "price": 1309.0
   }
 ]

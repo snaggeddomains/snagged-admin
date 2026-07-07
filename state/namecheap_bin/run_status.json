@@ -1,11 +1,11 @@
 {
-  "dropped_count": 1,
+  "dropped_count": 3,
   "fresh_added": 1,
-  "generated_at": "2026-07-06T09:03:41.873695+00:00",
+  "generated_at": "2026-07-07T09:03:07.963857+00:00",
   "label": "Namecheap",
   "new_count": 1,
-  "price_change_count": 0,
-  "sheet_total_after": 9,
+  "price_change_count": 1,
+  "sheet_total_after": 20,
   "slack_posted": true,
   "source": "namecheap_bin",
   "status": "ok"

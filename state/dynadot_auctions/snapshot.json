@@ -1,29 +1,20 @@
 [
   {
-    "bid_count": 13,
-    "domain": "packjet.com",
-    "end_time_utc": "2026-07-06T18:44:54+00:00",
+    "bid_count": 29,
+    "domain": "fayou.com",
+    "end_time_utc": "2026-07-07T13:29:57+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40687825.html",
+    "link": "https://www.dynadot.com/market/auction/40734071.html",
     "platform": "Dynadot",
-    "price": 36.0
+    "price": 191.36
   },
   {
-    "bid_count": 9,
-    "domain": "footfy.net",
-    "end_time_utc": "2026-07-06T20:00:00+00:00",
+    "bid_count": 0,
+    "domain": "wikipedia.io",
+    "end_time_utc": "2026-07-07T17:43:24+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40361478.html",
+    "link": "https://www.dynadot.com/market/auction/40721321.html",
     "platform": "Dynadot",
-    "price": 305.0
-  },
-  {
-    "bid_count": 12,
-    "domain": "elbow.net",
-    "end_time_utc": "2026-07-07T00:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40606558.html",
-    "platform": "Dynadot",
-    "price": 112.79
+    "price": 7.99
   }
 ]

@@ -1,62 +1,17 @@
 [
   {
-    "bid_count": 114,
-    "domain": "ombi.com",
-    "end_time_utc": "2026-07-06T18:59:36.197568+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Ombi.com",
-    "platform": "DropCatch",
-    "price": 2606.0
-  },
-  {
-    "bid_count": 24,
-    "domain": "wooop.com",
-    "end_time_utc": "2026-07-06T18:59:36.197568+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Wooop.com",
-    "platform": "DropCatch",
-    "price": 609.0
-  },
-  {
-    "bid_count": 38,
-    "domain": "innovatively.com",
-    "end_time_utc": "2026-07-06T18:59:36.197568+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Innovatively.com",
-    "platform": "DropCatch",
-    "price": 365.0
-  },
-  {
-    "bid_count": 14,
-    "domain": "hcoa.org",
-    "end_time_utc": "2026-07-06T18:59:36.197568+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/hcoa.org",
-    "platform": "DropCatch",
-    "price": 304.0
-  },
-  {
-    "bid_count": 26,
-    "domain": "factuals.com",
-    "end_time_utc": "2026-07-06T18:59:36.197568+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Factuals.com",
-    "platform": "DropCatch",
-    "price": 181.0
-  },
-  {
-    "bid_count": 62,
+    "bid_count": 65,
     "domain": "dommy.com",
-    "end_time_utc": "2026-07-08T18:59:36.197568+00:00",
+    "end_time_utc": "2026-07-08T18:59:27.817856+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Dommy.com",
     "platform": "DropCatch",
-    "price": 405.0
+    "price": 465.0
   },
   {
     "bid_count": 68,
     "domain": "fxnn.com",
-    "end_time_utc": "2026-07-08T18:59:36.197568+00:00",
+    "end_time_utc": "2026-07-08T18:59:27.817856+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Fxnn.com",
     "platform": "DropCatch",
@@ -65,7 +20,7 @@
   {
     "bid_count": 13,
     "domain": "gaxl.com",
-    "end_time_utc": "2026-07-09T18:59:36.197568+00:00",
+    "end_time_utc": "2026-07-09T18:59:27.817856+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Gaxl.com",
     "platform": "DropCatch",
