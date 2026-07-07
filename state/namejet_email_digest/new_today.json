@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-07T15:04:44.743324+00:00",
+  "count": 1,
+  "domains": [
+    "migrations.com"
+  ],
+  "generated_at": "2026-07-07T15:06:18.260910+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
