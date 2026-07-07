@@ -8,11 +8,107 @@
     "price": 14495.0
   },
   {
+    "domain": "raffled.com",
+    "price": null
+  },
+  {
+    "domain": "windgoo.com",
+    "price": 14950.0
+  },
+  {
+    "domain": "basebol.com",
+    "price": 8595.0
+  },
+  {
     "domain": "assoro.com",
     "price": 8495.0
   },
   {
-    "domain": "fulls.ai",
-    "price": 8888.0
+    "domain": "trekking.com",
+    "price": null
+  },
+  {
+    "domain": "yonges.com",
+    "price": 458.0
+  },
+  {
+    "domain": "unicam.com",
+    "price": 109995.0
+  },
+  {
+    "domain": "unidos.com",
+    "price": 199995.0
+  },
+  {
+    "domain": "gimmes.com",
+    "price": 13995.0
+  },
+  {
+    "domain": "hulkes.com",
+    "price": 830.0
+  },
+  {
+    "domain": "watpac.com",
+    "price": 3295.0
+  },
+  {
+    "domain": "winars.com",
+    "price": 17250.0
+  },
+  {
+    "domain": "saytel.com",
+    "price": 8595.0
+  },
+  {
+    "domain": "visionarys.com",
+    "price": 28995.0
+  },
+  {
+    "domain": "groupsurvey.com",
+    "price": 2995.0
+  },
+  {
+    "domain": "completions.com",
+    "price": 18095.0
+  },
+  {
+    "domain": "structurally.com",
+    "price": 12995.0
+  },
+  {
+    "domain": "wending.net",
+    "price": 1888.0
+  },
+  {
+    "domain": "xiaomei.net",
+    "price": 4485.0
+  },
+  {
+    "domain": "grinds.net",
+    "price": 9588.0
+  },
+  {
+    "domain": "yaming.net",
+    "price": 1000.0
+  },
+  {
+    "domain": "youre.net",
+    "price": 45995.0
+  },
+  {
+    "domain": "kannada.co",
+    "price": 1488.0
+  },
+  {
+    "domain": "prizes.co",
+    "price": null
+  },
+  {
+    "domain": "karen.co",
+    "price": 33995.0
+  },
+  {
+    "domain": "interoffice.net",
+    "price": 2388.0
   }
 ]

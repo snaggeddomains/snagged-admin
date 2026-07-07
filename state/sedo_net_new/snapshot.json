@@ -1,11 +1,65 @@
 [
   {
     "currency": "USD",
-    "domain": "selina.co",
-    "end_time_utc": "2026-07-07T00:32:53+00:00",
+    "domain": "whn.com",
+    "end_time_utc": "2026-07-07T18:30:21+00:00",
     "is_mub": false,
-    "price": 15000.0,
+    "price": 77408.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=whn.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "xyl.com",
+    "end_time_utc": "2026-07-07T16:35:06+00:00",
+    "is_mub": false,
+    "price": 379599.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=xyl.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "xgm.com",
+    "end_time_utc": "2026-07-07T17:33:40+00:00",
+    "is_mub": false,
+    "price": 145912.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=xgm.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "structurally.com",
+    "end_time_utc": "2026-07-07T17:09:19+00:00",
+    "is_mub": false,
+    "price": 12995.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=structurally.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "kannada.co",
+    "end_time_utc": "2026-07-07T13:22:14+00:00",
+    "is_mub": false,
+    "price": 1488.0,
     "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=selina.co"
+    "url": "https://sedo.com/search/details/?domain=kannada.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "prizes.co",
+    "end_time_utc": "2026-07-07T12:15:16+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=prizes.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "karen.co",
+    "end_time_utc": "2026-07-07T17:10:01+00:00",
+    "is_mub": false,
+    "price": 33995.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=karen.co"
   }
 ]

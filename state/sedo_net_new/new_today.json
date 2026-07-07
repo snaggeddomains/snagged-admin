@@ -1,8 +1,16 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-07T10:01:21.009536+00:00",
+  "count": 7,
+  "domains": [
+    "xyl.com",
+    "xgm.com",
+    "whn.com",
+    "karen.co",
+    "structurally.com",
+    "kannada.co",
+    "prizes.co"
+  ],
+  "generated_at": "2026-07-07T17:01:03.318014+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
