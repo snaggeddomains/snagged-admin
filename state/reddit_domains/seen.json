@@ -1,5 +1,5 @@
 {
-  "count": 11,
+  "count": 12,
   "domains": [
     "bar.com",
     "beverley.co",
@@ -11,8 +11,9 @@
     "raspy.ai",
     "saw.com",
     "simply.com",
-    "tilts.net"
+    "tilts.net",
+    "wordpress.com"
   ],
   "source": "reddit_domains",
-  "updated_at": "2026-07-07T10:00:47.076181+00:00"
+  "updated_at": "2026-07-07T17:01:55.968067+00:00"
 }
