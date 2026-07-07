@@ -1,12 +1,14 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 5,
   "domains": [
-    "701.xyz",
-    "alcohols.net",
-    "gaia.ai"
+    "85893.com",
+    "campaigning.io",
+    "geologist.app",
+    "interstellar.co",
+    "sheriff.co"
   ],
-  "generated_at": "2026-07-07T10:05:42.360755+00:00",
+  "generated_at": "2026-07-07T17:06:49.242213+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
