@@ -1,11 +1,8 @@
 {
   "capped": false,
-  "count": 2,
-  "domains": [
-    "frequent.co",
-    "selina.co"
-  ],
-  "generated_at": "2026-07-06T23:01:22.739564+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-07-07T10:01:21.009536+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
