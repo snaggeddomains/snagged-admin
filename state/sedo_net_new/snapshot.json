@@ -10,21 +10,21 @@
   },
   {
     "currency": "USD",
-    "domain": "xyl.com",
-    "end_time_utc": "2026-07-07T16:35:06+00:00",
-    "is_mub": false,
-    "price": 379599.0,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=xyl.com"
-  },
-  {
-    "currency": "USD",
     "domain": "xgm.com",
     "end_time_utc": "2026-07-07T17:33:40+00:00",
     "is_mub": false,
     "price": 145912.0,
     "tld": "com",
     "url": "https://sedo.com/search/details/?domain=xgm.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "xyl.com",
+    "end_time_utc": "2026-07-07T16:35:06+00:00",
+    "is_mub": false,
+    "price": 379599.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=xyl.com"
   },
   {
     "currency": "USD",
@@ -43,15 +43,6 @@
     "price": 1488.0,
     "tld": "co",
     "url": "https://sedo.com/search/details/?domain=kannada.co"
-  },
-  {
-    "currency": "USD",
-    "domain": "prizes.co",
-    "end_time_utc": "2026-07-07T12:15:16+00:00",
-    "is_mub": false,
-    "price": null,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=prizes.co"
   },
   {
     "currency": "USD",
