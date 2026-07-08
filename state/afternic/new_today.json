@@ -1,21 +1,12 @@
 {
   "capped": false,
-  "count": 12,
+  "count": 3,
   "domains": [
-    "passing.co",
-    "santo.co",
-    "colonial.io",
-    "survivors.io",
-    "leicester.io",
-    "theodore.co",
-    "howie.co",
-    "rashid.co",
-    "sheesh.co",
-    "implies.org",
-    "shrines.org",
-    "cloves.org"
+    "alleged.ai",
+    "acquaintances.org",
+    "diseases.co"
   ],
-  "generated_at": "2026-07-07T08:19:44.431484+00:00",
+  "generated_at": "2026-07-08T08:33:04.459188+00:00",
   "mub": [],
   "source": "afternic"
 }
