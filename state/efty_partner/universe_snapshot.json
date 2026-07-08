@@ -1,5 +1,17 @@
 [
   {
+    "domain": "securityagent.org",
+    "price": null
+  },
+  {
+    "domain": "beiying.com",
+    "price": null
+  },
+  {
+    "domain": "hancai.com",
+    "price": null
+  },
+  {
     "domain": "cainam.com",
     "price": null
   },
@@ -29,7 +41,7 @@
   },
   {
     "domain": "glowplump.com",
-    "price": 22888.0
+    "price": 14888.0
   },
   {
     "domain": "kiabet.com",
@@ -77209,87 +77221,87 @@
   },
   {
     "domain": "transportmesh.com",
-    "price": 4888.0
+    "price": 9888.0
   },
   {
     "domain": "irismesh.com",
-    "price": 4888.0
+    "price": 9888.0
   },
   {
     "domain": "jobsmesh.com",
-    "price": 4888.0
+    "price": 9888.0
   },
   {
     "domain": "seniormesh.com",
-    "price": 4888.0
+    "price": 9888.0
   },
   {
     "domain": "luxurymesh.com",
-    "price": 4888.0
+    "price": 9888.0
   },
   {
     "domain": "lightningmesh.com",
-    "price": 4888.0
+    "price": 9888.0
   },
   {
     "domain": "butterflymesh.com",
-    "price": 4888.0
+    "price": 9888.0
   },
   {
     "domain": "podcastmesh.com",
-    "price": 4888.0
+    "price": 9888.0
   },
   {
     "domain": "studentmesh.com",
-    "price": 4888.0
+    "price": 9888.0
   },
   {
     "domain": "oasismesh.com",
-    "price": 4888.0
+    "price": 9888.0
   },
   {
     "domain": "classicmesh.com",
-    "price": 4888.0
+    "price": 9888.0
   },
   {
     "domain": "patriotmesh.com",
-    "price": 4888.0
+    "price": 9888.0
   },
   {
     "domain": "pacificmesh.com",
-    "price": 4888.0
+    "price": 9888.0
   },
   {
     "domain": "inspiremesh.com",
-    "price": 4888.0
+    "price": 9888.0
   },
   {
     "domain": "suprememesh.com",
-    "price": 4888.0
+    "price": 9888.0
   },
   {
     "domain": "noblemesh.com",
-    "price": 4888.0
+    "price": 9888.0
   },
   {
     "domain": "empiremesh.com",
-    "price": 4888.0
+    "price": 9888.0
   },
   {
     "domain": "bloommesh.com",
-    "price": 4888.0
+    "price": 9888.0
   },
   {
     "domain": "tigermesh.com",
-    "price": 4888.0
+    "price": 9888.0
   },
   {
     "domain": "atlanticmesh.com",
-    "price": 4888.0
+    "price": 9888.0
   },
   {
     "domain": "gemmesh.com",
-    "price": 4888.0
+    "price": 9888.0
   },
   {
     "domain": "neatclothes.com",
@@ -77397,7 +77409,7 @@
   },
   {
     "domain": "trendsos.com",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "australiansex.com",
@@ -93001,15 +93013,15 @@
   },
   {
     "domain": "bitventure.co",
-    "price": 1888.0
+    "price": 1977.0
   },
   {
     "domain": "bitengine.co",
-    "price": 1888.0
+    "price": 1977.0
   },
   {
     "domain": "bitblocks.co",
-    "price": 1888.0
+    "price": 1977.0
   },
   {
     "domain": "bitboost.co",
@@ -93017,7 +93029,7 @@
   },
   {
     "domain": "bitblast.co",
-    "price": 1888.0
+    "price": 1977.0
   },
   {
     "domain": "bitnexus.co",
@@ -93029,15 +93041,15 @@
   },
   {
     "domain": "bitteam.co",
-    "price": 1888.0
+    "price": 1977.0
   },
   {
     "domain": "bitlive.co",
-    "price": 1888.0
+    "price": 1977.0
   },
   {
     "domain": "bitjoin.co",
-    "price": 1888.0
+    "price": 1977.0
   },
   {
     "domain": "imperialintel.com",
@@ -93265,431 +93277,431 @@
   },
   {
     "domain": "cryptocentral.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "endurancelab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "affiliatelab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "computerlabs.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "cryptogrowth.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "cryptomonkey.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "fitnesslabs.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "footballlab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "industrylab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "cleaninglab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "wirelesslab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "foundrylabs.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "cryptoclaim.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "rabbitlabs.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "momentslab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "threatlabs.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "therapylab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "rainbowlab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "polarislab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "staginglab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "numberlabs.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "historylab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "systemlabs.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "circuitlab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "spectralab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "geneticlab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "opticallab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "artisanlab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "personalab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "sharklabs.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "groovelab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "magnetlab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "cheeselab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "reformlab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "secondlab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "bunkerlab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "imagelabs.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "epochlabs.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "cinemalab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "cherrylab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "lambdalab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "laptoplab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "funnellab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "eaglelabs.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "campuslab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "breezelab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "delvelabs.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "junglelab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "trendslab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "escapelab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "cryptopal.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "formalab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "riverlab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "goldlabs.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "spinelab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "resinlab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "shoplabs.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "grainlab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "statelab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "goatlabs.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "toolslab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "speaklab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "boltlabs.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "excellab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "smashlab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "tutorlab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "intralab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "draftlab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "forexlab.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "gammalab.co",
     "price": 1977.0
   },
   {
-    "domain": "dresslab.co",
+    "domain": "endurancelab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "affiliatelab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "computerlabs.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "cryptogrowth.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "cryptomonkey.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "fitnesslabs.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "footballlab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "industrylab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "cleaninglab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "wirelesslab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "foundrylabs.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "cryptoclaim.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "rabbitlabs.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "momentslab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "threatlabs.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "therapylab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "rainbowlab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "polarislab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "staginglab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "numberlabs.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "historylab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "systemlabs.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "circuitlab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "spectralab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "geneticlab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "opticallab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "artisanlab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "personalab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "sharklabs.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "groovelab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "magnetlab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "cheeselab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "reformlab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "secondlab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "bunkerlab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "imagelabs.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "epochlabs.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "cinemalab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "cherrylab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "lambdalab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "laptoplab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "funnellab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "eaglelabs.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "campuslab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "breezelab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "delvelabs.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "junglelab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "trendslab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "escapelab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "cryptopal.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "formalab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "riverlab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "goldlabs.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "spinelab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "resinlab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "shoplabs.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "grainlab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "statelab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "goatlabs.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "toolslab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "speaklab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "boltlabs.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "excellab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "smashlab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "tutorlab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "intralab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "draftlab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "forexlab.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "gammalab.co",
     "price": 2888.0
+  },
+  {
+    "domain": "dresslab.co",
+    "price": 1977.0
   },
   {
     "domain": "fungilab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "snacklab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "unionlab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "halolab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "certlab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "antlabs.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "marilab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "masslab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "loanlab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "helplab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "gainlab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "gymlabs.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "celllab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "drumlab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "greylab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "hooklab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "roomlab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "endolab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "triplab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "bloglab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "matelab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "birdlab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "froglab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "langlab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "knowlab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "pielab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "leelab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "englab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "veglab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "spylab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "perlab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "diglab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "spalab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "owllab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "teelab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "minlab.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "simpleflow.ai",
@@ -100401,255 +100413,255 @@
   },
   {
     "domain": "themath.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "themoth.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "thecoup.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "themole.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "thepart.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "thedeer.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "thehike.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "thehoop.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "theraft.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "thepaws.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "thewebb.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "thedope.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "theverb.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "thesoil.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "thekite.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "theyeti.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "thenail.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "thedead.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "thedocs.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "theomni.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "theufo.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "thetec.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "theski.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "thejoe.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "thegps.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "thefed.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "thesum.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "factorygroup.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "instantgroup.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "biotechgroup.co",
-    "price": 1977.0
+    "price": 2888.0
   },
   {
     "domain": "awesomegroup.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "friendsgroup.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "emergegroup.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "methodgroup.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "assistgroup.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "threegroup.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "scopegroup.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "novelgroup.co",
-    "price": 2888.0
-  },
-  {
-    "domain": "skillgroup.co",
     "price": 1977.0
   },
   {
-    "domain": "stagegroup.co",
+    "domain": "friendsgroup.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "emergegroup.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "methodgroup.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "assistgroup.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "threegroup.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "scopegroup.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "novelgroup.co",
+    "price": 1977.0
+  },
+  {
+    "domain": "skillgroup.co",
     "price": 2888.0
+  },
+  {
+    "domain": "stagegroup.co",
+    "price": 1977.0
   },
   {
     "domain": "twinsgroup.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "sharegroup.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "buddygroup.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "chaosgroup.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "touchgroup.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "wishgroup.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "onlygroup.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "stemgroup.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "bankgroup.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "voyagerai.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "iotgroup.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "vangroup.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "owngroup.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "botgroup.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "astralai.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "bunchai.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "brassai.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "metalai.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "camelai.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "pitchai.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "aistem.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "aidapp.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "ainets.co",
-    "price": 2888.0
+    "price": 1977.0
   },
   {
     "domain": "dronesmagic.com",
@@ -114829,10 +114841,6 @@
   },
   {
     "domain": "theeth.com",
-    "price": null
-  },
-  {
-    "domain": "symphony.co",
     "price": null
   },
   {
@@ -252940,10 +252948,6 @@
     "price": null
   },
   {
-    "domain": "staycollection.com",
-    "price": null
-  },
-  {
     "domain": "kingsbite.com",
     "price": null
   },
@@ -292289,7 +292293,7 @@
   },
   {
     "domain": "indiantours.com",
-    "price": 10000.0
+    "price": 15000.0
   },
   {
     "domain": "helloitaly.com",
@@ -297185,7 +297189,7 @@
   },
   {
     "domain": "finesites.com",
-    "price": null
+    "price": 2500.0
   },
   {
     "domain": "findinghotels.com",
@@ -313905,7 +313909,7 @@
   },
   {
     "domain": "bitlend.co",
-    "price": 1888.0
+    "price": 1977.0
   },
   {
     "domain": "bitfix.co",

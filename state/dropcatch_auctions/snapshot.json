@@ -1,26 +1,35 @@
 [
   {
-    "bid_count": 65,
+    "bid_count": 78,
     "domain": "dommy.com",
-    "end_time_utc": "2026-07-08T18:59:27.817856+00:00",
+    "end_time_utc": "2026-07-08T18:59:47.388273+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Dommy.com",
     "platform": "DropCatch",
-    "price": 465.0
+    "price": 1300.0
   },
   {
-    "bid_count": 68,
+    "bid_count": 70,
     "domain": "fxnn.com",
-    "end_time_utc": "2026-07-08T18:59:27.817856+00:00",
+    "end_time_utc": "2026-07-08T18:59:47.388273+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Fxnn.com",
     "platform": "DropCatch",
-    "price": 342.0
+    "price": 362.0
+  },
+  {
+    "bid_count": 9,
+    "domain": "onfield.net",
+    "end_time_utc": "2026-07-08T18:59:47.388273+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/onfield.net",
+    "platform": "DropCatch",
+    "price": 110.0
   },
   {
     "bid_count": 13,
     "domain": "gaxl.com",
-    "end_time_utc": "2026-07-09T18:59:27.817856+00:00",
+    "end_time_utc": "2026-07-09T18:59:47.388273+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Gaxl.com",
     "platform": "DropCatch",

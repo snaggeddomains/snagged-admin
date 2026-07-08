@@ -1,11 +1,14 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 5,
   "domains": [
-    "fayou.com",
-    "wikipedia.io"
+    "voguely.com",
+    "ayrshire.co",
+    "catwoman.co",
+    "crying.co",
+    "ligand.co"
   ],
-  "generated_at": "2026-07-07T09:40:21.028467+00:00",
+  "generated_at": "2026-07-08T09:41:39.618086+00:00",
   "mub": [],
   "source": "dynadot_auctions"
 }
