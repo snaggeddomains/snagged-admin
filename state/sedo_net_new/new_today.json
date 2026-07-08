@@ -1,8 +1,15 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-07T23:01:04.687340+00:00",
+  "count": 6,
+  "domains": [
+    "aap.com",
+    "assad.com",
+    "eventful.co",
+    "categorize.co",
+    "conclave.co",
+    "fleetwood.co"
+  ],
+  "generated_at": "2026-07-08T10:01:16.662104+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }

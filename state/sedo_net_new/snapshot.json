@@ -1,56 +1,56 @@
 [
   {
     "currency": "USD",
-    "domain": "whn.com",
-    "end_time_utc": "2026-07-07T18:30:21+00:00",
+    "domain": "assad.com",
+    "end_time_utc": "2026-07-08T02:40:50+00:00",
     "is_mub": false,
-    "price": 77408.0,
+    "price": 203728.0,
     "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=whn.com"
+    "url": "https://sedo.com/search/details/?domain=assad.com"
   },
   {
     "currency": "USD",
-    "domain": "xgm.com",
-    "end_time_utc": "2026-07-07T17:33:40+00:00",
+    "domain": "aap.com",
+    "end_time_utc": "2026-07-08T02:16:12+00:00",
     "is_mub": false,
-    "price": 145912.0,
+    "price": 1139199.0,
     "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=xgm.com"
+    "url": "https://sedo.com/search/details/?domain=aap.com"
   },
   {
     "currency": "USD",
-    "domain": "xyl.com",
-    "end_time_utc": "2026-07-07T16:35:06+00:00",
+    "domain": "conclave.co",
+    "end_time_utc": "2026-07-08T03:45:33+00:00",
     "is_mub": false,
-    "price": 379599.0,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=xyl.com"
-  },
-  {
-    "currency": "USD",
-    "domain": "structurally.com",
-    "end_time_utc": "2026-07-07T17:09:19+00:00",
-    "is_mub": false,
-    "price": 12995.0,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=structurally.com"
-  },
-  {
-    "currency": "USD",
-    "domain": "kannada.co",
-    "end_time_utc": "2026-07-07T13:22:14+00:00",
-    "is_mub": false,
-    "price": 1488.0,
+    "price": 7765.0,
     "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=kannada.co"
+    "url": "https://sedo.com/search/details/?domain=conclave.co"
   },
   {
     "currency": "USD",
-    "domain": "karen.co",
-    "end_time_utc": "2026-07-07T17:10:01+00:00",
+    "domain": "eventful.co",
+    "end_time_utc": "2026-07-08T04:42:37+00:00",
     "is_mub": false,
-    "price": 33995.0,
+    "price": 25583.0,
     "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=karen.co"
+    "url": "https://sedo.com/search/details/?domain=eventful.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "fleetwood.co",
+    "end_time_utc": "2026-07-08T06:06:15+00:00",
+    "is_mub": false,
+    "price": 495.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=fleetwood.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "categorize.co",
+    "end_time_utc": "2026-07-08T03:25:00+00:00",
+    "is_mub": false,
+    "price": 12855.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=categorize.co"
   }
 ]
