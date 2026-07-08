@@ -1,6 +1,7 @@
 {
-  "count": 12,
+  "count": 13,
   "domains": [
+    "appraise.net",
     "bar.com",
     "beverley.co",
     "dominion.com",
@@ -15,5 +16,5 @@
     "wordpress.com"
   ],
   "source": "reddit_domains",
-  "updated_at": "2026-07-08T17:01:32.346130+00:00"
+  "updated_at": "2026-07-08T23:00:51.103101+00:00"
 }

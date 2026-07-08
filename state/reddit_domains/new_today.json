@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-08T17:01:32.345578+00:00",
+  "count": 1,
+  "domains": [
+    "appraise.net"
+  ],
+  "generated_at": "2026-07-08T23:00:50.970041+00:00",
   "mub": [],
   "source": "reddit_domains"
 }
