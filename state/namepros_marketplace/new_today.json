@@ -1,14 +1,13 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 4,
   "domains": [
-    "85893.com",
-    "campaigning.io",
-    "geologist.app",
-    "interstellar.co",
-    "sheriff.co"
+    "413.ai",
+    "dedicate.co",
+    "meagan.ai",
+    "slings.ai"
   ],
-  "generated_at": "2026-07-07T17:06:49.242213+00:00",
+  "generated_at": "2026-07-08T10:06:33.072992+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
