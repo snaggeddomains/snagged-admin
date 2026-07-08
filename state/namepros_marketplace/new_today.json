@@ -1,15 +1,14 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 5,
   "domains": [
-    "062.ai",
-    "093.co",
-    "hipster.xyz",
-    "sack.co",
-    "silence.co",
-    "starc.net"
+    "allegiance.co",
+    "dragonfly.co",
+    "greatness.co",
+    "peasant.com",
+    "semantics.co"
   ],
-  "generated_at": "2026-07-08T17:07:42.874017+00:00",
+  "generated_at": "2026-07-08T23:05:36.191259+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
