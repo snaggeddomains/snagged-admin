@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-08T15:11:50.831910+00:00",
+  "count": 1,
+  "domains": [
+    "adjustments.org"
+  ],
+  "generated_at": "2026-07-08T15:12:58.945751+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
