@@ -1,56 +1,74 @@
 [
   {
     "currency": "USD",
-    "domain": "assad.com",
-    "end_time_utc": "2026-07-08T02:40:50+00:00",
+    "domain": "aditya.com",
+    "end_time_utc": "2026-07-08T15:59:22+00:00",
     "is_mub": false,
-    "price": 203728.0,
+    "price": 500000.0,
     "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=assad.com"
+    "url": "https://sedo.com/search/details/?domain=aditya.com"
   },
   {
     "currency": "USD",
-    "domain": "aap.com",
-    "end_time_utc": "2026-07-08T02:16:12+00:00",
+    "domain": "pulled.com",
+    "end_time_utc": "2026-07-08T16:00:55+00:00",
     "is_mub": false,
-    "price": 1139199.0,
+    "price": 100000.0,
     "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=aap.com"
+    "url": "https://sedo.com/search/details/?domain=pulled.com"
   },
   {
     "currency": "USD",
-    "domain": "conclave.co",
-    "end_time_utc": "2026-07-08T03:45:33+00:00",
+    "domain": "sarkar.com",
+    "end_time_utc": "2026-07-08T16:00:55+00:00",
     "is_mub": false,
-    "price": 7765.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=conclave.co"
+    "price": 100000.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=sarkar.com"
   },
   {
     "currency": "USD",
-    "domain": "eventful.co",
-    "end_time_utc": "2026-07-08T04:42:37+00:00",
+    "domain": "delicate.ai",
+    "end_time_utc": "2026-07-08T16:01:07+00:00",
     "is_mub": false,
-    "price": 25583.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=eventful.co"
+    "price": 149999.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=delicate.ai"
+  },
+  {
+    "currency": "GBP",
+    "domain": "committed.ai",
+    "end_time_utc": "2026-07-08T15:19:23+00:00",
+    "is_mub": false,
+    "price": 250000.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=committed.ai"
   },
   {
     "currency": "USD",
-    "domain": "fleetwood.co",
-    "end_time_utc": "2026-07-08T06:06:15+00:00",
+    "domain": "mae.com",
+    "end_time_utc": "2026-07-08T16:00:55+00:00",
     "is_mub": false,
-    "price": 495.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=fleetwood.co"
+    "price": 3500000.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=mae.com"
   },
   {
-    "currency": "USD",
-    "domain": "categorize.co",
-    "end_time_utc": "2026-07-08T03:25:00+00:00",
+    "currency": "GBP",
+    "domain": "standpoint.ai",
+    "end_time_utc": "2026-07-08T15:19:25+00:00",
     "is_mub": false,
-    "price": 12855.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=categorize.co"
+    "price": 150000.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=standpoint.ai"
+  },
+  {
+    "currency": "GBP",
+    "domain": "inherently.ai",
+    "end_time_utc": "2026-07-08T15:19:16+00:00",
+    "is_mub": false,
+    "price": 300000.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=inherently.ai"
   }
 ]
