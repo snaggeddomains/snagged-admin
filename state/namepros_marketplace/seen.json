@@ -1,8 +1,10 @@
 {
-  "count": 346,
+  "count": 352,
   "domains": [
+    "062.ai",
     "067.xyz",
     "082.xyz",
+    "093.co",
     "12335.com",
     "12360.com",
     "1882.org",
@@ -150,6 +152,7 @@
     "halves.co",
     "happening.co",
     "hello.com",
+    "hipster.xyz",
     "hobbies.io",
     "holley.org",
     "holodeck.io",
@@ -276,6 +279,7 @@
     "robo.com",
     "sable.co",
     "sabotage.co",
+    "sack.co",
     "safe.com",
     "salford.org",
     "schedule.org",
@@ -290,6 +294,7 @@
     "sich.xyz",
     "sidearm.xyz",
     "signals.co",
+    "silence.co",
     "silkworm.xyz",
     "sinuses.org",
     "sitting.ai",
@@ -304,6 +309,7 @@
     "sophisticated.net",
     "spoof.xyz",
     "spur.co",
+    "starc.net",
     "stirrup.net",
     "stonehenge.vc",
     "strength.com",
@@ -349,5 +355,5 @@
     "zhejiang.tv"
   ],
   "source": "namepros_marketplace",
-  "updated_at": "2026-07-08T10:06:33.422800+00:00"
+  "updated_at": "2026-07-08T17:07:43.104476+00:00"
 }

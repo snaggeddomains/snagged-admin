@@ -1,13 +1,15 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 6,
   "domains": [
-    "413.ai",
-    "dedicate.co",
-    "meagan.ai",
-    "slings.ai"
+    "062.ai",
+    "093.co",
+    "hipster.xyz",
+    "sack.co",
+    "silence.co",
+    "starc.net"
   ],
-  "generated_at": "2026-07-08T10:06:33.072992+00:00",
+  "generated_at": "2026-07-08T17:07:42.874017+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
