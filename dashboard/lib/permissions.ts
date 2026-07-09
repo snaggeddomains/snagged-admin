@@ -40,6 +40,7 @@ export const MODULES = [
   "research.whois", // Whois — basic free RDAP/WHOIS domain lookup
   "research.evaluate", // SNAP Eval — should-we-buy-it acquisition/resale scorecard
   "research.portfolio", // Corporate Portfolios — reverse-WHOIS a company → its premium domains (lives in Reports)
+  "research.person", // Person — social-URL deep dive: identity, cross-platform VIP, contacts
 ] as const;
 export type ModuleKey = (typeof MODULES)[number];
 
@@ -123,6 +124,7 @@ export const RESEARCH_TABS: { href: string; label: string; perm: ModuleKey | Act
   { href: "/research/dbsearch", label: "Domain Name Search", perm: "research.dbsearch" },
   { href: "/research/nameserver", label: "Nameserver Search", perm: "research.nameserver" },
   { href: "/research/sales", label: "Sales Research", perm: "research.sales" },
+  { href: "/research/person", label: "Person (deep dive)", perm: "research.person" },
   { href: "/research/beeper", label: "Beeper (drop watch)", perm: "research.beeper" },
   { href: "/research/whois", label: "Whois (domain lookup)", perm: "research.whois" },
 ];
@@ -202,6 +204,7 @@ export const CATALOG: CatalogEntry[] = [
   { key: "research.dbsearch", label: "Domain Name Search", group: "Research", kind: "module" },
   { key: "research.nameserver", label: "Nameserver Search", group: "Research", kind: "module" },
   { key: "research.sales", label: "Sales Research", group: "Research", kind: "module" },
+  { key: "research.person", label: "Person (deep dive)", group: "Research", kind: "module" },
   { key: "research.beeper", label: "Beeper (drop watch)", group: "Research", kind: "module" },
   { key: "research.whois", label: "Whois (domain lookup)", group: "Research", kind: "module" },
   { key: "research.portfolio", label: "Corporate Portfolios", group: "Reports", kind: "module" },
