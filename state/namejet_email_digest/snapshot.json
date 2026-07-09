@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "domain": "prone.org",
+    "end_time_utc": "2026-07-09T09:15:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namejet.com/domain/prone.org.action",
+    "platform": "NameJet",
+    "price": 79.0
+  }
+]
