@@ -101,6 +101,7 @@ export default function ImportsClient({
     if (!canReplace && mode !== "merge") setMode("merge");
   }, [canReplace, mode]);
   const [text, setText] = useState("");
+  const [sameOwner, setSameOwner] = useState("");
   const [busy, setBusy] = useState(false);
   const [log, setLog] = useState<string[]>([]);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
@@ -183,10 +184,21 @@ export default function ImportsClient({
     return data;
   }
 
+  // Parse the input, then apply the "Owner for all" field as the fallback owner for
+  // any row that didn't carry its own — so you can paste bare domains (one per line)
+  // and set the owner once instead of repeating it on every row. A per-row owner
+  // (from a CSV owner column) still wins over the blanket value.
+  function buildRows(): Row[] {
+    const o = sameOwner.trim();
+    const raw = parseRows(text);
+    if (!o) return raw;
+    return raw.map((r) => ({ ...r, owner: r.owner && String(r.owner).trim() ? r.owner : o }));
+  }
+
   async function onPreview() {
     const src = source.trim();
     if (!src) { add("⚠️ Enter a source name first."); return; }
-    const rows = parseRows(text);
+    const rows = buildRows();
     if (!rows.length) { add("⚠️ No valid domains found in the input."); return; }
     setPreviewing(true);
     setPreview(null);
@@ -221,14 +233,15 @@ export default function ImportsClient({
   async function run() {
     const src = source.trim();
     if (!src) { add("⚠️ Enter a source name first."); return; }
-    const rows = parseRows(text);
+    const rows = buildRows();
     if (!rows.length) { add("⚠️ No valid domains found in the input."); return; }
 
-    // Owner is required on Master — every domain must carry an owner.
+    // Owner is required on Master — every domain must carry an owner (from its own
+    // row OR the "Owner for all" field).
     if (target === "master") {
       const missing = rows.filter((r) => !r.owner || !String(r.owner).trim()).length;
       if (missing) {
-        add(`⚠️ Owner is required — ${missing.toLocaleString()} of ${rows.length.toLocaleString()} row(s) have no owner. Add an owner for every domain and re-upload.`);
+        add(`⚠️ Owner is required — ${missing.toLocaleString()} of ${rows.length.toLocaleString()} row(s) have no owner. Fill the "Owner for all" field, or add an owner column, and re-upload.`);
         return;
       }
     }
@@ -417,7 +430,7 @@ export default function ImportsClient({
         </div>
         <p className="muted" style={{ marginTop: 6, marginBottom: 2, fontSize: 14.5 }}>
           {target === "master"
-            ? <>Upload a CSV or paste. Columns: <b>domain</b> (required), <b>owner</b> (required), <b>price</b> (optional). Headers are auto-detected and ignored.</>
+            ? <>Upload a CSV or paste. Columns: <b>domain</b> (required), <b>owner</b> (required — or set it once in <b>Owner for all</b> below), <b>price</b> (optional). Headers are auto-detected and ignored.</>
             : <>Upload a CSV or paste. Columns: <b>domain</b> (required), <b>price</b> (optional). Headers are auto-detected and ignored.</>}
         </p>
         <p className="muted" style={{ marginTop: 0, fontSize: 13 }}>
@@ -498,6 +511,25 @@ export default function ImportsClient({
               </p>
             )}
           </div>
+
+          {/* OWNER FOR ALL — set the owner once, paste bare domains */}
+          {target === "master" && (
+            <div>
+              <FieldLabel>Owner for all rows</FieldLabel>
+              <input
+                className="field"
+                placeholder="e.g. Acme Holdings — applied to every row without its own owner"
+                value={sameOwner}
+                autoComplete="off"
+                onChange={(e) => { setSameOwner(e.target.value); setPreview(null); }}
+                style={{ maxWidth: 420, width: "100%" }}
+              />
+              <p className="muted" style={{ fontSize: 12.5, marginTop: 6, marginBottom: 0 }}>
+                Type the owner once and paste just domains (one per line) — no need for an owner column.
+                A per-row owner in the CSV still wins.
+              </p>
+            </div>
+          )}
 
           {/* SOURCE */}
           <div>
