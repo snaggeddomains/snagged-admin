@@ -1,74 +1,20 @@
 [
   {
-    "currency": "USD",
-    "domain": "aditya.com",
-    "end_time_utc": "2026-07-08T15:59:22+00:00",
+    "currency": "EUR",
+    "domain": "ives.ai",
+    "end_time_utc": "2026-07-09T11:45:16+00:00",
     "is_mub": false,
-    "price": 500000.0,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=aditya.com"
-  },
-  {
-    "currency": "USD",
-    "domain": "pulled.com",
-    "end_time_utc": "2026-07-08T16:00:55+00:00",
-    "is_mub": false,
-    "price": 100000.0,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=pulled.com"
-  },
-  {
-    "currency": "USD",
-    "domain": "sarkar.com",
-    "end_time_utc": "2026-07-08T16:00:55+00:00",
-    "is_mub": false,
-    "price": 100000.0,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=sarkar.com"
-  },
-  {
-    "currency": "USD",
-    "domain": "delicate.ai",
-    "end_time_utc": "2026-07-08T16:01:07+00:00",
-    "is_mub": false,
-    "price": 149999.0,
+    "price": 2500000.0,
     "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=delicate.ai"
-  },
-  {
-    "currency": "GBP",
-    "domain": "committed.ai",
-    "end_time_utc": "2026-07-08T15:19:23+00:00",
-    "is_mub": false,
-    "price": 250000.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=committed.ai"
+    "url": "https://sedo.com/search/details/?domain=ives.ai"
   },
   {
     "currency": "USD",
-    "domain": "mae.com",
-    "end_time_utc": "2026-07-08T16:00:55+00:00",
+    "domain": "rebekah.co",
+    "end_time_utc": "2026-07-09T11:15:19+00:00",
     "is_mub": false,
-    "price": 3500000.0,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=mae.com"
-  },
-  {
-    "currency": "GBP",
-    "domain": "standpoint.ai",
-    "end_time_utc": "2026-07-08T15:19:25+00:00",
-    "is_mub": false,
-    "price": 150000.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=standpoint.ai"
-  },
-  {
-    "currency": "GBP",
-    "domain": "inherently.ai",
-    "end_time_utc": "2026-07-08T15:19:16+00:00",
-    "is_mub": false,
-    "price": 300000.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=inherently.ai"
+    "price": 1988.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=rebekah.co"
   }
 ]
