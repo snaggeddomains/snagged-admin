@@ -2,9 +2,9 @@
   "capped": false,
   "count": 1,
   "domains": [
-    "adjustments.org"
+    "prone.org"
   ],
-  "generated_at": "2026-07-08T15:12:58.945751+00:00",
+  "generated_at": "2026-07-09T15:07:36.890684+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
