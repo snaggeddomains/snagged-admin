@@ -119,8 +119,11 @@ export default function ImportsClient({
   // writes to the UNIVERSE; anything else is a manual owner list → Master. This stops
   // a marketplace feed from being mis-imported into Master (which is what happened to
   // brandbucket) — the corpus follows the source automatically.
+  // Universe routing is gated on the Replace-mode permission (admin.imports.replace) —
+  // writing to the automated name_universe corpus is a power-user action. Without it,
+  // everything routes to Master (the prior behavior).
   const srcKey = source.trim().toLowerCase();
-  const isUniverseSource = !!srcKey && sourcesUniverse.some((s) => s.toLowerCase() === srcKey);
+  const isUniverseSource = canReplace && !!srcKey && sourcesUniverse.some((s) => s.toLowerCase() === srcKey);
   const target: Target = isUniverseSource ? "universe" : "master";
   // Typeahead suggests BOTH corpora's known sources so either can be picked.
   const knownSources = [...new Set([...sourcesUniverse, ...sourcesMaster])].sort((a, b) => a.localeCompare(b));
