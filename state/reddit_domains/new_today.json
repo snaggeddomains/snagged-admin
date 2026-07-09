@@ -1,8 +1,12 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-09T10:00:43.834554+00:00",
+  "count": 3,
+  "domains": [
+    "dot.com",
+    "gulls.net",
+    "wa.me"
+  ],
+  "generated_at": "2026-07-09T17:01:05.801055+00:00",
   "mub": [],
   "source": "reddit_domains"
 }
