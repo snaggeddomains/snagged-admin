@@ -1,14 +1,13 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 4,
   "domains": [
-    "allegiance.co",
-    "dragonfly.co",
-    "greatness.co",
-    "peasant.com",
-    "semantics.co"
+    "consecutive.co",
+    "freemason.now",
+    "optimum.sh",
+    "refinery.now"
   ],
-  "generated_at": "2026-07-08T23:05:36.191259+00:00",
+  "generated_at": "2026-07-09T10:12:25.117599+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
