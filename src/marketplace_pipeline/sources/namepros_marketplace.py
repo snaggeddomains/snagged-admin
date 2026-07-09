@@ -476,11 +476,16 @@ def _embedded_in_phrase(text: str, start: int) -> bool:
 
 
 def slack_line(domain: str, price: int | None, url: str | None) -> str:
-    """A Slack mrkdwn bullet that links the domain to its actual listing post/page.
-    A leading ✨ marks a MUB (Made-Up Brandable) name (scripts/brandables/PROFILE.md)."""
+    """A Slack mrkdwn bullet: the domain (Slack auto-links it to the live site) +
+    a separate hyperlink to the actual NamePros listing. When we captured the exact
+    thread URL it deep-links to the post; otherwise it falls back to a Google
+    site:namepros.com search that reliably lands on the thread. A leading ✨ marks a
+    MUB (Made-Up Brandable) name (scripts/brandables/PROFILE.md)."""
     from ..filters import mub
-    label = f"<{url}|{domain}>" if url else domain
-    return f"• {mub.mub_mark(domain)}{label}" + (f" — ${price:,}" if price else "")
+    price_str = f" — ${price:,}" if price else ""
+    post_url = url or SEARCH_URL.format(q=domain)
+    post_label = "NamePros post" if url else "find on NamePros"
+    return f"• {mub.mub_mark(domain)}{domain}{price_str}  ·  <{post_url}|{post_label}>"
 
 
 SEEN_FILE = "seen.json"      # cumulative set of domains ever surfaced (net-new gating)
