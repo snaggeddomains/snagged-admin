@@ -431,10 +431,15 @@ they re-qualify. (Auto-enrich on import does NOT retry-failed — only the manua
 The import-log `import_ts` is now always stamped (the client passes it to the `log` action;
 the route falls back to `now()`) — it was NULL before, so net-new scoping leaned on `created_at`.
 
-- **Master-only UI — there is NO corpus picker.** The tool always imports to the Master
-  Domain List; `admin.imports` alone is the gate (Universe is no longer a separate
-  permission or a UI choice — the decision was removed). The universe code path remains
-  server-side (`route.ts` still accepts `target=universe`) but the UI never sends it.
+- **Corpus is AUTO-ROUTED by source (2026-07-09).** There's no manual corpus toggle;
+  the target is DERIVED from the source name — a recognized universe/marketplace feed
+  (in `sourcesUniverse` = `sources.yaml` registry + `UNIVERSE_EXTRA_SOURCES` incl.
+  brandbucket + universe-logged names) → `target=universe`; anything else → `master`.
+  A "→ Writes to the Name Universe / Master Domain List" indicator shows under the
+  source field so it's unmistakable. This fixed the class of bug where brandbucket got
+  imported into Master (owner became a mis-parsed date). Owner-required + the "Owner for
+  all" field only apply when it resolves to Master. The server always supported
+  `target=universe`; only the client hard-pinned master before.
   - `admin.imports.replace` — without it the **Mode toggle is hidden** (always Merge) and
     the explainer drops the Merge/Replace step. The API 403s the `finalize-replace` action.
 - **Owner is REQUIRED on Master** (`domain` required · `owner` required · `price` optional;

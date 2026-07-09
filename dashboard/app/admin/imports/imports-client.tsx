@@ -89,10 +89,6 @@ export default function ImportsClient({
   masterReady: boolean;
   canReplace: boolean;
 }) {
-  // Master-only tool: admin.imports alone covers it; there's no corpus picker
-  // (the universe code path stays server-side, but the UI never targets it, so
-  // target is fixed to "master" — no setter exposed).
-  const [target] = useState<Target>("master");
   const [source, setSource] = useState("");
   const [mode, setMode] = useState<Mode>("merge");
   // Replace is a destructive, permission-gated mode. Without it, imports always
@@ -118,9 +114,16 @@ export default function ImportsClient({
   const [confirmReplace, setConfirmReplace] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Suggestions for the active target only — Universe shows pipeline/registry
-  // names, Master shows its own curated owner-sheet sources.
-  const knownSources = target === "universe" ? sourcesUniverse : sourcesMaster;
+  // Target is DERIVED from the source, not a manual toggle. A recognized universe /
+  // marketplace feed (brandbucket, afternic, sedo, atom, the sources.yaml registry…)
+  // writes to the UNIVERSE; anything else is a manual owner list → Master. This stops
+  // a marketplace feed from being mis-imported into Master (which is what happened to
+  // brandbucket) — the corpus follows the source automatically.
+  const srcKey = source.trim().toLowerCase();
+  const isUniverseSource = !!srcKey && sourcesUniverse.some((s) => s.toLowerCase() === srcKey);
+  const target: Target = isUniverseSource ? "universe" : "master";
+  // Typeahead suggests BOTH corpora's known sources so either can be picked.
+  const knownSources = [...new Set([...sourcesUniverse, ...sourcesMaster])].sort((a, b) => a.localeCompare(b));
 
   const add = (line: string) => setLog((l) => [...l, line]);
 
@@ -550,6 +553,16 @@ export default function ImportsClient({
               </datalist>
             </div>
             <SourceHint source={source} known={knownSources} onPick={(s) => { setSource(s); setPreview(null); }} />
+            {source.trim() && (
+              <p style={{ fontSize: 13, marginTop: 8, marginBottom: 0, fontWeight: 600, color: isUniverseSource ? "#2f7d92" : "#a5623a" }}>
+                → Writes to the {isUniverseSource ? "Name Universe" : "Master Domain List"} table
+                <span style={{ fontWeight: 400, color: "var(--muted, #8a7f76)" }}>
+                  {isUniverseSource
+                    ? " — a recognized marketplace / pipeline feed (no owner needed)."
+                    : " — a manual owner list (owner required)."}
+                </span>
+              </p>
+            )}
           </div>
 
           {/* MODE — Replace is destructive + permission-gated; hidden otherwise (always Merge). */}
