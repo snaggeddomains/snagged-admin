@@ -1,5 +1,122 @@
 [
   {
+    "currency": "USD",
+    "domain": "editing.com",
+    "end_time_utc": "2026-07-09T16:12:40+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=editing.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "dispose.com",
+    "end_time_utc": "2026-07-09T16:12:21+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=dispose.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "femoral.com",
+    "end_time_utc": "2026-07-09T16:13:57+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=femoral.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "thrust.com",
+    "end_time_utc": "2026-07-09T17:04:28+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=thrust.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "complain.com",
+    "end_time_utc": "2026-07-09T16:12:43+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=complain.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "chadwick.com",
+    "end_time_utc": "2026-07-09T18:23:11+00:00",
+    "is_mub": false,
+    "price": 100000.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=chadwick.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "topped.com",
+    "end_time_utc": "2026-07-09T17:04:27+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=topped.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "spoil.com",
+    "end_time_utc": "2026-07-09T16:12:40+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=spoil.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "mongolian.com",
+    "end_time_utc": "2026-07-09T17:04:27+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=mongolian.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "profanity.com",
+    "end_time_utc": "2026-07-09T16:12:36+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=profanity.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "occurrence.com",
+    "end_time_utc": "2026-07-09T16:13:05+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=occurrence.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "bronchitis.com",
+    "end_time_utc": "2026-07-09T16:12:37+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=bronchitis.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "contradict.com",
+    "end_time_utc": "2026-07-09T17:04:27+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=contradict.com"
+  },
+  {
     "currency": "EUR",
     "domain": "ives.ai",
     "end_time_utc": "2026-07-09T11:45:16+00:00",
@@ -7,6 +124,15 @@
     "price": 2500000.0,
     "tld": "ai",
     "url": "https://sedo.com/search/details/?domain=ives.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "bureaucratic.com",
+    "end_time_utc": "2026-07-09T16:12:52+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=bureaucratic.com"
   },
   {
     "currency": "USD",

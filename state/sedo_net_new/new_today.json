@@ -1,11 +1,23 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 14,
   "domains": [
-    "ives.ai",
-    "rebekah.co"
+    "chadwick.com",
+    "topped.com",
+    "thrust.com",
+    "spoil.com",
+    "profanity.com",
+    "occurrence.com",
+    "mongolian.com",
+    "femoral.com",
+    "editing.com",
+    "dispose.com",
+    "contradict.com",
+    "complain.com",
+    "bureaucratic.com",
+    "bronchitis.com"
   ],
-  "generated_at": "2026-07-09T10:07:11.014130+00:00",
+  "generated_at": "2026-07-09T17:00:39.776262+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
