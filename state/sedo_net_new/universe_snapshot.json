@@ -4,6 +4,10 @@
     "price": null
   },
   {
+    "domain": "jackdaw.com",
+    "price": 295000.0
+  },
+  {
     "domain": "langyan.com",
     "price": 5708.0
   },
@@ -22,6 +26,10 @@
   {
     "domain": "nedman.com",
     "price": 1249.0
+  },
+  {
+    "domain": "junliang.com",
+    "price": 14950.0
   },
   {
     "domain": "loomiz.com",
@@ -44,6 +52,18 @@
     "price": 100000.0
   },
   {
+    "domain": "imaxshow.com",
+    "price": 368.0
+  },
+  {
+    "domain": "topped.com",
+    "price": null
+  },
+  {
+    "domain": "laycocks.com",
+    "price": 1875.0
+  },
+  {
     "domain": "mmapro.com",
     "price": 6712.0
   },
@@ -52,11 +72,7 @@
     "price": null
   },
   {
-    "domain": "laycocks.com",
-    "price": 1875.0
-  },
-  {
-    "domain": "topped.com",
+    "domain": "countered.com",
     "price": null
   },
   {
@@ -65,10 +81,6 @@
   },
   {
     "domain": "clustered.com",
-    "price": null
-  },
-  {
-    "domain": "countered.com",
     "price": null
   },
   {
@@ -92,20 +104,16 @@
     "price": null
   },
   {
+    "domain": "contradict.com",
+    "price": null
+  },
+  {
     "domain": "occurrence.com",
     "price": null
   },
   {
     "domain": "bronchitis.com",
     "price": null
-  },
-  {
-    "domain": "contradict.com",
-    "price": null
-  },
-  {
-    "domain": "decodirect.com",
-    "price": 15395.0
   },
   {
     "domain": "lightsdecor.com",
@@ -116,43 +124,27 @@
     "price": 458.0
   },
   {
-    "domain": "ives.ai",
-    "price": 2500000.0
-  },
-  {
     "domain": "bureaucratic.com",
     "price": null
   },
   {
-    "domain": "slowing.net",
-    "price": 250.0
+    "domain": "ext.ai",
+    "price": 125000.0
   },
   {
-    "domain": "relays.net",
-    "price": 15743.0
-  },
-  {
-    "domain": "ashore.net",
-    "price": 3895.0
-  },
-  {
-    "domain": "afternoons.net",
-    "price": 1895.0
+    "domain": "bounded.net",
+    "price": 4495.0
   },
   {
     "domain": "rang.net",
     "price": 4048.0
   },
   {
-    "domain": "rebekah.co",
-    "price": 1988.0
-  },
-  {
-    "domain": "eliana.co",
-    "price": 1988.0
-  },
-  {
     "domain": "freenode.co",
     "price": 5995.0
+  },
+  {
+    "domain": "accompanied.net",
+    "price": 4095.0
   }
 ]
