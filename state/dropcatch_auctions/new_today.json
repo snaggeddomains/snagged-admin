@@ -1,13 +1,12 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 3,
   "domains": [
-    "dommy.com",
-    "fxnn.com",
-    "onfield.net",
-    "gaxl.com"
+    "piata.net",
+    "mariane.com",
+    "yoxn.com"
   ],
-  "generated_at": "2026-07-08T09:41:48.311404+00:00",
+  "generated_at": "2026-07-09T09:44:37.619523+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }

@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-07-08T09:29:01.903639+00:00",
+  "generated_at": "2026-07-09T09:31:59.475703+00:00",
   "label": "Oxley",
   "new_count": 0,
-  "raw_count": 1459,
+  "raw_count": 1461,
   "source": "oxley",
   "status": "ok",
   "supabase_status": "ok",
-  "universe_count": 750
+  "universe_count": 752
 }

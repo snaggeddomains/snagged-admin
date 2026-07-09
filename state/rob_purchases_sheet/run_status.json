@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-07-08T09:21:21.049845+00:00",
+  "generated_at": "2026-07-09T09:24:34.502240+00:00",
   "label": "Rob Purchases (sheet)",
   "new_count": 0,
-  "raw_count": 67,
+  "raw_count": 65,
   "source": "rob_purchases_sheet",
   "status": "ok",
   "supabase_status": "ok",
-  "universe_count": 23
+  "universe_count": 22
 }

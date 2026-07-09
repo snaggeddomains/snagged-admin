@@ -1,38 +1,38 @@
 [
   {
-    "bid_count": 78,
-    "domain": "dommy.com",
-    "end_time_utc": "2026-07-08T18:59:47.388273+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Dommy.com",
-    "platform": "DropCatch",
-    "price": 1300.0
-  },
-  {
-    "bid_count": 70,
-    "domain": "fxnn.com",
-    "end_time_utc": "2026-07-08T18:59:47.388273+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Fxnn.com",
-    "platform": "DropCatch",
-    "price": 362.0
-  },
-  {
-    "bid_count": 9,
-    "domain": "onfield.net",
-    "end_time_utc": "2026-07-08T18:59:47.388273+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/onfield.net",
-    "platform": "DropCatch",
-    "price": 110.0
-  },
-  {
     "bid_count": 13,
     "domain": "gaxl.com",
-    "end_time_utc": "2026-07-09T18:59:47.388273+00:00",
+    "end_time_utc": "2026-07-09T18:59:36.649774+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Gaxl.com",
     "platform": "DropCatch",
     "price": 174.0
+  },
+  {
+    "bid_count": 11,
+    "domain": "piata.net",
+    "end_time_utc": "2026-07-09T18:59:36.649774+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/piata.net",
+    "platform": "DropCatch",
+    "price": 114.0
+  },
+  {
+    "bid_count": 30,
+    "domain": "mariane.com",
+    "end_time_utc": "2026-07-10T18:59:36.649774+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/MariaNE.com",
+    "platform": "DropCatch",
+    "price": 132.0
+  },
+  {
+    "bid_count": 12,
+    "domain": "yoxn.com",
+    "end_time_utc": "2026-07-13T18:59:36.649774+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Yoxn.com",
+    "platform": "DropCatch",
+    "price": 114.0
   }
 ]

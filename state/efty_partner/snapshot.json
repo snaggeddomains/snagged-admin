@@ -1486,6 +1486,17 @@
   },
   {
     "deal_score": 45700.0,
+    "domain": "prefer.com",
+    "is_mub": false,
+    "link": "https://efty.com/d/3emzs/prefer.com/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
+    "price": 1.0,
+    "quality_score": 4.57,
+    "sld": "prefer",
+    "tld": ".com",
+    "zipf_score": 4.57
+  },
+  {
+    "deal_score": 45700.0,
     "domain": "permanent.com",
     "is_mub": false,
     "link": "https://efty.com/d/3bg98/permanent.com/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
@@ -2737,16 +2748,5 @@
     "sld": "appreciate",
     "tld": ".ai",
     "zipf_score": 4.74
-  },
-  {
-    "deal_score": 42600.0,
-    "domain": "breathe.com",
-    "is_mub": false,
-    "link": "https://efty.com/d/34o7z/breathe.com/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
-    "price": 1.0,
-    "quality_score": 4.26,
-    "sld": "breathe",
-    "tld": ".com",
-    "zipf_score": 4.26
   }
 ]
