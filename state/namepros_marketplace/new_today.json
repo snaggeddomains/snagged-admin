@@ -1,13 +1,15 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 6,
   "domains": [
-    "consecutive.co",
-    "freemason.now",
-    "optimum.sh",
-    "refinery.now"
+    "asexual.ai",
+    "gassy.ai",
+    "putting.ai",
+    "risking.ai",
+    "timid.ai",
+    "uncountable.ai"
   ],
-  "generated_at": "2026-07-09T10:12:25.117599+00:00",
+  "generated_at": "2026-07-09T17:06:15.750959+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
