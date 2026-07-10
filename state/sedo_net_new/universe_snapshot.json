@@ -12,8 +12,16 @@
     "price": 2450.0
   },
   {
+    "domain": "grandest.com",
+    "price": 28879.0
+  },
+  {
     "domain": "padang.com",
     "price": 17500.0
+  },
+  {
+    "domain": "steall.com",
+    "price": 685.0
   },
   {
     "domain": "balang.com",
@@ -24,12 +32,12 @@
     "price": 88800.0
   },
   {
-    "domain": "steall.com",
-    "price": 685.0
-  },
-  {
     "domain": "japaneses.com",
     "price": 595.0
+  },
+  {
+    "domain": "greenjohn.com",
+    "price": 1618.0
   },
   {
     "domain": "hawkstones.com",
@@ -44,16 +52,8 @@
     "price": 3500.0
   },
   {
-    "domain": "opengov.net",
-    "price": 2395.0
-  },
-  {
-    "domain": "turning.net",
-    "price": 1500.0
-  },
-  {
-    "domain": "lanark.net",
-    "price": null
+    "domain": "grubhub.net",
+    "price": 2465.0
   },
   {
     "domain": "wisata.net",
@@ -64,91 +64,11 @@
     "price": 2740.0
   },
   {
-    "domain": "redress.co",
-    "price": 34888.0
+    "domain": "finalized.net",
+    "price": 2795.0
   },
   {
-    "domain": "sirens.co",
-    "price": 34888.0
-  },
-  {
-    "domain": "chaplain.co",
-    "price": 34888.0
-  },
-  {
-    "domain": "louisa.co",
-    "price": 34888.0
-  },
-  {
-    "domain": "porthole.co",
-    "price": 6388.0
-  },
-  {
-    "domain": "morbid.co",
-    "price": 2988.0
-  },
-  {
-    "domain": "sharia.co",
-    "price": 34888.0
-  },
-  {
-    "domain": "delusion.co",
-    "price": 29888.0
-  },
-  {
-    "domain": "nudes.co",
-    "price": 49888.0
-  },
-  {
-    "domain": "fictional.co",
-    "price": 6388.0
-  },
-  {
-    "domain": "noose.co",
-    "price": 19888.0
-  },
-  {
-    "domain": "ought.co",
-    "price": 9915.0
-  },
-  {
-    "domain": "ants.co",
-    "price": 49888.0
-  },
-  {
-    "domain": "niki.co",
-    "price": 79888.0
-  },
-  {
-    "domain": "shia.co",
-    "price": 34888.0
-  },
-  {
-    "domain": "olga.co",
-    "price": 89888.0
-  },
-  {
-    "domain": "klan.co",
-    "price": 34888.0
-  },
-  {
-    "domain": "minh.co",
-    "price": 34888.0
-  },
-  {
-    "domain": "asks.co",
-    "price": 27888.0
-  },
-  {
-    "domain": "distinguish.co",
-    "price": 4988.0
-  },
-  {
-    "domain": "achievements.co",
-    "price": 6388.0
-  },
-  {
-    "domain": "enterprising.co",
-    "price": 34888.0
+    "domain": "lifeterm.co",
+    "price": 16995.0
   }
 ]
