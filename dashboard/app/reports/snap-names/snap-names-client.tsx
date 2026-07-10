@@ -511,7 +511,7 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
         <div style={{ display: "flex", gap: 8 }}>
           {canWrite && (
             <button
-              onClick={() => { setUpdateMode((v) => !v); setSelected(new Set()); setPreview(null); setApplyResult(null); }}
+              onClick={() => { const entering = !updateMode; setUpdateMode(entering); setPreview(null); setApplyResult(null); if (!entering) setSelected(new Set()); }}
               style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid " + (updateMode ? "#2f2f45" : "#d5d5e0"), background: updateMode ? "#2f2f45" : "#fff", color: updateMode ? "#fff" : "#44445a", cursor: "pointer", fontSize: 13, fontWeight: 600 }}
             >
               {updateMode ? "✕ Exit updates" : "⚙ Updates"}
@@ -690,11 +690,9 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
         <table style={{ borderCollapse: "collapse", width: "100%", minWidth: 1100 }}>
           <thead>
             <tr>
-              {updateMode && (
-                <th style={{ ...th, cursor: "default", width: 34 }}>
-                  <input type="checkbox" checked={allShownSelected} onChange={toggleSelectAll} title="Select all shown" />
-                </th>
-              )}
+              <th style={{ ...th, cursor: "default", width: 34 }}>
+                <input type="checkbox" checked={allShownSelected} onChange={toggleSelectAll} title="Select all shown" />
+              </th>
               <th style={th} onClick={() => setSort("domain")}>Domain{arrow("domain")}</th>
               <th style={th} onClick={() => setSort("source")}>Source{arrow("source")}</th>
               <th style={th} onClick={() => setSort("tld")}>TLD{arrow("tld")}</th>
@@ -729,12 +727,10 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
               const shipPrice = l?.spaceship_price ?? null;
               const shipSub = !l?.spaceship_price && l?.spaceship_min_offer ? `min ${usd(l.spaceship_min_offer)}` : null;
               return (
-                <tr key={`${r.domain}-${i}`} style={updateMode && selected.has(r.domain) ? { background: "#f2f7f4" } : undefined}>
-                  {updateMode && (
-                    <td style={{ ...td, textAlign: "center" }}>
-                      <input type="checkbox" checked={selected.has(r.domain)} onChange={() => toggleRow(r.domain)} />
-                    </td>
-                  )}
+                <tr key={`${r.domain}-${i}`} style={selected.has(r.domain) ? { background: "#f2f7f4" } : undefined}>
+                  <td style={{ ...td, textAlign: "center" }}>
+                    <input type="checkbox" checked={selected.has(r.domain)} onChange={() => toggleRow(r.domain)} />
+                  </td>
                   <td style={{ ...td, fontWeight: 600 }} title={[r.notes, r.also_spellings?.length ? `also spelled: ${r.also_spellings.join(", ")}` : ""].filter(Boolean).join(" · ") || undefined}>
                     {r.domain}
                     {r.also_spellings?.length ? <span style={{ marginLeft: 5, fontSize: 11, color: "#b98a3a", cursor: "help" }} title={`typo variant folded in: ${r.also_spellings.join(", ")}`}>±</span> : null}
@@ -791,7 +787,7 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
                 </tr>
               );
             })}
-            {!loading && !filtered.length && <tr><td style={{ ...td, textAlign: "center", color: "#6b6b7b" }} colSpan={updateMode ? 15 : 14}>{showArchived ? "No archived names." : "No names match."}</td></tr>}
+            {!loading && !filtered.length && <tr><td style={{ ...td, textAlign: "center", color: "#6b6b7b" }} colSpan={15}>{showArchived ? "No archived names." : "No names match."}</td></tr>}
           </tbody>
         </table>
       </div>
