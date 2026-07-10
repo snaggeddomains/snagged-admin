@@ -298,7 +298,12 @@ export default function SnapNamesClient() {
   const s = report?.summary;
 
   return (
-    <main style={{ maxWidth: "min(1800px, 97vw)", margin: "0 auto", padding: "0 4px" }}>
+    <main
+      // Break out of the app shell's centered .wrap (max-width ~1180px) so the wide
+      // table can use the full browser width. left:50% + translateX(-50%) re-centers
+      // an element wider than its parent onto the viewport center.
+      style={{ position: "relative", left: "50%", transform: "translateX(-50%)", width: "min(1800px, 94vw)", padding: "0 4px" }}
+    >
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
         <div>
           <h1 style={{ fontSize: "1.4rem", margin: 0 }}>SNAP Names</h1>
