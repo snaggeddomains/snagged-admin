@@ -1,8 +1,11 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-09T09:04:37.213710+00:00",
+  "count": 2,
+  "domains": [
+    "shirts.ai",
+    "prints.ai"
+  ],
+  "generated_at": "2026-07-10T09:02:50.901146+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

@@ -1,38 +1,38 @@
 [
   {
-    "bid_count": 13,
-    "domain": "gaxl.com",
-    "end_time_utc": "2026-07-09T18:59:36.649774+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Gaxl.com",
-    "platform": "DropCatch",
-    "price": 174.0
-  },
-  {
-    "bid_count": 11,
-    "domain": "piata.net",
-    "end_time_utc": "2026-07-09T18:59:36.649774+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/piata.net",
-    "platform": "DropCatch",
-    "price": 114.0
-  },
-  {
-    "bid_count": 30,
+    "bid_count": 34,
     "domain": "mariane.com",
-    "end_time_utc": "2026-07-10T18:59:36.649774+00:00",
+    "end_time_utc": "2026-07-10T18:59:27.651031+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/MariaNE.com",
     "platform": "DropCatch",
-    "price": 132.0
+    "price": 300.0
   },
   {
-    "bid_count": 12,
+    "bid_count": 28,
+    "domain": "prematurity.org",
+    "end_time_utc": "2026-07-13T18:59:27.651031+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Prematurity.org",
+    "platform": "DropCatch",
+    "price": 447.0
+  },
+  {
+    "bid_count": 13,
     "domain": "yoxn.com",
-    "end_time_utc": "2026-07-13T18:59:36.649774+00:00",
+    "end_time_utc": "2026-07-13T18:59:27.651031+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Yoxn.com",
     "platform": "DropCatch",
-    "price": 114.0
+    "price": 124.0
+  },
+  {
+    "bid_count": 107,
+    "domain": "xlan.com",
+    "end_time_utc": "2026-07-14T18:59:27.651031+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Xlan.com",
+    "platform": "DropCatch",
+    "price": 3100.0
   }
 ]

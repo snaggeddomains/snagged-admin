@@ -1,17 +1,15 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 4,
   "domains": [
-    "vulcano.org",
-    "chainx.org",
-    "hydrochlorothiazide.com",
-    "monarchs.co",
-    "cersei.com",
-    "weirdly.org"
+    "5693.com",
+    "grime.co",
+    "zora.net",
+    "fojb.com"
   ],
-  "generated_at": "2026-07-09T09:45:19.136082+00:00",
+  "generated_at": "2026-07-10T09:40:08.835472+00:00",
   "mub": [
-    "monarchs.co"
+    "zora.net"
   ],
   "source": "godaddy_auctions"
 }

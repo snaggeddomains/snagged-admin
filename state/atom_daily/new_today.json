@@ -1,17 +1,15 @@
 {
   "capped": false,
-  "count": 8,
+  "count": 6,
   "domains": [
-    "sunset.ai",
-    "decency.com",
-    "saga.ai",
-    "haste.com",
-    "vogel.ai",
-    "statutory.co",
-    "diehard.ai",
-    "fond.org"
+    "operational.com",
+    "medical.io",
+    "therapy.io",
+    "spector.com",
+    "devotee.ai",
+    "peach.org"
   ],
-  "generated_at": "2026-07-09T09:24:29.147454+00:00",
+  "generated_at": "2026-07-10T09:21:35.947328+00:00",
   "mub": [],
   "source": "atom_daily"
 }

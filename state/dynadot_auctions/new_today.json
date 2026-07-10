@@ -1,19 +1,12 @@
 {
   "capped": false,
-  "count": 10,
+  "count": 3,
   "domains": [
-    "carepd.com",
-    "mmsk.com",
-    "sykej.com",
-    "landegd.com",
-    "mekong.co",
-    "baines.co",
-    "hertfordshire.co",
-    "yemeni.co",
-    "environments.io",
-    "qporn.org"
+    "onqs.com",
+    "finals.io",
+    "jurisprudence.co"
   ],
-  "generated_at": "2026-07-09T09:44:28.459458+00:00",
+  "generated_at": "2026-07-10T09:39:20.337026+00:00",
   "mub": [],
   "source": "dynadot_auctions"
 }

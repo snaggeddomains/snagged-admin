@@ -1,56 +1,38 @@
 [
   {
-    "bid_count": 9,
-    "domain": "vulcano.org",
-    "end_time_utc": "2026-07-09T16:25:00+00:00",
+    "bid_count": 66,
+    "domain": "5693.com",
+    "end_time_utc": "2026-07-10T17:30:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/vulcano-org-711172028?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/5693-com-711404428?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 128.0
-  },
-  {
-    "bid_count": 30,
-    "domain": "chainx.org",
-    "end_time_utc": "2026-07-09T16:35:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/chainx-org-711176545?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 225.0
-  },
-  {
-    "bid_count": 10,
-    "domain": "hydrochlorothiazide.com",
-    "end_time_utc": "2026-07-09T17:14:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/hydrochlorothiazide-com-711234576?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 41.0
+    "price": 7400.0
   },
   {
     "bid_count": 0,
-    "domain": "monarchs.co",
-    "end_time_utc": "2026-07-09T18:38:00+00:00",
+    "domain": "grime.co",
+    "end_time_utc": "2026-07-10T17:52:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/grime-co-710821646?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 1.0
+  },
+  {
+    "bid_count": 14,
+    "domain": "zora.net",
+    "end_time_utc": "2026-07-10T19:06:00+00:00",
     "is_mub": true,
-    "link": "https://www.godaddy.com/domain-auctions/monarchs-co-711263032?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/zora-net-711444126?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 1.0
+    "price": 103.0
   },
   {
-    "bid_count": 0,
-    "domain": "cersei.com",
-    "end_time_utc": "2026-07-09T21:03:00+00:00",
+    "bid_count": 5,
+    "domain": "fojb.com",
+    "end_time_utc": "2026-07-10T20:18:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/cersei-com-710805238?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/fojb-com-711445741?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 1.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "weirdly.org",
-    "end_time_utc": "2026-07-09T21:29:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/weirdly-org-711147244?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1.0
+    "price": 73.0
   }
 ]

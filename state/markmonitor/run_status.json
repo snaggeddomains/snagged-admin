@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-07-09T09:32:07.118176+00:00",
+  "generated_at": "2026-07-10T09:27:13.254208+00:00",
   "label": "MarkMonitor",
   "new_count": 0,
-  "raw_count": 620,
+  "raw_count": 619,
   "source": "markmonitor",
   "status": "ok",
   "supabase_status": "ok",
