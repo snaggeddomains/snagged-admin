@@ -41,6 +41,15 @@ type Summary = {
   generatedAt: string;
 };
 type Report = { rows: SnapName[]; summary: Summary };
+
+// Quick-pick templates for the bulk-update actions (the 99% cases).
+const NS_PRESETS: [string, string][] = [
+  ["Spaceship", "launch1.spaceship.net, launch2.spaceship.net"],
+  ["Snagged / Cloudflare", "ns1.snagged.com, ns2.snagged.com"],
+];
+const DNS_PRESETS: { label: string; type: string; host: string; value: string; ttl: string }[] = [
+  { label: "Afternic verification", type: "TXT", host: "@", value: "afternic-verification-WU7jP5iV3jvptNS8rbH3MT", ttl: "3600" },
+];
 type Live = {
   registrar: string | null;
   nameservers: string[];
@@ -558,7 +567,14 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
               <option value="dns">Set a DNS record</option>
             </select>
             {bulkAction === "nameservers" ? (
-              <input value={nsTarget} onChange={(e) => setNsTarget(e.target.value)} placeholder="ns1.example.com, ns2.example.com" style={{ padding: "7px 10px", borderRadius: 8, border: "1px solid #d5d5e0", fontSize: 13, minWidth: 320, flex: "1 1 320px" }} />
+              <>
+                <input value={nsTarget} onChange={(e) => setNsTarget(e.target.value)} placeholder="ns1.example.com, ns2.example.com" style={{ padding: "7px 10px", borderRadius: 8, border: "1px solid #d5d5e0", fontSize: 13, minWidth: 280, flex: "1 1 280px" }} />
+                {NS_PRESETS.map(([label, val]) => (
+                  <button key={label} type="button" onClick={() => { setNsTarget(val); setPreview(null); }} title={val} style={{ padding: "6px 10px", borderRadius: 999, border: "1px solid #cdd7cf", background: "#eef3ee", color: "#2f6d47", cursor: "pointer", fontSize: 12, fontWeight: 600, whiteSpace: "nowrap" }}>
+                    → {label}
+                  </button>
+                ))}
+              </>
             ) : bulkAction === "ns_default" ? (
               <span className="muted" style={{ fontSize: 12.5, flex: "1 1 auto" }}>Each name is set to <strong>its own registrar&apos;s</strong> default nameservers (Porkbun / Spaceship / Dynadot / NameSilo / Namecheap). GoDaddy is skipped — it assigns a per-domain pair.</span>
             ) : (
@@ -569,6 +585,11 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
                 <input value={dnsRec.host} onChange={(e) => setDnsRec({ ...dnsRec, host: e.target.value })} placeholder="host (@)" style={{ width: 90, padding: "7px 8px", borderRadius: 8, border: "1px solid #d5d5e0", fontSize: 13 }} />
                 <input value={dnsRec.value} onChange={(e) => setDnsRec({ ...dnsRec, value: e.target.value })} placeholder="value" style={{ minWidth: 200, flex: "1 1 200px", padding: "7px 8px", borderRadius: 8, border: "1px solid #d5d5e0", fontSize: 13 }} />
                 <input value={dnsRec.ttl} onChange={(e) => setDnsRec({ ...dnsRec, ttl: e.target.value })} placeholder="ttl" style={{ width: 70, padding: "7px 8px", borderRadius: 8, border: "1px solid #d5d5e0", fontSize: 13 }} />
+                {DNS_PRESETS.map((p) => (
+                  <button key={p.label} type="button" onClick={() => { setDnsRec({ type: p.type, host: p.host, value: p.value, ttl: p.ttl }); setPreview(null); }} title={`${p.type} ${p.host} = ${p.value}`} style={{ padding: "6px 10px", borderRadius: 999, border: "1px solid #cdd7cf", background: "#eef3ee", color: "#2f6d47", cursor: "pointer", fontSize: 12, fontWeight: 600, whiteSpace: "nowrap" }}>
+                    → {p.label}
+                  </button>
+                ))}
               </span>
             )}
             <button onClick={runPreview} disabled={!selected.size || previewing} style={{ padding: "8px 16px", borderRadius: 8, border: "none", background: "#2f7d4f", color: "#fff", cursor: selected.size ? "pointer" : "default", fontSize: 13, fontWeight: 600, opacity: selected.size ? 1 : 0.5 }}>
