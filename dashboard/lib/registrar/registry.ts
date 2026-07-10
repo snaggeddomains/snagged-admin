@@ -41,7 +41,8 @@ export const PROVIDERS: Record<ProviderId, Provider> = {
     label: "Dynadot",
     canNS: true,
     canDNS: true,
-    hasKeys: (e) => !!(e.DYNADOT_API_KEY),
+    // Dynadot's RESTful API signs each request with the secret, so both are needed.
+    hasKeys: (e) => !!(e.DYNADOT_API_KEY && (e.DYNADOT_API_SECRET || e.DYNADOT_SECRET_KEY)),
   },
   namesilo: {
     id: "namesilo",
