@@ -36,12 +36,17 @@ export function godaddyAccounts(e: NodeJS.ProcessEnv): GodaddyAccount[] {
   if (!out.length && e.GODADDY_API_KEY && e.GODADDY_API_SECRET) out.push({ account: "default", key: e.GODADDY_API_KEY, secret: e.GODADDY_API_SECRET });
   return out;
 }
+// For Namecheap the ApiUser and UserName are the same login username, so either
+// NAMECHEAP_USERNAME_* or NAMECHEAP_API_USER_* supplies both.
 export interface NamecheapAccount { account: "berserk" | "rob" | "default"; apiUser: string; apiKey: string; username: string; }
 export function namecheapAccounts(e: NodeJS.ProcessEnv): NamecheapAccount[] {
   const out: NamecheapAccount[] = [];
-  if (e.NAMECHEAP_API_KEY_BERSERK && e.NAMECHEAP_API_USER_BERSERK) out.push({ account: "berserk", apiKey: e.NAMECHEAP_API_KEY_BERSERK, apiUser: e.NAMECHEAP_API_USER_BERSERK, username: e.NAMECHEAP_USERNAME_BERSERK || e.NAMECHEAP_API_USER_BERSERK });
-  if (e.NAMECHEAP_API_KEY_ROB && e.NAMECHEAP_API_USER_ROB) out.push({ account: "rob", apiKey: e.NAMECHEAP_API_KEY_ROB, apiUser: e.NAMECHEAP_API_USER_ROB, username: e.NAMECHEAP_USERNAME_ROB || e.NAMECHEAP_API_USER_ROB });
-  if (!out.length && e.NAMECHEAP_API_KEY && e.NAMECHEAP_API_USER) out.push({ account: "default", apiKey: e.NAMECHEAP_API_KEY, apiUser: e.NAMECHEAP_API_USER, username: e.NAMECHEAP_USERNAME || e.NAMECHEAP_API_USER });
+  const userB = e.NAMECHEAP_USERNAME_BERSERK || e.NAMECHEAP_API_USER_BERSERK;
+  const userR = e.NAMECHEAP_USERNAME_ROB || e.NAMECHEAP_API_USER_ROB;
+  const userD = e.NAMECHEAP_USERNAME || e.NAMECHEAP_API_USER;
+  if (e.NAMECHEAP_API_KEY_BERSERK && userB) out.push({ account: "berserk", apiKey: e.NAMECHEAP_API_KEY_BERSERK, apiUser: userB, username: userB });
+  if (e.NAMECHEAP_API_KEY_ROB && userR) out.push({ account: "rob", apiKey: e.NAMECHEAP_API_KEY_ROB, apiUser: userR, username: userR });
+  if (!out.length && e.NAMECHEAP_API_KEY && userD) out.push({ account: "default", apiKey: e.NAMECHEAP_API_KEY, apiUser: userD, username: userD });
   return out;
 }
 
@@ -93,8 +98,8 @@ export const PROVIDERS: Record<ProviderId, Provider> = {
     canNS: true,
     canDNS: true,
     // Two accounts possible AND Namecheap requires an IP-allowlisted static egress —
-    // so "wired" also needs a proxy configured.
-    hasKeys: (e) => namecheapAccounts(e).length > 0 && !!e.NAMECHEAP_PROXY_URL,
+    // so "wired" also needs a static-IP proxy (Fixie) + a whitelisted ClientIp.
+    hasKeys: (e) => namecheapAccounts(e).length > 0 && !!(e.FIXIE_URL || e.NAMECHEAP_PROXY_URL) && !!e.NAMECHEAP_CLIENT_IP,
   },
 };
 
