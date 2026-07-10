@@ -7,7 +7,7 @@
 // SAFETY: these mutate real production domains. Callers must gate on the write
 // permission + explicit confirm, and log every attempt (see lib/snap-writes.ts).
 
-import { createHmac, randomUUID } from "node:crypto";
+import { createHmac } from "node:crypto";
 import { ProxyAgent, fetch as undiciFetch } from "undici";
 import { godaddyAccounts, namecheapAccounts, type ProviderId } from "./registry";
 
@@ -85,12 +85,19 @@ async function spaceshipSetNs(domain: string, ns: string[], e: NodeJS.ProcessEnv
 }
 
 // ── NameSilo (key-in-URL GET; success code 300) ─────────────────────────────
+// NameSilo IP-allowlists API access. Vercel egress IPs rotate, so route through the
+// Fixie static IPs (whitelisted in NameSilo's API Manager) when configured.
+async function namesiloFetch(url: string, e: NodeJS.ProcessEnv): Promise<Response> {
+  const dispatcher = namecheapDispatcher(e); // reuses FIXIE_URL
+  if (dispatcher) return undiciFetch(url, { dispatcher, signal: AbortSignal.timeout(15000) }) as unknown as Promise<Response>;
+  return timedFetch(url, { method: "GET" });
+}
 async function namesiloSetNs(domain: string, ns: string[], e: NodeJS.ProcessEnv): Promise<WriteResult> {
   const key = e.NAMESILO_API_KEY || "";
   const params = new URLSearchParams({ version: "1", type: "json", key, domain });
   ns.slice(0, 13).forEach((n, i) => params.set(`ns${i + 1}`, n));
   try {
-    const res = await timedFetch(`https://www.namesilo.com/api/changeNameServers?${params.toString()}`, { method: "GET" });
+    const res = await namesiloFetch(`https://www.namesilo.com/api/changeNameServers?${params.toString()}`, e);
     const j = await res.json().catch(() => ({}));
     const code = j?.reply?.code;
     if (String(code) === "300") return { ok: true };
@@ -339,7 +346,7 @@ async function namesiloSetDns(domain: string, rec: DnsRecordInput, e: NodeJS.Pro
     rrtype: rec.type, rrhost: rec.host === "@" ? "" : rec.host, rrvalue: rec.value, rrttl: String(Math.max(3600, rec.ttl || 3600)),
   });
   try {
-    const res = await timedFetch(`https://www.namesilo.com/api/dnsAddRecord?${params.toString()}`, { method: "GET" });
+    const res = await namesiloFetch(`https://www.namesilo.com/api/dnsAddRecord?${params.toString()}`, e);
     const j = (await res.json().catch(() => ({}))) as { reply?: { code?: string | number; detail?: string } };
     if (String(j?.reply?.code) === "300") return { ok: true };
     return { ok: false, error: j?.reply?.detail || `NameSilo code ${j?.reply?.code ?? res.status}` };
@@ -350,11 +357,15 @@ async function namesiloSetDns(domain: string, rec: DnsRecordInput, e: NodeJS.Pro
 
 // ── Dynadot (RESTful v2 — Bearer key + HMAC-SHA256 X-Signature) ──────────────
 // Auth: Authorization: Bearer <apiKey>, plus X-Signature = base64(HMAC-SHA256(secret,
-// `${apiKey}\n${pathAndQuery}\n${requestId}\n${body}`)). requestId is sent as the
-// X-Request-Id header and MUST match what's signed. Docs:
-// https://www.dynadot.com/domain/api-document (v2.0.0).
+// `${apiKey}\n${pathAndQuery}\n${requestId}\n${body}`)). The requestId slot is signed
+// as EMPTY (the spec's "or ''" branch) and no X-Request-Id header is sent — sending a
+// random id that Dynadot doesn't read back caused a signature mismatch ("requires
+// X-Signature to process"). Docs: https://www.dynadot.com/domain/api-document (v2.0.0).
 function dynadotCreds(e: NodeJS.ProcessEnv) {
   return { key: e.DYNADOT_API_KEY || "", secret: e.DYNADOT_API_SECRET || e.DYNADOT_SECRET_KEY || "" };
+}
+export function dynadotSignature(key: string, secret: string, path: string, body: string): string {
+  return createHmac("sha256", secret).update(`${key}\n${path}\n\n${body}`).digest("base64");
 }
 async function dynadotRequest(
   method: "PUT" | "POST",
@@ -365,9 +376,7 @@ async function dynadotRequest(
   const { key, secret } = dynadotCreds(e);
   if (!key || !secret) return { ok: false, error: "Dynadot key/secret not configured" };
   const body = JSON.stringify(bodyObj);
-  const requestId = randomUUID();
-  const toSign = `${key}\n${path}\n${requestId}\n${body}`;
-  const sig = createHmac("sha256", secret).update(toSign).digest("base64");
+  const sig = dynadotSignature(key, secret, path, body);
   try {
     const res = await timedFetch(`https://api.dynadot.com${path}`, {
       method,
@@ -375,7 +384,6 @@ async function dynadotRequest(
         Authorization: `Bearer ${key}`,
         "Content-Type": "application/json",
         "X-Signature": sig,
-        "X-Request-Id": requestId,
       },
       body,
     });

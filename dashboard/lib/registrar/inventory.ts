@@ -9,10 +9,9 @@
 // (GoDaddy, Namecheap) are listed per account. The whole snapshot is cached (see
 // lib/snap-inventory.ts) because a rebuild is a burst of paginated API calls.
 
-import { createHmac, randomUUID } from "node:crypto";
 import { fetch as undiciFetch } from "undici";
 import { godaddyAccounts, namecheapAccounts, type ProviderId } from "./registry";
-import { namecheapDispatcher } from "./adapters";
+import { namecheapDispatcher, dynadotSignature } from "./adapters";
 
 export interface DomainRecord {
   domain: string; // lowercased
@@ -103,11 +102,10 @@ async function dynadotInventory(e: NodeJS.ProcessEnv): Promise<AccountInventory>
   const base: Omit<AccountInventory, "domains"> = { provider: "dynadot", label: "Dynadot", account: "", ok: false };
   if (!key || !secret) return { ...base, error: "not configured", domains: [] };
   const path = "/restful/v2/domains";
-  const requestId = randomUUID();
-  const sig = createHmac("sha256", secret).update(`${key}\n${path}\n${requestId}\n`).digest("base64");
+  const sig = dynadotSignature(key, secret, path, "");
   try {
     const res = await timed(`https://api.dynadot.com${path}`, {
-      headers: { Authorization: `Bearer ${key}`, "X-Signature": sig, "X-Request-Id": requestId, Accept: "application/json" },
+      headers: { Authorization: `Bearer ${key}`, "X-Signature": sig, Accept: "application/json" },
     });
     if (!res.ok) { const t = await res.text().catch(() => ""); return { ...base, error: `HTTP ${res.status}${t ? `: ${t.slice(0, 120)}` : ""}`, domains: [] }; }
     const j = await res.json().catch(() => ({}));
@@ -143,13 +141,18 @@ function extractDynadotDomains(j: unknown): DomainRecord[] {
 
 // ── NameSilo: GET listDomains (names only; success code 300) ─────────────────
 // listDomains returns names without expiry/auto-renew (those need a per-domain
-// getDomainInfo call — too many); those fields stay blank for NameSilo.
+// getDomainInfo call — too many); those fields stay blank for NameSilo. NameSilo
+// IP-allowlists API access, and Vercel IPs rotate, so route through the Fixie static
+// IPs (whitelisted in NameSilo's API Manager) when available.
 async function namesiloInventory(e: NodeJS.ProcessEnv): Promise<AccountInventory> {
   const base: Omit<AccountInventory, "domains"> = { provider: "namesilo", label: "NameSilo", account: "", ok: false };
   if (!e.NAMESILO_API_KEY) return { ...base, error: "not configured", domains: [] };
   const params = new URLSearchParams({ version: "1", type: "json", key: e.NAMESILO_API_KEY });
+  const dispatcher = namecheapDispatcher(e); // reuses FIXIE_URL
   try {
-    const res = await timed(`https://www.namesilo.com/api/listDomains?${params.toString()}`, { method: "GET" });
+    const res = dispatcher
+      ? await undiciFetch(`https://www.namesilo.com/api/listDomains?${params.toString()}`, { dispatcher, signal: AbortSignal.timeout(20000) })
+      : await timed(`https://www.namesilo.com/api/listDomains?${params.toString()}`, { method: "GET" });
     const j = (await res.json().catch(() => ({}))) as { reply?: { code?: string | number; detail?: string; domains?: { domain?: string | string[] } } };
     if (String(j?.reply?.code) !== "300") return { ...base, error: j?.reply?.detail || `code ${j?.reply?.code ?? res.status}`, domains: [] };
     const raw = j.reply?.domains?.domain;
