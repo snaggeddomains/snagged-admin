@@ -8,12 +8,12 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { canReports } from "@/lib/permissions";
 import { resolveDomainLive } from "@/lib/domain-dns";
-import { PROVIDERS, providerForRegistrar, providerForNsHost } from "@/lib/registrar/registry";
+import { PROVIDERS, providerForRegistrar, providerForNsHost, defaultNsForRegistrar } from "@/lib/registrar/registry";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-type Action = "nameservers" | "dns";
+type Action = "nameservers" | "ns_default" | "dns";
 interface DnsRecord {
   type: string;
   host: string;
@@ -40,7 +40,7 @@ export async function POST(req: Request) {
   const domains = Array.isArray(body.domains)
     ? [...new Set(body.domains.map((d) => String(d || "").trim().toLowerCase()).filter((d) => d.includes(".")))].slice(0, 200)
     : [];
-  const action: Action = body.action === "dns" ? "dns" : "nameservers";
+  const action: Action = body.action === "dns" ? "dns" : body.action === "ns_default" ? "ns_default" : "nameservers";
   const targetNs = action === "nameservers" ? norm((Array.isArray(body.nameservers) ? body.nameservers : []) as string[]) : [];
   const record = action === "dns" ? body.record : undefined;
 
@@ -53,15 +53,19 @@ export async function POST(req: Request) {
   // Resolve current state with bounded concurrency.
   const results = await mapLimit(domains, 8, async (domain) => {
     const live = await resolveDomainLive(domain);
-    if (action === "nameservers") {
+    if (action === "nameservers" || action === "ns_default") {
       const pid = providerForRegistrar(live.registrar);
       const prov = pid ? PROVIDERS[pid] : null;
-      const wired = !!(prov && prov.canNS && prov.hasKeys(env));
+      // ns_default → each name gets ITS OWN registrar's default nameservers.
+      const target = action === "ns_default" ? norm(defaultNsForRegistrar(live.registrar) || []) : targetNs;
+      const hasTarget = target.length > 0;
+      const wired = !!(prov && prov.canNS && prov.hasKeys(env) && hasTarget);
       const current = norm(live.nameservers);
-      const willChange = wired && JSON.stringify(current) !== JSON.stringify(targetNs);
+      const willChange = wired && JSON.stringify(current) !== JSON.stringify(target);
       let skipReason: string | null = null;
       if (!prov) skipReason = live.registrar ? `Registrar "${live.registrar}" has no adapter` : "Registrar unknown (no RDAP/WHOIS)";
       else if (!prov.hasKeys(env)) skipReason = `${prov.label} API key not configured`;
+      else if (action === "ns_default" && !hasTarget) skipReason = `No fixed default nameservers for ${prov.label} (assigned per-domain)`;
       return {
         domain,
         registrar: live.registrar,
@@ -70,7 +74,7 @@ export async function POST(req: Request) {
         willChange,
         noChange: wired && !willChange,
         current: live.nameservers,
-        target: targetNs,
+        target,
         caveat: wired ? prov?.nsCaveat || null : null,
         skipReason,
       };

@@ -118,6 +118,8 @@ type PreviewRow = {
   noChange: boolean;
   caveat?: string | null;
   skipReason: string | null;
+  current?: string[];
+  target?: string[] | { type: string; host: string; value: string };
 };
 type Preview = { dryRun: boolean; action: string; summary: { total: number; willUpdate: number; noChange: number; skipped: number }; results: PreviewRow[] };
 
@@ -126,7 +128,7 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
   // ── bulk update (registrar/DNS pushes) ──────────────────────────────────
   const [updateMode, setUpdateMode] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [bulkAction, setBulkAction] = useState<"nameservers" | "dns">("nameservers");
+  const [bulkAction, setBulkAction] = useState<"nameservers" | "ns_default" | "dns">("nameservers");
   const [nsTarget, setNsTarget] = useState("");
   const [dnsRec, setDnsRec] = useState({ type: "A", host: "@", value: "", ttl: "3600" });
   const [preview, setPreview] = useState<Preview | null>(null);
@@ -409,7 +411,9 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
       const payload =
         bulkAction === "nameservers"
           ? { domains, action: "nameservers", nameservers: nsTarget.split(/[\s,]+/).map((x) => x.trim()).filter(Boolean) }
-          : { domains, action: "dns", record: { type: dnsRec.type, host: dnsRec.host, value: dnsRec.value, ttl: Number(dnsRec.ttl) || 3600 } };
+          : bulkAction === "ns_default"
+            ? { domains, action: "ns_default" }
+            : { domains, action: "dns", record: { type: dnsRec.type, host: dnsRec.host, value: dnsRec.value, ttl: Number(dnsRec.ttl) || 3600 } };
       const res = await fetch("/api/admin/snap-names/bulk-preview", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -498,12 +502,15 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
         <div style={{ ...card, marginTop: 12, background: "#fbfaf7", borderColor: "#e0dccf" }}>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
             <strong style={{ fontSize: 13 }}>{selected.size} selected</strong>
-            <select value={bulkAction} onChange={(e) => { setBulkAction(e.target.value as "nameservers" | "dns"); setPreview(null); }} style={{ padding: "7px 10px", borderRadius: 8, border: "1px solid #d5d5e0", fontSize: 13 }}>
+            <select value={bulkAction} onChange={(e) => { setBulkAction(e.target.value as "nameservers" | "ns_default" | "dns"); setPreview(null); }} style={{ padding: "7px 10px", borderRadius: 8, border: "1px solid #d5d5e0", fontSize: 13 }}>
               <option value="nameservers">Set nameservers</option>
+              <option value="ns_default">Reset nameservers to registrar default</option>
               <option value="dns">Set a DNS record</option>
             </select>
             {bulkAction === "nameservers" ? (
               <input value={nsTarget} onChange={(e) => setNsTarget(e.target.value)} placeholder="ns1.example.com, ns2.example.com" style={{ padding: "7px 10px", borderRadius: 8, border: "1px solid #d5d5e0", fontSize: 13, minWidth: 320, flex: "1 1 320px" }} />
+            ) : bulkAction === "ns_default" ? (
+              <span className="muted" style={{ fontSize: 12.5, flex: "1 1 auto" }}>Each name is set to <strong>its own registrar&apos;s</strong> default nameservers (Porkbun / Spaceship / Dynadot / NameSilo / Namecheap). GoDaddy is skipped — it assigns a per-domain pair.</span>
             ) : (
               <span style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
                 <select value={dnsRec.type} onChange={(e) => setDnsRec({ ...dnsRec, type: e.target.value })} style={{ padding: "7px 8px", borderRadius: 8, border: "1px solid #d5d5e0", fontSize: 13 }}>
@@ -538,7 +545,13 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
                       <span style={{ color: "#6b6b7b" }}>= already matches ({r.provider})</span>
                     ) : (
                       <span style={{ color: "#2f7d4f" }}>
-                        ✓ via {r.provider}{r.caveat ? <span style={{ color: "#a3502f", marginLeft: 6 }}>⚠ {r.caveat}</span> : null}
+                        ✓ via {r.provider}
+                        {Array.isArray(r.target) && (
+                          <span style={{ color: "#6b6b7b", marginLeft: 6 }}>
+                            {(r.current || []).join(", ") || "—"} <span style={{ color: "#2f7d4f" }}>→</span> {(r.target as string[]).join(", ")}
+                          </span>
+                        )}
+                        {r.caveat ? <span style={{ color: "#a3502f", marginLeft: 6 }}>⚠ {r.caveat}</span> : null}
                       </span>
                     )}
                   </div>

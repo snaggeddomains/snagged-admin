@@ -68,6 +68,24 @@ export const PROVIDERS: Record<ProviderId, Provider> = {
   },
 };
 
+// Each registrar's DEFAULT (registrar-hosted DNS) nameservers. Setting a name back
+// to these makes the registrar authoritative for DNS, which is what you need before
+// adding DNS records via that registrar's API. GoDaddy assigns a per-domain
+// domaincontrol.com pair (no single fixed default), so it has none here.
+export const PROVIDER_DEFAULT_NS: Record<ProviderId, string[] | null> = {
+  porkbun: ["curitiba.ns.porkbun.com", "fortaleza.ns.porkbun.com", "maceio.ns.porkbun.com", "salvador.ns.porkbun.com"],
+  spaceship: ["launch1.spaceship.net", "launch2.spaceship.net"],
+  dynadot: ["ns1.dynadot.com", "ns2.dynadot.com", "ns3.dynadot.com"],
+  namesilo: ["ns1.namesilo.com", "ns2.namesilo.com"],
+  namecheap: ["dns1.registrar-servers.com", "dns2.registrar-servers.com"],
+  godaddy: null, // assigned per-domain (nsXX.domaincontrol.com)
+};
+
+export function defaultNsForRegistrar(registrar: string | null | undefined): string[] | null {
+  const id = providerForRegistrar(registrar);
+  return id ? PROVIDER_DEFAULT_NS[id] : null;
+}
+
 // Match a registrar name (from RDAP/WHOIS) → provider id.
 const REGISTRAR_MATCH: [RegExp, ProviderId][] = [
   [/spaceship/i, "spaceship"],
