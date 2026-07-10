@@ -143,6 +143,8 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
   const [src, setSrc] = useState<"all" | SnapSource>("all");
   const [status, setStatus] = useState<"all" | "owned" | "sold" | "marketplace">("owned");
   const [tldFilter, setTldFilter] = useState<string>("all");
+  const [nsFilter, setNsFilter] = useState<string>("all");
+  const [regFilter, setRegFilter] = useState<string>("all");
   const [sortKey, setSortKey] = useState<SortKey>("domain");
   const [sortDir, setSortDir] = useState<1 | -1>(1);
 
@@ -259,6 +261,19 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
     return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([t]) => t);
   }, [report]);
 
+  // NS-provider + registrar options come from the LIVE lookups (resolved
+  // progressively), so they fill in as rows resolve.
+  const nsProviders = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const v of Object.values(live)) if (v.ns_provider) counts.set(v.ns_provider, (counts.get(v.ns_provider) || 0) + 1);
+    return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([t]) => t);
+  }, [live]);
+  const registrars = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const v of Object.values(live)) if (v.registrar) counts.set(v.registrar, (counts.get(v.registrar) || 0) + 1);
+    return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([t]) => t);
+  }, [live]);
+
   const filtered = useMemo(() => {
     if (!report) return [];
     const needle = q.trim().toLowerCase();
@@ -270,6 +285,8 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
       if (status === "sold" && !r.sold) return false;
       if (status === "marketplace" && !r.on_snagged_marketplace) return false;
       if (tldFilter !== "all" && r.tld !== tldFilter) return false;
+      if (nsFilter !== "all" && live[r.domain]?.ns_provider !== nsFilter) return false;
+      if (regFilter !== "all" && live[r.domain]?.registrar !== regFilter) return false;
       if (needle) {
         const reg = live[r.domain]?.registrar || "";
         const ns = (live[r.domain]?.nameservers || []).join(" ");
@@ -317,7 +334,7 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
       return a.domain < b.domain ? -1 : 1;
     });
     return rows;
-  }, [report, q, src, status, tldFilter, sortKey, sortDir, live, archived, showArchived]);
+  }, [report, q, src, status, tldFilter, nsFilter, regFilter, sortKey, sortDir, live, archived, showArchived]);
 
   const setSort = (k: SortKey) => {
     if (k === sortKey) setSortDir((d) => (d === 1 ? -1 : 1));
@@ -461,6 +478,14 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
         <select value={tldFilter} onChange={(e) => setTldFilter(e.target.value)} style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #d5d5e0", fontSize: 13 }}>
           <option value="all">All TLDs</option>
           {tlds.map((t) => <option key={t} value={t}>.{t}</option>)}
+        </select>
+        <select value={nsFilter} onChange={(e) => setNsFilter(e.target.value)} title="Filter by where the nameservers point" style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #d5d5e0", fontSize: 13, maxWidth: 200 }}>
+          <option value="all">All nameservers</option>
+          {nsProviders.map((n) => <option key={n} value={n}>{n}</option>)}
+        </select>
+        <select value={regFilter} onChange={(e) => setRegFilter(e.target.value)} title="Filter by registrar" style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #d5d5e0", fontSize: 13, maxWidth: 200 }}>
+          <option value="all">All registrars</option>
+          {registrars.map((n) => <option key={n} value={n}>{n}</option>)}
         </select>
         <button
           onClick={() => setShowArchived((v) => !v)}
