@@ -116,25 +116,49 @@ async function dynadotInventory(e: NodeJS.ProcessEnv): Promise<AccountInventory>
     return { ...base, error: String((err as Error)?.message || err), domains: [] };
   }
 }
-// Dynadot's list shape isn't fully pinned; pull records from the known containers
-// defensively so a shape tweak doesn't silently return nothing.
+// Dynadot's list wraps results in {Code, Message, Data} (PascalCase) and its exact
+// nesting/field casing isn't pinned — so walk the whole JSON tree case-insensitively
+// and collect every object that carries a domain-name field, reading expiry/renew from
+// the same object. Robust to Data vs data, DomainName vs domainName, and deeper nesting.
 function extractDynadotDomains(j: unknown): DomainRecord[] {
   const out: DomainRecord[] = [];
-  const containers: unknown[] = [];
-  const root = (j as Record<string, unknown>) || {};
-  const data = (root.data as Record<string, unknown>) || root;
-  for (const k of ["domains", "domainInfo", "domainList", "list"]) {
-    const v = (data as Record<string, unknown>)?.[k] ?? (root as Record<string, unknown>)?.[k];
-    if (Array.isArray(v)) containers.push(...v);
-  }
-  for (const item of containers) {
-    if (typeof item === "string") { out.push({ domain: item }); continue; }
-    const o = item as Record<string, unknown>;
-    const d = o?.domainName || o?.name || o?.domain;
-    if (typeof d !== "string") continue;
-    const expires = (o?.expiration || o?.expirationDate || o?.expires || o?.expiredDate) as string | undefined;
-    const renew = o?.autoRenew ?? o?.renewOption ?? o?.renew_option;
-    out.push({ domain: d, expires: typeof expires === "string" ? expires : null, autoRenew: asBool(renew) });
+  const seen = new Set<string>();
+  const NAME_KEYS = ["domainname", "domain_name", "domain"]; // domain-specific (avoids NS "name")
+  const EXP_KEYS = ["expiration", "expirationdate", "expiration_date", "expires", "expireddate", "expiredate"];
+  const RENEW_KEYS = ["autorenew", "auto_renew", "renewoption", "renew_option", "renewmode", "renew"];
+  const ci = (o: Record<string, unknown>, keys: string[]): unknown => {
+    for (const k of Object.keys(o)) if (keys.includes(k.toLowerCase())) return o[k];
+    return undefined;
+  };
+  const looksDomain = (s: unknown): s is string => typeof s === "string" && s.includes(".") && !/\s/.test(s);
+  const add = (o: Record<string, unknown>, name: string) => {
+    const domain = name.toLowerCase();
+    if (seen.has(domain)) return;
+    seen.add(domain);
+    const exp = ci(o, EXP_KEYS);
+    out.push({ domain, expires: looksDomain(exp) || typeof exp === "string" ? String(exp) : typeof exp === "number" ? String(exp) : null, autoRenew: asBool(ci(o, RENEW_KEYS)) });
+  };
+  const walk = (node: unknown) => {
+    if (Array.isArray(node)) { for (const x of node) walk(x); return; }
+    if (!node || typeof node !== "object") return;
+    const o = node as Record<string, unknown>;
+    const name = ci(o, NAME_KEYS);
+    if (looksDomain(name)) add(o, name);
+    for (const v of Object.values(o)) if (v && typeof v === "object") walk(v);
+  };
+  walk(j);
+  // Fallback: if domain-specific keys found nothing, accept a bare "name" but only on
+  // objects that also carry an expiration field (so it's a domain row, not a nameserver).
+  if (!out.length) {
+    const walk2 = (node: unknown) => {
+      if (Array.isArray(node)) { for (const x of node) walk2(x); return; }
+      if (!node || typeof node !== "object") return;
+      const o = node as Record<string, unknown>;
+      const name = ci(o, ["name"]);
+      if (looksDomain(name) && ci(o, EXP_KEYS) !== undefined) add(o, name);
+      for (const v of Object.values(o)) if (v && typeof v === "object") walk2(v);
+    };
+    walk2(j);
   }
   return out;
 }
