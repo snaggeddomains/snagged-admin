@@ -142,9 +142,9 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
   const [q, setQ] = useState("");
   const [src, setSrc] = useState<"all" | SnapSource>("all");
   const [status, setStatus] = useState<"all" | "owned" | "sold" | "marketplace">("owned");
-  const [tldFilter, setTldFilter] = useState<string>("all");
-  const [nsFilter, setNsFilter] = useState<string>("all");
-  const [regFilter, setRegFilter] = useState<string>("all");
+  const [tldFilter, setTldFilter] = useState<Set<string>>(new Set()); // empty = all
+  const [nsFilter, setNsFilter] = useState<Set<string>>(new Set());
+  const [regFilter, setRegFilter] = useState<Set<string>>(new Set());
   const [sortKey, setSortKey] = useState<SortKey>("domain");
   const [sortDir, setSortDir] = useState<1 | -1>(1);
 
@@ -284,9 +284,9 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
       if (status === "owned" && r.sold) return false;
       if (status === "sold" && !r.sold) return false;
       if (status === "marketplace" && !r.on_snagged_marketplace) return false;
-      if (tldFilter !== "all" && r.tld !== tldFilter) return false;
-      if (nsFilter !== "all" && live[r.domain]?.ns_provider !== nsFilter) return false;
-      if (regFilter !== "all" && live[r.domain]?.registrar !== regFilter) return false;
+      if (tldFilter.size && !tldFilter.has(r.tld)) return false;
+      if (nsFilter.size && !nsFilter.has(live[r.domain]?.ns_provider || "")) return false;
+      if (regFilter.size && !regFilter.has(live[r.domain]?.registrar || "")) return false;
       if (needle) {
         const reg = live[r.domain]?.registrar || "";
         const ns = (live[r.domain]?.nameservers || []).join(" ");
@@ -475,18 +475,9 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search domain / registrar / NS…" style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #d5d5e0", fontSize: 13, minWidth: 220 }} />
         <Segmented value={src} onChange={(v) => setSrc(v as typeof src)} options={[["all", "All sources"], ["SNAP", "SNAP"], ["Rob", "Rob"], ["Berserk", "Berserk"]]} />
         <Segmented value={status} onChange={(v) => setStatus(v as typeof status)} options={[["all", "All"], ["owned", "Owned"], ["sold", "Sold"], ["marketplace", "On marketplace"]]} />
-        <select value={tldFilter} onChange={(e) => setTldFilter(e.target.value)} style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #d5d5e0", fontSize: 13 }}>
-          <option value="all">All TLDs</option>
-          {tlds.map((t) => <option key={t} value={t}>.{t}</option>)}
-        </select>
-        <select value={nsFilter} onChange={(e) => setNsFilter(e.target.value)} title="Filter by where the nameservers point" style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #d5d5e0", fontSize: 13, maxWidth: 200 }}>
-          <option value="all">All nameservers</option>
-          {nsProviders.map((n) => <option key={n} value={n}>{n}</option>)}
-        </select>
-        <select value={regFilter} onChange={(e) => setRegFilter(e.target.value)} title="Filter by registrar" style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #d5d5e0", fontSize: 13, maxWidth: 200 }}>
-          <option value="all">All registrars</option>
-          {registrars.map((n) => <option key={n} value={n}>{n}</option>)}
-        </select>
+        <MultiSelect label="All TLDs" allLabel="All TLDs" options={tlds} selected={tldFilter} onChange={setTldFilter} fmt={(t) => `.${t}`} />
+        <MultiSelect label="All nameservers" allLabel="All nameservers" options={nsProviders} selected={nsFilter} onChange={setNsFilter} />
+        <MultiSelect label="All registrars" allLabel="All registrars" options={registrars} selected={regFilter} onChange={setRegFilter} />
         <button
           onClick={() => setShowArchived((v) => !v)}
           title="Archived names are hidden from the main list"
@@ -665,6 +656,66 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
       </div>
       {s && <p className="muted" style={{ fontSize: 11, marginTop: 10 }}>Generated {new Date(s.generatedAt).toLocaleString()} · A price is shown only where we scrape it live from the platform (Afternic buy-now, Spaceship buy-now/min-offer). Marketplace (snagged.com/marketplace scrape) and Atom (nameserver-derived) show a ✓ only — no inferred price. Registrar/nameservers cached 24h in your browser.</p>}
     </main>
+  );
+}
+
+// A compact checkbox dropdown for selecting several values (empty = all).
+function MultiSelect({
+  label,
+  allLabel,
+  options,
+  selected,
+  onChange,
+  fmt,
+}: {
+  label: string;
+  allLabel: string;
+  options: string[];
+  selected: Set<string>;
+  onChange: (s: Set<string>) => void;
+  fmt?: (v: string) => string;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [open]);
+  const summary = selected.size === 0 ? allLabel : selected.size === 1 ? (fmt ? fmt([...selected][0]) : [...selected][0]) : `${label} · ${selected.size}`;
+  const toggle = (v: string) => {
+    const s = new Set(selected);
+    if (s.has(v)) s.delete(v);
+    else s.add(v);
+    onChange(s);
+  };
+  return (
+    <div ref={ref} style={{ position: "relative" }}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #d5d5e0", background: selected.size ? "#eef2ee" : "#fff", color: "#44445a", cursor: "pointer", fontSize: 13, maxWidth: 220, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+      >
+        {summary} ▾
+      </button>
+      {open && (
+        <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, zIndex: 20, background: "#fff", border: "1px solid #d5d5e0", borderRadius: 8, boxShadow: "0 8px 24px rgba(0,0,0,.12)", minWidth: 200, maxHeight: 320, overflowY: "auto", padding: 6 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 8px", borderBottom: "1px solid #f0f0f5", marginBottom: 4 }}>
+            <button onClick={() => onChange(new Set())} style={{ border: "none", background: "none", color: "#3f4a8f", cursor: "pointer", fontSize: 12 }}>Clear</button>
+            <span className="muted" style={{ fontSize: 11 }}>{selected.size || "all"} selected</span>
+          </div>
+          {options.length === 0 && <div className="muted" style={{ fontSize: 12, padding: "6px 8px" }}>Resolving…</div>}
+          {options.map((o) => (
+            <label key={o} style={{ display: "flex", gap: 8, alignItems: "center", padding: "5px 8px", fontSize: 13, cursor: "pointer", borderRadius: 6 }}>
+              <input type="checkbox" checked={selected.has(o)} onChange={() => toggle(o)} />
+              <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{fmt ? fmt(o) : o}</span>
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
