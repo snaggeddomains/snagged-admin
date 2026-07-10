@@ -23,3 +23,14 @@ create table if not exists snap_inventory_hidden (
 );
 alter table snap_inventory_hidden add column if not exists tag text; -- if table pre-existed
 alter table snap_inventory_hidden enable row level security; -- service key bypasses
+
+-- Manually-added SNAP names (domains we own in an account but aren't on the sheets).
+-- Merged into the report so they show as regular rows without editing the sheets.
+create table if not exists snap_names_manual (
+  domain text primary key,
+  source text,   -- Berserk | SNAP | Rob (which list bucket it belongs to)
+  owner text,
+  added_by text,
+  added_at timestamptz not null default now()
+);
+alter table snap_names_manual enable row level security; -- service key bypasses

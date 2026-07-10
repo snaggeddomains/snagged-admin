@@ -68,8 +68,17 @@ const REG_TO_PID: [RegExp, string][] = [[/spaceship/i, "spaceship"], [/porkbun/i
 const regPid = (r?: string | null): string | null => { const s = String(r || ""); for (const [re, id] of REG_TO_PID) if (re.test(s)) return id; return null; };
 // Preset reason tags for resolving an audit row (custom ones are added on the fly).
 const PRESET_TAGS = ["Sold", "Let expire", "Personal", "Transferred out", "Keep / renew", "Not ours"];
-const daysUntil = (s?: string | null): number | null => { if (!s) return null; const t = Date.parse(s); return isNaN(t) ? null : Math.floor((t - Date.now()) / 86400000); };
-const fmtExp = (s?: string | null): string => { if (!s) return "—"; const t = Date.parse(s); return isNaN(t) ? String(s) : new Date(t).toLocaleDateString(); };
+// Registrars report expiry in different shapes: ISO / MM-DD-YYYY strings, or a Unix
+// epoch (Dynadot returns epoch MILLISECONDS, e.g. 1785672373000). Normalize to ms.
+const parseExp = (s?: string | null): number | null => {
+  if (!s) return null;
+  const str = String(s).trim();
+  if (/^\d+$/.test(str)) { let n = Number(str); if (n < 1e12) n *= 1000; return n; } // seconds → ms
+  const t = Date.parse(str);
+  return isNaN(t) ? null : t;
+};
+const daysUntil = (s?: string | null): number | null => { const t = parseExp(s); return t == null ? null : Math.floor((t - Date.now()) / 86400000); };
+const fmtExp = (s?: string | null): string => { const t = parseExp(s); return t == null ? (s ? String(s) : "—") : new Date(t).toLocaleDateString(); };
 
 const usd = (n: number | null | undefined) => (n == null ? "—" : `$${Math.round(n).toLocaleString()}`);
 
@@ -295,6 +304,20 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
       setLoading(false);
     }
   }, []);
+
+  // Add an owned-but-untracked domain to the list (source derived from the account it's
+  // held in). Persists to the manual overlay; the report merges it in on reload, so it
+  // drops out of the untracked bucket and appears as a regular row.
+  const addToList = useCallback(async (domain: string, at: OwnedAt | null) => {
+    const source = at?.account === "rob" ? "Rob" : at?.account === "berserk" ? "Berserk" : "SNAP";
+    try {
+      const res = await fetch("/api/admin/snap-names/manual", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "add", domain, source, owner: at?.label || null }) });
+      if (!res.ok) throw new Error((await res.json())?.error || `HTTP ${res.status}`);
+      await load();
+    } catch (e) {
+      setErr(String((e as Error)?.message || e));
+    }
+  }, [load]);
   useEffect(() => {
     load();
   }, [load]);
@@ -701,6 +724,9 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
                               </>
                             ) : (
                               <>
+                                {at && (
+                                  <button onClick={() => addToList(row.domain, at)} title="Add this owned domain to the SNAP list" style={{ padding: "2px 8px", borderRadius: 6, border: "1px solid #b6d8c2", background: "#eef7f0", color: "#2f7d4f", cursor: "pointer", fontSize: 11, fontWeight: 600 }}>+ add</button>
+                                )}
                                 <select
                                   value=""
                                   onChange={(e) => {
@@ -905,6 +931,7 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
               <th style={th} onClick={() => setSort("registrar")}>Registrar{arrow("registrar")}</th>
               <th style={{ ...th, cursor: "default" }} title="Verified against the actual registrar-account inventory">Verified</th>
               <th style={{ ...th, cursor: "default" }} title="Registrar-reported expiration; red within 30 days">Expires</th>
+              <th style={{ ...th, cursor: "default", textAlign: "center" }} title="Auto-renew on (✓) / off (✗) per the registrar">Auto-renew</th>
               <th style={{ ...th, textAlign: "right" }} onClick={() => setSort("internal")}>Internal{arrow("internal")}</th>
               <th style={th} onClick={() => setSort("afternic")}>Afternic{arrow("afternic")}</th>
               <th style={th} onClick={() => setSort("atom")}>Atom{arrow("atom")}</th>
@@ -967,9 +994,16 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
                           {at?.expires ? (
                             <span style={{ color: dLeft != null && dLeft <= 30 ? "#c0392b" : "#44445a", fontWeight: dLeft != null && dLeft <= 30 ? 700 : 400 }} title={dLeft != null ? `${dLeft} days` : undefined}>
                               {fmtExp(at.expires)}
-                              {at.autoRenew === true && <span title="auto-renew on" style={{ marginLeft: 4, color: "#2f7d4f" }}>↻</span>}
-                              {at.autoRenew === false && <span title="auto-renew OFF" style={{ marginLeft: 4, color: "#c0392b" }}>⊘</span>}
                             </span>
+                          ) : (
+                            <span style={{ color: "#c8c8d2" }}>—</span>
+                          )}
+                        </td>
+                        <td style={{ ...td, textAlign: "center" }}>
+                          {at?.autoRenew === true ? (
+                            <span title="auto-renew on" style={{ color: "#2f7d4f", fontWeight: 700 }}>✓</span>
+                          ) : at?.autoRenew === false ? (
+                            <span title="auto-renew OFF" style={{ color: "#c0392b", fontWeight: 700 }}>✗</span>
                           ) : (
                             <span style={{ color: "#c8c8d2" }}>—</span>
                           )}
@@ -1026,7 +1060,7 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
                 </tr>
               );
             })}
-            {!loading && !filtered.length && <tr><td style={{ ...td, textAlign: "center", color: "#6b6b7b" }} colSpan={17}>{showArchived ? "No archived names." : "No names match."}</td></tr>}
+            {!loading && !filtered.length && <tr><td style={{ ...td, textAlign: "center", color: "#6b6b7b" }} colSpan={18}>{showArchived ? "No archived names." : "No names match."}</td></tr>}
           </tbody>
         </table>
       </div>

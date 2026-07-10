@@ -13,6 +13,7 @@
 // Spaceship / marketplace / registrar / nameserver state per name.
 
 import { getSheetValues } from "./sheets";
+import { listManual } from "./snap-manual";
 
 const SHEET_BERSERK = "1oHfG8FYlTTclnB-gi0IkkhbqnXXYfeewOBiZn9Hds4M";
 const SHEET_SNAP_ROB = "1KaxYUgBFALe_T0F8-6D0kb7mWy-eU5CkIbX6BGmyK4g";
@@ -210,20 +211,54 @@ function normalizeRows(values: string[][], source: SnapSource): SnapName[] {
   return out;
 }
 
+// A manually-added name (from the verification audit) → a minimal SnapName row. Most
+// fields are unknown; the dedupe merge fills them from a matching sheet row if one
+// exists, and gives real sheet data precedence.
+function manualToRow(m: { domain: string; source: SnapSource; owner: string | null }): SnapName {
+  return {
+    domain: m.domain,
+    source: m.source,
+    tld: tldOf(m.domain),
+    date_purchased: null,
+    purchase_price: null,
+    internal_price: null,
+    spaceship_price: null,
+    atom_price: null,
+    on_marketplace: null,
+    platform: null,
+    still_owned: null,
+    sold: false,
+    sold_for: null,
+    sale_date: null,
+    fees: null,
+    net_sale_price: null,
+    list_for_sale: null,
+    snagged_rep: null,
+    premium: null,
+    active: null,
+    notes: m.owner ? `Added manually · ${m.owner}` : "Added manually",
+    also_in: [],
+    also_spellings: [],
+    on_snagged_marketplace: false,
+  };
+}
+
 // ── report builder ──────────────────────────────────────────────────────────
 
 export async function buildSnapNames(): Promise<SnapNamesReport> {
-  const [berserk, snap, rob, marketplace] = await Promise.all([
+  const [berserk, snap, rob, marketplace, manual] = await Promise.all([
     getSheetValues(SHEET_BERSERK, "'Purchases'!A1:Z5000").catch(() => [] as string[][]),
     getSheetValues(SHEET_SNAP_ROB, "'SNAP Domains'!A1:Z5000").catch(() => [] as string[][]),
     getSheetValues(SHEET_SNAP_ROB, "'Rob Purchases'!A1:Z5000").catch(() => [] as string[][]),
     snaggedMarketplaceSet(),
+    listManual(),
   ]);
 
   const all: SnapName[] = [
     ...normalizeRows(berserk, "Berserk"),
     ...normalizeRows(snap, "SNAP"),
     ...normalizeRows(rob, "Rob"),
+    ...manual.map(manualToRow),
   ];
 
   // De-dupe to ONE row per domain. Precedence Berserk > SNAP > Rob: the highest-
