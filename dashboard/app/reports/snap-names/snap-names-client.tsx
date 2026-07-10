@@ -507,7 +507,7 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
         <div style={{ display: "flex", gap: 8 }}>
           {canWrite && (
             <button
-              onClick={() => { setUpdateMode((v) => !v); setPreview(null); }}
+              onClick={() => { setUpdateMode((v) => !v); setSelected(new Set()); setPreview(null); setApplyResult(null); }}
               style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid " + (updateMode ? "#2f2f45" : "#d5d5e0"), background: updateMode ? "#2f2f45" : "#fff", color: updateMode ? "#fff" : "#44445a", cursor: "pointer", fontSize: 13, fontWeight: 600 }}
             >
               {updateMode ? "✕ Exit updates" : "⚙ Updates"}

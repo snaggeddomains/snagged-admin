@@ -249,6 +249,14 @@ async function spaceshipSetDns(domain: string, rec: DnsRecordInput, e: NodeJS.Pr
     });
     if (res.ok) return { ok: true };
     const t = await res.text().catch(() => "");
+    // A name that's parked on Spaceship's MARKETPLACE nameservers (launch1/2.spaceship.net)
+    // — typical for a domain registered elsewhere and listed for sale on Spaceship — has no
+    // user-editable DNS zone, so the record PUT 404s "Zone file … hasn't been found". We do
+    // NOT auto-provision, because that would repoint the nameservers and wipe the listing.
+    // Surface a clear, actionable message instead.
+    if (res.status === 404 && /zone file/i.test(t)) {
+      return { ok: false, error: "Spaceship has no editable DNS zone for this name (it's on marketplace nameservers). Point it to nameservers whose DNS we control (e.g. ns1/ns2.snagged.com → Cloudflare) and add the record there." };
+    }
     return { ok: false, error: `Spaceship HTTP ${res.status}${t ? `: ${t.slice(0, 160)}` : ""}` };
   } catch (err) {
     return { ok: false, error: String((err as Error)?.message || err) };
