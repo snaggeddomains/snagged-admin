@@ -112,11 +112,13 @@ async function godaddySetNs(domain: string, ns: string[], e: NodeJS.ProcessEnv):
         body: JSON.stringify({ nameServers: ns }),
       });
       if (res.ok) return { ok: true, account: acct.account };
-      if (res.status === 404) {
-        lastErr = "not found in any configured GoDaddy account";
-        continue; // domain not in this account — try the next
-      }
       const t = await res.text().catch(() => "");
+      // GoDaddy returns 404 OR 403 ACCESS_DENIED when the domain isn't in this
+      // account — cascade to the next account. Any other error stops.
+      if (res.status === 404 || res.status === 403) {
+        lastErr = `GoDaddy HTTP ${res.status}${t ? `: ${t.slice(0, 120)}` : ""}`;
+        continue;
+      }
       // Domain IS in this account but the write failed (e.g. 2FA on a premium name).
       return { ok: false, account: acct.account, error: `GoDaddy HTTP ${res.status}${t ? `: ${t.slice(0, 160)}` : ""}` };
     } catch (err) {
@@ -194,8 +196,8 @@ async function godaddySetDns(domain: string, rec: DnsRecordInput, e: NodeJS.Proc
         body: JSON.stringify(body),
       });
       if (res.ok) return { ok: true, account: acct.account };
-      if (res.status === 404) { lastErr = "not found in any configured GoDaddy account"; continue; }
       const t = await res.text().catch(() => "");
+      if (res.status === 404 || res.status === 403) { lastErr = `GoDaddy HTTP ${res.status}${t ? `: ${t.slice(0, 120)}` : ""}`; continue; }
       return { ok: false, account: acct.account, error: `GoDaddy HTTP ${res.status}${t ? `: ${t.slice(0, 160)}` : ""}` };
     } catch (err) {
       lastErr = String((err as Error)?.message || err);
@@ -204,12 +206,54 @@ async function godaddySetDns(domain: string, rec: DnsRecordInput, e: NodeJS.Proc
   return { ok: false, error: lastErr || "GoDaddy DNS write failed" };
 }
 
+// ── Cloudflare DNS (bearer token; resolve zone by name → append record) ──────
+async function cloudflareSetDns(domain: string, rec: DnsRecordInput, e: NodeJS.ProcessEnv): Promise<WriteResult> {
+  const token = e.CLOUDFLARE_API_TOKEN || "";
+  if (!token) return { ok: false, error: "No Cloudflare API token configured" };
+  const H = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
+  try {
+    const zr = await timedFetch(`https://api.cloudflare.com/client/v4/zones?name=${encodeURIComponent(domain)}&status=active`, { method: "GET", headers: H });
+    const zj = (await zr.json().catch(() => ({}))) as { result?: { id: string }[]; errors?: { message: string }[] };
+    const zone = zj.result?.[0];
+    if (!zone?.id) return { ok: false, error: `Cloudflare: zone not found for ${domain}${zj.errors?.[0] ? ` (${zj.errors[0].message})` : ""}` };
+    // Cloudflare wants the FQDN as name; "@"/root → the domain itself.
+    const host = rec.host === "@" || !rec.host ? domain : rec.host.endsWith(domain) ? rec.host : `${rec.host}.${domain}`;
+    const cr = await timedFetch(`https://api.cloudflare.com/client/v4/zones/${zone.id}/dns_records`, {
+      method: "POST",
+      headers: H,
+      body: JSON.stringify({ type: rec.type, name: host, content: rec.value, ttl: rec.ttl || 3600 }),
+    });
+    const cj = (await cr.json().catch(() => ({}))) as { success?: boolean; errors?: { message: string }[] };
+    if (cr.ok && cj.success) return { ok: true, account: "cloudflare" };
+    return { ok: false, error: `Cloudflare: ${cj.errors?.[0]?.message || `HTTP ${cr.status}`}` };
+  } catch (err) {
+    return { ok: false, error: String((err as Error)?.message || err) };
+  }
+}
+
+// ── NameSilo DNS (dnsAddRecord; key-in-URL; success code 300) ────────────────
+async function namesiloSetDns(domain: string, rec: DnsRecordInput, e: NodeJS.ProcessEnv): Promise<WriteResult> {
+  const key = e.NAMESILO_API_KEY || "";
+  const params = new URLSearchParams({
+    version: "1", type: "json", key, domain,
+    rrtype: rec.type, rrhost: rec.host === "@" ? "" : rec.host, rrvalue: rec.value, rrttl: String(Math.max(3600, rec.ttl || 3600)),
+  });
+  try {
+    const res = await timedFetch(`https://www.namesilo.com/api/dnsAddRecord?${params.toString()}`, { method: "GET" });
+    const j = (await res.json().catch(() => ({}))) as { reply?: { code?: string | number; detail?: string } };
+    if (String(j?.reply?.code) === "300") return { ok: true };
+    return { ok: false, error: j?.reply?.detail || `NameSilo code ${j?.reply?.code ?? res.status}` };
+  } catch (err) {
+    return { ok: false, error: String((err as Error)?.message || err) };
+  }
+}
+
 // ── dispatch ────────────────────────────────────────────────────────────────
 const NS_EXECUTABLE: ProviderId[] = ["porkbun", "spaceship", "namesilo", "godaddy", "namecheap"];
 export function nsExecutable(provider: ProviderId): boolean {
   return NS_EXECUTABLE.includes(provider);
 }
-const DNS_EXECUTABLE: ProviderId[] = ["porkbun", "godaddy"];
+const DNS_EXECUTABLE: ProviderId[] = ["porkbun", "godaddy", "cloudflare", "namesilo"];
 export function dnsExecutable(provider: ProviderId): boolean {
   return DNS_EXECUTABLE.includes(provider);
 }
@@ -229,6 +273,8 @@ export async function setDnsRecord(provider: ProviderId, domain: string, rec: Dn
   switch (provider) {
     case "porkbun": return porkbunSetDns(domain, rec, e);
     case "godaddy": return godaddySetDns(domain, rec, e);
+    case "cloudflare": return cloudflareSetDns(domain, rec, e);
+    case "namesilo": return namesiloSetDns(domain, rec, e);
     default: return { ok: false, error: `${provider} DNS-record execute not enabled yet` };
   }
 }

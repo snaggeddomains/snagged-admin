@@ -9,7 +9,7 @@
 // actual write calls live in the per-provider adapters (added when we enable live
 // writes; today the flow is preview-only).
 
-export type ProviderId = "spaceship" | "porkbun" | "dynadot" | "namesilo" | "godaddy" | "namecheap";
+export type ProviderId = "spaceship" | "porkbun" | "dynadot" | "namesilo" | "godaddy" | "namecheap" | "cloudflare";
 
 export interface Provider {
   id: ProviderId;
@@ -101,6 +101,16 @@ export const PROVIDERS: Record<ProviderId, Provider> = {
     // so "wired" also needs a static-IP proxy (Fixie) + a whitelisted ClientIp.
     hasKeys: (e) => namecheapAccounts(e).length > 0 && !!(e.FIXIE_URL || e.NAMECHEAP_PROXY_URL) && !!e.NAMECHEAP_CLIENT_IP,
   },
+  // Cloudflare is a DNS host, not a registrar (canNS:false). Domains on our
+  // ns1/ns2.snagged.com vanity nameservers are Cloudflare-backed, so their DNS is
+  // managed here. Bearer-token auth — no proxy needed.
+  cloudflare: {
+    id: "cloudflare",
+    label: "Cloudflare",
+    canNS: false,
+    canDNS: true,
+    hasKeys: (e) => !!e.CLOUDFLARE_API_TOKEN,
+  },
 };
 
 // Each registrar's DEFAULT (registrar-hosted DNS) nameservers. Setting a name back
@@ -185,6 +195,9 @@ const NSHOST_MATCH: [RegExp, ProviderId][] = [
   [/namesilo/i, "namesilo"],
   [/godaddy|domaincontrol/i, "godaddy"],
   [/namecheap|registrar-servers/i, "namecheap"],
+  // Our ns1/ns2.snagged.com vanity nameservers are Cloudflare-backed, as is a real
+  // *.ns.cloudflare.com pair → manage DNS via the Cloudflare API.
+  [/cloudflare|snagged\.com/i, "cloudflare"],
 ];
 
 export function providerForNsHost(nsProvider: string | null | undefined): ProviderId | null {
