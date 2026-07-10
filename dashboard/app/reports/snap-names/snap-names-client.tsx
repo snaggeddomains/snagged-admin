@@ -82,7 +82,7 @@ const card: CSSProperties = { border: "1px solid #e6e6ef", borderRadius: 12, pad
 const th: CSSProperties = { textAlign: "left", padding: "8px 10px", fontSize: 12, color: "#6b6b7b", fontWeight: 600, borderBottom: "1px solid #e6e6ef", whiteSpace: "nowrap", cursor: "pointer", userSelect: "none" };
 const td: CSSProperties = { padding: "8px 10px", fontSize: 13, borderBottom: "1px solid #f0f0f5", verticalAlign: "top" };
 
-type SortKey = "domain" | "source" | "tld" | "date" | "purchase" | "internal" | "registrar" | "status" | "afternic" | "atom" | "spaceship" | "marketplace";
+type SortKey = "domain" | "source" | "tld" | "date" | "purchase" | "internal" | "registrar" | "nameservers" | "status" | "afternic" | "atom" | "spaceship" | "marketplace";
 
 // localStorage cache for live lookups so repeat views don't re-resolve.
 const LIVE_TTL = 24 * 3600 * 1000;
@@ -220,6 +220,7 @@ export default function SnapNamesClient() {
         case "purchase": return r.purchase_price ?? -1;
         case "internal": return r.internal_price ?? -1;
         case "registrar": return (live[r.domain]?.registrar || "￿").toLowerCase();
+        case "nameservers": return (live[r.domain]?.ns_provider || live[r.domain]?.nameservers?.[0] || "￿").toLowerCase();
         case "status": return r.sold ? 2 : r.on_marketplace ? 1 : 0;
         // Platform columns sort listed-first (with price as the tiebreak); an
         // unresolved live lookup sorts to the bottom (-1).
@@ -255,7 +256,7 @@ export default function SnapNamesClient() {
     if (k === sortKey) setSortDir((d) => (d === 1 ? -1 : 1));
     else {
       setSortKey(k);
-      setSortDir(k === "domain" || k === "source" || k === "tld" || k === "registrar" ? 1 : -1);
+      setSortDir(k === "domain" || k === "source" || k === "tld" || k === "registrar" || k === "nameservers" ? 1 : -1);
     }
   };
   const arrow = (k: SortKey) => (k === sortKey ? (sortDir === 1 ? " ▲" : " ▼") : "");
@@ -361,7 +362,7 @@ export default function SnapNamesClient() {
               <th style={{ ...th, textAlign: "right" }} onClick={() => setSort("purchase")}>Cost{arrow("purchase")}</th>
               <th style={{ ...th, textAlign: "right" }} onClick={() => setSort("internal")}>Internal{arrow("internal")}</th>
               <th style={th} onClick={() => setSort("registrar")}>Registrar{arrow("registrar")}</th>
-              <th style={th}>Nameservers → points to</th>
+              <th style={th} onClick={() => setSort("nameservers")}>Nameservers → points to{arrow("nameservers")}</th>
               <th style={th} onClick={() => setSort("afternic")}>Afternic{arrow("afternic")}</th>
               <th style={th} onClick={() => setSort("atom")}>Atom{arrow("atom")}</th>
               <th style={th} onClick={() => setSort("spaceship")}>Spaceship{arrow("spaceship")}</th>
@@ -381,7 +382,10 @@ export default function SnapNamesClient() {
               // Marketplace is the authoritative snagged.com/marketplace scrape
               // (known at load — not dependent on the live NS lookup).
               const mktListed = r.on_snagged_marketplace;
-              const shipPrice = l?.spaceship_price ?? (shipListed ? r.spaceship_price : null);
+              // Only show a price we LIVE-SCRAPED from the platform itself. Spaceship's
+              // buy-now / min-offer come off its lander; if we couldn't read one, show a
+              // bare ✓ rather than falling back to the sheet's intended price.
+              const shipPrice = l?.spaceship_price ?? null;
               const shipSub = !l?.spaceship_price && l?.spaceship_min_offer ? `min ${usd(l.spaceship_min_offer)}` : null;
               return (
                 <tr key={`${r.domain}-${i}`}>
@@ -410,10 +414,12 @@ export default function SnapNamesClient() {
                       <span style={{ color: "#c8c8d2" }}>…</span>
                     )}
                   </td>
+                  {/* Afternic + Spaceship prices are live-scraped → show them. Atom +
+                      Marketplace are NOT scraped for price → bare ✓ only (no inferred figure). */}
                   <td style={td}><MarketCell pending={pend} listed={l?.afternic ? l.afternic.listed : null} price={l?.afternic?.price ? usd(l.afternic.price) : null} /></td>
-                  <td style={td}><MarketCell pending={pend} listed={atomListed} price={atomListed && r.atom_price ? r.atom_price : null} /></td>
+                  <td style={td}><MarketCell pending={pend} listed={atomListed} /></td>
                   <td style={td}><MarketCell pending={pend} listed={shipListed} price={shipPrice != null ? usd(shipPrice) : null} sub={shipSub} /></td>
-                  <td style={td}><MarketCell listed={mktListed} price={mktListed && r.internal_price ? usd(r.internal_price) : null} /></td>
+                  <td style={td}><MarketCell listed={mktListed} /></td>
                   <td style={td}>
                     {r.sold ? (
                       <span style={{ color: "#2f7d4f", fontWeight: 600 }}>
@@ -433,7 +439,7 @@ export default function SnapNamesClient() {
           </tbody>
         </table>
       </div>
-      {s && <p className="muted" style={{ fontSize: 11, marginTop: 10 }}>Generated {new Date(s.generatedAt).toLocaleString()} · Marketplace is scraped live from snagged.com/marketplace (price = our internal ask). Afternic + Spaceship prices are scraped live; Atom/Spaceship &quot;live&quot; is derived from where the nameservers point (Atom price = our tracked figure). Registrar/nameservers cached 24h in your browser.</p>}
+      {s && <p className="muted" style={{ fontSize: 11, marginTop: 10 }}>Generated {new Date(s.generatedAt).toLocaleString()} · A price is shown only where we scrape it live from the platform (Afternic buy-now, Spaceship buy-now/min-offer). Marketplace (snagged.com/marketplace scrape) and Atom (nameserver-derived) show a ✓ only — no inferred price. Registrar/nameservers cached 24h in your browser.</p>}
     </main>
   );
 }
