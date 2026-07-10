@@ -613,9 +613,11 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
               ))}
             </div>
           )}
-          {preview && (
+          {/* PREVIEW — shown only until changes are applied. */}
+          {preview && !applyResult && (
             <div style={{ marginTop: 12, borderTop: "1px solid #e6e6ef", paddingTop: 12 }}>
               <div style={{ display: "flex", gap: 16, flexWrap: "wrap", fontSize: 13, fontWeight: 600, alignItems: "center" }}>
+                <span style={{ color: "#6b6b7b", fontWeight: 700 }}>Preview</span>
                 <span style={{ color: "#2f7d4f" }}>✓ {preview.summary.willUpdate} would update</span>
                 {preview.summary.noChange > 0 && <span style={{ color: "#6b6b7b" }}>= {preview.summary.noChange} already match</span>}
                 {preview.summary.skipped > 0 && <span style={{ color: "#a3502f" }}>✗ {preview.summary.skipped} skipped</span>}
@@ -625,25 +627,6 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
                   </button>
                 )}
               </div>
-              {applyResult && (
-                <div style={{ marginTop: 10, borderTop: "1px solid #e6e6ef", paddingTop: 10 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700 }}>
-                    <span style={{ color: "#2f7d4f" }}>⚡ {applyResult.summary.applied} applied</span>
-                    {applyResult.summary.noChange > 0 && <span style={{ color: "#6b6b7b", marginLeft: 12 }}>= {applyResult.summary.noChange} no-op</span>}
-                    {applyResult.summary.failed > 0 && <span style={{ color: "#b1442c", marginLeft: 12 }}>✗ {applyResult.summary.failed} failed</span>}
-                    {applyResult.summary.skipped > 0 && <span style={{ color: "#a3502f", marginLeft: 12 }}>– {applyResult.summary.skipped} skipped</span>}
-                  </div>
-                  <div style={{ marginTop: 6, maxHeight: 220, overflowY: "auto", fontSize: 12.5 }}>
-                    {applyResult.results.filter((r) => !r.ok || r.error).map((r) => (
-                      <div key={r.domain} style={{ padding: "3px 0", display: "flex", gap: 8 }}>
-                        <span style={{ fontWeight: 600, minWidth: 160 }}>{r.domain}</span>
-                        <span style={{ color: r.skipped ? "#a3502f" : "#b1442c" }}>{r.skipped ? "– skipped" : "✗ failed"} — {r.error}</span>
-                      </div>
-                    ))}
-                    {applyResult.results.every((r) => r.ok && !r.error) && <div style={{ color: "#2f7d4f" }}>All changes applied successfully.</div>}
-                  </div>
-                </div>
-              )}
               <div style={{ marginTop: 8, maxHeight: 260, overflowY: "auto", fontSize: 12.5 }}>
                 {preview.results.map((r) => (
                   <div key={r.domain} style={{ padding: "4px 0", borderBottom: "1px solid #f0f0f5", display: "flex", gap: 8, alignItems: "baseline" }}>
@@ -662,6 +645,38 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
                         )}
                         {r.caveat ? <span style={{ color: "#a3502f", marginLeft: 6 }}>⚠ {r.caveat}</span> : null}
                       </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* RESULT — replaces the preview once Apply runs. Shows exactly what happened. */}
+          {applyResult && (
+            <div style={{ marginTop: 12, borderTop: "1px solid #e6e6ef", paddingTop: 12 }}>
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap", fontSize: 13, fontWeight: 700, alignItems: "center" }}>
+                <span style={{ color: "#6b6b7b" }}>Result</span>
+                <span style={{ color: "#2f7d4f" }}>⚡ {applyResult.summary.applied} applied</span>
+                {applyResult.summary.noChange > 0 && <span style={{ color: "#6b6b7b" }}>= {applyResult.summary.noChange} no-op</span>}
+                {applyResult.summary.failed > 0 && <span style={{ color: "#b1442c" }}>✗ {applyResult.summary.failed} failed</span>}
+                {applyResult.summary.skipped > 0 && <span style={{ color: "#a3502f" }}>– {applyResult.summary.skipped} skipped</span>}
+                <button onClick={() => { setApplyResult(null); setPreview(null); }} style={{ marginLeft: "auto", padding: "6px 14px", borderRadius: 8, border: "1px solid #d5d5e0", background: "#fff", cursor: "pointer", fontSize: 12.5, fontWeight: 600 }}>
+                  Done
+                </button>
+              </div>
+              <div style={{ marginTop: 8, maxHeight: 300, overflowY: "auto", fontSize: 12.5 }}>
+                {applyResult.results.map((r) => (
+                  <div key={r.domain} style={{ padding: "4px 0", borderBottom: "1px solid #f0f0f5", display: "flex", gap: 8, alignItems: "baseline" }}>
+                    <span style={{ fontWeight: 600, minWidth: 160 }}>{r.domain}</span>
+                    {r.skipped ? (
+                      <span style={{ color: "#a3502f" }}>– skipped — {r.error}</span>
+                    ) : !r.ok ? (
+                      <span style={{ color: "#b1442c" }}>✗ failed — {r.error}</span>
+                    ) : r.noChange ? (
+                      <span style={{ color: "#6b6b7b" }}>= no change ({r.provider})</span>
+                    ) : (
+                      <span style={{ color: "#2f7d4f" }}>✓ applied via {r.provider}{r.account ? ` (${r.account})` : ""}</span>
                     )}
                   </div>
                 ))}
