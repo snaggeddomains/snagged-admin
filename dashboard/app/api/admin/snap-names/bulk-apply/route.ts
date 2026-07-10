@@ -11,7 +11,7 @@ import { getCurrentUser } from "@/lib/session";
 import { canReports } from "@/lib/permissions";
 import { resolveDomainLive, invalidateLive } from "@/lib/domain-dns";
 import { PROVIDERS, providerForRegistrar, providerForNsHost, defaultNsForRegistrar } from "@/lib/registrar/registry";
-import { setNameservers, setDnsRecord, nsExecutable, type DnsRecordInput } from "@/lib/registrar/adapters";
+import { setNameservers, setDnsRecord, nsExecutable, dnsExecutable, type DnsRecordInput } from "@/lib/registrar/adapters";
 import { logWrite } from "@/lib/snap-writes";
 
 export const runtime = "nodejs";
@@ -71,7 +71,8 @@ export async function POST(req: Request) {
     const pid = providerForNsHost(live.ns_provider);
     const prov = pid ? PROVIDERS[pid] : null;
     if (!prov || !prov.hasKeys(env)) return { domain, ok: false, skipped: true, provider: prov?.label || null, error: prov ? `${prov.label} key not configured` : `DNS host "${live.ns_provider || "unknown"}" has no adapter` };
-    const r = await setDnsRecord(pid!, domain, record as DnsRecordInput, env);
+    if (!pid || !dnsExecutable(pid)) return { domain, ok: false, skipped: true, provider: prov.label, error: `${prov.label} DNS-record execute not enabled yet` };
+    const r = await setDnsRecord(pid, domain, record as DnsRecordInput, env);
     await logWrite({ domain, provider: prov.label, action: "dns", record, ok: r.ok, error: r.error, changed_by: by });
     return { domain, ok: r.ok, provider: prov.label, error: r.error || null };
   });

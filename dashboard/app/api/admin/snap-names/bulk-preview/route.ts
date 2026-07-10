@@ -9,6 +9,7 @@ import { getCurrentUser } from "@/lib/session";
 import { canReports } from "@/lib/permissions";
 import { resolveDomainLive } from "@/lib/domain-dns";
 import { PROVIDERS, providerForRegistrar, providerForNsHost, defaultNsForRegistrar } from "@/lib/registrar/registry";
+import { nsExecutable, dnsExecutable } from "@/lib/registrar/adapters";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -82,10 +83,11 @@ export async function POST(req: Request) {
     // DNS record: the DNS host is where the NS point, not necessarily the registrar.
     const pid = providerForNsHost(live.ns_provider);
     const prov = pid ? PROVIDERS[pid] : null;
-    const wired = !!(prov && prov.canDNS && prov.hasKeys(env));
+    const wired = !!(prov && prov.canDNS && prov.hasKeys(env) && pid && dnsExecutable(pid));
     let skipReason: string | null = null;
     if (!prov) skipReason = live.ns_provider ? `DNS host "${live.ns_provider}" has no adapter` : "DNS host unknown";
     else if (!prov.hasKeys(env)) skipReason = `${prov.label} API key not configured`;
+    else if (pid && !dnsExecutable(pid)) skipReason = `${prov.label} DNS-record execute not enabled yet`;
     return {
       domain,
       registrar: live.registrar,

@@ -180,10 +180,38 @@ async function namecheapSetNs(domain: string, ns: string[], e: NodeJS.ProcessEnv
   return { ok: false, error: lastErr || "Namecheap write failed (domain not in any configured account?)" };
 }
 
+// ── GoDaddy DNS (append a record via v1 /records; Berserk→Rob cascade) ───────
+async function godaddySetDns(domain: string, rec: DnsRecordInput, e: NodeJS.ProcessEnv): Promise<WriteResult> {
+  const accounts = godaddyAccounts(e);
+  if (!accounts.length) return { ok: false, error: "No GoDaddy API key configured" };
+  const body = [{ data: rec.value, name: rec.host || "@", ttl: Math.max(600, rec.ttl || 600), type: rec.type }];
+  let lastErr = "";
+  for (const acct of accounts) {
+    try {
+      const res = await timedFetch(`https://api.godaddy.com/v1/domains/${encodeURIComponent(domain)}/records`, {
+        method: "PATCH",
+        headers: { Authorization: `sso-key ${acct.key}:${acct.secret}`, "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (res.ok) return { ok: true, account: acct.account };
+      if (res.status === 404) { lastErr = "not found in any configured GoDaddy account"; continue; }
+      const t = await res.text().catch(() => "");
+      return { ok: false, account: acct.account, error: `GoDaddy HTTP ${res.status}${t ? `: ${t.slice(0, 160)}` : ""}` };
+    } catch (err) {
+      lastErr = String((err as Error)?.message || err);
+    }
+  }
+  return { ok: false, error: lastErr || "GoDaddy DNS write failed" };
+}
+
 // ── dispatch ────────────────────────────────────────────────────────────────
 const NS_EXECUTABLE: ProviderId[] = ["porkbun", "spaceship", "namesilo", "godaddy", "namecheap"];
 export function nsExecutable(provider: ProviderId): boolean {
   return NS_EXECUTABLE.includes(provider);
+}
+const DNS_EXECUTABLE: ProviderId[] = ["porkbun", "godaddy"];
+export function dnsExecutable(provider: ProviderId): boolean {
+  return DNS_EXECUTABLE.includes(provider);
 }
 
 export async function setNameservers(provider: ProviderId, domain: string, ns: string[], e: NodeJS.ProcessEnv): Promise<WriteResult> {
@@ -200,6 +228,7 @@ export async function setNameservers(provider: ProviderId, domain: string, ns: s
 export async function setDnsRecord(provider: ProviderId, domain: string, rec: DnsRecordInput, e: NodeJS.ProcessEnv): Promise<WriteResult> {
   switch (provider) {
     case "porkbun": return porkbunSetDns(domain, rec, e);
+    case "godaddy": return godaddySetDns(domain, rec, e);
     default: return { ok: false, error: `${provider} DNS-record execute not enabled yet` };
   }
 }
