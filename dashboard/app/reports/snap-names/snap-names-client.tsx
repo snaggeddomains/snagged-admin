@@ -107,8 +107,29 @@ function writeLive(d: string, v: Live) {
   }
 }
 
-export default function SnapNamesClient() {
+type PreviewRow = {
+  domain: string;
+  registrar: string | null;
+  dnsHost?: string | null;
+  provider: string | null;
+  wired: boolean;
+  willChange: boolean;
+  noChange: boolean;
+  caveat?: string | null;
+  skipReason: string | null;
+};
+type Preview = { dryRun: boolean; action: string; summary: { total: number; willUpdate: number; noChange: number; skipped: number }; results: PreviewRow[] };
+
+export default function SnapNamesClient({ canWrite = false }: { canWrite?: boolean }) {
   const [report, setReport] = useState<Report | null>(null);
+  // ── bulk update (registrar/DNS pushes) ──────────────────────────────────
+  const [updateMode, setUpdateMode] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkAction, setBulkAction] = useState<"nameservers" | "dns">("nameservers");
+  const [nsTarget, setNsTarget] = useState("");
+  const [dnsRec, setDnsRec] = useState({ type: "A", host: "@", value: "", ttl: "3600" });
+  const [preview, setPreview] = useState<Preview | null>(null);
+  const [previewing, setPreviewing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [live, setLive] = useState<Record<string, Live>>({});
@@ -342,6 +363,47 @@ export default function SnapNamesClient() {
     URL.revokeObjectURL(url);
   };
 
+  const toggleRow = (domain: string) =>
+    setSelected((prev) => {
+      const s = new Set(prev);
+      if (s.has(domain)) s.delete(domain);
+      else s.add(domain);
+      return s;
+    });
+  const allShownSelected = filtered.length > 0 && filtered.every((r) => selected.has(r.domain));
+  const toggleSelectAll = () =>
+    setSelected((prev) => {
+      const s = new Set(prev);
+      if (allShownSelected) filtered.forEach((r) => s.delete(r.domain));
+      else filtered.forEach((r) => s.add(r.domain));
+      return s;
+    });
+
+  const runPreview = useCallback(async () => {
+    setPreviewing(true);
+    setPreview(null);
+    setErr(null);
+    try {
+      const domains = [...selected];
+      const payload =
+        bulkAction === "nameservers"
+          ? { domains, action: "nameservers", nameservers: nsTarget.split(/[\s,]+/).map((x) => x.trim()).filter(Boolean) }
+          : { domains, action: "dns", record: { type: dnsRec.type, host: dnsRec.host, value: dnsRec.value, ttl: Number(dnsRec.ttl) || 3600 } };
+      const res = await fetch("/api/admin/snap-names/bulk-preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const j = await res.json();
+      if (!res.ok) throw new Error(j?.error || `HTTP ${res.status}`);
+      setPreview(j as Preview);
+    } catch (e) {
+      setErr(String((e as Error)?.message || e));
+    } finally {
+      setPreviewing(false);
+    }
+  }, [selected, bulkAction, nsTarget, dnsRec]);
+
   const s = report?.summary;
 
   return (
@@ -359,6 +421,14 @@ export default function SnapNamesClient() {
           </p>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
+          {canWrite && (
+            <button
+              onClick={() => { setUpdateMode((v) => !v); setPreview(null); }}
+              style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid " + (updateMode ? "#2f2f45" : "#d5d5e0"), background: updateMode ? "#2f2f45" : "#fff", color: updateMode ? "#fff" : "#44445a", cursor: "pointer", fontSize: 13, fontWeight: 600 }}
+            >
+              {updateMode ? "✕ Exit updates" : "⚙ Updates"}
+            </button>
+          )}
           <button onClick={downloadCsv} disabled={!filtered.length} style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid #d5d5e0", background: "#fff", cursor: "pointer", fontSize: 13 }}>
             ⬇ CSV
           </button>
@@ -404,10 +474,70 @@ export default function SnapNamesClient() {
         </span>
       </div>
 
+      {updateMode && (
+        <div style={{ ...card, marginTop: 12, background: "#fbfaf7", borderColor: "#e0dccf" }}>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+            <strong style={{ fontSize: 13 }}>{selected.size} selected</strong>
+            <select value={bulkAction} onChange={(e) => { setBulkAction(e.target.value as "nameservers" | "dns"); setPreview(null); }} style={{ padding: "7px 10px", borderRadius: 8, border: "1px solid #d5d5e0", fontSize: 13 }}>
+              <option value="nameservers">Set nameservers</option>
+              <option value="dns">Set a DNS record</option>
+            </select>
+            {bulkAction === "nameservers" ? (
+              <input value={nsTarget} onChange={(e) => setNsTarget(e.target.value)} placeholder="ns1.example.com, ns2.example.com" style={{ padding: "7px 10px", borderRadius: 8, border: "1px solid #d5d5e0", fontSize: 13, minWidth: 320, flex: "1 1 320px" }} />
+            ) : (
+              <span style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                <select value={dnsRec.type} onChange={(e) => setDnsRec({ ...dnsRec, type: e.target.value })} style={{ padding: "7px 8px", borderRadius: 8, border: "1px solid #d5d5e0", fontSize: 13 }}>
+                  {["A", "AAAA", "CNAME", "MX", "TXT", "URL"].map((t) => <option key={t}>{t}</option>)}
+                </select>
+                <input value={dnsRec.host} onChange={(e) => setDnsRec({ ...dnsRec, host: e.target.value })} placeholder="host (@)" style={{ width: 90, padding: "7px 8px", borderRadius: 8, border: "1px solid #d5d5e0", fontSize: 13 }} />
+                <input value={dnsRec.value} onChange={(e) => setDnsRec({ ...dnsRec, value: e.target.value })} placeholder="value" style={{ minWidth: 200, flex: "1 1 200px", padding: "7px 8px", borderRadius: 8, border: "1px solid #d5d5e0", fontSize: 13 }} />
+                <input value={dnsRec.ttl} onChange={(e) => setDnsRec({ ...dnsRec, ttl: e.target.value })} placeholder="ttl" style={{ width: 70, padding: "7px 8px", borderRadius: 8, border: "1px solid #d5d5e0", fontSize: 13 }} />
+              </span>
+            )}
+            <button onClick={runPreview} disabled={!selected.size || previewing} style={{ padding: "8px 16px", borderRadius: 8, border: "none", background: "#2f7d4f", color: "#fff", cursor: selected.size ? "pointer" : "default", fontSize: 13, fontWeight: 600, opacity: selected.size ? 1 : 0.5 }}>
+              {previewing ? "Previewing…" : "Preview changes"}
+            </button>
+          </div>
+          <div className="muted" style={{ fontSize: 11, marginTop: 8 }}>
+            Preview only — nothing is written to any registrar yet. It shows what would change and which rows would be skipped (registrar not wired / no key). Live writes get enabled per-registrar after we validate.
+          </div>
+          {preview && (
+            <div style={{ marginTop: 12, borderTop: "1px solid #e6e6ef", paddingTop: 12 }}>
+              <div style={{ display: "flex", gap: 16, flexWrap: "wrap", fontSize: 13, fontWeight: 600 }}>
+                <span style={{ color: "#2f7d4f" }}>✓ {preview.summary.willUpdate} would update</span>
+                {preview.summary.noChange > 0 && <span style={{ color: "#6b6b7b" }}>= {preview.summary.noChange} already match</span>}
+                {preview.summary.skipped > 0 && <span style={{ color: "#a3502f" }}>✗ {preview.summary.skipped} skipped</span>}
+              </div>
+              <div style={{ marginTop: 8, maxHeight: 260, overflowY: "auto", fontSize: 12.5 }}>
+                {preview.results.map((r) => (
+                  <div key={r.domain} style={{ padding: "4px 0", borderBottom: "1px solid #f0f0f5", display: "flex", gap: 8, alignItems: "baseline" }}>
+                    <span style={{ fontWeight: 600, minWidth: 160 }}>{r.domain}</span>
+                    {!r.wired ? (
+                      <span style={{ color: "#a3502f" }}>✗ skipped — {r.skipReason}</span>
+                    ) : r.noChange ? (
+                      <span style={{ color: "#6b6b7b" }}>= already matches ({r.provider})</span>
+                    ) : (
+                      <span style={{ color: "#2f7d4f" }}>
+                        ✓ via {r.provider}{r.caveat ? <span style={{ color: "#a3502f", marginLeft: 6 }}>⚠ {r.caveat}</span> : null}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       <div style={{ ...card, marginTop: 12, padding: 0, overflowX: "auto" }}>
         <table style={{ borderCollapse: "collapse", width: "100%", minWidth: 1100 }}>
           <thead>
             <tr>
+              {updateMode && (
+                <th style={{ ...th, cursor: "default", width: 34 }}>
+                  <input type="checkbox" checked={allShownSelected} onChange={toggleSelectAll} title="Select all shown" />
+                </th>
+              )}
               <th style={th} onClick={() => setSort("domain")}>Domain{arrow("domain")}</th>
               <th style={th} onClick={() => setSort("source")}>Source{arrow("source")}</th>
               <th style={th} onClick={() => setSort("tld")}>TLD{arrow("tld")}</th>
@@ -442,7 +572,12 @@ export default function SnapNamesClient() {
               const shipPrice = l?.spaceship_price ?? null;
               const shipSub = !l?.spaceship_price && l?.spaceship_min_offer ? `min ${usd(l.spaceship_min_offer)}` : null;
               return (
-                <tr key={`${r.domain}-${i}`}>
+                <tr key={`${r.domain}-${i}`} style={updateMode && selected.has(r.domain) ? { background: "#f2f7f4" } : undefined}>
+                  {updateMode && (
+                    <td style={{ ...td, textAlign: "center" }}>
+                      <input type="checkbox" checked={selected.has(r.domain)} onChange={() => toggleRow(r.domain)} />
+                    </td>
+                  )}
                   <td style={{ ...td, fontWeight: 600 }} title={[r.notes, r.also_spellings?.length ? `also spelled: ${r.also_spellings.join(", ")}` : ""].filter(Boolean).join(" · ") || undefined}>
                     {r.domain}
                     {r.also_spellings?.length ? <span style={{ marginLeft: 5, fontSize: 11, color: "#b98a3a", cursor: "help" }} title={`typo variant folded in: ${r.also_spellings.join(", ")}`}>±</span> : null}
@@ -499,7 +634,7 @@ export default function SnapNamesClient() {
                 </tr>
               );
             })}
-            {!loading && !filtered.length && <tr><td style={{ ...td, textAlign: "center", color: "#6b6b7b" }} colSpan={14}>{showArchived ? "No archived names." : "No names match."}</td></tr>}
+            {!loading && !filtered.length && <tr><td style={{ ...td, textAlign: "center", color: "#6b6b7b" }} colSpan={updateMode ? 15 : 14}>{showArchived ? "No archived names." : "No names match."}</td></tr>}
           </tbody>
         </table>
       </div>

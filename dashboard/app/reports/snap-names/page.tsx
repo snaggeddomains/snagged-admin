@@ -18,5 +18,5 @@ export default async function SnapNamesPage() {
       </main>
     );
   }
-  return <SnapNamesClient />;
+  return <SnapNamesClient canWrite={canReports(user, "reports.snap_names.write")} />;
 }

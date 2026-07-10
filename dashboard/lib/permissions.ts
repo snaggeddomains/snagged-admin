@@ -57,6 +57,7 @@ export const ACTIONS = [
   "reports.marketplace", // view the Marketplace per-domain report (GA4 /domains/*)
   "reports.opportunities", // view the New Opportunities report (snap + auctions)
   "reports.snap_names", // view the SNAP Names report (purchased / for-sale inventory)
+  "reports.snap_names.write", // push registrar/DNS updates from SNAP Names (bulk actions)
   "reports.chat", // use Chat Analytics (LLM Q&A over the report data)
 ] as const;
 export type ActionKey = (typeof ACTIONS)[number];
@@ -196,6 +197,7 @@ export const CATALOG: CatalogEntry[] = [
   { key: "research.evaluate", label: "SNAP Eval (acquisition / resale scorecard)", group: "SNAP", kind: "module" },
   { key: "reports.opportunities", label: "SNAP Opportunities (snap + auctions)", group: "SNAP", kind: "action" },
   { key: "reports.snap_names", label: "SNAP Names (purchased / for-sale inventory)", group: "SNAP", kind: "action" },
+  { key: "reports.snap_names.write", label: "SNAP Names — push registrar/DNS updates (bulk)", group: "SNAP", kind: "action" },
   { key: "reports.chat", label: "Reports — Chat Analytics (LLM Q&A)", group: "Reports", kind: "action" },
   { key: "reports.cost", label: "Reports — API cost & usage", group: "Reports", kind: "action" },
   { key: "research.domain_owner", label: "Domain Owner research", group: "Research", kind: "module" },
