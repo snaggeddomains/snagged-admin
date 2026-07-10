@@ -64,6 +64,15 @@
   },
   {
     "currency": "USD",
+    "domain": "nudes.co",
+    "end_time_utc": "2026-07-10T12:24:58+00:00",
+    "is_mub": false,
+    "price": 49888.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=nudes.co"
+  },
+  {
+    "currency": "USD",
     "domain": "fictional.co",
     "end_time_utc": "2026-07-10T08:58:01+00:00",
     "is_mub": false,

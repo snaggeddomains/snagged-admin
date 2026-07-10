@@ -1,19 +1,67 @@
 [
   {
+    "domain": "bandung.com",
+    "price": 67500.0
+  },
+  {
+    "domain": "hanglin.com",
+    "price": 2465.0
+  },
+  {
+    "domain": "desember.com",
+    "price": 2450.0
+  },
+  {
+    "domain": "padang.com",
+    "price": 17500.0
+  },
+  {
+    "domain": "balang.com",
+    "price": 1500.0
+  },
+  {
+    "domain": "malang.com",
+    "price": 88800.0
+  },
+  {
+    "domain": "steall.com",
+    "price": 685.0
+  },
+  {
+    "domain": "japaneses.com",
+    "price": 595.0
+  },
+  {
+    "domain": "hawkstones.com",
+    "price": 397.0
+  },
+  {
+    "domain": "claudias.ai",
+    "price": 27740.0
+  },
+  {
+    "domain": "bethani.net",
+    "price": 3500.0
+  },
+  {
     "domain": "opengov.net",
     "price": 2395.0
+  },
+  {
+    "domain": "turning.net",
+    "price": 1500.0
   },
   {
     "domain": "lanark.net",
     "price": null
   },
   {
-    "domain": "majoring.net",
-    "price": 895.0
+    "domain": "wisata.net",
+    "price": 2500.0
   },
   {
-    "domain": "pathos.net",
-    "price": null
+    "domain": "claudias.net",
+    "price": 2740.0
   },
   {
     "domain": "redress.co",
@@ -46,6 +94,10 @@
   {
     "domain": "delusion.co",
     "price": 29888.0
+  },
+  {
+    "domain": "nudes.co",
+    "price": 49888.0
   },
   {
     "domain": "fictional.co",
