@@ -17,6 +17,39 @@ import { getSheetValues } from "./sheets";
 const SHEET_BERSERK = "1oHfG8FYlTTclnB-gi0IkkhbqnXXYfeewOBiZn9Hds4M";
 const SHEET_SNAP_ROB = "1KaxYUgBFALe_T0F8-6D0kb7mWy-eU5CkIbX6BGmyK4g";
 
+// The Snagged.com marketplace is a Webflow CMS site that server-renders every
+// listed domain as a card with aria-label="<Domain.tld>". Scraping that page is
+// the AUTHORITATIVE "is it live on our marketplace" check (the nameserver proxy
+// disagreed for some names). Cached in-process for an hour — it's one catalog.
+let mktSet: Set<string> | null = null;
+let mktAt = 0;
+export async function snaggedMarketplaceSet(): Promise<Set<string>> {
+  if (mktSet && Date.now() - mktAt < 3600 * 1000) return mktSet;
+  try {
+    const res = await fetch("https://www.snagged.com/marketplace", {
+      headers: {
+        "user-agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36",
+      },
+      signal: AbortSignal.timeout(12000),
+    });
+    if (!res.ok) throw new Error(String(res.status));
+    const html = await res.text();
+    const set = new Set<string>();
+    for (const m of html.matchAll(/aria-label="([^"]+\.[a-z]{2,})"/gi)) {
+      const d = m[1].trim().toLowerCase();
+      if (/^[a-z0-9.-]+\.[a-z]{2,}$/.test(d)) set.add(d);
+    }
+    if (set.size) {
+      mktSet = set;
+      mktAt = Date.now();
+    }
+    return mktSet || set;
+  } catch {
+    return mktSet || new Set(); // fail-open: keep last good, else empty
+  }
+}
+
 export type SnapSource = "Berserk" | "SNAP" | "Rob";
 
 export interface SnapName {
@@ -42,6 +75,7 @@ export interface SnapName {
   active: string | null;
   notes: string | null;
   also_in: SnapSource[]; // other lists this domain also appears on (dedupe trail)
+  on_snagged_marketplace: boolean; // authoritative: scraped from snagged.com/marketplace
 }
 
 export interface SnapNamesReport {
@@ -145,6 +179,7 @@ function normalizeRows(values: string[][], source: SnapSource): SnapName[] {
       active: clean(get(row, "active", "active?")),
       notes: clean(get(row, "notes")),
       also_in: [],
+      on_snagged_marketplace: false,
     });
   }
   return out;
@@ -153,10 +188,11 @@ function normalizeRows(values: string[][], source: SnapSource): SnapName[] {
 // ── report builder ──────────────────────────────────────────────────────────
 
 export async function buildSnapNames(): Promise<SnapNamesReport> {
-  const [berserk, snap, rob] = await Promise.all([
+  const [berserk, snap, rob, marketplace] = await Promise.all([
     getSheetValues(SHEET_BERSERK, "'Purchases'!A1:Z5000").catch(() => [] as string[][]),
     getSheetValues(SHEET_SNAP_ROB, "'SNAP Domains'!A1:Z5000").catch(() => [] as string[][]),
     getSheetValues(SHEET_SNAP_ROB, "'Rob Purchases'!A1:Z5000").catch(() => [] as string[][]),
+    snaggedMarketplaceSet(),
   ]);
 
   const all: SnapName[] = [
@@ -195,6 +231,8 @@ export async function buildSnapNames(): Promise<SnapNamesReport> {
     byDomain.set(r.domain, merged);
   }
   const rows: SnapName[] = [...byDomain.values()];
+  // Authoritative "live on the Snagged marketplace" from the scraped catalog.
+  for (const r of rows) r.on_snagged_marketplace = marketplace.has(r.domain);
 
   const bySource: Record<SnapSource, number> = { Berserk: 0, SNAP: 0, Rob: 0 };
   let owned = 0;
@@ -211,7 +249,7 @@ export async function buildSnapNames(): Promise<SnapNamesReport> {
       owned += 1;
       if (r.internal_price) internalValue += r.internal_price;
     }
-    if (r.on_marketplace) onMkt += 1;
+    if (r.on_snagged_marketplace) onMkt += 1; // authoritative live-on-marketplace count
   }
 
   return {
