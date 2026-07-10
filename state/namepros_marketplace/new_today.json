@@ -1,11 +1,17 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 8,
   "domains": [
-    "bubble.co",
-    "ryy.com"
+    "533.ai",
+    "advancement.co",
+    "complete.co",
+    "diode.co",
+    "distinct.me",
+    "lateral.co",
+    "nozzle.co",
+    "sails.com"
   ],
-  "generated_at": "2026-07-09T23:06:28.394737+00:00",
+  "generated_at": "2026-07-10T10:07:27.625369+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
