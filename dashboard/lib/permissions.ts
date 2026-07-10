@@ -39,6 +39,7 @@ export const MODULES = [
   "research.beeper", // Beeper — RDAP drop watcher (alert when a domain's status changes)
   "research.whois", // Whois — basic free RDAP/WHOIS domain lookup
   "research.evaluate", // SNAP Eval — should-we-buy-it acquisition/resale scorecard
+  "research.bulk_eval", // Bulk Eval — rank a list/CSV of domains by investability (resale vs price)
   "research.portfolio", // Corporate Portfolios — reverse-WHOIS a company → its premium domains (lives in Reports)
   "research.person", // Person — social-URL deep dive: identity, cross-platform VIP, contacts
 ] as const;
@@ -137,6 +138,7 @@ export const RESEARCH_TABS: { href: string; label: string; perm: ModuleKey | Act
 // SNAP section sub-nav in both the umbrella TopBar and the research SPA.
 export const SNAP_TABS: { href: string; label: string; perm: ModuleKey | ActionKey }[] = [
   { href: "/research/evaluate", label: "SNAP Eval", perm: "research.evaluate" },
+  { href: "/research/bulk-eval", label: "Bulk Eval", perm: "research.bulk_eval" },
   { href: "/reports/opportunities", label: "SNAP Opportunities", perm: "reports.opportunities" },
   { href: "/reports/snap-names", label: "SNAP Names", perm: "reports.snap_names" },
 ];
@@ -195,6 +197,7 @@ export const CATALOG: CatalogEntry[] = [
   { key: "reports.analytics", label: "Reports — Site Analytics", group: "Reports", kind: "action" },
   { key: "reports.marketplace", label: "Reports — Marketplace (per-domain)", group: "Reports", kind: "action" },
   { key: "research.evaluate", label: "SNAP Eval (acquisition / resale scorecard)", group: "SNAP", kind: "module" },
+  { key: "research.bulk_eval", label: "Bulk Eval (rank a list of domains by investability)", group: "SNAP", kind: "module" },
   { key: "reports.opportunities", label: "SNAP Opportunities (snap + auctions)", group: "SNAP", kind: "action" },
   { key: "reports.snap_names", label: "SNAP Names (purchased / for-sale inventory)", group: "SNAP", kind: "action" },
   { key: "reports.snap_names.write", label: "SNAP Names — push registrar/DNS updates (bulk)", group: "SNAP", kind: "action" },
