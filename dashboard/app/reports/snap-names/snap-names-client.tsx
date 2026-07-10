@@ -113,7 +113,7 @@ const card: CSSProperties = { border: "1px solid #e6e6ef", borderRadius: 12, pad
 const th: CSSProperties = { textAlign: "left", padding: "8px 10px", fontSize: 12, color: "#6b6b7b", fontWeight: 600, borderBottom: "1px solid #e6e6ef", whiteSpace: "nowrap", cursor: "pointer", userSelect: "none" };
 const td: CSSProperties = { padding: "8px 10px", fontSize: 13, borderBottom: "1px solid #f0f0f5", verticalAlign: "top" };
 
-type SortKey = "domain" | "source" | "tld" | "date" | "purchase" | "internal" | "registrar" | "nameservers" | "status" | "afternic" | "atom" | "spaceship" | "marketplace";
+type SortKey = "domain" | "source" | "tld" | "date" | "purchase" | "internal" | "registrar" | "nameservers" | "status" | "afternic" | "atom" | "spaceship" | "marketplace" | "verified" | "expires" | "autorenew";
 
 // localStorage cache for live lookups so repeat views don't re-resolve.
 const LIVE_TTL = 24 * 3600 * 1000;
@@ -415,20 +415,26 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
   // Reconciliation of the SNAP list against the registrar-account inventory.
   const audit = useMemo(() => {
     const okPids = new Set(invAccounts.filter((a) => a.ok).map((a) => a.provider));
-    const listPids = new Set(["porkbun", "spaceship", "dynadot", "namesilo", "godaddy", "namecheap"]);
     const reportDomains = new Set((report?.rows || []).map((r) => r.domain.toLowerCase()));
     // In an account, not on our list.
     const untracked = Object.keys(invOwned)
       .filter((d) => !reportDomains.has(d))
       .map((d) => ({ domain: d, at: invOwned[d] }));
-    // On our list, not in any account — only when its registrar is one we listed OK
-    // (else we can't claim it's missing, just unverifiable).
+    // On our list, not in any account. Flag it when EITHER its registrar is one we
+    // listed OK (definitely should be in that account), OR its registrar didn't resolve
+    // at all (blank — a misspelling like quorrent.com, or a flaky WHOIS like peeked.co;
+    // still worth a human look). We only SKIP names that resolved to a registrar we
+    // don't manage (e.g. GlamDomains) — those we genuinely can't verify either way.
     const missing = (report?.rows || [])
       .filter((r) => {
         const d = r.domain.toLowerCase();
         if (invOwned[d]) return false;
-        const pid = regPid(live[r.domain]?.registrar);
-        return !!pid && listPids.has(pid) && okPids.has(pid);
+        const l = live[r.domain];
+        if (!l) return false; // not resolved yet — can't classify
+        const pid = regPid(l.registrar); // only ever a managed provider id, else null
+        const managedOk = !!pid && okPids.has(pid);
+        const hasReg = !!(l.registrar && String(l.registrar).trim());
+        return managedOk || !hasReg;
       })
       .map((r) => ({ domain: r.domain, registrar: canonicalRegistrar(live[r.domain]?.registrar) }));
     const hiddenN = (arr: { domain: string }[]) => arr.filter((x) => invHidden.has(x.domain.toLowerCase()));
@@ -486,6 +492,10 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
           return listed ? (l.spaceship_price ?? r.spaceship_price ?? l.spaceship_min_offer ?? 1) : 0;
         }
         case "marketplace": return r.on_snagged_marketplace ? (r.internal_price ?? 1) : 0;
+        // Account-verification columns (from the inventory snapshot).
+        case "verified": { const at = invOwned[r.domain.toLowerCase()]; return at ? "0" + (at.account || at.label).toLowerCase() : "1"; }
+        case "expires": return parseExp(invOwned[r.domain.toLowerCase()]?.expires) ?? Number.MAX_SAFE_INTEGER; // soonest first
+        case "autorenew": { const at = invOwned[r.domain.toLowerCase()]; return at ? (at.autoRenew === false ? 0 : at.autoRenew === true ? 1 : 2) : 3; } // OFF first
         default: return 0;
       }
     };
@@ -497,13 +507,15 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
       return a.domain < b.domain ? -1 : 1;
     });
     return rows;
-  }, [report, q, src, status, tldFilter, nsFilter, regFilter, sortKey, sortDir, live, archived, showArchived]);
+  }, [report, q, src, status, tldFilter, nsFilter, regFilter, sortKey, sortDir, live, invOwned, archived, showArchived]);
 
   const setSort = (k: SortKey) => {
     if (k === sortKey) setSortDir((d) => (d === 1 ? -1 : 1));
     else {
       setSortKey(k);
-      setSortDir(k === "domain" || k === "source" || k === "tld" || k === "registrar" || k === "nameservers" ? 1 : -1);
+      // Ascending by default for text + the "soonest/most-actionable first" columns.
+      const asc = ["domain", "source", "tld", "registrar", "nameservers", "verified", "expires", "autorenew"];
+      setSortDir(asc.includes(k) ? 1 : -1);
     }
   };
   const arrow = (k: SortKey) => (k === sortKey ? (sortDir === 1 ? " ▲" : " ▼") : "");
@@ -929,9 +941,9 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
               <th style={th} onClick={() => setSort("source")}>Source{arrow("source")}</th>
               <th style={th} onClick={() => setSort("tld")}>TLD{arrow("tld")}</th>
               <th style={th} onClick={() => setSort("registrar")}>Registrar{arrow("registrar")}</th>
-              <th style={{ ...th, cursor: "default" }} title="Verified against the actual registrar-account inventory">Verified</th>
-              <th style={{ ...th, cursor: "default" }} title="Registrar-reported expiration; red within 30 days">Expires</th>
-              <th style={{ ...th, cursor: "default", textAlign: "center" }} title="Auto-renew on (✓) / off (✗) per the registrar">Auto-renew</th>
+              <th style={th} onClick={() => setSort("verified")} title="Verified against the actual registrar-account inventory">Verified{arrow("verified")}</th>
+              <th style={th} onClick={() => setSort("expires")} title="Registrar-reported expiration; red within 30 days">Expires{arrow("expires")}</th>
+              <th style={{ ...th, textAlign: "center" }} onClick={() => setSort("autorenew")} title="Auto-renew on (✓) / off (✗) per the registrar">Auto-renew{arrow("autorenew")}</th>
               <th style={{ ...th, textAlign: "right" }} onClick={() => setSort("internal")}>Internal{arrow("internal")}</th>
               <th style={th} onClick={() => setSort("afternic")}>Afternic{arrow("afternic")}</th>
               <th style={th} onClick={() => setSort("atom")}>Atom{arrow("atom")}</th>
@@ -975,7 +987,12 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
                   <td style={{ ...td, whiteSpace: "nowrap" }}>{l ? canonicalRegistrar(l.registrar) || <span style={{ color: "#b8b8c4" }}>—</span> : <span style={{ color: "#c8c8d2" }}>…</span>}</td>
                   {(() => {
                     const at = invOwned[r.domain.toLowerCase()];
-                    const covered = !!regPid(l?.registrar) && audit.okPids.has(regPid(l?.registrar) as string);
+                    const pid = regPid(l?.registrar);
+                    const hasReg = !!(l?.registrar && String(l.registrar).trim());
+                    // Flag as "not found" when it's in a managed account we listed OK but
+                    // absent, OR its registrar didn't resolve at all (unverifiable but worth
+                    // a look). A resolved-but-unmanaged registrar shows a neutral dash.
+                    const flag = !!l && ((!!pid && audit.okPids.has(pid)) || !hasReg);
                     const dLeft = daysUntil(at?.expires);
                     return (
                       <>
@@ -984,8 +1001,8 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
                             <span style={{ color: "#2f7d4f", fontWeight: 600 }} title={`Found in ${at.label}`}>✓ {at.account || at.label}</span>
                           ) : !invBuiltAt ? (
                             <span style={{ color: "#c8c8d2" }}>—</span>
-                          ) : covered ? (
-                            <span style={{ color: "#a3502f", fontWeight: 600 }} title="Not found in the registrar account we listed">⚠ not found</span>
+                          ) : flag ? (
+                            <span style={{ color: "#a3502f", fontWeight: 600 }} title="Not found in any registrar account we checked">⚠ not found</span>
                           ) : (
                             <span style={{ color: "#b8b8c4" }} title="Registrar not in our verified accounts">—</span>
                           )}
