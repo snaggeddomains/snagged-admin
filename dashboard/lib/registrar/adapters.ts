@@ -231,6 +231,89 @@ async function cloudflareSetDns(domain: string, rec: DnsRecordInput, e: NodeJS.P
   }
 }
 
+// ── Spaceship DNS (PUT is UPSERT per docs — safe single-record append) ───────
+function spaceshipRecordItem(rec: DnsRecordInput): Record<string, unknown> {
+  const t = rec.type.toUpperCase();
+  const base = { type: t, name: rec.host === "@" ? "@" : rec.host, ttl: rec.ttl || 3600 };
+  if (t === "A" || t === "AAAA") return { ...base, address: rec.value };
+  if (t === "CNAME") return { ...base, cname: rec.value };
+  if (t === "MX") return { ...base, exchange: rec.value, preference: 10 };
+  return { ...base, value: rec.value }; // TXT + fallback
+}
+async function spaceshipSetDns(domain: string, rec: DnsRecordInput, e: NodeJS.ProcessEnv): Promise<WriteResult> {
+  try {
+    const res = await timedFetch(`https://spaceship.dev/api/v1/dns/records/${encodeURIComponent(domain)}`, {
+      method: "PUT",
+      headers: spaceshipHeaders(e),
+      body: JSON.stringify({ force: true, items: [spaceshipRecordItem(rec)] }),
+    });
+    if (res.ok) return { ok: true };
+    const t = await res.text().catch(() => "");
+    return { ok: false, error: `Spaceship HTTP ${res.status}${t ? `: ${t.slice(0, 160)}` : ""}` };
+  } catch (err) {
+    return { ok: false, error: String((err as Error)?.message || err) };
+  }
+}
+
+// ── Namecheap DNS (setHosts REPLACES all — so read-merge: getHosts → add → set) ─
+function ncHostAttr(attrs: string, key: string): string {
+  const m = attrs.match(new RegExp(`${key}="([^"]*)"`, "i"));
+  return m ? m[1] : "";
+}
+async function namecheapSetDns(domain: string, rec: DnsRecordInput, e: NodeJS.ProcessEnv): Promise<WriteResult> {
+  const accounts = namecheapAccounts(e);
+  if (!accounts.length) return { ok: false, error: "No Namecheap account configured" };
+  const dispatcher = namecheapDispatcher(e);
+  if (!dispatcher) return { ok: false, error: "No Fixie/proxy configured (FIXIE_URL) for Namecheap" };
+  const clientIp = (e.NAMECHEAP_CLIENT_IP || "").split(",")[0].trim();
+  if (!clientIp) return { ok: false, error: "NAMECHEAP_CLIENT_IP not set (a whitelisted Fixie IP)" };
+  const dot = domain.lastIndexOf(".");
+  const sld = domain.slice(0, dot);
+  const tld = domain.slice(dot + 1);
+  let lastErr = "";
+  for (const a of accounts) {
+    try {
+      const common = { ApiUser: a.apiUser, ApiKey: a.apiKey, UserName: a.username, ClientIp: clientIp, SLD: sld, TLD: tld };
+      // 1) read existing hosts (so setHosts doesn't wipe them)
+      const gp = new URLSearchParams({ ...common, Command: "namecheap.domains.dns.getHosts" });
+      const gr = await undiciFetch(`https://api.namecheap.com/xml.response?${gp.toString()}`, { dispatcher, signal: AbortSignal.timeout(20000) });
+      const gxml = await gr.text();
+      if (!/Status="OK"/i.test(gxml)) {
+        const err = ncError(gxml) || `HTTP ${gr.status}`;
+        if (/not\s*associated|domain.*not.*found|not exist|does not belong|is not associated/i.test(err)) { lastErr = err; continue; }
+        return { ok: false, account: a.account, error: `Namecheap getHosts: ${err}` };
+      }
+      // preserve the domain's email routing type across the replace
+      const emailType = (gxml.match(/DomainDNSGetHostsResult[^>]*EmailType="([^"]*)"/i) || [])[1] || "NONE";
+      const hosts = [...gxml.matchAll(/<host\b([^>]*?)\/?>/gi)].map((m) => ({
+        HostName: ncHostAttr(m[1], "Name") || "@",
+        RecordType: ncHostAttr(m[1], "Type"),
+        Address: ncHostAttr(m[1], "Address"),
+        MXPref: ncHostAttr(m[1], "MXPref") || "10",
+        TTL: ncHostAttr(m[1], "TTL") || "1799",
+      })).filter((h) => h.RecordType);
+      hosts.push({ HostName: rec.host === "@" ? "@" : rec.host, RecordType: rec.type, Address: rec.value, MXPref: "10", TTL: String(rec.ttl || 1799) });
+      // 2) write the FULL set back
+      const sp = new URLSearchParams({ ...common, Command: "namecheap.domains.dns.setHosts", EmailType: emailType });
+      hosts.forEach((h, i) => {
+        const n = i + 1;
+        sp.set(`HostName${n}`, h.HostName);
+        sp.set(`RecordType${n}`, h.RecordType);
+        sp.set(`Address${n}`, h.Address);
+        sp.set(`MXPref${n}`, h.MXPref);
+        sp.set(`TTL${n}`, h.TTL);
+      });
+      const sr = await undiciFetch(`https://api.namecheap.com/xml.response?${sp.toString()}`, { dispatcher, signal: AbortSignal.timeout(20000) });
+      const sxml = await sr.text();
+      if (/Status="OK"/i.test(sxml) && /IsSuccess="true"/i.test(sxml)) return { ok: true, account: a.account };
+      return { ok: false, account: a.account, error: `Namecheap setHosts: ${ncError(sxml) || `HTTP ${sr.status}`}` };
+    } catch (err) {
+      lastErr = String((err as Error)?.message || err);
+    }
+  }
+  return { ok: false, error: lastErr || "Namecheap DNS write failed (domain not in any configured account?)" };
+}
+
 // ── NameSilo DNS (dnsAddRecord; key-in-URL; success code 300) ────────────────
 async function namesiloSetDns(domain: string, rec: DnsRecordInput, e: NodeJS.ProcessEnv): Promise<WriteResult> {
   const key = e.NAMESILO_API_KEY || "";
@@ -253,7 +336,7 @@ const NS_EXECUTABLE: ProviderId[] = ["porkbun", "spaceship", "namesilo", "godadd
 export function nsExecutable(provider: ProviderId): boolean {
   return NS_EXECUTABLE.includes(provider);
 }
-const DNS_EXECUTABLE: ProviderId[] = ["porkbun", "godaddy", "cloudflare", "namesilo"];
+const DNS_EXECUTABLE: ProviderId[] = ["porkbun", "godaddy", "cloudflare", "namesilo", "spaceship", "namecheap"];
 export function dnsExecutable(provider: ProviderId): boolean {
   return DNS_EXECUTABLE.includes(provider);
 }
@@ -275,6 +358,8 @@ export async function setDnsRecord(provider: ProviderId, domain: string, rec: Dn
     case "godaddy": return godaddySetDns(domain, rec, e);
     case "cloudflare": return cloudflareSetDns(domain, rec, e);
     case "namesilo": return namesiloSetDns(domain, rec, e);
+    case "spaceship": return spaceshipSetDns(domain, rec, e);
+    case "namecheap": return namecheapSetDns(domain, rec, e);
     default: return { ok: false, error: `${provider} DNS-record execute not enabled yet` };
   }
 }
