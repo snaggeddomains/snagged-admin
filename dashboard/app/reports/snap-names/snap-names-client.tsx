@@ -280,7 +280,7 @@ export default function SnapNamesClient() {
   const s = report?.summary;
 
   return (
-    <main style={{ maxWidth: "var(--maxw, 1280px)", margin: "0 auto", padding: "0 4px" }}>
+    <main style={{ maxWidth: "min(1800px, 97vw)", margin: "0 auto", padding: "0 4px" }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
         <div>
           <h1 style={{ fontSize: "1.4rem", margin: 0 }}>SNAP Names</h1>
