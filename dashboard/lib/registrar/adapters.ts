@@ -133,7 +133,7 @@ async function godaddySetNs(domain: string, ns: string[], e: NodeJS.ProcessEnv):
 // Namecheap IP-allowlists, so calls MUST egress from a whitelisted IP — we route
 // through the same Fixie proxy the research app uses. ClientIp must be a whitelisted
 // IP (a Fixie outbound IP).
-function namecheapDispatcher(e: NodeJS.ProcessEnv): ProxyAgent | null {
+export function namecheapDispatcher(e: NodeJS.ProcessEnv): ProxyAgent | null {
   const raw = e.NAMECHEAP_PROXY_URL || e.FIXIE_URL || "";
   if (!raw) return null;
   try {

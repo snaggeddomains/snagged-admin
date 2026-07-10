@@ -1,0 +1,21 @@
+-- SNAP Names registrar-account inventory snapshot + audit-hide overlay.
+-- Run on the ADMIN project (SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY), where the
+-- other snap_names_* tables live. Service key bypasses RLS.
+
+-- Single-row cached snapshot of every registrar account's domain inventory.
+create table if not exists snap_registrar_inventory (
+  id text primary key default 'current',
+  built_at timestamptz not null default now(),
+  built_by text,
+  accounts jsonb not null default '[]'::jsonb, -- per-account status (provider, ok, count, ...)
+  owned jsonb not null default '{}'::jsonb      -- domain -> { provider, label, account }
+);
+alter table snap_registrar_inventory enable row level security; -- service key bypasses
+
+-- Per-domain "hide from the reconciliation audit" flag (untracked / missing buckets).
+create table if not exists snap_inventory_hidden (
+  domain text primary key,
+  hidden_by text,
+  hidden_at timestamptz not null default now()
+);
+alter table snap_inventory_hidden enable row level security; -- service key bypasses
