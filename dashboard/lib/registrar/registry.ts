@@ -26,19 +26,21 @@ export interface Provider {
 // GoDaddy / Namecheap accounts. These resolvers return the available accounts in
 // TRY ORDER (business → personal → single fallback); the write adapter routes by a
 // domain→account map and cascades through this order when the map misses.
-export interface GodaddyAccount { account: "business" | "personal" | "default"; key: string; secret: string; }
+// Accounts are tried in this order: Berserk (business) → Rob (personal) → single
+// fallback. First success wins (option A cascade).
+export interface GodaddyAccount { account: "berserk" | "rob" | "default"; key: string; secret: string; }
 export function godaddyAccounts(e: NodeJS.ProcessEnv): GodaddyAccount[] {
   const out: GodaddyAccount[] = [];
-  if (e.GODADDY_API_KEY_BIZ && e.GODADDY_API_SECRET_BIZ) out.push({ account: "business", key: e.GODADDY_API_KEY_BIZ, secret: e.GODADDY_API_SECRET_BIZ });
-  if (e.GODADDY_API_KEY_PERSONAL && e.GODADDY_API_SECRET_PERSONAL) out.push({ account: "personal", key: e.GODADDY_API_KEY_PERSONAL, secret: e.GODADDY_API_SECRET_PERSONAL });
+  if (e.GODADDY_API_KEY_BERSERK && e.GODADDY_API_SECRET_BERSERK) out.push({ account: "berserk", key: e.GODADDY_API_KEY_BERSERK, secret: e.GODADDY_API_SECRET_BERSERK });
+  if (e.GODADDY_API_KEY_ROB && e.GODADDY_API_SECRET_ROB) out.push({ account: "rob", key: e.GODADDY_API_KEY_ROB, secret: e.GODADDY_API_SECRET_ROB });
   if (!out.length && e.GODADDY_API_KEY && e.GODADDY_API_SECRET) out.push({ account: "default", key: e.GODADDY_API_KEY, secret: e.GODADDY_API_SECRET });
   return out;
 }
-export interface NamecheapAccount { account: "business" | "personal" | "default"; apiUser: string; apiKey: string; username: string; }
+export interface NamecheapAccount { account: "berserk" | "rob" | "default"; apiUser: string; apiKey: string; username: string; }
 export function namecheapAccounts(e: NodeJS.ProcessEnv): NamecheapAccount[] {
   const out: NamecheapAccount[] = [];
-  if (e.NAMECHEAP_API_KEY_BIZ && e.NAMECHEAP_API_USER_BIZ) out.push({ account: "business", apiKey: e.NAMECHEAP_API_KEY_BIZ, apiUser: e.NAMECHEAP_API_USER_BIZ, username: e.NAMECHEAP_USERNAME_BIZ || e.NAMECHEAP_API_USER_BIZ });
-  if (e.NAMECHEAP_API_KEY_PERSONAL && e.NAMECHEAP_API_USER_PERSONAL) out.push({ account: "personal", apiKey: e.NAMECHEAP_API_KEY_PERSONAL, apiUser: e.NAMECHEAP_API_USER_PERSONAL, username: e.NAMECHEAP_USERNAME_PERSONAL || e.NAMECHEAP_API_USER_PERSONAL });
+  if (e.NAMECHEAP_API_KEY_BERSERK && e.NAMECHEAP_API_USER_BERSERK) out.push({ account: "berserk", apiKey: e.NAMECHEAP_API_KEY_BERSERK, apiUser: e.NAMECHEAP_API_USER_BERSERK, username: e.NAMECHEAP_USERNAME_BERSERK || e.NAMECHEAP_API_USER_BERSERK });
+  if (e.NAMECHEAP_API_KEY_ROB && e.NAMECHEAP_API_USER_ROB) out.push({ account: "rob", apiKey: e.NAMECHEAP_API_KEY_ROB, apiUser: e.NAMECHEAP_API_USER_ROB, username: e.NAMECHEAP_USERNAME_ROB || e.NAMECHEAP_API_USER_ROB });
   if (!out.length && e.NAMECHEAP_API_KEY && e.NAMECHEAP_API_USER) out.push({ account: "default", apiKey: e.NAMECHEAP_API_KEY, apiUser: e.NAMECHEAP_API_USER, username: e.NAMECHEAP_USERNAME || e.NAMECHEAP_API_USER });
   return out;
 }
