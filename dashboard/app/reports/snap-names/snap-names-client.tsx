@@ -133,6 +133,7 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
   const [dnsRec, setDnsRec] = useState({ type: "A", host: "@", value: "", ttl: "3600" });
   const [preview, setPreview] = useState<Preview | null>(null);
   const [previewing, setPreviewing] = useState(false);
+  const [providers, setProviders] = useState<{ id: string; label: string; wired: boolean }[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [live, setLive] = useState<Record<string, Live>>({});
@@ -256,6 +257,21 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
   useEffect(() => {
     if (report?.rows?.length) resolveLive(report.rows);
   }, [report, resolveLive]);
+
+  // Load provider wiring status when Updates mode opens (so you can see which keys
+  // took effect). Cheap booleans-only endpoint.
+  useEffect(() => {
+    if (!updateMode || !canWrite) return;
+    (async () => {
+      try {
+        const res = await fetch("/api/admin/snap-names/providers", { cache: "no-store" });
+        const j = await res.json();
+        if (res.ok && Array.isArray(j.providers)) setProviders(j.providers);
+      } catch {
+        /* ignore */
+      }
+    })();
+  }, [updateMode, canWrite]);
 
   const tlds = useMemo(() => {
     if (!report) return [];
@@ -528,6 +544,16 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
           <div className="muted" style={{ fontSize: 11, marginTop: 8 }}>
             Preview only — nothing is written to any registrar yet. It shows what would change and which rows would be skipped (registrar not wired / no key). Live writes get enabled per-registrar after we validate.
           </div>
+          {providers.length > 0 && (
+            <div style={{ fontSize: 11.5, marginTop: 6, display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+              <span className="muted">Wiring:</span>
+              {providers.map((p) => (
+                <span key={p.id} title={p.wired ? "API keys present" : "No API key configured"} style={{ padding: "1px 8px", borderRadius: 999, fontSize: 11, fontWeight: 600, background: p.wired ? "#e2efe5" : "#f0eeea", color: p.wired ? "#2f7d4f" : "#9a9aac" }}>
+                  {p.wired ? "✓" : "✗"} {p.label}
+                </span>
+              ))}
+            </div>
+          )}
           {preview && (
             <div style={{ marginTop: 12, borderTop: "1px solid #e6e6ef", paddingTop: 12 }}>
               <div style={{ display: "flex", gap: 16, flexWrap: "wrap", fontSize: 13, fontWeight: 600 }}>
