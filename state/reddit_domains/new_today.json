@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "dilute.org"
-  ],
-  "generated_at": "2026-07-09T23:01:27.478867+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-07-10T10:01:04.023582+00:00",
   "mub": [],
   "source": "reddit_domains"
 }
