@@ -12,10 +12,14 @@ create table if not exists snap_registrar_inventory (
 );
 alter table snap_registrar_inventory enable row level security; -- service key bypasses
 
--- Per-domain "hide from the reconciliation audit" flag (untracked / missing buckets).
+-- Per-domain "resolve from the reconciliation audit" flag + reason tag
+-- (untracked / missing buckets). A row here is dismissed from the audit; the tag
+-- records WHY (Sold / Let expire / Personal / …).
 create table if not exists snap_inventory_hidden (
   domain text primary key,
+  tag text,
   hidden_by text,
   hidden_at timestamptz not null default now()
 );
+alter table snap_inventory_hidden add column if not exists tag text; -- if table pre-existed
 alter table snap_inventory_hidden enable row level security; -- service key bypasses

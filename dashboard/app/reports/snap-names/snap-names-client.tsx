@@ -66,6 +66,8 @@ type OwnedAt = { provider: string; label: string; account: string; expires?: str
 type AccountStatus = { provider: string; label: string; account: string; ok: boolean; error?: string | null; count: number; capped?: boolean };
 const REG_TO_PID: [RegExp, string][] = [[/spaceship/i, "spaceship"], [/porkbun/i, "porkbun"], [/dynadot/i, "dynadot"], [/namesilo/i, "namesilo"], [/godaddy/i, "godaddy"], [/namecheap/i, "namecheap"]];
 const regPid = (r?: string | null): string | null => { const s = String(r || ""); for (const [re, id] of REG_TO_PID) if (re.test(s)) return id; return null; };
+// Preset reason tags for resolving an audit row (custom ones are added on the fly).
+const PRESET_TAGS = ["Sold", "Let expire", "Personal", "Transferred out", "Keep / renew", "Not ours"];
 const daysUntil = (s?: string | null): number | null => { if (!s) return null; const t = Date.parse(s); return isNaN(t) ? null : Math.floor((t - Date.now()) / 86400000); };
 const fmtExp = (s?: string | null): string => { if (!s) return "—"; const t = Date.parse(s); return isNaN(t) ? String(s) : new Date(t).toLocaleDateString(); };
 
@@ -167,7 +169,7 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
   const [invOwned, setInvOwned] = useState<Record<string, OwnedAt>>({});
   const [invAccounts, setInvAccounts] = useState<AccountStatus[]>([]);
   const [invBuiltAt, setInvBuiltAt] = useState<string | null>(null);
-  const [invHidden, setInvHidden] = useState<Set<string>>(new Set());
+  const [invHidden, setInvHidden] = useState<Map<string, string | null>>(new Map()); // domain → reason tag
   const [rebuilding, setRebuilding] = useState(false);
   const [showAudit, setShowAudit] = useState(false);
   const [showHiddenAudit, setShowHiddenAudit] = useState(false);
@@ -222,13 +224,20 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
   }, []);
 
   // Load the cached registrar-account inventory snapshot (fast; fail-open).
-  const applyInventory = useCallback((snap: { built_at?: string; accounts?: AccountStatus[]; owned?: Record<string, OwnedAt> } | null, hidden?: string[]) => {
+  const applyInventory = useCallback((snap: { built_at?: string; accounts?: AccountStatus[]; owned?: Record<string, OwnedAt> } | null, hidden?: ({ domain: string; tag: string | null } | string)[]) => {
     if (snap) {
       setInvOwned(snap.owned || {});
       setInvAccounts(snap.accounts || []);
       setInvBuiltAt(snap.built_at || null);
     }
-    if (Array.isArray(hidden)) setInvHidden(new Set(hidden.map((d) => d.toLowerCase())));
+    if (Array.isArray(hidden)) {
+      const m = new Map<string, string | null>();
+      for (const h of hidden) {
+        if (typeof h === "string") m.set(h.toLowerCase(), null);
+        else if (h && h.domain) m.set(h.domain.toLowerCase(), h.tag ?? null);
+      }
+      setInvHidden(m);
+    }
   }, []);
   useEffect(() => {
     (async () => {
@@ -257,17 +266,20 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
     }
   }, [applyInventory]);
 
-  const toggleAuditHide = useCallback(async (domain: string, next: boolean) => {
+  // Resolve (hide=true, optional reason tag) or restore (hide=false) an audit row.
+  const setAuditTag = useCallback(async (domain: string, tag: string | null, hide: boolean) => {
     const d = domain.toLowerCase();
-    setInvHidden((prev) => { const s = new Set(prev); if (next) s.add(d); else s.delete(d); return s; });
+    const wasHidden = invHidden.has(d);
+    const prevTag = invHidden.get(d) ?? null;
+    setInvHidden((prev) => { const m = new Map(prev); if (hide) m.set(d, tag); else m.delete(d); return m; });
     try {
-      const res = await fetch("/api/admin/snap-names/inventory", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: next ? "hide" : "unhide", domain: d }) });
+      const res = await fetch("/api/admin/snap-names/inventory", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: hide ? "hide" : "unhide", domain: d, tag }) });
       if (!res.ok) throw new Error((await res.json())?.error || `HTTP ${res.status}`);
     } catch (e) {
-      setInvHidden((prev) => { const s = new Set(prev); if (next) s.delete(d); else s.add(d); return s; });
+      setInvHidden((prev) => { const m = new Map(prev); if (wasHidden) m.set(d, prevTag); else m.delete(d); return m; });
       setErr(String((e as Error)?.message || e));
     }
-  }, []);
+  }, [invHidden]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -398,7 +410,8 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
       .map((r) => ({ domain: r.domain, registrar: canonicalRegistrar(live[r.domain]?.registrar) }));
     const hiddenN = (arr: { domain: string }[]) => arr.filter((x) => invHidden.has(x.domain.toLowerCase()));
     const shownN = (arr: { domain: string }[]) => arr.filter((x) => !invHidden.has(x.domain.toLowerCase()));
-    return { untracked, missing, okPids, shownN, hiddenN };
+    const tagOptions = [...PRESET_TAGS, ...new Set([...invHidden.values()].filter((t): t is string => !!t && !PRESET_TAGS.includes(t)))];
+    return { untracked, missing, okPids, shownN, hiddenN, tagOptions };
   }, [report, invOwned, invAccounts, invHidden, live]);
 
   const filtered = useMemo(() => {
@@ -674,15 +687,39 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
                         const at = "at" in row ? (row as { at: OwnedAt }).at : null;
                         const reg = "registrar" in row ? (row as { registrar: string | null }).registrar : null;
                         const isHidden = invHidden.has(row.domain.toLowerCase());
+                        const tag = invHidden.get(row.domain.toLowerCase()) || null;
                         return (
-                          <div key={row.domain} style={{ display: "flex", alignItems: "baseline", gap: 8, padding: "3px 0", borderBottom: "1px solid #f4f4f8" }}>
+                          <div key={row.domain} style={{ display: "flex", alignItems: "center", gap: 8, padding: "3px 0", borderBottom: "1px solid #f4f4f8" }}>
                             <span style={{ fontWeight: 600, minWidth: 150 }}>{row.domain}</span>
                             <span className="muted" style={{ fontSize: 11.5, flex: 1 }}>
                               {at ? `${at.label}${at.expires ? ` · exp ${fmtExp(at.expires)}` : ""}${at.autoRenew === false ? " · no auto-renew" : ""}` : reg || ""}
                             </span>
-                            <button onClick={() => toggleAuditHide(row.domain, !isHidden)} title={isHidden ? "Un-hide" : "Hide from this audit"} style={{ padding: "2px 8px", borderRadius: 6, border: "1px solid #d5d5e0", background: "#fff", cursor: "pointer", fontSize: 11 }}>
-                              {isHidden ? "un-hide" : "hide"}
-                            </button>
+                            {isHidden ? (
+                              <>
+                                {tag && <span style={{ padding: "1px 8px", borderRadius: 999, background: "#eef1f7", color: "#3a5a9a", fontSize: 11, fontWeight: 600 }}>{tag}</span>}
+                                <button onClick={() => setAuditTag(row.domain, null, false)} title="Restore to the audit" style={{ padding: "2px 8px", borderRadius: 6, border: "1px solid #d5d5e0", background: "#fff", cursor: "pointer", fontSize: 11 }}>un-hide</button>
+                              </>
+                            ) : (
+                              <>
+                                <select
+                                  value=""
+                                  onChange={(e) => {
+                                    const v = e.target.value;
+                                    if (!v) return;
+                                    if (v === "__custom__") { const t = window.prompt("New tag for " + row.domain); if (t && t.trim()) setAuditTag(row.domain, t.trim(), true); }
+                                    else setAuditTag(row.domain, v, true);
+                                    e.currentTarget.value = "";
+                                  }}
+                                  title="Resolve with a reason tag (and hide)"
+                                  style={{ padding: "2px 6px", borderRadius: 6, border: "1px solid #d5d5e0", background: "#fff", cursor: "pointer", fontSize: 11 }}
+                                >
+                                  <option value="">Resolve…</option>
+                                  {audit.tagOptions.map((t) => <option key={t} value={t}>{t}</option>)}
+                                  <option value="__custom__">+ New tag…</option>
+                                </select>
+                                <button onClick={() => setAuditTag(row.domain, null, true)} title="Hide without a tag" style={{ padding: "2px 8px", borderRadius: 6, border: "1px solid #d5d5e0", background: "#fff", cursor: "pointer", fontSize: 11 }}>hide</button>
+                              </>
+                            )}
                           </div>
                         );
                       })}

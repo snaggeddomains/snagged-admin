@@ -63,21 +63,34 @@ export async function buildAndSaveSnapshot(env: NodeJS.ProcessEnv, by: string | 
   return snapshot;
 }
 
-// ── audit hide overlay ───────────────────────────────────────────────────────
-export async function listHidden(): Promise<string[]> {
+// ── audit resolve/hide overlay (with a reason tag) ───────────────────────────
+export interface HiddenRow { domain: string; tag: string | null }
+export async function listHidden(): Promise<HiddenRow[]> {
   if (!isDbConfigured()) return [];
   try {
-    const { data } = await getDb().from(HIDE_TABLE).select("domain");
-    return (data || []).map((r: { domain: string }) => String(r.domain || "").toLowerCase()).filter(Boolean);
+    // Prefer domain+tag; fall back to domain-only if the tag column isn't there yet.
+    const withTag = await getDb().from(HIDE_TABLE).select("domain, tag");
+    const res = withTag.error ? await getDb().from(HIDE_TABLE).select("domain") : withTag;
+    const rows = (res.data || []) as { domain?: string; tag?: string | null }[];
+    return rows
+      .map((r) => ({ domain: String(r.domain || "").toLowerCase(), tag: r.tag ?? null }))
+      .filter((r) => r.domain);
   } catch {
     return [];
   }
 }
-export async function setHidden(domain: string, hidden: boolean, by: string | null): Promise<void> {
+export async function setHidden(domain: string, hidden: boolean, by: string | null, tag?: string | null): Promise<void> {
   const d = domain.trim().toLowerCase();
   if (!d) return;
   if (hidden) {
-    const { error } = await getDb().from(HIDE_TABLE).upsert({ domain: d, hidden_by: by, hidden_at: new Date().toISOString() });
+    const t = (tag || "").trim() || null;
+    const row: Record<string, unknown> = { domain: d, tag: t, hidden_by: by, hidden_at: new Date().toISOString() };
+    let { error } = await getDb().from(HIDE_TABLE).upsert(row);
+    // Degrade gracefully if the tag column hasn't been added yet.
+    if (error && /tag|42703|column/i.test(error.message)) {
+      delete row.tag;
+      ({ error } = await getDb().from(HIDE_TABLE).upsert(row));
+    }
     if (error) throw new Error(error.message);
   } else {
     const { error } = await getDb().from(HIDE_TABLE).delete().eq("domain", d);

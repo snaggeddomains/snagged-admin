@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   if (!canReports(me, "reports.snap_names.write")) return NextResponse.json({ error: "You don't have SNAP Names write access." }, { status: 403 });
   const by = me.email || null;
 
-  let body: { action?: string; domain?: string };
+  let body: { action?: string; domain?: string; tag?: string | null };
   try {
     body = await req.json();
   } catch {
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
     }
     if (body.action === "hide" || body.action === "unhide") {
       if (!body.domain) return NextResponse.json({ error: "No domain" }, { status: 400 });
-      await setHidden(body.domain, body.action === "hide", by);
+      await setHidden(body.domain, body.action === "hide", by, body.tag);
       return NextResponse.json({ ok: true });
     }
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
