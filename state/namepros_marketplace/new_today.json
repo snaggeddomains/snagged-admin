@@ -1,17 +1,11 @@
 {
   "capped": false,
-  "count": 8,
+  "count": 2,
   "domains": [
-    "533.ai",
-    "advancement.co",
-    "complete.co",
-    "diode.co",
-    "distinct.me",
-    "lateral.co",
-    "nozzle.co",
-    "sails.com"
+    "health.sh",
+    "leona.net"
   ],
-  "generated_at": "2026-07-10T10:07:27.625369+00:00",
+  "generated_at": "2026-07-10T17:05:57.469475+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
