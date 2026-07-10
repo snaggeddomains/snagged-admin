@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { canonicalRegistrar } from "@/lib/registrar/registry";
 
 type SnapSource = "Berserk" | "SNAP" | "Rob";
 type SnapName = {
@@ -270,7 +271,10 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
   }, [live]);
   const registrars = useMemo(() => {
     const counts = new Map<string, number>();
-    for (const v of Object.values(live)) if (v.registrar) counts.set(v.registrar, (counts.get(v.registrar) || 0) + 1);
+    for (const v of Object.values(live)) {
+      const r = canonicalRegistrar(v.registrar);
+      if (r) counts.set(r, (counts.get(r) || 0) + 1);
+    }
     return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([t]) => t);
   }, [live]);
 
@@ -286,7 +290,7 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
       if (status === "marketplace" && !r.on_snagged_marketplace) return false;
       if (tldFilter.size && !tldFilter.has(r.tld)) return false;
       if (nsFilter.size && !nsFilter.has(live[r.domain]?.ns_provider || "")) return false;
-      if (regFilter.size && !regFilter.has(live[r.domain]?.registrar || "")) return false;
+      if (regFilter.size && !regFilter.has(canonicalRegistrar(live[r.domain]?.registrar) || "")) return false;
       if (needle) {
         const reg = live[r.domain]?.registrar || "";
         const ns = (live[r.domain]?.nameservers || []).join(" ");
@@ -303,7 +307,7 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
         case "date": return r.date_purchased ? Date.parse(r.date_purchased) || 0 : 0;
         case "purchase": return r.purchase_price ?? -1;
         case "internal": return r.internal_price ?? -1;
-        case "registrar": return (live[r.domain]?.registrar || "￿").toLowerCase();
+        case "registrar": return (canonicalRegistrar(live[r.domain]?.registrar) || "￿").toLowerCase();
         case "nameservers": return (live[r.domain]?.ns_provider || live[r.domain]?.nameservers?.[0] || "￿").toLowerCase();
         case "status": return r.sold ? 2 : r.on_marketplace ? 1 : 0;
         // Platform columns sort listed-first (with price as the tiebreak); an
@@ -357,7 +361,7 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
       const ns = l?.ns_provider || "";
       const rowObj: Record<string, unknown> = {
         ...r,
-        registrar: l?.registrar ?? "",
+        registrar: canonicalRegistrar(l?.registrar) ?? "",
         nameservers: l?.nameservers ?? [],
         ns_provider: l?.ns_provider ?? "",
         afternic_listed: l?.afternic ? (l.afternic.listed ? "yes" : "no") : "",
@@ -603,7 +607,7 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
                   <td style={{ ...td, whiteSpace: "nowrap", color: "#6b6b7b" }}>{r.date_purchased || "—"}</td>
                   <td style={{ ...td, textAlign: "right" }}>{usd(r.purchase_price)}</td>
                   <td style={{ ...td, textAlign: "right", fontWeight: 600 }}>{usd(r.internal_price)}</td>
-                  <td style={{ ...td, whiteSpace: "nowrap" }}>{l ? l.registrar || <span style={{ color: "#b8b8c4" }}>—</span> : <span style={{ color: "#c8c8d2" }}>…</span>}</td>
+                  <td style={{ ...td, whiteSpace: "nowrap" }}>{l ? canonicalRegistrar(l.registrar) || <span style={{ color: "#b8b8c4" }}>—</span> : <span style={{ color: "#c8c8d2" }}>…</span>}</td>
                   <td style={td}>
                     {l ? (
                       l.nameservers.length ? (

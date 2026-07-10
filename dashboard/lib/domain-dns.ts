@@ -6,6 +6,7 @@
 
 import { promises as dns } from "node:dns";
 import net from "node:net";
+import { canonicalRegistrar } from "./registrar/registry";
 
 export interface DomainLive {
   registrar: string | null;
@@ -288,7 +289,7 @@ export async function resolveDomainLive(domain: string): Promise<DomainLive> {
   let ship: { price: number | null; min_offer: number | null } | null = null;
   if (ns_provider && /spaceship/i.test(ns_provider)) ship = await spaceshipListing(d);
   const info: DomainLive = {
-    registrar,
+    registrar: canonicalRegistrar(registrar),
     nameservers,
     ns_provider,
     afternic,

@@ -84,6 +84,44 @@ export function providerForRegistrar(registrar: string | null | undefined): Prov
   return null;
 }
 
+// Registrar names come back from RDAP/WHOIS in many spellings for the SAME company
+// ("Porkbun LLC" vs "Porkbun", "NameCheap, Inc." vs "Namecheap Inc.", the numbered
+// "DropCatch.com 421/382 LLC" shells). Collapse each to ONE canonical label so the
+// column + filter show a single value per registrar. Unknown names get their
+// corporate suffix trimmed for a cleaner single value.
+const REG_CANON: [RegExp, string][] = [
+  [/porkbun/i, "Porkbun"],
+  [/namecheap/i, "Namecheap"],
+  [/godaddy/i, "GoDaddy"],
+  [/dynadot/i, "Dynadot"],
+  [/name\s?silo/i, "NameSilo"],
+  [/spaceship/i, "Spaceship"],
+  [/atom\.com|atom domains/i, "Atom"],
+  [/dropcatch/i, "DropCatch"],
+  [/namebright|turncommerce/i, "NameBright"],
+  [/network solutions/i, "Network Solutions"],
+  [/gname/i, "Gname"],
+  [/glamdomains/i, "GlamDomains"],
+  [/hanging curve/i, "Hanging Curve Domains"],
+  [/instra/i, "Instra"],
+  [/zhuimi/i, "Zhuimi"],
+  [/namebake/i, "NameBake"],
+  [/humbly/i, "Humbly"],
+  [/enom/i, "eNom"],
+  [/tucows/i, "Tucows"],
+  [/google/i, "Google Domains"],
+  [/cloudflare/i, "Cloudflare"],
+  [/sav\.com|sav,? llc/i, "Sav"],
+  [/hostinger/i, "Hostinger"],
+];
+
+export function canonicalRegistrar(name: string | null | undefined): string | null {
+  const s = String(name || "").trim();
+  if (!s) return name ?? null;
+  for (const [re, label] of REG_CANON) if (re.test(s)) return label;
+  return s.replace(/[,.]?\s*(LLC|Inc\.?|Ltd\.?|Corp\.?|Corporation|Pty\.?\s*Ltd\.?|Co\.?|GmbH|S\.?A\.?S?\.?)\.?$/i, "").replace(/[,\s]+$/, "").trim() || s;
+}
+
 // Match a DNS-host label (our ns_provider string, e.g. "Spaceship DNS", "Porkbun
 // DNS", "GoDaddy DNS", "snagged.com", "Cloudflare") → provider id, or null if it's
 // a host we don't (yet) have a DNS adapter for (Cloudflare/Atom/Snagged/etc.).
