@@ -114,12 +114,55 @@ export default function SnapNamesClient() {
   const [resolving, setResolving] = useState(0); // # domains still pending live lookup
   const liveRef = useRef<Record<string, Live>>({});
 
+  const [archived, setArchived] = useState<Set<string>>(new Set());
+  const [showArchived, setShowArchived] = useState(false);
+
   const [q, setQ] = useState("");
   const [src, setSrc] = useState<"all" | SnapSource>("all");
   const [status, setStatus] = useState<"all" | "owned" | "sold" | "marketplace">("owned");
   const [tldFilter, setTldFilter] = useState<string>("all");
   const [sortKey, setSortKey] = useState<SortKey>("domain");
   const [sortDir, setSortDir] = useState<1 | -1>(1);
+
+  // Load the shared archive overlay (domains hidden from the list by default).
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/admin/snap-names/archive", { cache: "no-store" });
+        const j = await res.json();
+        if (res.ok && Array.isArray(j.archived)) setArchived(new Set(j.archived.map((d: string) => d.toLowerCase())));
+      } catch {
+        /* fail-open: nothing archived */
+      }
+    })();
+  }, []);
+
+  const toggleArchive = useCallback(async (domain: string, next: boolean) => {
+    const d = domain.toLowerCase();
+    setArchived((prev) => {
+      const s = new Set(prev);
+      if (next) s.add(d);
+      else s.delete(d);
+      return s;
+    });
+    try {
+      const res = await fetch("/api/admin/snap-names/archive", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ domain: d, archived: next }),
+      });
+      if (!res.ok) throw new Error((await res.json())?.error || `HTTP ${res.status}`);
+    } catch (e) {
+      // revert on failure
+      setArchived((prev) => {
+        const s = new Set(prev);
+        if (next) s.delete(d);
+        else s.add(d);
+        return s;
+      });
+      setErr(String((e as Error)?.message || e));
+    }
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -198,6 +241,8 @@ export default function SnapNamesClient() {
     if (!report) return [];
     const needle = q.trim().toLowerCase();
     let rows = report.rows.filter((r) => {
+      const isArch = archived.has(r.domain);
+      if (showArchived ? !isArch : isArch) return false; // default hides archived; toggle shows ONLY archived
       if (src !== "all" && r.source !== src) return false;
       if (status === "owned" && r.sold) return false;
       if (status === "sold" && !r.sold) return false;
@@ -250,7 +295,7 @@ export default function SnapNamesClient() {
       return a.domain < b.domain ? -1 : 1;
     });
     return rows;
-  }, [report, q, src, status, tldFilter, sortKey, sortDir, live]);
+  }, [report, q, src, status, tldFilter, sortKey, sortDir, live, archived, showArchived]);
 
   const setSort = (k: SortKey) => {
     if (k === sortKey) setSortDir((d) => (d === 1 ? -1 : 1));
@@ -346,6 +391,13 @@ export default function SnapNamesClient() {
           <option value="all">All TLDs</option>
           {tlds.map((t) => <option key={t} value={t}>.{t}</option>)}
         </select>
+        <button
+          onClick={() => setShowArchived((v) => !v)}
+          title="Archived names are hidden from the main list"
+          style={{ padding: "7px 12px", borderRadius: 8, border: "1px solid #d5d5e0", background: showArchived ? "#2f2f45" : "#fff", color: showArchived ? "#fff" : "#44445a", cursor: "pointer", fontSize: 12.5, fontWeight: showArchived ? 600 : 500 }}
+        >
+          {showArchived ? "← Back to active" : `Show archived${archived.size ? ` (${archived.size})` : ""}`}
+        </button>
         <span className="muted" style={{ fontSize: 12, marginLeft: "auto" }}>
           {filtered.length} shown{resolving > 0 ? ` · resolving ${resolving} live…` : ""}
         </span>
@@ -368,6 +420,7 @@ export default function SnapNamesClient() {
               <th style={th} onClick={() => setSort("spaceship")}>Spaceship{arrow("spaceship")}</th>
               <th style={th} onClick={() => setSort("marketplace")}>Marketplace{arrow("marketplace")}</th>
               <th style={th} onClick={() => setSort("status")}>Status{arrow("status")}</th>
+              <th style={{ ...th, cursor: "default" }}></th>
             </tr>
           </thead>
           <tbody>
@@ -432,10 +485,19 @@ export default function SnapNamesClient() {
                       <span style={{ color: "#6b6b7b" }}>Owned</span>
                     )}
                   </td>
+                  <td style={{ ...td, textAlign: "right", whiteSpace: "nowrap" }}>
+                    <button
+                      onClick={() => toggleArchive(r.domain, !archived.has(r.domain))}
+                      title={archived.has(r.domain) ? "Restore to the active list" : "Archive — hide from the list"}
+                      style={{ border: "none", background: "transparent", cursor: "pointer", fontSize: 15, opacity: 0.5, padding: "0 2px" }}
+                    >
+                      {archived.has(r.domain) ? "↩" : "📥"}
+                    </button>
+                  </td>
                 </tr>
               );
             })}
-            {!loading && !filtered.length && <tr><td style={{ ...td, textAlign: "center", color: "#6b6b7b" }} colSpan={13}>No names match.</td></tr>}
+            {!loading && !filtered.length && <tr><td style={{ ...td, textAlign: "center", color: "#6b6b7b" }} colSpan={14}>{showArchived ? "No archived names." : "No names match."}</td></tr>}
           </tbody>
         </table>
       </div>
