@@ -26,6 +26,7 @@ type SnapName = {
   active: string | null;
   notes: string | null;
   also_in: SnapSource[];
+  also_spellings: string[];
   on_snagged_marketplace: boolean;
 };
 type Summary = {
@@ -442,8 +443,9 @@ export default function SnapNamesClient() {
               const shipSub = !l?.spaceship_price && l?.spaceship_min_offer ? `min ${usd(l.spaceship_min_offer)}` : null;
               return (
                 <tr key={`${r.domain}-${i}`}>
-                  <td style={{ ...td, fontWeight: 600 }} title={r.notes || undefined}>
+                  <td style={{ ...td, fontWeight: 600 }} title={[r.notes, r.also_spellings?.length ? `also spelled: ${r.also_spellings.join(", ")}` : ""].filter(Boolean).join(" · ") || undefined}>
                     {r.domain}
+                    {r.also_spellings?.length ? <span style={{ marginLeft: 5, fontSize: 11, color: "#b98a3a", cursor: "help" }} title={`typo variant folded in: ${r.also_spellings.join(", ")}`}>±</span> : null}
                   </td>
                   <td style={td}><SourcePill source={r.source} /></td>
                   <td style={{ ...td, color: "#6b6b7b" }}>.{r.tld}</td>

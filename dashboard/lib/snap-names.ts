@@ -75,6 +75,7 @@ export interface SnapName {
   active: string | null;
   notes: string | null;
   also_in: SnapSource[]; // other lists this domain also appears on (dedupe trail)
+  also_spellings: string[]; // typo variants folded in (e.g. a misspelling in one sheet)
   on_snagged_marketplace: boolean; // authoritative: scraped from snagged.com/marketplace
 }
 
@@ -121,6 +122,29 @@ const clean = (v: string | undefined): string | null => {
 function tldOf(domain: string): string {
   const i = domain.lastIndexOf(".");
   return i < 0 ? "" : domain.slice(i + 1).toLowerCase();
+}
+
+const sldOf = (domain: string): string => domain.slice(0, domain.lastIndexOf(".") || domain.length);
+
+// Damerau-Levenshtein distance capped at 2 (transposition counts as 1). Used only
+// to decide "these two SLDs differ by a single typo" — cheap for short strings.
+function editDistance(a: string, b: string): number {
+  const la = a.length;
+  const lb = b.length;
+  if (Math.abs(la - lb) > 2) return 99;
+  const d: number[][] = Array.from({ length: la + 1 }, () => new Array(lb + 1).fill(0));
+  for (let i = 0; i <= la; i++) d[i][0] = i;
+  for (let j = 0; j <= lb; j++) d[0][j] = j;
+  for (let i = 1; i <= la; i++) {
+    for (let j = 1; j <= lb; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
+        d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1); // transposition
+      }
+    }
+  }
+  return d[la][lb];
 }
 
 // Build a header→index map. Match is case-insensitive and by first header cell
@@ -179,6 +203,7 @@ function normalizeRows(values: string[][], source: SnapSource): SnapName[] {
       active: clean(get(row, "active", "active?")),
       notes: clean(get(row, "notes")),
       also_in: [],
+      also_spellings: [],
       on_snagged_marketplace: false,
     });
   }
@@ -230,9 +255,50 @@ export async function buildSnapNames(): Promise<SnapNamesReport> {
     merged.also_in = [...others];
     byDomain.set(r.domain, merged);
   }
-  const rows: SnapName[] = [...byDomain.values()];
+  let rows: SnapName[] = [...byDomain.values()];
   // Authoritative "live on the Snagged marketplace" from the scraped catalog.
   for (const r of rows) r.on_snagged_marketplace = marketplace.has(r.domain);
+
+  // Fold in TYPO variants — the same deal entered with a misspelling in one sheet
+  // (e.g. spiltter.com vs splitter.com). VERY tight guard so we never merge two
+  // genuinely different names: same TLD + EXACT same purchase price + SLDs differ
+  // by a single edit/transposition. Canonical = the marketplace-listed spelling,
+  // else the higher-precedence source; the loser's spelling is kept in
+  // also_spellings for transparency.
+  {
+    const used = new Set<string>();
+    const merged: SnapName[] = [];
+    for (let i = 0; i < rows.length; i++) {
+      if (used.has(rows[i].domain)) continue;
+      const a = rows[i];
+      for (let j = i + 1; j < rows.length; j++) {
+        const b = rows[j];
+        if (used.has(b.domain)) continue;
+        if (a.tld !== b.tld) continue;
+        if (a.purchase_price == null || b.purchase_price == null || a.purchase_price !== b.purchase_price) continue;
+        if (editDistance(sldOf(a.domain), sldOf(b.domain)) > 1) continue;
+        // b is a near-duplicate of a. Choose the canonical spelling (marketplace-
+        // listed wins, else higher-precedence source), but ALWAYS survive in a's
+        // slot (b is the absorbed one) so the outer loop's bookkeeping stays sound.
+        const canon = a.on_snagged_marketplace || (!b.on_snagged_marketplace && RANK[a.source] <= RANK[b.source]) ? a : b;
+        const other = canon === a ? b : a;
+        const mergedRow: SnapName = { ...canon };
+        for (const k of Object.keys(mergedRow) as (keyof SnapName)[]) {
+          if ((mergedRow[k] == null || mergedRow[k] === "") && other[k] != null && other[k] !== "") {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (mergedRow as any)[k] = other[k];
+          }
+        }
+        mergedRow.on_snagged_marketplace = a.on_snagged_marketplace || b.on_snagged_marketplace;
+        mergedRow.also_spellings = [...new Set([...(a.also_spellings || []), ...(b.also_spellings || []), other.domain])];
+        mergedRow.also_in = [...new Set([...(a.also_in || []), ...(b.also_in || []), other.source])].filter((s) => s !== mergedRow.source) as SnapSource[];
+        Object.assign(a, mergedRow); // a's slot now holds the canonical merged row
+        used.add(b.domain);
+      }
+      merged.push(a);
+    }
+    rows = merged;
+  }
 
   const bySource: Record<SnapSource, number> = { Berserk: 0, SNAP: 0, Rob: 0 };
   let owned = 0;
