@@ -1,20 +1,15 @@
 {
   "capped": false,
-  "count": 11,
+  "count": 6,
   "domains": [
-    "booby.ai",
-    "devotee.ai",
-    "paddling.ai",
-    "gaseous.ai",
-    "specialise.ai",
-    "displacement.co",
-    "but.net",
-    "considering.com",
-    "claimed.com",
-    "conflict.com",
-    "worth.ai"
+    "squadrons.org",
+    "parades.org",
+    "ruin.ai",
+    "hamas.co",
+    "missionaries.co",
+    "determined.com"
   ],
-  "generated_at": "2026-07-09T12:34:16.116280+00:00",
+  "generated_at": "2026-07-10T08:18:16.723887+00:00",
   "mub": [],
   "source": "afternic"
 }
