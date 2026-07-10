@@ -1,12 +1,13 @@
 // Live registrar write adapters — set nameservers / DNS records via each provider's
 // API. Server-only. Every call returns { ok, error?, account? } and never throws.
 // Implemented + tested-by-shape: Porkbun, Spaceship, NameSilo, GoDaddy (Berserk→Rob
-// cascade). Dynadot execute is not enabled yet (RESTful signing unconfirmed) — its
-// preview still works; execute returns a clear not-enabled error.
+// cascade), Namecheap (Fixie proxy), Cloudflare (DNS), Dynadot (RESTful v2, HMAC-
+// signed).
 //
 // SAFETY: these mutate real production domains. Callers must gate on the write
 // permission + explicit confirm, and log every attempt (see lib/snap-writes.ts).
 
+import { createHmac, randomUUID } from "node:crypto";
 import { ProxyAgent, fetch as undiciFetch } from "undici";
 import { godaddyAccounts, namecheapAccounts, type ProviderId } from "./registry";
 
@@ -339,12 +340,68 @@ async function namesiloSetDns(domain: string, rec: DnsRecordInput, e: NodeJS.Pro
   }
 }
 
+// ── Dynadot (RESTful v2 — Bearer key + HMAC-SHA256 X-Signature) ──────────────
+// Auth: Authorization: Bearer <apiKey>, plus X-Signature = base64(HMAC-SHA256(secret,
+// `${apiKey}\n${pathAndQuery}\n${requestId}\n${body}`)). requestId is sent as the
+// X-Request-Id header and MUST match what's signed. Docs:
+// https://www.dynadot.com/domain/api-document (v2.0.0).
+function dynadotCreds(e: NodeJS.ProcessEnv) {
+  return { key: e.DYNADOT_API_KEY || "", secret: e.DYNADOT_API_SECRET || e.DYNADOT_SECRET_KEY || "" };
+}
+async function dynadotRequest(
+  method: "PUT" | "POST",
+  path: string,
+  bodyObj: unknown,
+  e: NodeJS.ProcessEnv
+): Promise<WriteResult> {
+  const { key, secret } = dynadotCreds(e);
+  if (!key || !secret) return { ok: false, error: "Dynadot key/secret not configured" };
+  const body = JSON.stringify(bodyObj);
+  const requestId = randomUUID();
+  const toSign = `${key}\n${path}\n${requestId}\n${body}`;
+  const sig = createHmac("sha256", secret).update(toSign).digest("base64");
+  try {
+    const res = await timedFetch(`https://api.dynadot.com${path}`, {
+      method,
+      headers: {
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+        "X-Signature": sig,
+        "X-Request-Id": requestId,
+      },
+      body,
+    });
+    if (res.ok) return { ok: true };
+    const t = await res.text().catch(() => "");
+    return { ok: false, error: `Dynadot HTTP ${res.status}${t ? `: ${t.slice(0, 180)}` : ""}` };
+  } catch (err) {
+    return { ok: false, error: String((err as Error)?.message || err) };
+  }
+}
+async function dynadotSetNs(domain: string, ns: string[], e: NodeJS.ProcessEnv): Promise<WriteResult> {
+  const path = `/restful/v2/domains/${encodeURIComponent(domain)}/nameserver`;
+  return dynadotRequest("PUT", path, { nameservers: ns.map((host) => ({ host })) }, e);
+}
+async function dynadotSetDns(domain: string, rec: DnsRecordInput, e: NodeJS.ProcessEnv): Promise<WriteResult> {
+  const path = `/restful/v2/domains/${encodeURIComponent(domain)}/dns`;
+  // Dynadot models a root record with an empty host (its legacy "main record"); a
+  // subdomain carries its label. POST /dns ADDS the record (append), which is what we
+  // want for an Afternic verification TXT.
+  const body = {
+    type: rec.type.toUpperCase(),
+    host: rec.host === "@" ? "" : rec.host,
+    value: rec.value,
+    ttl: rec.ttl || 3600,
+  };
+  return dynadotRequest("POST", path, body, e);
+}
+
 // ── dispatch ────────────────────────────────────────────────────────────────
-const NS_EXECUTABLE: ProviderId[] = ["porkbun", "spaceship", "namesilo", "godaddy", "namecheap"];
+const NS_EXECUTABLE: ProviderId[] = ["porkbun", "spaceship", "namesilo", "godaddy", "namecheap", "dynadot"];
 export function nsExecutable(provider: ProviderId): boolean {
   return NS_EXECUTABLE.includes(provider);
 }
-const DNS_EXECUTABLE: ProviderId[] = ["porkbun", "godaddy", "cloudflare", "namesilo", "spaceship", "namecheap"];
+const DNS_EXECUTABLE: ProviderId[] = ["porkbun", "godaddy", "cloudflare", "namesilo", "spaceship", "namecheap", "dynadot"];
 export function dnsExecutable(provider: ProviderId): boolean {
   return DNS_EXECUTABLE.includes(provider);
 }
@@ -356,6 +413,7 @@ export async function setNameservers(provider: ProviderId, domain: string, ns: s
     case "namesilo": return namesiloSetNs(domain, ns, e);
     case "godaddy": return godaddySetNs(domain, ns, e);
     case "namecheap": return namecheapSetNs(domain, ns, e);
+    case "dynadot": return dynadotSetNs(domain, ns, e);
     default: return { ok: false, error: `${provider} nameserver execute not enabled yet` };
   }
 }
@@ -368,6 +426,7 @@ export async function setDnsRecord(provider: ProviderId, domain: string, rec: Dn
     case "namesilo": return namesiloSetDns(domain, rec, e);
     case "spaceship": return spaceshipSetDns(domain, rec, e);
     case "namecheap": return namecheapSetDns(domain, rec, e);
+    case "dynadot": return dynadotSetDns(domain, rec, e);
     default: return { ok: false, error: `${provider} DNS-record execute not enabled yet` };
   }
 }
