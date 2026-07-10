@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "prone.org"
-  ],
-  "generated_at": "2026-07-09T15:12:14.526162+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-07-10T15:04:00.049638+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
