@@ -10,7 +10,76 @@ export interface DomainLive {
   registrar: string | null;
   nameservers: string[];
   ns_provider: string | null; // friendly label for where the NS point (Cloudflare, Dan, GoDaddy DNS…)
+  // Live marketplace listing scrapes (fail-open → null = couldn't determine):
+  afternic: { listed: boolean; price: number | null } | null; // afternic.com (NS-independent)
+  spaceship_price: number | null; // Spaceship buy-now (from the domain's DOMAIN_CONFIG lander)
+  spaceship_min_offer: number | null; // Spaceship minimum-offer floor (no firm buy-now)
   checked_at: string;
+}
+
+const UA =
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36";
+
+async function fetchText(url: string, timeoutMs = 7000, headers: Record<string, string> = {}): Promise<string | null> {
+  try {
+    const res = await fetch(url, {
+      headers: { "user-agent": UA, ...headers },
+      redirect: "follow",
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    if (!res.ok) return null;
+    return await res.text();
+  } catch {
+    return null;
+  }
+}
+
+// Afternic BIN — NS-independent (Afternic's fast-transfer network lists a name even
+// when its nameservers point elsewhere). The forsale lander embeds isForSale + the
+// buyNow price in micros. Mirrors the research app's proven scraper.
+async function afternicBin(domain: string): Promise<{ listed: boolean; price: number | null } | null> {
+  const body = await fetchText(`https://www.afternic.com/domain/${domain}`);
+  if (body == null) return null;
+  const forSale = /"isForSale":\s*true/.test(body);
+  if (!forSale) return { listed: false, price: null };
+  const m = body.match(/"buyNow":\s*(\d{6,})/);
+  const price = m ? Math.round(Number(m[1]) / 1e6) : null;
+  return { listed: true, price: price && price >= 100 && price <= 5_000_000 ? price : null };
+}
+
+// Spaceship lander — served in-place on the domain when its NS point to Spaceship.
+// window.DOMAIN_CONFIG carries the authoritative terms: a firm buy-now (ltoConfig
+// totalPrice / buy-it-now) vs a minimum-offer floor. Mirrors research parseSpaceship.
+function parseSpaceship(body: string): { price: number | null; min_offer: number | null } | null {
+  if (!/DOMAIN_CONFIG/.test(body) || !/spaceship/i.test(body)) return null;
+  const money = (s: string | undefined): number | null => {
+    if (!s) return null;
+    const n = Number(String(s).replace(/[^\d.]/g, ""));
+    return Number.isFinite(n) && n >= 100 && n <= 5_000_000 ? Math.round(n) : null;
+  };
+  const bool = (k: string): boolean | null => {
+    const m = body.match(new RegExp(k + "\\s*:\\s*(true|false)"));
+    return m ? m[1] === "true" : null;
+  };
+  const buyNow = money((body.match(/totalPrice:\s*'([^']+)'/) || [])[1]);
+  const minOffer =
+    money((body.match(/minOfferPrice:\s*parseFloat\('([\d.]+)'\)/) || body.match(/minOfferPrice:\s*'?([\d.]+)'?/) || [])[1]) ||
+    money((body.match(/formattedMinOfferPrice:\s*'([^']+)'/) || [])[1]);
+  if (buyNow) return { price: buyNow, min_offer: null };
+  if (bool("offerEnabled") && minOffer) return { price: null, min_offer: minOffer };
+  if (minOffer) return { price: null, min_offer: minOffer };
+  return { price: null, min_offer: null };
+}
+
+async function spaceshipListing(domain: string): Promise<{ price: number | null; min_offer: number | null } | null> {
+  for (const url of [`https://${domain}`, `http://${domain}`]) {
+    const body = await fetchText(url, 7000);
+    if (body == null) continue;
+    const parsed = parseSpaceship(body);
+    if (parsed) return parsed;
+    return null; // resolved a page but it's not a Spaceship lander
+  }
+  return null;
 }
 
 // NS-suffix → friendly provider. Mirrors the research app's GENERIC_NS map so the
@@ -148,11 +217,19 @@ export async function resolveDomainLive(domain: string): Promise<DomainLive> {
   const d = domain.trim().toLowerCase();
   const hit = CACHE.get(d);
   if (hit && Date.now() - Date.parse(hit.checked_at) < TTL) return hit;
-  const [registrar, nameservers] = await Promise.all([rdapRegistrar(d), resolveNs(d)]);
+  const [registrar, nameservers, afternic] = await Promise.all([rdapRegistrar(d), resolveNs(d), afternicBin(d)]);
+  const ns_provider = providerFor(nameservers);
+  // Only fetch the domain's own page for a Spaceship BIN when its NS actually point
+  // to Spaceship (that's when it serves the DOMAIN_CONFIG lander) — saves a request.
+  let ship: { price: number | null; min_offer: number | null } | null = null;
+  if (ns_provider && /spaceship/i.test(ns_provider)) ship = await spaceshipListing(d);
   const info: DomainLive = {
     registrar,
     nameservers,
-    ns_provider: providerFor(nameservers),
+    ns_provider,
+    afternic,
+    spaceship_price: ship?.price ?? null,
+    spaceship_min_offer: ship?.min_offer ?? null,
     checked_at: new Date().toISOString(),
   };
   CACHE.set(d, info);

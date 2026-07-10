@@ -38,7 +38,15 @@ type Summary = {
   generatedAt: string;
 };
 type Report = { rows: SnapName[]; summary: Summary };
-type Live = { registrar: string | null; nameservers: string[]; ns_provider: string | null; checked_at: string };
+type Live = {
+  registrar: string | null;
+  nameservers: string[];
+  ns_provider: string | null;
+  afternic: { listed: boolean; price: number | null } | null;
+  spaceship_price: number | null;
+  spaceship_min_offer: number | null;
+  checked_at: string;
+};
 
 const usd = (n: number | null | undefined) => (n == null ? "—" : `$${Math.round(n).toLocaleString()}`);
 
@@ -47,12 +55,24 @@ const SOURCE_STYLE: Record<string, { name: string; bg: string; fg: string }> = {
   SNAP: { name: "SNAP", bg: "#e2efe5", fg: "#2f7d4f" },
   Rob: { name: "Rob", bg: "#e6e8f5", fg: "#3f4a8f" },
 };
-function SourcePill({ source, also }: { source: string; also?: SnapSource[] }) {
+function SourcePill({ source }: { source: string }) {
   const s = SOURCE_STYLE[source] || { name: source, bg: "#eee", fg: "#333" };
   return (
+    <span style={{ display: "inline-block", padding: "2px 10px", borderRadius: 999, fontSize: 12, fontWeight: 600, background: s.bg, color: s.fg, whiteSpace: "nowrap" }}>{s.name}</span>
+  );
+}
+
+// A live marketplace listing cell: green ✓ + price when listed, grey ✗ when we
+// checked and it's not, muted "…/—" when unknown (still resolving / can't tell).
+function MarketCell({ listed, price, sub, pending }: { listed: boolean | null; price?: string | null; sub?: string | null; pending?: boolean }) {
+  if (pending) return <span style={{ color: "#c8c8d2" }}>…</span>;
+  if (listed == null) return <span style={{ color: "#c8c8d2" }}>—</span>;
+  if (!listed) return <span style={{ color: "#c2b8b8" }}>✗</span>;
+  return (
     <span style={{ whiteSpace: "nowrap" }}>
-      <span style={{ display: "inline-block", padding: "2px 10px", borderRadius: 999, fontSize: 12, fontWeight: 600, background: s.bg, color: s.fg }}>{s.name}</span>
-      {also && also.length > 0 && <span title={`Also on: ${also.join(", ")}`} style={{ marginLeft: 5, fontSize: 11, color: "#9a9aac", cursor: "help" }}>+{also.length}</span>}
+      <span style={{ color: "#2f7d4f", fontWeight: 700 }}>✓</span>
+      {price && <span style={{ marginLeft: 5, fontSize: 12 }}>{price}</span>}
+      {sub && <span style={{ display: "block", fontSize: 10.5, color: "#9a9aac" }}>{sub}</span>}
     </span>
   );
 }
@@ -61,7 +81,7 @@ const card: CSSProperties = { border: "1px solid #e6e6ef", borderRadius: 12, pad
 const th: CSSProperties = { textAlign: "left", padding: "8px 10px", fontSize: 12, color: "#6b6b7b", fontWeight: 600, borderBottom: "1px solid #e6e6ef", whiteSpace: "nowrap", cursor: "pointer", userSelect: "none" };
 const td: CSSProperties = { padding: "8px 10px", fontSize: 13, borderBottom: "1px solid #f0f0f5", verticalAlign: "top" };
 
-type SortKey = "domain" | "source" | "tld" | "date" | "purchase" | "internal" | "spaceship" | "registrar" | "status";
+type SortKey = "domain" | "source" | "tld" | "date" | "purchase" | "internal" | "registrar" | "status";
 
 // localStorage cache for live lookups so repeat views don't re-resolve.
 const LIVE_TTL = 24 * 3600 * 1000;
@@ -95,7 +115,7 @@ export default function SnapNamesClient() {
 
   const [q, setQ] = useState("");
   const [src, setSrc] = useState<"all" | SnapSource>("all");
-  const [status, setStatus] = useState<"all" | "owned" | "sold" | "marketplace">("all");
+  const [status, setStatus] = useState<"all" | "owned" | "sold" | "marketplace">("owned");
   const [tldFilter, setTldFilter] = useState<string>("all");
   const [sortKey, setSortKey] = useState<SortKey>("domain");
   const [sortDir, setSortDir] = useState<1 | -1>(1);
@@ -198,7 +218,6 @@ export default function SnapNamesClient() {
         case "date": return r.date_purchased ? Date.parse(r.date_purchased) || 0 : 0;
         case "purchase": return r.purchase_price ?? -1;
         case "internal": return r.internal_price ?? -1;
-        case "spaceship": return r.spaceship_price ?? -1;
         case "registrar": return (live[r.domain]?.registrar || "￿").toLowerCase();
         case "status": return r.sold ? 2 : r.on_marketplace ? 1 : 0;
         default: return 0;
@@ -224,7 +243,7 @@ export default function SnapNamesClient() {
   const arrow = (k: SortKey) => (k === sortKey ? (sortDir === 1 ? " ▲" : " ▼") : "");
 
   const downloadCsv = () => {
-    const cols = ["domain", "source", "also_in", "tld", "date_purchased", "purchase_price", "internal_price", "spaceship_price", "atom_price", "on_marketplace", "platform", "registrar", "nameservers", "ns_provider", "still_owned", "sold_for", "sale_date", "net_sale_price", "fees", "list_for_sale", "snagged_rep", "premium", "active", "notes"];
+    const cols = ["domain", "source", "also_in", "tld", "date_purchased", "purchase_price", "internal_price", "platform", "registrar", "nameservers", "ns_provider", "afternic_listed", "afternic_price", "atom_listed", "atom_price", "spaceship_listed", "spaceship_price", "spaceship_min_offer", "marketplace_listed", "marketplace_price", "on_marketplace", "still_owned", "sold_for", "sale_date", "net_sale_price", "fees", "list_for_sale", "snagged_rep", "premium", "active", "notes"];
     const esc = (v: unknown) => {
       const s = v == null ? "" : Array.isArray(v) ? v.join(" | ") : String(v);
       return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
@@ -232,7 +251,21 @@ export default function SnapNamesClient() {
     const lines = [cols.join(",")];
     for (const r of filtered) {
       const l = live[r.domain];
-      const rowObj: Record<string, unknown> = { ...r, registrar: l?.registrar ?? "", nameservers: l?.nameservers ?? [], ns_provider: l?.ns_provider ?? "" };
+      const ns = l?.ns_provider || "";
+      const rowObj: Record<string, unknown> = {
+        ...r,
+        registrar: l?.registrar ?? "",
+        nameservers: l?.nameservers ?? [],
+        ns_provider: l?.ns_provider ?? "",
+        afternic_listed: l?.afternic ? (l.afternic.listed ? "yes" : "no") : "",
+        afternic_price: l?.afternic?.price ?? "",
+        atom_listed: l ? (/atom/i.test(ns) ? "yes" : "no") : "",
+        spaceship_listed: l ? (/spaceship/i.test(ns) ? "yes" : "no") : "",
+        spaceship_price: l?.spaceship_price ?? (l && /spaceship/i.test(ns) ? r.spaceship_price : "") ?? "",
+        spaceship_min_offer: l?.spaceship_min_offer ?? "",
+        marketplace_listed: l ? (/snagged/i.test(ns) ? "yes" : "no") : "",
+        marketplace_price: l && /snagged/i.test(ns) ? r.internal_price ?? "" : "",
+      };
       lines.push(cols.map((c) => esc(rowObj[c])).join(","));
     }
     const blob = new Blob([lines.join("\n")], { type: "text/csv" });
@@ -304,36 +337,44 @@ export default function SnapNamesClient() {
               <th style={th} onClick={() => setSort("date")}>Purchased{arrow("date")}</th>
               <th style={{ ...th, textAlign: "right" }} onClick={() => setSort("purchase")}>Cost{arrow("purchase")}</th>
               <th style={{ ...th, textAlign: "right" }} onClick={() => setSort("internal")}>Internal{arrow("internal")}</th>
-              <th style={{ ...th, textAlign: "right" }} onClick={() => setSort("spaceship")}>Spaceship{arrow("spaceship")}</th>
-              <th style={th}>Platform</th>
               <th style={th} onClick={() => setSort("registrar")}>Registrar{arrow("registrar")}</th>
               <th style={th}>Nameservers → points to</th>
+              <th style={th}>Afternic</th>
+              <th style={th}>Atom</th>
+              <th style={th}>Spaceship</th>
+              <th style={th}>Marketplace</th>
               <th style={th} onClick={() => setSort("status")}>Status{arrow("status")}</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((r, i) => {
               const l = live[r.domain];
+              const ns = l?.ns_provider || "";
+              const pend = !l;
+              // Atom / Spaceship / Marketplace "listed" derive from where the NS point
+              // (that's what serves the lander); Afternic is an independent live scrape.
+              const atomListed = l ? /atom/i.test(ns) : null;
+              const shipListed = l ? /spaceship/i.test(ns) : null;
+              const mktListed = l ? /snagged/i.test(ns) : null;
+              const shipPrice = l?.spaceship_price ?? (shipListed ? r.spaceship_price : null);
+              const shipSub = !l?.spaceship_price && l?.spaceship_min_offer ? `min ${usd(l.spaceship_min_offer)}` : null;
               return (
                 <tr key={`${r.domain}-${i}`}>
-                  <td style={{ ...td, fontWeight: 600 }}>
+                  <td style={{ ...td, fontWeight: 600 }} title={r.notes || undefined}>
                     {r.domain}
-                    {r.notes && <span title={r.notes} style={{ marginLeft: 6, cursor: "help", opacity: 0.6 }}>📝</span>}
                   </td>
-                  <td style={td}><SourcePill source={r.source} also={r.also_in} /></td>
+                  <td style={td}><SourcePill source={r.source} /></td>
                   <td style={{ ...td, color: "#6b6b7b" }}>.{r.tld}</td>
                   <td style={{ ...td, whiteSpace: "nowrap", color: "#6b6b7b" }}>{r.date_purchased || "—"}</td>
                   <td style={{ ...td, textAlign: "right" }}>{usd(r.purchase_price)}</td>
                   <td style={{ ...td, textAlign: "right", fontWeight: 600 }}>{usd(r.internal_price)}</td>
-                  <td style={{ ...td, textAlign: "right", color: "#6b6b7b" }}>{usd(r.spaceship_price)}</td>
-                  <td style={{ ...td, color: "#6b6b7b", whiteSpace: "nowrap" }}>{r.platform || "—"}</td>
                   <td style={{ ...td, whiteSpace: "nowrap" }}>{l ? l.registrar || <span style={{ color: "#b8b8c4" }}>—</span> : <span style={{ color: "#c8c8d2" }}>…</span>}</td>
                   <td style={td}>
                     {l ? (
                       l.nameservers.length ? (
                         <span>
                           {l.ns_provider && <span style={{ fontWeight: 600, color: "#3f4a8f" }}>{l.ns_provider}</span>}
-                          <span title={l.nameservers.join("\n")} style={{ display: "block", fontSize: 11, color: "#9a9aac", maxWidth: 240, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          <span title={l.nameservers.join("\n")} style={{ display: "block", fontSize: 11, color: "#9a9aac", maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                             {l.nameservers.join(", ")}
                           </span>
                         </span>
@@ -344,6 +385,10 @@ export default function SnapNamesClient() {
                       <span style={{ color: "#c8c8d2" }}>…</span>
                     )}
                   </td>
+                  <td style={td}><MarketCell pending={pend} listed={l?.afternic ? l.afternic.listed : null} price={l?.afternic?.price ? usd(l.afternic.price) : null} /></td>
+                  <td style={td}><MarketCell pending={pend} listed={atomListed} price={atomListed && r.atom_price ? r.atom_price : null} /></td>
+                  <td style={td}><MarketCell pending={pend} listed={shipListed} price={shipPrice != null ? usd(shipPrice) : null} sub={shipSub} /></td>
+                  <td style={td}><MarketCell pending={pend} listed={mktListed} price={mktListed && r.internal_price ? usd(r.internal_price) : null} /></td>
                   <td style={td}>
                     {r.sold ? (
                       <span style={{ color: "#2f7d4f", fontWeight: 600 }}>
@@ -359,11 +404,11 @@ export default function SnapNamesClient() {
                 </tr>
               );
             })}
-            {!loading && !filtered.length && <tr><td style={{ ...td, textAlign: "center", color: "#6b6b7b" }} colSpan={11}>No names match.</td></tr>}
+            {!loading && !filtered.length && <tr><td style={{ ...td, textAlign: "center", color: "#6b6b7b" }} colSpan={13}>No names match.</td></tr>}
           </tbody>
         </table>
       </div>
-      {s && <p className="muted" style={{ fontSize: 11, marginTop: 10 }}>Generated {new Date(s.generatedAt).toLocaleString()} · Registrar/nameservers resolved live (cached 24h in your browser). Platform = where the sheet says it&apos;s listed.</p>}
+      {s && <p className="muted" style={{ fontSize: 11, marginTop: 10 }}>Generated {new Date(s.generatedAt).toLocaleString()} · Registrar, nameservers, Afternic + Spaceship prices resolved live (cached 24h in your browser). Atom/Spaceship/Marketplace &quot;live&quot; is derived from where the nameservers point; Atom price is our tracked figure, Marketplace price is our internal ask.</p>}
     </main>
   );
 }
