@@ -213,13 +213,30 @@ async function rdapRegistrar(domain: string): Promise<string | null> {
 }
 
 // ── WHOIS (port 43) fallback for TLDs with NO working RDAP ───────────────────
-// .co (CentralNic) publishes no RDAP domain objects — its registrar is only on
-// port-43 WHOIS. Node serverless (Vercel) can open a raw TCP socket, so we fall
-// back to WHOIS for these. NOTE: this sandbox/proxy blocks port 43, so this path
-// is exercised in PRODUCTION only.
+// Many ccTLDs (.co, .st, .am, .ly, .gg, …) publish no RDAP domain objects — their
+// registrar is only on port-43 WHOIS. Node serverless (Vercel) can open a raw TCP
+// socket, so we fall back to WHOIS. The registry WHOIS host is discovered from IANA
+// (whois.iana.org) per-TLD and cached, so we cover ANY TLD, not a hardcoded few.
+// NOTE: this sandbox/proxy blocks port 43, so this path is exercised in PRODUCTION only.
 const WHOIS_SERVER: Record<string, string> = {
-  co: "whois.registry.co",
+  co: "whois.registry.co", // explicit override (IANA lists whois.nic.co; both resolve)
 };
+// tld → registry WHOIS host, discovered via IANA + cached (null = looked up, none found).
+const whoisHostCache = new Map<string, string | null>();
+
+async function whoisServerFor(tld: string): Promise<string | null> {
+  if (WHOIS_SERVER[tld]) return WHOIS_SERVER[tld];
+  if (whoisHostCache.has(tld)) return whoisHostCache.get(tld) ?? null;
+  try {
+    const ref = await whoisQuery("whois.iana.org", tld);
+    const m = ref ? ref.match(/^\s*whois:\s*(\S+)\s*$/im) : null;
+    const host = m && m[1] ? m[1].trim() : null;
+    if (host) whoisHostCache.set(tld, host); // cache only a real hit (TLD→host is stable)
+    return host;
+  } catch {
+    return null;
+  }
+}
 
 function whoisQuery(host: string, query: string, timeoutMs = 6000): Promise<string | null> {
   return new Promise((resolve) => {
@@ -258,7 +275,7 @@ function registrarFromWhois(text: string | null): string | null {
 
 async function whoisRegistrar(domain: string): Promise<string | null> {
   const tld = domain.slice(domain.lastIndexOf(".") + 1).toLowerCase();
-  const server = WHOIS_SERVER[tld];
+  const server = await whoisServerFor(tld);
   if (!server) return null;
   try {
     return registrarFromWhois(await whoisQuery(server, domain));

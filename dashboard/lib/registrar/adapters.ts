@@ -162,12 +162,20 @@ async function namecheapSetNs(domain: string, ns: string[], e: NodeJS.ProcessEnv
   const dot = domain.lastIndexOf(".");
   const sld = domain.slice(0, dot);
   const tld = domain.slice(dot + 1);
+  // Namecheap's own BasicDNS nameservers (dns1/dns2.registrar-servers.com) can NOT be
+  // set via setCustom — the API rejects "BasicDNS can not be used as Custom DNS". Going
+  // back to Namecheap-hosted DNS is a distinct command, setDefault (no Nameservers arg).
+  // "Reset to registrar default" for a Namecheap name targets exactly that pair.
+  const toBasicDns = ns.length > 0 && ns.every((h) => /(^|\.)registrar-servers\.com$/i.test(h.trim()));
   let lastErr = "";
   for (const a of accounts) {
-    const params = new URLSearchParams({
-      ApiUser: a.apiUser, ApiKey: a.apiKey, UserName: a.username, ClientIp: clientIp,
-      Command: "namecheap.domains.dns.setCustom", SLD: sld, TLD: tld, Nameservers: ns.join(","),
-    });
+    const params = new URLSearchParams(
+      toBasicDns
+        ? { ApiUser: a.apiUser, ApiKey: a.apiKey, UserName: a.username, ClientIp: clientIp,
+            Command: "namecheap.domains.dns.setDefault", SLD: sld, TLD: tld }
+        : { ApiUser: a.apiUser, ApiKey: a.apiKey, UserName: a.username, ClientIp: clientIp,
+            Command: "namecheap.domains.dns.setCustom", SLD: sld, TLD: tld, Nameservers: ns.join(",") }
+    );
     try {
       const res = await undiciFetch(`https://api.namecheap.com/xml.response?${params.toString()}`, { dispatcher, signal: AbortSignal.timeout(20000) });
       const xml = await res.text();
