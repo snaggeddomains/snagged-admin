@@ -56,6 +56,7 @@ export const ACTIONS = [
   "reports.analytics", // view the Site Analytics (GA4) report
   "reports.marketplace", // view the Marketplace per-domain report (GA4 /domains/*)
   "reports.opportunities", // view the New Opportunities report (snap + auctions)
+  "reports.snap_names", // view the SNAP Names report (purchased / for-sale inventory)
   "reports.chat", // use Chat Analytics (LLM Q&A over the report data)
 ] as const;
 export type ActionKey = (typeof ACTIONS)[number];
@@ -136,6 +137,7 @@ export const RESEARCH_TABS: { href: string; label: string; perm: ModuleKey | Act
 export const SNAP_TABS: { href: string; label: string; perm: ModuleKey | ActionKey }[] = [
   { href: "/research/evaluate", label: "SNAP Eval", perm: "research.evaluate" },
   { href: "/reports/opportunities", label: "SNAP Opportunities", perm: "reports.opportunities" },
+  { href: "/reports/snap-names", label: "SNAP Names", perm: "reports.snap_names" },
 ];
 
 // Can the user use this admin tab/key? is_admin and the `admin` umbrella both
@@ -165,6 +167,7 @@ export function canEnterReports(user: AppUser | null): boolean {
   // SNAP Opportunities' page lives under /reports/* but is no longer a Reports tab,
   // so admit a user who only holds reports.opportunities too.
   if (isGranted(user.permissions, "reports.opportunities")) return true;
+  if (isGranted(user.permissions, "reports.snap_names")) return true;
   return REPORTS_TABS.some((t) => isGranted(user.permissions, t.perm));
 }
 
@@ -192,6 +195,7 @@ export const CATALOG: CatalogEntry[] = [
   { key: "reports.marketplace", label: "Reports — Marketplace (per-domain)", group: "Reports", kind: "action" },
   { key: "research.evaluate", label: "SNAP Eval (acquisition / resale scorecard)", group: "SNAP", kind: "module" },
   { key: "reports.opportunities", label: "SNAP Opportunities (snap + auctions)", group: "SNAP", kind: "action" },
+  { key: "reports.snap_names", label: "SNAP Names (purchased / for-sale inventory)", group: "SNAP", kind: "action" },
   { key: "reports.chat", label: "Reports — Chat Analytics (LLM Q&A)", group: "Reports", kind: "action" },
   { key: "reports.cost", label: "Reports — API cost & usage", group: "Reports", kind: "action" },
   { key: "research.domain_owner", label: "Domain Owner research", group: "Research", kind: "module" },
