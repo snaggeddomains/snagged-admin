@@ -2,10 +2,10 @@
   "capped": false,
   "count": 2,
   "domains": [
-    "health.sh",
-    "leona.net"
+    "1624.org",
+    "validate.co"
   ],
-  "generated_at": "2026-07-10T17:05:57.469475+00:00",
+  "generated_at": "2026-07-10T23:06:16.431532+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
