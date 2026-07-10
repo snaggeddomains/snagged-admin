@@ -109,7 +109,7 @@ export const PROVIDERS: Record<ProviderId, Provider> = {
     label: "Cloudflare",
     canNS: false,
     canDNS: true,
-    hasKeys: (e) => !!e.CLOUDFLARE_API_TOKEN,
+    hasKeys: (e) => !!(e.CLOUDFLARE_API_TOKEN_DNS || e.CLOUDFLARE_API_TOKEN),
   },
 };
 
@@ -124,6 +124,7 @@ export const PROVIDER_DEFAULT_NS: Record<ProviderId, string[] | null> = {
   namesilo: ["ns1.namesilo.com", "ns2.namesilo.com"],
   namecheap: ["dns1.registrar-servers.com", "dns2.registrar-servers.com"],
   godaddy: null, // assigned per-domain (nsXX.domaincontrol.com)
+  cloudflare: null, // DNS host, not a registrar — no registrar-default NS
 };
 
 export function defaultNsForRegistrar(registrar: string | null | undefined): string[] | null {

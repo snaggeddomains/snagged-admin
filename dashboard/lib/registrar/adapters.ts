@@ -208,7 +208,7 @@ async function godaddySetDns(domain: string, rec: DnsRecordInput, e: NodeJS.Proc
 
 // ── Cloudflare DNS (bearer token; resolve zone by name → append record) ──────
 async function cloudflareSetDns(domain: string, rec: DnsRecordInput, e: NodeJS.ProcessEnv): Promise<WriteResult> {
-  const token = e.CLOUDFLARE_API_TOKEN || "";
+  const token = e.CLOUDFLARE_API_TOKEN_DNS || e.CLOUDFLARE_API_TOKEN || "";
   if (!token) return { ok: false, error: "No Cloudflare API token configured" };
   const H = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
   try {
