@@ -134,6 +134,8 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
   const [preview, setPreview] = useState<Preview | null>(null);
   const [previewing, setPreviewing] = useState(false);
   const [providers, setProviders] = useState<{ id: string; label: string; wired: boolean }[]>([]);
+  const [applying, setApplying] = useState(false);
+  const [applyResult, setApplyResult] = useState<{ summary: { applied: number; noChange: number; failed: number; skipped: number }; results: { domain: string; ok: boolean; skipped?: boolean; noChange?: boolean; provider: string | null; account?: string | null; error?: string | null }[] } | null>(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [live, setLive] = useState<Record<string, Live>>({});
@@ -421,6 +423,7 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
   const runPreview = useCallback(async () => {
     setPreviewing(true);
     setPreview(null);
+    setApplyResult(null);
     setErr(null);
     try {
       const domains = [...selected];
@@ -444,6 +447,37 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
       setPreviewing(false);
     }
   }, [selected, bulkAction, nsTarget, dnsRec]);
+
+  const runApply = useCallback(async () => {
+    if (!preview) return;
+    const actionLabel = bulkAction === "dns" ? "set a DNS record on" : bulkAction === "ns_default" ? "reset nameservers to registrar default on" : "set nameservers on";
+    const n = preview.summary.willUpdate;
+    if (!n) return;
+    if (!window.confirm(`This will ${actionLabel} ${n} live domain${n === 1 ? "" : "s"} at their registrar — a real, hard-to-reverse change. Continue?`)) return;
+    setApplying(true);
+    setApplyResult(null);
+    setErr(null);
+    try {
+      const domains = [...selected];
+      const payload =
+        bulkAction === "nameservers"
+          ? { domains, action: "nameservers", nameservers: nsTarget.split(/[\s,]+/).map((x) => x.trim()).filter(Boolean) }
+          : bulkAction === "ns_default"
+            ? { domains, action: "ns_default" }
+            : { domains, action: "dns", record: { type: dnsRec.type, host: dnsRec.host, value: dnsRec.value, ttl: Number(dnsRec.ttl) || 3600 } };
+      const res = await fetch("/api/admin/snap-names/bulk-apply", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const j = await res.json();
+      if (!res.ok) throw new Error(j?.error || `HTTP ${res.status}`);
+      setApplyResult(j);
+      // Re-resolve the changed domains so the table reflects new nameservers.
+      const changed = report?.rows.filter((r) => selected.has(r.domain)) || [];
+      if (changed.length) resolveLive(changed, true);
+    } catch (e) {
+      setErr(String((e as Error)?.message || e));
+    } finally {
+      setApplying(false);
+    }
+  }, [preview, bulkAction, selected, nsTarget, dnsRec, report, resolveLive]);
 
   const s = report?.summary;
 
@@ -556,11 +590,35 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
           )}
           {preview && (
             <div style={{ marginTop: 12, borderTop: "1px solid #e6e6ef", paddingTop: 12 }}>
-              <div style={{ display: "flex", gap: 16, flexWrap: "wrap", fontSize: 13, fontWeight: 600 }}>
+              <div style={{ display: "flex", gap: 16, flexWrap: "wrap", fontSize: 13, fontWeight: 600, alignItems: "center" }}>
                 <span style={{ color: "#2f7d4f" }}>✓ {preview.summary.willUpdate} would update</span>
                 {preview.summary.noChange > 0 && <span style={{ color: "#6b6b7b" }}>= {preview.summary.noChange} already match</span>}
                 {preview.summary.skipped > 0 && <span style={{ color: "#a3502f" }}>✗ {preview.summary.skipped} skipped</span>}
+                {canWrite && preview.summary.willUpdate > 0 && (
+                  <button onClick={runApply} disabled={applying} style={{ marginLeft: "auto", padding: "7px 16px", borderRadius: 8, border: "none", background: "#b1442c", color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 700 }}>
+                    {applying ? "Applying…" : `⚡ Apply ${preview.summary.willUpdate} change${preview.summary.willUpdate === 1 ? "" : "s"} (live)`}
+                  </button>
+                )}
               </div>
+              {applyResult && (
+                <div style={{ marginTop: 10, borderTop: "1px solid #e6e6ef", paddingTop: 10 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700 }}>
+                    <span style={{ color: "#2f7d4f" }}>⚡ {applyResult.summary.applied} applied</span>
+                    {applyResult.summary.noChange > 0 && <span style={{ color: "#6b6b7b", marginLeft: 12 }}>= {applyResult.summary.noChange} no-op</span>}
+                    {applyResult.summary.failed > 0 && <span style={{ color: "#b1442c", marginLeft: 12 }}>✗ {applyResult.summary.failed} failed</span>}
+                    {applyResult.summary.skipped > 0 && <span style={{ color: "#a3502f", marginLeft: 12 }}>– {applyResult.summary.skipped} skipped</span>}
+                  </div>
+                  <div style={{ marginTop: 6, maxHeight: 220, overflowY: "auto", fontSize: 12.5 }}>
+                    {applyResult.results.filter((r) => !r.ok || r.error).map((r) => (
+                      <div key={r.domain} style={{ padding: "3px 0", display: "flex", gap: 8 }}>
+                        <span style={{ fontWeight: 600, minWidth: 160 }}>{r.domain}</span>
+                        <span style={{ color: r.skipped ? "#a3502f" : "#b1442c" }}>{r.skipped ? "– skipped" : "✗ failed"} — {r.error}</span>
+                      </div>
+                    ))}
+                    {applyResult.results.every((r) => r.ok && !r.error) && <div style={{ color: "#2f7d4f" }}>All changes applied successfully.</div>}
+                  </div>
+                </div>
+              )}
               <div style={{ marginTop: 8, maxHeight: 260, overflowY: "auto", fontSize: 12.5 }}>
                 {preview.results.map((r) => (
                   <div key={r.domain} style={{ padding: "4px 0", borderBottom: "1px solid #f0f0f5", display: "flex", gap: 8, alignItems: "baseline" }}>

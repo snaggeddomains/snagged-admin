@@ -278,6 +278,12 @@ async function resolveNs(domain: string): Promise<string[]> {
 const CACHE = new Map<string, DomainLive>();
 const TTL = 6 * 3600 * 1000;
 
+// Drop a domain from the in-process cache so the next resolve is fresh (used after
+// a write changes its nameservers).
+export function invalidateLive(domain: string): void {
+  CACHE.delete(domain.trim().toLowerCase());
+}
+
 export async function resolveDomainLive(domain: string): Promise<DomainLive> {
   const d = domain.trim().toLowerCase();
   const hit = CACHE.get(d);
