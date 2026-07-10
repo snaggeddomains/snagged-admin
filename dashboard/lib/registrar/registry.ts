@@ -21,6 +21,28 @@ export interface Provider {
   nsCaveat?: string;
 }
 
+// ── Multi-account credentials (business + personal) ─────────────────────────
+// A registrar key only controls the domains IN that account, and we may hold two
+// GoDaddy / Namecheap accounts. These resolvers return the available accounts in
+// TRY ORDER (business → personal → single fallback); the write adapter routes by a
+// domain→account map and cascades through this order when the map misses.
+export interface GodaddyAccount { account: "business" | "personal" | "default"; key: string; secret: string; }
+export function godaddyAccounts(e: NodeJS.ProcessEnv): GodaddyAccount[] {
+  const out: GodaddyAccount[] = [];
+  if (e.GODADDY_API_KEY_BIZ && e.GODADDY_API_SECRET_BIZ) out.push({ account: "business", key: e.GODADDY_API_KEY_BIZ, secret: e.GODADDY_API_SECRET_BIZ });
+  if (e.GODADDY_API_KEY_PERSONAL && e.GODADDY_API_SECRET_PERSONAL) out.push({ account: "personal", key: e.GODADDY_API_KEY_PERSONAL, secret: e.GODADDY_API_SECRET_PERSONAL });
+  if (!out.length && e.GODADDY_API_KEY && e.GODADDY_API_SECRET) out.push({ account: "default", key: e.GODADDY_API_KEY, secret: e.GODADDY_API_SECRET });
+  return out;
+}
+export interface NamecheapAccount { account: "business" | "personal" | "default"; apiUser: string; apiKey: string; username: string; }
+export function namecheapAccounts(e: NodeJS.ProcessEnv): NamecheapAccount[] {
+  const out: NamecheapAccount[] = [];
+  if (e.NAMECHEAP_API_KEY_BIZ && e.NAMECHEAP_API_USER_BIZ) out.push({ account: "business", apiKey: e.NAMECHEAP_API_KEY_BIZ, apiUser: e.NAMECHEAP_API_USER_BIZ, username: e.NAMECHEAP_USERNAME_BIZ || e.NAMECHEAP_API_USER_BIZ });
+  if (e.NAMECHEAP_API_KEY_PERSONAL && e.NAMECHEAP_API_USER_PERSONAL) out.push({ account: "personal", apiKey: e.NAMECHEAP_API_KEY_PERSONAL, apiUser: e.NAMECHEAP_API_USER_PERSONAL, username: e.NAMECHEAP_USERNAME_PERSONAL || e.NAMECHEAP_API_USER_PERSONAL });
+  if (!out.length && e.NAMECHEAP_API_KEY && e.NAMECHEAP_API_USER) out.push({ account: "default", apiKey: e.NAMECHEAP_API_KEY, apiUser: e.NAMECHEAP_API_USER, username: e.NAMECHEAP_USERNAME || e.NAMECHEAP_API_USER });
+  return out;
+}
+
 export const PROVIDERS: Record<ProviderId, Provider> = {
   spaceship: {
     id: "spaceship",
@@ -56,7 +78,11 @@ export const PROVIDERS: Record<ProviderId, Provider> = {
     label: "GoDaddy",
     canNS: true,
     canDNS: true,
-    hasKeys: (e) => !!(e.GODADDY_API_KEY && e.GODADDY_API_SECRET),
+    // We may hold TWO GoDaddy accounts (business + personal); the domain could be in
+    // either. "Wired" = at least one account's keys present. The write adapter builds
+    // a domain→account map (list each account once) and routes to the right key,
+    // falling back to a business→personal cascade.
+    hasKeys: (e) => godaddyAccounts(e).length > 0,
     nsCaveat: "Nameserver changes on protected / high-value domains require 2FA, which GoDaddy's API doesn't support — those may be rejected.",
   },
   namecheap: {
@@ -64,8 +90,9 @@ export const PROVIDERS: Record<ProviderId, Provider> = {
     label: "Namecheap",
     canNS: true,
     canDNS: true,
-    // Needs an IP-allowlisted static egress; not wired yet.
-    hasKeys: () => false,
+    // Two accounts possible AND Namecheap requires an IP-allowlisted static egress —
+    // so "wired" also needs a proxy configured.
+    hasKeys: (e) => namecheapAccounts(e).length > 0 && !!e.NAMECHEAP_PROXY_URL,
   },
 };
 
