@@ -139,12 +139,13 @@ function providerFor(nameservers: string[]): string | null {
 // ── RDAP bootstrap (tld → RDAP base URL), cached ────────────────────────────
 let bootstrap: Map<string, string> | null = null;
 let bootstrapAt = 0;
-// ccTLDs that run RDAP but aren't always in IANA's bootstrap.
+// ccTLDs that run RDAP but aren't always in IANA's bootstrap (all Identity Digital).
+// NOTE: some ccTLDs (e.g. .co) publish NO reachable public RDAP at all — their
+// registrar simply can't be read this way, so the column shows "—" for them.
 const CCTLD_RDAP: Record<string, string> = {
   io: "https://rdap.identitydigital.services/rdap/",
   sh: "https://rdap.identitydigital.services/rdap/",
   ac: "https://rdap.identitydigital.services/rdap/",
-  co: "https://rdap.nic.co/",
   vc: "https://rdap.identitydigital.services/rdap/",
 };
 
