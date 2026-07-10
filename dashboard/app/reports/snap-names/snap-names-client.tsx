@@ -60,6 +60,15 @@ type Live = {
   checked_at: string;
 };
 
+// Local mirrors of the inventory types (do NOT import the server-only lib into this
+// client component — it pulls undici/node:crypto into the browser bundle).
+type OwnedAt = { provider: string; label: string; account: string; expires?: string | null; autoRenew?: boolean | null };
+type AccountStatus = { provider: string; label: string; account: string; ok: boolean; error?: string | null; count: number; capped?: boolean };
+const REG_TO_PID: [RegExp, string][] = [[/spaceship/i, "spaceship"], [/porkbun/i, "porkbun"], [/dynadot/i, "dynadot"], [/namesilo/i, "namesilo"], [/godaddy/i, "godaddy"], [/namecheap/i, "namecheap"]];
+const regPid = (r?: string | null): string | null => { const s = String(r || ""); for (const [re, id] of REG_TO_PID) if (re.test(s)) return id; return null; };
+const daysUntil = (s?: string | null): number | null => { if (!s) return null; const t = Date.parse(s); return isNaN(t) ? null : Math.floor((t - Date.now()) / 86400000); };
+const fmtExp = (s?: string | null): string => { if (!s) return "—"; const t = Date.parse(s); return isNaN(t) ? String(s) : new Date(t).toLocaleDateString(); };
+
 const usd = (n: number | null | undefined) => (n == null ? "—" : `$${Math.round(n).toLocaleString()}`);
 
 const SOURCE_STYLE: Record<string, { name: string; bg: string; fg: string }> = {
@@ -154,6 +163,15 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
   const [archived, setArchived] = useState<Set<string>>(new Set());
   const [showArchived, setShowArchived] = useState(false);
 
+  // ── registrar-account inventory (verify possession + expiry/auto-renew) ──
+  const [invOwned, setInvOwned] = useState<Record<string, OwnedAt>>({});
+  const [invAccounts, setInvAccounts] = useState<AccountStatus[]>([]);
+  const [invBuiltAt, setInvBuiltAt] = useState<string | null>(null);
+  const [invHidden, setInvHidden] = useState<Set<string>>(new Set());
+  const [rebuilding, setRebuilding] = useState(false);
+  const [showAudit, setShowAudit] = useState(false);
+  const [showHiddenAudit, setShowHiddenAudit] = useState(false);
+
   const [q, setQ] = useState("");
   const [src, setSrc] = useState<"all" | SnapSource>("all");
   const [status, setStatus] = useState<"all" | "owned" | "sold" | "marketplace">("owned");
@@ -199,6 +217,54 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
         else s.add(d);
         return s;
       });
+      setErr(String((e as Error)?.message || e));
+    }
+  }, []);
+
+  // Load the cached registrar-account inventory snapshot (fast; fail-open).
+  const applyInventory = useCallback((snap: { built_at?: string; accounts?: AccountStatus[]; owned?: Record<string, OwnedAt> } | null, hidden?: string[]) => {
+    if (snap) {
+      setInvOwned(snap.owned || {});
+      setInvAccounts(snap.accounts || []);
+      setInvBuiltAt(snap.built_at || null);
+    }
+    if (Array.isArray(hidden)) setInvHidden(new Set(hidden.map((d) => d.toLowerCase())));
+  }, []);
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/admin/snap-names/inventory", { cache: "no-store" });
+        const j = await res.json();
+        if (res.ok) applyInventory(j.snapshot, j.hidden);
+      } catch {
+        /* fail-open: no verification data */
+      }
+    })();
+  }, [applyInventory]);
+
+  const rebuildInventory = useCallback(async () => {
+    setRebuilding(true);
+    setErr(null);
+    try {
+      const res = await fetch("/api/admin/snap-names/inventory", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "rebuild" }) });
+      const j = await res.json();
+      if (!res.ok) throw new Error(j?.error || `HTTP ${res.status}`);
+      applyInventory(j.snapshot, j.hidden);
+    } catch (e) {
+      setErr(String((e as Error)?.message || e));
+    } finally {
+      setRebuilding(false);
+    }
+  }, [applyInventory]);
+
+  const toggleAuditHide = useCallback(async (domain: string, next: boolean) => {
+    const d = domain.toLowerCase();
+    setInvHidden((prev) => { const s = new Set(prev); if (next) s.add(d); else s.delete(d); return s; });
+    try {
+      const res = await fetch("/api/admin/snap-names/inventory", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: next ? "hide" : "unhide", domain: d }) });
+      if (!res.ok) throw new Error((await res.json())?.error || `HTTP ${res.status}`);
+    } catch (e) {
+      setInvHidden((prev) => { const s = new Set(prev); if (next) s.delete(d); else s.add(d); return s; });
       setErr(String((e as Error)?.message || e));
     }
   }, []);
@@ -311,6 +377,30 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
     return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([t]) => t);
   }, [live]);
 
+  // Reconciliation of the SNAP list against the registrar-account inventory.
+  const audit = useMemo(() => {
+    const okPids = new Set(invAccounts.filter((a) => a.ok).map((a) => a.provider));
+    const listPids = new Set(["porkbun", "spaceship", "dynadot", "namesilo", "godaddy", "namecheap"]);
+    const reportDomains = new Set((report?.rows || []).map((r) => r.domain.toLowerCase()));
+    // In an account, not on our list.
+    const untracked = Object.keys(invOwned)
+      .filter((d) => !reportDomains.has(d))
+      .map((d) => ({ domain: d, at: invOwned[d] }));
+    // On our list, not in any account — only when its registrar is one we listed OK
+    // (else we can't claim it's missing, just unverifiable).
+    const missing = (report?.rows || [])
+      .filter((r) => {
+        const d = r.domain.toLowerCase();
+        if (invOwned[d]) return false;
+        const pid = regPid(live[r.domain]?.registrar);
+        return !!pid && listPids.has(pid) && okPids.has(pid);
+      })
+      .map((r) => ({ domain: r.domain, registrar: canonicalRegistrar(live[r.domain]?.registrar) }));
+    const hiddenN = (arr: { domain: string }[]) => arr.filter((x) => invHidden.has(x.domain.toLowerCase()));
+    const shownN = (arr: { domain: string }[]) => arr.filter((x) => !invHidden.has(x.domain.toLowerCase()));
+    return { untracked, missing, okPids, shownN, hiddenN };
+  }, [report, invOwned, invAccounts, invHidden, live]);
+
   const filtered = useMemo(() => {
     if (!report) return [];
     const needle = q.trim().toLowerCase();
@@ -383,7 +473,7 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
   const arrow = (k: SortKey) => (k === sortKey ? (sortDir === 1 ? " ▲" : " ▼") : "");
 
   const downloadCsv = () => {
-    const cols = ["domain", "source", "also_in", "tld", "date_purchased", "purchase_price", "internal_price", "platform", "registrar", "nameservers", "ns_provider", "afternic_listed", "afternic_price", "atom_listed", "atom_price", "spaceship_listed", "spaceship_price", "spaceship_min_offer", "marketplace_listed", "marketplace_price", "on_marketplace", "still_owned", "sold_for", "sale_date", "net_sale_price", "fees", "list_for_sale", "snagged_rep", "premium", "active", "notes"];
+    const cols = ["domain", "source", "also_in", "tld", "date_purchased", "purchase_price", "internal_price", "platform", "registrar", "verified_account", "expires", "auto_renew", "nameservers", "ns_provider", "afternic_listed", "afternic_price", "atom_listed", "atom_price", "spaceship_listed", "spaceship_price", "spaceship_min_offer", "marketplace_listed", "marketplace_price", "on_marketplace", "still_owned", "sold_for", "sale_date", "net_sale_price", "fees", "list_for_sale", "snagged_rep", "premium", "active", "notes"];
     const esc = (v: unknown) => {
       const s = v == null ? "" : Array.isArray(v) ? v.join(" | ") : String(v);
       return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
@@ -392,9 +482,13 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
     for (const r of filtered) {
       const l = live[r.domain];
       const ns = l?.ns_provider || "";
+      const at = invOwned[r.domain.toLowerCase()];
       const rowObj: Record<string, unknown> = {
         ...r,
         registrar: canonicalRegistrar(l?.registrar) ?? "",
+        verified_account: at ? at.label : "",
+        expires: at?.expires ? fmtExp(at.expires) : "",
+        auto_renew: at ? (at.autoRenew === true ? "yes" : at.autoRenew === false ? "no" : "") : "",
         nameservers: l?.nameservers ?? [],
         ns_provider: l?.ns_provider ?? "",
         afternic_listed: l?.afternic ? (l.afternic.listed ? "yes" : "no") : "",
@@ -523,6 +617,11 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
           <button onClick={() => report && resolveLive(report.rows, true)} disabled={!report || resolving > 0} title="Re-resolve registrar + nameservers live" style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid #d5d5e0", background: "#fff", cursor: "pointer", fontSize: 13 }}>
             {resolving > 0 ? `Resolving ${resolving}…` : "⟳ Re-resolve live"}
           </button>
+          {canWrite && (
+            <button onClick={rebuildInventory} disabled={rebuilding} title="Pull the live domain list from every registrar account to verify possession + expiry" style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid #d5d5e0", background: "#fff", cursor: "pointer", fontSize: 13 }}>
+              {rebuilding ? "Verifying…" : "✓ Verify accounts"}
+            </button>
+          )}
           <button onClick={load} disabled={loading} style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid #d5d5e0", background: "#fff", cursor: "pointer", fontSize: 13 }}>
             {loading ? "Loading…" : "↻ Refresh"}
           </button>
@@ -530,6 +629,76 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
       </div>
 
       {err && <div style={{ ...card, marginTop: 16, borderColor: "#f0c0c0", background: "#fdf3f3", color: "#a33" }}>{err}</div>}
+
+      {/* Registrar-account verification: snapshot status + reconciliation audit. */}
+      {(invBuiltAt || invAccounts.length > 0) && (
+        <div style={{ ...card, marginTop: 12, fontSize: 12.5 }}>
+          <div style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
+            <span style={{ fontWeight: 700 }}>Account verification</span>
+            {invBuiltAt && <span className="muted">as of {new Date(invBuiltAt).toLocaleString()}</span>}
+            {invAccounts.map((a) => (
+              <span key={a.label} title={a.error || `${a.count} domains`} style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 8px", borderRadius: 999, background: a.ok ? "#eef7f0" : "#fbeeee", color: a.ok ? "#2f7d4f" : "#b1442c", fontWeight: 600 }}>
+                {a.ok ? "✓" : "✗"} {a.label}{a.ok ? ` · ${a.count}` : ""}{a.capped ? " ⚠" : ""}
+              </span>
+            ))}
+            {(() => {
+              const verified = (report?.rows || []).filter((r) => invOwned[r.domain.toLowerCase()]).length;
+              const untrackedN = audit.shownN(audit.untracked).length;
+              const missingN = audit.shownN(audit.missing).length;
+              return (
+                <span style={{ marginLeft: "auto", display: "inline-flex", gap: 12, alignItems: "center" }}>
+                  <span style={{ color: "#2f7d4f", fontWeight: 700 }}>✓ {verified} verified</span>
+                  <span style={{ color: "#a3502f", fontWeight: 700 }}>⚠ {missingN} not in account</span>
+                  <span style={{ color: "#3a5a9a", fontWeight: 700 }}>➕ {untrackedN} untracked</span>
+                  <button onClick={() => setShowAudit((v) => !v)} style={{ padding: "5px 12px", borderRadius: 8, border: "1px solid #d5d5e0", background: "#fff", cursor: "pointer", fontSize: 12.5, fontWeight: 600 }}>
+                    {showAudit ? "Hide audit ▴" : "Audit ▾"}
+                  </button>
+                </span>
+              );
+            })()}
+          </div>
+
+          {showAudit && (
+            <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              {([
+                { key: "missing" as const, title: "On our list, not in any account", color: "#a3502f", rows: audit.missing },
+                { key: "untracked" as const, title: "In an account, not on our list", color: "#3a5a9a", rows: audit.untracked },
+              ]).map((bucket) => {
+                const shown = showHiddenAudit ? audit.hiddenN(bucket.rows) : audit.shownN(bucket.rows);
+                return (
+                  <div key={bucket.key} style={{ border: "1px solid #eee", borderRadius: 10, padding: 10 }}>
+                    <div style={{ fontWeight: 700, color: bucket.color, marginBottom: 6 }}>{bucket.title} <span className="muted">({shown.length})</span></div>
+                    <div style={{ maxHeight: 300, overflowY: "auto" }}>
+                      {shown.length === 0 && <div className="muted" style={{ fontSize: 12 }}>{showHiddenAudit ? "Nothing hidden." : "Nothing here."}</div>}
+                      {shown.map((row) => {
+                        const at = "at" in row ? (row as { at: OwnedAt }).at : null;
+                        const reg = "registrar" in row ? (row as { registrar: string | null }).registrar : null;
+                        const isHidden = invHidden.has(row.domain.toLowerCase());
+                        return (
+                          <div key={row.domain} style={{ display: "flex", alignItems: "baseline", gap: 8, padding: "3px 0", borderBottom: "1px solid #f4f4f8" }}>
+                            <span style={{ fontWeight: 600, minWidth: 150 }}>{row.domain}</span>
+                            <span className="muted" style={{ fontSize: 11.5, flex: 1 }}>
+                              {at ? `${at.label}${at.expires ? ` · exp ${fmtExp(at.expires)}` : ""}${at.autoRenew === false ? " · no auto-renew" : ""}` : reg || ""}
+                            </span>
+                            <button onClick={() => toggleAuditHide(row.domain, !isHidden)} title={isHidden ? "Un-hide" : "Hide from this audit"} style={{ padding: "2px 8px", borderRadius: 6, border: "1px solid #d5d5e0", background: "#fff", cursor: "pointer", fontSize: 11 }}>
+                              {isHidden ? "un-hide" : "hide"}
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+              <div style={{ gridColumn: "1 / -1", display: "flex", justifyContent: "flex-end" }}>
+                <button onClick={() => setShowHiddenAudit((v) => !v)} style={{ padding: "4px 10px", borderRadius: 6, border: "1px solid #d5d5e0", background: "#fff", cursor: "pointer", fontSize: 11.5 }}>
+                  {showHiddenAudit ? "Show active" : "Show hidden"}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {s && (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 12, marginTop: 16 }}>
@@ -696,16 +865,18 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
               <th style={th} onClick={() => setSort("domain")}>Domain{arrow("domain")}</th>
               <th style={th} onClick={() => setSort("source")}>Source{arrow("source")}</th>
               <th style={th} onClick={() => setSort("tld")}>TLD{arrow("tld")}</th>
-              <th style={th} onClick={() => setSort("date")}>Purchased{arrow("date")}</th>
-              <th style={{ ...th, textAlign: "right" }} onClick={() => setSort("purchase")}>Cost{arrow("purchase")}</th>
-              <th style={{ ...th, textAlign: "right" }} onClick={() => setSort("internal")}>Internal{arrow("internal")}</th>
               <th style={th} onClick={() => setSort("registrar")}>Registrar{arrow("registrar")}</th>
-              <th style={th} onClick={() => setSort("nameservers")}>Nameservers → points to{arrow("nameservers")}</th>
+              <th style={{ ...th, cursor: "default" }} title="Verified against the actual registrar-account inventory">Verified</th>
+              <th style={{ ...th, cursor: "default" }} title="Registrar-reported expiration; red within 30 days">Expires</th>
+              <th style={{ ...th, textAlign: "right" }} onClick={() => setSort("internal")}>Internal{arrow("internal")}</th>
               <th style={th} onClick={() => setSort("afternic")}>Afternic{arrow("afternic")}</th>
               <th style={th} onClick={() => setSort("atom")}>Atom{arrow("atom")}</th>
               <th style={th} onClick={() => setSort("spaceship")}>Spaceship{arrow("spaceship")}</th>
               <th style={th} onClick={() => setSort("marketplace")}>Marketplace{arrow("marketplace")}</th>
+              <th style={th} onClick={() => setSort("nameservers")}>Nameservers → points to{arrow("nameservers")}</th>
               <th style={th} onClick={() => setSort("status")}>Status{arrow("status")}</th>
+              <th style={th} onClick={() => setSort("date")}>Purchased{arrow("date")}</th>
+              <th style={{ ...th, textAlign: "right" }} onClick={() => setSort("purchase")}>Cost{arrow("purchase")}</th>
               <th style={{ ...th, cursor: "default" }}></th>
             </tr>
           </thead>
@@ -737,10 +908,45 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
                   </td>
                   <td style={td}><SourcePill source={r.source} /></td>
                   <td style={{ ...td, color: "#6b6b7b" }}>.{r.tld}</td>
-                  <td style={{ ...td, whiteSpace: "nowrap", color: "#6b6b7b" }}>{r.date_purchased || "—"}</td>
-                  <td style={{ ...td, textAlign: "right" }}>{usd(r.purchase_price)}</td>
-                  <td style={{ ...td, textAlign: "right", fontWeight: 600 }}>{usd(r.internal_price)}</td>
                   <td style={{ ...td, whiteSpace: "nowrap" }}>{l ? canonicalRegistrar(l.registrar) || <span style={{ color: "#b8b8c4" }}>—</span> : <span style={{ color: "#c8c8d2" }}>…</span>}</td>
+                  {(() => {
+                    const at = invOwned[r.domain.toLowerCase()];
+                    const covered = !!regPid(l?.registrar) && audit.okPids.has(regPid(l?.registrar) as string);
+                    const dLeft = daysUntil(at?.expires);
+                    return (
+                      <>
+                        <td style={{ ...td, whiteSpace: "nowrap" }}>
+                          {at ? (
+                            <span style={{ color: "#2f7d4f", fontWeight: 600 }} title={`Found in ${at.label}`}>✓ {at.account || at.label}</span>
+                          ) : !invBuiltAt ? (
+                            <span style={{ color: "#c8c8d2" }}>—</span>
+                          ) : covered ? (
+                            <span style={{ color: "#a3502f", fontWeight: 600 }} title="Not found in the registrar account we listed">⚠ not found</span>
+                          ) : (
+                            <span style={{ color: "#b8b8c4" }} title="Registrar not in our verified accounts">—</span>
+                          )}
+                        </td>
+                        <td style={{ ...td, whiteSpace: "nowrap" }}>
+                          {at?.expires ? (
+                            <span style={{ color: dLeft != null && dLeft <= 30 ? "#c0392b" : "#44445a", fontWeight: dLeft != null && dLeft <= 30 ? 700 : 400 }} title={dLeft != null ? `${dLeft} days` : undefined}>
+                              {fmtExp(at.expires)}
+                              {at.autoRenew === true && <span title="auto-renew on" style={{ marginLeft: 4, color: "#2f7d4f" }}>↻</span>}
+                              {at.autoRenew === false && <span title="auto-renew OFF" style={{ marginLeft: 4, color: "#c0392b" }}>⊘</span>}
+                            </span>
+                          ) : (
+                            <span style={{ color: "#c8c8d2" }}>—</span>
+                          )}
+                        </td>
+                      </>
+                    );
+                  })()}
+                  <td style={{ ...td, textAlign: "right", fontWeight: 600 }}>{usd(r.internal_price)}</td>
+                  {/* Afternic + Spaceship prices are live-scraped → show them. Atom +
+                      Marketplace are NOT scraped for price → bare ✓ only (no inferred figure). */}
+                  <td style={td}><MarketCell pending={pend} listed={l?.afternic ? l.afternic.listed : null} price={l?.afternic?.price ? usd(l.afternic.price) : null} /></td>
+                  <td style={td}><MarketCell pending={pend} listed={atomListed} /></td>
+                  <td style={td}><MarketCell pending={pend} listed={shipListed} price={shipPrice != null ? usd(shipPrice) : null} sub={shipSub} /></td>
+                  <td style={td}><MarketCell listed={mktListed} /></td>
                   <td style={td}>
                     {l ? (
                       l.nameservers.length ? (
@@ -757,12 +963,6 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
                       <span style={{ color: "#c8c8d2" }}>…</span>
                     )}
                   </td>
-                  {/* Afternic + Spaceship prices are live-scraped → show them. Atom +
-                      Marketplace are NOT scraped for price → bare ✓ only (no inferred figure). */}
-                  <td style={td}><MarketCell pending={pend} listed={l?.afternic ? l.afternic.listed : null} price={l?.afternic?.price ? usd(l.afternic.price) : null} /></td>
-                  <td style={td}><MarketCell pending={pend} listed={atomListed} /></td>
-                  <td style={td}><MarketCell pending={pend} listed={shipListed} price={shipPrice != null ? usd(shipPrice) : null} sub={shipSub} /></td>
-                  <td style={td}><MarketCell listed={mktListed} /></td>
                   <td style={td}>
                     {r.sold ? (
                       <span style={{ color: "#2f7d4f", fontWeight: 600 }}>
@@ -775,6 +975,8 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
                       <span style={{ color: "#6b6b7b" }}>Owned</span>
                     )}
                   </td>
+                  <td style={{ ...td, whiteSpace: "nowrap", color: "#6b6b7b" }}>{r.date_purchased || "—"}</td>
+                  <td style={{ ...td, textAlign: "right" }}>{usd(r.purchase_price)}</td>
                   <td style={{ ...td, textAlign: "right", whiteSpace: "nowrap" }}>
                     <button
                       onClick={() => toggleArchive(r.domain, !archived.has(r.domain))}
@@ -787,7 +989,7 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
                 </tr>
               );
             })}
-            {!loading && !filtered.length && <tr><td style={{ ...td, textAlign: "center", color: "#6b6b7b" }} colSpan={15}>{showArchived ? "No archived names." : "No names match."}</td></tr>}
+            {!loading && !filtered.length && <tr><td style={{ ...td, textAlign: "center", color: "#6b6b7b" }} colSpan={17}>{showArchived ? "No archived names." : "No names match."}</td></tr>}
           </tbody>
         </table>
       </div>
