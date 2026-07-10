@@ -5,6 +5,7 @@
 // instantly. The client also caches per-domain in localStorage.
 
 import { promises as dns } from "node:dns";
+import net from "node:net";
 
 export interface DomainLive {
   registrar: string | null;
@@ -201,6 +202,68 @@ async function rdapRegistrar(domain: string): Promise<string | null> {
   }
 }
 
+// ── WHOIS (port 43) fallback for TLDs with NO working RDAP ───────────────────
+// .co (CentralNic) publishes no RDAP domain objects — its registrar is only on
+// port-43 WHOIS. Node serverless (Vercel) can open a raw TCP socket, so we fall
+// back to WHOIS for these. NOTE: this sandbox/proxy blocks port 43, so this path
+// is exercised in PRODUCTION only.
+const WHOIS_SERVER: Record<string, string> = {
+  co: "whois.registry.co",
+};
+
+function whoisQuery(host: string, query: string, timeoutMs = 6000): Promise<string | null> {
+  return new Promise((resolve) => {
+    let data = "";
+    let done = false;
+    const finish = (v: string | null) => {
+      if (done) return;
+      done = true;
+      try {
+        socket.destroy();
+      } catch {
+        /* ignore */
+      }
+      resolve(v);
+    };
+    const socket = net.createConnection(43, host);
+    socket.setTimeout(timeoutMs);
+    socket.on("connect", () => socket.write(query + "\r\n"));
+    socket.on("data", (b) => {
+      data += b.toString("utf8");
+    });
+    socket.on("end", () => finish(data || null));
+    socket.on("timeout", () => finish(data || null));
+    socket.on("error", () => finish(null));
+  });
+}
+
+function registrarFromWhois(text: string | null): string | null {
+  if (!text) return null;
+  // ICANN-standard WHOIS: a "Registrar:" line with the colon right after the word
+  // (so it doesn't match "Registrar URL / WHOIS Server / IANA ID / Abuse ...").
+  const m = text.match(/^\s*Registrar:\s*(.+?)\s*$/im) || text.match(/^\s*Sponsoring Registrar:\s*(.+?)\s*$/im);
+  const name = m && m[1] ? m[1].trim() : "";
+  return name && !/^whois\b/i.test(name) ? name : null;
+}
+
+async function whoisRegistrar(domain: string): Promise<string | null> {
+  const tld = domain.slice(domain.lastIndexOf(".") + 1).toLowerCase();
+  const server = WHOIS_SERVER[tld];
+  if (!server) return null;
+  try {
+    return registrarFromWhois(await whoisQuery(server, domain));
+  } catch {
+    return null;
+  }
+}
+
+// Registrar via RDAP, falling back to port-43 WHOIS for no-RDAP TLDs (.co).
+async function lookupRegistrar(domain: string): Promise<string | null> {
+  const viaRdap = await rdapRegistrar(domain);
+  if (viaRdap) return viaRdap;
+  return whoisRegistrar(domain);
+}
+
 async function resolveNs(domain: string): Promise<string[]> {
   try {
     const ns = await dns.resolveNs(domain);
@@ -218,7 +281,7 @@ export async function resolveDomainLive(domain: string): Promise<DomainLive> {
   const d = domain.trim().toLowerCase();
   const hit = CACHE.get(d);
   if (hit && Date.now() - Date.parse(hit.checked_at) < TTL) return hit;
-  const [registrar, nameservers, afternic] = await Promise.all([rdapRegistrar(d), resolveNs(d), afternicBin(d)]);
+  const [registrar, nameservers, afternic] = await Promise.all([lookupRegistrar(d), resolveNs(d), afternicBin(d)]);
   const ns_provider = providerFor(nameservers);
   // Only fetch the domain's own page for a Spaceship BIN when its NS actually point
   // to Spaceship (that's when it serves the DOMAIN_CONFIG lander) — saves a request.
