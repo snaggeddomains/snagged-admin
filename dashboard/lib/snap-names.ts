@@ -34,9 +34,14 @@ export interface SnapName {
   sold: boolean;
   sold_for: number | null;
   sale_date: string | null;
+  fees: number | null; // Rob tab
+  net_sale_price: number | null; // Rob tab
+  list_for_sale: string | null; // Rob tab
+  snagged_rep: string | null;
   premium: string | null;
   active: string | null;
   notes: string | null;
+  also_in: SnapSource[]; // other lists this domain also appears on (dedupe trail)
 }
 
 export interface SnapNamesReport {
@@ -132,9 +137,14 @@ function normalizeRows(values: string[][], source: SnapSource): SnapName[] {
       sold,
       sold_for: soldFor,
       sale_date: clean(get(row, "sale date")),
+      fees: parseMoney(get(row, "fees")),
+      net_sale_price: parseMoney(get(row, "net sale price", "net sale")),
+      list_for_sale: clean(get(row, "list for sale", "list for sale?")),
+      snagged_rep: clean(get(row, "snagged rep", "snagged rep?")),
       premium: clean(get(row, "premium", "premium?")),
       active: clean(get(row, "active", "active?")),
       notes: clean(get(row, "notes")),
+      also_in: [],
     });
   }
   return out;
@@ -149,11 +159,42 @@ export async function buildSnapNames(): Promise<SnapNamesReport> {
     getSheetValues(SHEET_SNAP_ROB, "'Rob Purchases'!A1:Z5000").catch(() => [] as string[][]),
   ]);
 
-  const rows: SnapName[] = [
+  const all: SnapName[] = [
     ...normalizeRows(berserk, "Berserk"),
     ...normalizeRows(snap, "SNAP"),
     ...normalizeRows(rob, "Rob"),
   ];
+
+  // De-dupe to ONE row per domain. Precedence Berserk > SNAP > Rob: the highest-
+  // precedence row is the base ("default to whatever is on the Berserk list"), and
+  // any field it leaves null is filled from the lower-precedence duplicate so we
+  // don't lose data the base row happens to be missing (Berserk rows carry no
+  // Platform/Atom, which SNAP does). `also_in` records the other lists it's on.
+  const RANK: Record<SnapSource, number> = { Berserk: 0, SNAP: 1, Rob: 2 };
+  const byDomain = new Map<string, SnapName>();
+  for (const r of all) {
+    const existing = byDomain.get(r.domain);
+    if (!existing) {
+      byDomain.set(r.domain, { ...r });
+      continue;
+    }
+    const [win, lose] = RANK[r.source] < RANK[existing.source] ? [r, existing] : [existing, r];
+    const merged: SnapName = { ...win };
+    // fill nulls on the winner from the loser
+    for (const k of Object.keys(merged) as (keyof SnapName)[]) {
+      if ((merged[k] == null || merged[k] === "") && lose[k] != null && lose[k] !== "") {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (merged as any)[k] = lose[k];
+      }
+    }
+    merged.source = win.source;
+    merged.sold = win.sold || lose.sold;
+    const others = new Set<SnapSource>([...(existing.also_in || []), ...(r.also_in || []), existing.source, r.source]);
+    others.delete(win.source);
+    merged.also_in = [...others];
+    byDomain.set(r.domain, merged);
+  }
+  const rows: SnapName[] = [...byDomain.values()];
 
   const bySource: Record<SnapSource, number> = { Berserk: 0, SNAP: 0, Rob: 0 };
   let owned = 0;
