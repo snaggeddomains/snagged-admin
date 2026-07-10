@@ -252,7 +252,11 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
           const results = (j?.results || {}) as Record<string, Live>;
           for (const [d, v] of Object.entries(results)) {
             liveRef.current[d] = v;
-            writeLive(d, v);
+            // Only PERSIST a result that actually resolved something. A failed lookup
+            // (registrar null AND no nameservers) is usually a transient RDAP/DNS
+            // rate-limit under batch load — caching it for 24h would freeze a stale
+            // blank/"none". Leave it in-memory only so the next load re-resolves.
+            if (v.registrar || (v.nameservers && v.nameservers.length)) writeLive(d, v);
           }
           setLive({ ...liveRef.current });
         } catch {

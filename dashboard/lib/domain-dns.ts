@@ -151,7 +151,16 @@ const CCTLD_RDAP: Record<string, string> = {
   vc: "https://rdap.identitydigital.services/rdap/",
 };
 
+// The high-volume gTLDs, pinned so they NEVER depend on the (occasionally slow/cold)
+// IANA bootstrap fetch — a .com must always resolve a registrar.
+const KNOWN_RDAP: Record<string, string> = {
+  com: "https://rdap.verisign.com/com/v1/",
+  net: "https://rdap.verisign.com/net/v1/",
+  org: "https://rdap.publicinterestregistry.org/rdap/",
+};
+
 async function rdapBaseFor(tld: string): Promise<string | null> {
+  if (KNOWN_RDAP[tld]) return KNOWN_RDAP[tld];
   const now = Date.now();
   if (!bootstrap || now - bootstrapAt > 24 * 3600 * 1000) {
     try {
@@ -303,7 +312,12 @@ export async function resolveDomainLive(domain: string): Promise<DomainLive> {
     spaceship_min_offer: ship?.min_offer ?? null,
     checked_at: new Date().toISOString(),
   };
-  CACHE.set(d, info);
+  // Only cache a result that actually resolved something. A total miss (no registrar
+  // AND no nameservers) is almost always transient — an RDAP rate-limit or a cold IANA
+  // bootstrap under batch load — so caching it would freeze a stale blank for 6h and
+  // even defeat the "Re-resolve live" button. Leave misses uncached so the next call
+  // retries; genuine dead names just re-lookup (cheap, rare).
+  if (info.registrar || info.nameservers.length) CACHE.set(d, info);
   return info;
 }
 
