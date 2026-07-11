@@ -80,10 +80,10 @@ export const PROVIDERS: Record<ProviderId, Provider> = {
     canDNS: true,
     hasKeys: (e) => !!(e.NAMESILO_API_KEY),
   },
-  // NameBright (TurnCommerce) — OAuth2 client_credentials (30-min bearer). Note:
-  // NameBright IP-allowlists per API client, and Vercel egress rotates, so if the
-  // account's whitelist is enforced this must egress from the Fixie static IPs — set
-  // NAMEBRIGHT_USE_PROXY=1 (reuses FIXIE_URL) and whitelist those IPs in NameBright.
+  // NameBright (TurnCommerce) — OAuth2 client_credentials (30-min bearer). NameBright
+  // IP-allowlists per API client and Vercel egress rotates, so calls ALWAYS egress via
+  // the Fixie static IPs when FIXIE_URL is set (whitelist those IPs in NameBright);
+  // NAMEBRIGHT_NO_PROXY=1 forces the direct path for an open/unwhitelisted client.
   namebright: {
     id: "namebright",
     label: "NameBright",

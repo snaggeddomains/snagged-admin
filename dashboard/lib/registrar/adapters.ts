@@ -422,8 +422,11 @@ const NB_AUTH = "https://api.namebright.com/auth/token";
 const NB_REST = "https://api.namebright.com/rest";
 let nbToken: { token: string; exp: number } | null = null;
 
+// NameBright IP-allowlists per API client, so — like NameSilo/Namecheap — ALWAYS egress
+// through the Fixie static IPs when a proxy is configured (whitelist those IPs in
+// NameBright). Set NAMEBRIGHT_NO_PROXY=1 to force the direct path (open/unwhitelisted client).
 function namebrightDispatcher(e: NodeJS.ProcessEnv): ProxyAgent | null {
-  return e.NAMEBRIGHT_USE_PROXY ? namecheapDispatcher(e) : null; // reuses FIXIE_URL
+  return e.NAMEBRIGHT_NO_PROXY ? null : namecheapDispatcher(e); // reuses FIXIE_URL
 }
 
 // undici fetch with optional Fixie dispatcher (needed for the IP-allowlist path).

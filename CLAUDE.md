@@ -54,10 +54,11 @@ executes nameserver + DNS-record changes.
   `namebrightApi(method, path, e, body?)` adds the bearer over REST root
   `https://api.namebright.com/rest/`. **Env: `NAMEBRIGHT_CLIENT_ID`** (the FULL
   `Account:Application` value, e.g. `GoophBall:SnaggedAdmin`) **+ `NAMEBRIGHT_CLIENT_SECRET`**.
-- **IP allowlist:** NameBright allowlists per API client and Vercel egress rotates — if the
-  client enforces a whitelist, set **`NAMEBRIGHT_USE_PROXY=1`** to egress via the Fixie
-  static IPs (reuses `FIXIE_URL`, same as Namecheap/NameSilo) and whitelist those in
-  NameBright. Rate limit 30 req/30s (403 "IP not whitelisted" is the tell).
+- **IP allowlist:** NameBright allowlists per API client and Vercel egress rotates, so calls
+  **ALWAYS egress via the Fixie static IPs when `FIXIE_URL` is set** (same as Namecheap/
+  NameSilo) — whitelist those IPs in NameBright. `NAMEBRIGHT_NO_PROXY=1` forces the direct
+  path for an open client. Rate limit 30 req/30s (403 "IP not whitelisted" is the tell —
+  it means the request egressed direct, i.e. FIXIE_URL missing or the IPs aren't whitelisted).
 - **Inventory** (`lib/registrar/inventory.ts` `namebrightInventory`): `GET account/domains?
   page=&domainsPerPage=500`, paginated; parses domain/expiry/auto-renew via the reused
   case-insensitive `extractDynadotDomains` walk + a `bareDomainStrings` fallback (handles a
