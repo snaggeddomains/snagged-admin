@@ -1,74 +1,34 @@
 [
   {
-    "domain": "bandung.com",
-    "price": 67500.0
+    "domain": "boomins.com",
+    "price": 250.0
   },
   {
-    "domain": "hanglin.com",
-    "price": 2465.0
+    "domain": "leavings.com",
+    "price": 3395.0
   },
   {
-    "domain": "desember.com",
-    "price": 2450.0
+    "domain": "cheapa.com",
+    "price": 9888.0
   },
   {
-    "domain": "grandest.com",
-    "price": 28879.0
+    "domain": "interwalls.com",
+    "price": 7095.0
   },
   {
-    "domain": "padang.com",
-    "price": 17500.0
+    "domain": "bizpro.ai",
+    "price": 247000.0
   },
   {
-    "domain": "steall.com",
-    "price": 685.0
+    "domain": "pribook.net",
+    "price": 250.0
   },
   {
-    "domain": "balang.com",
-    "price": 1500.0
+    "domain": "marshals.net",
+    "price": 1895.0
   },
   {
-    "domain": "malang.com",
-    "price": 88800.0
-  },
-  {
-    "domain": "japaneses.com",
-    "price": 595.0
-  },
-  {
-    "domain": "greenjohn.com",
-    "price": 1618.0
-  },
-  {
-    "domain": "hawkstones.com",
-    "price": 397.0
-  },
-  {
-    "domain": "claudias.ai",
-    "price": 27740.0
-  },
-  {
-    "domain": "bethani.net",
-    "price": 3500.0
-  },
-  {
-    "domain": "grubhub.net",
-    "price": 2465.0
-  },
-  {
-    "domain": "wisata.net",
-    "price": 2500.0
-  },
-  {
-    "domain": "claudias.net",
-    "price": 2740.0
-  },
-  {
-    "domain": "finalized.net",
-    "price": 2795.0
-  },
-  {
-    "domain": "lifeterm.co",
-    "price": 16995.0
+    "domain": "superfoods.net",
+    "price": 9950.0
   }
 ]
