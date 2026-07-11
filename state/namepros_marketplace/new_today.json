@@ -1,26 +1,13 @@
 {
   "capped": false,
-  "count": 17,
+  "count": 4,
   "domains": [
-    "element.tv",
-    "encephalitis.com",
-    "hiv.xyz",
-    "hymen.org",
-    "meningitis.net",
-    "migraines.ai",
-    "psychosis.ai",
-    "revoke.so",
-    "schizophrenia.ai",
-    "schizophrenic.com",
-    "soar.vc",
-    "solo.now",
-    "std.net",
-    "stds.net",
-    "stis.ai",
-    "uptake.co",
-    "veer.co"
+    "answer.to",
+    "lll.com",
+    "majesty.now",
+    "principal.now"
   ],
-  "generated_at": "2026-07-11T10:06:31.628912+00:00",
+  "generated_at": "2026-07-11T17:07:46.760305+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
