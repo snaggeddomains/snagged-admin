@@ -444,8 +444,17 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
       const r = canonicalRegistrar(v.registrar);
       if (r) counts.set(r, (counts.get(r) || 0) + 1);
     }
+    // Also surface every registrar we hold an ACCOUNT in (NameBright, Porkbun, …) so the
+    // filter lists them even before their rows are live-resolved. Mapped through the SAME
+    // canonicalRegistrar the rows use (account label "NameBright" → "NameBright/DropCatch")
+    // so the option value matches the row value; a count of 0 just keeps it sortable-last.
+    for (const a of invAccounts) {
+      if (!a.ok) continue;
+      const r = canonicalRegistrar(a.label);
+      if (r && !counts.has(r)) counts.set(r, 0);
+    }
     return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([t]) => t);
-  }, [live]);
+  }, [live, invAccounts]);
 
   // Reconciliation of the SNAP list against the registrar-account inventory.
   const audit = useMemo(() => {
