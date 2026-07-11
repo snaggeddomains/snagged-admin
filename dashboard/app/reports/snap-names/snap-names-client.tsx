@@ -113,7 +113,7 @@ const card: CSSProperties = { border: "1px solid #e6e6ef", borderRadius: 12, pad
 const th: CSSProperties = { textAlign: "left", padding: "8px 10px", fontSize: 12, color: "#6b6b7b", fontWeight: 600, borderBottom: "1px solid #e6e6ef", whiteSpace: "nowrap", cursor: "pointer", userSelect: "none" };
 const td: CSSProperties = { padding: "8px 10px", fontSize: 13, borderBottom: "1px solid #f0f0f5", verticalAlign: "top" };
 
-type SortKey = "domain" | "source" | "tld" | "date" | "purchase" | "internal" | "registrar" | "nameservers" | "status" | "afternic" | "atom" | "spaceship" | "marketplace" | "verified" | "expires" | "autorenew";
+type SortKey = "domain" | "source" | "tld" | "date" | "purchase" | "internal" | "registrar" | "nameservers" | "status" | "afternic" | "atom" | "spaceship" | "marketplace" | "verified" | "expires" | "autorenew" | "reason";
 
 // localStorage cache for live lookups so repeat views don't re-resolve.
 const LIVE_TTL = 24 * 3600 * 1000;
@@ -531,6 +531,7 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
         case "verified": { const at = invOwned[r.domain.toLowerCase()]; return at ? "0" + (at.account || at.label).toLowerCase() : "1"; }
         case "expires": return parseExp(invOwned[r.domain.toLowerCase()]?.expires) ?? Number.MAX_SAFE_INTEGER; // soonest first
         case "autorenew": { const at = invOwned[r.domain.toLowerCase()]; return at ? (at.autoRenew === false ? 0 : at.autoRenew === true ? 1 : 2) : 3; } // OFF first
+        case "reason": return (archived.get(r.domain.toLowerCase()) || "￿").toLowerCase(); // blank sorts last
         default: return 0;
       }
     };
@@ -1017,6 +1018,7 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
               <th style={th} onClick={() => setSort("status")}>Status{arrow("status")}</th>
               <th style={th} onClick={() => setSort("date")}>Purchased{arrow("date")}</th>
               <th style={{ ...th, textAlign: "right" }} onClick={() => setSort("purchase")}>Cost{arrow("purchase")}</th>
+              {showArchived && <th style={th} onClick={() => setSort("reason")} title="Reason this name was archived">Reason{arrow("reason")}</th>}
               <th style={{ ...th, cursor: "default" }}></th>
             </tr>
           </thead>
@@ -1129,16 +1131,20 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
                   </td>
                   <td style={{ ...td, whiteSpace: "nowrap", color: "#6b6b7b" }}>{r.date_purchased || "—"}</td>
                   <td style={{ ...td, textAlign: "right" }}>{usd(r.purchase_price)}</td>
+                  {showArchived && (
+                    <td style={td}>
+                      {archived.get(r.domain)
+                        ? <span style={{ padding: "1px 8px", borderRadius: 999, background: "#eef1f7", color: "#3a5a9a", fontSize: 11, fontWeight: 600 }}>{archived.get(r.domain)}</span>
+                        : <span className="muted" style={{ fontSize: 11.5 }}>—</span>}
+                    </td>
+                  )}
                   <td style={{ ...td, textAlign: "right", whiteSpace: "nowrap" }}>
                     {archived.has(r.domain) ? (
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: 6, justifyContent: "flex-end" }}>
-                        {archived.get(r.domain) && <span style={{ padding: "1px 8px", borderRadius: 999, background: "#eef1f7", color: "#3a5a9a", fontSize: 11, fontWeight: 600 }}>{archived.get(r.domain)}</span>}
-                        <button
-                          onClick={() => toggleArchive(r.domain, false)}
-                          title="Restore to the active list"
-                          style={{ border: "none", background: "transparent", cursor: "pointer", fontSize: 15, opacity: 0.5, padding: "0 2px" }}
-                        >↩</button>
-                      </span>
+                      <button
+                        onClick={() => toggleArchive(r.domain, false)}
+                        title="Restore to the active list"
+                        style={{ border: "none", background: "transparent", cursor: "pointer", fontSize: 15, opacity: 0.5, padding: "0 2px" }}
+                      >↩</button>
                     ) : (
                       // Archive with a REASON — same labels + "new reason" as the audit hide.
                       <select
@@ -1164,7 +1170,7 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
                 </tr>
               );
             })}
-            {!loading && !filtered.length && <tr><td style={{ ...td, textAlign: "center", color: "#6b6b7b" }} colSpan={18}>{showArchived ? "No archived names." : "No names match."}</td></tr>}
+            {!loading && !filtered.length && <tr><td style={{ ...td, textAlign: "center", color: "#6b6b7b" }} colSpan={showArchived ? 19 : 18}>{showArchived ? "No archived names." : "No names match."}</td></tr>}
           </tbody>
         </table>
       </div>
