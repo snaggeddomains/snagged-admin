@@ -1,12 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "flanagan.org"
-  ],
-  "generated_at": "2026-07-11T15:05:09.163992+00:00",
-  "mub": [
-    "flanagan.org"
-  ],
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-07-11T15:07:36.871354+00:00",
+  "mub": [],
   "source": "namejet_email_digest"
 }
