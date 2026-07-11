@@ -33,6 +33,13 @@ Two additions to Reports → SNAP Names:
   `snapNewDismissed`). **One-time migration:** the `new_untracked jsonb` column
   (`scripts/snap_registrar_inventory.sql` — `add column if not exists`); the write degrades
   gracefully (strips the column + retries) until it's run.
+- **Archive-with-a-reason.** The per-row Archive button is a reason picker using the SAME
+  preset tags as the audit hide (`PRESET_TAGS` — Sold / Let expire / Personal / …) + a
+  "New reason…" custom prompt. `snap-archive.ts` stores it in a new `tag` column
+  (`setArchived(domain, archived, by, tag?)`; `listArchived` -> `{domain, tag}[]`); the
+  client `archived` state is a `Map<domain, reason>`; archived rows show the reason chip +
+  a restore. **One-time migration:** `scripts/snap_names_archive.sql` adds `tag`
+  (`add column if not exists`); the write degrades gracefully until run.
 
 # Marketplace per-domain Deal report — engagement, pitch-type, exercise pitches (2026-06-17)
 

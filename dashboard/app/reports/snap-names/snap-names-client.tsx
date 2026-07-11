@@ -171,7 +171,7 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
   const [resolving, setResolving] = useState(0); // # domains still pending live lookup
   const liveRef = useRef<Record<string, Live>>({});
 
-  const [archived, setArchived] = useState<Set<string>>(new Set());
+  const [archived, setArchived] = useState<Map<string, string | null>>(new Map()); // domain → reason tag
   const [showArchived, setShowArchived] = useState(false);
 
   // ── registrar-account inventory (verify possession + expiry/auto-renew) ──
@@ -200,39 +200,54 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
       try {
         const res = await fetch("/api/admin/snap-names/archive", { cache: "no-store" });
         const j = await res.json();
-        if (res.ok && Array.isArray(j.archived)) setArchived(new Set(j.archived.map((d: string) => d.toLowerCase())));
+        if (res.ok && Array.isArray(j.archived)) {
+          const m = new Map<string, string | null>();
+          for (const a of j.archived) {
+            if (typeof a === "string") m.set(a.toLowerCase(), null);
+            else if (a && a.domain) m.set(String(a.domain).toLowerCase(), a.tag ?? null);
+          }
+          setArchived(m);
+        }
       } catch {
         /* fail-open: nothing archived */
       }
     })();
   }, []);
 
-  const toggleArchive = useCallback(async (domain: string, next: boolean) => {
+  const toggleArchive = useCallback(async (domain: string, next: boolean, tag?: string | null) => {
     const d = domain.toLowerCase();
+    const prevTag = archived.get(d) ?? null;
     setArchived((prev) => {
-      const s = new Set(prev);
-      if (next) s.add(d);
-      else s.delete(d);
-      return s;
+      const m = new Map(prev);
+      if (next) m.set(d, (tag || "").trim() || null);
+      else m.delete(d);
+      return m;
     });
     try {
       const res = await fetch("/api/admin/snap-names/archive", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ domain: d, archived: next }),
+        body: JSON.stringify({ domain: d, archived: next, tag: next ? (tag ?? null) : null }),
       });
       if (!res.ok) throw new Error((await res.json())?.error || `HTTP ${res.status}`);
     } catch (e) {
       // revert on failure
       setArchived((prev) => {
-        const s = new Set(prev);
-        if (next) s.delete(d);
-        else s.add(d);
-        return s;
+        const m = new Map(prev);
+        if (next) m.delete(d);
+        else m.set(d, prevTag);
+        return m;
       });
       setErr(String((e as Error)?.message || e));
     }
-  }, []);
+  }, [archived]);
+
+  // Preset + custom reason tags, shared with the audit (so archiving and audit-hiding
+  // use the SAME vocabulary). Custom tags already used anywhere merge in.
+  const archiveTagOptions = useMemo(
+    () => [...PRESET_TAGS, ...new Set([...archived.values()].filter((t): t is string => !!t && !PRESET_TAGS.includes(t)))],
+    [archived],
+  );
 
   // Load the cached registrar-account inventory snapshot (fast; fail-open).
   const applyInventory = useCallback((snap: { built_at?: string; accounts?: AccountStatus[]; owned?: Record<string, OwnedAt>; new_untracked?: { domain: string; provider: string; label: string; expires?: string | null }[] } | null, hidden?: ({ domain: string; tag: string | null } | string)[]) => {
@@ -1115,13 +1130,36 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
                   <td style={{ ...td, whiteSpace: "nowrap", color: "#6b6b7b" }}>{r.date_purchased || "—"}</td>
                   <td style={{ ...td, textAlign: "right" }}>{usd(r.purchase_price)}</td>
                   <td style={{ ...td, textAlign: "right", whiteSpace: "nowrap" }}>
-                    <button
-                      onClick={() => toggleArchive(r.domain, !archived.has(r.domain))}
-                      title={archived.has(r.domain) ? "Restore to the active list" : "Archive — hide from the list"}
-                      style={{ border: "none", background: "transparent", cursor: "pointer", fontSize: 15, opacity: 0.5, padding: "0 2px" }}
-                    >
-                      {archived.has(r.domain) ? "↩" : "📥"}
-                    </button>
+                    {archived.has(r.domain) ? (
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 6, justifyContent: "flex-end" }}>
+                        {archived.get(r.domain) && <span style={{ padding: "1px 8px", borderRadius: 999, background: "#eef1f7", color: "#3a5a9a", fontSize: 11, fontWeight: 600 }}>{archived.get(r.domain)}</span>}
+                        <button
+                          onClick={() => toggleArchive(r.domain, false)}
+                          title="Restore to the active list"
+                          style={{ border: "none", background: "transparent", cursor: "pointer", fontSize: 15, opacity: 0.5, padding: "0 2px" }}
+                        >↩</button>
+                      </span>
+                    ) : (
+                      // Archive with a REASON — same labels + "new reason" as the audit hide.
+                      <select
+                        value=""
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          if (!v) return;
+                          if (v === "__none__") toggleArchive(r.domain, true, null);
+                          else if (v === "__custom__") { const t = window.prompt("Reason for archiving " + r.domain); if (t && t.trim()) toggleArchive(r.domain, true, t.trim()); }
+                          else toggleArchive(r.domain, true, v);
+                          e.currentTarget.value = "";
+                        }}
+                        title="Archive — pick a reason"
+                        style={{ border: "1px solid #e2e2ea", borderRadius: 6, background: "#fff", cursor: "pointer", fontSize: 12, padding: "2px 4px", opacity: 0.75 }}
+                      >
+                        <option value="">📥 Archive…</option>
+                        {archiveTagOptions.map((t) => <option key={t} value={t}>{t}</option>)}
+                        <option value="__custom__">＋ New reason…</option>
+                        <option value="__none__">Archive (no reason)</option>
+                      </select>
+                    )}
                   </td>
                 </tr>
               );

@@ -20,10 +20,10 @@ export async function POST(req: Request) {
   if (!me) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   if (!canReports(me, "reports.snap_names")) return NextResponse.json({ error: "No access" }, { status: 403 });
   try {
-    const body = (await req.json()) as { domain?: string; archived?: boolean };
+    const body = (await req.json()) as { domain?: string; archived?: boolean; tag?: string | null };
     const domain = String(body.domain || "").trim().toLowerCase();
     if (!domain) return NextResponse.json({ error: "domain required" }, { status: 400 });
-    await setArchived(domain, body.archived !== false, me.email || null);
+    await setArchived(domain, body.archived !== false, me.email || null, body.tag ?? null);
     return NextResponse.json({ ok: true });
   } catch (e) {
     return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
