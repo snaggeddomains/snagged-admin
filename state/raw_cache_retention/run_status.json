@@ -1,7 +1,7 @@
 {
-  "cutoff_date": "2026-07-03",
+  "cutoff_date": "2026-07-04",
   "dry_run": false,
-  "generated_at": "2026-07-10T07:37:40.408034+00:00",
+  "generated_at": "2026-07-11T06:14:30.207905+00:00",
   "kept": 84,
   "label": "Pipeline Raw Cache retention",
   "retention_days": 7,
@@ -10,63 +10,63 @@
   "status": "ok",
   "trashed": [
     {
-      "date": "2026-07-02",
-      "folder_id": "1_9elpEVhSfwHyGEm6MTtSe_Hl187qSrb",
+      "date": "2026-07-03",
+      "folder_id": "125QrCdVmpNfQxMkqTmojofwIIxUnaLXK",
       "source": "efty_partner"
     },
     {
-      "date": "2026-07-02",
-      "folder_id": "1tkOcc0O74RM8z9lpwMgEj1Bh14Pz_hqv",
+      "date": "2026-07-03",
+      "folder_id": "18V3kg85Wd6qRA2W7kE8kdJG4GxB4uLKQ",
       "source": "sedo_net_new"
     },
     {
-      "date": "2026-07-02",
-      "folder_id": "1tcbbhpL8t8eb6L-r0QAuDtP0ZgFcFmy6",
+      "date": "2026-07-03",
+      "folder_id": "1V4GzfPDvWtm3-zKjSNrljNAZ5lCgIush",
       "source": "dynadot_auctions"
     },
     {
-      "date": "2026-07-02",
-      "folder_id": "1psa8KYqDk2dw28yK88D_LwXGtP9hjBtb",
+      "date": "2026-07-03",
+      "folder_id": "144ADldQQpFpALhj6jtAbxn8qfp38LQ0W",
       "source": "namesilo_auctions"
     },
     {
-      "date": "2026-07-02",
-      "folder_id": "1GnTlAgrqKKV5OSrPu_RgaGzPpCdufOpK",
+      "date": "2026-07-03",
+      "folder_id": "1GVXktyag0Hw-dSS6XRczaBy-S6EGzvAu",
       "source": "sedo_expired_auctions"
     },
     {
-      "date": "2026-07-02",
-      "folder_id": "13CfJXN94oQEN-lMha1JJSzXWiGJ2fuRt",
+      "date": "2026-07-03",
+      "folder_id": "1YHh2KJEzkAUBmkC3mpx_n3A1304VU3xT",
       "source": "godaddy_auctions"
     },
     {
-      "date": "2026-07-02",
-      "folder_id": "1gc12RS_MML7DYFNEJNAqZk5dPricF9Dx",
+      "date": "2026-07-03",
+      "folder_id": "13e-1hidns-jaH_SLCQUlcMtpy1DqhfRK",
       "source": "parkio_auctions"
     },
     {
-      "date": "2026-07-02",
-      "folder_id": "1n198nSrQdCQ8DVBOXZ-pBcClEZHYXrgb",
+      "date": "2026-07-03",
+      "folder_id": "1oBFPtf-DbF8x9yMBInQogXEdCuFoZhQ9",
       "source": "dropcatch_auctions"
     },
     {
-      "date": "2026-07-02",
-      "folder_id": "1QY6LrMerGYkphGATIJnad-hg8Twa2ho9",
+      "date": "2026-07-03",
+      "folder_id": "1uwPYAMefuhfpvxB_Vtb8YXYokf9j6eUq",
       "source": "namecheap_auctions"
     },
     {
-      "date": "2026-07-02",
-      "folder_id": "14mru324vh4krHB86bFyXWulXABjN0ZO4",
+      "date": "2026-07-03",
+      "folder_id": "1Q6R_djNmsu9ImL15xPUGeHtXyjQ1Zj86",
       "source": "atom_daily"
     },
     {
-      "date": "2026-07-02",
-      "folder_id": "1lOlZpqdTCs7Cpm-LV8JULaBzK-DDsCRK",
+      "date": "2026-07-03",
+      "folder_id": "1NDHPa3AmnwXkV5rT0qCMrdCtxhSycYFj",
       "source": "afternic"
     },
     {
-      "date": "2026-07-02",
-      "folder_id": "102cRBC8Vdoopp76Ir-vykIE0PF98fYq-",
+      "date": "2026-07-03",
+      "folder_id": "16hQil_2qw68OkZEWUotuePZtCV2hMDpV",
       "source": "namecheap_bin"
     }
   ],
