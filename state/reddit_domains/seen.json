@@ -1,5 +1,5 @@
 {
-  "count": 17,
+  "count": 18,
   "domains": [
     "appraise.net",
     "bar.com",
@@ -11,6 +11,7 @@
     "gulls.net",
     "india.com",
     "name.com",
+    "nbo.com",
     "oy.com",
     "raspy.ai",
     "saw.com",
@@ -20,5 +21,5 @@
     "wordpress.com"
   ],
   "source": "reddit_domains",
-  "updated_at": "2026-07-11T17:00:37.689220+00:00"
+  "updated_at": "2026-07-11T23:00:39.179051+00:00"
 }
