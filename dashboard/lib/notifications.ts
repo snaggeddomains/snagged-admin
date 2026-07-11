@@ -42,6 +42,27 @@ export async function countUnread(userId: string): Promise<number> {
   return count ?? 0;
 }
 
+/** Insert one bell notification per user_id (best-effort; skips when DB absent). */
+export async function createNotification(
+  userIds: string[],
+  n: { kind: string; title: string; body?: string | null; link?: string | null },
+): Promise<void> {
+  const ids = [...new Set((userIds || []).filter(Boolean))];
+  if (!isDbConfigured() || !ids.length) return;
+  const rows = ids.map((user_id) => ({
+    user_id,
+    kind: n.kind,
+    title: n.title,
+    body: n.body ?? null,
+    link: n.link ?? null,
+  }));
+  try {
+    await getDb().from(TABLE).insert(rows);
+  } catch {
+    /* best-effort */
+  }
+}
+
 /** Mark notifications read — specific ids, or all of the user's when ids omitted. */
 export async function markRead(userId: string, ids?: string[]): Promise<void> {
   if (!isDbConfigured() || !userId) return;

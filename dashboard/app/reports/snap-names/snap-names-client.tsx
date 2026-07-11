@@ -178,6 +178,8 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
   const [invOwned, setInvOwned] = useState<Record<string, OwnedAt>>({});
   const [invAccounts, setInvAccounts] = useState<AccountStatus[]>([]);
   const [invBuiltAt, setInvBuiltAt] = useState<string | null>(null);
+  const [invNew, setInvNew] = useState<{ domain: string; provider: string; label: string; expires?: string | null }[]>([]); // newly-found untracked
+  const [newDismissed, setNewDismissed] = useState<Set<string>>(new Set());
   const [invHidden, setInvHidden] = useState<Map<string, string | null>>(new Map()); // domain → reason tag
   const [rebuilding, setRebuilding] = useState(false);
   const [showAudit, setShowAudit] = useState(false);
@@ -233,11 +235,12 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
   }, []);
 
   // Load the cached registrar-account inventory snapshot (fast; fail-open).
-  const applyInventory = useCallback((snap: { built_at?: string; accounts?: AccountStatus[]; owned?: Record<string, OwnedAt> } | null, hidden?: ({ domain: string; tag: string | null } | string)[]) => {
+  const applyInventory = useCallback((snap: { built_at?: string; accounts?: AccountStatus[]; owned?: Record<string, OwnedAt>; new_untracked?: { domain: string; provider: string; label: string; expires?: string | null }[] } | null, hidden?: ({ domain: string; tag: string | null } | string)[]) => {
     if (snap) {
       setInvOwned(snap.owned || {});
       setInvAccounts(snap.accounts || []);
       setInvBuiltAt(snap.built_at || null);
+      setInvNew(Array.isArray(snap.new_untracked) ? snap.new_untracked : []);
     }
     if (Array.isArray(hidden)) {
       const m = new Map<string, string | null>();
@@ -259,6 +262,23 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
       }
     })();
   }, [applyInventory]);
+
+  // Banner dismissals persist locally so a reviewed name doesn't nag across reloads.
+  const NEW_DISMISS_KEY = "snapNewDismissed";
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(NEW_DISMISS_KEY);
+      if (raw) setNewDismissed(new Set(JSON.parse(raw) as string[]));
+    } catch { /* ignore */ }
+  }, []);
+  const dismissNew = useCallback((domains: string[]) => {
+    setNewDismissed((prev) => {
+      const s = new Set(prev);
+      for (const d of domains) s.add(d.toLowerCase());
+      try { localStorage.setItem(NEW_DISMISS_KEY, JSON.stringify([...s])); } catch { /* ignore */ }
+      return s;
+    });
+  }, []);
 
   const rebuildInventory = useCallback(async () => {
     setRebuilding(true);
@@ -678,9 +698,38 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
 
       {err && <div style={{ ...card, marginTop: 16, borderColor: "#f0c0c0", background: "#fdf3f3", color: "#a33" }}>{err}</div>}
 
+      {/* NEW untracked names found in an account since the last verify (not on the sheet). */}
+      {(() => {
+        const fresh = invNew.filter((n) => !newDismissed.has(n.domain.toLowerCase()) && !invHidden.has(n.domain.toLowerCase()) && !(report?.rows || []).some((r) => r.domain.toLowerCase() === n.domain.toLowerCase()));
+        if (!fresh.length) return null;
+        return (
+          <div style={{ ...card, marginTop: 16, borderColor: "#e5c07a", background: "#fdf8ec" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 18 }}>🆕</span>
+              <span style={{ fontWeight: 700 }}>{fresh.length === 1 ? "1 new domain" : `${fresh.length} new domains`} in an account, not on the SNAP list</span>
+              <span className="muted" style={{ fontSize: 12.5 }}>found on the last account verification — nothing was added automatically</span>
+              <span style={{ marginLeft: "auto", display: "inline-flex", gap: 8 }}>
+                <button onClick={() => { setShowAudit(true); setTimeout(() => document.getElementById("snap-audit")?.scrollIntoView({ behavior: "smooth", block: "start" }), 60); }} style={{ padding: "5px 12px", borderRadius: 8, border: "1px solid #d5b45a", background: "#fff", cursor: "pointer", fontSize: 12.5, fontWeight: 600 }}>
+                  Review in audit →
+                </button>
+                <button onClick={() => dismissNew(fresh.map((n) => n.domain))} style={{ padding: "5px 10px", borderRadius: 8, border: "1px solid #d5d5e0", background: "#fff", cursor: "pointer", fontSize: 12.5 }} title="Hide this banner (doesn't change anything)">Dismiss</button>
+              </span>
+            </div>
+            <div style={{ marginTop: 8, display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {fresh.slice(0, 12).map((n) => (
+                <span key={n.domain} style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 9px", borderRadius: 999, background: "#fff", border: "1px solid #ecd9a8", fontSize: 12.5 }}>
+                  <strong>{n.domain}</strong><span className="muted">· {n.label}</span>
+                </span>
+              ))}
+              {fresh.length > 12 && <span className="muted" style={{ fontSize: 12.5, alignSelf: "center" }}>+{fresh.length - 12} more</span>}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Registrar-account verification: snapshot status + reconciliation audit. */}
       {(invBuiltAt || invAccounts.length > 0) && (
-        <div style={{ ...card, marginTop: 12, fontSize: 12.5 }}>
+        <div id="snap-audit" style={{ ...card, marginTop: 12, fontSize: 12.5 }}>
           <div style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
             <span style={{ fontWeight: 700 }}>Account verification</span>
             {invBuiltAt && <span className="muted">as of {new Date(invBuiltAt).toLocaleString()}</span>}

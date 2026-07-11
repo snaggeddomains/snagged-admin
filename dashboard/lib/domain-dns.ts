@@ -6,7 +6,7 @@
 
 import { promises as dns } from "node:dns";
 import net from "node:net";
-import { canonicalRegistrar } from "./registrar/registry";
+import { canonicalRegistrar, operatorForIanaId, operatorFromRegistrarUrl } from "./registrar/registry";
 
 export interface DomainLive {
   registrar: string | null;
@@ -186,9 +186,18 @@ function registrarFromRdap(j: unknown): string | null {
   const ents = obj?.entities || [];
   for (const e of ents) {
     if (!(e.roles || []).map((r) => r.toLowerCase()).includes("registrar")) continue;
-    // vcardArray: ["vcard", [ ["fn", {}, "text", "GoDaddy.com, LLC"], ... ]]
+    // Prefer the OPERATOR over the whimsical shell name: the IANA Registrar ID (stable)
+    // ties a drop-catch shell to its parent (Newfold/Network Solutions, NameBright, …).
+    const ianaId = (e.publicIds || []).find((p) => /iana/i.test(p.type || ""))?.identifier;
+    const byId = operatorForIanaId(ianaId);
+    if (byId) return byId;
+    // vcardArray: ["vcard", [ ["fn", {}, "text", "GoDaddy.com, LLC"], ["url",{},"uri","https://…"], ... ]]
     const vc = Array.isArray(e.vcardArray) ? (e.vcardArray[1] as unknown[]) : null;
     if (Array.isArray(vc)) {
+      // A registrar URL (when present) is the operator backstop for a record with no id.
+      const url = vc.find((f) => Array.isArray(f) && (f as unknown[])[0] === "url") as unknown[] | undefined;
+      const byUrl = operatorFromRegistrarUrl(typeof url?.[3] === "string" ? (url[3] as string) : "");
+      if (byUrl) return byUrl;
       const fn = vc.find((f) => Array.isArray(f) && (f as unknown[])[0] === "fn") as unknown[] | undefined;
       if (fn && typeof fn[3] === "string" && fn[3].trim()) return fn[3].trim();
     }
@@ -266,6 +275,16 @@ function whoisQuery(host: string, query: string, timeoutMs = 6000): Promise<stri
 
 function registrarFromWhois(text: string | null): string | null {
   if (!text) return null;
+  // Operator FIRST: the "Registrar URL" / "Registrar Abuse Contact Email" / "Registrar
+  // IANA ID" lines tie a whimsical shell to its parent (Newfold/Network Solutions,
+  // NameBright/DropCatch, …) — more reliable than the shell's display name.
+  const iana = text.match(/^\s*Registrar IANA ID:\s*(\d+)\s*$/im)?.[1];
+  const byId = operatorForIanaId(iana);
+  if (byId) return byId;
+  const url = text.match(/^\s*Registrar URL:\s*(.+?)\s*$/im)?.[1] || "";
+  const email = text.match(/^\s*Registrar Abuse Contact Email:\s*(.+?)\s*$/im)?.[1] || "";
+  const byUrl = operatorFromRegistrarUrl(`${url} ${email}`);
+  if (byUrl) return byUrl;
   // ICANN-standard WHOIS: a "Registrar:" line with the colon right after the word
   // (so it doesn't match "Registrar URL / WHOIS Server / IANA ID / Abuse ...").
   const m = text.match(/^\s*Registrar:\s*(.+?)\s*$/im) || text.match(/^\s*Sponsoring Registrar:\s*(.+?)\s*$/im);

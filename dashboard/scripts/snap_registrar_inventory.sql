@@ -8,8 +8,10 @@ create table if not exists snap_registrar_inventory (
   built_at timestamptz not null default now(),
   built_by text,
   accounts jsonb not null default '[]'::jsonb, -- per-account status (provider, ok, count, ...)
-  owned jsonb not null default '{}'::jsonb      -- domain -> { provider, label, account }
+  owned jsonb not null default '{}'::jsonb,     -- domain -> { provider, label, account }
+  new_untracked jsonb not null default '[]'::jsonb -- names that first appeared this build & aren't on the sheet
 );
+alter table snap_registrar_inventory add column if not exists new_untracked jsonb not null default '[]'::jsonb; -- if table pre-existed
 alter table snap_registrar_inventory enable row level security; -- service key bypasses
 
 -- Per-domain "resolve from the reconciliation audit" flag + reason tag

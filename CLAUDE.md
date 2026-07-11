@@ -1,3 +1,39 @@
+# SNAP Names — registrar OPERATOR unification + new-name alerts (2026-07-11)
+
+Two additions to Reports → SNAP Names:
+
+- **Drop-catch shells collapse to their true OPERATOR (not their whimsical name).** Newfold/
+  Network Solutions accredits ~526 whimsically-named registrar shells (Hanging Curve Domains,
+  Abbey Road Domains, Catch Domains, Register.com, Domain.com, …); TurnCommerce/NameBright
+  runs ~1252 (NameBake, GlamDomains, DropCatch.com ### LLC); park.io a couple (Zhuimi). A
+  name-by-name list can't keep up, so grouping is by **operator**, detected from the RDAP
+  **IANA Registrar ID** (publicIds) — `dashboard/lib/registrar/operator-ids.json` maps every
+  known shell's IANA id → operator label, generated from IANA's `registrar-ids.xml` grouped by
+  each registrar's RDAP endpoint (`rdap.snapnames.com`/`rdap.networksolutions.com` → "Network
+  Solutions"; `rdap.namebright.com` → "NameBright/DropCatch"; `rdap.park.io` → "park.io").
+  `registry.ts` `operatorForIanaId(id)` + `operatorFromRegistrarUrl(url)` (backstop for the
+  WHOIS path via the Registrar URL / abuse email → newfold.com/networksolutions.com etc.).
+  `domain-dns.ts` `registrarFromRdap` reads `publicIds` IANA id FIRST (→ operator) then falls
+  back to the vcard fn name; `registrarFromWhois` reads `Registrar IANA ID` / `Registrar URL` /
+  abuse email first. **NB the user's premise was half-wrong — NameBake is NOT Network Solutions;
+  it's NameBright/DropCatch (TurnCommerce).** Regenerate `operator-ids.json` from a fresh
+  `registrar-ids.xml` when Newfold/TurnCommerce mint new shells (script snippet in the session
+  transcript). `REG_CANON` keeps the operator labels canonical + a coarse name fallback.
+- **"New untracked name" banner + bell + email.** When a **✓ Verify accounts** rebuild finds a
+  domain that first appeared in a registrar account since the LAST snapshot AND isn't on the
+  SNAP sheet (a fresh Porkbun buy, a caught drop), it's surfaced — it is NEVER auto-added to the
+  sheet (the audit stays a reconciliation view). `lib/snap-alerts.ts` `computeNewUntracked`
+  (diff nowOwned − prevOwned, minus on-sheet, minus hidden; skips accounts that weren't `ok`
+  last build to avoid transient-error false positives; no alert on the first-ever build) +
+  `alertNewUntracked` (bell via `notifications.ts` new `createNotification` + email via
+  `email.ts` to every `reports.snap_names` user). `buildAndSaveSnapshot` (snap-inventory.ts)
+  computes it against the prior snapshot, persists `new_untracked` on the row, then fires the
+  alert after the write. Client (`snap-names-client.tsx`): a 🆕 banner above the audit lists the
+  fresh names with "Review in audit →" (scrolls to `#snap-audit`) + "Dismiss" (localStorage
+  `snapNewDismissed`). **One-time migration:** the `new_untracked jsonb` column
+  (`scripts/snap_registrar_inventory.sql` — `add column if not exists`); the write degrades
+  gracefully (strips the column + retries) until it's run.
+
 # Marketplace per-domain Deal report — engagement, pitch-type, exercise pitches (2026-06-17)
 
 The Reports → Marketplace → `[domain]` deal report (`dashboard/lib/marketplace-deals.ts`

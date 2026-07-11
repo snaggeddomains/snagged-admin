@@ -161,15 +161,17 @@ const REG_CANON: [RegExp, string][] = [
   [/name\s?silo/i, "NameSilo"],
   [/spaceship/i, "Spaceship"],
   [/atom\.com|atom domains/i, "Atom"],
-  [/dropcatch/i, "DropCatch"],
-  [/namebright|turncommerce/i, "NameBright"],
-  [/network solutions/i, "Network Solutions"],
+  // Drop-catch / back-order shell FAMILIES. These operators each accredit HUNDREDS of
+  // whimsically-named registrar shells (a name-by-name list can't keep up), so the real
+  // grouping is by OPERATOR — detected from the RDAP IANA Registrar ID / abuse URL via
+  // operatorForIanaId / operatorFromRegistrarUrl below (which auto-catches every shell,
+  // present + future). These name patterns are a best-effort fallback for the WHOIS path
+  // when only a bare registrar NAME (no id/url) is available.
+  [/dropcatch|namebright|turncommerce|glamdomains|namebake/i, "NameBright/DropCatch"],
+  [/network solutions|snapnames|\bhanging curve\b/i, "Network Solutions"],
+  [/park\.io|zhuimi/i, "park.io"],
   [/gname/i, "Gname"],
-  [/glamdomains/i, "GlamDomains"],
-  [/hanging curve/i, "Hanging Curve Domains"],
   [/instra/i, "Instra"],
-  [/zhuimi/i, "Zhuimi"],
-  [/namebake/i, "NameBake"],
   [/humbly/i, "Humbly"],
   [/enom/i, "eNom"],
   [/tucows/i, "Tucows"],
@@ -184,6 +186,37 @@ export function canonicalRegistrar(name: string | null | undefined): string | nu
   if (!s) return name ?? null;
   for (const [re, label] of REG_CANON) if (re.test(s)) return label;
   return s.replace(/[,.]?\s*(LLC|Inc\.?|Ltd\.?|Corp\.?|Corporation|Pty\.?\s*Ltd\.?|Co\.?|GmbH|S\.?A\.?S?\.?)\.?$/i, "").replace(/[,\s]+$/, "").trim() || s;
+}
+
+// ── Operator unification (authoritative, from RDAP) ──────────────────────────
+// A registrar's whimsical name ("Hanging Curve Domains LLC", "Abbey Road Domains LLC")
+// hides who really operates it. The stable signal is the IANA Registrar ID (from RDAP
+// publicIds) or the registrar's abuse URL — both tie a shell to its parent. operator-ids
+// .json maps every known shell's IANA id → the canonical operator label; it's generated
+// from IANA's registrar-ids list, grouped by each registrar's RDAP endpoint (526 Newfold/
+// Network Solutions shells via snapnames/networksolutions, 1252 NameBright/DropCatch via
+// namebright, park.io via park.io). Regenerate when Newfold/TurnCommerce add shells.
+import OPERATOR_IDS from "./operator-ids.json";
+const OP_BY_ID = (OPERATOR_IDS as { map: Record<string, string> }).map || {};
+
+// IANA Registrar ID → canonical operator label (null if not a grouped shell family).
+export function operatorForIanaId(id: string | number | null | undefined): string | null {
+  const key = String(id ?? "").trim();
+  return key && OP_BY_ID[key] ? OP_BY_ID[key] : null;
+}
+
+// Registrar abuse/registrar URL (or abuse email) → operator label. The WHOIS-fallback
+// signal when there's no IANA id, and a backstop for RDAP records missing publicIds.
+const OP_BY_URL: [RegExp, string][] = [
+  [/networksolutions\.com|snapnames\.com|newfold\.com/i, "Network Solutions"],
+  [/namebright\.com|turncommerce\.com|dropcatch\.com/i, "NameBright/DropCatch"],
+  [/park\.io/i, "park.io"],
+];
+export function operatorFromRegistrarUrl(url: string | null | undefined): string | null {
+  const s = String(url || "");
+  if (!s) return null;
+  for (const [re, label] of OP_BY_URL) if (re.test(s)) return label;
+  return null;
 }
 
 // Match a DNS-host label (our ns_provider string, e.g. "Spaceship DNS", "Porkbun
