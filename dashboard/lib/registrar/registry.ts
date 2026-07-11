@@ -9,7 +9,7 @@
 // actual write calls live in the per-provider adapters (added when we enable live
 // writes; today the flow is preview-only).
 
-export type ProviderId = "spaceship" | "porkbun" | "dynadot" | "namesilo" | "godaddy" | "namecheap" | "cloudflare";
+export type ProviderId = "spaceship" | "porkbun" | "dynadot" | "namesilo" | "godaddy" | "namecheap" | "cloudflare" | "namebright";
 
 export interface Provider {
   id: ProviderId;
@@ -80,6 +80,17 @@ export const PROVIDERS: Record<ProviderId, Provider> = {
     canDNS: true,
     hasKeys: (e) => !!(e.NAMESILO_API_KEY),
   },
+  // NameBright (TurnCommerce) — OAuth2 client_credentials (30-min bearer). Note:
+  // NameBright IP-allowlists per API client, and Vercel egress rotates, so if the
+  // account's whitelist is enforced this must egress from the Fixie static IPs — set
+  // NAMEBRIGHT_USE_PROXY=1 (reuses FIXIE_URL) and whitelist those IPs in NameBright.
+  namebright: {
+    id: "namebright",
+    label: "NameBright",
+    canNS: true,
+    canDNS: true,
+    hasKeys: (e) => !!(e.NAMEBRIGHT_CLIENT_ID && e.NAMEBRIGHT_CLIENT_SECRET),
+  },
   godaddy: {
     id: "godaddy",
     label: "GoDaddy",
@@ -123,6 +134,7 @@ export const PROVIDER_DEFAULT_NS: Record<ProviderId, string[] | null> = {
   dynadot: ["ns1.dynadot.com", "ns2.dynadot.com", "ns3.dynadot.com"],
   namesilo: ["ns1.namesilo.com", "ns2.namesilo.com"],
   namecheap: ["dns1.registrar-servers.com", "dns2.registrar-servers.com"],
+  namebright: ["dns1.name-services.com", "dns2.name-services.com"], // NameBright/eNom-family default DNS
   godaddy: null, // assigned per-domain (nsXX.domaincontrol.com)
   cloudflare: null, // DNS host, not a registrar — no registrar-default NS
 };
@@ -140,6 +152,9 @@ const REGISTRAR_MATCH: [RegExp, ProviderId][] = [
   [/namesilo/i, "namesilo"],
   [/godaddy/i, "godaddy"],
   [/namecheap/i, "namecheap"],
+  // NameBright/DropCatch (TurnCommerce) — the operator label our RDAP mapping produces,
+  // plus the raw shell/brand names, all route to the NameBright API adapter.
+  [/namebright|turncommerce|dropcatch/i, "namebright"],
 ];
 
 export function providerForRegistrar(registrar: string | null | undefined): ProviderId | null {
@@ -229,6 +244,7 @@ const NSHOST_MATCH: [RegExp, ProviderId][] = [
   [/namesilo/i, "namesilo"],
   [/godaddy|domaincontrol/i, "godaddy"],
   [/namecheap|registrar-servers/i, "namecheap"],
+  [/namebright|name-services\.com/i, "namebright"],
   // Our ns1/ns2.snagged.com vanity nameservers are Cloudflare-backed, as is a real
   // *.ns.cloudflare.com pair → manage DNS via the Cloudflare API.
   [/cloudflare|snagged\.com/i, "cloudflare"],

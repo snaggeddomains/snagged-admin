@@ -41,6 +41,38 @@ Two additions to Reports → SNAP Names:
   a restore. **One-time migration:** `scripts/snap_names_archive.sql` adds `tag`
   (`add column if not exists`); the write degrades gracefully until run.
 
+# NameBright registrar adapter — inventory + NS/DNS writes (2026-07-11)
+
+NameBright (TurnCommerce — the operator behind the ~1252 NameBake/GlamDomains/DropCatch
+shells) is now a full registrar provider for SNAP Names, alongside Porkbun/Spaceship/
+Dynadot/NameSilo/GoDaddy/Namecheap: it lists account domains (possession verification) and
+executes nameserver + DNS-record changes.
+
+- **Auth** (`lib/registrar/adapters.ts`): OAuth2 **client_credentials** → 30-min bearer.
+  `namebrightToken(e)` POSTs `grant_type/client_id/client_secret` (form) to
+  `https://api.namebright.com/auth/token`, caches the token until ~30s before expiry;
+  `namebrightApi(method, path, e, body?)` adds the bearer over REST root
+  `https://api.namebright.com/rest/`. **Env: `NAMEBRIGHT_CLIENT_ID`** (the FULL
+  `Account:Application` value, e.g. `GoophBall:SnaggedAdmin`) **+ `NAMEBRIGHT_CLIENT_SECRET`**.
+- **IP allowlist:** NameBright allowlists per API client and Vercel egress rotates — if the
+  client enforces a whitelist, set **`NAMEBRIGHT_USE_PROXY=1`** to egress via the Fixie
+  static IPs (reuses `FIXIE_URL`, same as Namecheap/NameSilo) and whitelist those in
+  NameBright. Rate limit 30 req/30s (403 "IP not whitelisted" is the tell).
+- **Inventory** (`lib/registrar/inventory.ts` `namebrightInventory`): `GET account/domains?
+  page=&domainsPerPage=500`, paginated; parses domain/expiry/auto-renew via the reused
+  case-insensitive `extractDynadotDomains` walk + a `bareDomainStrings` fallback (handles a
+  wrapper object OR a bare string array — the exact list shape wasn't live-verifiable). Wired
+  into `listAllInventory`.
+- **Writes** (`adapters.ts`): `namebrightSetNs` = DELETE all nameservers then PUT each (no
+  bulk-set endpoint); `namebrightSetDns` = POST `hostrecords/{type}` `{host,data,ttl,priority?}`
+  (append). Added to `NS_EXECUTABLE` + `DNS_EXECUTABLE` + both dispatch switches.
+- **Registry** (`registry.ts`): `namebright` ProviderId + `PROVIDERS` entry (hasKeys = both
+  env vars) + `PROVIDER_DEFAULT_NS` (`dns1/dns2.name-services.com`) + `REGISTRAR_MATCH`
+  (`namebright|turncommerce|dropcatch` → the provider) + `NSHOST_MATCH` (`name-services.com`).
+  So a domain whose RDAP registrar resolves to "NameBright/DropCatch" routes NS/DNS writes to
+  this adapter. **Live-verify on first ✓ Verify accounts** — the domain-list JSON shape + the
+  host-record POST body are best-effort (couldn't probe: creds are Vercel-only + IP-walled).
+
 # Marketplace per-domain Deal report — engagement, pitch-type, exercise pitches (2026-06-17)
 
 The Reports → Marketplace → `[domain]` deal report (`dashboard/lib/marketplace-deals.ts`

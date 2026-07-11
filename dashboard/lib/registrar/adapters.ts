@@ -412,12 +412,98 @@ async function dynadotSetDns(domain: string, rec: DnsRecordInput, e: NodeJS.Proc
   return dynadotRequest("POST", path, body, e);
 }
 
+// ── NameBright (TurnCommerce) — OAuth2 client_credentials → 30-min bearer ────
+// Auth: POST https://api.namebright.com/auth/token with form fields
+// grant_type=client_credentials, client_id, client_secret → { access_token }.
+// REST root https://api.namebright.com/rest/. NameBright IP-allowlists per API client;
+// if enforced, set NAMEBRIGHT_USE_PROXY=1 to egress via the Fixie static IPs (reuses
+// FIXIE_URL) and whitelist those in NameBright. Rate limit 30 req / 30s.
+const NB_AUTH = "https://api.namebright.com/auth/token";
+const NB_REST = "https://api.namebright.com/rest";
+let nbToken: { token: string; exp: number } | null = null;
+
+function namebrightDispatcher(e: NodeJS.ProcessEnv): ProxyAgent | null {
+  return e.NAMEBRIGHT_USE_PROXY ? namecheapDispatcher(e) : null; // reuses FIXIE_URL
+}
+
+// undici fetch with optional Fixie dispatcher (needed for the IP-allowlist path).
+async function nbFetch(url: string, init: RequestInit, e: NodeJS.ProcessEnv): Promise<Response> {
+  const dispatcher = namebrightDispatcher(e);
+  if (dispatcher) return undiciFetch(url, { ...(init as object), dispatcher, signal: AbortSignal.timeout(15000) } as never) as unknown as Promise<Response>;
+  return timedFetch(url, init);
+}
+
+export async function namebrightToken(e: NodeJS.ProcessEnv): Promise<string | null> {
+  const id = e.NAMEBRIGHT_CLIENT_ID || "";
+  const secret = e.NAMEBRIGHT_CLIENT_SECRET || "";
+  if (!id || !secret) return null;
+  const now = Date.now();
+  if (nbToken && nbToken.exp > now + 30_000) return nbToken.token; // reuse until ~30s before expiry
+  try {
+    const body = new URLSearchParams({ grant_type: "client_credentials", client_id: id, client_secret: secret });
+    const res = await nbFetch(NB_AUTH, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: body.toString() }, e);
+    const j = (await res.json().catch(() => ({}))) as { access_token?: string; expires_in?: number };
+    if (!res.ok || !j.access_token) return null;
+    nbToken = { token: j.access_token, exp: now + (Number(j.expires_in) || 1800) * 1000 };
+    return nbToken.token;
+  } catch {
+    return null;
+  }
+}
+
+// Authenticated NameBright REST call (adds the bearer + optional proxy). null = no token.
+export async function namebrightApi(method: string, path: string, e: NodeJS.ProcessEnv, jsonBody?: unknown): Promise<Response | null> {
+  const token = await namebrightToken(e);
+  if (!token) return null;
+  const headers: Record<string, string> = { Authorization: `Bearer ${token}`, Accept: "application/json" };
+  if (jsonBody !== undefined) headers["Content-Type"] = "application/json";
+  try {
+    return await nbFetch(`${NB_REST}/${path}`, { method, headers, body: jsonBody !== undefined ? JSON.stringify(jsonBody) : undefined }, e);
+  } catch {
+    return null;
+  }
+}
+
+async function namebrightSetNs(domain: string, ns: string[], e: NodeJS.ProcessEnv): Promise<WriteResult> {
+  if (!e.NAMEBRIGHT_CLIENT_ID || !e.NAMEBRIGHT_CLIENT_SECRET) return { ok: false, error: "NameBright client id/secret not configured" };
+  const d = encodeURIComponent(domain);
+  // NameBright has no bulk-set — clear all, then PUT each nameserver.
+  const del = await namebrightApi("DELETE", `account/domains/${d}/nameservers`, e);
+  if (!del) return { ok: false, error: "NameBright auth failed (token / IP whitelist?)" };
+  if (!del.ok && del.status !== 404) {
+    const t = await del.text().catch(() => "");
+    return { ok: false, error: `NameBright clear-NS HTTP ${del.status}${t ? `: ${t.slice(0, 140)}` : ""}` };
+  }
+  for (const host of ns) {
+    const res = await namebrightApi("PUT", `account/domains/${d}/nameservers/${encodeURIComponent(host)}`, e);
+    if (!res || !res.ok) {
+      const t = res ? await res.text().catch(() => "") : "";
+      return { ok: false, error: `NameBright set ${host} HTTP ${res ? res.status : "auth"}${t ? `: ${t.slice(0, 140)}` : ""}` };
+    }
+  }
+  return { ok: true };
+}
+
+async function namebrightSetDns(domain: string, rec: DnsRecordInput, e: NodeJS.ProcessEnv): Promise<WriteResult> {
+  if (!e.NAMEBRIGHT_CLIENT_ID || !e.NAMEBRIGHT_CLIENT_SECRET) return { ok: false, error: "NameBright client id/secret not configured" };
+  const type = rec.type.toLowerCase();
+  if (!["a", "aaaa", "cname", "mx", "txt", "srv"].includes(type)) return { ok: false, error: `NameBright DNS: unsupported record type ${rec.type}` };
+  // NameBright host-record model: { host, data, ttl } (+ priority for MX). POST appends.
+  const body: Record<string, unknown> = { host: rec.host === "@" ? "@" : rec.host, data: rec.value, ttl: rec.ttl || 3600 };
+  if (type === "mx") body.priority = 10;
+  const res = await namebrightApi("POST", `account/domains/${encodeURIComponent(domain)}/hostrecords/${type}`, e, body);
+  if (!res) return { ok: false, error: "NameBright auth failed (token / IP whitelist?)" };
+  if (res.ok) return { ok: true };
+  const t = await res.text().catch(() => "");
+  return { ok: false, error: `NameBright DNS HTTP ${res.status}${t ? `: ${t.slice(0, 160)}` : ""}` };
+}
+
 // ── dispatch ────────────────────────────────────────────────────────────────
-const NS_EXECUTABLE: ProviderId[] = ["porkbun", "spaceship", "namesilo", "godaddy", "namecheap", "dynadot"];
+const NS_EXECUTABLE: ProviderId[] = ["porkbun", "spaceship", "namesilo", "godaddy", "namecheap", "dynadot", "namebright"];
 export function nsExecutable(provider: ProviderId): boolean {
   return NS_EXECUTABLE.includes(provider);
 }
-const DNS_EXECUTABLE: ProviderId[] = ["porkbun", "godaddy", "cloudflare", "namesilo", "spaceship", "namecheap", "dynadot"];
+const DNS_EXECUTABLE: ProviderId[] = ["porkbun", "godaddy", "cloudflare", "namesilo", "spaceship", "namecheap", "dynadot", "namebright"];
 export function dnsExecutable(provider: ProviderId): boolean {
   return DNS_EXECUTABLE.includes(provider);
 }
@@ -430,6 +516,7 @@ export async function setNameservers(provider: ProviderId, domain: string, ns: s
     case "godaddy": return godaddySetNs(domain, ns, e);
     case "namecheap": return namecheapSetNs(domain, ns, e);
     case "dynadot": return dynadotSetNs(domain, ns, e);
+    case "namebright": return namebrightSetNs(domain, ns, e);
     default: return { ok: false, error: `${provider} nameserver execute not enabled yet` };
   }
 }
@@ -443,6 +530,7 @@ export async function setDnsRecord(provider: ProviderId, domain: string, rec: Dn
     case "spaceship": return spaceshipSetDns(domain, rec, e);
     case "namecheap": return namecheapSetDns(domain, rec, e);
     case "dynadot": return dynadotSetDns(domain, rec, e);
+    case "namebright": return namebrightSetDns(domain, rec, e);
     default: return { ok: false, error: `${provider} DNS-record execute not enabled yet` };
   }
 }

@@ -11,7 +11,7 @@
 
 import { fetch as undiciFetch } from "undici";
 import { godaddyAccounts, namecheapAccounts, type ProviderId } from "./registry";
-import { namecheapDispatcher, dynadotSignature } from "./adapters";
+import { namecheapDispatcher, dynadotSignature, namebrightApi } from "./adapters";
 
 export interface DomainRecord {
   domain: string; // lowercased
@@ -163,6 +163,48 @@ function extractDynadotDomains(j: unknown): DomainRecord[] {
   return out;
 }
 
+// Collect bare domain-name strings anywhere in a JSON tree (fallback for a list that
+// returns ["a.com","b.com"] instead of objects). Domain-shaped = has a dot, no spaces.
+function bareDomainStrings(j: unknown): string[] {
+  const out: string[] = [];
+  const walk = (n: unknown) => {
+    if (typeof n === "string") { if (n.includes(".") && !/\s/.test(n) && /^[a-z0-9.-]+$/i.test(n)) out.push(n); return; }
+    if (Array.isArray(n)) { for (const x of n) walk(x); return; }
+    if (n && typeof n === "object") for (const v of Object.values(n)) walk(v);
+  };
+  walk(j);
+  return out;
+}
+
+// ── NameBright: GET account/domains (OAuth2 bearer; page/domainsPerPage paging) ─
+// Reuses the shared OAuth token + REST helper in adapters.ts. The list wrapper's exact
+// shape/casing isn't pinned, so we reuse the same case-insensitive domain walk as
+// Dynadot (DomainName / ExpirationDate / AutoRenew → domain/expires/autoRenew).
+async function namebrightInventory(e: NodeJS.ProcessEnv): Promise<AccountInventory> {
+  const base: Omit<AccountInventory, "domains"> = { provider: "namebright", label: "NameBright", account: "", ok: false };
+  if (!e.NAMEBRIGHT_CLIENT_ID || !e.NAMEBRIGHT_CLIENT_SECRET) return { ...base, error: "not configured", domains: [] };
+  const map = new Map<string, DomainRecord>();
+  const perPage = 500; // few requests (rate limit is 30/30s); a modest owned account fits in 1-2 pages
+  try {
+    for (let page = 1; page <= PAGE_CAP; page++) {
+      const res = await namebrightApi("GET", `account/domains?page=${page}&domainsPerPage=${perPage}`, e);
+      if (!res) return { ...base, error: "auth failed (token / IP whitelist?)", ok: map.size > 0, domains: [...map.values()] };
+      if (!res.ok) { const t = await res.text().catch(() => ""); return { ...base, error: `HTTP ${res.status}${t ? `: ${t.slice(0, 100)}` : ""}`, ok: map.size > 0, domains: [...map.values()] }; }
+      const j = await res.json().catch(() => null);
+      // Object rows (DomainName/ExpirationDate/AutoRenew, any wrapper/casing) via the
+      // generic walk; PLUS a fallback for a bare array of domain-name strings.
+      const rows = extractDynadotDomains(j);
+      for (const r of rows) collect(map, r);
+      if (!rows.length) for (const s of bareDomainStrings(j)) collect(map, { domain: s });
+      if (rows.length < perPage) return { ...base, ok: true, domains: [...map.values()] };
+      if (page === PAGE_CAP) return { ...base, ok: true, domains: [...map.values()], capped: true };
+    }
+    return { ...base, ok: true, domains: [...map.values()] };
+  } catch (err) {
+    return { ...base, error: String((err as Error)?.message || err), ok: map.size > 0, domains: [...map.values()] };
+  }
+}
+
 // ── NameSilo: GET listDomains (names only; success code 300) ─────────────────
 // listDomains returns names without expiry/auto-renew (those need a per-domain
 // getDomainInfo call — too many); those fields stay blank for NameSilo. NameSilo
@@ -263,6 +305,7 @@ export async function listAllInventory(e: NodeJS.ProcessEnv): Promise<AccountInv
     namesiloInventory(e),
     godaddyInventory(e),
     namecheapInventory(e),
+    namebrightInventory(e),
   ]);
   const out: AccountInventory[] = [];
   for (const s of settled) {
