@@ -1,8 +1,12 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-11T10:00:56.671499+00:00",
+  "count": 3,
+  "domains": [
+    "extras.co",
+    "surprised.com",
+    "surprised.co"
+  ],
+  "generated_at": "2026-07-11T17:01:19.648110+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }

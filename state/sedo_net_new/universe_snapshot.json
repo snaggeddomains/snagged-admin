@@ -8,16 +8,16 @@
     "price": 3395.0
   },
   {
-    "domain": "cheapa.com",
-    "price": 9888.0
+    "domain": "surprised.com",
+    "price": null
+  },
+  {
+    "domain": "surprized.com",
+    "price": null
   },
   {
     "domain": "interwalls.com",
     "price": 7095.0
-  },
-  {
-    "domain": "bizpro.ai",
-    "price": 247000.0
   },
   {
     "domain": "pribook.net",
@@ -28,7 +28,11 @@
     "price": 1895.0
   },
   {
-    "domain": "superfoods.net",
-    "price": 9950.0
+    "domain": "extras.co",
+    "price": 2988.0
+  },
+  {
+    "domain": "surprised.co",
+    "price": null
   }
 ]
