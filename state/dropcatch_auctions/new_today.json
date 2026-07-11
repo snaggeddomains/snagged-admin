@@ -1,13 +1,16 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 7,
   "domains": [
-    "mariane.com",
     "prematurity.org",
     "yoxn.com",
-    "xlan.com"
+    "kojg.com",
+    "vinley.com",
+    "benso.com",
+    "xlan.com",
+    "chatear.com"
   ],
-  "generated_at": "2026-07-10T09:39:28.622853+00:00",
+  "generated_at": "2026-07-11T09:42:17.908970+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }

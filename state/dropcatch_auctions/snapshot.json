@@ -1,38 +1,65 @@
 [
   {
-    "bid_count": 34,
-    "domain": "mariane.com",
-    "end_time_utc": "2026-07-10T18:59:27.651031+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/MariaNE.com",
-    "platform": "DropCatch",
-    "price": 300.0
-  },
-  {
     "bid_count": 28,
     "domain": "prematurity.org",
-    "end_time_utc": "2026-07-13T18:59:27.651031+00:00",
+    "end_time_utc": "2026-07-13T18:59:16.754216+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Prematurity.org",
     "platform": "DropCatch",
     "price": 447.0
   },
   {
-    "bid_count": 13,
+    "bid_count": 14,
     "domain": "yoxn.com",
-    "end_time_utc": "2026-07-13T18:59:27.651031+00:00",
+    "end_time_utc": "2026-07-13T18:59:16.754216+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Yoxn.com",
     "platform": "DropCatch",
-    "price": 124.0
+    "price": 134.0
   },
   {
-    "bid_count": 107,
+    "bid_count": 7,
+    "domain": "kojg.com",
+    "end_time_utc": "2026-07-13T18:59:16.754216+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Kojg.com",
+    "platform": "DropCatch",
+    "price": 105.0
+  },
+  {
+    "bid_count": 19,
+    "domain": "vinley.com",
+    "end_time_utc": "2026-07-13T18:59:16.754216+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Vinley.com",
+    "platform": "DropCatch",
+    "price": 94.0
+  },
+  {
+    "bid_count": 5,
+    "domain": "benso.com",
+    "end_time_utc": "2026-07-13T18:59:16.754216+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/benso.com",
+    "platform": "DropCatch",
+    "price": 79.0
+  },
+  {
+    "bid_count": 112,
     "domain": "xlan.com",
-    "end_time_utc": "2026-07-14T18:59:27.651031+00:00",
+    "end_time_utc": "2026-07-14T18:59:16.754216+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Xlan.com",
     "platform": "DropCatch",
-    "price": 3100.0
+    "price": 3600.0
+  },
+  {
+    "bid_count": 30,
+    "domain": "chatear.com",
+    "end_time_utc": "2026-07-14T18:59:16.754216+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/ChatEar.com",
+    "platform": "DropCatch",
+    "price": 550.0
   }
 ]

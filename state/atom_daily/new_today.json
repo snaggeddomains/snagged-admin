@@ -1,15 +1,13 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 4,
   "domains": [
-    "operational.com",
-    "medical.io",
-    "therapy.io",
-    "spector.com",
-    "devotee.ai",
-    "peach.org"
+    "policies.com",
+    "alejandro.ai",
+    "facelift.ai",
+    "sclerosis.org"
   ],
-  "generated_at": "2026-07-10T09:21:35.947328+00:00",
+  "generated_at": "2026-07-11T09:23:11.171120+00:00",
   "mub": [],
   "source": "atom_daily"
 }

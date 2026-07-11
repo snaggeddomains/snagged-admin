@@ -1,5 +1,2737 @@
 [
   {
+    "domain": "cosmood.com",
+    "price": null
+  },
+  {
+    "domain": "milfpic.com",
+    "price": 499.0
+  },
+  {
+    "domain": "pornleader.com",
+    "price": 499.0
+  },
+  {
+    "domain": "explorealgeria.com",
+    "price": null
+  },
+  {
+    "domain": "exploreqatar.com",
+    "price": null
+  },
+  {
+    "domain": "azerbaijan.org",
+    "price": null
+  },
+  {
+    "domain": "visitvenezuela.com",
+    "price": null
+  },
+  {
+    "domain": "visitturkey.com",
+    "price": null
+  },
+  {
+    "domain": "visittunisia.com",
+    "price": null
+  },
+  {
+    "domain": "visittehran.com",
+    "price": null
+  },
+  {
+    "domain": "visitserbia.com",
+    "price": null
+  },
+  {
+    "domain": "visitparis.com",
+    "price": null
+  },
+  {
+    "domain": "visitoman.com",
+    "price": null
+  },
+  {
+    "domain": "visitodessa.com",
+    "price": null
+  },
+  {
+    "domain": "visitmumbai.com",
+    "price": null
+  },
+  {
+    "domain": "visitmalaysia.com",
+    "price": null
+  },
+  {
+    "domain": "visitmacedonia.com",
+    "price": null
+  },
+  {
+    "domain": "visitlithuania.com",
+    "price": null
+  },
+  {
+    "domain": "visitkuwait.com",
+    "price": null
+  },
+  {
+    "domain": "visitkharkiv.com",
+    "price": null
+  },
+  {
+    "domain": "visitfrance.com",
+    "price": null
+  },
+  {
+    "domain": "visitdelhi.com",
+    "price": null
+  },
+  {
+    "domain": "visitcologne.com",
+    "price": null
+  },
+  {
+    "domain": "visitbrunei.com",
+    "price": null
+  },
+  {
+    "domain": "visitbelize.com",
+    "price": null
+  },
+  {
+    "domain": "visitbelarus.com",
+    "price": null
+  },
+  {
+    "domain": "visitbaku.com",
+    "price": null
+  },
+  {
+    "domain": "visitargentina.com",
+    "price": null
+  },
+  {
+    "domain": "suggestiveness.com",
+    "price": null
+  },
+  {
+    "domain": "seduction.com",
+    "price": null
+  },
+  {
+    "domain": "thuram.com",
+    "price": null
+  },
+  {
+    "domain": "findex.xyz",
+    "price": null
+  },
+  {
+    "domain": "playonline.ai",
+    "price": null
+  },
+  {
+    "domain": "webhero.org",
+    "price": null
+  },
+  {
+    "domain": "travelbag.co",
+    "price": null
+  },
+  {
+    "domain": "tehran.co",
+    "price": null
+  },
+  {
+    "domain": "rodney.net",
+    "price": null
+  },
+  {
+    "domain": "redlobster.net",
+    "price": null
+  },
+  {
+    "domain": "plusmore.org",
+    "price": null
+  },
+  {
+    "domain": "pizzabox.co",
+    "price": null
+  },
+  {
+    "domain": "paybox.co",
+    "price": null
+  },
+  {
+    "domain": "metagram.org",
+    "price": null
+  },
+  {
+    "domain": "megafun.net",
+    "price": null
+  },
+  {
+    "domain": "located.co",
+    "price": null
+  },
+  {
+    "domain": "langley.co",
+    "price": null
+  },
+  {
+    "domain": "duolab.net",
+    "price": null
+  },
+  {
+    "domain": "drivebox.org",
+    "price": null
+  },
+  {
+    "domain": "dailytrend.org",
+    "price": null
+  },
+  {
+    "domain": "cloudserver.co",
+    "price": null
+  },
+  {
+    "domain": "artland.net",
+    "price": null
+  },
+  {
+    "domain": "aircoin.org",
+    "price": null
+  },
+  {
+    "domain": "teleplus.org",
+    "price": null
+  },
+  {
+    "domain": "storagebox.net",
+    "price": null
+  },
+  {
+    "domain": "skypass.net",
+    "price": null
+  },
+  {
+    "domain": "rollingstone.net",
+    "price": null
+  },
+  {
+    "domain": "petplus.net",
+    "price": null
+  },
+  {
+    "domain": "microbyte.org",
+    "price": null
+  },
+  {
+    "domain": "megabox.org",
+    "price": null
+  },
+  {
+    "domain": "luton.org",
+    "price": null
+  },
+  {
+    "domain": "frosch.org",
+    "price": null
+  },
+  {
+    "domain": "extratime.net",
+    "price": null
+  },
+  {
+    "domain": "djshop.net",
+    "price": null
+  },
+  {
+    "domain": "danton.org",
+    "price": null
+  },
+  {
+    "domain": "cloudtest.org",
+    "price": null
+  },
+  {
+    "domain": "clouddesk.org",
+    "price": null
+  },
+  {
+    "domain": "boxshop.org",
+    "price": null
+  },
+  {
+    "domain": "bigfan.org",
+    "price": null
+  },
+  {
+    "domain": "bestmusic.net",
+    "price": null
+  },
+  {
+    "domain": "autoeurope.org",
+    "price": null
+  },
+  {
+    "domain": "aureli.org",
+    "price": null
+  },
+  {
+    "domain": "almagroup.net",
+    "price": null
+  },
+  {
+    "domain": "airmedia.net",
+    "price": null
+  },
+  {
+    "domain": "mediabank.ai",
+    "price": null
+  },
+  {
+    "domain": "webport.ai",
+    "price": null
+  },
+  {
+    "domain": "ecoprint.ai",
+    "price": null
+  },
+  {
+    "domain": "bytebox.ai",
+    "price": null
+  },
+  {
+    "domain": "offstream.ai",
+    "price": null
+  },
+  {
+    "domain": "openrise.ai",
+    "price": null
+  },
+  {
+    "domain": "skypower.ai",
+    "price": null
+  },
+  {
+    "domain": "quickcheck.ai",
+    "price": null
+  },
+  {
+    "domain": "printworks.ai",
+    "price": null
+  },
+  {
+    "domain": "bakuforum.com",
+    "price": null
+  },
+  {
+    "domain": "posten.ai",
+    "price": null
+  },
+  {
+    "domain": "arthotel.co",
+    "price": null
+  },
+  {
+    "domain": "visitseoul.com",
+    "price": null
+  },
+  {
+    "domain": "theburger.co",
+    "price": null
+  },
+  {
+    "domain": "visitgreece.net",
+    "price": null
+  },
+  {
+    "domain": "meowmeow.co",
+    "price": null
+  },
+  {
+    "domain": "experienceoman.com",
+    "price": null
+  },
+  {
+    "domain": "baku.net",
+    "price": null
+  },
+  {
+    "domain": "bakutown.com",
+    "price": null
+  },
+  {
+    "domain": "kyrgyzstan.net",
+    "price": null
+  },
+  {
+    "domain": "bakucity.com",
+    "price": null
+  },
+  {
+    "domain": "bakutoday.com",
+    "price": null
+  },
+  {
+    "domain": "bakuonline.com",
+    "price": null
+  },
+  {
+    "domain": "kens.ai",
+    "price": null
+  },
+  {
+    "domain": "ecobox.ai",
+    "price": null
+  },
+  {
+    "domain": "discoveroman.com",
+    "price": null
+  },
+  {
+    "domain": "bakudaily.com",
+    "price": null
+  },
+  {
+    "domain": "arisic.com",
+    "price": null
+  },
+  {
+    "domain": "rafing.com",
+    "price": null
+  },
+  {
+    "domain": "evedal.com",
+    "price": null
+  },
+  {
+    "domain": "visitgaston.com",
+    "price": null
+  },
+  {
+    "domain": "tomsandoval.com",
+    "price": null
+  },
+  {
+    "domain": "warlax.com",
+    "price": null
+  },
+  {
+    "domain": "fabianruiz.com",
+    "price": null
+  },
+  {
+    "domain": "dohaadventures.com",
+    "price": null
+  },
+  {
+    "domain": "bakumotors.com",
+    "price": null
+  },
+  {
+    "domain": "visitprague.net",
+    "price": null
+  },
+  {
+    "domain": "visitvienna.net",
+    "price": null
+  },
+  {
+    "domain": "visitgeorgia.net",
+    "price": null
+  },
+  {
+    "domain": "anntaylor.org",
+    "price": null
+  },
+  {
+    "domain": "cranberries.co",
+    "price": null
+  },
+  {
+    "domain": "visitkuwait.net",
+    "price": null
+  },
+  {
+    "domain": "betmore.org",
+    "price": null
+  },
+  {
+    "domain": "visiteurope.org",
+    "price": null
+  },
+  {
+    "domain": "miakhalifa.net",
+    "price": null
+  },
+  {
+    "domain": "sweetland.net",
+    "price": null
+  },
+  {
+    "domain": "visitbutler.com",
+    "price": null
+  },
+  {
+    "domain": "pornxxx.net",
+    "price": null
+  },
+  {
+    "domain": "stuffagents.com",
+    "price": null
+  },
+  {
+    "domain": "cutagents.com",
+    "price": null
+  },
+  {
+    "domain": "yetagent.com",
+    "price": null
+  },
+  {
+    "domain": "worryagent.com",
+    "price": null
+  },
+  {
+    "domain": "tonightagent.com",
+    "price": null
+  },
+  {
+    "domain": "tendagent.com",
+    "price": null
+  },
+  {
+    "domain": "sitagent.com",
+    "price": null
+  },
+  {
+    "domain": "pieceagent.com",
+    "price": null
+  },
+  {
+    "domain": "guessagent.com",
+    "price": null
+  },
+  {
+    "domain": "discussagent.com",
+    "price": null
+  },
+  {
+    "domain": "directionagent.com",
+    "price": null
+  },
+  {
+    "domain": "cupagent.com",
+    "price": null
+  },
+  {
+    "domain": "argueagent.com",
+    "price": null
+  },
+  {
+    "domain": "aloneagent.com",
+    "price": null
+  },
+  {
+    "domain": "dotmedia.net",
+    "price": null
+  },
+  {
+    "domain": "trendmark.org",
+    "price": null
+  },
+  {
+    "domain": "seostudio.co",
+    "price": null
+  },
+  {
+    "domain": "curver.co",
+    "price": null
+  },
+  {
+    "domain": "visitdubois.com",
+    "price": null
+  },
+  {
+    "domain": "totalbet.co",
+    "price": null
+  },
+  {
+    "domain": "freesex.xyz",
+    "price": null
+  },
+  {
+    "domain": "rebekahwing.com",
+    "price": null
+  },
+  {
+    "domain": "roccohunt.com",
+    "price": null
+  },
+  {
+    "domain": "onedata.xyz",
+    "price": null
+  },
+  {
+    "domain": "airflex.co",
+    "price": null
+  },
+  {
+    "domain": "webagency.xyz",
+    "price": null
+  },
+  {
+    "domain": "bakugroup.com",
+    "price": null
+  },
+  {
+    "domain": "unimedia.org",
+    "price": null
+  },
+  {
+    "domain": "donaldtrump.co",
+    "price": null
+  },
+  {
+    "domain": "skyplus.org",
+    "price": null
+  },
+  {
+    "domain": "travelgroup.net",
+    "price": null
+  },
+  {
+    "domain": "chiccurls.com",
+    "price": null
+  },
+  {
+    "domain": "hothorn.com",
+    "price": null
+  },
+  {
+    "domain": "neleta.com",
+    "price": null
+  },
+  {
+    "domain": "libgate.com",
+    "price": null
+  },
+  {
+    "domain": "superspin.co",
+    "price": null
+  },
+  {
+    "domain": "motobox.co",
+    "price": null
+  },
+  {
+    "domain": "unicoin.co",
+    "price": null
+  },
+  {
+    "domain": "simrally.com",
+    "price": null
+  },
+  {
+    "domain": "vipbetting.net",
+    "price": null
+  },
+  {
+    "domain": "movielab.xyz",
+    "price": null
+  },
+  {
+    "domain": "lindenholt.com",
+    "price": null
+  },
+  {
+    "domain": "neoprint.co",
+    "price": null
+  },
+  {
+    "domain": "easysleep.co",
+    "price": null
+  },
+  {
+    "domain": "aronpiper.com",
+    "price": null
+  },
+  {
+    "domain": "gabibrandt.com",
+    "price": null
+  },
+  {
+    "domain": "intercasino.xyz",
+    "price": null
+  },
+  {
+    "domain": "cutover.xyz",
+    "price": null
+  },
+  {
+    "domain": "protour.co",
+    "price": null
+  },
+  {
+    "domain": "foodhouse.co",
+    "price": null
+  },
+  {
+    "domain": "ecomedia.xyz",
+    "price": null
+  },
+  {
+    "domain": "flytravel.co",
+    "price": null
+  },
+  {
+    "domain": "workship.co",
+    "price": null
+  },
+  {
+    "domain": "webcategory.com",
+    "price": null
+  },
+  {
+    "domain": "richmondbowl.com",
+    "price": null
+  },
+  {
+    "domain": "microbrake.com",
+    "price": null
+  },
+  {
+    "domain": "royalslots.xyz",
+    "price": null
+  },
+  {
+    "domain": "pureart.org",
+    "price": null
+  },
+  {
+    "domain": "guangzhou.co",
+    "price": null
+  },
+  {
+    "domain": "energygroup.xyz",
+    "price": null
+  },
+  {
+    "domain": "dailymedia.co",
+    "price": null
+  },
+  {
+    "domain": "medialog.co",
+    "price": null
+  },
+  {
+    "domain": "progs.xyz",
+    "price": null
+  },
+  {
+    "domain": "teleradio.xyz",
+    "price": null
+  },
+  {
+    "domain": "lightstar.net",
+    "price": null
+  },
+  {
+    "domain": "cityprint.co",
+    "price": null
+  },
+  {
+    "domain": "starstudio.xyz",
+    "price": null
+  },
+  {
+    "domain": "databased.xyz",
+    "price": null
+  },
+  {
+    "domain": "postlab.xyz",
+    "price": null
+  },
+  {
+    "domain": "netsite.xyz",
+    "price": null
+  },
+  {
+    "domain": "visittokyo.net",
+    "price": null
+  },
+  {
+    "domain": "coreplay.co",
+    "price": null
+  },
+  {
+    "domain": "easyride.co",
+    "price": null
+  },
+  {
+    "domain": "ultraflow.xyz",
+    "price": null
+  },
+  {
+    "domain": "mediaboost.xyz",
+    "price": null
+  },
+  {
+    "domain": "freshwave.xyz",
+    "price": null
+  },
+  {
+    "domain": "miningpool.xyz",
+    "price": null
+  },
+  {
+    "domain": "travelking.xyz",
+    "price": null
+  },
+  {
+    "domain": "tradia.xyz",
+    "price": null
+  },
+  {
+    "domain": "funstore.xyz",
+    "price": null
+  },
+  {
+    "domain": "freshmind.xyz",
+    "price": null
+  },
+  {
+    "domain": "clooney.org",
+    "price": null
+  },
+  {
+    "domain": "thefreedom.org",
+    "price": null
+  },
+  {
+    "domain": "straws.co",
+    "price": null
+  },
+  {
+    "domain": "easyworks.org",
+    "price": null
+  },
+  {
+    "domain": "onebio.xyz",
+    "price": null
+  },
+  {
+    "domain": "gridstudio.xyz",
+    "price": null
+  },
+  {
+    "domain": "getfresh.xyz",
+    "price": null
+  },
+  {
+    "domain": "learntoon.com",
+    "price": null
+  },
+  {
+    "domain": "livebox.xyz",
+    "price": null
+  },
+  {
+    "domain": "hostee.xyz",
+    "price": null
+  },
+  {
+    "domain": "mediamap.xyz",
+    "price": null
+  },
+  {
+    "domain": "paos.xyz",
+    "price": null
+  },
+  {
+    "domain": "medbio.xyz",
+    "price": null
+  },
+  {
+    "domain": "travelfun.xyz",
+    "price": null
+  },
+  {
+    "domain": "pushback.xyz",
+    "price": null
+  },
+  {
+    "domain": "avicom.xyz",
+    "price": null
+  },
+  {
+    "domain": "neopack.xyz",
+    "price": null
+  },
+  {
+    "domain": "sharkmedia.xyz",
+    "price": null
+  },
+  {
+    "domain": "geoterra.xyz",
+    "price": null
+  },
+  {
+    "domain": "gethost.xyz",
+    "price": null
+  },
+  {
+    "domain": "corecare.xyz",
+    "price": null
+  },
+  {
+    "domain": "topmind.xyz",
+    "price": null
+  },
+  {
+    "domain": "freshpack.xyz",
+    "price": null
+  },
+  {
+    "domain": "bonavita.xyz",
+    "price": null
+  },
+  {
+    "domain": "netserver.xyz",
+    "price": null
+  },
+  {
+    "domain": "delora.xyz",
+    "price": null
+  },
+  {
+    "domain": "daras.xyz",
+    "price": null
+  },
+  {
+    "domain": "keyfactor.xyz",
+    "price": null
+  },
+  {
+    "domain": "paycore.xyz",
+    "price": null
+  },
+  {
+    "domain": "resport.xyz",
+    "price": null
+  },
+  {
+    "domain": "seonews.xyz",
+    "price": null
+  },
+  {
+    "domain": "joystore.xyz",
+    "price": null
+  },
+  {
+    "domain": "pulsegroup.xyz",
+    "price": null
+  },
+  {
+    "domain": "halalshop.xyz",
+    "price": null
+  },
+  {
+    "domain": "winterfest.xyz",
+    "price": null
+  },
+  {
+    "domain": "mediahost.xyz",
+    "price": null
+  },
+  {
+    "domain": "icecool.xyz",
+    "price": null
+  },
+  {
+    "domain": "easycharge.xyz",
+    "price": null
+  },
+  {
+    "domain": "bioflex.xyz",
+    "price": null
+  },
+  {
+    "domain": "libria.xyz",
+    "price": null
+  },
+  {
+    "domain": "revora.xyz",
+    "price": null
+  },
+  {
+    "domain": "flybit.xyz",
+    "price": null
+  },
+  {
+    "domain": "carart.xyz",
+    "price": null
+  },
+  {
+    "domain": "findhouse.xyz",
+    "price": null
+  },
+  {
+    "domain": "tripwise.xyz",
+    "price": null
+  },
+  {
+    "domain": "geosystems.xyz",
+    "price": null
+  },
+  {
+    "domain": "navision.xyz",
+    "price": null
+  },
+  {
+    "domain": "lobs.xyz",
+    "price": null
+  },
+  {
+    "domain": "lulumerry.com",
+    "price": null
+  },
+  {
+    "domain": "flatpay.co",
+    "price": null
+  },
+  {
+    "domain": "gether.co",
+    "price": null
+  },
+  {
+    "domain": "zenithora.com",
+    "price": null
+  },
+  {
+    "domain": "snugglesox.com",
+    "price": null
+  },
+  {
+    "domain": "dailyseal.com",
+    "price": null
+  },
+  {
+    "domain": "bakutransfer.com",
+    "price": null
+  },
+  {
+    "domain": "mariedo.com",
+    "price": null
+  },
+  {
+    "domain": "yurialberto.com",
+    "price": null
+  },
+  {
+    "domain": "haiwoo.com",
+    "price": null
+  },
+  {
+    "domain": "benkee.com",
+    "price": null
+  },
+  {
+    "domain": "haisay.com",
+    "price": null
+  },
+  {
+    "domain": "radade.com",
+    "price": null
+  },
+  {
+    "domain": "limser.com",
+    "price": null
+  },
+  {
+    "domain": "sexonline.net",
+    "price": null
+  },
+  {
+    "domain": "kalire.com",
+    "price": null
+  },
+  {
+    "domain": "trumptimer.com",
+    "price": null
+  },
+  {
+    "domain": "votekamala.com",
+    "price": null
+  },
+  {
+    "domain": "nieter.com",
+    "price": null
+  },
+  {
+    "domain": "nordsauna.com",
+    "price": null
+  },
+  {
+    "domain": "oricrown.com",
+    "price": null
+  },
+  {
+    "domain": "dantelux.com",
+    "price": null
+  },
+  {
+    "domain": "citygroup.net",
+    "price": null
+  },
+  {
+    "domain": "hasbey.com",
+    "price": null
+  },
+  {
+    "domain": "kittensneeze.com",
+    "price": null
+  },
+  {
+    "domain": "petralog.com",
+    "price": null
+  },
+  {
+    "domain": "chanceliga.com",
+    "price": null
+  },
+  {
+    "domain": "otherdeed.com",
+    "price": null
+  },
+  {
+    "domain": "meatime.com",
+    "price": null
+  },
+  {
+    "domain": "sultanoff.com",
+    "price": null
+  },
+  {
+    "domain": "beyconcept.com",
+    "price": null
+  },
+  {
+    "domain": "gasnew.com",
+    "price": null
+  },
+  {
+    "domain": "thiagomaia.com",
+    "price": null
+  },
+  {
+    "domain": "changan.org",
+    "price": null
+  },
+  {
+    "domain": "karasaban.com",
+    "price": null
+  },
+  {
+    "domain": "mattelia.com",
+    "price": null
+  },
+  {
+    "domain": "aromatabs.com",
+    "price": null
+  },
+  {
+    "domain": "karnell.com",
+    "price": null
+  },
+  {
+    "domain": "noortales.com",
+    "price": null
+  },
+  {
+    "domain": "fideshop.com",
+    "price": null
+  },
+  {
+    "domain": "kuhntec.com",
+    "price": null
+  },
+  {
+    "domain": "hobbysta.com",
+    "price": null
+  },
+  {
+    "domain": "pizzasolo.com",
+    "price": null
+  },
+  {
+    "domain": "cubicodyssey.com",
+    "price": null
+  },
+  {
+    "domain": "timeusb.com",
+    "price": null
+  },
+  {
+    "domain": "netsky.net",
+    "price": null
+  },
+  {
+    "domain": "dressaddict.com",
+    "price": null
+  },
+  {
+    "domain": "monpoke.com",
+    "price": null
+  },
+  {
+    "domain": "wildhybrid.com",
+    "price": null
+  },
+  {
+    "domain": "beegroup.net",
+    "price": null
+  },
+  {
+    "domain": "netherhost.com",
+    "price": null
+  },
+  {
+    "domain": "donnie.org",
+    "price": null
+  },
+  {
+    "domain": "juniorcesar.com",
+    "price": null
+  },
+  {
+    "domain": "andijan.com",
+    "price": null
+  },
+  {
+    "domain": "mobilgen.com",
+    "price": null
+  },
+  {
+    "domain": "thehoffman.com",
+    "price": null
+  },
+  {
+    "domain": "marescot.com",
+    "price": null
+  },
+  {
+    "domain": "warmindo.com",
+    "price": null
+  },
+  {
+    "domain": "drivesapp.com",
+    "price": null
+  },
+  {
+    "domain": "italift.com",
+    "price": null
+  },
+  {
+    "domain": "bosestore.com",
+    "price": null
+  },
+  {
+    "domain": "steinpol.com",
+    "price": null
+  },
+  {
+    "domain": "teslapoint.com",
+    "price": null
+  },
+  {
+    "domain": "kikilondon.com",
+    "price": null
+  },
+  {
+    "domain": "pangusto.com",
+    "price": null
+  },
+  {
+    "domain": "cassoe.com",
+    "price": null
+  },
+  {
+    "domain": "taddel.com",
+    "price": null
+  },
+  {
+    "domain": "borbeen.com",
+    "price": null
+  },
+  {
+    "domain": "ticwell.com",
+    "price": null
+  },
+  {
+    "domain": "thelaurent.com",
+    "price": null
+  },
+  {
+    "domain": "robegrill.com",
+    "price": null
+  },
+  {
+    "domain": "hotellakeside.com",
+    "price": null
+  },
+  {
+    "domain": "teninternet.com",
+    "price": null
+  },
+  {
+    "domain": "oopsfix.com",
+    "price": null
+  },
+  {
+    "domain": "femmemuse.com",
+    "price": null
+  },
+  {
+    "domain": "decosis.com",
+    "price": null
+  },
+  {
+    "domain": "pornluxe.com",
+    "price": null
+  },
+  {
+    "domain": "capsuleria.com",
+    "price": null
+  },
+  {
+    "domain": "megasells.com",
+    "price": null
+  },
+  {
+    "domain": "urlfiltering.com",
+    "price": null
+  },
+  {
+    "domain": "lagerpark.com",
+    "price": null
+  },
+  {
+    "domain": "jenniferkline.com",
+    "price": null
+  },
+  {
+    "domain": "narutoramen.com",
+    "price": null
+  },
+  {
+    "domain": "sexice.com",
+    "price": null
+  },
+  {
+    "domain": "motomont.com",
+    "price": null
+  },
+  {
+    "domain": "ricava.com",
+    "price": null
+  },
+  {
+    "domain": "vitomega.com",
+    "price": null
+  },
+  {
+    "domain": "latermica.com",
+    "price": null
+  },
+  {
+    "domain": "yayashi.com",
+    "price": null
+  },
+  {
+    "domain": "cryptomirrors.com",
+    "price": null
+  },
+  {
+    "domain": "lokihub.com",
+    "price": null
+  },
+  {
+    "domain": "mashoe.com",
+    "price": null
+  },
+  {
+    "domain": "breakerfun.com",
+    "price": null
+  },
+  {
+    "domain": "edoonline.com",
+    "price": null
+  },
+  {
+    "domain": "sheholds.com",
+    "price": null
+  },
+  {
+    "domain": "keeperschool.com",
+    "price": null
+  },
+  {
+    "domain": "bookadvent.com",
+    "price": null
+  },
+  {
+    "domain": "sonmix.com",
+    "price": null
+  },
+  {
+    "domain": "cocotone.com",
+    "price": null
+  },
+  {
+    "domain": "webotto.com",
+    "price": null
+  },
+  {
+    "domain": "kantour.com",
+    "price": null
+  },
+  {
+    "domain": "sumosalad.com",
+    "price": null
+  },
+  {
+    "domain": "samanova.com",
+    "price": null
+  },
+  {
+    "domain": "sinchin.com",
+    "price": null
+  },
+  {
+    "domain": "flinderswharf.com",
+    "price": null
+  },
+  {
+    "domain": "santapapa.com",
+    "price": null
+  },
+  {
+    "domain": "airydress.com",
+    "price": null
+  },
+  {
+    "domain": "giromatic.com",
+    "price": null
+  },
+  {
+    "domain": "hygieneforum.com",
+    "price": null
+  },
+  {
+    "domain": "prerod.com",
+    "price": null
+  },
+  {
+    "domain": "niteola.com",
+    "price": null
+  },
+  {
+    "domain": "nachocode.com",
+    "price": null
+  },
+  {
+    "domain": "dreamymoments.com",
+    "price": null
+  },
+  {
+    "domain": "kraftoil.com",
+    "price": null
+  },
+  {
+    "domain": "ironsnout.com",
+    "price": null
+  },
+  {
+    "domain": "atababa.com",
+    "price": null
+  },
+  {
+    "domain": "bestmoscow.com",
+    "price": null
+  },
+  {
+    "domain": "maxgaz.com",
+    "price": null
+  },
+  {
+    "domain": "eauclair.com",
+    "price": null
+  },
+  {
+    "domain": "covidnews.com",
+    "price": null
+  },
+  {
+    "domain": "hurmer.com",
+    "price": null
+  },
+  {
+    "domain": "nikokids.com",
+    "price": null
+  },
+  {
+    "domain": "travellingdog.com",
+    "price": null
+  },
+  {
+    "domain": "changder.com",
+    "price": null
+  },
+  {
+    "domain": "setinn.com",
+    "price": null
+  },
+  {
+    "domain": "lavabelle.com",
+    "price": null
+  },
+  {
+    "domain": "ansela.com",
+    "price": null
+  },
+  {
+    "domain": "karham.com",
+    "price": null
+  },
+  {
+    "domain": "linegarden.com",
+    "price": null
+  },
+  {
+    "domain": "evalds.com",
+    "price": null
+  },
+  {
+    "domain": "lalasweet.com",
+    "price": null
+  },
+  {
+    "domain": "humals.com",
+    "price": null
+  },
+  {
+    "domain": "ciappi.com",
+    "price": null
+  },
+  {
+    "domain": "ninacosta.com",
+    "price": null
+  },
+  {
+    "domain": "housingnavi.com",
+    "price": null
+  },
+  {
+    "domain": "minorasu.com",
+    "price": null
+  },
+  {
+    "domain": "teafunny.com",
+    "price": null
+  },
+  {
+    "domain": "lotuscaravans.com",
+    "price": null
+  },
+  {
+    "domain": "worldeli.com",
+    "price": null
+  },
+  {
+    "domain": "diskpizza.com",
+    "price": null
+  },
+  {
+    "domain": "emoryhenry.com",
+    "price": null
+  },
+  {
+    "domain": "velvetheels.com",
+    "price": null
+  },
+  {
+    "domain": "guttos.com",
+    "price": null
+  },
+  {
+    "domain": "todovale.com",
+    "price": null
+  },
+  {
+    "domain": "wannabean.com",
+    "price": null
+  },
+  {
+    "domain": "mumanu.com",
+    "price": null
+  },
+  {
+    "domain": "madeiranit.com",
+    "price": null
+  },
+  {
+    "domain": "amirpasha.com",
+    "price": null
+  },
+  {
+    "domain": "sagadao.com",
+    "price": null
+  },
+  {
+    "domain": "citylab.xyz",
+    "price": null
+  },
+  {
+    "domain": "radoss.com",
+    "price": null
+  },
+  {
+    "domain": "tisplus.com",
+    "price": null
+  },
+  {
+    "domain": "sinnsally.com",
+    "price": null
+  },
+  {
+    "domain": "transmagna.com",
+    "price": null
+  },
+  {
+    "domain": "shabran.com",
+    "price": null
+  },
+  {
+    "domain": "terraforza.com",
+    "price": null
+  },
+  {
+    "domain": "iverbs.com",
+    "price": null
+  },
+  {
+    "domain": "thoday.com",
+    "price": null
+  },
+  {
+    "domain": "telesis.xyz",
+    "price": null
+  },
+  {
+    "domain": "nevbar.com",
+    "price": null
+  },
+  {
+    "domain": "halame.com",
+    "price": null
+  },
+  {
+    "domain": "pokemix.com",
+    "price": null
+  },
+  {
+    "domain": "royalpak.com",
+    "price": null
+  },
+  {
+    "domain": "milplan.com",
+    "price": null
+  },
+  {
+    "domain": "prisonism.com",
+    "price": null
+  },
+  {
+    "domain": "singfiller.com",
+    "price": null
+  },
+  {
+    "domain": "silring.com",
+    "price": null
+  },
+  {
+    "domain": "veermaster.com",
+    "price": null
+  },
+  {
+    "domain": "vonzeus.com",
+    "price": null
+  },
+  {
+    "domain": "webpack.xyz",
+    "price": null
+  },
+  {
+    "domain": "citymed.xyz",
+    "price": null
+  },
+  {
+    "domain": "airstudio.xyz",
+    "price": null
+  },
+  {
+    "domain": "santalucia.xyz",
+    "price": null
+  },
+  {
+    "domain": "arselin.com",
+    "price": null
+  },
+  {
+    "domain": "pigmentoff.com",
+    "price": null
+  },
+  {
+    "domain": "haiara.com",
+    "price": null
+  },
+  {
+    "domain": "pungao.com",
+    "price": null
+  },
+  {
+    "domain": "headlok.com",
+    "price": null
+  },
+  {
+    "domain": "dainow.com",
+    "price": null
+  },
+  {
+    "domain": "grimlord.com",
+    "price": null
+  },
+  {
+    "domain": "koreavibe.com",
+    "price": null
+  },
+  {
+    "domain": "reesebok.com",
+    "price": null
+  },
+  {
+    "domain": "walkbear.com",
+    "price": null
+  },
+  {
+    "domain": "hogsden.com",
+    "price": null
+  },
+  {
+    "domain": "cupkee.com",
+    "price": null
+  },
+  {
+    "domain": "handyjam.com",
+    "price": null
+  },
+  {
+    "domain": "sexout.com",
+    "price": null
+  },
+  {
+    "domain": "aniplot.com",
+    "price": null
+  },
+  {
+    "domain": "hijabaya.com",
+    "price": null
+  },
+  {
+    "domain": "literalnie.com",
+    "price": null
+  },
+  {
+    "domain": "subiran.com",
+    "price": null
+  },
+  {
+    "domain": "karatta.com",
+    "price": null
+  },
+  {
+    "domain": "desaccords.com",
+    "price": null
+  },
+  {
+    "domain": "stillnook.com",
+    "price": null
+  },
+  {
+    "domain": "dawntrail.com",
+    "price": null
+  },
+  {
+    "domain": "hanaria.com",
+    "price": null
+  },
+  {
+    "domain": "ratiomat.com",
+    "price": null
+  },
+  {
+    "domain": "temtas.com",
+    "price": null
+  },
+  {
+    "domain": "catvos.com",
+    "price": null
+  },
+  {
+    "domain": "linkedsafe.com",
+    "price": null
+  },
+  {
+    "domain": "safebank.xyz",
+    "price": null
+  },
+  {
+    "domain": "bytecoin.xyz",
+    "price": null
+  },
+  {
+    "domain": "tismoo.com",
+    "price": null
+  },
+  {
+    "domain": "reggaetop.com",
+    "price": null
+  },
+  {
+    "domain": "manisharma.com",
+    "price": null
+  },
+  {
+    "domain": "keelat.com",
+    "price": null
+  },
+  {
+    "domain": "pizzacalc.com",
+    "price": null
+  },
+  {
+    "domain": "chacoli.com",
+    "price": null
+  },
+  {
+    "domain": "halloweenends.com",
+    "price": null
+  },
+  {
+    "domain": "petstimes.com",
+    "price": null
+  },
+  {
+    "domain": "likedew.com",
+    "price": null
+  },
+  {
+    "domain": "angerfist.com",
+    "price": null
+  },
+  {
+    "domain": "bakushop.com",
+    "price": null
+  },
+  {
+    "domain": "northflo.com",
+    "price": null
+  },
+  {
+    "domain": "renexpo.com",
+    "price": null
+  },
+  {
+    "domain": "toutbien.com",
+    "price": null
+  },
+  {
+    "domain": "pizzafix.com",
+    "price": null
+  },
+  {
+    "domain": "fijital.com",
+    "price": null
+  },
+  {
+    "domain": "timothyronald.com",
+    "price": null
+  },
+  {
+    "domain": "bragus.com",
+    "price": null
+  },
+  {
+    "domain": "livmet.com",
+    "price": null
+  },
+  {
+    "domain": "ottella.com",
+    "price": null
+  },
+  {
+    "domain": "toimsa.com",
+    "price": null
+  },
+  {
+    "domain": "tomtommy.com",
+    "price": null
+  },
+  {
+    "domain": "niceria.com",
+    "price": null
+  },
+  {
+    "domain": "innfact.com",
+    "price": null
+  },
+  {
+    "domain": "shimae.com",
+    "price": null
+  },
+  {
+    "domain": "dinofam.com",
+    "price": null
+  },
+  {
+    "domain": "canalonce.com",
+    "price": null
+  },
+  {
+    "domain": "cuepeak.com",
+    "price": null
+  },
+  {
+    "domain": "nonmute.com",
+    "price": null
+  },
+  {
+    "domain": "scooterplay.com",
+    "price": null
+  },
+  {
+    "domain": "windkat.com",
+    "price": null
+  },
+  {
+    "domain": "fedding.com",
+    "price": null
+  },
+  {
+    "domain": "wannaone.com",
+    "price": null
+  },
+  {
+    "domain": "europafilm.com",
+    "price": null
+  },
+  {
+    "domain": "paybox.xyz",
+    "price": null
+  },
+  {
+    "domain": "torishin.com",
+    "price": null
+  },
+  {
+    "domain": "electrocalc.com",
+    "price": null
+  },
+  {
+    "domain": "robolab.xyz",
+    "price": null
+  },
+  {
+    "domain": "leimet.com",
+    "price": null
+  },
+  {
+    "domain": "seungyeon.com",
+    "price": null
+  },
+  {
+    "domain": "mossecho.com",
+    "price": null
+  },
+  {
+    "domain": "rostoy.com",
+    "price": null
+  },
+  {
+    "domain": "helect.com",
+    "price": null
+  },
+  {
+    "domain": "magglow.com",
+    "price": null
+  },
+  {
+    "domain": "folderholder.com",
+    "price": null
+  },
+  {
+    "domain": "perthevents.com",
+    "price": null
+  },
+  {
+    "domain": "zenpay.xyz",
+    "price": null
+  },
+  {
+    "domain": "amcoff.com",
+    "price": null
+  },
+  {
+    "domain": "medpay.xyz",
+    "price": null
+  },
+  {
+    "domain": "teabox.xyz",
+    "price": null
+  },
+  {
+    "domain": "laserbomb.com",
+    "price": null
+  },
+  {
+    "domain": "europinball.com",
+    "price": null
+  },
+  {
+    "domain": "berlinspa.com",
+    "price": null
+  },
+  {
+    "domain": "grasbrook.com",
+    "price": null
+  },
+  {
+    "domain": "sportmovie.com",
+    "price": null
+  },
+  {
+    "domain": "geogroup.xyz",
+    "price": null
+  },
+  {
+    "domain": "easypayment.xyz",
+    "price": null
+  },
+  {
+    "domain": "rocketpay.xyz",
+    "price": null
+  },
+  {
+    "domain": "catoons.com",
+    "price": null
+  },
+  {
+    "domain": "pepecoin.xyz",
+    "price": null
+  },
+  {
+    "domain": "autosolutions.xyz",
+    "price": null
+  },
+  {
+    "domain": "viapay.xyz",
+    "price": null
+  },
+  {
+    "domain": "pankick.com",
+    "price": null
+  },
+  {
+    "domain": "daoism.xyz",
+    "price": null
+  },
+  {
+    "domain": "gonlan.com",
+    "price": null
+  },
+  {
+    "domain": "forsil.com",
+    "price": null
+  },
+  {
+    "domain": "brandless.xyz",
+    "price": null
+  },
+  {
+    "domain": "metabit.xyz",
+    "price": null
+  },
+  {
+    "domain": "samifood.com",
+    "price": null
+  },
+  {
+    "domain": "shelbynail.com",
+    "price": null
+  },
+  {
+    "domain": "diedron.com",
+    "price": null
+  },
+  {
+    "domain": "parchez.com",
+    "price": null
+  },
+  {
+    "domain": "itomol.com",
+    "price": null
+  },
+  {
+    "domain": "smartfitness.xyz",
+    "price": null
+  },
+  {
+    "domain": "adapark.com",
+    "price": null
+  },
+  {
+    "domain": "alarmeco.com",
+    "price": null
+  },
+  {
+    "domain": "ossine.com",
+    "price": null
+  },
+  {
+    "domain": "artporte.com",
+    "price": null
+  },
+  {
+    "domain": "mscapes.com",
+    "price": null
+  },
+  {
+    "domain": "deepcoin.xyz",
+    "price": null
+  },
+  {
+    "domain": "smartscan.xyz",
+    "price": null
+  },
+  {
+    "domain": "majuss.com",
+    "price": null
+  },
+  {
+    "domain": "idealknight.com",
+    "price": null
+  },
+  {
+    "domain": "justdepressed.com",
+    "price": null
+  },
+  {
+    "domain": "gripshot.com",
+    "price": null
+  },
+  {
+    "domain": "geocage.com",
+    "price": null
+  },
+  {
+    "domain": "hotbet.xyz",
+    "price": null
+  },
+  {
+    "domain": "dropcatch.xyz",
+    "price": null
+  },
+  {
+    "domain": "taudent.com",
+    "price": null
+  },
+  {
+    "domain": "theestallion.com",
+    "price": null
+  },
+  {
+    "domain": "mamlay.com",
+    "price": null
+  },
+  {
+    "domain": "webcasino.xyz",
+    "price": null
+  },
+  {
+    "domain": "csrholding.com",
+    "price": null
+  },
+  {
+    "domain": "jeremytis.com",
+    "price": null
+  },
+  {
+    "domain": "mentorexport.com",
+    "price": null
+  },
+  {
+    "domain": "aromafest.com",
+    "price": null
+  },
+  {
+    "domain": "skywell.xyz",
+    "price": null
+  },
+  {
+    "domain": "telepay.xyz",
+    "price": null
+  },
+  {
+    "domain": "magicstudio.xyz",
+    "price": null
+  },
+  {
+    "domain": "volrad.com",
+    "price": null
+  },
+  {
+    "domain": "trustlink.xyz",
+    "price": null
+  },
+  {
+    "domain": "nextpay.xyz",
+    "price": null
+  },
+  {
+    "domain": "playpal.xyz",
+    "price": null
+  },
+  {
+    "domain": "newpost.net",
+    "price": null
+  },
+  {
+    "domain": "transserver.com",
+    "price": null
+  },
+  {
+    "domain": "fitnesspro.xyz",
+    "price": null
+  },
+  {
+    "domain": "skyswallow.com",
+    "price": null
+  },
+  {
+    "domain": "fireguard.xyz",
+    "price": null
+  },
+  {
+    "domain": "skypay.xyz",
+    "price": null
+  },
+  {
+    "domain": "airtrack.xyz",
+    "price": null
+  },
+  {
+    "domain": "poppypaws.com",
+    "price": null
+  },
+  {
+    "domain": "livepay.xyz",
+    "price": null
+  },
+  {
+    "domain": "thekam.com",
+    "price": null
+  },
+  {
+    "domain": "smartchat.xyz",
+    "price": null
+  },
+  {
+    "domain": "paulasara.com",
+    "price": null
+  },
+  {
+    "domain": "ecocars.xyz",
+    "price": null
+  },
+  {
+    "domain": "citygroup.xyz",
+    "price": null
+  },
+  {
+    "domain": "motoshop.xyz",
+    "price": null
+  },
+  {
+    "domain": "micropay.xyz",
+    "price": null
+  },
+  {
+    "domain": "linklab.xyz",
+    "price": null
+  },
+  {
+    "domain": "datasoft.xyz",
+    "price": null
+  },
+  {
+    "domain": "paybill.xyz",
+    "price": null
+  },
+  {
+    "domain": "flas.xyz",
+    "price": null
+  },
+  {
+    "domain": "megaport.xyz",
+    "price": null
+  },
+  {
+    "domain": "proguide.xyz",
+    "price": null
+  },
+  {
+    "domain": "speedpay.xyz",
+    "price": null
+  },
+  {
+    "domain": "arared.com",
+    "price": null
+  },
+  {
+    "domain": "flyshop.xyz",
+    "price": null
+  },
+  {
+    "domain": "paybank.xyz",
+    "price": null
+  },
+  {
+    "domain": "skyart.xyz",
+    "price": null
+  },
+  {
+    "domain": "powerteam.xyz",
+    "price": null
+  },
+  {
+    "domain": "japs.xyz",
+    "price": null
+  },
+  {
+    "domain": "stylehub.xyz",
+    "price": null
+  },
+  {
+    "domain": "parisvibes.com",
+    "price": null
+  },
+  {
+    "domain": "carey.xyz",
+    "price": null
+  },
+  {
+    "domain": "slotbet.xyz",
+    "price": null
+  },
+  {
+    "domain": "topcasinos.xyz",
+    "price": null
+  },
+  {
+    "domain": "facelab.xyz",
+    "price": null
+  },
+  {
+    "domain": "brandbank.xyz",
+    "price": null
+  },
+  {
+    "domain": "wishbox.xyz",
+    "price": null
+  },
+  {
+    "domain": "seasonbags.com",
+    "price": null
+  },
+  {
+    "domain": "bitpass.xyz",
+    "price": null
+  },
+  {
+    "domain": "taxishow.com",
+    "price": null
+  },
+  {
+    "domain": "terralabs.xyz",
+    "price": null
+  },
+  {
+    "domain": "trendbebe.com",
+    "price": null
+  },
+  {
+    "domain": "saeima.com",
+    "price": null
+  },
+  {
+    "domain": "hotberg.com",
+    "price": null
+  },
+  {
+    "domain": "veganshop.xyz",
+    "price": null
+  },
+  {
+    "domain": "airbank.xyz",
+    "price": null
+  },
+  {
+    "domain": "textron.xyz",
+    "price": null
+  },
+  {
+    "domain": "tokasa.com",
+    "price": null
+  },
+  {
+    "domain": "cutefits.com",
+    "price": null
+  },
+  {
+    "domain": "shahbaba.com",
+    "price": null
+  },
+  {
+    "domain": "lashday.com",
+    "price": null
+  },
+  {
+    "domain": "proconvey.com",
+    "price": null
+  },
+  {
+    "domain": "megadeals.xyz",
+    "price": null
+  },
+  {
+    "domain": "jobster.xyz",
+    "price": null
+  },
+  {
+    "domain": "ultragroup.xyz",
+    "price": null
+  },
+  {
+    "domain": "appbox.xyz",
+    "price": null
+  },
+  {
+    "domain": "dnatest.xyz",
+    "price": null
+  },
+  {
+    "domain": "easyapp.xyz",
+    "price": null
+  },
+  {
+    "domain": "calmly.xyz",
+    "price": null
+  },
+  {
+    "domain": "jeonghan.com",
+    "price": null
+  },
+  {
+    "domain": "icover.xyz",
+    "price": null
+  },
+  {
+    "domain": "keylab.xyz",
+    "price": null
+  },
+  {
+    "domain": "profood.xyz",
+    "price": null
+  },
+  {
+    "domain": "corelab.xyz",
+    "price": null
+  },
+  {
+    "domain": "betclub.xyz",
+    "price": null
+  },
+  {
+    "domain": "vostas.com",
+    "price": null
+  },
+  {
+    "domain": "stamaga.com",
+    "price": null
+  },
+  {
+    "domain": "onecasino.xyz",
+    "price": null
+  },
+  {
+    "domain": "saadon.com",
+    "price": null
+  },
+  {
+    "domain": "whostea.com",
+    "price": null
+  },
+  {
+    "domain": "aqualux.xyz",
+    "price": null
+  },
+  {
+    "domain": "dealhub.xyz",
+    "price": null
+  },
+  {
+    "domain": "covidstop.com",
+    "price": null
+  },
+  {
+    "domain": "chotime.com",
+    "price": null
+  },
+  {
+    "domain": "mostidea.com",
+    "price": null
+  },
+  {
+    "domain": "emirel.com",
+    "price": null
+  },
+  {
+    "domain": "friets.com",
+    "price": null
+  },
+  {
+    "domain": "lamvita.com",
+    "price": null
+  },
+  {
+    "domain": "vitaextra.com",
+    "price": null
+  },
+  {
+    "domain": "cardong.com",
+    "price": null
+  },
+  {
+    "domain": "rangnick.com",
+    "price": null
+  },
+  {
+    "domain": "trapmovie.com",
+    "price": null
+  },
+  {
+    "domain": "fakecamper.com",
+    "price": null
+  },
+  {
+    "domain": "donaska.com",
+    "price": null
+  },
+  {
+    "domain": "lovechrome.com",
+    "price": null
+  },
+  {
+    "domain": "parill.com",
+    "price": null
+  },
+  {
+    "domain": "gerberry.com",
+    "price": null
+  },
+  {
+    "domain": "leasepia.com",
+    "price": null
+  },
+  {
+    "domain": "redkill.com",
+    "price": null
+  },
+  {
+    "domain": "catbal.com",
+    "price": null
+  },
+  {
+    "domain": "purevance.com",
+    "price": null
+  },
+  {
+    "domain": "bedrotting.com",
+    "price": null
+  },
+  {
+    "domain": "dreamydawn.com",
+    "price": null
+  },
+  {
+    "domain": "urbangaze.com",
+    "price": null
+  },
+  {
+    "domain": "huerain.com",
+    "price": null
+  },
+  {
+    "domain": "soeven.com",
+    "price": null
+  },
+  {
+    "domain": "torikami.com",
+    "price": null
+  },
+  {
+    "domain": "blucalm.com",
+    "price": null
+  },
+  {
+    "domain": "hamong.com",
+    "price": null
+  },
+  {
+    "domain": "covidupdates.com",
+    "price": null
+  },
+  {
+    "domain": "tokyosauna.com",
+    "price": null
+  },
+  {
+    "domain": "joseche.com",
+    "price": null
+  },
+  {
+    "domain": "kidsfunny.com",
+    "price": null
+  },
+  {
+    "domain": "transisi.com",
+    "price": null
+  },
+  {
+    "domain": "dearmine.com",
+    "price": null
+  },
+  {
+    "domain": "hyebin.com",
+    "price": null
+  },
+  {
+    "domain": "magnethandel.com",
+    "price": null
+  },
+  {
+    "domain": "hofast.com",
+    "price": null
+  },
+  {
+    "domain": "moviegraf.com",
+    "price": null
+  },
+  {
+    "domain": "babepapa.com",
+    "price": null
+  },
+  {
+    "domain": "yeacomm.com",
+    "price": null
+  },
+  {
+    "domain": "vietlight.com",
+    "price": null
+  },
+  {
+    "domain": "chusky.com",
+    "price": null
+  },
+  {
+    "domain": "waraha.com",
+    "price": null
+  },
+  {
+    "domain": "maedong.com",
+    "price": null
+  },
+  {
+    "domain": "gargone.com",
+    "price": null
+  },
+  {
+    "domain": "oralseven.com",
+    "price": null
+  },
+  {
+    "domain": "benebis.com",
+    "price": null
+  },
+  {
+    "domain": "sukman.com",
+    "price": null
+  },
+  {
+    "domain": "basicoutfit.com",
+    "price": null
+  },
+  {
+    "domain": "minpres.com",
+    "price": null
+  },
+  {
+    "domain": "centergaz.com",
+    "price": null
+  },
+  {
+    "domain": "modisan.com",
+    "price": null
+  },
+  {
+    "domain": "maulina.com",
+    "price": null
+  },
+  {
+    "domain": "busprestige.com",
+    "price": null
+  },
+  {
+    "domain": "simpax.com",
+    "price": null
+  },
+  {
+    "domain": "twistpak.com",
+    "price": null
+  },
+  {
+    "domain": "akamsi.com",
+    "price": null
+  },
+  {
+    "domain": "medoman.com",
+    "price": null
+  },
+  {
     "domain": "zoobazaar.com",
     "price": null
   },
@@ -209,43 +2941,43 @@
   },
   {
     "domain": "skylineavenue.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "rappersclub.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "performaudit.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "hoteltranquil.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "aurasunglasses.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "hologramwork.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "ourpassions.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "hometariff.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "seekingminds.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "prosmoking.com",
-    "price": 9998.0
+    "price": null
   },
   {
     "domain": "zeroday.ai",
@@ -60197,7 +62929,7 @@
   },
   {
     "domain": "earthyfarm.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "gymtoys.com",
@@ -60757,3603 +63489,3603 @@
   },
   {
     "domain": "adultsgroup.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "adulttoy.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "agentpayment.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "agentshelpline.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "agentsnetwork.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "agentspayment.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "agentsworkflow.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "agentsworkflow.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "allcousins.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "amenservices.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "analyticsai.ai",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "analytictest.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "animejewellery.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "anonbots.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "apeseller.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "artificialpost.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "askcustomers.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "assistrobo.com",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "associatebot.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "associateclaw.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "athenasecurity.net",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "attorneygeneva.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "automatedbuy.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "automaticalert.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "avengersgame.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "betsrepublic.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "betterchickens.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "bettingover.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "biologyrobot.com",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "bionicfootwear.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "bionicshoe.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "biotecheng.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "bitcoinblues.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "bizinvesting.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "blazingnetwork.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "blessstores.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "bluecorp.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "bodyguardrobot.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "bookdiner.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "boseheadphones.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "botcomputers.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "brainchip.org",
-    "price": 190000.0
+    "price": null
   },
   {
     "domain": "brandworld.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "briskservice.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "brokerservice.net",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "bronzenetworks.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "bullishnetwork.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "burgersonline.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "cafebubbles.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "cafereunion.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "canvaspainter.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "caringbots.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "carseller.net",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "cartoonsai.com",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "cashchan.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "casinoolympus.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "ceramicchip.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "ceramicmemory.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "cfoclaw.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "chatenquiry.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "chatpay.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "cheapexport.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "checkoutbots.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "clashbetting.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudeanalyst.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudeaudit.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudeauditing.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudeauditor.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudebroker.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudecfo.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudecoding.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudecomputer.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudecoo.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudedeal.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudedealer.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudeemployee.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudeescrow.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudeexcel.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudefunnel.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudelens.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudemail.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudemessage.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudemessages.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudemobile.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudemoney.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudeneural.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudepatch.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudescanner.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudesecure.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudesell.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudeseller.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudevideos.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "claudeworker.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "clawanalyst.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "clawauditing.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "clawcfo.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "clawcoo.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "clawexecutive.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "cleaningrobo.com",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "clichemagazine.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "climbingrobo.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "clouddinner.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "cloudfootwear.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "cloudmesh.co",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "clubadrenaline.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "clubintl.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "codingdeep.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "cognit.co",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "cognitivedept.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "comedyshow.org",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "computerslab.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "consciousrobo.com",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "cooagent.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "coolantgroup.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "coolfries.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "coolgals.com",
-    "price": 18000.0
+    "price": null
   },
   {
     "domain": "coolsauna.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "corperp.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "corporatesucks.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "courierrobo.com",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "cousinbrother.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "coworkerrobo.com",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "coworkerrobots.com",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "crawlingrobot.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "creatorsavenue.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "creduni.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "crunchybowl.com",
-    "price": 18000.0
+    "price": null
   },
   {
     "domain": "cubebetting.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "customclothes.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "customerhelp.net",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "customizecode.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "customizedhost.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "customizedress.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "customizemodel.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "customsdept.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "cuteelephant.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "deafsolution.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "deaftreatment.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "decidedai.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "deffend.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "delightcash.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "demorocket.com",
-    "price": 36000.0
+    "price": null
   },
   {
     "domain": "denimsneakers.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "denimtop.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "denimtops.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "desktoprobo.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "detailingcorp.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "diagnosistools.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "diamondfaucet.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "dietbeer.com",
-    "price": 190000.0
+    "price": null
   },
   {
     "domain": "dirtybots.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "docketexpress.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "documentmailer.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "dogecaucus.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "dogedepartment.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "dogedesigner.com",
-    "price": 39998.0
+    "price": null
   },
   {
     "domain": "domefarming.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "doomprompting.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "draftingbot.com",
-    "price": 100000.0
+    "price": null
   },
   {
     "domain": "dragonbistro.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "dreamgambling.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "dreamsports.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "dumpsterrobot.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "easterntour.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "economickart.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "ecstasycasino.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "ediblecandies.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "electricsex.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "elegantbanquet.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "emergencyvisa.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "emiratesagro.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "employeesgroup.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "employhumanoid.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "englishherald.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "englishtailor.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "enquiretoday.com",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "ethereumphone.net",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "ethernetlab.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "etherphone.com",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "ethnicavenue.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "ethphone.com",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "examcredit.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "exceptionalbot.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "expensivebet.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "explicitphotos.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "expressfixing.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "facelessgirl.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "facelessloans.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "fantasyorg.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "fathomstore.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "filechan.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "finance.xyz",
-    "price": 390000.0
+    "price": null
   },
   {
     "domain": "finpersonal.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "fishagro.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "fishermanstore.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "fishindustries.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "fitelephant.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "floorrobo.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "flowprocessor.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "followermax.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "followpassion.com",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "footballlive.net",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "fortunefoods.net",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "foxlabs.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "fragmentbot.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "friendsclub.net",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "fruittablet.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "fruittablets.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "fuckingcompany.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "fuckinghealthy.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "fulfilldream.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "funneling.net",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "furrydelights.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "futuristicchip.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "galsstore.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "galvibe.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "gamingodyssey.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "gamingultra.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "ganeshtraders.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "gazeassistant.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "genericrobo.com",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "gentlemanpoker.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "gestureglasses.com",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "gestureheadset.com",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "girltaxi.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "glasseslimited.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "goldaffair.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "golfvirtual.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "gotchastore.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "grabbeer.com",
-    "price": 190000.0
+    "price": null
   },
   {
     "domain": "grammarassist.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "grapesai.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "graphicchip.com",
-    "price": 190000.0
+    "price": null
   },
   {
     "domain": "greenlandstore.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "greensodas.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "growthcapsules.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "gumsai.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "happyhornet.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "hawkeyeglasses.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "healthheadset.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "hearsolution.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "hedgesol.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "heliumclub.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "helperrobo.com",
-    "price": 390000.0
+    "price": null
   },
   {
     "domain": "helpingrobo.com",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "herbalgummy.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "herbalwhisky.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "heritagebeer.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "historicmoment.com",
-    "price": 390000.0
+    "price": null
   },
   {
     "domain": "hobbyplatform.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "hologramband.com",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "hondaelectric.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "honeyescort.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "hotelantwerp.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "hotelblueberry.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "hoteleastern.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "hotelleopold.com",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "hotelpandora.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "hotelrefresh.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "hotelspencer.com",
-    "price": 190000.0
+    "price": null
   },
   {
     "domain": "hoteltequila.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "houseapparel.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "hugeenterprise.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "hunteralpha.co",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "hypersuits.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "illegalmarket.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "imperfection.net",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "importantbot.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "importish.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "incognitocafe.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "increasedreach.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "indigenoushub.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "industrialrobo.com",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "infantmonitor.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "infantstores.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "insectsolution.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "inspectionrobo.com",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "instantediting.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "internrobo.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "internrobot.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "irisglasses.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "ironinfra.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "japanhardcore.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "jeansshoes.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "jesusservices.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "joltbikes.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "jpegphoto.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "juscash.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "killerbetting.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "knittedshoes.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "labourtools.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "landingsoft.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "lazyhelper.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "leaserobo.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "leashbar.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "likesgenerator.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "likeszone.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "linuxengine.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "linuxkali.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "linuxpayment.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "linuxpayments.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "liquiddrugs.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "liveassistants.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "liveearbuds.com",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "liveearphones.com",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "liveheadset.com",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "localkart.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "lowinvestments.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "lusciousevents.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "luxmarket.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "luxproperty.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "luxurioushaven.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "luxurycloth.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "luxwhisky.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "magiccleanser.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "magiccompose.com",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "magnificentbot.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "makerdao.net",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "makingfriend.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "maniapoker.com",
-    "price": 36000.0
+    "price": null
   },
   {
     "domain": "mannedhumanoid.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "mantrafashion.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "manualjobs.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "manyolo.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "maritimesystem.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "markanthony.net",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "marvelousbot.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "massagerai.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "matchmakingbot.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "maximais.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "maxsunglasses.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "medicalheadset.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "meecash.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "megabets.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "memberfin.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "mensoap.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "mentalworkouts.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "meshenterprise.com",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "meshservice.com",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "meshstores.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "metadresses.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "metaoutfits.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "metaworkouts.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "metaworkplace.net",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "mimichumanoid.com",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "mimicrobo.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "mimistores.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "mindbrowsing.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "minimalads.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "mirrortoday.com",
-    "price": 36000.0
+    "price": null
   },
   {
     "domain": "mobilcampaign.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "mobilecabin.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "mobileparcel.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "mobiltrading.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "mobkiosk.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "modularglasses.com",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "monetaryspace.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "moneyleasing.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "monicawallet.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "monkeybeers.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "mortarshop.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "mrsdental.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "mumbaigame.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "muscleinside.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "muslimsportal.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "nachochip.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "nearbypayment.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "nearbypayments.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "networkbasket.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "networksbot.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "neuralclaude.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "neurofootwear.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "neuroment.com",
-    "price": 72000.0
+    "price": null
   },
   {
     "domain": "newsportal.net",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "nicheservice.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "nileinc.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "noisebloc.com",
-    "price": 8000.0
+    "price": null
   },
   {
     "domain": "nonremote.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "nowkart.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "officeavatar.com",
-    "price": 8000.0
+    "price": null
   },
   {
     "domain": "officialdoge.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "olivesshop.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "onlyfeet.co",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "onlyporn.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "onlyvibes.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "openkeyboard.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "oralwellbeing.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "organichop.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "organicreel.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "organisehome.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "origamirobo.com",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "ourconsultancy.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "ourpickles.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "oxygenbooths.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "packercompany.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "pagesranking.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "pakistanfans.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "palazzocafe.com",
-    "price": 18000.0
+    "price": null
   },
   {
     "domain": "pawpatrol.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "paymentnearby.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "paymentsnearby.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "peakcinema.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "perfectbakers.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "personalmeet.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "petsupervision.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "phoenixheadset.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "phoenixsports.net",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "phoneskart.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "phoneupdates.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "piggyinc.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "pixelphones.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "pizzacompany.net",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "pizzafin.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "planetcult.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "planetfashions.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "playfulrobo.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "playingnetwork.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "playingverse.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "plushjewellery.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "poloclubhouse.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "polywallet.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "pornunlimited.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "potentialleads.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "poultrysystem.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "precioussystem.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "precisionrobo.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "premiumagents.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "premiumhall.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "prestigetowers.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "priestking.com",
-    "price": 390000.0
+    "price": null
   },
   {
     "domain": "primonetworks.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "privateclaude.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "privatelender.net",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "proficientbot.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "programslive.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "prolificstore.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "proxycomputer.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "publiccharger.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "publicterminal.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "puresilver.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "quantumchips.net",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "quantumdisks.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "quantumprog.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "quickstakes.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "quidnetwork.com",
-    "price": 36000.0
+    "price": null
   },
   {
     "domain": "raceclub.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "rainwaterplus.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "readeronline.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "realcarte.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "realfans.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "realgrapes.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "reallyprotein.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "realtorsportal.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "rebelspizza.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "reddydirect.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "reddyproperty.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "redeemfunds.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "redeemvouchers.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "reelsmax.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "refinedbot.com",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "reflectionbot.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "refreshingbeer.com",
-    "price": 190000.0
+    "price": null
   },
   {
     "domain": "relationcenter.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "relaybusiness.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "relianceagro.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "remitsystem.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "rentinggames.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "rentpostings.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "resilientbot.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "restorevis.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "retaildomain.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "retinaglasses.com",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "reversible.net",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "rewriteagent.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "richescort.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "rippletokens.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "roastshow.com",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "robocleaner.net",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "roboenhanced.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "robokeepers.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "robominivan.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "robotadvertise.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "robotcaretaker.com",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "robotclaude.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "robotickitchen.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "roboticsclaude.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "robotimaging.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "robotowing.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "robotpantry.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "robovendors.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "robusthumanoid.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "rocketscompany.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "royalsheikh.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "russiafans.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "salesinquire.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "sandalsgroup.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "sanitarywork.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "sapiensrobo.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "sapiensrobots.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "savebeach.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "scalingbot.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "seagroup.net",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "secureauditor.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "securecheckout.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "securityclaude.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "sellimages.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "sensingrobo.com",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "seventeencafe.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "showcasebiz.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "simplifiedbot.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "skillfulrobot.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "sleekclothes.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "smartbikes.net",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "smarterdesktop.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "smartpant.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "smartpanty.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "smartring.xyz",
-    "price": 190000.0
+    "price": null
   },
   {
     "domain": "socialagents.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "socialbistro.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "socialfeeder.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "societyorg.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "softwareopen.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "solarproject.net",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "sonymobiles.com",
-    "price": 9998.0
+    "price": null
   },
   {
     "domain": "southerncounty.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "spatialmessage.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "spatialsong.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "spatialtablet.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "specialdelight.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "specialwhiskey.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "spinbetty.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "sportcostumes.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "sportsaffair.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "startupszone.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "starwrestling.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "stationerycart.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "storeidentity.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "streetbrewery.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "studentoutfit.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "studiocolours.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "subwaycity.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "suggestionsai.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "suidollar.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "suilending.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "superbowllive.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "superiorpearl.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "supportdoge.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "swagfinance.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "tamilland.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "tecsupport.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "teleengineer.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "tequilabronco.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "terrificbot.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "theklan.com",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "themedcafe.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "thepaprika.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "ticketingrobot.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "titaniumchains.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "tobaccoliquid.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "todaysbetting.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "toddlerscare.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "towermagazine.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "traininggoal.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "transagenda.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "transitbank.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "transitionbot.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "tuitions.net",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "typicallabs.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "ubuntuphone.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "ultimatepub.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "ultrabars.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "uniqueholistic.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "uniwelfare.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "unleashfinance.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "unlimiteddms.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "usashop.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "valuablebot.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vanguardgroup.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vapourless.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vegetablebeer.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "veggiestick.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "veggietreat.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "veggrocery.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vegketo.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vehiclecorp.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeadvise.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeanalyst.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeatmosphere.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeauthentic.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibebeautiful.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeboxer.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeboys.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibebuyer.com",
-    "price": 36000.0
+    "price": null
   },
   {
     "domain": "vibecarry.com",
-    "price": 36000.0
+    "price": null
   },
   {
     "domain": "vibecasual.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibecigar.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeclaims.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibecollect.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibecompanies.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibecookie.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibecouple.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibecradle.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibecurrency.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibedeodorant.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibediscord.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibedrug.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibedrugs.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeelection.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeelevate.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeescrow.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeexcellent.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeexports.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeextreme.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibefavorite.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibefederation.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibefish.com",
-    "price": 36000.0
+    "price": null
   },
   {
     "domain": "vibeflirt.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeforge.net",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibefreely.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibegal.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibegourmet.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibehalloween.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeheadphone.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibehealthier.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibehealthy.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibehotspot.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeinfinity.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeinfluence.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeinstant.com",
-    "price": 36000.0
+    "price": null
   },
   {
     "domain": "vibeinterest.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibelimo.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibemars.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibematches.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibemaximum.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibemember.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibemembership.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeminister.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeministry.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibemust.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibemyself.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeorders.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeoutfits.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeoutlook.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeplatinum.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibepleasure.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibepolo.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibepowder.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeprestige.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeprinter.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeprosperity.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibequestion.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "viberaw.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "viberesponse.com",
-    "price": 36000.0
+    "price": null
   },
   {
     "domain": "viberockstar.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibescooter.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibescroll.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeshares.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeslimited.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibesneaker.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibespeaker.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibesuperior.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibesupplement.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibesupreme.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibetelevision.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibetransfers.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibetraveller.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibetwins.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeunique.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeuploads.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibevendor.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibevocal.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibewanted.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibewrap.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "videopurchase.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "viewassistant.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vikingshill.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vinylartwork.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "virtuallaptops.com",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "visaexpert.net",
-    "price": 9998.0
+    "price": null
   },
   {
     "domain": "visibilitychip.com",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "visibilityrobo.com",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "visionclaude.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "visionlaptop.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "visionsneakers.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "visiontaxis.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "visualizeideas.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "visualizeplan.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "visualrobo.com",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "voidfin.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "walletsgroup.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "walnutscafe.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "wandersolace.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "warcraftgame.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "watersparkling.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "wearablegloves.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "wearableshoe.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "wearableshoes.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "websitesrating.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "werewolfstore.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "whiskeypub.com",
-    "price": 18000.0
+    "price": null
   },
   {
     "domain": "wholebazaar.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "womanshoe.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "womantaxi.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "womenpub.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "woodlandhotel.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "workerhumanoid.com",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "wrinklecontrol.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "xmasplanet.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "yachttaxi.com",
-    "price": 36000.0
+    "price": null
   },
   {
     "domain": "yourcologne.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "yourfashion.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "yourfollower.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "yourpunch.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "zealandbank.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "zenithorg.com",
-    "price": 9998.0
+    "price": null
   },
   {
     "domain": "zodiacblog.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "viveheadset.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "viveglasses.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "falconavenue.com",
-    "price": 18000.0
+    "price": null
   },
   {
     "domain": "skillacquired.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "coworkersclub.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "airlinetokens.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "onlymushrooms.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "gamingorg.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "interpretcode.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "cafetomato.com",
-    "price": 18000.0
+    "price": null
   },
   {
     "domain": "horseknight.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "cleansesystem.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "mounthills.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "empowerlocals.com",
-    "price": 36000.0
+    "price": null
   },
   {
     "domain": "littleauctions.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "ultimatebrazil.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "magicprocessor.com",
-    "price": 36000.0
+    "price": null
   },
   {
     "domain": "easydispenser.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "battlekraft.com",
-    "price": 18000.0
+    "price": null
   },
   {
     "domain": "pureoven.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "housefranchise.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "combatracism.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "chateaurare.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "caterperfect.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "broadbanddaily.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "swordmagazine.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "throwbackvideo.com",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "logisticstruck.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "onlyfeet.org",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "fashionsoles.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "premierbaking.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "candidjewelry.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "nicebrowser.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "powerhospitals.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "inspectroofing.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "cafeadrenaline.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "freshbotanical.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "chemistnetwork.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "fabulouspizzas.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "picsgenerator.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "lionsforever.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "efficientsol.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "nectarstores.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "selfrenewed.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "planetbrewery.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "wheelscentral.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "designercasual.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "complaintcell.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "bioharvesting.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "economycourse.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "cellularchain.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "airportrider.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "maximuspizza.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "zodiacmagazine.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "ticketinquiry.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "carbonsneakers.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "thaifashions.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "supportkamala.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "clayutensils.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "paintnearby.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "rentshuttle.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vanityrobot.com",
-    "price": 36000.0
+    "price": null
   },
   {
     "domain": "neuralgoggles.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "jewelscounty.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "solarorchid.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "briefingbot.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "novafurnish.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "hungryvibe.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "amazecompany.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "lampnews.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "perfectmobiles.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "ultimatebakers.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "virusstatus.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "robocolleague.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vinylcash.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "spartabar.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "watchescentre.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "chefsimulator.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "androidwallet.org",
-    "price": 59998.0
+    "price": null
   },
   {
     "domain": "ultraheadset.com",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "fantasyheadset.com",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "playheadset.com",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "spatiallaptop.com",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "animephoto.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "androidwallet.net",
-    "price": 59998.0
+    "price": null
   },
   {
     "domain": "daggershouse.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "cipherchain.com",
-    "price": 59998.0
+    "price": null
   },
   {
     "domain": "movieheadset.com",
-    "price": 59998.0
+    "price": null
   },
   {
     "domain": "polygonphone.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "watermelonbar.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "universityprof.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "pinkshampoo.com",
-    "price": 18000.0
+    "price": null
   },
   {
     "domain": "lushholiday.com",
-    "price": 36000.0
+    "price": null
   },
   {
     "domain": "thyluxury.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "speakexperts.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "acpproduct.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "acpcatalog.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "acptrader.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "acpshopping.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "acpassist.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "acpstores.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "acpdelivery.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "acpfin.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "acphelper.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "courierrobot.com",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "insideupdates.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "farmingist.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "zincsol.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "shalomjewels.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "zoomenterprise.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "spatialmeet.com",
-    "price": 100000.0
+    "price": null
   },
   {
     "domain": "bitcoinsvendor.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "blesscafe.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "eldercommunity.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "usaretailer.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "grainchips.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "organicblunt.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "chilliplus.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "metroelites.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "gratiscollege.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "fundsix.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "spatialmeeting.com",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "wizpoker.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "gloryperfumes.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "paperstoday.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "wearableoffice.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "groupstudying.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "rockingconcert.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "hungergrill.com",
-    "price": 18000.0
+    "price": null
   },
   {
     "domain": "laundrysol.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "nowwhiskey.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "watchesluxe.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "hotbakers.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "versionupdate.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "partytrance.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "superbbetting.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "casualtrip.com",
-    "price": 18000.0
+    "price": null
   },
   {
     "domain": "trafficsly.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "mrsstylish.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "partyornaments.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "sparklingdress.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "hotelblossom.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "sharelaughter.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "monsoonoffer.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "memberarena.com",
-    "price": 18000.0
+    "price": null
   },
   {
     "domain": "silverrolls.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "protonhotel.com",
-    "price": 36000.0
+    "price": null
   },
   {
     "domain": "velvetsprings.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "photorebuild.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "poshjean.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "nowaqua.com",
-    "price": 36000.0
+    "price": null
   },
   {
     "domain": "deliciouscurry.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "amazingwaffle.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "herbconcept.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "smarterresume.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "cafemalaysia.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "lavishservice.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "hotelnomads.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "healthupdated.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "riseshares.com",
-    "price": 18000.0
+    "price": null
   },
   {
     "domain": "civictrades.com",
-    "price": 36000.0
+    "price": null
   },
   {
     "domain": "psychicbond.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "nectarspaces.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "buildcampaign.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "superiorkebab.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "premiumtulips.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "exploreresort.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "visibleaction.com",
-    "price": 36000.0
+    "price": null
   },
   {
     "domain": "thrillresorts.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "spartacafe.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "pubirish.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "southfinland.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "finestcookies.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "simplifyexams.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "doorstepstore.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "motelriviera.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "walkerhumanoid.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "humanoidwalker.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vegabikes.com",
-    "price": 18000.0
+    "price": null
   },
   {
     "domain": "caretakerrobot.com",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "sparklinglamps.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "vibeunlimited.com",
-    "price": 19998.0
+    "price": null
   },
   {
     "domain": "luxedevice.com",
-    "price": 200000.0
+    "price": null
   },
   {
     "domain": "liveheadphone.com",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "hightuning.com",
@@ -65293,7 +68025,7 @@
   },
   {
     "domain": "smartcare.co",
-    "price": 20000.0
+    "price": 40000.0
   },
   {
     "domain": "sniff.com",
@@ -70437,7 +73169,7 @@
   },
   {
     "domain": "artela.com",
-    "price": 150000.0
+    "price": 175000.0
   },
   {
     "domain": "madstreet.com",
@@ -83769,7 +86501,7 @@
   },
   {
     "domain": "paddlewars.com",
-    "price": null
+    "price": 11250.0
   },
   {
     "domain": "netrelics.net",
@@ -122709,7 +125441,7 @@
   },
   {
     "domain": "tayvoodoo.com",
-    "price": 37500.0
+    "price": 70326.0
   },
   {
     "domain": "estwise.com",
@@ -141642,10 +144374,6 @@
   {
     "domain": "lildick.com",
     "price": null
-  },
-  {
-    "domain": "paybank.xyz",
-    "price": 9888.0
   },
   {
     "domain": "zeusinsights.com",
@@ -172042,10 +174770,6 @@
   {
     "domain": "sampleagent.com",
     "price": 24500.0
-  },
-  {
-    "domain": "freshmind.xyz",
-    "price": 26888.0
   },
   {
     "domain": "powertime.xyz",
@@ -214332,10 +217056,6 @@
     "price": null
   },
   {
-    "domain": "telesis.xyz",
-    "price": null
-  },
-  {
     "domain": "unisky.xyz",
     "price": null
   },
@@ -222509,10 +225229,6 @@
   },
   {
     "domain": "spacemedia.xyz",
-    "price": null
-  },
-  {
-    "domain": "airstudio.xyz",
     "price": null
   },
   {
@@ -241985,10 +244701,6 @@
   },
   {
     "domain": "triana.xyz",
-    "price": 1988.0
-  },
-  {
-    "domain": "skywell.xyz",
     "price": 1988.0
   },
   {
@@ -307352,10 +310064,6 @@
     "price": null
   },
   {
-    "domain": "foodhouse.co",
-    "price": 3000.0
-  },
-  {
     "domain": "cryptoversa.com",
     "price": null
   },
@@ -316133,10 +318841,6 @@
   },
   {
     "domain": "finecollection.com",
-    "price": null
-  },
-  {
-    "domain": "emilykim.com",
     "price": null
   },
   {
@@ -330634,10 +333338,6 @@
   {
     "domain": "happypics.com",
     "price": 2499.0
-  },
-  {
-    "domain": "magreader.com",
-    "price": 999.0
   },
   {
     "domain": "trafficvendor.com",
@@ -362048,10 +364748,6 @@
     "price": null
   },
   {
-    "domain": "citipro.com",
-    "price": null
-  },
-  {
     "domain": "studiomac.com",
     "price": null
   },
@@ -365953,7 +368649,7 @@
   },
   {
     "domain": "fedsmart.com",
-    "price": 5000.0
+    "price": 25000.0
   },
   {
     "domain": "bioassets.com",
