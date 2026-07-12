@@ -1,15 +1,11 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 2,
   "domains": [
-    "tumors.co",
-    "repeatedly.org",
-    "seizures.co",
-    "interrogation.co",
-    "dysfunction.co",
-    "eaten.org"
+    "explains.io",
+    "surprised.com"
   ],
-  "generated_at": "2026-07-11T08:17:38.169877+00:00",
+  "generated_at": "2026-07-12T08:13:22.407925+00:00",
   "mub": [],
   "source": "afternic"
 }
