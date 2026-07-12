@@ -1,26 +1,30 @@
 [
   {
-    "domain": "naitao.com",
-    "price": 3229.0
+    "domain": "rending.com",
+    "price": 3943.0
   },
   {
-    "domain": "dissolves.com",
+    "domain": "yielded.com",
     "price": null
+  },
+  {
+    "domain": "migrations.com",
+    "price": 66000.0
+  },
+  {
+    "domain": "chiesa.ai",
+    "price": 5999.0
+  },
+  {
+    "domain": "giochi.ai",
+    "price": 14988.0
   },
   {
     "domain": "derbys.net",
     "price": 990.0
   },
   {
-    "domain": "beaute.net",
-    "price": 6995.0
-  },
-  {
-    "domain": "depending.net",
-    "price": 2795.0
-  },
-  {
-    "domain": "oscillation.net",
-    "price": 10595.0
+    "domain": "actionscript.net",
+    "price": null
   }
 ]
