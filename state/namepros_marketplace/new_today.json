@@ -1,14 +1,15 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 6,
   "domains": [
-    "9978.com",
-    "abl.io",
-    "funding.to",
-    "logon.co",
-    "planes.xyz"
+    "ansar.org",
+    "bug.to",
+    "concise.me",
+    "covet.co",
+    "laugh.to",
+    "sanders.net"
   ],
-  "generated_at": "2026-07-12T17:05:43.745092+00:00",
+  "generated_at": "2026-07-12T23:06:39.619027+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
