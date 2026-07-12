@@ -1,11 +1,10 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 1,
   "domains": [
-    "telco.io",
-    "latter.io"
+    "yaly.com"
   ],
-  "generated_at": "2026-07-11T09:37:37.005344+00:00",
+  "generated_at": "2026-07-12T09:38:41.940233+00:00",
   "mub": [],
   "source": "parkio_auctions"
 }

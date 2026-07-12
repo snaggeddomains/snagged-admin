@@ -1,20 +1,20 @@
 {
   "capped": false,
-  "count": 11,
+  "count": 9,
   "domains": [
-    "lub.io",
-    "scorey.com",
-    "passers.org",
-    "5979.com",
-    "thmy.com",
-    "zoology.co",
-    "quantities.org",
-    "ourface.com",
-    "trimmen.com",
-    "eosm.com",
-    "iisa.org"
+    "sendee.com",
+    "bonah.com",
+    "nghe.com",
+    "altt.com",
+    "odesia.com",
+    "broader.co",
+    "vrpe.com",
+    "shyv.com",
+    "hdmh.com"
   ],
-  "generated_at": "2026-07-11T09:42:49.357065+00:00",
-  "mub": [],
+  "generated_at": "2026-07-12T09:44:07.558906+00:00",
+  "mub": [
+    "bonah.com"
+  ],
   "source": "godaddy_auctions"
 }

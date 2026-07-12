@@ -1,29 +1,11 @@
 [
   {
-    "bid_count": 20,
-    "domain": "ggeasy.com",
-    "end_time_utc": "2026-07-11T15:00:00+00:00",
+    "bid_count": 69,
+    "domain": "tskj.com",
+    "end_time_utc": "2026-07-13T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/ggeasy.com",
+    "link": "https://www.namesilo.com/auctions/tskj.com",
     "platform": "NameSilo",
-    "price": 115.0
-  },
-  {
-    "bid_count": 20,
-    "domain": "nhxt.com",
-    "end_time_utc": "2026-07-11T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/nhxt.com",
-    "platform": "NameSilo",
-    "price": 182.0
-  },
-  {
-    "bid_count": 62,
-    "domain": "rcne.com",
-    "end_time_utc": "2026-07-11T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/rcne.com",
-    "platform": "NameSilo",
-    "price": 929.0
+    "price": 545.0
   }
 ]
