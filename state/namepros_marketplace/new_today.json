@@ -1,13 +1,19 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 10,
   "domains": [
-    "acid.org",
-    "caffeine.xyz",
-    "purse.app",
-    "vict.xyz"
+    "1661.ai",
+    "advertiser.dev",
+    "aic.ai",
+    "deployments.dev",
+    "digestion.app",
+    "latch.co",
+    "pitches.dev",
+    "references.app",
+    "relevance.co",
+    "thrusters.app"
   ],
-  "generated_at": "2026-07-11T23:07:14.302224+00:00",
+  "generated_at": "2026-07-12T10:06:33.811085+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
