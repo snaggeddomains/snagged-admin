@@ -1,11 +1,8 @@
 {
   "capped": false,
-  "count": 2,
-  "domains": [
-    "explains.io",
-    "surprised.com"
-  ],
-  "generated_at": "2026-07-12T08:13:22.407925+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-07-13T08:11:45.175220+00:00",
   "mub": [],
   "source": "afternic"
 }
