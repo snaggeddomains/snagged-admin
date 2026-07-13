@@ -1,13 +1,17 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 8,
   "domains": [
-    "acre.xyz",
-    "bayside.co",
-    "initiate.co",
-    "stable.co"
+    "674.co",
+    "alarms.now",
+    "delay.now",
+    "lien.now",
+    "menus.now",
+    "presents.now",
+    "safety.now",
+    "subcontract.now"
   ],
-  "generated_at": "2026-07-13T10:06:33.153654+00:00",
+  "generated_at": "2026-07-13T17:06:37.279518+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
