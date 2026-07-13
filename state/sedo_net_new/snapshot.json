@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "currency": "USD",
+    "domain": "qbk.com",
+    "end_time_utc": "2026-07-13T13:39:07+00:00",
+    "is_mub": false,
+    "price": 149500.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=qbk.com"
+  }
+]
