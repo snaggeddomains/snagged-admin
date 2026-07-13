@@ -1,15 +1,13 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 4,
   "domains": [
-    "ansar.org",
-    "bug.to",
-    "concise.me",
-    "covet.co",
-    "laugh.to",
-    "sanders.net"
+    "acre.xyz",
+    "bayside.co",
+    "initiate.co",
+    "stable.co"
   ],
-  "generated_at": "2026-07-12T23:06:39.619027+00:00",
+  "generated_at": "2026-07-13T10:06:33.153654+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
