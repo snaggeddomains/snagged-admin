@@ -1,17 +1,13 @@
 {
   "capped": false,
-  "count": 8,
+  "count": 4,
   "domains": [
-    "674.co",
-    "alarms.now",
-    "delay.now",
-    "lien.now",
-    "menus.now",
-    "presents.now",
-    "safety.now",
-    "subcontract.now"
+    "cube.co",
+    "intertidal.com",
+    "reactors.co",
+    "scot.org"
   ],
-  "generated_at": "2026-07-13T17:06:37.279518+00:00",
+  "generated_at": "2026-07-13T23:06:33.520513+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
