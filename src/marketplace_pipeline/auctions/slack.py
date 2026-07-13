@@ -12,7 +12,28 @@ from typing import Any
 from ..publishers import slack as slack_pub
 
 
-def format_section(*, label: str, listings: list[dict[str, Any]], top_n: int = 12) -> list[str]:
+def _price_str(price: Any) -> str:
+    if price is None or price == "":
+        return "—"
+    try:
+        p = float(price)
+        return f"${p:,.0f}" if p >= 1000 else f"${p:.0f}"
+    except (TypeError, ValueError):
+        return f"${price}"
+
+
+def format_line(x: dict[str, Any], *, source_label: str | None = None) -> str:
+    """One auction row. `source_label` tags the source (used by the cross-source
+    'closing today' roundup so a row shows which platform it's on)."""
+    domain = x.get("domain", "")
+    time_left = x.get("time_left", "")
+    link = x.get("link")
+    src = f" · {source_label}" if source_label else ""
+    link_suffix = f"  <{link}|link>" if link else ""
+    return f"• {domain}  {_price_str(x.get('price'))}  ends {time_left}{src}{link_suffix}"
+
+
+def format_section(*, label: str, listings: list[dict[str, Any]], top_n: int | None = None) -> list[str]:
     """Return a list of message lines for one auction source.
 
     Lines look like:
@@ -20,6 +41,8 @@ def format_section(*, label: str, listings: list[dict[str, Any]], top_n: int = 1
         • example.com  $42  ends 2d 3h
         • foo.com      $120 ends 4h 12m
         ...
+    `top_n=None` (default) shows EVERY row — nothing is cut off (a truncated
+    watchlist hides names that close today). Pass an int only to cap.
     (MUB picks are surfaced separately by the orchestrator, not mixed in here.)
     """
     lines: list[str] = [f"*{label}* — {len(listings)} auctions"]
@@ -29,24 +52,11 @@ def format_section(*, label: str, listings: list[dict[str, Any]], top_n: int = 1
 
     # Caller is expected to sort by end_time ascending so soonest endings
     # surface first. We don't re-sort here.
-    for x in listings[:top_n]:
-        price = x.get("price")
-        if price is None or price == "":
-            price_str = "—"
-        else:
-            try:
-                p = float(price)
-                price_str = f"${p:,.0f}" if p >= 1000 else f"${p:.0f}"
-            except (TypeError, ValueError):
-                price_str = f"${price}"
-        time_left = x.get("time_left", "")
-        domain = x.get("domain", "")
-        link = x.get("link")
-        # Domain rendered plain; "link" hyperlink at end if a URL exists.
-        link_suffix = f"  <{link}|link>" if link else ""
-        lines.append(f"• {domain}  {price_str}  ends {time_left}{link_suffix}")
+    shown = listings if top_n is None else listings[:top_n]
+    for x in shown:
+        lines.append(format_line(x))
 
-    if len(listings) > top_n:
+    if top_n is not None and len(listings) > top_n:
         lines.append(f"… and {len(listings) - top_n} more")
     return lines
 

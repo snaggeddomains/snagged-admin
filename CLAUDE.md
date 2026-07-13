@@ -317,6 +317,21 @@ sync with the code. Pipeline:
   `reddit_domains`) mark MUB lines with ✨ + `· N ✨ MUB` in the headline. Tests:
   `tests/test_mub.py`.
 
+## Auctions watchlist — closing-today urgency + no row truncation (2026-07-11)
+
+The morning **Auctions watchlist** Slack post (`auctions/orchestrator.py` + `auctions/
+slack.py`) got two changes for urgency + completeness:
+- **⏰ Closing TODAY roundup pinned to the top** — a cross-source section listing EVERY
+  name whose auction ends today (business-tz `America/New_York` calendar day, `_closes_today`),
+  soonest-first, each row tagged with its source. Built in `_closing_today_section`.
+- **No more "… and N more" truncation** — `format_section(top_n=None)` now renders ALL rows
+  per source (a truncated watchlist hides names that close today). To stay under Slack's 40k
+  `chat.postMessage` limit, a heavy day is split into multiple posts (`_chunk_lines`,
+  `MAX_MESSAGE_CHARS=38000`) at row boundaries rather than dropping rows; dedupe rides the
+  first chunk (identical re-run still skipped). `format_line` is the shared row renderer.
+  The **MUB picks** post is unchanged (still a curated top-20). Tests:
+  `tests/test_auctions_orchestrator.py` (+ slack).
+
 # Working agreements
 
 ## Probes and one-shot scripts: run locally by default

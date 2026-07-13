@@ -21,6 +21,7 @@ import os
 import traceback
 from datetime import datetime, timezone
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from .. import auctions, config, state
 from . import slack as auctions_slack
@@ -28,6 +29,12 @@ from . import sheet as auctions_sheet
 
 ORCHESTRATOR_ID = "auctions_publish"
 STATE_NAMESPACE = "auctions"
+# "Closing today" is judged in the business timezone (ET) so it means today on our
+# clock, not a UTC calendar day that flips mid-afternoon.
+BUSINESS_TZ = ZoneInfo("America/New_York")
+# Stay safely under Slack's 40k-char chat.postMessage limit; a heavy day chunks into
+# multiple posts so we NEVER drop rows to fit one message.
+MAX_MESSAGE_CHARS = 38000
 REFRESH_STATUS_FILE = "refresh_status.json"
 
 SHEET_URL_TEMPLATE = "https://docs.google.com/spreadsheets/d/{sheet_id}/edit"
@@ -167,6 +174,50 @@ def _all_enriched(statuses: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return out
 
 
+def _closes_today(end_dt: datetime, now: datetime) -> bool:
+    """True if the auction ends later TODAY (business-tz calendar day)."""
+    return end_dt > now and end_dt.astimezone(BUSINESS_TZ).date() == now.astimezone(BUSINESS_TZ).date()
+
+
+def _closing_today_section(statuses: list[dict[str, Any]], now: datetime) -> list[str] | None:
+    """A cross-source '⏰ Closing TODAY' roundup pinned to the top for urgency —
+    EVERY name whose auction ends today, soonest first, tagged with its source."""
+    rows: list[tuple[datetime, str]] = []
+    for s in statuses:
+        if s["status"] != "ok":
+            continue
+        for L in _enrich_snapshot(s["source"]):
+            try:
+                end_dt = datetime.fromisoformat(str(L.get("end_time_utc")).replace("Z", "+00:00"))
+            except (ValueError, TypeError):
+                continue
+            if _closes_today(end_dt, now):
+                rows.append((end_dt, auctions_slack.format_line(L, source_label=s["label"])))
+    if not rows:
+        return None
+    rows.sort(key=lambda r: r[0])  # soonest first
+    plural = "s" if len(rows) != 1 else ""
+    return [f"*⏰ Closing TODAY — {len(rows)} auction{plural}*  _(soonest first)_", *[line for _, line in rows]]
+
+
+def _chunk_lines(lines: list[str], max_chars: int = MAX_MESSAGE_CHARS) -> list[str]:
+    """Pack lines into message-sized text blocks at line boundaries (never mid-row),
+    so a long watchlist posts as several messages instead of being truncated by Slack."""
+    chunks: list[str] = []
+    cur: list[str] = []
+    cur_len = 0
+    for ln in lines:
+        add = len(ln) + 1
+        if cur and cur_len + add > max_chars:
+            chunks.append("\n".join(cur))
+            cur, cur_len = [], 0
+        cur.append(ln)
+        cur_len += add
+    if cur:
+        chunks.append("\n".join(cur))
+    return chunks
+
+
 def run() -> int:
     reg = config.load_registry()
     orch_cfg = config.get_source(ORCHESTRATOR_ID)
@@ -236,20 +287,35 @@ def run() -> int:
         print(f"  MUB picks slack posted: {mub_posted}")
 
     if sections:
-        body_lines = ["*Auctions watchlist*"]
-        body_lines.append("")
+        # Pin an urgency roundup of everything closing today to the very top.
+        closing = _closing_today_section(statuses, datetime.now(timezone.utc))
+        body_lines = ["*Auctions watchlist*", ""]
+        if closing:
+            body_lines.extend(closing)
+            body_lines.append("")
         for sec in sections:
             body_lines.extend(sec)
             body_lines.append("")
         body_lines.append(f"Full sheet: <{sheet_url}|sheet>")
         text = "\n".join(body_lines)
-        posted = slack_pub.post(
-            channel=slack_channel,
-            text=text,
-            dedupe_key=slack_pub.make_fingerprint(text),
-            source=ORCHESTRATOR_ID,
-        )
-        print(f"  consolidated slack posted: {posted}")
+
+        # Show ALL rows: if the message would exceed Slack's limit, split into
+        # several posts rather than dropping names. Dedupe on the full report so an
+        # identical re-run is skipped; only the first chunk carries the dedupe key.
+        chunks = _chunk_lines(body_lines)
+        posted = False
+        for i, chunk in enumerate(chunks):
+            ok = slack_pub.post(
+                channel=slack_channel,
+                text=chunk,
+                dedupe_key=slack_pub.make_fingerprint(text) if i == 0 else None,
+                source=ORCHESTRATOR_ID if i == 0 else None,
+            )
+            if i == 0:
+                posted = ok
+                if not ok:  # duplicate of the last run → skip the rest too
+                    break
+        print(f"  consolidated slack posted: {posted} ({len(chunks)} message{'s' if len(chunks) != 1 else ''})")
     else:
         posted = False
         print("  no sections to post (all producers failed/disabled)")
