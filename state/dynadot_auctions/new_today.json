@@ -1,13 +1,10 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 1,
   "domains": [
-    "elizea.com",
-    "battlefields.co",
-    "peacekeepers.co",
-    "resins.co"
+    "9978.com"
   ],
-  "generated_at": "2026-07-13T09:42:23.292963+00:00",
+  "generated_at": "2026-07-13T14:39:15.330074+00:00",
   "mub": [],
   "source": "dynadot_auctions"
 }

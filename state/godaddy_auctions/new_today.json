@@ -1,16 +1,8 @@
 {
   "capped": false,
-  "count": 7,
-  "domains": [
-    "hmmmm.co",
-    "8386.org",
-    "yeod.com",
-    "enteq.com",
-    "nasir.co",
-    "ieue.com",
-    "vvent.com"
-  ],
-  "generated_at": "2026-07-13T09:43:12.097654+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-07-13T14:40:01.226497+00:00",
   "mub": [],
   "source": "godaddy_auctions"
 }

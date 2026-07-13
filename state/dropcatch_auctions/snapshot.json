@@ -1,65 +1,47 @@
 [
   {
-    "bid_count": 30,
-    "domain": "prematurity.org",
-    "end_time_utc": "2026-07-13T18:59:31.466981+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Prematurity.org",
-    "platform": "DropCatch",
-    "price": 800.0
-  },
-  {
-    "bid_count": 39,
+    "bid_count": 62,
     "domain": "benso.com",
-    "end_time_utc": "2026-07-13T18:59:31.466981+00:00",
+    "end_time_utc": "2026-07-13T18:59:22.578727+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/benso.com",
     "platform": "DropCatch",
-    "price": 600.0
+    "price": 2600.0
   },
   {
-    "bid_count": 19,
-    "domain": "yoxn.com",
-    "end_time_utc": "2026-07-13T18:59:31.466981+00:00",
+    "bid_count": 32,
+    "domain": "prematurity.org",
+    "end_time_utc": "2026-07-13T18:59:22.578727+00:00",
     "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Yoxn.com",
+    "link": "https://www.dropcatch.com/domain/Prematurity.org",
     "platform": "DropCatch",
-    "price": 220.0
-  },
-  {
-    "bid_count": 30,
-    "domain": "vinley.com",
-    "end_time_utc": "2026-07-13T18:59:31.466981+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Vinley.com",
-    "platform": "DropCatch",
-    "price": 205.0
+    "price": 1700.0
   },
   {
     "bid_count": 116,
     "domain": "xlan.com",
-    "end_time_utc": "2026-07-14T18:59:31.466981+00:00",
+    "end_time_utc": "2026-07-14T18:59:22.578727+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Xlan.com",
     "platform": "DropCatch",
     "price": 4000.0
   },
   {
-    "bid_count": 32,
+    "bid_count": 33,
     "domain": "chatear.com",
-    "end_time_utc": "2026-07-14T18:59:31.466981+00:00",
+    "end_time_utc": "2026-07-14T18:59:22.578727+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/ChatEar.com",
     "platform": "DropCatch",
-    "price": 600.0
+    "price": 650.0
   },
   {
-    "bid_count": 45,
+    "bid_count": 56,
     "domain": "hfon.com",
-    "end_time_utc": "2026-07-15T18:59:31.466981+00:00",
+    "end_time_utc": "2026-07-15T18:59:22.578727+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Hfon.com",
     "platform": "DropCatch",
-    "price": 175.0
+    "price": 550.0
   }
 ]

@@ -1,12 +1,12 @@
 [
   {
-    "bid_count": 70,
+    "bid_count": 72,
     "domain": "tskj.com",
     "end_time_utc": "2026-07-13T15:00:00+00:00",
     "is_mub": false,
     "link": null,
     "platform": "Park.io",
-    "price": 555.0
+    "price": 610.0
   },
   {
     "bid_count": 16,
