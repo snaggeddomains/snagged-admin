@@ -1,83 +1,65 @@
 [
   {
-    "bid_count": 44,
-    "domain": "sendee.com",
-    "end_time_utc": "2026-07-12T16:17:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/sendee-com-711662962?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 600.0
-  },
-  {
-    "bid_count": 10,
-    "domain": "bonah.com",
-    "end_time_utc": "2026-07-12T16:37:00+00:00",
-    "is_mub": true,
-    "link": "https://www.godaddy.com/domain-auctions/bonah-com-711662227?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 63.0
-  },
-  {
-    "bid_count": 29,
-    "domain": "nghe.com",
-    "end_time_utc": "2026-07-12T16:47:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/nghe-com-711111863?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 495.0
-  },
-  {
-    "bid_count": 45,
-    "domain": "altt.com",
-    "end_time_utc": "2026-07-12T17:09:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/altt-com-711650383?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 2000.0
-  },
-  {
-    "bid_count": 16,
-    "domain": "odesia.com",
-    "end_time_utc": "2026-07-12T17:26:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/odesia-com-711273695?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 95.0
-  },
-  {
     "bid_count": 0,
-    "domain": "broader.co",
-    "end_time_utc": "2026-07-12T17:31:00+00:00",
+    "domain": "hmmmm.co",
+    "end_time_utc": "2026-07-13T16:07:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/broader-co-711668107?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/hmmmm-co-711809600?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
     "price": 1.0
   },
   {
-    "bid_count": 22,
-    "domain": "vrpe.com",
-    "end_time_utc": "2026-07-12T18:30:00+00:00",
+    "bid_count": 8,
+    "domain": "8386.org",
+    "end_time_utc": "2026-07-13T19:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/vrpe-com-711665964?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/8386-org-711666204?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 255.0
+    "price": 33.0
   },
   {
-    "bid_count": 16,
-    "domain": "shyv.com",
-    "end_time_utc": "2026-07-12T18:33:00+00:00",
+    "bid_count": 11,
+    "domain": "yeod.com",
+    "end_time_utc": "2026-07-13T19:14:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/shyv-com-711653064?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/yeod-com-711809780?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 143.0
+    "price": 260.0
   },
   {
-    "bid_count": 25,
-    "domain": "hdmh.com",
-    "end_time_utc": "2026-07-12T19:54:00+00:00",
+    "bid_count": 15,
+    "domain": "enteq.com",
+    "end_time_utc": "2026-07-13T19:15:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/hdmh-com-711675254?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/enteq-com-711806476?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 611.0
+    "price": 71.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "nasir.co",
+    "end_time_utc": "2026-07-13T19:26:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/nasir-co-711819732?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 1.0
+  },
+  {
+    "bid_count": 12,
+    "domain": "ieue.com",
+    "end_time_utc": "2026-07-13T20:17:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/ieue-com-711805863?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 249.0
+  },
+  {
+    "bid_count": 6,
+    "domain": "vvent.com",
+    "end_time_utc": "2026-07-13T21:16:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/vvent-com-711816350?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 93.0
   }
 ]

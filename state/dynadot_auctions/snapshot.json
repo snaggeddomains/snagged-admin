@@ -1,56 +1,47 @@
 [
   {
-    "bid_count": 17,
-    "domain": "pxst.com",
-    "end_time_utc": "2026-07-12T13:14:55+00:00",
+    "bid_count": 70,
+    "domain": "tskj.com",
+    "end_time_utc": "2026-07-13T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40936889.html",
+    "link": "https://www.dynadot.com/market/auction/40013776.html",
     "platform": "Dynadot",
-    "price": 364.8
+    "price": 555.0
   },
   {
-    "bid_count": 23,
-    "domain": "drnest.com",
-    "end_time_utc": "2026-07-12T13:30:01+00:00",
+    "bid_count": 12,
+    "domain": "elizea.com",
+    "end_time_utc": "2026-07-13T18:37:07+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40936089.html",
+    "link": "https://www.dynadot.com/market/auction/40967980.html",
     "platform": "Dynadot",
-    "price": 102.47
+    "price": 31.0
   },
   {
     "bid_count": 0,
-    "domain": "halves.co",
-    "end_time_utc": "2026-07-12T20:00:00+00:00",
+    "domain": "battlefields.co",
+    "end_time_utc": "2026-07-13T20:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40636626.html",
+    "link": "https://www.dynadot.com/market/auction/40658867.html",
     "platform": "Dynadot",
     "price": 7.99
   },
   {
     "bid_count": 0,
-    "domain": "sectional.co",
-    "end_time_utc": "2026-07-12T20:00:00+00:00",
+    "domain": "peacekeepers.co",
+    "end_time_utc": "2026-07-13T20:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40636760.html",
+    "link": "https://www.dynadot.com/market/auction/40658801.html",
     "platform": "Dynadot",
     "price": 7.99
   },
   {
     "bid_count": 0,
-    "domain": "strung.co",
-    "end_time_utc": "2026-07-12T20:00:00+00:00",
+    "domain": "resins.co",
+    "end_time_utc": "2026-07-13T20:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40637049.html",
+    "link": "https://www.dynadot.com/market/auction/40658300.html",
     "platform": "Dynadot",
     "price": 7.99
-  },
-  {
-    "bid_count": 0,
-    "domain": "sewn.co",
-    "end_time_utc": "2026-07-13T00:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40977205.html",
-    "platform": "Dynadot",
-    "price": 1.0
   }
 ]

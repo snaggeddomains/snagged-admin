@@ -1,20 +1,16 @@
 {
   "capped": false,
-  "count": 9,
+  "count": 7,
   "domains": [
-    "sendee.com",
-    "bonah.com",
-    "nghe.com",
-    "altt.com",
-    "odesia.com",
-    "broader.co",
-    "vrpe.com",
-    "shyv.com",
-    "hdmh.com"
+    "hmmmm.co",
+    "8386.org",
+    "yeod.com",
+    "enteq.com",
+    "nasir.co",
+    "ieue.com",
+    "vvent.com"
   ],
-  "generated_at": "2026-07-12T09:44:07.558906+00:00",
-  "mub": [
-    "bonah.com"
-  ],
+  "generated_at": "2026-07-13T09:43:12.097654+00:00",
+  "mub": [],
   "source": "godaddy_auctions"
 }
