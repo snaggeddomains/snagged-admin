@@ -1,8 +1,11 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-13T23:00:35.059119+00:00",
+  "count": 2,
+  "domains": [
+    "hap.ai",
+    "wearer.co"
+  ],
+  "generated_at": "2026-07-14T10:00:36.702494+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
