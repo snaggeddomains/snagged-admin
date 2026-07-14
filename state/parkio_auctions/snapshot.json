@@ -1,12 +1,12 @@
 [
   {
-    "bid_count": 72,
-    "domain": "tskj.com",
-    "end_time_utc": "2026-07-13T15:00:00+00:00",
+    "bid_count": 62,
+    "domain": "liyp.com",
+    "end_time_utc": "2026-07-14T15:00:00+00:00",
     "is_mub": false,
     "link": null,
     "platform": "Park.io",
-    "price": 610.0
+    "price": 405.0
   },
   {
     "bid_count": 16,
@@ -18,48 +18,30 @@
     "price": 215.0
   },
   {
-    "bid_count": 46,
+    "bid_count": 47,
     "domain": "hiyp.com",
     "end_time_utc": "2026-07-15T15:00:00+00:00",
     "is_mub": false,
     "link": null,
     "platform": "Park.io",
-    "price": 301.0
+    "price": 306.0
   },
   {
-    "bid_count": 17,
+    "bid_count": 21,
     "domain": "igpn.com",
     "end_time_utc": "2026-07-15T16:47:50+00:00",
     "is_mub": false,
     "link": null,
     "platform": "Park.io",
-    "price": 305.0
+    "price": 380.0
   },
   {
-    "bid_count": 3,
-    "domain": "latter.io",
-    "end_time_utc": "2026-07-17T16:41:01+00:00",
-    "is_mub": false,
-    "link": null,
-    "platform": "Park.io",
-    "price": 102.0
-  },
-  {
-    "bid_count": 48,
+    "bid_count": 50,
     "domain": "yaly.com",
     "end_time_utc": "2026-07-18T15:00:00+00:00",
     "is_mub": false,
     "link": null,
     "platform": "Park.io",
-    "price": 1000.0
-  },
-  {
-    "bid_count": 6,
-    "domain": "117.io",
-    "end_time_utc": "2026-07-19T16:41:01+00:00",
-    "is_mub": false,
-    "link": null,
-    "platform": "Park.io",
-    "price": 130.0
+    "price": 1050.0
   }
 ]

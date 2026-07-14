@@ -1,8 +1,11 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-13T09:04:08.295435+00:00",
+  "count": 2,
+  "domains": [
+    "thence.org",
+    "hap.ai"
+  ],
+  "generated_at": "2026-07-14T09:03:15.821143+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

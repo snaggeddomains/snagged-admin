@@ -1,7 +1,10 @@
 {
-  "error": "502 Server Error: Bad Gateway for url: https://www.namesilo.com/public/api/listAuctions?version=1&type=json&key=***REDACTED***&statusId=2&typeId=3&page=26&pageSize=500&orderBy=auctionEndsOn&orderType=ASC",
-  "generated_at": "2026-07-13T14:40:25.553279+00:00",
+  "deduped_against_existing": 5,
+  "generated_at": "2026-07-14T09:45:23.380714+00:00",
   "label": "NameSilo",
+  "new_count": 0,
+  "sheet_total_after": 734,
+  "slack_posted": false,
   "source": "namesilo_auctions",
-  "status": "failed"
+  "status": "ok"
 }

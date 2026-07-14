@@ -1,49 +1,48 @@
 [
   {
-    "generated_at": "2026-07-13T14:35:07.200169+00:00",
+    "generated_at": "2026-07-14T09:39:50.116072+00:00",
     "label": "Park.io",
     "source": "parkio_auctions",
     "status": "ok"
   },
   {
-    "generated_at": "2026-07-13T14:38:47.467459+00:00",
+    "generated_at": "2026-07-14T09:43:29.235997+00:00",
     "label": "Namecheap",
     "source": "namecheap_auctions",
     "status": "ok"
   },
   {
-    "generated_at": "2026-07-13T14:39:15.331457+00:00",
+    "generated_at": "2026-07-14T09:44:03.813660+00:00",
     "label": "Dynadot",
     "source": "dynadot_auctions",
     "status": "ok"
   },
   {
-    "generated_at": "2026-07-13T14:39:23.585200+00:00",
+    "generated_at": "2026-07-14T09:44:11.512323+00:00",
     "label": "DropCatch",
     "source": "dropcatch_auctions",
     "status": "ok"
   },
   {
-    "generated_at": "2026-07-13T14:40:01.282860+00:00",
+    "generated_at": "2026-07-14T09:44:54.446564+00:00",
     "label": "GoDaddy",
     "source": "godaddy_auctions",
     "status": "ok"
   },
   {
-    "detail": "502 Server Error: Bad Gateway for url: https://www.namesilo.com/public/api/listAuctions?version=1&type=json&key=***REDACTED***&statusId=2&typeId=3&page=26&pageSize=500&orderBy=auctionEndsOn&orderType=ASC",
-    "generated_at": "2026-07-13T14:40:25.553619+00:00",
+    "generated_at": "2026-07-14T09:45:23.381000+00:00",
     "label": "NameSilo",
     "source": "namesilo_auctions",
-    "status": "failed"
+    "status": "ok"
   },
   {
-    "generated_at": "2026-07-13T14:40:35.651831+00:00",
+    "generated_at": "2026-07-14T09:45:33.800093+00:00",
     "label": "Sedo Expired",
     "source": "sedo_expired_auctions",
     "status": "ok"
   },
   {
-    "generated_at": "2026-07-13T14:40:37.143573+00:00",
+    "generated_at": "2026-07-14T09:45:35.390989+00:00",
     "label": "Drive Uploads",
     "source": "drive_auction_uploads",
     "status": "ok"

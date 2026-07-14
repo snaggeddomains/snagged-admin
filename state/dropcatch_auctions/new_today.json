@@ -1,14 +1,16 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 7,
   "domains": [
-    "benso.com",
-    "prematurity.org",
     "xlan.com",
     "chatear.com",
-    "hfon.com"
+    "taxis.net",
+    "msfa.net",
+    "hfon.com",
+    "zexa.com",
+    "udns.com"
   ],
-  "generated_at": "2026-07-13T14:39:23.584066+00:00",
+  "generated_at": "2026-07-14T09:44:11.510891+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }

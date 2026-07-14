@@ -1,47 +1,65 @@
 [
   {
-    "bid_count": 62,
-    "domain": "benso.com",
-    "end_time_utc": "2026-07-13T18:59:22.578727+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/benso.com",
-    "platform": "DropCatch",
-    "price": 2600.0
-  },
-  {
-    "bid_count": 32,
-    "domain": "prematurity.org",
-    "end_time_utc": "2026-07-13T18:59:22.578727+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Prematurity.org",
-    "platform": "DropCatch",
-    "price": 1700.0
-  },
-  {
     "bid_count": 116,
     "domain": "xlan.com",
-    "end_time_utc": "2026-07-14T18:59:22.578727+00:00",
+    "end_time_utc": "2026-07-14T18:59:10.506619+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Xlan.com",
     "platform": "DropCatch",
     "price": 4000.0
   },
   {
-    "bid_count": 33,
+    "bid_count": 46,
     "domain": "chatear.com",
-    "end_time_utc": "2026-07-14T18:59:22.578727+00:00",
+    "end_time_utc": "2026-07-14T18:59:10.506619+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/ChatEar.com",
     "platform": "DropCatch",
-    "price": 650.0
+    "price": 1600.0
+  },
+  {
+    "bid_count": 19,
+    "domain": "taxis.net",
+    "end_time_utc": "2026-07-14T18:59:10.506619+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Taxis.net",
+    "platform": "DropCatch",
+    "price": 420.0
+  },
+  {
+    "bid_count": 21,
+    "domain": "msfa.net",
+    "end_time_utc": "2026-07-14T18:59:10.506619+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/msfa.net",
+    "platform": "DropCatch",
+    "price": 204.0
   },
   {
     "bid_count": 56,
     "domain": "hfon.com",
-    "end_time_utc": "2026-07-15T18:59:22.578727+00:00",
+    "end_time_utc": "2026-07-15T18:59:10.506619+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Hfon.com",
     "platform": "DropCatch",
     "price": 550.0
+  },
+  {
+    "bid_count": 126,
+    "domain": "zexa.com",
+    "end_time_utc": "2026-07-16T18:59:10.506619+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Zexa.com",
+    "platform": "DropCatch",
+    "price": 1800.0
+  },
+  {
+    "bid_count": 76,
+    "domain": "udns.com",
+    "end_time_utc": "2026-07-17T18:59:10.506619+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Udns.com",
+    "platform": "DropCatch",
+    "price": 510.0
   }
 ]

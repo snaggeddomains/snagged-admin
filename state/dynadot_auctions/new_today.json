@@ -1,10 +1,11 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 2,
   "domains": [
-    "9978.com"
+    "smiled.co",
+    "vicious.co"
   ],
-  "generated_at": "2026-07-13T14:39:15.330074+00:00",
+  "generated_at": "2026-07-14T09:44:03.812283+00:00",
   "mub": [],
   "source": "dynadot_auctions"
 }

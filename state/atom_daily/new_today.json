@@ -1,20 +1,19 @@
 {
   "capped": false,
-  "count": 11,
+  "count": 10,
   "domains": [
-    "monroe.com",
-    "technological.ai",
-    "precious.io",
-    "chemicals.io",
-    "threaten.io",
-    "gah.ai",
-    "sanitation.co",
-    "transports.co",
-    "burkina.org",
-    "cpus.org",
-    "pathogenesis.org"
+    "chef.com",
+    "triggered.ai",
+    "digest.ai",
+    "finalists.ai",
+    "aches.ai",
+    "dist.com",
+    "severance.ai",
+    "obstruct.ai",
+    "lala.ai",
+    "endo.ai"
   ],
-  "generated_at": "2026-07-13T09:23:51.513465+00:00",
+  "generated_at": "2026-07-14T09:22:47.499753+00:00",
   "mub": [],
   "source": "atom_daily"
 }

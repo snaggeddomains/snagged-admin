@@ -1,20 +1,47 @@
 [
   {
-    "bid_count": 70,
-    "domain": "tskj.com",
-    "end_time_utc": "2026-07-13T15:00:00+00:00",
+    "bid_count": 5,
+    "domain": "shelry.com",
+    "end_time_utc": "2026-07-14T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/tskj.com",
+    "link": "https://www.namesilo.com/auctions/shelry.com",
     "platform": "NameSilo",
-    "price": 555.0
+    "price": 6.0
   },
   {
-    "bid_count": 36,
+    "bid_count": 62,
     "domain": "liyp.com",
     "end_time_utc": "2026-07-14T15:00:00+00:00",
     "is_mub": false,
     "link": "https://www.namesilo.com/auctions/liyp.com",
     "platform": "NameSilo",
-    "price": 205.0
+    "price": 405.0
+  },
+  {
+    "bid_count": 26,
+    "domain": "usgz.com",
+    "end_time_utc": "2026-07-15T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namesilo.com/auctions/usgz.com",
+    "platform": "NameSilo",
+    "price": 98.0
+  },
+  {
+    "bid_count": 47,
+    "domain": "hiyp.com",
+    "end_time_utc": "2026-07-15T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namesilo.com/auctions/hiyp.com",
+    "platform": "NameSilo",
+    "price": 306.0
+  },
+  {
+    "bid_count": 17,
+    "domain": "szld.com",
+    "end_time_utc": "2026-07-15T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namesilo.com/auctions/szld.com",
+    "platform": "NameSilo",
+    "price": 255.0
   }
 ]
