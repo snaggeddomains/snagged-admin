@@ -1,13 +1,15 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 6,
   "domains": [
-    "cube.co",
-    "intertidal.com",
-    "reactors.co",
-    "scot.org"
+    "3055.org",
+    "afz.com",
+    "cuse.ai",
+    "fls.net",
+    "kagan.co",
+    "usage.co"
   ],
-  "generated_at": "2026-07-13T23:06:33.520513+00:00",
+  "generated_at": "2026-07-14T10:06:32.196908+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
