@@ -4,35 +4,23 @@
     "price": 14999.0
   },
   {
+    "domain": "accoff.com",
+    "price": 4968.0
+  },
+  {
+    "domain": "developent.com",
+    "price": 4968.0
+  },
+  {
     "domain": "hap.ai",
     "price": 119000.0
   },
   {
-    "domain": "nodding.net",
-    "price": 6095.0
-  },
-  {
-    "domain": "slipstream.net",
-    "price": 14652.0
-  },
-  {
-    "domain": "omnifund.co",
-    "price": 10226.0
-  },
-  {
-    "domain": "sardis.co",
-    "price": 4550.0
-  },
-  {
-    "domain": "everypro.co",
-    "price": 5230.0
+    "domain": "jiangyin.net",
+    "price": 2990.0
   },
   {
     "domain": "wearer.co",
     "price": 995.0
-  },
-  {
-    "domain": "proadvisors.co",
-    "price": 5230.0
   }
 ]
