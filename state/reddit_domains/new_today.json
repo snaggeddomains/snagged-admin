@@ -1,20 +1,8 @@
 {
   "capped": false,
-  "count": 11,
-  "domains": [
-    "264.io",
-    "eliminated.io",
-    "enjoyed.io",
-    "exempt.io",
-    "hauled.net",
-    "mazes.io",
-    "rebuke.io",
-    "seoul.io",
-    "separated.io",
-    "superintendent.io",
-    "villains.io"
-  ],
-  "generated_at": "2026-07-14T17:01:17.986747+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-07-14T23:01:16.084754+00:00",
   "mub": [],
   "source": "reddit_domains"
 }
