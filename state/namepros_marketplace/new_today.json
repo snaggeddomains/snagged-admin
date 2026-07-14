@@ -1,15 +1,13 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 4,
   "domains": [
-    "3055.org",
-    "afz.com",
-    "cuse.ai",
-    "fls.net",
-    "kagan.co",
-    "usage.co"
+    "adapter.now",
+    "flush.co",
+    "rephrase.now",
+    "srinivas.xyz"
   ],
-  "generated_at": "2026-07-14T10:06:32.196908+00:00",
+  "generated_at": "2026-07-14T17:07:45.337586+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
