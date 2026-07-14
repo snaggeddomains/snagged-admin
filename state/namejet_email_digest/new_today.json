@@ -1,12 +1,8 @@
 {
   "capped": false,
-  "count": 3,
-  "domains": [
-    "torn.org",
-    "vowel.org",
-    "chills.org"
-  ],
-  "generated_at": "2026-07-13T15:43:55.593273+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-07-14T15:05:14.956868+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
