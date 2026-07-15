@@ -1,8 +1,11 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-14T23:01:08.308291+00:00",
+  "count": 2,
+  "domains": [
+    "mdl.com",
+    "determines.com"
+  ],
+  "generated_at": "2026-07-15T10:02:15.371747+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }

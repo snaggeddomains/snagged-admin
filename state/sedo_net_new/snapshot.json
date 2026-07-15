@@ -1,1 +1,20 @@
-[]
+[
+  {
+    "currency": "USD",
+    "domain": "determines.com",
+    "end_time_utc": "2026-07-15T03:52:22+00:00",
+    "is_mub": false,
+    "price": 10195.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=determines.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "mdl.com",
+    "end_time_utc": "2026-07-15T08:21:37+00:00",
+    "is_mub": false,
+    "price": 999999.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=mdl.com"
+  }
+]

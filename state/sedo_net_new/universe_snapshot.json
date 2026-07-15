@@ -1,14 +1,34 @@
 [
   {
-    "domain": "accoff.com",
-    "price": 4968.0
+    "domain": "solomin.com",
+    "price": null
   },
   {
-    "domain": "developent.com",
-    "price": 4968.0
+    "domain": "pocking.com",
+    "price": 500.0
   },
   {
-    "domain": "jiangyin.net",
-    "price": 2990.0
+    "domain": "determines.com",
+    "price": 10195.0
+  },
+  {
+    "domain": "overpricing.com",
+    "price": 9095.0
+  },
+  {
+    "domain": "sifts.net",
+    "price": 2195.0
+  },
+  {
+    "domain": "semblance.net",
+    "price": 250.0
+  },
+  {
+    "domain": "cancelling.net",
+    "price": 1295.0
+  },
+  {
+    "domain": "greenqueen.net",
+    "price": 250.0
   }
 ]
