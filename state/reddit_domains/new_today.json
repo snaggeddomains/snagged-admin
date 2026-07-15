@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-15T10:01:41.502463+00:00",
+  "count": 1,
+  "domains": [
+    "one.com"
+  ],
+  "generated_at": "2026-07-15T17:01:39.477799+00:00",
   "mub": [],
   "source": "reddit_domains"
 }
