@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-14T15:12:17.922672+00:00",
+  "count": 1,
+  "domains": [
+    "scoops.org"
+  ],
+  "generated_at": "2026-07-15T15:05:03.533719+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
