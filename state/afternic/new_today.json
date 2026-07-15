@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-14T08:16:42.128469+00:00",
+  "count": 1,
+  "domains": [
+    "exposes.org"
+  ],
+  "generated_at": "2026-07-15T08:14:07.255857+00:00",
   "mub": [],
   "source": "afternic"
 }
