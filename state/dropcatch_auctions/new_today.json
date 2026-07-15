@@ -2,15 +2,15 @@
   "capped": false,
   "count": 7,
   "domains": [
-    "xlan.com",
-    "chatear.com",
-    "taxis.net",
-    "msfa.net",
     "hfon.com",
     "zexa.com",
-    "udns.com"
+    "conventi.com",
+    "texedo.com",
+    "udns.com",
+    "smili.com",
+    "ujfo.com"
   ],
-  "generated_at": "2026-07-14T09:44:11.510891+00:00",
+  "generated_at": "2026-07-15T09:42:15.962268+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }

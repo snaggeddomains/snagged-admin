@@ -1,11 +1,10 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 1,
   "domains": [
-    "thence.org",
-    "hap.ai"
+    "religious.ai"
   ],
-  "generated_at": "2026-07-14T09:03:15.821143+00:00",
+  "generated_at": "2026-07-15T09:02:29.587635+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

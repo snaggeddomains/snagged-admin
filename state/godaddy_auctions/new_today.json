@@ -1,16 +1,14 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 3,
   "domains": [
-    "neverest.com",
-    "miraculous.co",
-    "oopsy.com",
-    "gullah.com",
-    "sealin.com",
-    "kmks.com",
-    "outweigh.org"
+    "suganda.co",
+    "xmeasure.com",
+    "escro.com"
   ],
-  "generated_at": "2026-07-14T09:44:54.388348+00:00",
-  "mub": [],
+  "generated_at": "2026-07-15T09:43:00.826481+00:00",
+  "mub": [
+    "suganda.co"
+  ],
   "source": "godaddy_auctions"
 }

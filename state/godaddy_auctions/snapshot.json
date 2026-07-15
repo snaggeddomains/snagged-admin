@@ -1,65 +1,29 @@
 [
   {
-    "bid_count": 32,
-    "domain": "neverest.com",
-    "end_time_utc": "2026-07-14T16:10:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/neverest-com-710837157?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 700.0
-  },
-  {
     "bid_count": 11,
-    "domain": "miraculous.co",
-    "end_time_utc": "2026-07-14T16:41:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/miraculous-co-711437021?isc=json_ending_tomorrow",
+    "domain": "suganda.co",
+    "end_time_utc": "2026-07-15T17:20:00+00:00",
+    "is_mub": true,
+    "link": "https://www.godaddy.com/domain-auctions/suganda-co-712548494?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 138.0
+    "price": 260.0
   },
   {
-    "bid_count": 30,
-    "domain": "oopsy.com",
-    "end_time_utc": "2026-07-14T16:43:00+00:00",
+    "bid_count": 9,
+    "domain": "xmeasure.com",
+    "end_time_utc": "2026-07-15T18:02:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/oopsy-com-712232212?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/xmeasure-com-712511111?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 1200.0
+    "price": 41.0
   },
   {
-    "bid_count": 12,
-    "domain": "gullah.com",
-    "end_time_utc": "2026-07-14T17:53:00+00:00",
+    "bid_count": 47,
+    "domain": "escro.com",
+    "end_time_utc": "2026-07-15T18:25:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/gullah-com-712232495?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/escro-com-712411402?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 355.0
-  },
-  {
-    "bid_count": 20,
-    "domain": "sealin.com",
-    "end_time_utc": "2026-07-14T18:19:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/sealin-com-712216013?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 126.0
-  },
-  {
-    "bid_count": 19,
-    "domain": "kmks.com",
-    "end_time_utc": "2026-07-14T20:04:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/kmks-com-712247021?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 485.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "outweigh.org",
-    "end_time_utc": "2026-07-14T21:20:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/outweigh-org-711593543?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1.0
+    "price": 1030.0
   }
 ]
