@@ -1,18 +1,21 @@
 {
   "capped": false,
-  "count": 9,
+  "count": 12,
   "domains": [
-    "basis.org",
-    "bricks.com",
-    "catalogs.com",
-    "dynamic.co",
-    "particles.com",
-    "session.co",
-    "steady.co",
-    "taxis.net",
-    "tweak.co"
+    "ambient.co",
+    "cycle.co",
+    "file.co",
+    "frost.co",
+    "hot.co",
+    "mango.me",
+    "nuance.co",
+    "projects.com",
+    "stellar.co",
+    "stripe.co",
+    "think.to",
+    "vice.co"
   ],
-  "generated_at": "2026-07-15T17:06:40.871956+00:00",
+  "generated_at": "2026-07-15T23:06:11.257182+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
