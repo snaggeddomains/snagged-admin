@@ -1,11 +1,29 @@
 [
   {
-    "currency": "USD",
-    "domain": "mdl.com",
-    "end_time_utc": "2026-07-15T08:21:37+00:00",
+    "currency": "EUR",
+    "domain": "vegas.ai",
+    "end_time_utc": "2026-07-15T21:18:23+00:00",
     "is_mub": false,
-    "price": 999999.0,
+    "price": 750000.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=vegas.ai"
+  },
+  {
+    "currency": "EUR",
+    "domain": "gas.ai",
+    "end_time_utc": "2026-07-15T21:20:49+00:00",
+    "is_mub": false,
+    "price": 750000.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=gas.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "dch.com",
+    "end_time_utc": "2026-07-15T20:34:05+00:00",
+    "is_mub": false,
+    "price": null,
     "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=mdl.com"
+    "url": "https://sedo.com/search/details/?domain=dch.com"
   }
 ]

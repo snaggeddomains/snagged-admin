@@ -1,34 +1,14 @@
 [
   {
-    "domain": "pocking.com",
-    "price": 500.0
+    "domain": "vegas.ai",
+    "price": 750000.0
   },
   {
-    "domain": "shashe.com",
-    "price": 8970.0
+    "domain": "gas.ai",
+    "price": 750000.0
   },
   {
     "domain": "glands.net",
     "price": 2195.0
-  },
-  {
-    "domain": "taxis.net",
-    "price": 17000.0
-  },
-  {
-    "domain": "sifts.net",
-    "price": 2195.0
-  },
-  {
-    "domain": "semblance.net",
-    "price": 250.0
-  },
-  {
-    "domain": "cancelling.net",
-    "price": 1295.0
-  },
-  {
-    "domain": "greenqueen.net",
-    "price": 250.0
   }
 ]
