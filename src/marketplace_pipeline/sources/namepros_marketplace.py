@@ -475,16 +475,23 @@ def _embedded_in_phrase(text: str, start: int) -> bool:
     return bool(m) and m.group(1).lower() not in SALE_STOPWORDS
 
 
-def slack_line(domain: str, price: int | None, url: str | None) -> str:
+def slack_line(domain: str, price: int | None, url: str | None,
+               *, site: str = "NamePros", search_url: str | None = None) -> str:
     """A Slack mrkdwn bullet: the domain (Slack auto-links it to the live site) +
-    a separate hyperlink to the actual NamePros listing. When we captured the exact
-    thread URL it deep-links to the post; otherwise it falls back to a Google
-    site:namepros.com search that reliably lands on the thread. A leading ✨ marks a
+    a separate hyperlink to the actual listing. **Label honesty matters:** when we
+    captured the exact thread/post URL the link deep-links to it and is labeled
+    "<site> post"; otherwise it falls back to a SEARCH (a Google site:namepros.com
+    search for NamePros; a subreddit search for Reddit) and is labeled "find on
+    <site>" — a search page is NEVER labeled as a direct post (that mismatch is what
+    made the links so confusing). Pass a real `url` OR None; the caller must NOT
+    pre-resolve the fallback (that's what defeated the label). A leading ✨ marks a
     MUB (Made-Up Brandable) name (scripts/brandables/PROFILE.md)."""
     from ..filters import mub
     price_str = f" — ${price:,}" if price else ""
-    post_url = url or SEARCH_URL.format(q=domain)
-    post_label = "NamePros post" if url else "find on NamePros"
+    if url:
+        post_url, post_label = url, f"{site} post"
+    else:
+        post_url, post_label = (search_url or SEARCH_URL.format(q=domain)), f"find on {site}"
     return f"• {mub.mub_mark(domain)}{domain}{price_str}  ·  <{post_url}|{post_label}>"
 
 
@@ -598,9 +605,10 @@ def run() -> int:
         channel = os.environ.get(snap_cfg.get("slack_channel_env", ""), "") or os.environ.get("SLACK_CHANNEL_SNAP", "")
         if channel:
             top = sorted(priced.items(), key=lambda kv: kv[1])[:15] if priced else [(d, None) for d in domains[:15]]
-            # Always link to NamePros (thread when known, else a NamePros search) so
-            # Slack doesn't auto-link the bare domain text to the parked site.
-            lines = [slack_line(d, p, links.get(d) or SEARCH_URL.format(q=d)) for d, p in top]
+            # Pass the captured thread URL (or None) — slack_line labels a real thread
+            # "NamePros post" and a missing one "find on NamePros" (search). Do NOT
+            # pre-resolve the fallback here, or every line gets mislabeled a post.
+            lines = [slack_line(d, p, links.get(d)) for d, p in top]
             from ..filters import mub
             mub_n = mub.count_mub(domains)
             text = (f":mag: *NamePros good deals* — {len(domains)} *new* candidate(s) "
