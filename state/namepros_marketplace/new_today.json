@@ -1,21 +1,23 @@
 {
   "capped": false,
-  "count": 12,
+  "count": 14,
   "domains": [
-    "ambient.co",
-    "cycle.co",
-    "file.co",
-    "frost.co",
-    "hot.co",
-    "mango.me",
-    "nuance.co",
-    "projects.com",
-    "stellar.co",
-    "stripe.co",
-    "think.to",
-    "vice.co"
+    "acres.xyz",
+    "certification.net",
+    "creole.net",
+    "cure.co",
+    "expand.com",
+    "maple.co",
+    "mode.me",
+    "obscurity.com",
+    "postage.co",
+    "rumble.co",
+    "scribble.co",
+    "spots.co",
+    "wisdom.co",
+    "wizard.me"
   ],
-  "generated_at": "2026-07-15T23:06:11.257182+00:00",
+  "generated_at": "2026-07-16T10:06:30.454111+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
