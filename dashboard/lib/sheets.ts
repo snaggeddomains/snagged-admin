@@ -5,6 +5,10 @@
 import { googleAccessToken } from "./google-auth";
 
 const SCOPE = "https://www.googleapis.com/auth/spreadsheets.readonly";
+// Write scope — only used by the Client Domain corpus mirror, which rewrites the
+// "Client Domain Names" tab. The target workbook must be shared to the SA with
+// EDIT (Sheets delegation isn't authorized, so it's a direct share).
+const WRITE_SCOPE = "https://www.googleapis.com/auth/spreadsheets";
 
 export async function getSheetValues(sheetId: string, range: string): Promise<string[][]> {
   const token = await googleAccessToken(SCOPE);
@@ -27,4 +31,24 @@ export async function getSheetMeta(sheetId: string): Promise<{ title: string; ta
     title: j.properties?.title || "",
     tabs: (j.sheets || []).map((s) => s.properties?.title || "").filter(Boolean),
   };
+}
+
+/** Clear a range's values (keeps formatting). */
+export async function clearSheetRange(sheetId: string, range: string): Promise<void> {
+  const token = await googleAccessToken(WRITE_SCOPE);
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${encodeURIComponent(range)}:clear`;
+  const res = await fetch(url, { method: "POST", headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok) throw new Error(`Sheets clear ${res.status}: ${(await res.text()).slice(0, 200)}`);
+}
+
+/** Overwrite a range with a value matrix (RAW input). Caller sizes the range. */
+export async function writeSheetRange(sheetId: string, range: string, values: (string | number | null)[][]): Promise<void> {
+  const token = await googleAccessToken(WRITE_SCOPE);
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${encodeURIComponent(range)}?valueInputOption=RAW`;
+  const res = await fetch(url, {
+    method: "PUT",
+    headers: { Authorization: `Bearer ${token}`, "content-type": "application/json" },
+    body: JSON.stringify({ range, majorDimension: "ROWS", values }),
+  });
+  if (!res.ok) throw new Error(`Sheets write ${res.status}: ${(await res.text()).slice(0, 200)}`);
 }
