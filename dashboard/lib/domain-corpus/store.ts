@@ -81,6 +81,34 @@ export async function readAllForMirror(): Promise<MirrorRow[]> {
   return out;
 }
 
+export type CorpusAnchor = { domain: string; sld: string; tld: string; clients: string[] };
+
+/** Every corpus row as a match anchor (domain + sld + client labels). Paginated. */
+export async function readCorpusAnchors(): Promise<CorpusAnchor[]> {
+  const out: CorpusAnchor[] = [];
+  if (!isDbConfigured()) return out;
+  const db = getDb();
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await db
+      .from(TABLE)
+      .select("domain,sld,tld,clients")
+      .range(from, from + PAGE - 1);
+    if (error) throw new Error(`corpus anchors: ${error.message || error.code || "failed"}`);
+    const rows = data ?? [];
+    for (const r of rows) {
+      const row = r as { domain?: unknown; sld?: unknown; tld?: unknown; clients?: unknown };
+      out.push({
+        domain: String(row.domain || "").toLowerCase(),
+        sld: String(row.sld || "").toLowerCase(),
+        tld: String(row.tld || "").toLowerCase(),
+        clients: Array.isArray(row.clients) ? (row.clients as string[]) : [],
+      });
+    }
+    if (rows.length < PAGE) break;
+  }
+  return out;
+}
+
 /** Current row count — powers the freshness guard + the tab's "total" figure. */
 export async function corpusCount(): Promise<number> {
   if (!isDbConfigured()) return 0;

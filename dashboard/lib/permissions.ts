@@ -61,6 +61,7 @@ export const ACTIONS = [
   "reports.snap_names", // view the SNAP Names report (purchased / for-sale inventory)
   "reports.snap_names.write", // push registrar/DNS updates from SNAP Names (bulk actions)
   "reports.chat", // use Chat Analytics (LLM Q&A over the report data)
+  "reports.client_overlap", // view the Client Domain Overlap report (new names matching client domains)
 ] as const;
 export type ActionKey = (typeof ACTIONS)[number];
 
@@ -112,6 +113,7 @@ export const REPORTS_TABS: { href: string; label: string; perm: ModuleKey | Acti
   { href: "/reports/marketplace", label: "Marketplace", perm: "reports.marketplace" },
   { href: "/reports/chat", label: "Chat", perm: "reports.chat" },
   { href: "/reports/cost", label: "Cost & usage", perm: "reports.cost" },
+  { href: "/reports/client-overlap", label: "Client Overlap", perm: "reports.client_overlap" },
   // Corporate Portfolios lives in the research app (/research/portfolio) but
   // belongs to the Reports section. Nav renders /research/* as a full-nav anchor.
   { href: "/research/portfolio", label: "Corporate Portfolios", perm: "research.portfolio" },
@@ -204,6 +206,7 @@ export const CATALOG: CatalogEntry[] = [
   { key: "reports.snap_names.write", label: "SNAP Names — push registrar/DNS updates (bulk)", group: "SNAP", kind: "action" },
   { key: "reports.chat", label: "Reports — Chat Analytics (LLM Q&A)", group: "Reports", kind: "action" },
   { key: "reports.cost", label: "Reports — API cost & usage", group: "Reports", kind: "action" },
+  { key: "reports.client_overlap", label: "Reports — Client Domain Overlap (new names matching client domains)", group: "Reports", kind: "action" },
   { key: "research.domain_owner", label: "Domain Owner research", group: "Research", kind: "module" },
   { key: "research.outreach", label: "Owner Outreach — email drafting", group: "Research", kind: "action" },
   { key: "research.trademark", label: "Trademark", group: "Research", kind: "module" },
