@@ -10,5 +10,9 @@
   {
     "domain": "threes.net",
     "price": null
+  },
+  {
+    "domain": "firmly.net",
+    "price": 7895.0
   }
 ]
