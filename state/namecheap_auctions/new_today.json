@@ -1,23 +1,19 @@
 {
   "capped": false,
-  "count": 14,
+  "count": 10,
   "domains": [
-    "forced.io",
-    "turned.io",
-    "cricketers.ai",
-    "shrapnel.org",
-    "runnin.org",
-    "dapple.ai",
-    "coneg.org",
-    "disks.ai",
-    "binds.ai",
-    "harlan.ai",
-    "complies.org",
-    "rczp.com",
-    "decker.ai",
-    "reorganisation.org"
+    "chatting.io",
+    "refundez.com",
+    "dosages.org",
+    "straws.ai",
+    "employer.ai",
+    "filler.ai",
+    "footnotes.ai",
+    "lieutenants.ai",
+    "puddles.ai",
+    "commenting.ai"
   ],
-  "generated_at": "2026-07-15T09:41:25.599217+00:00",
+  "generated_at": "2026-07-16T09:40:21.566533+00:00",
   "mub": [],
   "source": "namecheap_auctions"
 }

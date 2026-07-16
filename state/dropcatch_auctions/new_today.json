@@ -1,16 +1,17 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 8,
   "domains": [
-    "hfon.com",
     "zexa.com",
     "conventi.com",
     "texedo.com",
     "udns.com",
     "smili.com",
-    "ujfo.com"
+    "ujfo.com",
+    "gedm.com",
+    "bryg.com"
   ],
-  "generated_at": "2026-07-15T09:42:15.962268+00:00",
+  "generated_at": "2026-07-16T09:41:13.179175+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }

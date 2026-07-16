@@ -1,39 +1,39 @@
 [
   {
-    "bid_count": 64,
-    "domain": "hiyp.com",
-    "end_time_utc": "2026-07-15T15:00:00+00:00",
+    "bid_count": 5,
+    "domain": "fajita.io",
+    "end_time_utc": "2026-07-16T16:41:01+00:00",
     "is_mub": false,
     "link": null,
     "platform": "Park.io",
-    "price": 650.0
+    "price": 112.0
   },
   {
-    "bid_count": 32,
-    "domain": "igpn.com",
-    "end_time_utc": "2026-07-15T16:47:50+00:00",
-    "is_mub": false,
-    "link": null,
-    "platform": "Park.io",
-    "price": 660.0
-  },
-  {
-    "bid_count": 50,
+    "bid_count": 51,
     "domain": "yaly.com",
     "end_time_utc": "2026-07-18T15:00:00+00:00",
     "is_mub": false,
     "link": null,
     "platform": "Park.io",
-    "price": 1050.0
+    "price": 1075.0
   },
   {
-    "bid_count": 14,
+    "bid_count": 27,
     "domain": "bling.org",
     "end_time_utc": "2026-07-18T16:40:00+00:00",
     "is_mub": false,
     "link": null,
     "platform": "Park.io",
-    "price": 330.0
+    "price": 810.0
+  },
+  {
+    "bid_count": 40,
+    "domain": "rczp.com",
+    "end_time_utc": "2026-07-19T15:00:00+00:00",
+    "is_mub": false,
+    "link": null,
+    "platform": "Park.io",
+    "price": 300.44
   },
   {
     "bid_count": 6,

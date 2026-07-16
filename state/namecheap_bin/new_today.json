@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "religious.ai"
-  ],
-  "generated_at": "2026-07-15T09:02:29.587635+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-07-16T09:02:24.062489+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

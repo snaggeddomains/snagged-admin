@@ -1,14 +1,24 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 15,
   "domains": [
-    "suganda.co",
-    "xmeasure.com",
-    "escro.com"
+    "gavp.com",
+    "mainline.net",
+    "diyh.com",
+    "easers.com",
+    "diyt.com",
+    "zevl.com",
+    "jennis.com",
+    "diyv.com",
+    "diyk.com",
+    "diyd.com",
+    "diyf.com",
+    "diyw.com",
+    "tradx.com",
+    "gulh.com",
+    "diyj.com"
   ],
-  "generated_at": "2026-07-15T09:43:00.826481+00:00",
-  "mub": [
-    "suganda.co"
-  ],
+  "generated_at": "2026-07-16T09:41:55.559986+00:00",
+  "mub": [],
   "source": "godaddy_auctions"
 }
