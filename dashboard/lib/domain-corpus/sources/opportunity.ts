@@ -49,7 +49,9 @@ export async function readOpportunityHits(): Promise<RawHit[]> {
   if (domainCol < 0) return [];
 
   const buyerCol = findCol(headers, ["buyer"]);
-  const ownerCol = findCol(headers, ["owner", "seller"]);
+  // Prefer "Domain Owner" over an internal "Opp Owner" column (both contain "owner").
+  let ownerCol = findCol(headers, ["domain owner", "seller"]);
+  if (ownerCol < 0) ownerCol = findCol(headers, ["owner"]);
   const statusCol = findCol(headers, ["status", "stage"]);
   const dateCol = findCol(headers, ["date"]);
 
