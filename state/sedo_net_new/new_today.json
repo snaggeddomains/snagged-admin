@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-16T10:01:26.427913+00:00",
+  "count": 1,
+  "domains": [
+    "maxwell.ai"
+  ],
+  "generated_at": "2026-07-16T17:02:08.994309+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }

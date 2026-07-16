@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "domain": "nigerias.com",
+    "price": 11495.0
+  },
+  {
+    "domain": "maxwell.ai",
+    "price": 495000.0
+  },
+  {
+    "domain": "threes.net",
+    "price": null
+  }
+]
