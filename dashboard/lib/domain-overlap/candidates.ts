@@ -51,15 +51,19 @@ export async function readCandidatesBySld(slds: string[]): Promise<Candidate[]> 
   const uniq = [...new Set(slds.map((s) => s.toLowerCase()).filter(Boolean))];
   if (!uniq.length) return [];
   const db = getNamingDb();
+  const CHUNK = 250; // IN(...) list size (well under URL limits)
+  const POOL = 8; // concurrent chunk queries (T2 pushes this to ~500+ chunks)
+
+  const chunks: string[][] = [];
+  for (let i = 0; i < uniq.length; i += CHUNK) chunks.push(uniq.slice(i, i + CHUNK));
+
   const out: Candidate[] = [];
-  const CHUNK = 150; // keep the IN(...) list well under URL limits
-  for (let i = 0; i < uniq.length; i += CHUNK) {
-    const chunk = uniq.slice(i, i + CHUNK);
+  async function fetchChunk(chunk: string[]): Promise<void> {
     const { data, error } = await db
       .from("name_universe")
       .select("domain,sld,tld,sources,best_price,best_price_source")
       .in("sld", chunk)
-      .limit(2000);
+      .limit(5000);
     if (error) throw new Error(`backfill candidates: ${error.message || error.code || "failed"}`);
     for (const r of data ?? []) {
       const row = r as { domain?: unknown; sld?: unknown; tld?: unknown; sources?: unknown; best_price?: unknown; best_price_source?: unknown };
@@ -76,6 +80,16 @@ export async function readCandidatesBySld(slds: string[]): Promise<Candidate[]> 
       });
     }
   }
+
+  // Bounded-concurrency pool over the chunks.
+  let cursor = 0;
+  async function worker(): Promise<void> {
+    while (cursor < chunks.length) {
+      const idx = cursor++;
+      await fetchChunk(chunks[idx]);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(POOL, chunks.length) }, () => worker()));
   return out;
 }
 

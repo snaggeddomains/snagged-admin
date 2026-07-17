@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, type CSSProperties } from "react";
 
 type MatchEntry = { anchor: string; clients: string[]; tier: "exact_tld" | "affix"; affix: string | null };
 type Flag = {
@@ -22,7 +22,9 @@ type AddedDay = { date: string; count: number };
 type Payload = { flags: Flag[]; added: AddedDay[]; health: Health };
 
 const DOT: Record<string, string> = { green: "#1f9d55", yellow: "#c98a00", red: "#cf3b3b" };
-const UNKNOWN = "Unknown client — attribute after review";
+const th: CSSProperties = { padding: "4px 8px", fontWeight: 600 };
+const td: CSSProperties = { padding: "5px 8px", verticalAlign: "top" };
+const linkBtn: CSSProperties = { cursor: "pointer", border: "none", background: "none", color: "#357", padding: 0, fontSize: 12 };
 
 function fmtDate(d: string): string {
   const [y, m, day] = d.split("-").map(Number);
@@ -30,6 +32,28 @@ function fmtDate(d: string): string {
 }
 function tierLabel(t: "exact_tld" | "affix"): string {
   return t === "exact_tld" ? "same word · new TLD" : ".com variation";
+}
+const SOURCE_LABELS: [string, string][] = [
+  ["afternic", "Afternic"], ["sedo", "Sedo"], ["atom", "Atom"], ["namecheap", "Namecheap"],
+  ["efty", "Efty"], ["oxley", "Oxley"], ["brandbucket", "BrandBucket"], ["dan", "Dan"],
+  ["namepros", "NamePros"], ["spaceship", "Spaceship"], ["dynadot", "Dynadot"], ["godaddy", "GoDaddy"],
+];
+function cleanSource(feed: string | null): string {
+  if (!feed) return "";
+  const s = feed.split(",")[0].toLowerCase().replace(/[[\]]/g, "");
+  for (const [k, label] of SOURCE_LABELS) if (s.includes(k)) return label;
+  return s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+function affixOf(f: Flag): string | null {
+  return f.matches.find((x) => x.tier === "affix" && x.affix)?.affix || null;
+}
+function rootOf(f: Flag): string {
+  const anchors = [...new Set(f.matches.map((m) => m.anchor))];
+  if (!anchors.length) return `${f.candidate_sld}.com`;
+  return anchors.find((a) => a.endsWith(".com")) || anchors.slice().sort((a, b) => a.length - b.length)[0];
+}
+function clientName(f: Flag): string {
+  return f.clients.filter((c) => c && !/^snagged master txns$/i.test(c)).join(", ");
 }
 
 export default function ClientOverlapClient() {
@@ -40,6 +64,8 @@ export default function ClientOverlapClient() {
   const [showDismissed, setShowDismissed] = useState(false);
   const [openDay, setOpenDay] = useState<string | null>(null);
   const [dayDomains, setDayDomains] = useState<{ domain: string; clients: string[]; sources: string[] }[] | null>(null);
+  const [selTlds, setSelTlds] = useState<Set<string>>(new Set());
+  const [selAffixes, setSelAffixes] = useState<Set<string>>(new Set());
   // "View all tracked names" corpus browser.
   const [showCorpus, setShowCorpus] = useState(false);
   const [corpus, setCorpus] = useState<{ rows: { domain: string; clients: string[]; sources: string[] }[]; total: number } | null>(null);
@@ -96,16 +122,26 @@ export default function ClientOverlapClient() {
     void load();
   }, [load]);
 
-  const flags = (data?.flags || []).filter((f) => (exactOnly ? f.best_tier === "exact_tld" : true));
+  const allFlags = data?.flags || [];
+  // Filter facets (built from the full set, before filtering).
+  const tldFacets = [...new Set(allFlags.map((f) => f.candidate_tld))].sort();
+  const affixFacets = [...new Set(allFlags.map(affixOf).filter(Boolean) as string[])].sort();
 
-  // Group by client (a multi-client flag appears under each label).
-  const groups = new Map<string, Flag[]>();
-  for (const f of flags) {
-    for (const c of f.clients.length ? f.clients : [UNKNOWN]) {
-      const arr = groups.get(c); if (arr) arr.push(f); else groups.set(c, [f]);
-    }
-  }
-  const clientNames = [...groups.keys()].sort((a, b) => (a === UNKNOWN ? 1 : b === UNKNOWN ? -1 : a.localeCompare(b)));
+  const flags = allFlags.filter((f) =>
+    (exactOnly ? f.best_tier === "exact_tld" : true) &&
+    (selTlds.size ? selTlds.has(f.candidate_tld) : true) &&
+    (selAffixes.size ? (affixOf(f) ? selAffixes.has(affixOf(f)!) : false) : true),
+  );
+  // One flat grid, sorted so matches under the same root domain bundle together.
+  const rows = [...flags].sort((a, b) => {
+    const ra = rootOf(a), rb = rootOf(b);
+    if (ra !== rb) return ra.localeCompare(rb);
+    if (a.best_tier !== b.best_tier) return a.best_tier === "exact_tld" ? -1 : 1;
+    return a.candidate_domain.localeCompare(b.candidate_domain);
+  });
+  const toggle = (set: Set<string>, v: string, setter: (s: Set<string>) => void) => {
+    const n = new Set(set); if (n.has(v)) n.delete(v); else n.add(v); setter(n);
+  };
 
   const h = data?.health;
   return (
@@ -181,45 +217,70 @@ export default function ClientOverlapClient() {
         </div>
       ) : null}
 
-      {/* Controls */}
-      <div style={{ display: "flex", gap: 14, alignItems: "center", margin: "10px 0 14px", fontSize: 13 }}>
-        <label style={{ cursor: "pointer" }}><input type="checkbox" checked={exactOnly} onChange={(e) => setExactOnly(e.target.checked)} /> Exact-word matches only</label>
-        <label style={{ cursor: "pointer" }}><input type="checkbox" checked={showDismissed} onChange={(e) => setShowDismissed(e.target.checked)} /> Show dismissed</label>
-        <button onClick={() => void load()} style={{ marginLeft: "auto", cursor: "pointer" }}>↻ Refresh</button>
+      {/* Controls + filters */}
+      <div style={{ margin: "10px 0 10px", fontSize: 13 }}>
+        <div style={{ display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap" }}>
+          <strong style={{ fontSize: 14 }}>{flags.length.toLocaleString()} match{flags.length === 1 ? "" : "es"}{flags.length !== allFlags.length ? ` · of ${allFlags.length.toLocaleString()}` : ""}</strong>
+          <label style={{ cursor: "pointer" }}><input type="checkbox" checked={exactOnly} onChange={(e) => setExactOnly(e.target.checked)} /> Exact-word only</label>
+          <label style={{ cursor: "pointer" }}><input type="checkbox" checked={showDismissed} onChange={(e) => setShowDismissed(e.target.checked)} /> Show dismissed</label>
+          <button onClick={() => void load()} style={{ marginLeft: "auto", cursor: "pointer" }}>↻ Refresh</button>
+        </div>
+        {tldFacets.length > 1 && (
+          <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", marginTop: 8 }}>
+            <span style={{ color: "#888", fontSize: 12 }}>TLD:</span>
+            {tldFacets.map((t) => (
+              <button key={t} onClick={() => toggle(selTlds, t, setSelTlds)}
+                style={{ cursor: "pointer", fontSize: 12, padding: "2px 8px", borderRadius: 999, border: `1px solid ${selTlds.has(t) ? "#357" : "#ddd"}`, background: selTlds.has(t) ? "#eef4ff" : "#fff" }}>.{t}</button>
+            ))}
+            {selTlds.size > 0 && <button onClick={() => setSelTlds(new Set())} style={{ cursor: "pointer", fontSize: 12, border: "none", background: "none", color: "#999" }}>clear</button>}
+          </div>
+        )}
+        {affixFacets.length > 0 && (
+          <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", marginTop: 6 }}>
+            <span style={{ color: "#888", fontSize: 12 }}>Prefix/suffix:</span>
+            {affixFacets.map((a) => (
+              <button key={a} onClick={() => toggle(selAffixes, a, setSelAffixes)}
+                style={{ cursor: "pointer", fontSize: 12, padding: "2px 8px", borderRadius: 999, border: `1px solid ${selAffixes.has(a) ? "#357" : "#ddd"}`, background: selAffixes.has(a) ? "#eef4ff" : "#fff" }}>{a.startsWith("-") ? `…${a.slice(1)}` : `${a.replace(/-$/, "")}…`}</button>
+            ))}
+            {selAffixes.size > 0 && <button onClick={() => setSelAffixes(new Set())} style={{ cursor: "pointer", fontSize: 12, border: "none", background: "none", color: "#999" }}>clear</button>}
+          </div>
+        )}
       </div>
 
       {err && <p style={{ color: "#cf3b3b" }}>Couldn’t load: {err}</p>}
       {loading && !data && <p className="muted">Loading…</p>}
-      {data && !flags.length && !loading && <p className="muted">No open matches right now. New feed names are checked against the client list every day.</p>}
+      {data && !rows.length && !loading && <p className="muted">No open matches. New feed names are checked against the client list every day.</p>}
 
-      {clientNames.map((client) => (
-        <section key={client} style={{ marginBottom: 18 }}>
-          <h3 style={{ margin: "0 0 6px", fontSize: "1rem" }}>{client === UNKNOWN ? "🕵 Unknown client — attribute after review" : client}</h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            {(groups.get(client) || []).sort((a, b) => (a.best_tier !== b.best_tier ? (a.best_tier === "exact_tld" ? -1 : 1) : a.candidate_domain.localeCompare(b.candidate_domain))).map((f) => {
-              const anchors = [...new Set(f.matches.map((m) => m.anchor))];
-              const draft = `mailto:?subject=${encodeURIComponent(`${f.candidate_domain} just came up`)}&body=${encodeURIComponent(`Saw ${f.candidate_domain} come available — it's a close match to ${anchors.join(", ")}. Want me to look into acquiring it?`)}`;
-              return (
-                <div key={f.candidate_domain} style={{ border: "1px solid #eee", borderRadius: 8, padding: "8px 10px", background: f.dismissed ? "#f6f6f6" : "#fff", opacity: f.dismissed ? 0.6 : 1 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                    <a href={f.link || `https://${f.candidate_domain}`} target="_blank" rel="noreferrer" style={{ fontWeight: 700, fontSize: 15 }}>{f.candidate_domain}</a>
-                    <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", padding: "1px 7px", borderRadius: 4, background: f.best_tier === "exact_tld" ? "#d1f0d6" : "#fdf0c8", color: f.best_tier === "exact_tld" ? "#176a2b" : "#8a6300" }}>{tierLabel(f.best_tier)}</span>
-                    {f.price != null && <span style={{ fontSize: 13, color: "#333" }}>${Math.round(f.price).toLocaleString()}</span>}
-                    {f.source_feed && <span style={{ fontSize: 12, color: "#999" }}>{f.source_feed.split(",")[0]}</span>}
-                    <span style={{ fontSize: 12, color: "#bbb", marginLeft: "auto" }}>{fmtDate(f.run_date)}</span>
-                  </div>
-                  <div style={{ fontSize: 13, color: "#555", marginTop: 3 }}>matches <em>{anchors.join(", ")}</em></div>
-                  <div style={{ display: "flex", gap: 10, marginTop: 6, fontSize: 12 }}>
-                    <a href={draft}>✉ Draft to client</a>
-                    <button onClick={() => void navigator.clipboard?.writeText(f.candidate_domain)} style={{ cursor: "pointer", border: "none", background: "none", color: "#357", padding: 0 }}>Copy</button>
-                    <button onClick={() => dismiss(f.candidate_domain, !f.dismissed)} style={{ cursor: "pointer", border: "none", background: "none", color: "#999", padding: 0, marginLeft: "auto" }}>{f.dismissed ? "Restore" : "Dismiss"}</button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      ))}
+      {rows.length > 0 && (
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <thead>
+              <tr style={{ textAlign: "left", color: "#888", fontSize: 11, textTransform: "uppercase", letterSpacing: ".03em", borderBottom: "1.5px solid #e8e8e8" }}>
+                <th style={th}>Prospective domain</th><th style={th}>Price</th><th style={th}>Root domain</th><th style={th}>Source</th><th style={th}>Link</th><th style={th}>Client</th><th style={th}></th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((f) => (
+                <tr key={f.candidate_domain} style={{ borderTop: "1px solid #f0f0f0", background: f.dismissed ? "#f7f7f7" : "#fff", opacity: f.dismissed ? 0.55 : 1 }}>
+                  <td style={td}>
+                    <span style={{ fontWeight: 600 }}>{f.candidate_domain}</span>
+                    <span title={tierLabel(f.best_tier)} style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, textTransform: "uppercase", padding: "1px 5px", borderRadius: 3, background: f.best_tier === "exact_tld" ? "#d1f0d6" : "#fdf0c8", color: f.best_tier === "exact_tld" ? "#176a2b" : "#8a6300" }}>{f.best_tier === "exact_tld" ? "new TLD" : ".com var"}</span>
+                  </td>
+                  <td style={td}>{f.price != null ? `$${Math.round(f.price).toLocaleString()}` : <span style={{ color: "#bbb" }}>—</span>}</td>
+                  <td style={{ ...td, color: "#555" }}>{rootOf(f)}</td>
+                  <td style={td}>{cleanSource(f.source_feed) || <span style={{ color: "#bbb" }}>—</span>}</td>
+                  <td style={td}>{f.link ? <a href={f.link} target="_blank" rel="noreferrer">view ↗</a> : <span style={{ color: "#bbb" }}>—</span>}</td>
+                  <td style={td}>{clientName(f) || <span style={{ color: "#bbb" }}>—</span>}</td>
+                  <td style={{ ...td, textAlign: "right", whiteSpace: "nowrap" }}>
+                    <button onClick={() => void navigator.clipboard?.writeText(f.candidate_domain)} style={linkBtn}>copy</button>
+                    <button onClick={() => dismiss(f.candidate_domain, !f.dismissed)} style={{ ...linkBtn, color: "#999", marginLeft: 8 }}>{f.dismissed ? "restore" : "dismiss"}</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </main>
   );
 }

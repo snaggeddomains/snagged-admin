@@ -10,11 +10,11 @@ import type { CorpusAnchor } from "../domain-corpus/store";
 
 // Affix sets — copied verbatim from the research app's Beast Mode variations engine
 // (domain-owner-research lib/variations/enumerate.js) so matching stays consistent.
-const PREFIXES = [
+export const PREFIXES = [
   "get", "use", "try", "go", "my", "hi", "hey", "hello", "join", "the", "with", "we",
   "meet", "ask", "run", "on", "shop", "book", "find", "build", "make", "start",
 ];
-const SUFFIXES = [
+export const SUFFIXES = [
   "hq", "app", "labs", "lab", "hub", "io", "ai", "os", "api", "now", "go", "base",
   "pro", "works", "work", "grid", "stack", "flow", "cloud", "one", "ify", "ly", "sys",
   "tech", "group", "ops", "core", "engine", "platform", "desk", "kit", "space", "suite",

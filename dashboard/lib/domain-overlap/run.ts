@@ -2,8 +2,8 @@
 // the day's new candidates, match, and persist the flags. Returns a summary.
 
 import { readCorpusAnchors } from "../domain-corpus/store";
-import { buildIndex, matchCandidate, type Flag } from "./match";
-import { readNewCandidates, readCandidatesBySld, dictionaryWords } from "./candidates";
+import { buildIndex, matchCandidate, PREFIXES, SUFFIXES, type Flag } from "./match";
+import { readCandidatesBySld, dictionaryWords } from "./candidates";
 import { writeFlags } from "./store";
 
 export type OverlapSummary = {
@@ -30,12 +30,18 @@ export async function runOverlap(_opts: { since?: string; backfill?: boolean } =
     const dict = await dictionaryWords(anchors.map((a) => a.sld));
     const idx = buildIndex(anchors, dict);
 
-    // Match by CORPUS SLD, not by first_seen date. name_universe.first_seen scans
-    // time out at this scale; querying by the (indexed) sld is fast AND surfaces every
-    // standing overlap, not just names listed today. writeFlags carries dismissals
-    // forward and reports which candidates are flagged for the FIRST time, so the
-    // Slack/email digest stays edge-triggered (only genuinely new matches).
-    const candidates = await readCandidatesBySld([...idx.sldIndex.keys()]);
+    // Match by SLD, not by first_seen date (that scan times out on 7.3M rows; the sld
+    // index makes IN(...) fast). We query BOTH the exact corpus SLDs (→ T1, same word
+    // other TLD) AND every affixed form (prefix+sld / sld+suffix → T2, .com variations),
+    // so matchCandidate sees the full candidate set. writeFlags carries dismissals
+    // forward and reports first-time matches so the digest stays edge-triggered.
+    const coreSlds = [...idx.sldIndex.keys()];
+    const affixed: string[] = [];
+    for (const sld of coreSlds) {
+      for (const p of PREFIXES) affixed.push(p + sld);
+      for (const s of SUFFIXES) affixed.push(sld + s);
+    }
+    const candidates = await readCandidatesBySld([...new Set([...coreSlds, ...affixed])]);
     const flags: Flag[] = [];
     for (const c of candidates) {
       const f = matchCandidate(c, idx);
