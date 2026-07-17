@@ -1,2 +1,3 @@
 Deploy nudge — re-trigger Vercel after the 2026-07-16 GitHub webhook outage.
 This file is inert; it exists only so the build's ignore-step (which skips non-dashboard/ diffs) sees a change and runs. Safe to delete anytime.
+Deploy nudge 2 — force a fresh production build so the updated CRON_SECRET env is baked in (a same-commit Redeploy is skipped by the ignore-build-step).
