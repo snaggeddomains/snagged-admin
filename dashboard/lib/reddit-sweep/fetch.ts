@@ -34,7 +34,8 @@ function tag(entry: string, name: string): string {
 // SAME mechanism namepros_marketplace.py uses for NamePros/Oxley. Without a token we
 // try direct (works only from an allowed IP).
 function proxied(target: string): string {
-  const token = process.env.SCRAPE_DO_TOKEN;
+  // Accept either name — the research project stores it as SCRAPE_DO_API_KEY.
+  const token = process.env.SCRAPE_DO_TOKEN || process.env.SCRAPE_DO_API_KEY;
   if (!token) return target;
   return `https://api.scrape.do/?token=${token}&url=${encodeURIComponent(target)}&super=true&geoCode=us`;
 }

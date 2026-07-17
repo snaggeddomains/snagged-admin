@@ -62,6 +62,7 @@ export const ACTIONS = [
   "reports.snap_names.write", // push registrar/DNS updates from SNAP Names (bulk actions)
   "reports.chat", // use Chat Analytics (LLM Q&A over the report data)
   "reports.client_overlap", // view the Client Domain Overlap report (new names matching client domains)
+  "reports.social_sweep", // view the Social Sweep report (Reddit/X domain-opportunity posts)
 ] as const;
 export type ActionKey = (typeof ACTIONS)[number];
 
@@ -114,6 +115,7 @@ export const REPORTS_TABS: { href: string; label: string; perm: ModuleKey | Acti
   { href: "/reports/chat", label: "Chat", perm: "reports.chat" },
   { href: "/reports/cost", label: "Cost & usage", perm: "reports.cost" },
   { href: "/reports/client-overlap", label: "Client Overlap", perm: "reports.client_overlap" },
+  { href: "/reports/social-sweep", label: "Social Sweep", perm: "reports.social_sweep" },
   // Corporate Portfolios lives in the research app (/research/portfolio) but
   // belongs to the Reports section. Nav renders /research/* as a full-nav anchor.
   { href: "/research/portfolio", label: "Corporate Portfolios", perm: "research.portfolio" },
@@ -207,6 +209,7 @@ export const CATALOG: CatalogEntry[] = [
   { key: "reports.chat", label: "Reports — Chat Analytics (LLM Q&A)", group: "Reports", kind: "action" },
   { key: "reports.cost", label: "Reports — API cost & usage", group: "Reports", kind: "action" },
   { key: "reports.client_overlap", label: "Reports — Client Domain Overlap (new names matching client domains)", group: "Reports", kind: "action" },
+  { key: "reports.social_sweep", label: "Reports — Social Sweep (Reddit/X domain-opportunity posts)", group: "Reports", kind: "action" },
   { key: "research.domain_owner", label: "Domain Owner research", group: "Research", kind: "module" },
   { key: "research.outreach", label: "Owner Outreach — email drafting", group: "Research", kind: "action" },
   { key: "research.trademark", label: "Trademark", group: "Research", kind: "module" },
