@@ -1,8 +1,11 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-17T17:02:04.472172+00:00",
+  "count": 2,
+  "domains": [
+    "bur.ai",
+    "lye.ai"
+  ],
+  "generated_at": "2026-07-17T23:00:43.976195+00:00",
   "mub": [],
   "source": "reddit_domains"
 }
