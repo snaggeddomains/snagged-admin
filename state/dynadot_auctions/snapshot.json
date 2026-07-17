@@ -1,74 +1,20 @@
 [
   {
-    "bid_count": 5,
-    "domain": "neimo.com",
-    "end_time_utc": "2026-07-16T13:44:56+00:00",
+    "bid_count": 29,
+    "domain": "foreign.io",
+    "end_time_utc": "2026-07-17T16:19:22+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41102955.html",
+    "link": "https://www.dynadot.com/market/auction/41174688.html",
     "platform": "Dynadot",
-    "price": 60.5
-  },
-  {
-    "bid_count": 22,
-    "domain": "fjry.com",
-    "end_time_utc": "2026-07-16T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40133100.html",
-    "platform": "Dynadot",
-    "price": 106.01
-  },
-  {
-    "bid_count": 7,
-    "domain": "refundez.com",
-    "end_time_utc": "2026-07-16T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40138743.html",
-    "platform": "Dynadot",
-    "price": 10.0
+    "price": 63.09
   },
   {
     "bid_count": 0,
-    "domain": "antebellum.co",
-    "end_time_utc": "2026-07-16T19:29:59+00:00",
+    "domain": "famer.co",
+    "end_time_utc": "2026-07-17T19:29:59+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41097213.html",
+    "link": "https://www.dynadot.com/market/auction/41139755.html",
     "platform": "Dynadot",
     "price": 7.99
-  },
-  {
-    "bid_count": 0,
-    "domain": "juneau.co",
-    "end_time_utc": "2026-07-16T19:29:59+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41096945.html",
-    "platform": "Dynadot",
-    "price": 7.99
-  },
-  {
-    "bid_count": 0,
-    "domain": "kagawa.co",
-    "end_time_utc": "2026-07-16T19:29:59+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41096925.html",
-    "platform": "Dynadot",
-    "price": 7.99
-  },
-  {
-    "bid_count": 0,
-    "domain": "schalke.co",
-    "end_time_utc": "2026-07-16T19:29:59+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41097243.html",
-    "platform": "Dynadot",
-    "price": 7.99
-  },
-  {
-    "bid_count": 0,
-    "domain": "competitors.io",
-    "end_time_utc": "2026-07-17T00:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41133924.html",
-    "platform": "Dynadot",
-    "price": 1.0
   }
 ]

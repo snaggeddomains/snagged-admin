@@ -1,19 +1,32 @@
 {
   "capped": false,
-  "count": 10,
+  "count": 21,
   "domains": [
-    "chatting.io",
-    "refundez.com",
-    "dosages.org",
-    "straws.ai",
-    "employer.ai",
-    "filler.ai",
-    "footnotes.ai",
-    "lieutenants.ai",
-    "puddles.ai",
-    "commenting.ai"
+    "shouldnt.org",
+    "penang.ai",
+    "mcgraw.ai",
+    "bluntly.ai",
+    "bothered.ai",
+    "tyrannical.ai",
+    "bitches.io",
+    "keely.ai",
+    "kupta.com",
+    "chewse.com",
+    "mzu.net",
+    "goka.ai",
+    "breakage.org",
+    "greer.ai",
+    "otherworldly.ai",
+    "managerial.ai",
+    "upjo.com",
+    "cough.io",
+    "meant.io",
+    "burials.ai",
+    "coffins.ai"
   ],
-  "generated_at": "2026-07-16T09:40:21.566533+00:00",
-  "mub": [],
+  "generated_at": "2026-07-17T09:42:06.342718+00:00",
+  "mub": [
+    "bothered.ai"
+  ],
   "source": "namecheap_auctions"
 }

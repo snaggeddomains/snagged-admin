@@ -2,9 +2,9 @@
   "capped": false,
   "count": 1,
   "domains": [
-    "fajita.io"
+    "latter.io"
   ],
-  "generated_at": "2026-07-16T09:36:51.238064+00:00",
+  "generated_at": "2026-07-17T09:38:17.000866+00:00",
   "mub": [],
   "source": "parkio_auctions"
 }

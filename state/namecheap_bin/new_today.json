@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-16T09:02:24.062489+00:00",
+  "count": 1,
+  "domains": [
+    "mmm.co"
+  ],
+  "generated_at": "2026-07-17T09:02:58.377457+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

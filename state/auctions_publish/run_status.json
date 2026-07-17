@@ -1,7 +1,7 @@
 {
   "detail": "all ok",
   "failed_count": 0,
-  "generated_at": "2026-07-16T09:42:45.256592+00:00",
+  "generated_at": "2026-07-17T09:45:00.303327+00:00",
   "label": "Auctions publish",
   "ok_count": 8,
   "producers_run": 8,

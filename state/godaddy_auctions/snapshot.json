@@ -1,137 +1,65 @@
 [
   {
+    "bid_count": 65,
+    "domain": "sarva.com",
+    "end_time_utc": "2026-07-17T17:29:00+00:00",
+    "is_mub": true,
+    "link": "https://www.godaddy.com/domain-auctions/sarva-com-712764779?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 4400.0
+  },
+  {
+    "bid_count": 32,
+    "domain": "spiritual.io",
+    "end_time_utc": "2026-07-17T17:58:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/spiritual-io-712758869?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 205.0
+  },
+  {
     "bid_count": 9,
-    "domain": "gavp.com",
-    "end_time_utc": "2026-07-16T16:19:00+00:00",
+    "domain": "subatomic.co",
+    "end_time_utc": "2026-07-17T18:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/gavp-com-712626010?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/subatomic-co-712804261?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 138.0
+    "price": 41.0
   },
   {
-    "bid_count": 5,
-    "domain": "mainline.net",
-    "end_time_utc": "2026-07-16T16:39:00+00:00",
+    "bid_count": 72,
+    "domain": "incubators.com",
+    "end_time_utc": "2026-07-17T18:41:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/mainline-net-712641324?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/incubators-com-712766667?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 16.0
+    "price": 13229.0
   },
   {
-    "bid_count": 18,
-    "domain": "diyh.com",
-    "end_time_utc": "2026-07-16T16:44:00+00:00",
+    "bid_count": 8,
+    "domain": "adots.com",
+    "end_time_utc": "2026-07-17T19:23:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/diyh-com-712629665?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/adots-com-711202377?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 170.0
-  },
-  {
-    "bid_count": 11,
-    "domain": "easers.com",
-    "end_time_utc": "2026-07-16T16:49:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/easers-com-712622098?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 49.0
-  },
-  {
-    "bid_count": 25,
-    "domain": "diyt.com",
-    "end_time_utc": "2026-07-16T17:28:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/diyt-com-712629766?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 265.0
-  },
-  {
-    "bid_count": 13,
-    "domain": "zevl.com",
-    "end_time_utc": "2026-07-16T17:45:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/zevl-com-712618445?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 150.0
-  },
-  {
-    "bid_count": 40,
-    "domain": "jennis.com",
-    "end_time_utc": "2026-07-16T18:17:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/jennis-com-711627071?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 770.0
-  },
-  {
-    "bid_count": 15,
-    "domain": "diyv.com",
-    "end_time_utc": "2026-07-16T18:34:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/diyv-com-712633001?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 135.0
+    "price": 53.0
   },
   {
     "bid_count": 20,
-    "domain": "diyk.com",
-    "end_time_utc": "2026-07-16T18:37:00+00:00",
+    "domain": "hexc.com",
+    "end_time_utc": "2026-07-17T19:30:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/diyk-com-712632907?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/hexc-com-712763446?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 177.0
+    "price": 201.0
   },
   {
-    "bid_count": 22,
-    "domain": "diyd.com",
-    "end_time_utc": "2026-07-16T18:57:00+00:00",
+    "bid_count": 50,
+    "domain": "3106.com",
+    "end_time_utc": "2026-07-17T20:10:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/diyd-com-712622132?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/3106-com-712780886?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 192.0
-  },
-  {
-    "bid_count": 19,
-    "domain": "diyf.com",
-    "end_time_utc": "2026-07-16T19:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/diyf-com-712629617?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 175.0
-  },
-  {
-    "bid_count": 13,
-    "domain": "diyw.com",
-    "end_time_utc": "2026-07-16T20:17:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/diyw-com-712629772?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 145.0
-  },
-  {
-    "bid_count": 36,
-    "domain": "tradx.com",
-    "end_time_utc": "2026-07-16T20:21:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/tradx-com-711627040?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 190.0
-  },
-  {
-    "bid_count": 9,
-    "domain": "gulh.com",
-    "end_time_utc": "2026-07-16T21:18:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/gulh-com-712618524?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 155.0
-  },
-  {
-    "bid_count": 17,
-    "domain": "diyj.com",
-    "end_time_utc": "2026-07-16T21:22:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/diyj-com-712632918?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 143.0
+    "price": 4050.0
   }
 ]

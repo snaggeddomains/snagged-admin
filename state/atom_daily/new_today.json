@@ -2,26 +2,25 @@
   "capped": false,
   "count": 15,
   "domains": [
-    "domain.com",
-    "thirteen.com",
-    "gaza.ai",
-    "rappers.com",
-    "falls.io",
-    "electrons.ai",
-    "index.co",
-    "penalty.io",
-    "fittings.ai",
-    "crisps.ai",
-    "sari.ai",
-    "femur.ai",
-    "furs.ai",
-    "tutorial.io",
-    "techno.co"
+    "edition.ai",
+    "guides.com",
+    "misses.com",
+    "instead.io",
+    "sunset.ai",
+    "posted.io",
+    "fear.io",
+    "goto.com",
+    "reza.com",
+    "rapport.ai",
+    "proxies.ai",
+    "statutory.co",
+    "saz.com",
+    "waz.com",
+    "fme.com"
   ],
-  "generated_at": "2026-07-16T09:22:18.137686+00:00",
+  "generated_at": "2026-07-17T09:23:10.969030+00:00",
   "mub": [
-    "gaza.ai",
-    "tutorial.io"
+    "reza.com"
   ],
   "source": "atom_daily"
 }

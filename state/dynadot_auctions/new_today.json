@@ -1,15 +1,11 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 2,
   "domains": [
-    "neimo.com",
-    "antebellum.co",
-    "juneau.co",
-    "kagawa.co",
-    "schalke.co",
-    "competitors.io"
+    "foreign.io",
+    "famer.co"
   ],
-  "generated_at": "2026-07-16T09:41:05.416568+00:00",
+  "generated_at": "2026-07-17T09:43:35.964424+00:00",
   "mub": [],
   "source": "dynadot_auctions"
 }

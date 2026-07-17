@@ -1,24 +1,18 @@
 {
   "capped": false,
-  "count": 15,
+  "count": 7,
   "domains": [
-    "gavp.com",
-    "mainline.net",
-    "diyh.com",
-    "easers.com",
-    "diyt.com",
-    "zevl.com",
-    "jennis.com",
-    "diyv.com",
-    "diyk.com",
-    "diyd.com",
-    "diyf.com",
-    "diyw.com",
-    "tradx.com",
-    "gulh.com",
-    "diyj.com"
+    "sarva.com",
+    "spiritual.io",
+    "subatomic.co",
+    "incubators.com",
+    "adots.com",
+    "hexc.com",
+    "3106.com"
   ],
-  "generated_at": "2026-07-16T09:41:55.559986+00:00",
-  "mub": [],
+  "generated_at": "2026-07-17T09:44:08.041547+00:00",
+  "mub": [
+    "sarva.com"
+  ],
   "source": "godaddy_auctions"
 }
