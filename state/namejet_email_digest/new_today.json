@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "hawthorn.org"
-  ],
-  "generated_at": "2026-07-17T15:09:38.061897+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-07-17T15:11:42.457197+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
