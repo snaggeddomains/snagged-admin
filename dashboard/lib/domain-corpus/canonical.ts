@@ -95,12 +95,19 @@ export function isBulkSender(email: string): boolean {
   return false;
 }
 
-// Junk / non-human client labels to drop (a person's name is required).
-const JUNK_CLIENT = /^(reminder|reminders|n\/?a|none|unknown|test|noreply|no-reply|do-not-reply|notification|auction|marketplace|godaddy|afternic|sedo|namejet|namecheap|dynadot|catches|dropcatch|snapshot|snagged master txns|snagged|admin|sales|support|info|team)$/i;
+// Junk / non-human client labels to drop entirely (a person's name is required).
+const JUNK_CLIENT = /^(reminder|reminders|n\/?a|none|unknown|test|noreply|no-reply|do-not-reply|notification|auction|marketplace|snapshot|snagged master txns|snagged|admin|sales|support|info|team)$/i;
+
+// Bulk-sender / marketplace / auction ORG names — these appear as email DISPLAY
+// names ("Catches.io", "NameJet", "DropCatch") so they must be dropped even when
+// they carry a suffix (a bare `^catches$` never matched "Catches.io"). Word-ish
+// substring match, case-insensitive.
+const BULK_LABEL = /\b(namejet|catches|dropcatch|drop ?catch|snapnames|snap ?names|dynadot|namesilo|namecheap|godaddy|go ?daddy|afternic|sedo|porkbun|spaceship|hugedomains|huge ?domains|epik|squadhelp|brandbucket|efty|flippa|namepros|expireddomains|expired ?domains|backorder|aftermarket|no-?reply|do-?not-?reply|notification|newsletter|mailer|postmaster|mailer-?daemon|marketplace|auctions?)\b/i;
 
 /**
  * Clean a client/contact label to a real human name, or null to drop it:
  *  - drop email addresses (Rob wants names, not addresses)
+ *  - drop bare domain-like tokens ("Catches.io") and bulk-sender org names
  *  - drop junk / automated / marketplace labels
  *  - trim + collapse whitespace
  */
@@ -111,6 +118,8 @@ export function cleanClientLabel(raw: string | null | undefined): string | null 
   s = s.replace(/^["']|["']$/g, "").trim();
   if (!s || s.length < 2) return null;
   if (JUNK_CLIENT.test(s)) return null;
+  if (BULK_LABEL.test(s)) return null; // a marketplace/auction org, not a client
+  if (/^[a-z0-9][a-z0-9-]*\.[a-z]{2,}$/i.test(s)) return null; // a bare domain ("Catches.io"), not a person
   if (/^\d[\d.,/-]*$/.test(s)) return null; // a number/date, not a name
   return s;
 }

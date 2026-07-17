@@ -51,12 +51,26 @@ function rootOf(f: Flag): string {
   if (!anchors.length) return `${f.candidate_sld}.com`;
   return anchors.find((a) => a.endsWith(".com")) || anchors.slice().sort((a, b) => a.length - b.length)[0];
 }
+// The TLD(s) of the matched client root domain(s) — a .ai holder with a .com upgrade
+// candidate has rootTlds ["ai"]. Used by the "Root TLD" filter.
+function rootTldsOf(f: Flag): string[] {
+  const anchors = f.matches.map((m) => m.anchor);
+  const tlds = anchors.map((a) => a.split(".").slice(1).join(".")).filter(Boolean);
+  return tlds.length ? [...new Set(tlds)] : [rootOf(f).split(".").slice(1).join(".")];
+}
 // Internal owner (Rob/Brian/Sam/Snagged) vs an external client. Junk labels
 // ("Reminder", the Master-txns source tag) are dropped entirely.
 const INTERNAL_RE = /\b(rob|robert|brian|sam|schutz|snagged|berserk)\b/i;
 const JUNK_RE = /^(reminder|snagged master txns|unknown|n\/?a|none)$/i;
+// Bulk-sender / marketplace org names that slip in as email display names.
+const BULK_RE = /\b(namejet|catches|dropcatch|snapnames|dynadot|namesilo|namecheap|godaddy|afternic|sedo|porkbun|spaceship|hugedomains|epik|squadhelp|brandbucket|efty|flippa|namepros|expireddomains|backorder|aftermarket|no-?reply|noreply|notification|newsletter|mailer|marketplace|auctions?)\b/i;
+const DOMAINISH_RE = /^[a-z0-9][a-z0-9-]*\.[a-z]{2,}$/i;
 function cleanLabels(f: Flag): string[] {
-  return [...new Set(f.clients.map((c) => (c || "").trim()).filter((c) => c && !JUNK_RE.test(c)))];
+  return [...new Set(
+    f.clients
+      .map((c) => (c || "").trim())
+      .filter((c) => c && !JUNK_RE.test(c) && !BULK_RE.test(c) && !DOMAINISH_RE.test(c) && !c.includes("@")),
+  )];
 }
 function ownersOf(f: Flag): string[] {
   return cleanLabels(f).filter((c) => INTERNAL_RE.test(c));
@@ -207,13 +221,13 @@ export default function ClientOverlapClient() {
   const auctionCount = allFlags.filter((f) => f.kind === "auction").length;
   // Filter facets (built from the full set, before filtering).
   const tldFacets = [...new Set(allFlags.map((f) => f.candidate_tld))].sort();
-  const rootFacets = [...new Set(allFlags.map(rootOf))].sort();
+  const rootFacets = [...new Set(allFlags.flatMap(rootTldsOf))].filter(Boolean).sort();
 
   const flags = allFlags.filter((f) => {
     if (auctionsOnly && f.kind !== "auction") return false;
     if (exactOnly && f.best_tier !== "exact_tld") return false;
     if (selTlds.size && !selTlds.has(f.candidate_tld)) return false;
-    if (selRoots.size && !selRoots.has(rootOf(f))) return false;
+    if (selRoots.size && !rootTldsOf(f).some((t) => selRoots.has(t))) return false;
     // Prefix/suffix binary — only constrains T2 (.com variation) rows; T1 unaffected.
     if (f.best_tier === "affix") {
       const k = affixKinds(f);
@@ -326,7 +340,7 @@ export default function ClientOverlapClient() {
             <MultiSelect label="TLD" options={tldFacets} selected={selTlds} onChange={setSelTlds} fmt={(t) => `.${t}`} />
           )}
           {rootFacets.length > 1 && (
-            <MultiSelect label="Root domain" options={rootFacets} selected={selRoots} onChange={setSelRoots} />
+            <MultiSelect label="Root TLD" options={rootFacets} selected={selRoots} onChange={setSelRoots} fmt={(t) => `.${t}`} />
           )}
           <span style={{ display: "inline-flex", gap: 10, alignItems: "center", fontSize: 12, color: "#666", border: "1px solid #eee", borderRadius: 6, padding: "3px 10px" }}>
             <span style={{ color: "#888" }}>.com variations:</span>
