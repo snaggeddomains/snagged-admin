@@ -8,17 +8,15 @@
 
 import type { CorpusAnchor } from "../domain-corpus/store";
 
-// Affix sets — copied verbatim from the research app's Beast Mode variations engine
-// (domain-owner-research lib/variations/enumerate.js) so matching stays consistent.
+// Affix sets — the curated high-signal list Rob locked (screenshot 2026-07-17), a
+// tightened subset of the research app's Beast Mode affixes. Only these prefixes/
+// suffixes generate T2 (.com variation) candidates, so low-signal affixes (io/ai/
+// pro/net/…) no longer manufacture noisy matches.
 export const PREFIXES = [
-  "get", "use", "try", "go", "my", "hi", "hey", "hello", "join", "the", "with", "we",
-  "meet", "ask", "run", "on", "shop", "book", "find", "build", "make", "start",
+  "try", "use", "get", "the", "meet", "open", "hi", "hello", "go",
 ];
 export const SUFFIXES = [
-  "hq", "app", "labs", "lab", "hub", "io", "ai", "os", "api", "now", "go", "base",
-  "pro", "works", "work", "grid", "stack", "flow", "cloud", "one", "ify", "ly", "sys",
-  "tech", "group", "ops", "core", "engine", "platform", "desk", "kit", "space", "suite",
-  "studio", "central", "wise", "genie", "ware", "net",
+  "ly", "app", "labs", "hub", "hq", "lab",
 ];
 
 export type Candidate = {

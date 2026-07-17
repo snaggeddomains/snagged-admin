@@ -5,7 +5,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { canReports } from "@/lib/permissions";
-import { listFlags, setFlagDismissed } from "@/lib/domain-overlap/store";
+import { listFlags, setFlagDismissed, setFlagsDismissed } from "@/lib/domain-overlap/store";
 import { recentBuildRuns, corpusCount, domainsAddedOn, addedCountsByDay, listCorpus } from "@/lib/domain-corpus/store";
 
 export const runtime = "nodejs";
@@ -59,10 +59,14 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (!canReports(user, "reports.client_overlap")) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const body = (await req.json().catch(() => ({}))) as { action?: string; domain?: string; dismissed?: boolean };
+  const body = (await req.json().catch(() => ({}))) as { action?: string; domain?: string; domains?: string[]; dismissed?: boolean };
   if (body.action === "dismiss" && body.domain) {
     const ok = await setFlagDismissed(body.domain, body.dismissed !== false);
     return NextResponse.json({ ok });
+  }
+  if (body.action === "dismiss_many" && Array.isArray(body.domains)) {
+    const n = await setFlagsDismissed(body.domains, body.dismissed !== false);
+    return NextResponse.json({ ok: true, updated: n });
   }
   return NextResponse.json({ error: "Unknown action" }, { status: 400 });
 }

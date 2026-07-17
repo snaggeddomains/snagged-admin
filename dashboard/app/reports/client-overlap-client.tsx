@@ -46,16 +46,34 @@ function cleanSource(feed: string | null): string {
   for (const [k, label] of SOURCE_LABELS) if (s.includes(k)) return label;
   return s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
-function affixOf(f: Flag): string | null {
-  return f.matches.find((x) => x.tier === "affix" && x.affix)?.affix || null;
-}
 function rootOf(f: Flag): string {
   const anchors = [...new Set(f.matches.map((m) => m.anchor))];
   if (!anchors.length) return `${f.candidate_sld}.com`;
   return anchors.find((a) => a.endsWith(".com")) || anchors.slice().sort((a, b) => a.length - b.length)[0];
 }
-function clientName(f: Flag): string {
-  return f.clients.filter((c) => c && !/^snagged master txns$/i.test(c)).join(", ");
+// Internal owner (Rob/Brian/Sam/Snagged) vs an external client. Junk labels
+// ("Reminder", the Master-txns source tag) are dropped entirely.
+const INTERNAL_RE = /\b(rob|robert|brian|sam|schutz|snagged|berserk)\b/i;
+const JUNK_RE = /^(reminder|snagged master txns|unknown|n\/?a|none)$/i;
+function cleanLabels(f: Flag): string[] {
+  return [...new Set(f.clients.map((c) => (c || "").trim()).filter((c) => c && !JUNK_RE.test(c)))];
+}
+function ownersOf(f: Flag): string[] {
+  return cleanLabels(f).filter((c) => INTERNAL_RE.test(c));
+}
+function clientsOf(f: Flag): string[] {
+  return cleanLabels(f).filter((c) => !INTERNAL_RE.test(c));
+}
+// Which affix kinds a T2 flag represents (prefix affix = trailing dash "get-",
+// suffix affix = leading dash "-app"). T1 (exact_tld) flags have neither.
+function affixKinds(f: Flag): { prefix: boolean; suffix: boolean } {
+  let prefix = false, suffix = false;
+  for (const m of f.matches) {
+    if (m.tier !== "affix" || !m.affix) continue;
+    if (m.affix.endsWith("-")) prefix = true;
+    else if (m.affix.startsWith("-")) suffix = true;
+  }
+  return { prefix, suffix };
 }
 function endsMs(f: Flag): number {
   if (!f.ends_at) return Infinity;
@@ -75,6 +93,33 @@ function endsLabel(iso: string | null): { text: string; urgent: boolean } | null
   return { text: `${days}d`, urgent: days <= 2 };
 }
 
+// A compact multiselect dropdown (label ▾ → checkbox panel). Uses <details> so it
+// closes on its own without click-outside wiring.
+function MultiSelect({ label, options, selected, onChange, fmt }: {
+  label: string; options: string[]; selected: Set<string>; onChange: (s: Set<string>) => void; fmt?: (v: string) => string;
+}) {
+  const summary = selected.size === 0 ? "all" : selected.size === 1 ? (fmt ? fmt([...selected][0]) : [...selected][0]) : `${selected.size} selected`;
+  const toggle = (v: string) => { const n = new Set(selected); if (n.has(v)) n.delete(v); else n.add(v); onChange(n); };
+  return (
+    <details style={{ position: "relative", display: "inline-block" }}>
+      <summary style={{ cursor: "pointer", listStyle: "none", fontSize: 12, padding: "3px 10px", borderRadius: 6, border: "1px solid #ccd", background: selected.size ? "#eef4ff" : "#fff", whiteSpace: "nowrap" }}>
+        {label}: <strong>{summary}</strong> ▾
+      </summary>
+      <div style={{ position: "absolute", zIndex: 20, marginTop: 4, minWidth: 160, maxHeight: 260, overflow: "auto", background: "#fff", border: "1px solid #ddd", borderRadius: 8, boxShadow: "0 6px 20px rgba(0,0,0,.12)", padding: 6 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", padding: "2px 6px 6px", borderBottom: "1px solid #f0f0f0", marginBottom: 4 }}>
+          <button onClick={() => onChange(new Set(options))} style={{ ...linkBtn, fontSize: 11 }}>all</button>
+          <button onClick={() => onChange(new Set())} style={{ ...linkBtn, fontSize: 11, color: "#999" }}>clear</button>
+        </div>
+        {options.map((o) => (
+          <label key={o} style={{ display: "flex", alignItems: "center", gap: 6, padding: "3px 6px", fontSize: 12, cursor: "pointer", whiteSpace: "nowrap" }}>
+            <input type="checkbox" checked={selected.has(o)} onChange={() => toggle(o)} /> {fmt ? fmt(o) : o}
+          </label>
+        ))}
+      </div>
+    </details>
+  );
+}
+
 export default function ClientOverlapClient() {
   const [data, setData] = useState<Payload | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -85,7 +130,11 @@ export default function ClientOverlapClient() {
   const [openDay, setOpenDay] = useState<string | null>(null);
   const [dayDomains, setDayDomains] = useState<{ domain: string; clients: string[]; sources: string[] }[] | null>(null);
   const [selTlds, setSelTlds] = useState<Set<string>>(new Set());
-  const [selAffixes, setSelAffixes] = useState<Set<string>>(new Set());
+  const [selRoots, setSelRoots] = useState<Set<string>>(new Set());
+  const [includePrefix, setIncludePrefix] = useState(true);
+  const [includeSuffix, setIncludeSuffix] = useState(true);
+  const [checked, setChecked] = useState<Set<string>>(new Set()); // bulk-select
+  const [busy, setBusy] = useState(false);
   // "View all tracked names" corpus browser.
   const [showCorpus, setShowCorpus] = useState(false);
   const [corpus, setCorpus] = useState<{ rows: { domain: string; clients: string[]; sources: string[] }[]; total: number } | null>(null);
@@ -142,18 +191,37 @@ export default function ClientOverlapClient() {
     void load();
   }, [load]);
 
+  const bulkDismiss = useCallback(async (domains: string[], dismissed: boolean) => {
+    if (!domains.length) return;
+    setBusy(true);
+    try {
+      await fetch(`/api/admin/client-overlap`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "dismiss_many", domains, dismissed }) });
+      setChecked(new Set());
+      await load();
+    } finally {
+      setBusy(false);
+    }
+  }, [load]);
+
   const allFlags = data?.flags || [];
   const auctionCount = allFlags.filter((f) => f.kind === "auction").length;
   // Filter facets (built from the full set, before filtering).
   const tldFacets = [...new Set(allFlags.map((f) => f.candidate_tld))].sort();
-  const affixFacets = [...new Set(allFlags.map(affixOf).filter(Boolean) as string[])].sort();
+  const rootFacets = [...new Set(allFlags.map(rootOf))].sort();
 
-  const flags = allFlags.filter((f) =>
-    (auctionsOnly ? f.kind === "auction" : true) &&
-    (exactOnly ? f.best_tier === "exact_tld" : true) &&
-    (selTlds.size ? selTlds.has(f.candidate_tld) : true) &&
-    (selAffixes.size ? (affixOf(f) ? selAffixes.has(affixOf(f)!) : false) : true),
-  );
+  const flags = allFlags.filter((f) => {
+    if (auctionsOnly && f.kind !== "auction") return false;
+    if (exactOnly && f.best_tier !== "exact_tld") return false;
+    if (selTlds.size && !selTlds.has(f.candidate_tld)) return false;
+    if (selRoots.size && !selRoots.has(rootOf(f))) return false;
+    // Prefix/suffix binary — only constrains T2 (.com variation) rows; T1 unaffected.
+    if (f.best_tier === "affix") {
+      const k = affixKinds(f);
+      const shown = (k.prefix && includePrefix) || (k.suffix && includeSuffix);
+      if (!shown) return false;
+    }
+    return true;
+  });
   // Auctions FIRST (time-sensitive — the client likely has no idea their word is
   // live at auction), soonest-ending first; then sales bundled under their root domain.
   const rows = [...flags].sort((a, b) => {
@@ -168,10 +236,6 @@ export default function ClientOverlapClient() {
     if (a.best_tier !== b.best_tier) return a.best_tier === "exact_tld" ? -1 : 1;
     return a.candidate_domain.localeCompare(b.candidate_domain);
   });
-  const toggle = (set: Set<string>, v: string, setter: (s: Set<string>) => void) => {
-    const n = new Set(set); if (n.has(v)) n.delete(v); else n.add(v); setter(n);
-  };
-
   const h = data?.health;
   return (
     <main style={{ maxWidth: 920 }}>
@@ -257,27 +321,35 @@ export default function ClientOverlapClient() {
           <label style={{ cursor: "pointer" }}><input type="checkbox" checked={showDismissed} onChange={(e) => setShowDismissed(e.target.checked)} /> Show dismissed</label>
           <button onClick={() => void load()} style={{ marginLeft: "auto", cursor: "pointer" }}>↻ Refresh</button>
         </div>
-        {tldFacets.length > 1 && (
-          <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", marginTop: 8 }}>
-            <span style={{ color: "#888", fontSize: 12 }}>TLD:</span>
-            {tldFacets.map((t) => (
-              <button key={t} onClick={() => toggle(selTlds, t, setSelTlds)}
-                style={{ cursor: "pointer", fontSize: 12, padding: "2px 8px", borderRadius: 999, border: `1px solid ${selTlds.has(t) ? "#357" : "#ddd"}`, background: selTlds.has(t) ? "#eef4ff" : "#fff" }}>.{t}</button>
-            ))}
-            {selTlds.size > 0 && <button onClick={() => setSelTlds(new Set())} style={{ cursor: "pointer", fontSize: 12, border: "none", background: "none", color: "#999" }}>clear</button>}
-          </div>
-        )}
-        {affixFacets.length > 0 && (
-          <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", marginTop: 6 }}>
-            <span style={{ color: "#888", fontSize: 12 }}>Prefix/suffix:</span>
-            {affixFacets.map((a) => (
-              <button key={a} onClick={() => toggle(selAffixes, a, setSelAffixes)}
-                style={{ cursor: "pointer", fontSize: 12, padding: "2px 8px", borderRadius: 999, border: `1px solid ${selAffixes.has(a) ? "#357" : "#ddd"}`, background: selAffixes.has(a) ? "#eef4ff" : "#fff" }}>{a.startsWith("-") ? `…${a.slice(1)}` : `${a.replace(/-$/, "")}…`}</button>
-            ))}
-            {selAffixes.size > 0 && <button onClick={() => setSelAffixes(new Set())} style={{ cursor: "pointer", fontSize: 12, border: "none", background: "none", color: "#999" }}>clear</button>}
-          </div>
-        )}
+        <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginTop: 10 }}>
+          {tldFacets.length > 1 && (
+            <MultiSelect label="TLD" options={tldFacets} selected={selTlds} onChange={setSelTlds} fmt={(t) => `.${t}`} />
+          )}
+          {rootFacets.length > 1 && (
+            <MultiSelect label="Root domain" options={rootFacets} selected={selRoots} onChange={setSelRoots} />
+          )}
+          <span style={{ display: "inline-flex", gap: 10, alignItems: "center", fontSize: 12, color: "#666", border: "1px solid #eee", borderRadius: 6, padding: "3px 10px" }}>
+            <span style={{ color: "#888" }}>.com variations:</span>
+            <label style={{ cursor: "pointer" }}><input type="checkbox" checked={includePrefix} onChange={(e) => setIncludePrefix(e.target.checked)} /> Prefix</label>
+            <label style={{ cursor: "pointer" }}><input type="checkbox" checked={includeSuffix} onChange={(e) => setIncludeSuffix(e.target.checked)} /> Suffix</label>
+          </span>
+          {(selTlds.size || selRoots.size || !includePrefix || !includeSuffix) ? (
+            <button onClick={() => { setSelTlds(new Set()); setSelRoots(new Set()); setIncludePrefix(true); setIncludeSuffix(true); }}
+              style={{ ...linkBtn, color: "#999", fontSize: 12 }}>reset filters</button>
+          ) : null}
+        </div>
       </div>
+
+      {/* Bulk action bar — appears when rows are checked. */}
+      {checked.size > 0 && (
+        <div style={{ display: "flex", gap: 10, alignItems: "center", margin: "0 0 8px", padding: "7px 12px", background: "#eef4ff", border: "1px solid #cdd8f0", borderRadius: 8, fontSize: 13 }}>
+          <strong>{checked.size} selected</strong>
+          <button disabled={busy} onClick={() => void bulkDismiss([...checked], !showDismissed)} style={{ cursor: "pointer", fontWeight: 600 }}>
+            {busy ? "…" : showDismissed ? "↩ Restore selected" : "✕ Dismiss selected"}
+          </button>
+          <button onClick={() => setChecked(new Set())} style={{ ...linkBtn, color: "#777" }}>clear selection</button>
+        </div>
+      )}
 
       {err && <p style={{ color: "#cf3b3b" }}>Couldn’t load: {err}</p>}
       {loading && !data && <p className="muted">Loading…</p>}
@@ -288,7 +360,12 @@ export default function ClientOverlapClient() {
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead>
               <tr style={{ textAlign: "left", color: "#888", fontSize: 11, textTransform: "uppercase", letterSpacing: ".03em", borderBottom: "1.5px solid #e8e8e8" }}>
-                <th style={th}>Prospective domain</th><th style={th}>Price</th><th style={th}>Ends</th><th style={th}>Root domain</th><th style={th}>Source</th><th style={th}>Link</th><th style={th}>Client</th><th style={th}></th>
+                <th style={{ ...th, width: 28 }}>
+                  <input type="checkbox" title="Select all shown"
+                    checked={rows.length > 0 && rows.every((r) => checked.has(r.candidate_domain))}
+                    onChange={(e) => setChecked(e.target.checked ? new Set(rows.map((r) => r.candidate_domain)) : new Set())} />
+                </th>
+                <th style={th}>Prospective domain</th><th style={th}>Price</th><th style={th}>Ends</th><th style={th}>Root domain</th><th style={th}>Source</th><th style={th}>Link</th><th style={th}>Owner</th><th style={th}>Client</th><th style={th}></th>
               </tr>
             </thead>
             <tbody>
@@ -296,8 +373,15 @@ export default function ClientOverlapClient() {
                 const isAuction = f.kind === "auction";
                 const ends = endsLabel(f.ends_at);
                 const bg = f.dismissed ? "#f7f7f7" : isAuction ? "#fff6f2" : "#fff";
+                const owners = ownersOf(f);
+                const clients = clientsOf(f);
+                const isChecked = checked.has(f.candidate_domain);
                 return (
-                <tr key={f.candidate_domain} style={{ borderTop: "1px solid #f0f0f0", background: bg, opacity: f.dismissed ? 0.55 : 1 }}>
+                <tr key={f.candidate_domain} style={{ borderTop: "1px solid #f0f0f0", background: isChecked ? "#eef4ff" : bg, opacity: f.dismissed ? 0.55 : 1 }}>
+                  <td style={{ ...td, width: 28 }}>
+                    <input type="checkbox" checked={isChecked}
+                      onChange={() => setChecked((prev) => { const n = new Set(prev); if (n.has(f.candidate_domain)) n.delete(f.candidate_domain); else n.add(f.candidate_domain); return n; })} />
+                  </td>
                   <td style={{ ...td, whiteSpace: "nowrap" }}>
                     {isAuction && <span title="Live at auction — time-sensitive" style={{ marginRight: 6, fontSize: 10, fontWeight: 700, textTransform: "uppercase", padding: "1px 5px", borderRadius: 3, background: "#f4c7b6", color: "#8a1f00" }}>🔨 auction</span>}
                     <span style={{ fontWeight: 600 }}>{f.candidate_domain}</span>
@@ -306,9 +390,10 @@ export default function ClientOverlapClient() {
                   <td style={{ ...td, whiteSpace: "nowrap" }}>{f.price != null ? `$${Math.round(f.price).toLocaleString()}` : <span style={{ color: "#bbb" }}>—</span>}</td>
                   <td style={{ ...td, whiteSpace: "nowrap" }}>{ends ? <span style={{ fontWeight: ends.urgent ? 700 : 500, color: ends.urgent ? "#cf3b3b" : "#8a6300" }}>{ends.text}</span> : <span style={{ color: "#ddd" }}>—</span>}</td>
                   <td style={{ ...td, color: "#555", whiteSpace: "nowrap" }}>{rootOf(f)}</td>
-                  <td style={td}>{cleanSource(f.source_feed) || <span style={{ color: "#bbb" }}>—</span>}</td>
-                  <td style={td}>{f.link ? <a href={f.link} target="_blank" rel="noreferrer">view ↗</a> : <span style={{ color: "#bbb" }}>—</span>}</td>
-                  <td style={td}>{clientName(f) || <span style={{ color: "#bbb" }}>—</span>}</td>
+                  <td style={{ ...td, whiteSpace: "nowrap" }}>{cleanSource(f.source_feed) || <span style={{ color: "#bbb" }}>—</span>}</td>
+                  <td style={{ ...td, whiteSpace: "nowrap" }}>{f.link ? <a href={f.link} target="_blank" rel="noreferrer">view ↗</a> : <span style={{ color: "#bbb" }}>—</span>}</td>
+                  <td style={{ ...td, whiteSpace: "nowrap", color: "#777" }}>{owners.length ? owners.join(", ") : <span style={{ color: "#ccc" }}>—</span>}</td>
+                  <td style={{ ...td, whiteSpace: "nowrap" }}>{clients.length ? clients.join(", ") : <span style={{ color: "#bbb" }}>—</span>}</td>
                   <td style={{ ...td, textAlign: "right", whiteSpace: "nowrap" }}>
                     <button onClick={() => void navigator.clipboard?.writeText(f.candidate_domain)} style={linkBtn}>copy</button>
                     <button onClick={() => dismiss(f.candidate_domain, !f.dismissed)} style={{ ...linkBtn, color: "#999", marginLeft: 8 }}>{f.dismissed ? "restore" : "dismiss"}</button>

@@ -75,6 +75,16 @@ export async function writeFlags(runDate: string, flags: Flag[]): Promise<{ writ
     }
     written += chunk.length;
   }
+
+  // Delete flags that dropped out of the current match set (anchor removed by a
+  // corpus scrub, or the candidate delisted). Without this, stale rows linger with
+  // their OLD client labels forever — which is how scrubbed NameJet/Catches anchors
+  // kept showing as "clients" after the corpus was cleaned. Exact set-difference.
+  const currentSet = new Set(flags.map((f) => f.candidate_domain.toLowerCase()));
+  const stale = [...existing].filter((d) => !currentSet.has(d));
+  for (let i = 0; i < stale.length; i += 200) {
+    await db.from(TABLE).delete().in("candidate_domain", stale.slice(i, i + 200));
+  }
   return { written, newDomains };
 }
 
@@ -129,4 +139,18 @@ export async function setFlagDismissed(candidateDomain: string, dismissed: boole
   if (!isDbConfigured() || !candidateDomain) return false;
   const { error } = await getDb().from(TABLE).update({ dismissed }).eq("candidate_domain", candidateDomain);
   return !error;
+}
+
+/** Bulk dismiss / restore by candidate_domain (chunked). Returns how many updated. */
+export async function setFlagsDismissed(candidateDomains: string[], dismissed: boolean): Promise<number> {
+  const uniq = [...new Set(candidateDomains.filter(Boolean))];
+  if (!isDbConfigured() || !uniq.length) return 0;
+  const db = getDb();
+  let n = 0;
+  for (let i = 0; i < uniq.length; i += 200) {
+    const chunk = uniq.slice(i, i + 200);
+    const { error } = await db.from(TABLE).update({ dismissed }).in("candidate_domain", chunk);
+    if (!error) n += chunk.length;
+  }
+  return n;
 }
