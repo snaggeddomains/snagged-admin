@@ -150,6 +150,57 @@ export async function recentBuildRuns(limit = 30): Promise<BuildRun[]> {
   return (data ?? []) as BuildRun[];
 }
 
+export type CorpusListRow = { domain: string; clients: string[]; sources: string[]; date_added: string; last_contact_date: string | null };
+
+/** Browse the tracked corpus (the "view all names" toggle). Optional substring search
+ *  over domain or client label. */
+export async function listCorpus(opts: { q?: string; limit?: number; offset?: number } = {}): Promise<{ rows: CorpusListRow[]; total: number }> {
+  if (!isDbConfigured()) return { rows: [], total: 0 };
+  const db = getDb();
+  const limit = Math.min(opts.limit ?? 200, 1000);
+  const offset = opts.offset ?? 0;
+  let q = db.from(TABLE).select("domain,clients,sources,date_added,last_contact_date", { count: "exact" });
+  const term = (opts.q || "").trim().toLowerCase();
+  if (term) q = q.or(`domain.ilike.%${term}%,clients.cs.{${term}}`);
+  const { data, count, error } = await q.order("domain", { ascending: true }).range(offset, offset + limit - 1);
+  if (error) return { rows: [], total: 0 };
+  const rows = (data ?? []).map((r) => {
+    const row = r as { domain?: unknown; clients?: unknown; sources?: unknown; date_added?: unknown; last_contact_date?: unknown };
+    return {
+      domain: String(row.domain || ""),
+      clients: Array.isArray(row.clients) ? (row.clients as string[]) : [],
+      sources: Array.isArray(row.sources) ? (row.sources as string[]) : [],
+      date_added: row.date_added ? String(row.date_added).slice(0, 10) : "",
+      last_contact_date: row.last_contact_date ? String(row.last_contact_date).slice(0, 10) : null,
+    };
+  });
+  return { rows, total: count ?? rows.length };
+}
+
+/** Accurate "names added per day" — DISTINCT domains by first_ingested_at (not the
+ *  per-run added_count, which double-counts multiple runs on the same day). */
+export async function addedCountsByDay(days = 21): Promise<{ date: string; count: number }[]> {
+  if (!isDbConfigured()) return [];
+  const since = new Date(Date.now() - days * 86400_000).toISOString().slice(0, 10);
+  const db = getDb();
+  const counts = new Map<string, number>();
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await db
+      .from(TABLE)
+      .select("first_ingested_at")
+      .gte("first_ingested_at", since)
+      .range(from, from + PAGE - 1);
+    if (error) break;
+    const rows = data ?? [];
+    for (const r of rows) {
+      const d = (r as { first_ingested_at?: unknown }).first_ingested_at;
+      if (d) { const k = String(d).slice(0, 10); counts.set(k, (counts.get(k) || 0) + 1); }
+    }
+    if (rows.length < PAGE) break;
+  }
+  return [...counts.entries()].sort((a, b) => (a[0] < b[0] ? 1 : -1)).map(([date, count]) => ({ date, count }));
+}
+
 /** The actual domains first ingested on a given date (the drill-down). */
 export async function domainsAddedOn(date: string): Promise<{ domain: string; clients: string[]; sources: string[] }[]> {
   if (!isDbConfigured()) return [];

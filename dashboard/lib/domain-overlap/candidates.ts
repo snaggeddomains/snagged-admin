@@ -41,6 +41,45 @@ export async function readNewCandidates(since: string): Promise<Candidate[]> {
 }
 
 /**
+ * Backfill candidates: every name_universe row whose SLD is one of the corpus SLDs,
+ * regardless of when it was first seen. This is how STANDING overlaps surface (the
+ * daily first_seen window only catches names listed today). Querying by `sld` is
+ * indexed + fast (verified), so this stays cheap even though name_universe is huge.
+ */
+export async function readCandidatesBySld(slds: string[]): Promise<Candidate[]> {
+  if (!isNamingConfigured()) return [];
+  const uniq = [...new Set(slds.map((s) => s.toLowerCase()).filter(Boolean))];
+  if (!uniq.length) return [];
+  const db = getNamingDb();
+  const out: Candidate[] = [];
+  const CHUNK = 150; // keep the IN(...) list well under URL limits
+  for (let i = 0; i < uniq.length; i += CHUNK) {
+    const chunk = uniq.slice(i, i + CHUNK);
+    const { data, error } = await db
+      .from("name_universe")
+      .select("domain,sld,tld,sources,best_price,best_price_source")
+      .in("sld", chunk)
+      .limit(2000);
+    if (error) throw new Error(`backfill candidates: ${error.message || error.code || "failed"}`);
+    for (const r of data ?? []) {
+      const row = r as { domain?: unknown; sld?: unknown; tld?: unknown; sources?: unknown; best_price?: unknown; best_price_source?: unknown };
+      const domain = String(row.domain || "").toLowerCase();
+      if (!domain) continue;
+      const sources = Array.isArray(row.sources) ? (row.sources as string[]) : [];
+      out.push({
+        domain,
+        sld: String(row.sld || domain.split(".")[0] || "").toLowerCase(),
+        tld: String(row.tld || domain.split(".").slice(1).join(".") || "").toLowerCase(),
+        feed: sources.length ? sources.join(",") : null,
+        price: typeof row.best_price === "number" ? row.best_price : null,
+        priceSource: row.best_price_source != null ? String(row.best_price_source) : null,
+      });
+    }
+  }
+  return out;
+}
+
+/**
  * Which of these SLDs are common dictionary words (the noise guard). Batched lookup
  * against the naming project's english_words table; fail-open to an empty set so a
  * missing table just means length-only guarding.

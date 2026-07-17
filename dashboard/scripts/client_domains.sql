@@ -43,26 +43,26 @@ create index if not exists idx_build_runs_at on client_domain_build_runs (run_at
 
 alter table client_domain_build_runs enable row level security;
 
--- ── Overlap flags: one row per (run_date, candidate) with its matched anchors ────
--- Written by the overlap matcher; read by the Reports tab + daily digest.
+-- ── Overlap flags: ONE row per candidate_domain (the current match set) ─────────
+-- Written by the overlap matcher (upsert; dismissals + first_flagged_at preserved);
+-- read by the Reports tab + digest. Keyed by candidate_domain so a re-run refreshes
+-- the set in place instead of accumulating a row per day.
 create table if not exists client_domain_overlap_flags (
-  id               uuid primary key default gen_random_uuid(),
-  run_date         date not null,
-  candidate_domain text not null,
+  candidate_domain text primary key,
   candidate_sld    text not null,
   candidate_tld    text not null,
   best_tier        text not null,                -- 'exact_tld' (T1) | 'affix' (T2)
   clients          text[] not null default '{}', -- flattened unique client labels of the matched anchors
   matches          jsonb not null default '[]',  -- [{anchor, clients[], tier, affix}]
-  source_feed      text,                         -- which feed surfaced the candidate (afternic/atom/auctions/…)
+  source_feed      text,                         -- which feed surfaced the candidate (afternic/atom/…)
   price            numeric,
   price_source     text,
   link             text,
   dismissed        boolean not null default false,
-  created_at       timestamptz not null default now(),
-  unique (run_date, candidate_domain)
+  first_flagged_at date not null default current_date,
+  last_seen_at     date not null default current_date,
+  created_at       timestamptz not null default now()
 );
-create index if not exists idx_overlap_flags_run on client_domain_overlap_flags (run_date desc);
-create index if not exists idx_overlap_flags_open on client_domain_overlap_flags (dismissed, run_date desc);
+create index if not exists idx_overlap_flags_open on client_domain_overlap_flags (dismissed, first_flagged_at desc);
 
 alter table client_domain_overlap_flags enable row level security;

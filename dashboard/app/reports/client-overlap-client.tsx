@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback } from "react";
 
 type MatchEntry = { anchor: string; clients: string[]; tier: "exact_tld" | "affix"; affix: string | null };
 type Flag = {
-  id: string;
   run_date: string;
   candidate_domain: string;
   candidate_sld: string;
@@ -41,6 +40,10 @@ export default function ClientOverlapClient() {
   const [showDismissed, setShowDismissed] = useState(false);
   const [openDay, setOpenDay] = useState<string | null>(null);
   const [dayDomains, setDayDomains] = useState<{ domain: string; clients: string[]; sources: string[] }[] | null>(null);
+  // "View all tracked names" corpus browser.
+  const [showCorpus, setShowCorpus] = useState(false);
+  const [corpus, setCorpus] = useState<{ rows: { domain: string; clients: string[]; sources: string[] }[]; total: number } | null>(null);
+  const [corpusQ, setCorpusQ] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -71,8 +74,25 @@ export default function ClientOverlapClient() {
     }
   }, [openDay]);
 
-  const dismiss = useCallback(async (id: string, dismissed: boolean) => {
-    await fetch(`/api/admin/client-overlap`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "dismiss", id, dismissed }) });
+  const loadCorpus = useCallback(async (q: string) => {
+    setCorpus(null);
+    try {
+      const res = await fetch(`/api/admin/client-overlap?corpus=1&q=${encodeURIComponent(q)}`, { cache: "no-store" });
+      const j = await res.json();
+      setCorpus({ rows: j.rows || [], total: j.total || 0 });
+    } catch {
+      setCorpus({ rows: [], total: 0 });
+    }
+  }, []);
+
+  const toggleCorpus = useCallback(() => {
+    const next = !showCorpus;
+    setShowCorpus(next);
+    if (next && !corpus) void loadCorpus("");
+  }, [showCorpus, corpus, loadCorpus]);
+
+  const dismiss = useCallback(async (domain: string, dismissed: boolean) => {
+    await fetch(`/api/admin/client-overlap`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "dismiss", domain, dismissed }) });
     void load();
   }, [load]);
 
@@ -99,7 +119,37 @@ export default function ClientOverlapClient() {
             {h.total.toLocaleString()} tracked
           </span>
         )}
+        <button onClick={toggleCorpus} style={{ marginLeft: "auto", cursor: "pointer", fontSize: 13 }}>
+          {showCorpus ? "✕ Hide tracked names" : "📇 View all tracked names"}
+        </button>
       </div>
+
+      {/* Corpus browser — confirm exactly what we're matching against. */}
+      {showCorpus && (
+        <div style={{ margin: "12px 0", border: "1px solid #e2e2e2", borderRadius: 8, padding: 12, background: "#fbfbfb" }}>
+          <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
+            <input value={corpusQ} onChange={(e) => setCorpusQ(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") void loadCorpus(corpusQ); }}
+              placeholder="search domain or client…" style={{ flex: 1, padding: "5px 8px", fontSize: 13 }} />
+            <button onClick={() => void loadCorpus(corpusQ)} style={{ cursor: "pointer" }}>Search</button>
+            {corpus && <span style={{ fontSize: 12, color: "#888" }}>{corpus.total.toLocaleString()} tracked{corpus.total > corpus.rows.length ? ` · showing ${corpus.rows.length}` : ""}</span>}
+          </div>
+          {!corpus ? <div className="muted">Loading…</div> : corpus.rows.length === 0 ? <div className="muted">No matches.</div> : (
+            <div style={{ maxHeight: 320, overflow: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                <tbody>
+                  {corpus.rows.map((r) => (
+                    <tr key={r.domain} style={{ borderBottom: "1px solid #f0f0f0" }}>
+                      <td style={{ padding: "3px 6px", fontWeight: 600 }}>{r.domain}</td>
+                      <td style={{ padding: "3px 6px", color: "#555" }}>{r.clients.filter((c) => c && !/^snagged master txns$/i.test(c)).join(", ")}</td>
+                      <td style={{ padding: "3px 6px", color: "#aaa", fontSize: 11, whiteSpace: "nowrap" }}>{r.sources.map((s) => s.replace(/^\[|\]$/g, "").replace(/^Gmail:.*/, "Gmail")).join(" ")}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
       <p className="muted" style={{ marginTop: 4 }}>
         New names from the marketplace/auction feeds that match a domain a client owns or was hunting — exact word on a new TLD, or a <code>.com</code> prefix/suffix variation.
       </p>
@@ -150,7 +200,7 @@ export default function ClientOverlapClient() {
               const anchors = [...new Set(f.matches.map((m) => m.anchor))];
               const draft = `mailto:?subject=${encodeURIComponent(`${f.candidate_domain} just came up`)}&body=${encodeURIComponent(`Saw ${f.candidate_domain} come available — it's a close match to ${anchors.join(", ")}. Want me to look into acquiring it?`)}`;
               return (
-                <div key={f.id} style={{ border: "1px solid #eee", borderRadius: 8, padding: "8px 10px", background: f.dismissed ? "#f6f6f6" : "#fff", opacity: f.dismissed ? 0.6 : 1 }}>
+                <div key={f.candidate_domain} style={{ border: "1px solid #eee", borderRadius: 8, padding: "8px 10px", background: f.dismissed ? "#f6f6f6" : "#fff", opacity: f.dismissed ? 0.6 : 1 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                     <a href={f.link || `https://${f.candidate_domain}`} target="_blank" rel="noreferrer" style={{ fontWeight: 700, fontSize: 15 }}>{f.candidate_domain}</a>
                     <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", padding: "1px 7px", borderRadius: 4, background: f.best_tier === "exact_tld" ? "#d1f0d6" : "#fdf0c8", color: f.best_tier === "exact_tld" ? "#176a2b" : "#8a6300" }}>{tierLabel(f.best_tier)}</span>
@@ -162,7 +212,7 @@ export default function ClientOverlapClient() {
                   <div style={{ display: "flex", gap: 10, marginTop: 6, fontSize: 12 }}>
                     <a href={draft}>✉ Draft to client</a>
                     <button onClick={() => void navigator.clipboard?.writeText(f.candidate_domain)} style={{ cursor: "pointer", border: "none", background: "none", color: "#357", padding: 0 }}>Copy</button>
-                    <button onClick={() => dismiss(f.id, !f.dismissed)} style={{ cursor: "pointer", border: "none", background: "none", color: "#999", padding: 0, marginLeft: "auto" }}>{f.dismissed ? "Restore" : "Dismiss"}</button>
+                    <button onClick={() => dismiss(f.candidate_domain, !f.dismissed)} style={{ cursor: "pointer", border: "none", background: "none", color: "#999", padding: 0, marginLeft: "auto" }}>{f.dismissed ? "Restore" : "Dismiss"}</button>
                   </div>
                 </div>
               );
