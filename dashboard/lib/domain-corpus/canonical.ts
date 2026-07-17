@@ -104,6 +104,13 @@ const JUNK_CLIENT = /^(reminder|reminders|n\/?a|none|unknown|test|noreply|no-rep
 // substring match, case-insensitive.
 const BULK_LABEL = /\b(namejet|catches|dropcatch|drop ?catch|snapnames|snap ?names|dynadot|namesilo|namecheap|godaddy|go ?daddy|afternic|sedo|porkbun|spaceship|hugedomains|huge ?domains|epik|squadhelp|brandbucket|efty|flippa|namepros|expireddomains|expired ?domains|backorder|aftermarket|no-?reply|do-?not-?reply|notification|newsletter|mailer|postmaster|mailer-?daemon|marketplace|auctions?)\b/i;
 
+// Is a sender DISPLAY NAME a marketplace/auction blast ("Catches.io", "NameJet")?
+// These blast from arbitrary mailer domains, so the from-ADDRESS check (isBulkSender)
+// misses them — the display name is the tell. Used to skip such emails entirely.
+export function isBulkClientName(name: string | null | undefined): boolean {
+  return BULK_LABEL.test(String(name || "").trim());
+}
+
 /**
  * Clean a client/contact label to a real human name, or null to drop it:
  *  - drop email addresses (Rob wants names, not addresses)

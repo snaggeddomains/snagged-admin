@@ -10,7 +10,7 @@
 // one-time backfill. The DB accumulates, so old mail need only be scanned once.
 
 import { searchMessages, getMessage } from "../../gmail";
-import { extractApexes, canonicalApex, isIgnoredDomain, isBulkSender, cleanClientLabel, isInternalOwner } from "../canonical";
+import { extractApexes, canonicalApex, isIgnoredDomain, isBulkSender, isBulkClientName, cleanClientLabel, isInternalOwner } from "../canonical";
 import { isoFromEpoch } from "../merge";
 import type { RawHit } from "../types";
 
@@ -46,7 +46,10 @@ async function ingestMailbox(mailbox: string, days: number): Promise<RawHit[]> {
     if (msg.bulk) continue; // mass/marketing send
     // Marketplace / auction / drop-catch / no-reply blast (NameJet, Catches.io, …) —
     // these are lists of names for sale, NOT client conversations. Skip entirely.
-    if (isBulkSender(msg.from)) continue;
+    // Check BOTH the from-address AND the display name: these services blast from
+    // arbitrary mailer domains ("Catches.io" <x@somemailer>), so the address alone
+    // misses them — the display name "Catches.io"/"NameJet" is the real tell.
+    if (isBulkSender(msg.from) || isBulkClientName(msg.fromName)) continue;
     if (recipientCount(msg.to, msg.cc) > MASS_RECIPIENTS) continue; // blast thread
     const date = msg.date ? isoFromEpoch(msg.date) : null;
     // The client is the OTHER party. When WE sent it (rob/brian/sam), the sender name
