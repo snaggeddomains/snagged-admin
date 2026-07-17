@@ -1,11 +1,20 @@
 [
   {
     "currency": "USD",
-    "domain": "maxwell.ai",
-    "end_time_utc": "2026-07-16T18:27:24+00:00",
+    "domain": "accounts.com",
+    "end_time_utc": "2026-07-17T03:33:05+00:00",
     "is_mub": false,
-    "price": 495000.0,
+    "price": 1999995.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=accounts.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "wheels.ai",
+    "end_time_utc": "2026-07-17T01:59:16+00:00",
+    "is_mub": false,
+    "price": 2000000.0,
     "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=maxwell.ai"
+    "url": "https://sedo.com/search/details/?domain=wheels.ai"
   }
 ]
