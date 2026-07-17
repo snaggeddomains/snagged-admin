@@ -10,7 +10,7 @@
 // one-time backfill. The DB accumulates, so old mail need only be scanned once.
 
 import { searchMessages, getMessage } from "../../gmail";
-import { extractApexes, canonicalApex, isIgnoredDomain } from "../canonical";
+import { extractApexes, canonicalApex, isIgnoredDomain, isBulkSender, cleanClientLabel, isInternalOwner } from "../canonical";
 import { isoFromEpoch } from "../merge";
 import type { RawHit } from "../types";
 
@@ -44,9 +44,16 @@ async function ingestMailbox(mailbox: string, days: number): Promise<RawHit[]> {
       continue; // one bad message never blocks the run
     }
     if (msg.bulk) continue; // mass/marketing send
+    // Marketplace / auction / drop-catch / no-reply blast (NameJet, Catches.io, …) —
+    // these are lists of names for sale, NOT client conversations. Skip entirely.
+    if (isBulkSender(msg.from)) continue;
     if (recipientCount(msg.to, msg.cc) > MASS_RECIPIENTS) continue; // blast thread
     const date = msg.date ? isoFromEpoch(msg.date) : null;
-    const contact = (msg.fromName || msg.from || "").trim() || null;
+    // The client is the OTHER party. When WE sent it (rob/brian/sam), the sender name
+    // is us — attribute NO client rather than tagging every name "Rob"/"Brian". Never
+    // store an email address or junk label as a client.
+    const rawName = (msg.fromName || "").trim();
+    const contact = isInternalOwner(rawName) ? null : cleanClientLabel(rawName || msg.from);
     const noteBase = `[Gmail:${mailbox}]${date ? ` Date:${date}` : ""}${msg.subject ? ` Subject:"${excerpt(msg.subject, 120)}"` : ""}`;
 
     // (a) counterparty domain (the sender, when it's an outside party)

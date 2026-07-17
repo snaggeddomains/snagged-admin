@@ -73,7 +73,53 @@ const IGNORE = new Set([
   "wordpress.com", "wix.com", "squarespace.com", "godaddy.com", "afternic.com",
   "sedo.com", "dan.com", "namecheap.com", "escrow.com", "paypal.com", "stripe.com",
   "venmo.com", "wise.com", "payoneer.com", "quickbooks.com", "intuit.com",
+  // Domain auction / drop-catch / aftermarket blast senders — their emails are lists
+  // of names for sale, NOT client conversations. Never ingest as a client.
+  "namejet.com", "catches.io", "dropcatch.com", "snapnames.com", "sav.com", "park.io",
+  "dynadot.com", "namesilo.com", "porkbun.com", "spaceship.com", "atom.com", "squadhelp.com",
+  "brandbucket.com", "efty.com", "expireddomains.net", "gname.com", "west.cn", "epik.com",
+  "domainagents.com", "undeveloped.com", "hugedomains.com", "flippa.com", "namepros.com",
 ]);
+
+// A sender we should NEVER attribute a client/domain to — a marketplace/auction/
+// automated blast, or a no-reply/notification robot. `email` is a bare address.
+export function isBulkSender(email: string): boolean {
+  const e = String(email || "").toLowerCase();
+  const at = e.indexOf("@");
+  if (at < 0) return false;
+  const local = e.slice(0, at);
+  const domain = e.slice(at + 1);
+  if (isIgnoredDomain(domain)) return true; // marketplace / auction / infra / free-mail
+  if (/^(no-?reply|do-?not-?reply|notif|notification|alerts?|auctions?|marketplace|support|sales|info|admin|mailer|bounce|postmaster|newsletter|updates?|team)$/.test(local)) return true;
+  if (/namejet|catches|dropcatch|snapnames|auction|expired|backorder|aftermarket/.test(domain)) return true;
+  return false;
+}
+
+// Junk / non-human client labels to drop (a person's name is required).
+const JUNK_CLIENT = /^(reminder|reminders|n\/?a|none|unknown|test|noreply|no-reply|do-not-reply|notification|auction|marketplace|godaddy|afternic|sedo|namejet|namecheap|dynadot|catches|dropcatch|snapshot|snagged master txns|snagged|admin|sales|support|info|team)$/i;
+
+/**
+ * Clean a client/contact label to a real human name, or null to drop it:
+ *  - drop email addresses (Rob wants names, not addresses)
+ *  - drop junk / automated / marketplace labels
+ *  - trim + collapse whitespace
+ */
+export function cleanClientLabel(raw: string | null | undefined): string | null {
+  let s = String(raw || "").trim().replace(/\s+/g, " ");
+  if (!s) return null;
+  if (s.includes("@")) return null; // an email address, not a name
+  s = s.replace(/^["']|["']$/g, "").trim();
+  if (!s || s.length < 2) return null;
+  if (JUNK_CLIENT.test(s)) return null;
+  if (/^\d[\d.,/-]*$/.test(s)) return null; // a number/date, not a name
+  return s;
+}
+
+// Our own team — an internal OWNER/handler, not a client.
+const INTERNAL = /^(rob|rob schutz|robert schutz|brian|brian jarcho|sam|sam ?\w*|snagged)$/i;
+export function isInternalOwner(label: string): boolean {
+  return INTERNAL.test(String(label || "").trim());
+}
 
 /** Strip scheme / path / user / port / angle brackets and lowercase. */
 function bareHost(raw: string): string {

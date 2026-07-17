@@ -15,6 +15,8 @@ type Flag = {
   price: number | null;
   price_source: string | null;
   link: string | null;
+  kind: "sale" | "auction";
+  ends_at: string | null;
   dismissed: boolean;
 };
 type Health = { total: number; lastRunAt: string | null; lastOk: boolean | null; status: "green" | "yellow" | "red"; lastError: string | null };
@@ -55,12 +57,30 @@ function rootOf(f: Flag): string {
 function clientName(f: Flag): string {
   return f.clients.filter((c) => c && !/^snagged master txns$/i.test(c)).join(", ");
 }
+function endsMs(f: Flag): number {
+  if (!f.ends_at) return Infinity;
+  const t = Date.parse(f.ends_at);
+  return Number.isNaN(t) ? Infinity : t;
+}
+function endsLabel(iso: string | null): { text: string; urgent: boolean } | null {
+  if (!iso) return null;
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return null;
+  const diff = t - Date.now();
+  if (diff <= 0) return { text: "ended", urgent: false };
+  const hrs = diff / 3_600_000;
+  if (hrs < 1) return { text: `${Math.max(1, Math.round(diff / 60_000))}m`, urgent: true };
+  if (hrs < 24) return { text: `${Math.round(hrs)}h`, urgent: true };
+  const days = Math.round(hrs / 24);
+  return { text: `${days}d`, urgent: days <= 2 };
+}
 
 export default function ClientOverlapClient() {
   const [data, setData] = useState<Payload | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [exactOnly, setExactOnly] = useState(false);
+  const [auctionsOnly, setAuctionsOnly] = useState(false);
   const [showDismissed, setShowDismissed] = useState(false);
   const [openDay, setOpenDay] = useState<string | null>(null);
   const [dayDomains, setDayDomains] = useState<{ domain: string; clients: string[]; sources: string[] }[] | null>(null);
@@ -123,17 +143,26 @@ export default function ClientOverlapClient() {
   }, [load]);
 
   const allFlags = data?.flags || [];
+  const auctionCount = allFlags.filter((f) => f.kind === "auction").length;
   // Filter facets (built from the full set, before filtering).
   const tldFacets = [...new Set(allFlags.map((f) => f.candidate_tld))].sort();
   const affixFacets = [...new Set(allFlags.map(affixOf).filter(Boolean) as string[])].sort();
 
   const flags = allFlags.filter((f) =>
+    (auctionsOnly ? f.kind === "auction" : true) &&
     (exactOnly ? f.best_tier === "exact_tld" : true) &&
     (selTlds.size ? selTlds.has(f.candidate_tld) : true) &&
     (selAffixes.size ? (affixOf(f) ? selAffixes.has(affixOf(f)!) : false) : true),
   );
-  // One flat grid, sorted so matches under the same root domain bundle together.
+  // Auctions FIRST (time-sensitive — the client likely has no idea their word is
+  // live at auction), soonest-ending first; then sales bundled under their root domain.
   const rows = [...flags].sort((a, b) => {
+    if (a.kind !== b.kind) return a.kind === "auction" ? -1 : 1;
+    if (a.kind === "auction") {
+      const ea = endsMs(a), eb = endsMs(b);
+      if (ea !== eb) return ea - eb;
+      return a.candidate_domain.localeCompare(b.candidate_domain);
+    }
     const ra = rootOf(a), rb = rootOf(b);
     if (ra !== rb) return ra.localeCompare(rb);
     if (a.best_tier !== b.best_tier) return a.best_tier === "exact_tld" ? -1 : 1;
@@ -221,6 +250,9 @@ export default function ClientOverlapClient() {
       <div style={{ margin: "10px 0 10px", fontSize: 13 }}>
         <div style={{ display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap" }}>
           <strong style={{ fontSize: 14 }}>{flags.length.toLocaleString()} match{flags.length === 1 ? "" : "es"}{flags.length !== allFlags.length ? ` · of ${allFlags.length.toLocaleString()}` : ""}</strong>
+          <label style={{ cursor: "pointer", color: auctionsOnly ? "#8a1f00" : undefined, fontWeight: auctionsOnly ? 700 : undefined }}>
+            <input type="checkbox" checked={auctionsOnly} onChange={(e) => setAuctionsOnly(e.target.checked)} /> 🔨 Auctions only{auctionCount ? ` (${auctionCount})` : ""}
+          </label>
           <label style={{ cursor: "pointer" }}><input type="checkbox" checked={exactOnly} onChange={(e) => setExactOnly(e.target.checked)} /> Exact-word only</label>
           <label style={{ cursor: "pointer" }}><input type="checkbox" checked={showDismissed} onChange={(e) => setShowDismissed(e.target.checked)} /> Show dismissed</label>
           <button onClick={() => void load()} style={{ marginLeft: "auto", cursor: "pointer" }}>↻ Refresh</button>
@@ -256,18 +288,24 @@ export default function ClientOverlapClient() {
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead>
               <tr style={{ textAlign: "left", color: "#888", fontSize: 11, textTransform: "uppercase", letterSpacing: ".03em", borderBottom: "1.5px solid #e8e8e8" }}>
-                <th style={th}>Prospective domain</th><th style={th}>Price</th><th style={th}>Root domain</th><th style={th}>Source</th><th style={th}>Link</th><th style={th}>Client</th><th style={th}></th>
+                <th style={th}>Prospective domain</th><th style={th}>Price</th><th style={th}>Ends</th><th style={th}>Root domain</th><th style={th}>Source</th><th style={th}>Link</th><th style={th}>Client</th><th style={th}></th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((f) => (
-                <tr key={f.candidate_domain} style={{ borderTop: "1px solid #f0f0f0", background: f.dismissed ? "#f7f7f7" : "#fff", opacity: f.dismissed ? 0.55 : 1 }}>
-                  <td style={td}>
+              {rows.map((f) => {
+                const isAuction = f.kind === "auction";
+                const ends = endsLabel(f.ends_at);
+                const bg = f.dismissed ? "#f7f7f7" : isAuction ? "#fff6f2" : "#fff";
+                return (
+                <tr key={f.candidate_domain} style={{ borderTop: "1px solid #f0f0f0", background: bg, opacity: f.dismissed ? 0.55 : 1 }}>
+                  <td style={{ ...td, whiteSpace: "nowrap" }}>
+                    {isAuction && <span title="Live at auction — time-sensitive" style={{ marginRight: 6, fontSize: 10, fontWeight: 700, textTransform: "uppercase", padding: "1px 5px", borderRadius: 3, background: "#f4c7b6", color: "#8a1f00" }}>🔨 auction</span>}
                     <span style={{ fontWeight: 600 }}>{f.candidate_domain}</span>
                     <span title={tierLabel(f.best_tier)} style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, textTransform: "uppercase", padding: "1px 5px", borderRadius: 3, background: f.best_tier === "exact_tld" ? "#d1f0d6" : "#fdf0c8", color: f.best_tier === "exact_tld" ? "#176a2b" : "#8a6300" }}>{f.best_tier === "exact_tld" ? "new TLD" : ".com var"}</span>
                   </td>
-                  <td style={td}>{f.price != null ? `$${Math.round(f.price).toLocaleString()}` : <span style={{ color: "#bbb" }}>—</span>}</td>
-                  <td style={{ ...td, color: "#555" }}>{rootOf(f)}</td>
+                  <td style={{ ...td, whiteSpace: "nowrap" }}>{f.price != null ? `$${Math.round(f.price).toLocaleString()}` : <span style={{ color: "#bbb" }}>—</span>}</td>
+                  <td style={{ ...td, whiteSpace: "nowrap" }}>{ends ? <span style={{ fontWeight: ends.urgent ? 700 : 500, color: ends.urgent ? "#cf3b3b" : "#8a6300" }}>{ends.text}</span> : <span style={{ color: "#ddd" }}>—</span>}</td>
+                  <td style={{ ...td, color: "#555", whiteSpace: "nowrap" }}>{rootOf(f)}</td>
                   <td style={td}>{cleanSource(f.source_feed) || <span style={{ color: "#bbb" }}>—</span>}</td>
                   <td style={td}>{f.link ? <a href={f.link} target="_blank" rel="noreferrer">view ↗</a> : <span style={{ color: "#bbb" }}>—</span>}</td>
                   <td style={td}>{clientName(f) || <span style={{ color: "#bbb" }}>—</span>}</td>
@@ -276,7 +314,8 @@ export default function ClientOverlapClient() {
                     <button onClick={() => dismiss(f.candidate_domain, !f.dismissed)} style={{ ...linkBtn, color: "#999", marginLeft: 8 }}>{f.dismissed ? "restore" : "dismiss"}</button>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>

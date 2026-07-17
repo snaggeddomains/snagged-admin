@@ -28,6 +28,9 @@ export type Candidate = {
   feed: string | null;
   price: number | null;
   priceSource: string | null;
+  kind?: "sale" | "auction"; // default 'sale' (marketplace listing)
+  endsAt?: string | null; // auction end time (ISO) — drives urgency
+  link?: string | null; // direct listing/auction URL (auctions provide one)
 };
 
 export type MatchEntry = { anchor: string; clients: string[]; tier: "exact_tld" | "affix"; affix: string | null };
@@ -43,6 +46,8 @@ export type Flag = {
   price: number | null;
   price_source: string | null;
   link: string | null;
+  kind: "sale" | "auction";
+  ends_at: string | null; // auction end time (ISO), else null
 };
 
 export type MatchIndex = {
@@ -140,6 +145,8 @@ export function matchCandidate(c: Candidate, idx: MatchIndex): Flag | null {
     source_feed: c.feed,
     price: c.price,
     price_source: c.priceSource,
-    link: marketLink(c.feed, c.domain),
+    link: c.link || marketLink(c.feed, c.domain),
+    kind: c.kind || "sale",
+    ends_at: c.endsAt || null,
   };
 }

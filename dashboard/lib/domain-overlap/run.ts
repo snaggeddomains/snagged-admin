@@ -3,7 +3,7 @@
 
 import { readCorpusAnchors } from "../domain-corpus/store";
 import { buildIndex, matchCandidate, PREFIXES, SUFFIXES, type Flag } from "./match";
-import { readCandidatesBySld, dictionaryWords } from "./candidates";
+import { readCandidatesBySld, readAuctionCandidates, dictionaryWords } from "./candidates";
 import { writeFlags } from "./store";
 
 export type OverlapSummary = {
@@ -41,12 +41,21 @@ export async function runOverlap(_opts: { since?: string; backfill?: boolean } =
       for (const p of PREFIXES) affixed.push(p + sld);
       for (const s of SUFFIXES) affixed.push(sld + s);
     }
-    const candidates = await readCandidatesBySld([...new Set([...coreSlds, ...affixed])]);
-    const flags: Flag[] = [];
-    for (const c of candidates) {
+    // Sale candidates (name_universe, by SLD) + AUCTION candidates (live auction feeds,
+    // which never enter name_universe). Auctions are the time-sensitive signal.
+    const saleCandidates = await readCandidatesBySld([...new Set([...coreSlds, ...affixed])]);
+    const auctionCandidates = await readAuctionCandidates();
+
+    // Dedupe by candidate_domain; a name that's BOTH listed and on auction resolves to
+    // auction (the urgent one). Also avoids duplicate keys in the upsert batch.
+    const byDomain = new Map<string, Flag>();
+    for (const c of [...saleCandidates, ...auctionCandidates]) {
       const f = matchCandidate(c, idx);
-      if (f) flags.push(f);
+      if (!f) continue;
+      const prev = byDomain.get(f.candidate_domain);
+      if (!prev || (f.kind === "auction" && prev.kind !== "auction")) byDomain.set(f.candidate_domain, f);
     }
+    const flags = [...byDomain.values()];
     const { newDomains } = await writeFlags(runDate, flags);
     const newFlags = flags.filter((f) => newDomains.has(f.candidate_domain));
 
@@ -55,7 +64,7 @@ export async function runOverlap(_opts: { since?: string; backfill?: boolean } =
       runDate,
       anchors: anchors.length,
       guardedSlds: idx.guarded,
-      candidates: candidates.length,
+      candidates: saleCandidates.length + auctionCandidates.length,
       flags: flags.length,
       exactTld: flags.filter((f) => f.best_tier === "exact_tld").length,
       affix: flags.filter((f) => f.best_tier === "affix").length,

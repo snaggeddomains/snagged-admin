@@ -1,7 +1,7 @@
 // Merge upstream hits into one deduped record per canonical apex, and finalize the
 // output row (spec §6–§11). Pure functions — no I/O.
 
-import { splitApex } from "./canonical";
+import { splitApex, cleanClientLabel } from "./canonical";
 import type { RawHit, CorpusRecord, CorpusRow, ExistingMeta } from "./types";
 
 const NOTES_CAP = 8000; // stay well under Google Sheets' ~50k cell limit
@@ -46,7 +46,7 @@ export function mergeHit(map: Map<string, CorpusRecord>, hit: RawHit): void {
     rec = { domain: key, sld: parts.sld, tld: parts.tld, clients: [], sources: [], notes: [], dates: [] };
     map.set(key, rec);
   }
-  const client = (hit.client || "").trim();
+  const client = cleanClientLabel(hit.client); // drop emails / junk / bulk-sender labels
   if (client && !rec.clients.includes(client)) rec.clients.push(client);
   if (hit.source && !rec.sources.includes(hit.source)) rec.sources.push(hit.source);
   const note = (hit.note || "").trim();

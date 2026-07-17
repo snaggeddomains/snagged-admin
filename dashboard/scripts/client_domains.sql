@@ -58,11 +58,17 @@ create table if not exists client_domain_overlap_flags (
   price            numeric,
   price_source     text,
   link             text,
+  kind             text not null default 'sale', -- 'sale' (marketplace) | 'auction' (time-sensitive)
+  ends_at          timestamptz,                  -- auction end time (urgency), else null
   dismissed        boolean not null default false,
   first_flagged_at date not null default current_date,
   last_seen_at     date not null default current_date,
   created_at       timestamptz not null default now()
 );
 create index if not exists idx_overlap_flags_open on client_domain_overlap_flags (dismissed, first_flagged_at desc);
+
+-- Auction delineation (add to an already-existing flags table; safe to re-run).
+alter table client_domain_overlap_flags add column if not exists kind text not null default 'sale';
+alter table client_domain_overlap_flags add column if not exists ends_at timestamptz;
 
 alter table client_domain_overlap_flags enable row level security;

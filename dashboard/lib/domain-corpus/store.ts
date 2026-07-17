@@ -3,6 +3,7 @@
 // it to the Google Sheet after writing here.
 
 import { getDb, isDbConfigured } from "../supabase";
+import { cleanClientLabel } from "./canonical";
 import type { CorpusRow, ExistingMeta } from "./types";
 
 const TABLE = "client_domains";
@@ -107,6 +108,40 @@ export async function readCorpusAnchors(): Promise<CorpusAnchor[]> {
     if (rows.length < PAGE) break;
   }
   return out;
+}
+
+/**
+ * Purge bulk-list pollution: rows sourced ONLY from Gmail with no surviving human
+ * client (marketplace/auction blast domains — NameJet/Catches.io lists, etc.). The
+ * builder no longer ingests these, but existing rows persist (upsert never deletes),
+ * so this removes the backlog. Structured-source rows (Payments/Master/Opportunity/
+ * DomainScout) are never touched. Returns the number deleted.
+ */
+export async function pruneBulkGmail(): Promise<number> {
+  if (!isDbConfigured()) return 0;
+  const db = getDb();
+  const toDelete: string[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await db.from(TABLE).select("domain,clients,sources").range(from, from + PAGE - 1);
+    if (error) break;
+    const rows = data ?? [];
+    for (const r of rows) {
+      const row = r as { domain?: unknown; clients?: unknown; sources?: unknown };
+      const sources = Array.isArray(row.sources) ? (row.sources as string[]) : [];
+      const clients = Array.isArray(row.clients) ? (row.clients as string[]) : [];
+      const gmailOnly = sources.length > 0 && sources.every((s) => String(s).startsWith("[Gmail"));
+      const hasHumanClient = clients.some((c) => cleanClientLabel(c));
+      if (gmailOnly && !hasHumanClient) { const d = String(row.domain || ""); if (d) toDelete.push(d); }
+    }
+    if (rows.length < PAGE) break;
+  }
+  let n = 0;
+  for (let i = 0; i < toDelete.length; i += 200) {
+    const chunk = toDelete.slice(i, i + 200);
+    const { error } = await db.from(TABLE).delete().in("domain", chunk);
+    if (!error) n += chunk.length;
+  }
+  return n;
 }
 
 /** Current row count — powers the freshness guard + the tab's "total" figure. */

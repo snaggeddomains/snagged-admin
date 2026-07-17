@@ -12,7 +12,7 @@ import { readPaymentsHits, readMasterTxnsHits } from "./sources/tracker";
 import { readOpportunityHits } from "./sources/opportunity";
 import { readGmailHits } from "./sources/gmail";
 import { readDomainScoutHits } from "./sources/domainscout";
-import { readExistingMeta, upsertCorpus, corpusCount, logBuildRun, readAllForMirror } from "./store";
+import { readExistingMeta, upsertCorpus, corpusCount, logBuildRun, readAllForMirror, pruneBulkGmail } from "./store";
 
 const TARGET_SHEET_ID = process.env.CLIENT_DOMAINS_SHEET_ID || "19uJ2-1DrSAZ9J110Zf2AJIf9opNkXdPQguE3HplUgpM";
 const TARGET_TAB = "Client Domain Names";
@@ -25,6 +25,7 @@ export type BuildStats = {
   sourceCounts: Record<string, number>;
   gmailDays: number | null;
   mirrored: boolean;
+  pruned?: number;
   mirrorError?: string;
   error?: string;
 };
@@ -71,11 +72,15 @@ async function mirrorSheet(): Promise<{ ok: boolean; error?: string }> {
   }
 }
 
-export async function buildCorpus(opts: { gmailDays?: number; skipGmail?: boolean; skipMirror?: boolean } = {}): Promise<BuildStats> {
+export async function buildCorpus(opts: { gmailDays?: number; skipGmail?: boolean; skipMirror?: boolean; prune?: boolean } = {}): Promise<BuildStats> {
   const gmailDays = opts.gmailDays ?? 30;
   const useGmail = !opts.skipGmail && gmailConfigured();
 
   try {
+    // Optional: scrub bulk-list pollution (NameJet/Catches.io blasts) before rebuilding.
+    let pruned = 0;
+    if (opts.prune) pruned = await pruneBulkGmail();
+
     const existing = await readExistingMeta();
 
     // Gather every source in parallel; each is independently fail-open.
@@ -126,7 +131,7 @@ export async function buildCorpus(opts: { gmailDays?: number; skipGmail?: boolea
       error: null,
     });
 
-    return { ok: true, added, total, sourceCounts, gmailDays: useGmail ? gmailDays : null, mirrored, mirrorError };
+    return { ok: true, added, total, sourceCounts, gmailDays: useGmail ? gmailDays : null, mirrored, pruned, mirrorError };
   } catch (e) {
     const error = String((e as Error)?.message || e);
     console.error(`[corpus] build failed: ${error}`);

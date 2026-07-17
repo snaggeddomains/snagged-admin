@@ -23,7 +23,8 @@ export async function GET(req: NextRequest) {
   const gmailDays = Math.min(Math.max(parseInt(p.get("gmailDays") || "30", 10) || 30, 1), 3650);
   const skipGmail = p.get("skipGmail") === "1";
   const skipMirror = p.get("skipMirror") === "1";
+  const prune = p.get("prune") === "1"; // scrub bulk-list (NameJet/Catches) pollution
 
-  const stats = await buildCorpus({ gmailDays, skipGmail, skipMirror });
+  const stats = await buildCorpus({ gmailDays, skipGmail, skipMirror, prune });
   return NextResponse.json(stats, { status: stats.ok ? 200 : 500 });
 }

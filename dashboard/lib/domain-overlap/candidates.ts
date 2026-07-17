@@ -4,7 +4,60 @@
 // freshly-listed name (the Howie.co-via-Afternic case) shows up here the day it lands.
 
 import { getNamingDb, isNamingConfigured } from "../naming";
+import { getFile } from "../github";
+import { splitApex } from "../domain-corpus/canonical";
 import type { Candidate } from "./match";
+
+// Auction producers (product: auctions in sources.yaml) that persist a live
+// snapshot.json of current auction listings. These names NEVER enter name_universe,
+// so they'd be invisible to the by-SLD sweep — we read them straight from state.
+const AUCTION_SOURCES = [
+  "namecheap_auctions", "godaddy_auctions", "dynadot_auctions", "namesilo_auctions",
+  "dropcatch_auctions", "parkio_auctions", "sedo_expired_auctions",
+  "namejet_lastchance", "namejet_email_digest", "drive_auction_uploads",
+];
+
+/**
+ * Every current auction listing across the auction feeds, as match candidates tagged
+ * kind='auction' with the end time. Read from each source's state/<id>/snapshot.json
+ * (the live set the auctions watchlist publishes). Fail-open per source.
+ */
+export async function readAuctionCandidates(): Promise<Candidate[]> {
+  const out: Candidate[] = [];
+  const seen = new Set<string>();
+  await Promise.all(AUCTION_SOURCES.map(async (sourceId) => {
+    let raw: string | null = null;
+    try {
+      raw = await getFile(`state/${sourceId}/snapshot.json`);
+    } catch {
+      return; // source has no snapshot / unreadable — skip
+    }
+    if (!raw) return;
+    let arr: unknown;
+    try { arr = JSON.parse(raw); } catch { return; }
+    if (!Array.isArray(arr)) return;
+    for (const it of arr) {
+      const r = it as Record<string, unknown>;
+      const domain = String(r.domain || "").trim().toLowerCase();
+      if (!domain || seen.has(domain)) continue;
+      const parts = splitApex(domain);
+      if (!parts) continue;
+      seen.add(domain);
+      out.push({
+        domain: parts.apex,
+        sld: parts.sld,
+        tld: parts.tld,
+        feed: String(r.platform || sourceId),
+        price: typeof r.price === "number" ? r.price : null,
+        priceSource: String(r.platform || sourceId),
+        kind: "auction",
+        endsAt: r.end_time_utc != null ? String(r.end_time_utc) : null,
+        link: r.link != null ? String(r.link) : null,
+      });
+    }
+  }));
+  return out;
+}
 
 const PAGE = 1000;
 const MAX = 40000; // safety cap on a single day's firehose
