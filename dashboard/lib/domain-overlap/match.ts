@@ -19,6 +19,13 @@ export const SUFFIXES = [
   "ly", "app", "labs", "hub", "hq", "lab",
 ];
 
+// If the client already owns the .com, an exact-SLD variant is only worth flagging
+// on a MAJOR/liquid TLD — never the long tail (.xyz/.gg/.me/.dev/…). Owning the .com
+// makes minor-TLD variants noise (Rob, 2026-07-17). When the client does NOT own the
+// .com (e.g. they hold root.ai), every exact-SLD match still flags — including root.com,
+// the upgrade.
+const MAJOR_TLDS = new Set(["com", "net", "org", "co", "io", "ai"]);
+
 export type Candidate = {
   domain: string;
   sld: string;
@@ -96,19 +103,29 @@ export function matchCandidate(c: Candidate, idx: MatchIndex): Flag | null {
 
   // T1 — exact SLD, different TLD (the candidate can't be an exact corpus domain; that
   // was filtered above, so any same-SLD anchor is necessarily a different TLD/registration).
-  for (const a of idx.sldIndex.get(c.sld) || []) {
-    const key = `${a.domain}|exact_tld`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    matches.push({ anchor: a.domain, clients: a.clients, tier: "exact_tld", affix: null });
+  const sameSld = idx.sldIndex.get(c.sld) || [];
+  // If ANY owned anchor for this word is the .com, a minor-TLD candidate is noise — skip it.
+  const ownsCom = sameSld.some((a) => a.tld === "com");
+  if (!(ownsCom && !MAJOR_TLDS.has(c.tld))) {
+    for (const a of sameSld) {
+      const key = `${a.domain}|exact_tld`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      matches.push({ anchor: a.domain, clients: a.clients, tier: "exact_tld", affix: null });
+    }
   }
 
   // T2 — affix variation, .com ONLY. Strip each affix; a resulting CORE that's a
   // (non-guarded) corpus SLD is a hit. The guard on cores prevents junk (getaway→away).
+  // If the client already owns core.com, a .com affix variation is noise too — you own
+  // cosmo.com, you don't care about trycosmo.com (Rob, 2026-07-17). So skip a core whose
+  // anchor set includes the .com; keep it only when they hold the word on non-.com.
+  const coreOwnsCom = (core: string) => (idx.sldIndex.get(core) || []).some((a) => a.tld === "com");
   if (c.tld === "com") {
     for (const p of PREFIXES) {
       if (c.sld.length > p.length && c.sld.startsWith(p)) {
         const core = c.sld.slice(p.length);
+        if (coreOwnsCom(core)) continue; // owns the .com → affix variation is noise
         for (const a of idx.sldIndex.get(core) || []) {
           const key = `${a.domain}|affix`;
           if (seen.has(key)) continue;
@@ -120,6 +137,7 @@ export function matchCandidate(c: Candidate, idx: MatchIndex): Flag | null {
     for (const s of SUFFIXES) {
       if (c.sld.length > s.length && c.sld.endsWith(s)) {
         const core = c.sld.slice(0, c.sld.length - s.length);
+        if (coreOwnsCom(core)) continue; // owns the .com → affix variation is noise
         for (const a of idx.sldIndex.get(core) || []) {
           const key = `${a.domain}|affix`;
           if (seen.has(key)) continue;

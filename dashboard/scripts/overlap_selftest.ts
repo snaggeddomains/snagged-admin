@@ -34,17 +34,26 @@ const cand = (domain: string): Candidate => {
   return { domain, sld, tld: rest.join("."), feed: "afternic", price: 1500, priceSource: "afternic" };
 };
 
-// T1 — same word, other TLD → FLAG
-for (const d of ["howie.co", "howie.ai", "howie.io", "howie.xyz"]) {
+// T1 — same word, MAJOR other TLD → FLAG (client owns howie.com)
+for (const d of ["howie.co", "howie.ai", "howie.io", "howie.net"]) {
   const f = matchCandidate(cand(d), idx);
   ok(`T1 flag ${d}`, !!f && f.best_tier === "exact_tld" && f.clients.includes("Howie Inc"));
 }
-// T2 — .com affix variation → FLAG
-for (const d of ["gethowie.com", "howieapp.com", "tryhowie.com", "howiehq.com"]) {
-  const f = matchCandidate(cand(d), idx);
-  ok(`T2 flag ${d}`, !!f && f.best_tier === "affix");
+// T1 — owns the .com, so minor-TLD variants are NOT flagged (Rob's major-TLD rule)
+for (const d of ["howie.xyz", "howie.gg", "howie.me", "howie.dev"]) {
+  ok(`no flag ${d} (own .com → minor TLD)`, matchCandidate(cand(d), idx) === null);
 }
-// Excluded — affix on non-.com → NO flag
+// But when the client does NOT own the .com, the .com upgrade + any TLD still flags.
+const aiIdx = buildIndex([{ domain: "zephr.ai", sld: "zephr", tld: "ai", clients: ["Zephr"] }], new Set());
+ok("T1 flag zephr.com (owns .ai, .com is the upgrade)", !!matchCandidate(cand("zephr.com"), aiIdx));
+ok("T1 flag zephr.xyz (no .com owned → not suppressed)", !!matchCandidate(cand("zephr.xyz"), aiIdx));
+// T2 — owns howie.com, so .com affix variations are NOISE → NO flag (Rob's rule)
+for (const d of ["gethowie.com", "howieapp.com", "tryhowie.com", "howiehq.com"]) {
+  ok(`no flag ${d} (own .com → affix noise)`, matchCandidate(cand(d), idx) === null);
+}
+// T2 — when the client owns only a NON-.com, a .com affix variation still flags.
+ok("T2 flag getzephr.com (owns .ai only)", !!matchCandidate(cand("getzephr.com"), aiIdx) && matchCandidate(cand("getzephr.com"), aiIdx)!.best_tier === "affix");
+// Excluded — affix on non-.com → NO flag (affixes are .com-only regardless)
 for (const d of ["gethowie.io", "howieapp.co", "tryhowie.ai"]) {
   ok(`no flag ${d} (affix non-.com)`, matchCandidate(cand(d), idx) === null);
 }
