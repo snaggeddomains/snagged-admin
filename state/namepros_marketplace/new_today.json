@@ -1,24 +1,19 @@
 {
   "capped": false,
-  "count": 15,
+  "count": 10,
   "domains": [
-    "aff.to",
-    "arrivals.now",
-    "ascend.co",
-    "captcha.co",
-    "confluence.co",
-    "context.co",
-    "envision.co",
-    "every.co",
-    "gry.com",
-    "likes.com",
-    "nex.co",
-    "prestige.co",
-    "procreate.co",
-    "refine.co",
-    "spatial.co"
+    "based.xyz",
+    "bonfire.co",
+    "emote.co",
+    "greenlight.co",
+    "inbound.co",
+    "infinite.co",
+    "parallel.co",
+    "sniff.co",
+    "technological.com",
+    "whoops.com"
   ],
-  "generated_at": "2026-07-17T17:06:07.155550+00:00",
+  "generated_at": "2026-07-17T23:07:01.293889+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
