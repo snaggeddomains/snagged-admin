@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "domain": "hawthorn.org",
+    "end_time_utc": "2026-07-17T16:25:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namejet.com/domain/hawthorn.org.action",
+    "platform": "NameJet",
+    "price": 69.0
+  }
+]
