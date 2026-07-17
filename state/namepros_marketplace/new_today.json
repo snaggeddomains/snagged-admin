@@ -1,19 +1,25 @@
 {
   "capped": false,
-  "count": 10,
+  "count": 16,
   "domains": [
-    "backstage.co",
-    "breathe.co",
-    "decent.co",
-    "funk.tv",
-    "handrail.net",
-    "pharmacy.to",
-    "pollinator.xyz",
-    "replay.co",
-    "teamwork.co",
-    "volt.me"
+    "9666.com",
+    "amplify.co",
+    "astrophysics.org",
+    "betting.com",
+    "bling.org",
+    "core.co",
+    "emo.com",
+    "fuse.co",
+    "gro.com",
+    "jackpot.xyz",
+    "kismet.net",
+    "legendary.co",
+    "medal.co",
+    "overlay.co",
+    "pathogenesis.org",
+    "paywall.io"
   ],
-  "generated_at": "2026-07-16T23:06:54.080564+00:00",
+  "generated_at": "2026-07-17T10:06:11.759080+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
