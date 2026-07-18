@@ -21,13 +21,15 @@ export type XPost = {
 export function xQueries(): string[] {
   const env = (process.env.X_SWEEP_QUERIES || "").split("|").map((s) => s.trim()).filter(Boolean);
   if (env.length) return env;
+  // Cast wide for domain-acquisition INTENT; the score model excludes the domainer
+  // echo chamber (portfolios, sellers, NamePros/TLDInvestors) downstream.
   return [
-    `("good domain broker" OR "best domain broker" OR "reliable domain broker" OR "recommend a domain broker" OR "need a domain broker" OR "looking for a domain broker") -is:retweet lang:en`,
-    `("buy this domain" OR "acquire this domain" OR "buy the domain") (startup OR company OR brand OR business) -is:retweet lang:en`,
-    `("owner not responding" OR "can't contact the owner") (domain OR ".com") -is:retweet lang:en`,
-    `("looking to acquire" OR "trying to buy") (".com" OR "the domain") -is:retweet lang:en`,
-    `("domain is taken" OR ".com is taken" OR "the .com is taken") -is:retweet lang:en`,
-    `("rebranding our" OR "renaming our" OR "new name for our") (startup OR company OR brand) -is:retweet lang:en`,
+    `("good domain broker" OR "best domain broker" OR "reliable domain broker" OR "recommend a domain broker" OR "need a domain broker" OR "looking for a domain broker" OR "hire a domain broker") -is:retweet lang:en`,
+    `("how do i buy" OR "how do you buy" OR "where can i buy" OR "should i buy") ("a domain" OR "the domain" OR "this domain") -is:retweet lang:en`,
+    `("owner not responding" OR "can't contact the owner" OR "reach the owner" OR "owner won't respond") -is:retweet lang:en`,
+    `("trying to buy" OR "looking to buy" OR "want to buy") ("the domain" OR "this domain" OR "a domain") -is:retweet lang:en`,
+    `(".com is taken" OR "domain is taken" OR "someone already owns" OR "already owns the domain") -is:retweet lang:en`,
+    `("looking to acquire" OR "trying to acquire" OR "help acquiring") ("domain" OR ".com") -is:retweet lang:en`,
   ];
 }
 

@@ -84,13 +84,23 @@ const OUTSIDER_NEED = [
 // Domain-NAME / digital-asset context. Deliberately EXCLUDES the bare word "domain"
 // (software sense — "public domain", "problem domain", "who owns updating the docs")
 // which was the top noise source; requires a real domain-name signal.
+// A REAL domain-acquisition/topic phrase — NOT a bare ".com" or a URL (founders link
+// URLs constantly, which flooded the engage bucket). The post has to actually be ABOUT
+// a domain: buying/acquiring one, a broker, an unreachable owner, the .com being taken,
+// a registrar/marketplace, appraisal, or a rebrand/rename.
 const DOMAIN_CONTEXT = [
-  "domain name", "domain broker", "buy a domain", "buy the domain", "buy this domain",
-  "buying a domain", "bought a domain", "the .com", "a .com", "brand name", "startup name",
-  "company name", "rebrand", "renaming", "digital asset", "whois", "sedo", "afternic",
-  "godaddy", "escrow", "trademark", "domain appraisal", "domain valuation",
+  "domain name", "domain broker", "domainer", "domain investing", "buy a domain", "buy the domain",
+  "buy this domain", "buying a domain", "bought a domain", "acquire a domain", "acquire the domain",
+  "acquiring a domain", "purchase a domain", "register a domain", "the domain name",
+  ".com is taken", "the .com for", "get the .com", "getting the .com", "need the .com", "want the .com",
+  "grab the .com", "secure the .com", "the right .com", "own the .com", "domain for our", "domain for my",
+  "premium domain", "digital asset", "whois", "sedo", "afternic", "godaddy", "namecheap", "dan.com",
+  "escrow.com", "domain appraisal", "domain valuation", "rebrand", "rebranding", "renaming our",
+  "new name for our", "the domain is", "this domain", "a domain", "the domain", "that domain",
+  "our domain", "my domain", "the name is taken", "name is already taken", "someone owns",
+  "already owns the", "domain squatter", "squatting on", "cybersquat", "the .com i", "the .com version",
+  "good .com", "clean .com", "domain i want", "domain we want",
 ];
-const TLD_RE = /\b[a-z0-9-]{2,}\.(com|ai|io|co|net|org)\b/;
 
 const STRONG_EXCLUDE = [
   "who owns the next action", "market research survey", "consumer research survey",
@@ -166,7 +176,7 @@ export function scorePost(text: string, subreddit: string): Scored {
     return { score: -99, bucket: "ignore", buySide: false, sellSide: false, hasContext: false, insider: false, outsider: false, matched: [], sample: "" };
   }
 
-  const hasContext = DOMAIN_CONTEXT.some((t) => h.includes(t)) || TLD_RE.test(h);
+  const hasContext = DOMAIN_CONTEXT.some((t) => h.includes(t));
   const insiderTells = hits(h, INSIDER_TELLS);
   const outsiderHits = hits(h, OUTSIDER_NEED);
   const insider = insiderTells.length > 0;
