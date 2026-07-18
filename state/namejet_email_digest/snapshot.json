@@ -1,19 +1,19 @@
 [
   {
-    "domain": "chills.org",
-    "end_time_utc": "2026-07-18T16:15:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namejet.com/domain/chills.org.action",
-    "platform": "NameJet",
-    "price": 39.0
-  },
-  {
     "domain": "prostate.org",
     "end_time_utc": "2026-07-18T17:45:00+00:00",
     "is_mub": false,
     "link": "https://www.namejet.com/domain/prostate.org.action",
     "platform": "NameJet",
     "price": 69.0
+  },
+  {
+    "domain": "chills.org",
+    "end_time_utc": "2026-07-18T16:15:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namejet.com/domain/chills.org.action",
+    "platform": "NameJet",
+    "price": 39.0
   },
   {
     "domain": "preoccupied.com",
