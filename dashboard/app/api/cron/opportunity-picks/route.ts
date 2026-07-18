@@ -1,3 +1,5 @@
+// Daily "worth a look" valued picks → Slack (posts split by channel: auctions →
+// SLACK_CHANNEL_AUCTIONS, snap → SLACK_CHANNEL_SNAP).
 // Daily "worth a look" valued picks → Slack. Builds the top-5 new-snap + top-5
 // auctions-expiring-today, valued (appraisal ÷ cost) via the research app, and posts
 // the ranked digest. Also warms the research appraisal/TLD cache so the in-app report
