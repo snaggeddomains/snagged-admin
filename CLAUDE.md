@@ -1,3 +1,47 @@
+# Memory cadence (READ FIRST) — commit CLAUDE.md with the code
+
+When you ship a feature/fix, add/update its `CLAUDE.md` section **in the same commit as
+the code**. The chat transcript is NOT a backup — if a session dies or an account is
+suspended, only what's committed to GitHub survives. Don't let more than one shippable
+change go by without a memory note. Keep it concise: what it does · key files · gotchas ·
+one-time setup (SQL/env). Same rule in the research repo's CLAUDE.md.
+
+---
+
+# SNAP Opportunities — valued "worth a look" picks + per-channel Slack (2026-07-18)
+
+Daily top picks, appraised and ranked, surfaced in Reports → SNAP Opportunities + Slack.
+
+- **Picks** (`dashboard/lib/opportunities-picks.ts` `buildPicks`): top-5 **new-snap** +
+  top-5 **auctions expiring TODAY** (America/New_York day) by our internal `quality_score`,
+  each valued via the research app (Appraise.net value + TLD-demand count), ranked by
+  **value ÷ cost** descending (best deal first). `formatBucketSlack(heading, rows)` renders
+  one bucket per channel.
+- **Cross-app valuation** (`dashboard/lib/research-valuation.ts` `valuateDomains`): POSTs to
+  the research app's `POST /api/internal/valuate` (`x-internal-secret` == `RESEARCH_INTERNAL_SECRET`,
+  which admin already has). Env `RESEARCH_INTERNAL_BASE` (default `https://research.snagged.com`).
+  **The appraisal/TLD keys live ONLY in research — admin calls out instead of duplicating them.**
+  Fail-open → unvalued picks (still shows the quality shortlist).
+- **UI**: "🔎 Worth a look" section in `app/reports/opportunities/opportunities-client.tsx`
+  (lazy-loaded via `app/api/admin/opportunities/picks/route.ts` so the main list stays instant).
+- **Daily Slack**: cron `app/api/cron/opportunity-picks` (`vercel.json` `0 13 * * *`) → posts the
+  two buckets to their channels + warms the research appraisal cache for the day. `?dry=1` builds
+  without posting.
+- **Per-publisher Slack routing** (`lib/orchestrator.ts`): `slackAlert(text, channel?)` +
+  `slackPost(text, channel?)` (returns `{ok,error}` for diagnostics). Auctions →
+  `SLACK_CHANNEL_AUCTIONS`, snap → `SLACK_CHANNEL_SNAP`, client-overlap →
+  `SLACK_CHANNEL_CLIENT_OVERLAP` (client-overlap cron updated to pass it). `slackAlert`
+  **auto-joins PUBLIC channels** on `not_in_channel` (needs `channels:join`) and retries once;
+  private channels must be `/invite`d manually.
+- **⚠️ ENV LESSON (cost us an hour):** ALL Slack env (`SLACK_BOT_TOKEN` + the channel vars) must
+  live in the **ADMIN/dashboard Vercel project** (the one serving `app.snagged.com`), NOT research.
+  They were mistakenly in research → every `slackAlert` silently returned `no_token` (overlap +
+  picks never posted). Vercel env changes need a **fresh deployment** to take effect (an empty
+  commit is skipped — push a real change or click Redeploy). Verified live 2026-07-18:
+  `slack:{auctions:{ok:true},snap:{ok:true}}`.
+
+---
+
 # SNAP Names — registrar OPERATOR unification + new-name alerts (2026-07-11)
 
 Two additions to Reports → SNAP Names:
