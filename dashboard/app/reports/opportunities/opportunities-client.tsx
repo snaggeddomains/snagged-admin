@@ -5,6 +5,8 @@ import { useCallback, useEffect, useState, type CSSProperties } from "react";
 type SnapOpp = { domain: string; quality_score: number | null; category: string | null; enriched: boolean; price: number | null; best_price_source: string | null; num_words: number | null; is_mub: boolean | null; source: string };
 type AucOpp = { domain: string; price: number | null; endTimeUtc: string | null; bidCount: number | null; link: string | null; quality_score: number | null; num_words: number | null; is_mub: boolean | null; source: string; altSources?: string[] };
 type Report = { snap: SnapOpp[]; auctions: AucOpp[]; snapSources: number; auctionSources: number; generatedAt: string };
+type Pick = { domain: string; bucket: "snap" | "auction"; source: string; link: string | null; cost: number | null; quality_score: number | null; is_mub: boolean | null; endTimeUtc?: string | null; appraisalMid: number | null; tldCount: number | null; tldBand: string | null; ratio: number | null };
+type PicksReport = { snap: Pick[]; auctions: Pick[]; valued: boolean; generatedAt: string };
 
 const usd = (n: number | null) => (n == null ? "—" : `$${Math.round(n).toLocaleString()}`);
 const tldOf = (domain: string) => { const i = domain.lastIndexOf("."); return i < 0 ? "" : domain.slice(i + 1).toLowerCase(); };
@@ -193,6 +195,65 @@ function FilterBar({ filters, setFilters, sources, tlds }: { filters: Filters; s
   );
 }
 
+function ratioText(r: number | null): string {
+  if (r == null) return "—";
+  return r >= 10 ? `${Math.round(r)}×` : `${r.toFixed(1)}×`;
+}
+function PickRow({ p }: { p: Pick }) {
+  const strong = p.ratio != null && p.ratio >= 3;
+  return (
+    <tr style={{ borderTop: "1px solid var(--line, #eee)" }}>
+      <td style={{ padding: "6px 16px 6px 0", fontWeight: 600 }}>
+        <a href={p.link || `http://${p.domain}`} target="_blank" rel="noreferrer" style={{ color: "var(--navy, #254254)", textDecoration: "none" }}>{p.domain}</a>
+        {p.is_mub ? <span title="Made-up brandable" style={{ marginLeft: 5 }}>✨</span> : null}
+      </td>
+      <td style={{ padding: "6px 16px 6px 0" }}><SourcePill source={p.source} /></td>
+      <td className="right" style={{ padding: "6px 24px 6px 0", textAlign: "right" }}>{usd(p.cost)}</td>
+      <td className="right" style={{ padding: "6px 24px 6px 0", textAlign: "right" }}>{usd(p.appraisalMid)}</td>
+      <td className="right" style={{ padding: "6px 24px 6px 0", textAlign: "right", fontWeight: strong ? 800 : 600, color: strong ? "var(--green-deep, #2f7d4f)" : "inherit" }}>{ratioText(p.ratio)}</td>
+      <td className="right" style={{ padding: "6px 0 6px 0", textAlign: "right", color: "var(--muted, #667)" }}>{p.tldCount != null ? `${p.tldCount}${p.tldBand ? ` · ${p.tldBand}` : ""}` : "—"}</td>
+    </tr>
+  );
+}
+function PicksTable({ title, rows }: { title: string; rows: Pick[] }) {
+  if (!rows.length) return null;
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <div style={{ fontSize: 13, fontWeight: 700, margin: "6px 0", color: "var(--navy, #254254)" }}>{title}</div>
+      <table style={{ borderCollapse: "collapse", width: "100%", fontSize: 13 }}>
+        <thead><tr style={{ textAlign: "left", color: "var(--muted, #667)", fontSize: 11, textTransform: "uppercase", letterSpacing: ".03em" }}>
+          <th style={{ padding: "0 16px 4px 0" }}>Domain</th><th style={{ padding: "0 16px 4px 0" }}>Source</th>
+          <th className="right" style={{ padding: "0 24px 4px 0", textAlign: "right" }}>Cost</th>
+          <th className="right" style={{ padding: "0 24px 4px 0", textAlign: "right" }}>Appraisal</th>
+          <th className="right" style={{ padding: "0 24px 4px 0", textAlign: "right" }}>Value/cost</th>
+          <th className="right" style={{ padding: "0 0 4px 0", textAlign: "right" }}>TLDs</th>
+        </tr></thead>
+        <tbody>{rows.map((p) => <PickRow key={p.domain} p={p} />)}</tbody>
+      </table>
+    </div>
+  );
+}
+function PicksSection({ picks, loading }: { picks: PicksReport | null; loading: boolean }) {
+  const has = picks && (picks.snap.length || picks.auctions.length);
+  return (
+    <div style={{ border: "1px solid var(--line, #e6e6e6)", borderRadius: 10, padding: "12px 16px", margin: "10px 0 18px", background: "var(--paper, #fff)" }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
+        <span style={{ fontSize: 15, fontWeight: 800 }}>🔎 Worth a look</span>
+        <span className="muted" style={{ fontSize: 12 }}>top 5 new-snap + top 5 auctions expiring today, appraised &amp; ranked by value ÷ cost</span>
+      </div>
+      {loading && !picks ? <p className="muted" style={{ fontSize: 13, margin: "8px 0 0" }}>Valuing the shortlist…</p> : null}
+      {picks && !picks.valued && has ? <p className="muted" style={{ fontSize: 12, margin: "6px 0 0" }}>Appraisals unavailable (research valuation not configured) — showing the quality shortlist.</p> : null}
+      {picks && !has && !loading ? <p className="muted" style={{ fontSize: 13, margin: "8px 0 0" }}>Nothing expiring today / no new snap to rank.</p> : null}
+      {has ? (
+        <div style={{ marginTop: 8 }}>
+          <PicksTable title="⏰ Auctions expiring today" rows={picks!.auctions} />
+          <PicksTable title="🆕 New SNAP" rows={picks!.snap} />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export default function OpportunitiesClient() {
   const [report, setReport] = useState<Report | null>(null);
   const [loading, setLoading] = useState(false);
@@ -220,6 +281,21 @@ export default function OpportunitiesClient() {
   useEffect(() => { load(); }, [load]);
   useEffect(() => { const id = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(id); }, []);
 
+  // "Worth a look" valued picks — lazy-loaded so the main list renders instantly
+  // while the ~10 appraisals run in the research app.
+  const [picks, setPicks] = useState<PicksReport | null>(null);
+  const [picksLoading, setPicksLoading] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    setPicksLoading(true);
+    fetch("/api/admin/opportunities/picks", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => { if (!cancelled && d && d.picks) setPicks(d.picks as PicksReport); })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setPicksLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
+
   const endingSoon = report ? report.auctions.filter((a) => { const c = countdown(a.endTimeUtc, now); return c.soon && !c.ended; }).length : 0;
   // Option lists for the filter dropdowns — union across both tables, sorted.
   const sourceOpts = report ? [...new Set([...report.auctions, ...report.snap].map((r) => r.source))].sort((a, b) => sourceDisplay(a).name.localeCompare(sourceDisplay(b).name)) : [];
@@ -242,6 +318,8 @@ export default function OpportunitiesClient() {
         {report && <span className="muted" style={{ fontSize: 12 }}>updated {new Date(report.generatedAt).toLocaleTimeString()}</span>}
       </div>
       {msg && <p style={{ fontSize: 13, color: "var(--coral-deep, #c0492f)" }}>{msg}</p>}
+
+      <PicksSection picks={picks} loading={picksLoading} />
 
       {!report && loading ? <p className="muted">Loading…</p> : report ? (
         <>
