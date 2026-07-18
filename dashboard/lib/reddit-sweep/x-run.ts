@@ -5,6 +5,7 @@
 
 import { xQueries, searchX } from "./x-fetch";
 import { scorePost } from "./score";
+import { draftReplies } from "./reply";
 import { upsertPosts, logSweepRun, type SweepPost } from "./store";
 
 export type XSweepSummary = {
@@ -59,6 +60,7 @@ export async function runXSweep(): Promise<XSweepSummary> {
           snippet: (p.content || "").slice(0, 400),
           followers: p.followers,
           verified: p.verified,
+          suggested_reply: "",
         });
       }
     }

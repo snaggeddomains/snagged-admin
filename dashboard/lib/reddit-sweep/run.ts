@@ -6,6 +6,7 @@
 import { subreddits } from "./subreddits";
 import { fetchSubreddit } from "./fetch";
 import { scorePost } from "./score";
+import { draftReplies } from "./reply";
 import { upsertPosts, logSweepRun, type SweepPost } from "./store";
 
 export type SweepSummary = {
@@ -77,9 +78,14 @@ export async function runRedditSweep(): Promise<SweepSummary> {
           snippet: (p.content || "").slice(0, 400),
           followers: null, // Reddit RSS has no follower signal
           verified: false,
+          suggested_reply: "",
         });
       }
     });
+
+    // Draft a suggested reply (Snagged's voice) for each kept post — best-effort.
+    const drafts = await draftReplies(scored);
+    for (const p of scored) p.suggested_reply = drafts.get(p) || "";
 
     const { newIds } = await upsertPosts(scored);
     const newPosts = scored.filter((p) => newIds.has(p.id));

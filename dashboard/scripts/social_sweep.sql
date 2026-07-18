@@ -29,6 +29,8 @@ create index if not exists idx_social_sweep_open
 -- VIP signal (X): author follower count + verified. Safe to re-run.
 alter table social_sweep_posts add column if not exists author_followers integer;
 alter table social_sweep_posts add column if not exists author_verified boolean not null default false;
+-- LLM-drafted suggested reply in Snagged's voice (channel-aware). Safe to re-run.
+alter table social_sweep_posts add column if not exists suggested_reply text;
 
 alter table social_sweep_posts enable row level security;
 

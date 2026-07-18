@@ -38,7 +38,8 @@ export function buildSweepDigest(posts: SweepPost[]): Digest | null {
   // ── Slack ──
   const line = (p: SweepPost) => {
     const why = p.matched.slice(0, 4).join(", ");
-    return `• <${p.link}|${sourceLabel(p)} · score ${p.score}>${followersTag(p)} — ${p.title.slice(0, 120)}${why ? `  _(${why})_` : ""}${p.sample ? `\n    ↳ ${p.sample}` : ""}`;
+    const reply = p.suggested_reply ? `\n    ✍️ _${p.suggested_reply.replace(/\n+/g, " ")}_` : p.sample ? `\n    ↳ ${p.sample}` : "";
+    return `• <${p.link}|${sourceLabel(p)} · score ${p.score}>${followersTag(p)} — ${p.title.slice(0, 120)}${why ? `  _(${why})_` : ""}${reply}`;
   };
   const slackLines = [`*${platform} domain sweep* · :dart: ${high.length} high-intent${maybe.length ? ` · :speech_balloon: ${maybe.length} worth engaging` : ""}${vips.length ? ` · :star2: ${vips.length} VIP` : ""} new`];
   if (vips.length) { slackLines.push(`\n:star2: *VIP — respond fast*`); for (const p of vips) slackLines.push(line(p)); }
@@ -51,7 +52,7 @@ export function buildSweepDigest(posts: SweepPost[]): Digest | null {
     const why = p.matched.slice(0, 5).join(", ");
     return `<li style="margin:6px 0"><a href="${esc(p.link)}"><strong>${esc(sourceLabel(p))}</strong> · score ${p.score}</a>${esc(followersTag(p))} — ${esc(p.title.slice(0, 140))}` +
       `${why ? ` <span style="color:#888">(${esc(why)})</span>` : ""}` +
-      `${p.sample ? `<div style="color:#555;font-size:13px;margin-top:2px">↳ ${esc(p.sample)}</div>` : ""}</li>`;
+      `${p.suggested_reply ? `<div style="margin-top:3px;padding:6px 8px;background:#f4f8f4;border-radius:5px;font-size:13px;color:#233"><strong style="color:#2c6e3f">✍️ Suggested reply</strong> ${esc(p.suggested_reply)}</div>` : (p.sample ? `<div style="color:#555;font-size:13px;margin-top:2px">↳ ${esc(p.sample)}</div>` : "")}</li>`;
   };
   const section = (t: string, arr: SweepPost[]) => arr.length ? `<h3 style="margin:16px 0 4px">${t} (${arr.length})</h3><ul style="margin:0;padding-left:18px">${arr.map(row).join("")}</ul>` : "";
   const html =

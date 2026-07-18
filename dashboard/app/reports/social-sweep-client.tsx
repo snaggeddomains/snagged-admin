@@ -19,6 +19,7 @@ type Post = {
   snippet: string;
   followers: number | null;
   verified: boolean;
+  suggested_reply: string;
   dismissed: boolean;
   first_seen_at: string;
 };
@@ -164,7 +165,15 @@ export default function SocialSweepClient() {
             </div>
             <a href={p.link} target="_blank" rel="noreferrer" style={{ display: "block", fontWeight: 600, color: "#1b2a3a", textDecoration: "none", margin: "4px 0 2px" }}>{p.title || "(untitled)"}</a>
             {p.matched.length > 0 && <div style={{ fontSize: 12, color: "#777" }}>matched: {p.matched.slice(0, 8).join(", ")}</div>}
-            {p.sample && <div style={{ fontSize: 12.5, color: "#2c5", marginTop: 4 }}>↳ {p.sample}</div>}
+            {p.suggested_reply ? (
+              <div style={{ marginTop: 6, background: "#f4f8f4", border: "1px solid #dcebdc", borderRadius: 6, padding: "7px 9px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".03em", color: "#2c6e3f" }}>✍️ Suggested reply · @snagged</span>
+                  <button onClick={() => void navigator.clipboard?.writeText(p.suggested_reply)} style={{ ...linkBtn, color: "#2c6e3f" }}>copy</button>
+                </div>
+                <div style={{ fontSize: 13, color: "#233", whiteSpace: "pre-wrap" }}>{p.suggested_reply}</div>
+              </div>
+            ) : p.sample ? <div style={{ fontSize: 12.5, color: "#2c5", marginTop: 4 }}>↳ {p.sample}</div> : null}
           </div>
           );
         })}

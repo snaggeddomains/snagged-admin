@@ -26,6 +26,7 @@ export type SweepPost = {
   snippet: string;
   followers: number | null; // author follower count (X); null for Reddit
   verified: boolean; // verified/blue author (X)
+  suggested_reply: string; // LLM draft in Snagged's voice (empty if none)
 };
 
 export type VipBand = "vip" | "high" | "notable" | null;
@@ -90,19 +91,20 @@ export async function upsertPosts(posts: SweepPost[]): Promise<{ written: number
     author: clean(p.author), published: p.published, score: p.score, bucket: p.bucket,
     buy_side: p.buy_side, sell_side: p.sell_side, matched: p.matched.map((m) => clean(m) || "").filter(Boolean),
     sample: clean(p.sample), snippet: clean(p.snippet), author_followers: p.followers, author_verified: p.verified,
-    last_seen_at: now.slice(0, 10),
+    suggested_reply: clean(p.suggested_reply), last_seen_at: now.slice(0, 10),
   }));
   let written = 0;
-  let dropVip = false; // set if the follower columns aren't migrated yet
+  let dropNew = false; // set if the newer columns (followers/verified/reply) aren't migrated yet
+  const NEW_COLS = ["author_followers", "author_verified", "suggested_reply"];
   for (let i = 0; i < rows.length; i += 500) {
     const chunk = rows.slice(i, i + 500);
-    const payload = dropVip
-      ? chunk.map((row) => { const r: Record<string, unknown> = { ...row }; delete r.author_followers; delete r.author_verified; return r; })
+    const payload = dropNew
+      ? chunk.map((row) => { const r: Record<string, unknown> = { ...row }; for (const c of NEW_COLS) delete r[c]; return r; })
       : chunk;
     const { error } = await db.from(TABLE).upsert(payload, { onConflict: "id" });
     if (error) {
-      const missing = /author_followers|author_verified|column/i.test(String(error.message || "")) || error.code === "PGRST204" || error.code === "42703";
-      if (!dropVip && missing) { dropVip = true; i -= 500; continue; }
+      const missing = /author_followers|author_verified|suggested_reply|column/i.test(String(error.message || "")) || error.code === "PGRST204" || error.code === "42703";
+      if (!dropNew && missing) { dropNew = true; i -= 500; continue; }
       throw new Error(`sweep upsert: ${error.message || error.code || "failed"}`);
     }
     written += chunk.length;
@@ -116,7 +118,7 @@ export type SweepListRow = SweepPost & { dismissed: boolean; first_seen_at: stri
 export async function listPosts(opts: { platform?: string; includeDismissed?: boolean; includeMaybe?: boolean } = {}): Promise<SweepListRow[]> {
   if (!isDbConfigured()) return [];
   const db = getDb();
-  const FULL = "id,platform,source,title,link,author,published,score,bucket,buy_side,sell_side,matched,sample,snippet,author_followers,author_verified,dismissed,first_seen_at";
+  const FULL = "id,platform,source,title,link,author,published,score,bucket,buy_side,sell_side,matched,sample,snippet,author_followers,author_verified,suggested_reply,dismissed,first_seen_at";
   const LEGACY = "id,platform,source,title,link,author,published,score,bucket,buy_side,sell_side,matched,sample,snippet,dismissed,first_seen_at";
   const out: SweepListRow[] = [];
   let cols = FULL;
@@ -149,6 +151,7 @@ export async function listPosts(opts: { platform?: string; includeDismissed?: bo
         sample: String(row.sample || ""), snippet: String(row.snippet || ""),
         followers: typeof row.author_followers === "number" ? row.author_followers : row.author_followers != null ? Number(row.author_followers) : null,
         verified: Boolean(row.author_verified),
+        suggested_reply: String(row.suggested_reply || ""),
         dismissed: Boolean(row.dismissed),
         first_seen_at: row.first_seen_at ? String(row.first_seen_at).slice(0, 10) : "",
       });
