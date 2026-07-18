@@ -20,8 +20,8 @@ export async function GET(req: NextRequest) {
     // Split by channel: top-5 auctions → the auction Slack, top-5 snap → the snap Slack.
     const auctionText = formatBucketSlack("🔎 Worth a look — auctions expiring today", picks.auctions);
     const snapText = formatBucketSlack("🔎 Worth a look — new SNAP", picks.snap);
-    let auctions = { ok: false, error: "empty" as string | undefined };
-    let snap = { ok: false, error: "empty" as string | undefined };
+    let auctions: { ok: boolean; error?: string } = { ok: false, error: "empty" };
+    let snap: { ok: boolean; error?: string } = { ok: false, error: "empty" };
     if (!dry) {
       if (auctionText) auctions = await slackPost(auctionText, process.env.SLACK_CHANNEL_AUCTIONS);
       if (snapText) snap = await slackPost(snapText, process.env.SLACK_CHANNEL_SNAP);
