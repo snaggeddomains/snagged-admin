@@ -8,28 +8,12 @@
     "price": 4995.0
   },
   {
-    "domain": "occuring.com",
-    "price": 695.0
-  },
-  {
-    "domain": "posthumous.com",
-    "price": 951990.0
-  },
-  {
     "domain": "hermano.ai",
     "price": 9995.0
   },
   {
-    "domain": "astounded.ai",
-    "price": 3000.0
-  },
-  {
     "domain": "reminiscent.com",
     "price": 49995.0
-  },
-  {
-    "domain": "laboratories.com",
-    "price": 1229272.0
   },
   {
     "domain": "fervent.net",
@@ -52,6 +36,10 @@
     "price": 23000.0
   },
   {
+    "domain": "poll.net",
+    "price": 6500000.0
+  },
+  {
     "domain": "extraction.net",
     "price": 1995.0
   },
@@ -62,6 +50,10 @@
   {
     "domain": "reversible.net",
     "price": 23000.0
+  },
+  {
+    "domain": "hyperscale.co",
+    "price": 79000.0
   },
   {
     "domain": "imperfection.net",

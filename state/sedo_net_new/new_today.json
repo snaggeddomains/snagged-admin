@@ -1,12 +1,8 @@
 {
   "capped": false,
-  "count": 3,
-  "domains": [
-    "laboratories.com",
-    "posthumous.com",
-    "reminiscent.com"
-  ],
-  "generated_at": "2026-07-18T10:00:46.100261+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-07-18T17:00:55.691923+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
