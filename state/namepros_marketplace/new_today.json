@@ -1,17 +1,21 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 12,
   "domains": [
-    "boomerang.co",
-    "fest.co",
-    "grasp.co",
-    "resell.co",
-    "revue.co",
-    "vamos.net"
+    "6.com",
+    "abet.co",
+    "cameramen.xyz",
+    "cram.co",
+    "electronically.xyz",
+    "handshakes.xyz",
+    "immobility.xyz",
+    "isaf.xyz",
+    "jenny.io",
+    "sculptures.com",
+    "simple.me",
+    "sync.co"
   ],
-  "generated_at": "2026-07-18T17:05:51.794576+00:00",
-  "mub": [
-    "vamos.net"
-  ],
+  "generated_at": "2026-07-18T23:06:58.080551+00:00",
+  "mub": [],
   "source": "namepros_marketplace"
 }
