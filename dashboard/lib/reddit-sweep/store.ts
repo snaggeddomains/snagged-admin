@@ -26,15 +26,18 @@ export type SweepPost = {
   snippet: string;
 };
 
-// Strip NUL + C0 control chars (Reddit RSS decodes &#0;-style entities that Postgres
-// rejects as "invalid input syntax for type json"). Keep tab/newline/CR.
+// Strip anything Postgres's JSON layer rejects (PostgREST bulk-upserts through json):
+// NUL + C0 control chars AND LONE surrogates (Reddit decodes high &#NNNN; entities into
+// unpaired surrogates → "invalid input syntax for type json"). Valid emoji (astral code
+// points) survive because for..of iterates by code point, not UTF-16 unit. Keep tab/nl/cr.
 function clean(s: string | null): string | null {
   if (s == null) return null;
   let out = "";
   for (const ch of String(s)) {
     const n = ch.codePointAt(0) || 0;
-    if (n < 32 && n !== 9 && n !== 10 && n !== 13) continue;
-    if (n === 0xfffe || n === 0xffff) continue;
+    if (n < 32 && n !== 9 && n !== 10 && n !== 13) continue; // NUL + C0 controls
+    if (n >= 0xd800 && n <= 0xdfff) continue; // lone (unpaired) surrogate
+    if (n === 0xfffe || n === 0xffff) continue; // noncharacters
     out += ch;
   }
   return out;
@@ -69,7 +72,7 @@ export async function upsertPosts(posts: SweepPost[]): Promise<{ written: number
 
   const now = new Date().toISOString();
   const rows = posts.map((p) => ({
-    id: p.id, platform: p.platform, source: clean(p.source), title: clean(p.title), link: p.link,
+    id: clean(p.id) || p.id, platform: p.platform, source: clean(p.source), title: clean(p.title), link: clean(p.link) || p.link,
     author: clean(p.author), published: p.published, score: p.score, bucket: p.bucket,
     buy_side: p.buy_side, sell_side: p.sell_side, matched: p.matched.map((m) => clean(m) || "").filter(Boolean),
     sample: clean(p.sample), snippet: clean(p.snippet), last_seen_at: now.slice(0, 10),
