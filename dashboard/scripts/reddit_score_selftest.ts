@@ -1,42 +1,39 @@
-// Self-test for the Reddit scoring model. Run: npx tsx scripts/reddit_score_selftest.ts
-import { scorePost, HIGH_QUALITY_SCORE_MIN } from "../lib/reddit-sweep/score";
+// Self-test for the sweep score model. Encodes the calibration philosophy (Rob,
+// 2026-07-17): flag OUTSIDERS (founders / VCs / investors) talking about domains;
+// EXCLUDE the domainer echo chamber (brokers, investors, sellers, portfolio shop-talk).
+// Run: npx tsx scripts/reddit_score_selftest.ts
+
+import { scorePost } from "../lib/reddit-sweep/score";
 
 let pass = 0, fail = 0;
-function ok(name: string, cond: boolean, got?: unknown) { if (cond) pass++; else { fail++; console.log(`  ✗ ${name}${got !== undefined ? ` (got ${JSON.stringify(got)})` : ""}`); } }
+function ok(name: string, cond: boolean) { if (cond) { pass++; } else { fail++; console.log(`  ✗ ${name}`); } }
+const b = (text: string, sub: string) => scorePost(text, sub).bucket;
 
-// High-signal buy-side, domain-native subreddit.
-let s = scorePost("Trying to buy a domain but the owner is not responding — need a domain broker to help me acquire it", "Domains");
-ok("buy-side owner-unreachable → high-signal", s.bucket === "high-signal" && s.buySide, s);
-ok("  score clears floor", s.score >= HIGH_QUALITY_SCORE_MIN, s.score);
+// ── OUTSIDERS we WANT → high-signal ──
+ok("founder needs the .com (r/startups)",
+  b("We just raised our seed round and the .com for our startup is taken — how do we buy this domain?", "startups") === "high-signal");
+ok("founder just bought a domain (r/Entrepreneur)",
+  b("Just bought a domain for my company, did I overpay? Thinking about our brand going forward.", "entrepreneur") === "high-signal");
+ok("founder asking for a broker (r/SaaS)",
+  b("Looking for a domain broker to help acquire the .com for our SaaS — owner is not responding.", "saas") === "high-signal");
+ok("VC discussing digital assets (r/venturecapital)",
+  b("How do you think about domain names as digital assets for portfolio companies rebranding?", "venturecapital") === "high-signal");
 
-// Broker ask in a startup subreddit (has domain context via "domain").
-s = scorePost("Anyone recommend a domain broker? Trying to acquire a premium .com for our rebrand", "startups");
-ok("broker ask + context → high-signal", s.bucket === "high-signal", s);
+// ── INSIDERS / echo chamber → ignore ──
+ok("domainer portfolio review (r/Domains)",
+  b("Roast my portfolio — 200 domains I own, mostly hand reg, what should I renew?", "domains") === "ignore");
+ok("seller listing for sale (r/Domains)",
+  b("Premium domain for sale, make offer. Listed on Afternic and Sedo, my asking price is 5k.", "domains") === "ignore");
+ok("domain investor flipping (r/Flipping)",
+  b("As a domainer I flip domains from expired auctions — what's my domain worth on NameBio?", "flipping") === "ignore");
+ok("generic domainer shop-talk (r/Domains) not high",
+  b("Anyone else seeing weak sales this quarter across their portfolio?", "domains") !== "high-signal");
 
-// Seller spam → ignore.
-s = scorePost("Premium domain for sale! BIN $2,500 on Afternic, great for SEO backlinks. Selling my domain now.", "Domains");
-ok("seller BIN spam → ignore", s.bucket === "ignore", s);
-
-// Sell-side ('domain i own') → ignore.
-s = scorePost("I have a client interested in a domain i own, broker contacted me about the payout", "Entrepreneur");
-ok("sell-side/self-inventory → ignore", s.bucket === "ignore", s);
-
-// Strong-exclude collision → ignore even with domainish words.
-s = scorePost("Consumer research survey about brand name preferences and back office automation", "marketing");
-ok("strong-exclude → ignore", s.bucket === "ignore", s);
-
-// Generic founder post, no domain context, non-native sub → not high/maybe.
-s = scorePost("How do I get more traffic and grow my newsletter for my startup?", "startups");
-ok("no domain context → ignore", s.bucket === "ignore", s);
-
-// Naming/rebrand with context → at least maybe.
-s = scorePost("We're rebranding and need a new brand name — is buying a premium domain worth it?", "branding");
-ok("rebrand + premium-domain → high/maybe", s.bucket === "high-signal" || s.bucket === "maybe", s);
-ok("  buy sample angle set", !!s.sample, s.sample);
-
-// Valuation ask in native sub → maybe (relevant but not strong buy intent).
-s = scorePost("What's the appraisal / valuation on a 5-letter .com? Curious what it's worth", "domainnames");
-ok("valuation ask → maybe or high", s.bucket === "maybe" || s.bucket === "high-signal", s);
+// ── Off-topic / no context → ignore ──
+ok("off-topic (r/startups) no domain context",
+  b("What CRM should we use for our early-stage sales team?", "startups") === "ignore");
+ok("pure seller in a target sub still not high",
+  b("Selling my domain, make an offer.", "entrepreneur") !== "high-signal");
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

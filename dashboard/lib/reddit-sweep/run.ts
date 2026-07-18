@@ -20,6 +20,15 @@ export type SweepSummary = {
   error?: string;
 };
 
+const MAX_AGE_DAYS = 7; // calibration + relevance: only the last 7 days of posts
+
+function withinWindow(published: string | null): boolean {
+  if (!published) return true; // unknown date — keep (Reddit /new is recent anyway)
+  const t = Date.parse(published);
+  if (Number.isNaN(t)) return true;
+  return Date.now() - t <= MAX_AGE_DAYS * 86400_000;
+}
+
 // Bounded-concurrency map (Reddit + scrape.do are happier without 25 parallel hits).
 async function pool<T, R>(items: T[], size: number, fn: (item: T) => Promise<R>): Promise<R[]> {
   const out: R[] = new Array(items.length);
@@ -46,8 +55,9 @@ export async function runRedditSweep(): Promise<SweepSummary> {
         feedErrors.push(sub); // Reddit block / parse error → bucket, don't fail the run
         return;
       }
-      fetched += posts.length;
-      for (const p of posts) {
+      const recent = posts.filter((p) => withinWindow(p.published));
+      fetched += recent.length;
+      for (const p of recent) {
         const s = scorePost(`${p.title}\n${p.content}`, p.subreddit);
         if (s.bucket !== "high-signal" && s.bucket !== "maybe") continue; // discard ignores
         scored.push({
