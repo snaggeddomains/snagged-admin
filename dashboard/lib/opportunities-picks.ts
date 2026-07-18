@@ -91,9 +91,10 @@ export async function buildPicks(report?: OpportunitiesReport): Promise<PicksRep
   return { snap, auctions, valued, generatedAt: new Date().toISOString() };
 }
 
-// Slack digest for the daily publish. null when there's nothing to show.
-export function formatPicksSlack(picks: PicksReport): string | null {
-  if (!picks.snap.length && !picks.auctions.length) return null;
+// Slack digest for ONE bucket → its own channel (auctions to the auction Slack, snap to
+// the snap Slack). null when the bucket is empty. Ranked best value/cost first.
+export function formatBucketSlack(heading: string, rows: Pick[]): string | null {
+  if (!rows.length) return null;
   const money = (n: number | null) => (n && n > 0 ? "$" + Math.round(n).toLocaleString() : "—");
   const line = (p: Pick) => {
     const val = p.appraisalMid ? `appr ${money(p.appraisalMid)}` : "appr —";
@@ -102,8 +103,5 @@ export function formatPicksSlack(picks: PicksReport): string | null {
     const nm = p.link ? `<${p.link}|${p.domain}>` : p.domain;
     return `• ${nm}${p.is_mub ? " ✨" : ""} — cost ${money(p.cost)} · ${val}${ratio}${tld} _(${p.source})_`;
   };
-  const out: string[] = ["*🔎 Worth a look — valued picks* (appraisal ÷ cost, best first)"];
-  if (picks.auctions.length) { out.push("\n⏰ *Auctions expiring today*"); for (const p of picks.auctions) out.push(line(p)); }
-  if (picks.snap.length) { out.push("\n🆕 *New SNAP*"); for (const p of picks.snap) out.push(line(p)); }
-  return out.join("\n");
+  return [`*${heading}* (appraisal ÷ cost, best first)`, ...rows.map(line)].join("\n");
 }

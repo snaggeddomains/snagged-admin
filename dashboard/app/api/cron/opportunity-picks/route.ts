@@ -6,7 +6,7 @@
 
 import { NextResponse, type NextRequest } from "next/server";
 import { authorizedCron, slackAlert } from "@/lib/orchestrator";
-import { buildPicks, formatPicksSlack } from "@/lib/opportunities-picks";
+import { buildPicks, formatBucketSlack } from "@/lib/opportunities-picks";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,16 +17,21 @@ export async function GET(req: NextRequest) {
   const dry = req.nextUrl.searchParams.get("dry") === "1";
   try {
     const picks = await buildPicks();
-    const text = formatPicksSlack(picks);
-    let posted = false;
-    // SNAP channel (these are SNAP opportunities, not client-overlap).
-    if (text && !dry) posted = await slackAlert(text, process.env.SLACK_CHANNEL_SNAP);
+    // Split by channel: top-5 auctions → the auction Slack, top-5 snap → the snap Slack.
+    const auctionText = formatBucketSlack("🔎 Worth a look — auctions expiring today", picks.auctions);
+    const snapText = formatBucketSlack("🔎 Worth a look — new SNAP", picks.snap);
+    let auctionsPosted = false;
+    let snapPosted = false;
+    if (!dry) {
+      if (auctionText) auctionsPosted = await slackAlert(auctionText, process.env.SLACK_CHANNEL_AUCTIONS);
+      if (snapText) snapPosted = await slackAlert(snapText, process.env.SLACK_CHANNEL_SNAP);
+    }
     return NextResponse.json({
       ok: true,
       snap: picks.snap.length,
       auctions: picks.auctions.length,
       valued: picks.valued,
-      slack: dry ? "skipped (dry)" : posted,
+      slack: dry ? "skipped (dry)" : { auctions: auctionsPosted, snap: snapPosted },
     });
   } catch (e) {
     return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
