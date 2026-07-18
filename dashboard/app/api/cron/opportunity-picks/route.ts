@@ -19,7 +19,8 @@ export async function GET(req: NextRequest) {
     const picks = await buildPicks();
     const text = formatPicksSlack(picks);
     let posted = false;
-    if (text && !dry) posted = await slackAlert(text);
+    // SNAP channel (these are SNAP opportunities, not client-overlap).
+    if (text && !dry) posted = await slackAlert(text, process.env.SLACK_CHANNEL_SNAP);
     return NextResponse.json({
       ok: true,
       snap: picks.snap.length,

@@ -41,7 +41,8 @@ export async function GET(req: NextRequest) {
     } catch {
       /* fall back to no email recipients */
     }
-    const slackOk = await slackAlert(digest.slack);
+    // Dedicated client-overlap channel when set (C0BJ51Q4Q77); else the shared fallback.
+    const slackOk = await slackAlert(digest.slack, process.env.SLACK_CHANNEL_CLIENT_OVERLAP);
     let emailed = 0;
     if (emailConfigured() && recipients.length) {
       const ok = await sendEmail({ to: recipients.map((r) => r.email), subject: digest.subject, html: digest.html });

@@ -91,16 +91,18 @@ export function latestRunToday(runs: OrchestratorRun[]): OrchestratorRun | null 
   return null;
 }
 
-/** Best-effort Slack alert. No-ops if SLACK_BOT_TOKEN / channel aren't set. */
-export async function slackAlert(text: string): Promise<boolean> {
+/** Best-effort Slack alert. Pass an explicit `channel` so different publishers post to
+ * different channels; falls back to SLACK_CHANNEL_SNAP / _AUCTIONS. No-ops if the token
+ * or a channel isn't set. */
+export async function slackAlert(text: string, channel?: string): Promise<boolean> {
   const token = process.env.SLACK_BOT_TOKEN;
-  const channel = process.env.SLACK_CHANNEL_SNAP || process.env.SLACK_CHANNEL_AUCTIONS;
-  if (!token || !channel) return false;
+  const ch = channel || process.env.SLACK_CHANNEL_SNAP || process.env.SLACK_CHANNEL_AUCTIONS;
+  if (!token || !ch) return false;
   try {
     const res = await fetch("https://slack.com/api/chat.postMessage", {
       method: "POST",
       headers: { "content-type": "application/json; charset=utf-8", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ channel, text }),
+      body: JSON.stringify({ channel: ch, text }),
       cache: "no-store",
     });
     const data = (await res.json().catch(() => ({}))) as { ok?: boolean };
