@@ -26,6 +26,10 @@ create table if not exists social_sweep_posts (
 create index if not exists idx_social_sweep_open
   on social_sweep_posts (platform, dismissed, bucket, first_seen_at desc);
 
+-- VIP signal (X): author follower count + verified. Safe to re-run.
+alter table social_sweep_posts add column if not exists author_followers integer;
+alter table social_sweep_posts add column if not exists author_verified boolean not null default false;
+
 alter table social_sweep_posts enable row level security;
 
 -- Per-run log for the freshness (green-dot) indicator + feed-error surfacing.

@@ -75,6 +75,8 @@ export async function runRedditSweep(): Promise<SweepSummary> {
           matched: s.matched,
           sample: s.sample,
           snippet: (p.content || "").slice(0, 400),
+          followers: null, // Reddit RSS has no follower signal
+          verified: false,
         });
       }
     });

@@ -24,7 +24,21 @@ export type SweepPost = {
   matched: string[];
   sample: string;
   snippet: string;
+  followers: number | null; // author follower count (X); null for Reddit
+  verified: boolean; // verified/blue author (X)
 };
+
+export type VipBand = "vip" | "high" | "notable" | null;
+
+/** Follower-driven VIP band — a high-profile author asking about a domain = respond FAST.
+ *  Thresholds are tunable here without re-fetching. */
+export function vipBand(followers: number | null, verified: boolean): VipBand {
+  const f = followers || 0;
+  if (f >= 100_000) return "vip";
+  if (f >= 25_000) return "high";
+  if (f >= 5_000 || (verified && f >= 2_000)) return "notable";
+  return null;
+}
 
 // Strip anything Postgres's JSON layer rejects (PostgREST bulk-upserts through json):
 // NUL + C0 control chars AND LONE surrogates (Reddit decodes high &#NNNN; entities into
@@ -75,13 +89,22 @@ export async function upsertPosts(posts: SweepPost[]): Promise<{ written: number
     id: clean(p.id) || p.id, platform: p.platform, source: clean(p.source), title: clean(p.title), link: clean(p.link) || p.link,
     author: clean(p.author), published: p.published, score: p.score, bucket: p.bucket,
     buy_side: p.buy_side, sell_side: p.sell_side, matched: p.matched.map((m) => clean(m) || "").filter(Boolean),
-    sample: clean(p.sample), snippet: clean(p.snippet), last_seen_at: now.slice(0, 10),
+    sample: clean(p.sample), snippet: clean(p.snippet), author_followers: p.followers, author_verified: p.verified,
+    last_seen_at: now.slice(0, 10),
   }));
   let written = 0;
+  let dropVip = false; // set if the follower columns aren't migrated yet
   for (let i = 0; i < rows.length; i += 500) {
     const chunk = rows.slice(i, i + 500);
-    const { error } = await db.from(TABLE).upsert(chunk, { onConflict: "id" });
-    if (error) throw new Error(`sweep upsert: ${error.message || error.code || "failed"}`);
+    const payload = dropVip
+      ? chunk.map((row) => { const r: Record<string, unknown> = { ...row }; delete r.author_followers; delete r.author_verified; return r; })
+      : chunk;
+    const { error } = await db.from(TABLE).upsert(payload, { onConflict: "id" });
+    if (error) {
+      const missing = /author_followers|author_verified|column/i.test(String(error.message || "")) || error.code === "PGRST204" || error.code === "42703";
+      if (!dropVip && missing) { dropVip = true; i -= 500; continue; }
+      throw new Error(`sweep upsert: ${error.message || error.code || "failed"}`);
+    }
     written += chunk.length;
   }
   return { written, newIds };
@@ -93,11 +116,14 @@ export type SweepListRow = SweepPost & { dismissed: boolean; first_seen_at: stri
 export async function listPosts(opts: { platform?: string; includeDismissed?: boolean; includeMaybe?: boolean } = {}): Promise<SweepListRow[]> {
   if (!isDbConfigured()) return [];
   const db = getDb();
+  const FULL = "id,platform,source,title,link,author,published,score,bucket,buy_side,sell_side,matched,sample,snippet,author_followers,author_verified,dismissed,first_seen_at";
+  const LEGACY = "id,platform,source,title,link,author,published,score,bucket,buy_side,sell_side,matched,sample,snippet,dismissed,first_seen_at";
   const out: SweepListRow[] = [];
+  let cols = FULL;
   for (let from = 0; ; from += PAGE) {
     let q = db
       .from(TABLE)
-      .select("id,platform,source,title,link,author,published,score,bucket,buy_side,sell_side,matched,sample,snippet,dismissed,first_seen_at")
+      .select(cols)
       .order("first_seen_at", { ascending: false })
       .order("score", { ascending: false })
       .range(from, from + PAGE - 1);
@@ -105,6 +131,9 @@ export async function listPosts(opts: { platform?: string; includeDismissed?: bo
     if (!opts.includeDismissed) q = q.eq("dismissed", false);
     if (!opts.includeMaybe) q = q.eq("bucket", "high-signal");
     const { data, error } = await q;
+    if (error && cols === FULL && (/author_followers|author_verified|column/i.test(String(error.message || "")) || error.code === "PGRST204" || error.code === "42703")) {
+      cols = LEGACY; from -= PAGE; continue;
+    }
     if (error) break;
     const rows = (data ?? []) as unknown as Record<string, unknown>[];
     for (const row of rows) {
@@ -118,6 +147,8 @@ export async function listPosts(opts: { platform?: string; includeDismissed?: bo
         buy_side: Boolean(row.buy_side), sell_side: Boolean(row.sell_side),
         matched: Array.isArray(row.matched) ? (row.matched as string[]) : [],
         sample: String(row.sample || ""), snippet: String(row.snippet || ""),
+        followers: typeof row.author_followers === "number" ? row.author_followers : row.author_followers != null ? Number(row.author_followers) : null,
+        verified: Boolean(row.author_verified),
         dismissed: Boolean(row.dismissed),
         first_seen_at: row.first_seen_at ? String(row.first_seen_at).slice(0, 10) : "",
       });

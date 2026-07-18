@@ -95,7 +95,7 @@ const DOMAIN_CONTEXT = [
   ".com is taken", "the .com for", "get the .com", "getting the .com", "need the .com", "want the .com",
   "grab the .com", "secure the .com", "the right .com", "own the .com", "domain for our", "domain for my",
   "premium domain", "digital asset", "whois", "sedo", "afternic", "godaddy", "namecheap", "dan.com",
-  "escrow.com", "domain appraisal", "domain valuation", "rebrand", "rebranding", "renaming our",
+  "escrow.com", "domain appraisal", "domain valuation", "renaming our",
   "new name for our", "the domain is", "this domain", "a domain", "the domain", "that domain",
   "our domain", "my domain", "the name is taken", "name is already taken", "someone owns",
   "already owns the", "domain squatter", "squatting on", "cybersquat", "the .com i", "the .com version",
@@ -107,6 +107,11 @@ const STRONG_EXCLUDE = [
   "streetwear brand", "back office automation", "ai stacks",
   // Crypto reply-bot spam ("@handle I recommend you buy this domain name").
   "i recommend you buy this domain", "recommend you buy this domain name",
+  // Crypto project / memecoin spam (domain changes, airdrops, tickers).
+  "coinmarketcap", "airdrop", "memecoin", "pump.fun", "dexscreener", "presale",
+  "$sol", "$eth", "$btc", "to the moon", "1000x",
+  // Not-a-serious-buyer jokes / freebie clones.
+  "free copy of", "free clone of", "free rip of",
 ];
 
 const HIGH_SIGNAL_HINTS = [
@@ -147,8 +152,9 @@ const HIGH_INTENT = [
   "can't reach the owner", "cannot reach the owner", "owner won't respond", "owner isn't responding",
 ];
 const SELL_SIDE = [
-  "for sale", "make offer", "make an offer", "buy now", "sell my domain", "selling my domain",
-  "i'm selling", "i am selling", "payout", "asking price", "my portfolio", "flipping", "liquidate",
+  "for sale", "make offer", "make an offer", "buy now", "buy it now", "sell my domain", "selling my domain",
+  "selling domain", "selling a domain", "sell a domain", "domain for sale", "i'm selling", "i am selling",
+  "payout", "asking price", "my portfolio", "flipping", "liquidate", "shutting down",
 ];
 
 function hits(haystack: string, terms: string[]): string[] {

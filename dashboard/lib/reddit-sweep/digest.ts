@@ -2,9 +2,17 @@
 // acquisition intent), then maybe. Each row: subreddit · score · the matched "why" ·
 // a one-line suggested angle · the link. Edge-triggered (only NET-NEW posts passed in).
 
-import type { SweepPost } from "./store";
+import { vipBand, type SweepPost } from "./store";
 
 const REPORT_URL = (process.env.APP_BASE_URL || "https://app.snagged.com") + "/reports/social-sweep";
+
+function followersTag(p: SweepPost): string {
+  const vb = vipBand(p.followers, p.verified);
+  if (!vb) return "";
+  const n = p.followers != null ? (p.followers >= 1000 ? `${Math.round(p.followers / 1000)}K` : String(p.followers)) : "";
+  const label = vb === "vip" ? "🌟 VIP" : vb === "high" ? "⭐ high-profile" : "notable";
+  return ` [${label}${n ? ` · ${n} followers` : ""}]`;
+}
 
 function esc(s: string): string {
   return String(s || "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c] as string));
@@ -24,12 +32,16 @@ export function buildSweepDigest(posts: SweepPost[]): Digest | null {
   const high = posts.filter((p) => p.bucket === "high-signal").sort((a, b) => b.score - a.score);
   const maybe = posts.filter((p) => p.bucket === "maybe").sort((a, b) => b.score - a.score);
 
+  // VIPs (high-profile authors) — respond fast; pinned to the top of the digest.
+  const vips = posts.filter((p) => vipBand(p.followers, p.verified)).sort((a, b) => (b.followers || 0) - (a.followers || 0));
+
   // ── Slack ──
   const line = (p: SweepPost) => {
     const why = p.matched.slice(0, 4).join(", ");
-    return `• <${p.link}|${sourceLabel(p)} · score ${p.score}> — ${p.title.slice(0, 120)}${why ? `  _(${why})_` : ""}${p.sample ? `\n    ↳ ${p.sample}` : ""}`;
+    return `• <${p.link}|${sourceLabel(p)} · score ${p.score}>${followersTag(p)} — ${p.title.slice(0, 120)}${why ? `  _(${why})_` : ""}${p.sample ? `\n    ↳ ${p.sample}` : ""}`;
   };
-  const slackLines = [`*${platform} domain sweep* · :dart: ${high.length} high-intent${maybe.length ? ` · :speech_balloon: ${maybe.length} worth engaging` : ""} new`];
+  const slackLines = [`*${platform} domain sweep* · :dart: ${high.length} high-intent${maybe.length ? ` · :speech_balloon: ${maybe.length} worth engaging` : ""}${vips.length ? ` · :star2: ${vips.length} VIP` : ""} new`];
+  if (vips.length) { slackLines.push(`\n:star2: *VIP — respond fast*`); for (const p of vips) slackLines.push(line(p)); }
   if (high.length) { slackLines.push(`\n:dart: *High intent* — actively looking for a broker / to buy`); for (const p of high) slackLines.push(line(p)); }
   if (maybe.length) { slackLines.push(`\n:speech_balloon: *Worth engaging* — jump in as the domain expert`); for (const p of maybe.slice(0, 15)) slackLines.push(line(p)); }
   slackLines.push(`\n<${REPORT_URL}|Open the full sweep →>`);
@@ -37,7 +49,7 @@ export function buildSweepDigest(posts: SweepPost[]): Digest | null {
   // ── Email HTML ──
   const row = (p: SweepPost) => {
     const why = p.matched.slice(0, 5).join(", ");
-    return `<li style="margin:6px 0"><a href="${esc(p.link)}"><strong>${esc(sourceLabel(p))}</strong> · score ${p.score}</a> — ${esc(p.title.slice(0, 140))}` +
+    return `<li style="margin:6px 0"><a href="${esc(p.link)}"><strong>${esc(sourceLabel(p))}</strong> · score ${p.score}</a>${esc(followersTag(p))} — ${esc(p.title.slice(0, 140))}` +
       `${why ? ` <span style="color:#888">(${esc(why)})</span>` : ""}` +
       `${p.sample ? `<div style="color:#555;font-size:13px;margin-top:2px">↳ ${esc(p.sample)}</div>` : ""}</li>`;
   };
@@ -45,7 +57,8 @@ export function buildSweepDigest(posts: SweepPost[]): Digest | null {
   const html =
     `<div style="font-family:system-ui,Arial,sans-serif;max-width:660px">` +
     `<h2 style="margin:0 0 2px">${platform} domain sweep</h2>` +
-    `<p style="color:#666;margin:0 0 8px"><strong style="color:#b23000">${high.length} high-intent</strong>${maybe.length ? ` · ${maybe.length} worth engaging` : ""} new post${posts.length === 1 ? "" : "s"}.</p>` +
+    `<p style="color:#666;margin:0 0 8px"><strong style="color:#b23000">${high.length} high-intent</strong>${maybe.length ? ` · ${maybe.length} worth engaging` : ""}${vips.length ? ` · <strong style="color:#8a5a00">🌟 ${vips.length} VIP</strong>` : ""} new post${posts.length === 1 ? "" : "s"}.</p>` +
+    (vips.length ? `<h3 style="margin:16px 0 4px;color:#8a5a00">🌟 VIP — respond fast (${vips.length})</h3><ul style="margin:0;padding-left:18px">${vips.map(row).join("")}</ul>` : "") +
     section("🎯 High intent — looking for a broker / to buy", high) +
     section("💬 Worth engaging — add expert authority", maybe.slice(0, 20)) +
     `<p style="margin:18px 0 0"><a href="${esc(REPORT_URL)}">Open the full sweep →</a></p></div>`;

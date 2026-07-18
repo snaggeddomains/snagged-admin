@@ -14,6 +14,8 @@ export type XPost = {
   author: string; // @username
   published: string | null;
   content: string; // full tweet text
+  followers: number | null; // author follower count (VIP signal)
+  verified: boolean; // blue/verified author
 };
 
 // High-intent domain-acquisition queries (buy-side leans; -is:retweet, English). Kept
@@ -60,7 +62,7 @@ export async function searchX(query: string): Promise<XPost[]> {
   const token = await bearer();
   if (!token) throw new Error("X not configured (need X_BEARER_TOKEN or X_API_KEY+X_API_SECRET)");
   const url = `${SEARCH}?query=${encodeURIComponent(query)}&max_results=25` +
-    `&tweet.fields=created_at,author_id&expansions=author_id&user.fields=username`;
+    `&tweet.fields=created_at,author_id&expansions=author_id&user.fields=username,public_metrics,verified`;
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), 20000);
   let body: { data?: unknown[]; includes?: { users?: unknown[] } };
@@ -71,16 +73,23 @@ export async function searchX(query: string): Promise<XPost[]> {
   } finally {
     clearTimeout(t);
   }
-  const users = new Map<string, string>();
+  const users = new Map<string, { username: string; followers: number | null; verified: boolean }>();
   for (const u of body.includes?.users || []) {
-    const uu = u as { id?: string; username?: string };
-    if (uu.id && uu.username) users.set(uu.id, uu.username);
+    const uu = u as { id?: string; username?: string; verified?: boolean; public_metrics?: { followers_count?: number } };
+    if (uu.id && uu.username) {
+      users.set(uu.id, {
+        username: uu.username,
+        followers: typeof uu.public_metrics?.followers_count === "number" ? uu.public_metrics.followers_count : null,
+        verified: Boolean(uu.verified),
+      });
+    }
   }
   const out: XPost[] = [];
   for (const d of body.data || []) {
     const tw = d as { id?: string; text?: string; author_id?: string; created_at?: string };
     if (!tw.id) continue;
-    const username = tw.author_id ? users.get(tw.author_id) || "" : "";
+    const u = tw.author_id ? users.get(tw.author_id) : undefined;
+    const username = u?.username || "";
     const text = String(tw.text || "").replace(/\s+/g, " ").trim();
     out.push({
       source: query,
@@ -89,6 +98,8 @@ export async function searchX(query: string): Promise<XPost[]> {
       author: username ? `@${username}` : "",
       published: tw.created_at || null,
       content: text,
+      followers: u?.followers ?? null,
+      verified: u?.verified ?? false,
     });
   }
   return out;

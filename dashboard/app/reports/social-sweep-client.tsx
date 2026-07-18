@@ -17,8 +17,28 @@ type Post = {
   matched: string[];
   sample: string;
   snippet: string;
+  followers: number | null;
+  verified: boolean;
   dismissed: boolean;
   first_seen_at: string;
+};
+type Vip = "vip" | "high" | "notable" | null;
+function vipBand(followers: number | null, verified: boolean): Vip {
+  const f = followers || 0;
+  if (f >= 100_000) return "vip";
+  if (f >= 25_000) return "high";
+  if (f >= 5_000 || (verified && f >= 2_000)) return "notable";
+  return null;
+}
+function fmtFollowers(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(n >= 10_000 ? 0 : 1)}K`;
+  return String(n);
+}
+const VIP_STYLE: Record<string, { label: string; bg: string; fg: string }> = {
+  vip: { label: "🌟 VIP", bg: "#ffe9b0", fg: "#8a5a00" },
+  high: { label: "⭐ high-profile", bg: "#fff2cc", fg: "#8a6300" },
+  notable: { label: "notable", bg: "#eef2f7", fg: "#556" },
 };
 type Health = { lastRunAt: string | null; lastOk: boolean | null; feedErrors: string[]; status: "green" | "yellow" | "red"; error: string | null };
 type Payload = { posts: Post[]; health: Health };
@@ -69,8 +89,17 @@ export default function SocialSweepClient() {
     void load();
   }, [load]);
 
-  const posts = data?.posts || [];
+  const raw = data?.posts || [];
+  const vipRank: Record<string, number> = { vip: 0, high: 1, notable: 2 };
+  // VIPs float to the top (respond fast), then the server order (recency / score).
+  const posts = [...raw].sort((a, b) => {
+    const va = vipRank[vipBand(a.followers, a.verified) || ""] ?? 3;
+    const vb = vipRank[vipBand(b.followers, b.verified) || ""] ?? 3;
+    if (va !== vb) return va - vb;
+    return (b.followers || 0) - (a.followers || 0);
+  });
   const high = posts.filter((p) => p.bucket === "high-signal").length;
+  const vipCount = posts.filter((p) => vipBand(p.followers, p.verified)).length;
   const h = data?.health;
 
   const th: CSSProperties = { padding: "4px 8px", fontWeight: 600 };
@@ -100,7 +129,7 @@ export default function SocialSweepClient() {
       )}
 
       <div style={{ display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap", margin: "12px 0", fontSize: 13 }}>
-        <strong style={{ fontSize: 14 }}>🎯 {high.toLocaleString()} high-intent{showMaybe ? ` · 💬 ${(posts.length - high).toLocaleString()} worth engaging` : ""}</strong>
+        <strong style={{ fontSize: 14 }}>🎯 {high.toLocaleString()} high-intent{showMaybe ? ` · 💬 ${(posts.length - high).toLocaleString()} worth engaging` : ""}{vipCount ? ` · 🌟 ${vipCount} VIP` : ""}</strong>
         <span style={{ display: "inline-flex", gap: 6 }}>
           {([["", "All"], ["reddit", "Reddit"], ["x", "X"]] as const).map(([v, label]) => (
             <button key={v} onClick={() => setPlatform(v)}
@@ -117,13 +146,17 @@ export default function SocialSweepClient() {
       {data && !posts.length && !loading && <p className="muted">No open leads. New posts are scored on each sweep.</p>}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {posts.map((p) => (
-          <div key={p.id} style={{ border: "1px solid #eee", borderRadius: 8, padding: "10px 12px", background: p.dismissed ? "#f7f7f7" : p.bucket === "high-signal" ? "#fbfdff" : "#fff", opacity: p.dismissed ? 0.55 : 1 }}>
+        {posts.map((p) => {
+          const vb = vipBand(p.followers, p.verified);
+          const vip = vb ? VIP_STYLE[vb] : null;
+          return (
+          <div key={p.id} style={{ border: vb === "vip" || vb === "high" ? "1.5px solid #f0c95a" : "1px solid #eee", borderRadius: 8, padding: "10px 12px", background: p.dismissed ? "#f7f7f7" : vb === "vip" || vb === "high" ? "#fffdf5" : p.bucket === "high-signal" ? "#fbfdff" : "#fff", opacity: p.dismissed ? 0.55 : 1 }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
               {p.bucket === "high-signal"
                 ? <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", padding: "1px 6px", borderRadius: 3, background: "#ffe0d1", color: "#b23000" }}>🎯 high intent</span>
                 : <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", padding: "1px 6px", borderRadius: 3, background: "#e8eef5", color: "#456" }}>💬 engage</span>}
-              <span style={{ fontSize: 12, color: "#888" }}>{sourceLabel(p)} · score {p.score}{p.buy_side ? " · buy-side" : ""}{p.published ? ` · ${ago(p.published)}` : ""}</span>
+              {vip && <span title={p.followers != null ? `${p.followers.toLocaleString()} followers` : "high-profile"} style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", padding: "1px 6px", borderRadius: 3, background: vip.bg, color: vip.fg }}>{vip.label}{p.followers != null ? ` · ${fmtFollowers(p.followers)}` : ""}</span>}
+              <span style={{ fontSize: 12, color: "#888" }}>{sourceLabel(p)}{p.verified ? " ✔︎" : ""} · score {p.score}{p.buy_side ? " · buy-side" : ""}{p.published ? ` · ${ago(p.published)}` : ""}</span>
               <span style={{ marginLeft: "auto", whiteSpace: "nowrap" }}>
                 <a href={p.link} target="_blank" rel="noreferrer" style={{ fontSize: 12 }}>open ↗</a>
                 <button onClick={() => dismiss(p.id, !p.dismissed)} style={{ ...linkBtn, color: "#999", marginLeft: 10 }}>{p.dismissed ? "restore" : "dismiss"}</button>
@@ -133,7 +166,8 @@ export default function SocialSweepClient() {
             {p.matched.length > 0 && <div style={{ fontSize: 12, color: "#777" }}>matched: {p.matched.slice(0, 8).join(", ")}</div>}
             {p.sample && <div style={{ fontSize: 12.5, color: "#2c5", marginTop: 4 }}>↳ {p.sample}</div>}
           </div>
-        ))}
+          );
+        })}
       </div>
       <p className="muted" style={{ fontSize: 11, marginTop: 16 }}>
         <span style={th as never} /> Suggested angles are advisory — nothing is auto-posted. Reply from the actual account.

@@ -57,6 +57,8 @@ export async function runXSweep(): Promise<XSweepSummary> {
           matched: s.matched,
           sample: s.sample,
           snippet: (p.content || "").slice(0, 400),
+          followers: p.followers,
+          verified: p.verified,
         });
       }
     }
