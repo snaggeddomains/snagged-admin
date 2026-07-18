@@ -26,6 +26,20 @@ export type SweepPost = {
   snippet: string;
 };
 
+// Strip NUL + C0 control chars (Reddit RSS decodes &#0;-style entities that Postgres
+// rejects as "invalid input syntax for type json"). Keep tab/newline/CR.
+function clean(s: string | null): string | null {
+  if (s == null) return null;
+  let out = "";
+  for (const ch of String(s)) {
+    const n = ch.codePointAt(0) || 0;
+    if (n < 32 && n !== 9 && n !== 10 && n !== 13) continue;
+    if (n === 0xfffe || n === 0xffff) continue;
+    out += ch;
+  }
+  return out;
+}
+
 /** Every post id already stored (net-new detection for the digest). */
 async function existingIds(platform: string): Promise<Set<string>> {
   const set = new Set<string>();
@@ -55,10 +69,10 @@ export async function upsertPosts(posts: SweepPost[]): Promise<{ written: number
 
   const now = new Date().toISOString();
   const rows = posts.map((p) => ({
-    id: p.id, platform: p.platform, source: p.source, title: p.title, link: p.link,
-    author: p.author, published: p.published, score: p.score, bucket: p.bucket,
-    buy_side: p.buy_side, sell_side: p.sell_side, matched: p.matched, sample: p.sample,
-    snippet: p.snippet, last_seen_at: now.slice(0, 10),
+    id: p.id, platform: p.platform, source: clean(p.source), title: clean(p.title), link: p.link,
+    author: clean(p.author), published: p.published, score: p.score, bucket: p.bucket,
+    buy_side: p.buy_side, sell_side: p.sell_side, matched: p.matched.map((m) => clean(m) || "").filter(Boolean),
+    sample: clean(p.sample), snippet: clean(p.snippet), last_seen_at: now.slice(0, 10),
   }));
   let written = 0;
   for (let i = 0; i < rows.length; i += 500) {

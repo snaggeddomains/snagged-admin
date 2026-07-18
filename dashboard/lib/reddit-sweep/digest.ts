@@ -29,9 +29,9 @@ export function buildSweepDigest(posts: SweepPost[]): Digest | null {
     const why = p.matched.slice(0, 4).join(", ");
     return `• <${p.link}|${sourceLabel(p)} · score ${p.score}> — ${p.title.slice(0, 120)}${why ? `  _(${why})_` : ""}${p.sample ? `\n    ↳ ${p.sample}` : ""}`;
   };
-  const slackLines = [`*${platform} domain-opportunity sweep* · ${high.length} high-signal${maybe.length ? ` · ${maybe.length} maybe` : ""} new`];
-  if (high.length) { slackLines.push(`\n:fire: *High-signal*`); for (const p of high) slackLines.push(line(p)); }
-  if (maybe.length) { slackLines.push(`\n*Maybe*`); for (const p of maybe.slice(0, 15)) slackLines.push(line(p)); }
+  const slackLines = [`*${platform} domain sweep* · :dart: ${high.length} high-intent${maybe.length ? ` · :speech_balloon: ${maybe.length} worth engaging` : ""} new`];
+  if (high.length) { slackLines.push(`\n:dart: *High intent* — actively looking for a broker / to buy`); for (const p of high) slackLines.push(line(p)); }
+  if (maybe.length) { slackLines.push(`\n:speech_balloon: *Worth engaging* — jump in as the domain expert`); for (const p of maybe.slice(0, 15)) slackLines.push(line(p)); }
   slackLines.push(`\n<${REPORT_URL}|Open the full sweep →>`);
 
   // ── Email HTML ──
@@ -44,11 +44,12 @@ export function buildSweepDigest(posts: SweepPost[]): Digest | null {
   const section = (t: string, arr: SweepPost[]) => arr.length ? `<h3 style="margin:16px 0 4px">${t} (${arr.length})</h3><ul style="margin:0;padding-left:18px">${arr.map(row).join("")}</ul>` : "";
   const html =
     `<div style="font-family:system-ui,Arial,sans-serif;max-width:660px">` +
-    `<h2 style="margin:0 0 2px">${platform} domain-opportunity sweep</h2>` +
-    `<p style="color:#666;margin:0 0 8px"><strong style="color:#b23000">${high.length} high-signal</strong>${maybe.length ? ` · ${maybe.length} maybe` : ""} new post${posts.length === 1 ? "" : "s"}.</p>` +
-    section("🔥 High-signal", high) + section("Maybe", maybe.slice(0, 20)) +
+    `<h2 style="margin:0 0 2px">${platform} domain sweep</h2>` +
+    `<p style="color:#666;margin:0 0 8px"><strong style="color:#b23000">${high.length} high-intent</strong>${maybe.length ? ` · ${maybe.length} worth engaging` : ""} new post${posts.length === 1 ? "" : "s"}.</p>` +
+    section("🎯 High intent — looking for a broker / to buy", high) +
+    section("💬 Worth engaging — add expert authority", maybe.slice(0, 20)) +
     `<p style="margin:18px 0 0"><a href="${esc(REPORT_URL)}">Open the full sweep →</a></p></div>`;
 
-  const subject = `${platform} sweep — ${high.length} high-signal domain lead${high.length === 1 ? "" : "s"}`;
+  const subject = `${platform} sweep — ${high.length} high-intent domain lead${high.length === 1 ? "" : "s"}`;
   return { subject, html, slack: slackLines.join("\n"), count: posts.length };
 }

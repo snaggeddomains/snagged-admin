@@ -90,7 +90,7 @@ export default function SocialSweepClient() {
         )}
       </div>
       <p className="muted" style={{ marginTop: 4 }}>
-        Domain-opportunity posts skimmed from Reddit (and X) — buy-side acquisition intent scored highest. Each row shows why it fired and a suggested angle.
+        Domain posts skimmed from Reddit (and X) from OUTSIDE the domainer echo chamber. Two kinds: <strong style={{ color: "#b23000" }}>🎯 High intent</strong> (actively looking for a broker / to buy — a lead) and <strong>💬 Worth engaging</strong> (founders/VCs discussing domains where we can add expert authority). Each row shows why it fired + a suggested angle.
       </p>
 
       {h && h.feedErrors.length > 0 && (
@@ -100,14 +100,14 @@ export default function SocialSweepClient() {
       )}
 
       <div style={{ display: "flex", gap: 14, alignItems: "center", flexWrap: "wrap", margin: "12px 0", fontSize: 13 }}>
-        <strong style={{ fontSize: 14 }}>{high.toLocaleString()} high-signal{showMaybe ? ` · ${(posts.length - high).toLocaleString()} maybe` : ""}</strong>
+        <strong style={{ fontSize: 14 }}>🎯 {high.toLocaleString()} high-intent{showMaybe ? ` · 💬 ${(posts.length - high).toLocaleString()} worth engaging` : ""}</strong>
         <span style={{ display: "inline-flex", gap: 6 }}>
           {([["", "All"], ["reddit", "Reddit"], ["x", "X"]] as const).map(([v, label]) => (
             <button key={v} onClick={() => setPlatform(v)}
               style={{ cursor: "pointer", fontSize: 12, padding: "3px 10px", borderRadius: 999, border: `1px solid ${platform === v ? "#357" : "#ddd"}`, background: platform === v ? "#eef4ff" : "#fff" }}>{label}</button>
           ))}
         </span>
-        <label style={{ cursor: "pointer" }}><input type="checkbox" checked={showMaybe} onChange={(e) => setShowMaybe(e.target.checked)} /> Include &ldquo;maybe&rdquo;</label>
+        <label style={{ cursor: "pointer" }}><input type="checkbox" checked={showMaybe} onChange={(e) => setShowMaybe(e.target.checked)} /> Include &ldquo;worth engaging&rdquo;</label>
         <label style={{ cursor: "pointer" }}><input type="checkbox" checked={showDismissed} onChange={(e) => setShowDismissed(e.target.checked)} /> Show dismissed</label>
         <button onClick={() => void load()} style={{ marginLeft: "auto", cursor: "pointer" }}>↻ Refresh</button>
       </div>
@@ -121,8 +121,8 @@ export default function SocialSweepClient() {
           <div key={p.id} style={{ border: "1px solid #eee", borderRadius: 8, padding: "10px 12px", background: p.dismissed ? "#f7f7f7" : p.bucket === "high-signal" ? "#fbfdff" : "#fff", opacity: p.dismissed ? 0.55 : 1 }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
               {p.bucket === "high-signal"
-                ? <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", padding: "1px 6px", borderRadius: 3, background: "#ffe0d1", color: "#b23000" }}>🔥 high-signal</span>
-                : <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", padding: "1px 6px", borderRadius: 3, background: "#e8eef5", color: "#456" }}>maybe</span>}
+                ? <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", padding: "1px 6px", borderRadius: 3, background: "#ffe0d1", color: "#b23000" }}>🎯 high intent</span>
+                : <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", padding: "1px 6px", borderRadius: 3, background: "#e8eef5", color: "#456" }}>💬 engage</span>}
               <span style={{ fontSize: 12, color: "#888" }}>{sourceLabel(p)} · score {p.score}{p.buy_side ? " · buy-side" : ""}{p.published ? ` · ${ago(p.published)}` : ""}</span>
               <span style={{ marginLeft: "auto", whiteSpace: "nowrap" }}>
                 <a href={p.link} target="_blank" rel="noreferrer" style={{ fontSize: 12 }}>open ↗</a>

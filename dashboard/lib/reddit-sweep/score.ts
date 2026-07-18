@@ -34,12 +34,14 @@ const POSITIVE: [string, number][] = [
   ["buy this domain", 6], ["buy a domain", 5], ["buying a domain", 5], ["bought a domain", 5],
   ["bought the domain", 5], ["just bought a domain", 6], ["picked up the domain", 5],
   ["owner not responding", 7], ["can't contact the owner", 6], ["cannot contact the owner", 6],
-  ["who owns", 3], ["domain is taken", 6], ["name is taken", 4], [".com is taken", 6],
-  ["need a domain broker", 6], ["looking for a domain broker", 6], ["domain broker", 4],
+  ["domain is taken", 6], ["name is taken", 4], [".com is taken", 6],
+  ["need a domain broker", 6], ["looking for a domain broker", 6], ["good domain broker", 6],
+  ["best domain broker", 6], ["reliable domain broker", 6], ["trustworthy domain broker", 6],
+  ["recommend a domain broker", 6], ["domain broker recommendation", 6], ["domain broker", 3],
   ["rebrand", 4], ["rebranding", 4], ["renaming our", 5], ["new name for our", 5],
   ["brand name", 2], ["startup name", 3], ["company name", 2], ["naming my", 3], ["naming our", 3],
   ["digital asset", 3], ["digital assets", 3],
-  ["domain name", 3], ["get the .com", 4], ["upgrade to the .com", 6], ["domain", 1],
+  ["domain name", 3], ["get the .com", 4], ["upgrade to the .com", 6],
 ];
 
 // Negative terms — SELLER / support / weak relevance.
@@ -61,6 +63,10 @@ const INSIDER_TELLS = [
   "my asking price", "appraise my", "what's my domain worth", "whats my domain worth", "what is my domain worth",
   "just sold my", "just sold a domain", "my sedo", "my afternic", "my dan.com", "my atom.com",
   "add it to my portfolio", "acquired for reg", "sell it for", "wholesale price", "liquidate my",
+  // Domainer portfolios / community handles = seller/insider, not our audience.
+  "domain portfolio", "premium domain portfolio", "part of a portfolio", "portfolio is now available",
+  "portfolio is available", "curated domains", "curated domain", "namepros", "tldinvestors",
+  "available for acquisition", "now available for acquisition", "owning a piece of a premium",
 ];
 
 // OUTSIDER signals — founder / VC / investor / operator sphere. Bonus + flips `outsider`
@@ -75,17 +81,22 @@ const OUTSIDER_NEED = [
   "for our startup", "for my startup", "for our brand", "for our new", "renaming our company", "rebranding our",
 ];
 
-// Domain / digital-asset context (a generic phrase in a non-target sub needs one / a TLD).
+// Domain-NAME / digital-asset context. Deliberately EXCLUDES the bare word "domain"
+// (software sense — "public domain", "problem domain", "who owns updating the docs")
+// which was the top noise source; requires a real domain-name signal.
 const DOMAIN_CONTEXT = [
-  "domain name", "domain", "domains", "brand name", "startup name", "company name", "rebrand",
-  "renaming", "digital asset", "whois", "sedo", "afternic", "godaddy", "escrow", "trademark",
-  "appraisal", "valuation", ".com", ".io", ".ai", ".co",
+  "domain name", "domain broker", "buy a domain", "buy the domain", "buy this domain",
+  "buying a domain", "bought a domain", "the .com", "a .com", "brand name", "startup name",
+  "company name", "rebrand", "renaming", "digital asset", "whois", "sedo", "afternic",
+  "godaddy", "escrow", "trademark", "domain appraisal", "domain valuation",
 ];
 const TLD_RE = /\b[a-z0-9-]{2,}\.(com|ai|io|co|net|org)\b/;
 
 const STRONG_EXCLUDE = [
   "who owns the next action", "market research survey", "consumer research survey",
   "streetwear brand", "back office automation", "ai stacks",
+  // Crypto reply-bot spam ("@handle I recommend you buy this domain name").
+  "i recommend you buy this domain", "recommend you buy this domain name",
 ];
 
 const HIGH_SIGNAL_HINTS = [
@@ -93,13 +104,37 @@ const HIGH_SIGNAL_HINTS = [
   "owner not responding", "can't contact the owner", "cannot contact the owner",
   "domain is taken", "how do i buy", "how to buy the domain", "need help buying", "help buying a domain",
   "rebrand", "rebranding", "just bought a domain", "which domain should",
+  "good domain broker", "best domain broker", "reliable domain broker", "recommend a domain broker",
+  "looking for a domain broker", "need a domain broker",
 ];
 const HINT_BONUS = 3;
 
 const BUY_SIDE = [
-  "trying to buy", "want to buy", "looking to buy", "need a broker", "owner not responding",
+  "trying to buy", "want to buy", "looking to buy", "owner not responding",
   "buy this domain", "acquire this domain", "need this domain", "how do i buy", "help buying",
   "bought a domain", "just bought", "get the .com", "upgrade to the .com",
+  "good domain broker", "best domain broker", "reliable domain broker", "recommend a domain broker",
+  "looking for a domain broker", "need a domain broker",
+];
+
+// HIGH-INTENT signals — the AUTHOR actively seeking a service Snagged provides. Must be
+// FIRST-PERSON ("I / we") or an inherently-seeker phrase (broker ask, owner unreachable).
+// Bare "buy this domain" is NOT here — it fires on advice ("you should buy this"),
+// third-person ("who would want to buy this domain"), and sellers soliciting buyers.
+const HIGH_INTENT = [
+  // broker ask — inherently a buyer seeking help
+  "good domain broker", "best domain broker", "reliable domain broker", "trustworthy domain broker",
+  "recommend a domain broker", "domain broker recommendation", "need a domain broker",
+  "looking for a domain broker", "hire a domain broker", "who can help me buy",
+  // first-person buy intent
+  "i want to buy", "we want to buy", "i'm trying to buy", "im trying to buy", "we're trying to buy",
+  "i'm looking to buy", "im looking to buy", "we're looking to buy", "i need to buy", "we need to buy",
+  "how do i buy", "how do we buy", "how can i buy", "should i buy", "should we buy",
+  "help me buy", "help me acquire", "i want to acquire", "we want to acquire", "trying to acquire the",
+  "can i buy the domain", "where can i buy the", "how do i get the .com", "how do we get the .com",
+  // owner unreachable — a specific acquisition already in motion
+  "owner not responding", "owner is not responding", "can't contact the owner", "cannot contact the owner",
+  "can't reach the owner", "cannot reach the owner", "owner won't respond", "owner isn't responding",
 ];
 const SELL_SIDE = [
   "for sale", "make offer", "make an offer", "buy now", "sell my domain", "selling my domain",
@@ -156,14 +191,15 @@ export function scorePost(text: string, subreddit: string): Scored {
   const pureSeller = sellSide && !buySide;
   if (pureSeller) score -= 6;
 
-  if (INSIDER_SUBS.has(sub) && !outsiderHits.length) score = Math.min(score, MAYBE_MIN - 1);
-  if (!hasContext && !TARGET_SUBS.has(sub)) score = Math.min(score, MAYBE_MIN - 1);
+  const highIntent = hits(h, HIGH_INTENT).length > 0;
 
   let bucket: Bucket;
-  if (insider) bucket = "ignore"; // domainer/seller — never our audience
-  // High-signal = an OUTSIDER on a domain/digital-asset topic, in context, not a pure seller.
-  else if (hasContext && outsider && !pureSeller && score >= HIGH_QUALITY_SCORE_MIN) bucket = "high-signal";
-  else if (hasContext && !pureSeller && score >= MAYBE_MIN) bucket = "maybe";
+  // Domainer/seller/noise never qualifies, regardless of intent wording.
+  if (insider || pureSeller || !hasContext) bucket = "ignore";
+  // 🎯 HIGH INTENT (lead): actively seeking a broker / to buy a specific domain.
+  else if (highIntent) bucket = "high-signal";
+  // 💬 WORTH ENGAGING (conversation): an outsider discussing domains we can weigh in on.
+  else if (outsider && score >= MAYBE_MIN) bucket = "maybe";
   else bucket = "ignore";
 
   return { score, bucket, buySide, sellSide, hasContext, insider, outsider, matched: [...new Set(matched)], sample: sampleResponse(h, buySide) };

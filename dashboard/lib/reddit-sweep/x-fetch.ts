@@ -22,11 +22,12 @@ export function xQueries(): string[] {
   const env = (process.env.X_SWEEP_QUERIES || "").split("|").map((s) => s.trim()).filter(Boolean);
   if (env.length) return env;
   return [
-    `"domain broker" (recommend OR need OR looking OR hire) -is:retweet lang:en`,
-    `("buy this domain" OR "acquire this domain" OR "buy the domain") -is:retweet lang:en`,
-    `("owner not responding" OR "can't contact the owner" OR "who owns") domain -is:retweet lang:en`,
-    `("looking to acquire" OR "trying to buy") (domain OR ".com") -is:retweet lang:en`,
-    `("domain is taken" OR "domain name is taken" OR "someone owns") -is:retweet lang:en`,
+    `("good domain broker" OR "best domain broker" OR "reliable domain broker" OR "recommend a domain broker" OR "need a domain broker" OR "looking for a domain broker") -is:retweet lang:en`,
+    `("buy this domain" OR "acquire this domain" OR "buy the domain") (startup OR company OR brand OR business) -is:retweet lang:en`,
+    `("owner not responding" OR "can't contact the owner") (domain OR ".com") -is:retweet lang:en`,
+    `("looking to acquire" OR "trying to buy") (".com" OR "the domain") -is:retweet lang:en`,
+    `("domain is taken" OR ".com is taken" OR "the .com is taken") -is:retweet lang:en`,
+    `("rebranding our" OR "renaming our" OR "new name for our") (startup OR company OR brand) -is:retweet lang:en`,
   ];
 }
 
