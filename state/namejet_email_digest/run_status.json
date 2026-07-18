@@ -1,7 +1,11 @@
 {
-  "error": "The read operation timed out",
-  "generated_at": "2026-07-18T15:05:35.991130+00:00",
+  "deduped_against_existing": 0,
+  "emails_processed": 2,
+  "generated_at": "2026-07-18T15:06:10.566239+00:00",
   "label": "NameJet Email",
+  "new_count": 3,
+  "sheet_total_after": 887,
+  "slack_posted": true,
   "source": "namejet_email_digest",
   "status": "failed"
 }
