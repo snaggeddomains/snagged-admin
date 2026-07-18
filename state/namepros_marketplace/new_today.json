@@ -1,29 +1,17 @@
 {
   "capped": false,
-  "count": 20,
+  "count": 6,
   "domains": [
-    "birkin.ai",
-    "bunny.co",
-    "classmate.co",
-    "cutout.co",
-    "daisy.co",
-    "drudge.ai",
-    "eves.com",
-    "fem.org",
-    "illustrate.co",
-    "likes.now",
-    "lime.me",
-    "mouthpiece.ai",
-    "plugin.com",
-    "pogo.io",
-    "railings.com",
-    "surge.co",
-    "swivel.co",
-    "thing.co",
-    "toddlers.ai",
-    "token.co"
+    "boomerang.co",
+    "fest.co",
+    "grasp.co",
+    "resell.co",
+    "revue.co",
+    "vamos.net"
   ],
-  "generated_at": "2026-07-18T10:06:44.490600+00:00",
-  "mub": [],
+  "generated_at": "2026-07-18T17:05:51.794576+00:00",
+  "mub": [
+    "vamos.net"
+  ],
   "source": "namepros_marketplace"
 }
