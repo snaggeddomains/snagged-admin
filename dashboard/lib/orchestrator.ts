@@ -98,14 +98,30 @@ export async function slackAlert(text: string, channel?: string): Promise<boolea
   const token = process.env.SLACK_BOT_TOKEN;
   const ch = channel || process.env.SLACK_CHANNEL_SNAP || process.env.SLACK_CHANNEL_AUCTIONS;
   if (!token || !ch) return false;
-  try {
+  const post = async () => {
     const res = await fetch("https://slack.com/api/chat.postMessage", {
       method: "POST",
       headers: { "content-type": "application/json; charset=utf-8", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ channel: ch, text }),
       cache: "no-store",
     });
-    const data = (await res.json().catch(() => ({}))) as { ok?: boolean };
+    return (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+  };
+  try {
+    let data = await post();
+    // Freshly-added bots aren't in the channel yet. Auto-join a PUBLIC channel (needs the
+    // channels:join scope) and retry once. A PRIVATE channel can't be self-joined — the
+    // bot must be invited manually (/invite @bot), which we surface via the logged error.
+    if (!data.ok && data.error === "not_in_channel") {
+      await fetch("https://slack.com/api/conversations.join", {
+        method: "POST",
+        headers: { "content-type": "application/json; charset=utf-8", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ channel: ch }),
+        cache: "no-store",
+      }).catch(() => {});
+      data = await post();
+    }
+    if (!data.ok) console.error(`slackAlert(${ch}) failed: ${data.error || "unknown"}`);
     return Boolean(data.ok);
   } catch {
     return false;
