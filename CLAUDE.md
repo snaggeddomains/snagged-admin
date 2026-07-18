@@ -42,6 +42,37 @@ Daily top picks, appraised and ranked, surfaced in Reports → SNAP Opportunitie
 
 ---
 
+# Social Sweep — X + Reddit engagement-lead skim (2026-07-18)
+
+Skims Reddit + X for domain posts from OUTSIDE the domainer echo chamber (founders/VCs/
+investors), scores them into two buckets, drafts a suggested reply in Snagged's voice, and
+delivers to Slack + email + a Reports tab. NOT the same as `reddit-domains` (that's the SNAP
+marketplace deal-finder).
+
+- **Scoring** (`dashboard/lib/reddit-sweep/score.ts`): two buckets — **high-signal** (actively
+  seeking a broker / to buy = a lead) vs **maybe** (founder/VC discussing domains where we add
+  expert authority). Insiders/sellers/brokers excluded; requires a real domain-topic phrase
+  (bare `.com`/TLD tokens don't qualify — that caused an engage-flood). `HIGH_QUALITY_SCORE_MIN`
+  6, `MAYBE_MIN` 3.
+- **Store** (`store.ts`): `social_sweep_posts` + `social_sweep_runs` (main admin project;
+  `scripts/social_sweep.sql`). `vipBand(followers,verified)` flags high-profile X authors.
+  `clean()` strips C0 controls + **lone UTF-16 surrogates** (Reddit decodes high `&#NNNN;` →
+  the JSON layer rejects lone surrogates as "invalid input syntax for type json").
+- **Reply drafting** (`reply.ts` + `voice.ts`): LLM draft, channel-aware (X terse ≤2 sentences,
+  Reddit substantive), grounded in snagged.com/blog voice (sitemap → /post/ pages, cached 12h).
+  Thoughtful/critical, NOT sycophantic, NO emdashes. `SOCIAL_REPLY_MODEL`||`DEAL_RECAP_MODEL`||Haiku.
+- **X fetch** (`x-fetch.ts`): X API v2 recent search needs **Basic tier** ($200/mo; Free 403s).
+  Bearer minted from `X_API_KEY`/`X_API_SECRET`. Reddit IP-blocks cloud egress → `SCRAPE_DO_API_KEY`.
+- **Runs** (`run.ts`/`x-run.ts` inline in cron routes `app/api/cron/{reddit,x}-sweep`), UI
+  `app/reports/social-sweep-client.tsx` (VIP-sorted, suggested-reply copy), digest `digest.ts`.
+  Permission `reports.social_sweep`.
+- **Slack:** posts via `slackAlert(digest.slack)` → the DEFAULT channel (`SLACK_CHANNEL_SNAP`).
+  Give it a dedicated channel later if wanted (pass an explicit channel like the picks/overlap crons).
+- **⏰ Schedule (2026-07-18):** `reddit-sweep` + `x-sweep` now run **3×/day at 13/18/23 UTC**
+  (`vercel.json`) — added after calibration sign-off (they'd been manual-only during tuning).
+
+---
+
 # SNAP Names — registrar OPERATOR unification + new-name alerts (2026-07-11)
 
 Two additions to Reports → SNAP Names:
