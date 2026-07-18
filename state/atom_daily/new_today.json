@@ -1,26 +1,18 @@
 {
   "capped": false,
-  "count": 15,
+  "count": 9,
   "domains": [
-    "edition.ai",
-    "guides.com",
-    "misses.com",
-    "instead.io",
-    "sunset.ai",
-    "posted.io",
-    "fear.io",
-    "goto.com",
-    "reza.com",
-    "rapport.ai",
-    "proxies.ai",
-    "statutory.co",
-    "saz.com",
-    "waz.com",
-    "fme.com"
+    "guaranteed.ai",
+    "cola.com",
+    "weight.io",
+    "shrimp.ai",
+    "rink.com",
+    "goof.com",
+    "beings.io",
+    "hap.ai",
+    "undress.org"
   ],
-  "generated_at": "2026-07-17T09:23:10.969030+00:00",
-  "mub": [
-    "reza.com"
-  ],
+  "generated_at": "2026-07-18T09:24:33.187039+00:00",
+  "mub": [],
   "source": "atom_daily"
 }

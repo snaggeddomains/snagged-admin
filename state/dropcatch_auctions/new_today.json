@@ -1,15 +1,16 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 7,
   "domains": [
-    "udns.com",
-    "smili.com",
-    "grandx.org",
     "ujfo.com",
+    "rnplay.org",
+    "jacus.com",
+    "yisg.com",
+    "msz.net",
     "gedm.com",
     "bryg.com"
   ],
-  "generated_at": "2026-07-17T09:43:43.728377+00:00",
+  "generated_at": "2026-07-18T09:43:07.319337+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }

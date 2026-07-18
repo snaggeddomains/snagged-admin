@@ -1,18 +1,22 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 13,
   "domains": [
-    "sarva.com",
-    "spiritual.io",
-    "subatomic.co",
-    "incubators.com",
-    "adots.com",
-    "hexc.com",
-    "3106.com"
+    "restful.org",
+    "moldking.com",
+    "lbank.io",
+    "certie.com",
+    "sds.co",
+    "osau.com",
+    "gwid.com",
+    "somis.org",
+    "recast.net",
+    "menji.com",
+    "dymr.com",
+    "refute.org",
+    "fx.io"
   ],
-  "generated_at": "2026-07-17T09:44:08.041547+00:00",
-  "mub": [
-    "sarva.com"
-  ],
+  "generated_at": "2026-07-18T09:43:38.697156+00:00",
+  "mub": [],
   "source": "godaddy_auctions"
 }

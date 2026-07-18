@@ -727,17 +727,6 @@
   },
   {
     "deal_score": 49400.0,
-    "domain": "families.com",
-    "is_mub": false,
-    "link": "https://efty.com/d/3bxsw/families.com/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
-    "price": 1.0,
-    "quality_score": 4.94,
-    "sld": "families",
-    "tld": ".com",
-    "zipf_score": 4.94
-  },
-  {
-    "deal_score": 49400.0,
     "domain": "successful.com",
     "is_mub": false,
     "link": "https://efty.com/d/39y54/successful.com/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
@@ -2748,5 +2737,16 @@
     "sld": "appreciate",
     "tld": ".ai",
     "zipf_score": 4.74
+  },
+  {
+    "deal_score": 42600.0,
+    "domain": "breathe.com",
+    "is_mub": false,
+    "link": "https://efty.com/d/34o7z/breathe.com/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
+    "price": 1.0,
+    "quality_score": 4.26,
+    "sld": "breathe",
+    "tld": ".com",
+    "zipf_score": 4.26
   }
 ]

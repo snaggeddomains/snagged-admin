@@ -1,20 +1,56 @@
 [
   {
-    "bid_count": 29,
-    "domain": "foreign.io",
-    "end_time_utc": "2026-07-17T16:19:22+00:00",
+    "bid_count": 23,
+    "domain": "ccpx.com",
+    "end_time_utc": "2026-07-18T13:44:56+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41174688.html",
+    "link": "https://www.dynadot.com/market/auction/41203538.html",
     "platform": "Dynadot",
-    "price": 63.09
+    "price": 957.2
   },
   {
-    "bid_count": 0,
-    "domain": "famer.co",
-    "end_time_utc": "2026-07-17T19:29:59+00:00",
+    "bid_count": 8,
+    "domain": "hges.net",
+    "end_time_utc": "2026-07-18T13:44:57+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41139755.html",
+    "link": "https://www.dynadot.com/market/auction/41202742.html",
     "platform": "Dynadot",
-    "price": 7.99
+    "price": 42.07
+  },
+  {
+    "bid_count": 29,
+    "domain": "sztd.com",
+    "end_time_utc": "2026-07-18T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.dynadot.com/market/auction/40215614.html",
+    "platform": "Dynadot",
+    "price": 286.17
+  },
+  {
+    "bid_count": 66,
+    "domain": "yaly.com",
+    "end_time_utc": "2026-07-18T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.dynadot.com/market/auction/40215612.html",
+    "platform": "Dynadot",
+    "price": 1425.0
+  },
+  {
+    "bid_count": 30,
+    "domain": "bling.org",
+    "end_time_utc": "2026-07-18T16:40:00+00:00",
+    "is_mub": false,
+    "link": "https://www.dynadot.com/market/auction/41223253.html",
+    "platform": "Dynadot",
+    "price": 1259.0
+  },
+  {
+    "bid_count": 59,
+    "domain": "nsu.net",
+    "end_time_utc": "2026-07-19T00:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.dynadot.com/market/auction/41141650.html",
+    "platform": "Dynadot",
+    "price": 465.0
   }
 ]

@@ -1,65 +1,119 @@
 [
   {
-    "bid_count": 65,
-    "domain": "sarva.com",
-    "end_time_utc": "2026-07-17T17:29:00+00:00",
-    "is_mub": true,
-    "link": "https://www.godaddy.com/domain-auctions/sarva-com-712764779?isc=json_ending_tomorrow",
+    "bid_count": 12,
+    "domain": "restful.org",
+    "end_time_utc": "2026-07-18T16:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/restful-org-712801457?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 4400.0
+    "price": 46.0
   },
   {
-    "bid_count": 32,
-    "domain": "spiritual.io",
-    "end_time_utc": "2026-07-17T17:58:00+00:00",
+    "bid_count": 11,
+    "domain": "moldking.com",
+    "end_time_utc": "2026-07-18T16:09:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/spiritual-io-712758869?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/moldking-com-713158156?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 205.0
+    "price": 104.0
   },
   {
-    "bid_count": 9,
-    "domain": "subatomic.co",
-    "end_time_utc": "2026-07-17T18:00:00+00:00",
+    "bid_count": 5,
+    "domain": "lbank.io",
+    "end_time_utc": "2026-07-18T16:36:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/subatomic-co-712804261?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/lbank-io-713332177?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 41.0
+    "price": 65.0
   },
   {
-    "bid_count": 72,
-    "domain": "incubators.com",
-    "end_time_utc": "2026-07-17T18:41:00+00:00",
+    "bid_count": 11,
+    "domain": "certie.com",
+    "end_time_utc": "2026-07-18T16:51:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/incubators-com-712766667?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/certie-com-711374216?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 13229.0
+    "price": 127.0
   },
   {
-    "bid_count": 8,
-    "domain": "adots.com",
-    "end_time_utc": "2026-07-17T19:23:00+00:00",
+    "bid_count": 25,
+    "domain": "sds.co",
+    "end_time_utc": "2026-07-18T17:23:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/adots-com-711202377?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/sds-co-713166020?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 53.0
+    "price": 1078.0
   },
   {
-    "bid_count": 20,
-    "domain": "hexc.com",
-    "end_time_utc": "2026-07-17T19:30:00+00:00",
+    "bid_count": 25,
+    "domain": "osau.com",
+    "end_time_utc": "2026-07-18T17:52:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/hexc-com-712763446?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/osau-com-713108083?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 201.0
+    "price": 370.0
   },
   {
-    "bid_count": 50,
-    "domain": "3106.com",
-    "end_time_utc": "2026-07-17T20:10:00+00:00",
+    "bid_count": 17,
+    "domain": "gwid.com",
+    "end_time_utc": "2026-07-18T17:57:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/3106-com-712780886?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/gwid-com-713163518?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 4050.0
+    "price": 265.0
+  },
+  {
+    "bid_count": 11,
+    "domain": "somis.org",
+    "end_time_utc": "2026-07-18T19:09:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/somis-org-712798044?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 338.0
+  },
+  {
+    "bid_count": 5,
+    "domain": "recast.net",
+    "end_time_utc": "2026-07-18T19:24:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/recast-net-713126428?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 15.0
+  },
+  {
+    "bid_count": 18,
+    "domain": "menji.com",
+    "end_time_utc": "2026-07-18T19:42:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/menji-com-713154554?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 210.0
+  },
+  {
+    "bid_count": 16,
+    "domain": "dymr.com",
+    "end_time_utc": "2026-07-18T20:08:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/dymr-com-713131906?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 182.0
+  },
+  {
+    "bid_count": 3,
+    "domain": "refute.org",
+    "end_time_utc": "2026-07-18T20:26:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/refute-org-712798041?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 10.0
+  },
+  {
+    "bid_count": 41,
+    "domain": "fx.io",
+    "end_time_utc": "2026-07-18T21:28:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/fx-io-713136996?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 22500.0
   }
 ]

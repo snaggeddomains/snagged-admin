@@ -1,12 +1,12 @@
 [
   {
-    "bid_count": 54,
+    "bid_count": 66,
     "domain": "yaly.com",
     "end_time_utc": "2026-07-18T15:00:00+00:00",
     "is_mub": false,
     "link": "https://www.namesilo.com/auctions/yaly.com",
     "platform": "NameSilo",
-    "price": 1125.0
+    "price": 1425.0
   },
   {
     "bid_count": 29,
@@ -16,5 +16,14 @@
     "link": "https://www.namesilo.com/auctions/sztd.com",
     "platform": "NameSilo",
     "price": 286.17
+  },
+  {
+    "bid_count": 41,
+    "domain": "rczp.com",
+    "end_time_utc": "2026-07-19T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namesilo.com/auctions/rczp.com",
+    "platform": "NameSilo",
+    "price": 305.44
   }
 ]
