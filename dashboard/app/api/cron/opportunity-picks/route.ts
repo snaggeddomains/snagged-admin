@@ -5,7 +5,7 @@
 //   ?dry=1  build but don't post to Slack.
 
 import { NextResponse, type NextRequest } from "next/server";
-import { authorizedCron, slackAlert } from "@/lib/orchestrator";
+import { authorizedCron, slackPost } from "@/lib/orchestrator";
 import { buildPicks, formatBucketSlack } from "@/lib/opportunities-picks";
 
 export const runtime = "nodejs";
@@ -20,18 +20,18 @@ export async function GET(req: NextRequest) {
     // Split by channel: top-5 auctions → the auction Slack, top-5 snap → the snap Slack.
     const auctionText = formatBucketSlack("🔎 Worth a look — auctions expiring today", picks.auctions);
     const snapText = formatBucketSlack("🔎 Worth a look — new SNAP", picks.snap);
-    let auctionsPosted = false;
-    let snapPosted = false;
+    let auctions = { ok: false, error: "empty" as string | undefined };
+    let snap = { ok: false, error: "empty" as string | undefined };
     if (!dry) {
-      if (auctionText) auctionsPosted = await slackAlert(auctionText, process.env.SLACK_CHANNEL_AUCTIONS);
-      if (snapText) snapPosted = await slackAlert(snapText, process.env.SLACK_CHANNEL_SNAP);
+      if (auctionText) auctions = await slackPost(auctionText, process.env.SLACK_CHANNEL_AUCTIONS);
+      if (snapText) snap = await slackPost(snapText, process.env.SLACK_CHANNEL_SNAP);
     }
     return NextResponse.json({
       ok: true,
       snap: picks.snap.length,
       auctions: picks.auctions.length,
       valued: picks.valued,
-      slack: dry ? "skipped (dry)" : { auctions: auctionsPosted, snap: snapPosted },
+      slack: dry ? "skipped (dry)" : { auctions, snap },
     });
   } catch (e) {
     return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });

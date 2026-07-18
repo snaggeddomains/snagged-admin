@@ -95,9 +95,15 @@ export function latestRunToday(runs: OrchestratorRun[]): OrchestratorRun | null 
  * different channels; falls back to SLACK_CHANNEL_SNAP / _AUCTIONS. No-ops if the token
  * or a channel isn't set. */
 export async function slackAlert(text: string, channel?: string): Promise<boolean> {
+  return (await slackPost(text, channel)).ok;
+}
+
+/** Like slackAlert but returns the Slack error string too (for diagnostics). */
+export async function slackPost(text: string, channel?: string): Promise<{ ok: boolean; error?: string }> {
   const token = process.env.SLACK_BOT_TOKEN;
   const ch = channel || process.env.SLACK_CHANNEL_SNAP || process.env.SLACK_CHANNEL_AUCTIONS;
-  if (!token || !ch) return false;
+  if (!token) return { ok: false, error: "no_token" };
+  if (!ch) return { ok: false, error: "no_channel" };
   const post = async () => {
     const res = await fetch("https://slack.com/api/chat.postMessage", {
       method: "POST",
@@ -122,9 +128,9 @@ export async function slackAlert(text: string, channel?: string): Promise<boolea
       data = await post();
     }
     if (!data.ok) console.error(`slackAlert(${ch}) failed: ${data.error || "unknown"}`);
-    return Boolean(data.ok);
-  } catch {
-    return false;
+    return { ok: Boolean(data.ok), error: data.ok ? undefined : (data.error || "unknown") };
+  } catch (e) {
+    return { ok: false, error: String((e as Error)?.message || e) };
   }
 }
 
