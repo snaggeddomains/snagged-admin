@@ -1,62 +1,14 @@
 [
   {
-    "domain": "trilane.com",
-    "price": 9995.0
-  },
-  {
-    "domain": "badimo.com",
-    "price": 4995.0
-  },
-  {
-    "domain": "hermano.ai",
-    "price": 9995.0
-  },
-  {
-    "domain": "reminiscent.com",
-    "price": 49995.0
-  },
-  {
-    "domain": "fervent.net",
-    "price": 1995.0
-  },
-  {
-    "domain": "persuade.net",
-    "price": 4995.0
-  },
-  {
-    "domain": "tuitions.net",
-    "price": 23000.0
-  },
-  {
-    "domain": "uncovered.net",
-    "price": 4995.0
-  },
-  {
-    "domain": "funneling.net",
-    "price": 23000.0
+    "domain": "withtai.com",
+    "price": 499.0
   },
   {
     "domain": "poll.net",
     "price": 6500000.0
   },
   {
-    "domain": "extraction.net",
-    "price": 1995.0
-  },
-  {
-    "domain": "expressive.net",
-    "price": 4995.0
-  },
-  {
-    "domain": "reversible.net",
-    "price": 23000.0
-  },
-  {
     "domain": "hyperscale.co",
     "price": 79000.0
-  },
-  {
-    "domain": "imperfection.net",
-    "price": 23000.0
   }
 ]
