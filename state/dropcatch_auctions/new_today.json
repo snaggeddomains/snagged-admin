@@ -1,16 +1,11 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 2,
   "domains": [
-    "ujfo.com",
-    "rnplay.org",
-    "jacus.com",
-    "yisg.com",
-    "msz.net",
-    "gedm.com",
-    "bryg.com"
+    "axto.com",
+    "torsk.com"
   ],
-  "generated_at": "2026-07-18T09:43:07.319337+00:00",
+  "generated_at": "2026-07-19T09:42:07.195441+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }

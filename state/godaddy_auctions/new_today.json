@@ -1,22 +1,16 @@
 {
   "capped": false,
-  "count": 13,
+  "count": 7,
   "domains": [
-    "restful.org",
-    "moldking.com",
-    "lbank.io",
-    "certie.com",
-    "sds.co",
-    "osau.com",
-    "gwid.com",
-    "somis.org",
-    "recast.net",
-    "menji.com",
-    "dymr.com",
-    "refute.org",
-    "fx.io"
+    "diyy.com",
+    "martley.com",
+    "hepburn.co",
+    "vzga.com",
+    "1088.net",
+    "exro.com",
+    "sporadically.com"
   ],
-  "generated_at": "2026-07-18T09:43:38.697156+00:00",
+  "generated_at": "2026-07-19T09:42:48.420336+00:00",
   "mub": [],
   "source": "godaddy_auctions"
 }

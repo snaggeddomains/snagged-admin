@@ -1,24 +1,30 @@
 {
   "capped": false,
-  "count": 15,
+  "count": 19,
   "domains": [
-    "produced.io",
-    "jeong.ai",
-    "smurfs.ai",
-    "cleanest.ai",
-    "zutr.com",
-    "cecile.ai",
-    "britannia.org",
-    "ccqc.com",
-    "colonial.io",
-    "blondes.ai",
-    "survivors.io",
-    "detects.ai",
-    "shrines.org",
-    "peterborough.ai",
-    "monologues.ai"
+    "referendum.io",
+    "blazers.ai",
+    "endeavours.ai",
+    "alcoholics.ai",
+    "mwek.com",
+    "vegetable.io",
+    "grips.co",
+    "towards.io",
+    "lurks.org",
+    "herbicide.ai",
+    "czr.net",
+    "herbo.com",
+    "ked.ai",
+    "phyp.com",
+    "thyp.com",
+    "educational.ai",
+    "promotes.ai",
+    "precaution.ai",
+    "subsidy.ai"
   ],
-  "generated_at": "2026-07-18T09:42:09.678563+00:00",
-  "mub": [],
+  "generated_at": "2026-07-19T09:41:16.634384+00:00",
+  "mub": [
+    "herbo.com"
+  ],
   "source": "namecheap_auctions"
 }

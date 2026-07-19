@@ -1,18 +1,14 @@
 {
   "capped": false,
-  "count": 9,
+  "count": 5,
   "domains": [
-    "guaranteed.ai",
-    "cola.com",
-    "weight.io",
-    "shrimp.ai",
-    "rink.com",
-    "goof.com",
-    "beings.io",
-    "hap.ai",
-    "undress.org"
+    "redevelopment.com",
+    "malay.ai",
+    "staying.org",
+    "prom.org",
+    "tome.org"
   ],
-  "generated_at": "2026-07-18T09:24:33.187039+00:00",
+  "generated_at": "2026-07-19T09:22:51.368712+00:00",
   "mub": [],
   "source": "atom_daily"
 }

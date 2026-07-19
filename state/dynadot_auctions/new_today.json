@@ -1,12 +1,16 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 7,
   "domains": [
-    "ccpx.com",
-    "hges.net",
-    "nsu.net"
+    "eddd.com",
+    "vyj.net",
+    "aidig.com",
+    "vansage.com",
+    "danke.co",
+    "infrastructures.co",
+    "mdify.com"
   ],
-  "generated_at": "2026-07-18T09:43:00.616601+00:00",
+  "generated_at": "2026-07-19T09:41:57.320206+00:00",
   "mub": [],
   "source": "dynadot_auctions"
 }
