@@ -1,18 +1,20 @@
 {
   "capped": false,
-  "count": 9,
+  "count": 11,
   "domains": [
-    "02.to",
-    "dif.net",
-    "field.co",
-    "loved.com",
-    "overlord.com",
-    "premises.com",
-    "ram.me",
-    "uplift.co",
-    "wmd.com"
+    "affirm.co",
+    "bagpipes.ai",
+    "brick.co",
+    "congrats.to",
+    "empower.co",
+    "frame.com",
+    "gle.com",
+    "grid.com",
+    "jubilee.org",
+    "pes.net",
+    "ranking.com"
   ],
-  "generated_at": "2026-07-19T10:06:27.189777+00:00",
+  "generated_at": "2026-07-19T17:06:07.936014+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
