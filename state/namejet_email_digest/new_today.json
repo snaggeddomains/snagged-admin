@@ -1,10 +1,11 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 2,
   "domains": [
-    "forgiveness.org"
+    "forgiveness.org",
+    "sensitivity.org"
   ],
-  "generated_at": "2026-07-19T15:05:28.995479+00:00",
+  "generated_at": "2026-07-19T15:07:47.139729+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
