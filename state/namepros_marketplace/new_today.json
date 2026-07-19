@@ -1,20 +1,18 @@
 {
   "capped": false,
-  "count": 11,
+  "count": 9,
   "domains": [
-    "affirm.co",
-    "bagpipes.ai",
-    "brick.co",
-    "congrats.to",
-    "empower.co",
-    "frame.com",
-    "gle.com",
-    "grid.com",
-    "jubilee.org",
-    "pes.net",
-    "ranking.com"
+    "astound.co",
+    "digi.co",
+    "jolt.co",
+    "magical.co",
+    "musique.com",
+    "ocean.co",
+    "solace.co",
+    "static.co",
+    "thief.co"
   ],
-  "generated_at": "2026-07-19T17:06:07.936014+00:00",
+  "generated_at": "2026-07-19T23:06:16.708763+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
