@@ -1,11 +1,83 @@
 [
   {
     "currency": "USD",
-    "domain": "workmen.ai",
-    "end_time_utc": "2026-07-19T08:58:01+00:00",
+    "domain": "annette.com",
+    "end_time_utc": "2026-07-20T00:58:24+00:00",
     "is_mub": false,
-    "price": 1750.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=workmen.ai"
+    "price": 249888.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=annette.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "praises.com",
+    "end_time_utc": "2026-07-20T00:59:14+00:00",
+    "is_mub": false,
+    "price": 149888.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=praises.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "rallies.com",
+    "end_time_utc": "2026-07-20T00:58:14+00:00",
+    "is_mub": false,
+    "price": 324888.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=rallies.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "lubbock.com",
+    "end_time_utc": "2026-07-20T00:58:59+00:00",
+    "is_mub": false,
+    "price": 249888.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=lubbock.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "juanita.com",
+    "end_time_utc": "2026-07-20T00:58:18+00:00",
+    "is_mub": true,
+    "price": 199888.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=juanita.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "laredo.com",
+    "end_time_utc": "2026-07-20T00:59:09+00:00",
+    "is_mub": false,
+    "price": 399888.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=laredo.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "soars.com",
+    "end_time_utc": "2026-07-20T00:58:28+00:00",
+    "is_mub": false,
+    "price": 187388.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=soars.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "brownsville.com",
+    "end_time_utc": "2026-07-20T00:58:59+00:00",
+    "is_mub": false,
+    "price": 129888.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=brownsville.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "wzc.com",
+    "end_time_utc": "2026-07-20T00:59:09+00:00",
+    "is_mub": false,
+    "price": 299888.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=wzc.com"
   }
 ]
