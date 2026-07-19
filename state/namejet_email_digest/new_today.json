@@ -2,9 +2,9 @@
   "capped": false,
   "count": 1,
   "domains": [
-    "curtail.org"
+    "forgiveness.org"
   ],
-  "generated_at": "2026-07-18T15:09:30.160663+00:00",
+  "generated_at": "2026-07-19T15:05:28.995479+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
