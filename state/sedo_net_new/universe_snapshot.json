@@ -1,14 +1,42 @@
 [
   {
-    "domain": "withtai.com",
-    "price": 499.0
+    "domain": "apects.com",
+    "price": 5000.0
   },
   {
-    "domain": "poll.net",
-    "price": 6500000.0
+    "domain": "abishirts.com",
+    "price": null
   },
   {
-    "domain": "hyperscale.co",
-    "price": 79000.0
+    "domain": "novacom.ai",
+    "price": 9888.0
+  },
+  {
+    "domain": "workmen.ai",
+    "price": 1750.0
+  },
+  {
+    "domain": "mustangs.ai",
+    "price": 9888.0
+  },
+  {
+    "domain": "vaulting.ai",
+    "price": 15000.0
+  },
+  {
+    "domain": "actioning.ai",
+    "price": 10000.0
+  },
+  {
+    "domain": "homeworld.ai",
+    "price": 9888.0
+  },
+  {
+    "domain": "vegetables.ai",
+    "price": 19888.0
+  },
+  {
+    "domain": "passer.net",
+    "price": 21189.0
   }
 ]
