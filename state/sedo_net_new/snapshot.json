@@ -7,32 +7,5 @@
     "price": 1750.0,
     "tld": "ai",
     "url": "https://sedo.com/search/details/?domain=workmen.ai"
-  },
-  {
-    "currency": "USD",
-    "domain": "mustangs.ai",
-    "end_time_utc": "2026-07-19T06:01:28+00:00",
-    "is_mub": false,
-    "price": 9888.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=mustangs.ai"
-  },
-  {
-    "currency": "USD",
-    "domain": "salvo.ai",
-    "end_time_utc": "2026-07-19T06:01:03+00:00",
-    "is_mub": false,
-    "price": 1000000.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=salvo.ai"
-  },
-  {
-    "currency": "USD",
-    "domain": "vegetables.ai",
-    "end_time_utc": "2026-07-19T06:01:32+00:00",
-    "is_mub": false,
-    "price": 19888.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=vegetables.ai"
   }
 ]
