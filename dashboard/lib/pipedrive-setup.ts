@@ -23,8 +23,8 @@ export const BUY_PIPELINE = "Buy-Side Deal Flow";
 // Won/Lost are Pipedrive-native deal STATUSES, not stages, so the working stages end at
 // Negotiating. "Stale" is a status/flag (per §10), not a stage.
 export const BUY_STAGES = [
-  "Unassigned / Inbox", "Assigned", "Qualifying", "Engaged / Onboarded",
-  "Invoice / Awaiting Payment", "Research & Outreach", "In Conversation", "Negotiating",
+  "Unassigned / Inbox", "Assigned", "Qualifying", "Invoice / Awaiting Payment",
+  "Research & Outreach", "In Contact", "Negotiating",
 ];
 
 // §8 deal custom fields. name is the stable handle we resolve keys by; keep names stable.
