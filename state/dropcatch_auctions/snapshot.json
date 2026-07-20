@@ -1,53 +1,44 @@
 [
   {
+    "bid_count": 16,
+    "domain": "jacus.com",
+    "end_time_utc": "2026-07-20T18:59:25.432006+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Jacus.com",
+    "platform": "DropCatch",
+    "price": 311.0
+  },
+  {
     "bid_count": 15,
     "domain": "ujfo.com",
-    "end_time_utc": "2026-07-20T18:59:06.211953+00:00",
+    "end_time_utc": "2026-07-20T18:59:25.432006+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/ujfo.com",
     "platform": "DropCatch",
     "price": 205.0
   },
   {
-    "bid_count": 10,
-    "domain": "rnplay.org",
-    "end_time_utc": "2026-07-20T18:59:06.211953+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/RnPlay.org",
-    "platform": "DropCatch",
-    "price": 110.0
-  },
-  {
-    "bid_count": 105,
+    "bid_count": 108,
     "domain": "axto.com",
-    "end_time_utc": "2026-07-21T18:59:06.211953+00:00",
+    "end_time_utc": "2026-07-21T18:59:25.432006+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Axto.com",
     "platform": "DropCatch",
-    "price": 640.0
+    "price": 790.0
   },
   {
-    "bid_count": 7,
-    "domain": "yisg.com",
-    "end_time_utc": "2026-07-21T18:59:06.211953+00:00",
+    "bid_count": 143,
+    "domain": "vati.com",
+    "end_time_utc": "2026-07-22T18:59:25.432006+00:00",
     "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/yisg.com",
+    "link": "https://www.dropcatch.com/domain/Vati.com",
     "platform": "DropCatch",
-    "price": 115.0
-  },
-  {
-    "bid_count": 34,
-    "domain": "torsk.com",
-    "end_time_utc": "2026-07-21T18:59:06.211953+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Torsk.com",
-    "platform": "DropCatch",
-    "price": 110.0
+    "price": 1610.0
   },
   {
     "bid_count": 21,
     "domain": "gedm.com",
-    "end_time_utc": "2026-07-22T18:59:06.211953+00:00",
+    "end_time_utc": "2026-07-22T18:59:25.432006+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/gedm.com",
     "platform": "DropCatch",
@@ -56,10 +47,19 @@
   {
     "bid_count": 16,
     "domain": "bryg.com",
-    "end_time_utc": "2026-07-22T18:59:06.211953+00:00",
+    "end_time_utc": "2026-07-22T18:59:25.432006+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/bryg.com",
     "platform": "DropCatch",
     "price": 195.0
+  },
+  {
+    "bid_count": 36,
+    "domain": "kpost.com",
+    "end_time_utc": "2026-07-23T18:59:25.432006+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Kpost.com",
+    "platform": "DropCatch",
+    "price": 220.0
   }
 ]

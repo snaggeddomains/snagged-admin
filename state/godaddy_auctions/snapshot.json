@@ -1,65 +1,47 @@
 [
   {
-    "bid_count": 33,
-    "domain": "diyy.com",
-    "end_time_utc": "2026-07-19T16:02:00+00:00",
+    "bid_count": 19,
+    "domain": "acoms.com",
+    "end_time_utc": "2026-07-20T18:58:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/diyy-com-713363514?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/acoms-com-713638845?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 510.0
-  },
-  {
-    "bid_count": 10,
-    "domain": "martley.com",
-    "end_time_utc": "2026-07-19T16:06:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/martley-com-711506798?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 42.0
+    "price": 156.0
   },
   {
     "bid_count": 0,
-    "domain": "hepburn.co",
-    "end_time_utc": "2026-07-19T17:11:00+00:00",
+    "domain": "earnestly.co",
+    "end_time_utc": "2026-07-20T19:10:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/hepburn-co-713373840?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/earnestly-co-713659452?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
     "price": 1.0
   },
   {
-    "bid_count": 5,
-    "domain": "vzga.com",
-    "end_time_utc": "2026-07-19T18:03:00+00:00",
+    "bid_count": 17,
+    "domain": "dufm.com",
+    "end_time_utc": "2026-07-20T19:58:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/vzga-com-713376474?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/dufm-com-713646613?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 73.0
+    "price": 186.0
   },
   {
-    "bid_count": 13,
-    "domain": "1088.net",
-    "end_time_utc": "2026-07-19T19:06:00+00:00",
+    "bid_count": 9,
+    "domain": "whvw.com",
+    "end_time_utc": "2026-07-20T20:01:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/1088-net-713350876?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/whvw-com-713666265?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 53.0
+    "price": 78.0
   },
   {
-    "bid_count": 66,
-    "domain": "exro.com",
-    "end_time_utc": "2026-07-19T19:27:00+00:00",
+    "bid_count": 42,
+    "domain": "9465.com",
+    "end_time_utc": "2026-07-20T21:22:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/exro-com-713375838?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/9465-com-713654889?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 3350.0
-  },
-  {
-    "bid_count": 14,
-    "domain": "sporadically.com",
-    "end_time_utc": "2026-07-19T20:42:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/sporadically-com-713363502?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 82.0
+    "price": 4020.0
   }
 ]

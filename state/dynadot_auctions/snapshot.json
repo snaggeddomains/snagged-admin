@@ -1,74 +1,20 @@
 [
   {
-    "bid_count": 64,
-    "domain": "eddd.com",
-    "end_time_utc": "2026-07-19T13:00:01+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41251499.html",
+    "bid_count": 5,
+    "domain": "evuan.com",
+    "end_time_utc": "2026-07-20T13:14:55+00:00",
+    "is_mub": true,
+    "link": "https://www.dynadot.com/market/auction/41310113.html",
     "platform": "Dynadot",
-    "price": 883.54
-  },
-  {
-    "bid_count": 38,
-    "domain": "vyj.net",
-    "end_time_utc": "2026-07-19T13:14:56+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41251441.html",
-    "platform": "Dynadot",
-    "price": 163.22
-  },
-  {
-    "bid_count": 6,
-    "domain": "aidig.com",
-    "end_time_utc": "2026-07-19T13:44:56+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41251592.html",
-    "platform": "Dynadot",
-    "price": 64.15
-  },
-  {
-    "bid_count": 41,
-    "domain": "rczp.com",
-    "end_time_utc": "2026-07-19T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40264211.html",
-    "platform": "Dynadot",
-    "price": 305.44
-  },
-  {
-    "bid_count": 6,
-    "domain": "vansage.com",
-    "end_time_utc": "2026-07-19T18:38:29+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41257908.html",
-    "platform": "Dynadot",
-    "price": 26.0
-  },
-  {
-    "bid_count": 8,
-    "domain": "danke.co",
-    "end_time_utc": "2026-07-19T19:29:59+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41239752.html",
-    "platform": "Dynadot",
-    "price": 116.0
+    "price": 50.84
   },
   {
     "bid_count": 0,
-    "domain": "infrastructures.co",
-    "end_time_utc": "2026-07-19T19:29:59+00:00",
+    "domain": "hiding.co",
+    "end_time_utc": "2026-07-20T19:29:59+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41239799.html",
+    "link": "https://www.dynadot.com/market/auction/41301281.html",
     "platform": "Dynadot",
     "price": 7.99
-  },
-  {
-    "bid_count": 13,
-    "domain": "mdify.com",
-    "end_time_utc": "2026-07-20T00:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41143030.html",
-    "platform": "Dynadot",
-    "price": 41.0
   }
 ]
