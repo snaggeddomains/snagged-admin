@@ -42,6 +42,28 @@ Daily top picks, appraised and ranked, surfaced in Reports → SNAP Opportunitie
 
 ---
 
+# NameClub — one-time dictionary-gated .com pull into Universe (2026-07-20)
+
+Evaluated NameClub (nameclub.com/marketplace) as a Universe feed. **Verdict: NOT a feed**
+— its ~5.5M inventory is 31% overlap (98% of that via **Afternic**, which we already pull;
+Dynadot = 0) and the 69% "net-new" is overwhelmingly auto-generated/numeric/CJK junk. Only
+the **dictionary-word .com** slice is worth having.
+
+- **Data access:** public sitemaps — `nameclub.com/domains.xml` → 112 gzipped shards
+  (`oss.nameclub.com/.../en_sitemap_domainsN.xml.gz`), ~49.5K domains each. **No price API**
+  (the `/api/*` endpoints 401); price is only in each listing page's `application/ld+json`
+  `Product.offers.price` (USD), ~460KB into the page → a real crawl, not an API.
+- **The pull (done once):** enumerated all 112 shards → 3.58M letters-only .com SLDs →
+  intersected with the 238K-word `english_words` dict → **13,640 dictionary .com listings**
+  (**8,512 net-new**, 5,128 already ours). Crawled prices (ld+json), 97% hit → CSV
+  `domain,price` handed to Rob for the **Imports tool**. NB the dict is Scrabble-grade so some
+  are obscure/plural (ferlie, oxeyes) — downstream `quality_score` ranks those down.
+- **Routing:** added `nameclub` to `UNIVERSE_EXTRA_SOURCES`
+  (`app/api/admin/imports/route.ts`) so `source=nameclub` writes to **name_universe** (tier-2),
+  not Master. This is a **one-time manual import**, NOT a recurring pipeline source.
+
+---
+
 # Social Sweep — X + Reddit engagement-lead skim (2026-07-18)
 
 Skims Reddit + X for domain posts from OUTSIDE the domainer echo chamber (founders/VCs/
