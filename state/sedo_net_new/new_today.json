@@ -1,20 +1,11 @@
 {
   "capped": false,
-  "count": 9,
+  "count": 2,
   "domains": [
-    "laredo.com",
-    "rallies.com",
-    "wzc.com",
-    "lubbock.com",
-    "annette.com",
-    "juanita.com",
-    "soars.com",
-    "praises.com",
-    "brownsville.com"
+    "papers.co",
+    "cleanest.ai"
   ],
-  "generated_at": "2026-07-19T23:01:25.468357+00:00",
-  "mub": [
-    "juanita.com"
-  ],
+  "generated_at": "2026-07-20T10:01:54.380987+00:00",
+  "mub": [],
   "source": "sedo_net_new"
 }
