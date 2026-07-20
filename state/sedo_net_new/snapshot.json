@@ -1,12 +1,48 @@
 [
   {
     "currency": "USD",
-    "domain": "cleanest.ai",
-    "end_time_utc": "2026-07-20T10:22:55+00:00",
+    "domain": "frigates.com",
+    "end_time_utc": "2026-07-20T22:46:56+00:00",
     "is_mub": false,
-    "price": 2888.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=cleanest.ai"
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=frigates.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "ricans.com",
+    "end_time_utc": "2026-07-20T22:47:21+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=ricans.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "embraces.com",
+    "end_time_utc": "2026-07-20T22:42:32+00:00",
+    "is_mub": false,
+    "price": 24888.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=embraces.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "ordinances.com",
+    "end_time_utc": "2026-07-20T22:43:18+00:00",
+    "is_mub": false,
+    "price": 12488.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=ordinances.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "senatorial.com",
+    "end_time_utc": "2026-07-20T22:44:35+00:00",
+    "is_mub": false,
+    "price": 788.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=senatorial.com"
   },
   {
     "currency": "USD",
@@ -16,14 +52,5 @@
     "price": 600000.0,
     "tld": "ai",
     "url": "https://sedo.com/search/details/?domain=tru.ai"
-  },
-  {
-    "currency": "USD",
-    "domain": "papers.co",
-    "end_time_utc": "2026-07-20T09:35:26+00:00",
-    "is_mub": false,
-    "price": 23500.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=papers.co"
   }
 ]
