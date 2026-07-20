@@ -42,7 +42,8 @@ const VIP_STYLE: Record<string, { label: string; bg: string; fg: string }> = {
   notable: { label: "notable", bg: "#eef2f7", fg: "#556" },
 };
 type Health = { lastRunAt: string | null; lastOk: boolean | null; feedErrors: string[]; status: "green" | "yellow" | "red"; error: string | null };
-type Payload = { posts: Post[]; health: Health };
+type MutedAuthor = { author: string; platform: string | null; muted_by: string | null; created_at: string };
+type Payload = { posts: Post[]; health: Health; muted?: MutedAuthor[] };
 
 const DOT: Record<string, string> = { green: "#1f9d55", yellow: "#c98a00", red: "#cf3b3b" };
 const sourceLabel = (p: Post) => (p.platform === "x" ? p.source : `r/${p.source}`);
@@ -87,6 +88,18 @@ export default function SocialSweepClient() {
 
   const dismiss = useCallback(async (id: string, dismissed: boolean) => {
     await fetch(`/api/admin/social-sweep`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "dismiss", id, dismissed }) });
+    void load();
+  }, [load]);
+
+  const mute = useCallback(async (author: string | null, platform: string | null) => {
+    if (!author) return;
+    if (!window.confirm(`Mute @${author}? None of their posts will show in the sweep again.`)) return;
+    await fetch(`/api/admin/social-sweep`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "mute", author, platform }) });
+    void load();
+  }, [load]);
+
+  const unmute = useCallback(async (author: string) => {
+    await fetch(`/api/admin/social-sweep`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "unmute", author }) });
     void load();
   }, [load]);
 
@@ -142,6 +155,20 @@ export default function SocialSweepClient() {
         <button onClick={() => void load()} style={{ marginLeft: "auto", cursor: "pointer" }}>↻ Refresh</button>
       </div>
 
+      {data?.muted && data.muted.length > 0 && (
+        <details style={{ margin: "0 0 12px", fontSize: 13 }}>
+          <summary style={{ cursor: "pointer", color: "#667" }}>🔇 Muted authors ({data.muted.length})</summary>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 8 }}>
+            {data.muted.map((m) => (
+              <span key={m.author} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 10px", borderRadius: 999, background: "#f2f2f2", color: "#555" }}>
+                @{m.author}{m.platform ? ` · ${m.platform}` : ""}
+                <button onClick={() => unmute(m.author)} title="Unmute" style={{ cursor: "pointer", border: "none", background: "none", color: "#b23000", fontWeight: 700 }}>✕</button>
+              </span>
+            ))}
+          </div>
+        </details>
+      )}
+
       {err && <p style={{ color: "#cf3b3b" }}>Couldn&apos;t load: {err}</p>}
       {loading && !data && <p className="muted">Loading…</p>}
       {data && !posts.length && !loading && <p className="muted">No open leads. New posts are scored on each sweep.</p>}
@@ -161,6 +188,7 @@ export default function SocialSweepClient() {
               <span style={{ marginLeft: "auto", whiteSpace: "nowrap" }}>
                 <a href={p.link} target="_blank" rel="noreferrer" style={{ fontSize: 12 }}>open ↗</a>
                 <button onClick={() => dismiss(p.id, !p.dismissed)} style={{ ...linkBtn, color: "#999", marginLeft: 10 }}>{p.dismissed ? "restore" : "dismiss"}</button>
+                {p.author && <button onClick={() => mute(p.author, p.platform)} title={`Mute @${p.author} — hide all their posts`} style={{ ...linkBtn, color: "#b23000", marginLeft: 10 }}>mute{p.author ? ` @${p.author}` : ""}</button>}
               </span>
             </div>
             <a href={p.link} target="_blank" rel="noreferrer" style={{ display: "block", fontWeight: 600, color: "#1b2a3a", textDecoration: "none", margin: "4px 0 2px" }}>{p.title || "(untitled)"}</a>

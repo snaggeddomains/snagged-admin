@@ -51,3 +51,15 @@ create table if not exists social_sweep_runs (
 create index if not exists idx_social_sweep_runs_at on social_sweep_runs (run_at desc);
 
 alter table social_sweep_runs enable row level security;
+
+-- Muted authors — their posts never surface in the sweep (any platform), keyed by
+-- the lowercased handle. Filtered at display (listPosts) AND ingest (run/x-run skip
+-- them before the LLM reply-draft). Degrades gracefully (empty) until this is run.
+create table if not exists social_sweep_muted (
+  author     text primary key,
+  platform   text,
+  muted_by   text,
+  created_at timestamptz not null default now()
+);
+
+alter table social_sweep_muted enable row level security;

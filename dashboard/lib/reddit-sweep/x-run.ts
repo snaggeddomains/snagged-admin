@@ -6,7 +6,7 @@
 import { xQueries, searchX } from "./x-fetch";
 import { scorePost } from "./score";
 import { draftReplies } from "./reply";
-import { upsertPosts, logSweepRun, type SweepPost } from "./store";
+import { upsertPosts, logSweepRun, mutedSet, type SweepPost } from "./store";
 
 export type XSweepSummary = {
   ok: boolean;
@@ -27,6 +27,7 @@ export async function runXSweep(): Promise<XSweepSummary> {
     let fetched = 0;
     const scored: SweepPost[] = [];
     const seen = new Set<string>();
+    const muted = await mutedSet(); // skip muted authors before the LLM reply-draft
 
     // Sequential (recent search is tightly rate-limited; a small serial loop is safest).
     for (const q of queries) {
@@ -41,6 +42,7 @@ export async function runXSweep(): Promise<XSweepSummary> {
       for (const p of posts) {
         if (seen.has(p.link)) continue; // a tweet can match several queries
         seen.add(p.link);
+        if (p.author && muted.has(p.author.toLowerCase())) continue; // muted author
         const s = scorePost(p.content, "x");
         if (s.bucket !== "high-signal" && s.bucket !== "maybe") continue;
         scored.push({

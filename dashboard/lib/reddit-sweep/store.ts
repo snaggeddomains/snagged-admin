@@ -121,6 +121,7 @@ export async function listPosts(opts: { platform?: string; includeDismissed?: bo
   const FULL = "id,platform,source,title,link,author,published,score,bucket,buy_side,sell_side,matched,sample,snippet,author_followers,author_verified,suggested_reply,dismissed,first_seen_at";
   const LEGACY = "id,platform,source,title,link,author,published,score,bucket,buy_side,sell_side,matched,sample,snippet,dismissed,first_seen_at";
   const out: SweepListRow[] = [];
+  const muted = await mutedSet(); // authors to never show
   let cols = FULL;
   for (let from = 0; ; from += PAGE) {
     let q = db
@@ -139,6 +140,7 @@ export async function listPosts(opts: { platform?: string; includeDismissed?: bo
     if (error) break;
     const rows = (data ?? []) as unknown as Record<string, unknown>[];
     for (const row of rows) {
+      if (row.author != null && muted.has(String(row.author).toLowerCase())) continue; // muted author
       out.push({
         id: String(row.id), platform: (row.platform === "x" ? "x" : "reddit"),
         source: String(row.source || ""), title: String(row.title || ""), link: String(row.link || ""),
@@ -166,6 +168,53 @@ export async function setPostDismissed(id: string, dismissed: boolean): Promise<
   if (!isDbConfigured() || !id) return false;
   const { error } = await getDb().from(TABLE).update({ dismissed }).eq("id", id);
   return !error;
+}
+
+// ── Muted authors ─────────────────────────────────────────────────────────────
+// A muted author's posts never surface in the sweep (any platform) — keyed by the
+// handle, case-insensitive. Table: social_sweep_muted (scripts/social_sweep.sql).
+const MUTED = "social_sweep_muted";
+export type MutedAuthor = { author: string; platform: string | null; muted_by: string | null; created_at: string };
+
+/** Set of muted author handles (lowercased). Best-effort → empty when the table is absent. */
+export async function mutedSet(): Promise<Set<string>> {
+  if (!isDbConfigured()) return new Set();
+  try {
+    const { data, error } = await getDb().from(MUTED).select("author");
+    if (error) return new Set();
+    return new Set((data ?? []).map((r) => String((r as { author: unknown }).author || "").toLowerCase()).filter(Boolean));
+  } catch { return new Set(); }
+}
+
+/** Full muted list for the management UI (newest first). */
+export async function listMuted(): Promise<MutedAuthor[]> {
+  if (!isDbConfigured()) return [];
+  try {
+    const { data, error } = await getDb().from(MUTED).select("author,platform,muted_by,created_at").order("created_at", { ascending: false });
+    if (error) return [];
+    return (data ?? []).map((r) => {
+      const row = r as Record<string, unknown>;
+      return { author: String(row.author || ""), platform: row.platform != null ? String(row.platform) : null, muted_by: row.muted_by != null ? String(row.muted_by) : null, created_at: String(row.created_at || "") };
+    });
+  } catch { return []; }
+}
+
+/** Mute an author (upsert by handle). */
+export async function muteAuthor(author: string, platform: string | null, by: string | null): Promise<boolean> {
+  if (!isDbConfigured() || !author) return false;
+  try {
+    const { error } = await getDb().from(MUTED).upsert({ author: author.toLowerCase(), platform: platform || null, muted_by: by || null, created_at: new Date().toISOString() }, { onConflict: "author" });
+    return !error;
+  } catch { return false; }
+}
+
+/** Unmute an author. */
+export async function unmuteAuthor(author: string): Promise<boolean> {
+  if (!isDbConfigured() || !author) return false;
+  try {
+    const { error } = await getDb().from(MUTED).delete().eq("author", author.toLowerCase());
+    return !error;
+  } catch { return false; }
 }
 
 export type SweepRun = {

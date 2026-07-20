@@ -4,7 +4,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { canReports } from "@/lib/permissions";
-import { listPosts, setPostDismissed, recentSweepRuns } from "@/lib/reddit-sweep/store";
+import { listPosts, setPostDismissed, recentSweepRuns, listMuted, muteAuthor, unmuteAuthor } from "@/lib/reddit-sweep/store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,9 +19,10 @@ export async function GET(req: NextRequest) {
   const includeMaybe = p.get("maybe") === "1";
   const includeDismissed = p.get("dismissed") === "1";
 
-  const [posts, runs] = await Promise.all([
+  const [posts, runs, muted] = await Promise.all([
     listPosts({ platform, includeMaybe, includeDismissed }),
     recentSweepRuns(20),
+    listMuted(),
   ]);
 
   const last = runs[0] || null;
@@ -34,7 +35,7 @@ export async function GET(req: NextRequest) {
     error: last?.error || null,
   };
 
-  return NextResponse.json({ posts, health });
+  return NextResponse.json({ posts, health, muted });
 }
 
 export async function POST(req: NextRequest) {
@@ -42,9 +43,17 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (!canReports(user, "reports.social_sweep")) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const body = (await req.json().catch(() => ({}))) as { action?: string; id?: string; dismissed?: boolean };
+  const body = (await req.json().catch(() => ({}))) as { action?: string; id?: string; dismissed?: boolean; author?: string; platform?: string };
   if (body.action === "dismiss" && body.id) {
     const ok = await setPostDismissed(body.id, body.dismissed !== false);
+    return NextResponse.json({ ok });
+  }
+  if (body.action === "mute" && body.author) {
+    const ok = await muteAuthor(body.author, body.platform || null, String((user as { email?: unknown }).email || "") || null);
+    return NextResponse.json({ ok });
+  }
+  if (body.action === "unmute" && body.author) {
+    const ok = await unmuteAuthor(body.author);
     return NextResponse.json({ ok });
   }
   return NextResponse.json({ error: "Unknown action" }, { status: 400 });

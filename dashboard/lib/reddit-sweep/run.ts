@@ -7,7 +7,7 @@ import { subreddits } from "./subreddits";
 import { fetchSubreddit } from "./fetch";
 import { scorePost } from "./score";
 import { draftReplies } from "./reply";
-import { upsertPosts, logSweepRun, type SweepPost } from "./store";
+import { upsertPosts, logSweepRun, mutedSet, type SweepPost } from "./store";
 
 export type SweepSummary = {
   ok: boolean;
@@ -47,6 +47,7 @@ export async function runRedditSweep(): Promise<SweepSummary> {
     const feedErrors: string[] = [];
     let fetched = 0;
     const scored: SweepPost[] = [];
+    const muted = await mutedSet(); // skip muted authors before the LLM reply-draft
 
     await pool(subs, 4, async (sub) => {
       let posts;
@@ -59,6 +60,7 @@ export async function runRedditSweep(): Promise<SweepSummary> {
       const recent = posts.filter((p) => withinWindow(p.published));
       fetched += recent.length;
       for (const p of recent) {
+        if (p.author && muted.has(p.author.toLowerCase())) continue; // muted author
         const s = scorePost(`${p.title}\n${p.content}`, p.subreddit);
         if (s.bucket !== "high-signal" && s.bucket !== "maybe") continue; // discard ignores
         scored.push({
