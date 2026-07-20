@@ -2,9 +2,9 @@
   "capped": false,
   "count": 1,
   "domains": [
-    "scoops.org"
+    "tk.org"
   ],
-  "generated_at": "2026-07-20T15:07:26.777919+00:00",
+  "generated_at": "2026-07-20T15:09:29.687509+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
