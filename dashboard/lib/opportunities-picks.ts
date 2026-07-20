@@ -29,6 +29,20 @@ export type PicksReport = {
 
 const TOP_N = 5;
 
+// Link to the actual marketplace LISTING, not the bare domain (Slack would auto-linkify a
+// bare domain to the parked site). Prefer a persisted listing URL; else build it from the
+// source marketplace; else fall back to the domain. Mirrors the report's snapLink().
+function listingUrl(domain: string, source: string | null, persisted?: string | null): string {
+  if (persisted && /^https?:\/\//i.test(persisted)) return persisted;
+  const s = (source || "").toLowerCase();
+  if (s.includes("afternic")) return `https://www.afternic.com/domain/${domain}`;
+  if (s.includes("sedo")) return `https://sedo.com/search/?keyword=${encodeURIComponent(domain)}`;
+  if (s.includes("atom")) return `https://www.atom.com/name/${domain.charAt(0).toUpperCase()}${domain.slice(1)}`;
+  if (s.includes("dan")) return `https://dan.com/buy-domain/${domain}`;
+  if (s.includes("efty")) return `https://${domain}`; // Efty landers are served on the domain itself
+  return `https://${domain}`;
+}
+
 // Is an auction end-time on TODAY's calendar day in America/New_York (our business tz)?
 function endsToday(endTimeUtc: string | null | undefined): boolean {
   if (!endTimeUtc) return false;
@@ -71,7 +85,7 @@ export async function buildPicks(report?: OpportunitiesReport): Promise<PicksRep
   const snap: Pick[] = snapTop.map((d): Pick => {
     const val = v(d.domain);
     return {
-      domain: d.domain, bucket: "snap", source: d.source, link: d.link ?? null,
+      domain: d.domain, bucket: "snap", source: d.source, link: listingUrl(d.domain, d.source, d.link),
       cost: d.price ?? null, quality_score: d.quality_score ?? null, is_mub: d.is_mub ?? null,
       appraisalMid: val?.appraisalMid ?? null, tldCount: val?.tldCount ?? null, tldBand: val?.tldBand ?? null,
       ratio: ratioOf(val?.appraisalMid ?? null, d.price ?? null),
@@ -81,7 +95,7 @@ export async function buildPicks(report?: OpportunitiesReport): Promise<PicksRep
   const auctions: Pick[] = auctionTop.map((a): Pick => {
     const val = v(a.domain);
     return {
-      domain: a.domain, bucket: "auction", source: a.source, link: a.link ?? null, endTimeUtc: a.endTimeUtc ?? null,
+      domain: a.domain, bucket: "auction", source: a.source, link: listingUrl(a.domain, a.source, a.link), endTimeUtc: a.endTimeUtc ?? null,
       cost: a.price ?? null, quality_score: a.quality_score ?? null, is_mub: a.is_mub ?? null,
       appraisalMid: val?.appraisalMid ?? null, tldCount: val?.tldCount ?? null, tldBand: val?.tldBand ?? null,
       ratio: ratioOf(val?.appraisalMid ?? null, a.price ?? null),
