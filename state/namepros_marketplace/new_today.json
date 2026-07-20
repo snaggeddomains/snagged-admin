@@ -1,18 +1,19 @@
 {
   "capped": false,
-  "count": 9,
+  "count": 10,
   "domains": [
-    "astound.co",
-    "digi.co",
-    "jolt.co",
-    "magical.co",
-    "musique.com",
-    "ocean.co",
-    "solace.co",
-    "static.co",
-    "thief.co"
+    "blueprint.co",
+    "buffer.co",
+    "distract.com",
+    "dress.io",
+    "funnel.co",
+    "homeschooling.com",
+    "kraft.co",
+    "notebook.so",
+    "roger.co",
+    "toggle.co"
   ],
-  "generated_at": "2026-07-19T23:06:16.708763+00:00",
+  "generated_at": "2026-07-20T10:07:21.857618+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
