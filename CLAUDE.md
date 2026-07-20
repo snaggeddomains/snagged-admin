@@ -8,6 +8,61 @@ one-time setup (SQL/env). Same rule in the research repo's CLAUDE.md.
 
 ---
 
+# Pipedrive buy-side deal flow — bridge + setup + create-deal core (2026-07-20)
+
+Buy-side inquiries (someone wants us to ACQUIRE a domain for them) are tracked in
+**Pipedrive** — a NEW, separate system of record from the HubSpot **sell**-side. Snagged
+Admin is the orchestrator/bridge; the research app is the enrichment engine. We do NOT
+mirror deals into our own DB — Pipedrive is authoritative. Buy-side stays fully separate
+from HubSpot (`lib/hubspot.ts` is the sell-side mirror; the two are independent by design).
+
+- **API client** (`dashboard/lib/pipedrive.ts`) mirrors `lib/hubspot.ts`. Auth =
+  `PIPEDRIVE_API_TOKEN` (classic token → `?api_token=` query param, Pipedrive convention),
+  base `https://api.pipedrive.com/v1`. `pd()` returns `{ok,data,error}` so nothing throws.
+  Read: `getPipelines/getStages/getDealFields/getUsers/getMe`. Write: `searchPersonByEmail/
+  createPerson/createOrganization/createDeal/updateDeal/searchDeals/addNote`. **Gotchas:**
+  custom deal fields have OPAQUE hash keys (resolve by name at runtime); enum values are
+  OPTION IDs (not labels); **Won/Lost are native deal STATUSES, not stages**.
+- **One-time setup** (`dashboard/lib/pipedrive-setup.ts` + `app/api/admin/pipedrive/setup/
+  route.ts`, admin-gated): `runSetup(dryRun)` idempotently creates the **"Buy-Side Deal
+  Flow"** pipeline + **7 stages** (Unassigned / Inbox → Assigned → Qualifying → Invoice /
+  Awaiting Payment → Research & Outreach → In Contact → Negotiating) + **18 §8 deal custom
+  fields** (Target Domain*, Source / Channel*, Client Name/Contact, Budget Range, Appraisal
+  Value $, Priority, Research Report Link, Likely Owner, Owner Contact, Asking/Target Price $,
+  Deal Status Marker, Auction Handle, Reachability, Last Buyer/Owner-Contact dates, Deal BCC).
+  `GET …/setup` = dry-run preview; `…/setup?apply=1` creates. **APPLIED 2026-07-20** — all
+  created ok (verified: only user is Rob; Brian & Sam still need Pipedrive invites for
+  assignment to map). Diag: `app/api/admin/pipedrive/diag/route.ts` (read-only).
+- **Field/stage resolver** (`dashboard/lib/pipedrive-fields.ts`): `resolvePipedrive(force)`
+  (cached ~10min) maps stable field NAMES → hash keys, enum `Name||Label` → option id, stage
+  names → ids, + `companyDomain` (from `/users/me`) for `dealUrl(r,id)` →
+  `https://<companyDomain>.pipedrive.com/deal/<id>`. Fail-open: an unresolved name is skipped,
+  never throws — that's why we don't persist a config table.
+- **Create-deal core** (`dashboard/lib/pipedrive-deals.ts`): `upsertBuyDeal(input)`.
+  **Idempotency key = deterministic title `${domain} — ${buyerEmail}`** (same buyer+domain
+  never duplicates across research surfaces; a different buyer for the same domain is a
+  separate deal). Searches deals by domain, matches exact title → returns existing else
+  creates. Resolves `assigneeEmail` → a Pipedrive owner (by email, active only) → entry stage
+  **"Assigned"** if an owner resolved, else **"Unassigned / Inbox"**. Find-or-create person +
+  optional org. `customFields()` maps input → `{key:value}` (enum → option id), skipping
+  unresolved (fail-open).
+- **Internal endpoint** (`dashboard/app/api/internal/pipedrive-deal/route.ts`): the research
+  app's "Add to Pipedrive" button POSTs here. Auth = `x-internal-secret == RESEARCH_INTERNAL_
+  SECRET` (same pattern as sales-comps/email-threads; `middleware.ts` excludes `api/internal`).
+  `POST {domain*, source*, buyerEmail?, assigneeEmail?, budgetRange?, appraisalValue?, …}` →
+  `upsertBuyDeal`; on a NEW deal WITH an assignee, fires the assignment notification (bell via
+  `createNotification` + email via `sendEmail` + Slack via `slackAlert(…, SLACK_CHANNEL_DEALS)`)
+  — best-effort. Returns `{ok, dealId, created, url, notified}`.
+- **One-time setup/env:** `PIPEDRIVE_API_TOKEN` (admin Vercel — DONE), `RESEARCH_INTERNAL_
+  SECRET` (already set both apps), optional `SLACK_CHANNEL_DEALS` (buy-side alerts; falls back
+  to default channel). Run `…/pipedrive/setup?apply=1` once (DONE 2026-07-20).
+- **NEXT (Phase 1c):** the research-app "Add to Pipedrive" button on 3 surfaces — owner
+  lookup, appraisal, WHOIS — prompts assignee/budget/source, POSTs the internal endpoint. New
+  `admin.pipedrive` permission. Later: automated form/email intake + triage queue; Phase 2
+  webhooks (needs Advanced tier); per-deal BCC email logging.
+
+---
+
 # SNAP Opportunities — valued "worth a look" picks + per-channel Slack (2026-07-18)
 
 Daily top picks, appraised and ranked, surfaced in Reports → SNAP Opportunities + Slack.

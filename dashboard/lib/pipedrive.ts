@@ -40,13 +40,16 @@ async function pd<T = unknown>(method: string, path: string, body?: unknown): Pr
 // ── Read (non-destructive — safe for the diag) ────────────────────────────────
 export type PdPipeline = { id: number; name: string };
 export type PdStage = { id: number; name: string; pipeline_id: number; order_nr: number };
-export type PdDealField = { id: number; key: string; name: string; field_type: string };
+export type PdFieldOption = { id: number; label: string };
+export type PdDealField = { id: number; key: string; name: string; field_type: string; options?: PdFieldOption[] };
 export type PdUser = { id: number; name: string; email: string; active_flag: boolean };
 
 export function getPipelines() { return pd<PdPipeline[]>("GET", "/pipelines"); }
 export function getStages(pipelineId?: number) { return pd<PdStage[]>("GET", `/stages${pipelineId ? `?pipeline_id=${pipelineId}` : ""}`); }
 export function getDealFields() { return pd<PdDealField[]>("GET", "/dealFields"); }
 export function getUsers() { return pd<PdUser[]>("GET", "/users"); }
+// /users/me carries the company_domain we need to build web deal URLs.
+export function getMe() { return pd<{ company_domain?: string; id: number }>("GET", "/users/me"); }
 
 // ── Write (used by Phase 1c create-deal; not exercised by the diag) ───────────
 export function searchPersonByEmail(email: string) {
