@@ -39,7 +39,7 @@ const BACKFILL_MASTER = "backfill-quality-master.yml";
 // sources in sources.yaml (imported by hand via this tool). Seeded into the
 // Universe typeahead so they suggest before the first import; once imported,
 // the import log carries them too.
-const UNIVERSE_EXTRA_SOURCES = ["brandbucket"];
+const UNIVERSE_EXTRA_SOURCES = ["brandbucket", "nameclub"];
 
 // GET — recent import-history entries for the panel.
 export async function GET() {
