@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-20T17:00:43.604626+00:00",
+  "count": 1,
+  "domains": [
+    "multiple.app"
+  ],
+  "generated_at": "2026-07-20T23:01:19.342210+00:00",
   "mub": [],
   "source": "reddit_domains"
 }
