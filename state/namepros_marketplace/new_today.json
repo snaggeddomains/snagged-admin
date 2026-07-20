@@ -1,16 +1,19 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 10,
   "domains": [
-    "appraise.net",
-    "covert.co",
-    "insights.co",
-    "rigid.co",
-    "simplify.co",
-    "stockade.xyz",
-    "tribe.co"
+    "apocalypse.now",
+    "berkshire.org",
+    "flm.com",
+    "mate.co",
+    "rename.co",
+    "replicate.co",
+    "smash.co",
+    "solvent.co",
+    "steer.co",
+    "viz.co"
   ],
-  "generated_at": "2026-07-20T17:07:52.629392+00:00",
+  "generated_at": "2026-07-20T23:07:04.540361+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
