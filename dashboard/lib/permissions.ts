@@ -43,6 +43,7 @@ export const MODULES = [
   "research.portfolio", // Corporate Portfolios — reverse-WHOIS a company → its premium domains (lives in Reports)
   "research.person", // Person — social-URL deep dive: identity, cross-platform VIP, contacts
   "research.leads", // Inbound-lead triage — the deep-linked dossier for a contact-form inquiry
+  "research.pipedrive", // Add-to-Pipedrive — turn a research surface into a buy-side deal (stored flat as `pipedrive`)
 ] as const;
 export type ModuleKey = (typeof MODULES)[number];
 
@@ -222,6 +223,7 @@ export const CATALOG: CatalogEntry[] = [
   { key: "research.sales", label: "Sales Research", group: "Research", kind: "module" },
   { key: "research.person", label: "Person (deep dive)", group: "Research", kind: "module" },
   { key: "research.leads", label: "Inbound Lead Triage", group: "Research", kind: "module" },
+  { key: "research.pipedrive", label: "Add to Pipedrive (buy-side deal)", group: "Research", kind: "module" },
   { key: "research.beeper", label: "Beeper (drop watch)", group: "Research", kind: "module" },
   { key: "research.whois", label: "Whois (domain lookup)", group: "Research", kind: "module" },
   { key: "research.portfolio", label: "Corporate Portfolios", group: "Reports", kind: "module" },

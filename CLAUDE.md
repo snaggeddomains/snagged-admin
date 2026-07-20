@@ -56,10 +56,19 @@ from HubSpot (`lib/hubspot.ts` is the sell-side mirror; the two are independent 
 - **One-time setup/env:** `PIPEDRIVE_API_TOKEN` (admin Vercel — DONE), `RESEARCH_INTERNAL_
   SECRET` (already set both apps), optional `SLACK_CHANNEL_DEALS` (buy-side alerts; falls back
   to default channel). Run `…/pipedrive/setup?apply=1` once (DONE 2026-07-20).
-- **NEXT (Phase 1c):** the research-app "Add to Pipedrive" button on 3 surfaces — owner
-  lookup, appraisal, WHOIS — prompts assignee/budget/source, POSTs the internal endpoint. New
-  `admin.pipedrive` permission. Later: automated form/email intake + triage queue; Phase 2
-  webhooks (needs Advanced tier); per-deal BCC email logging.
+- **Phase 1c — SHIPPED 2026-07-20 (research-app "Add to Pipedrive" button).** The internal
+  endpoint gained a **GET** returning the drawer metadata the research app needs — the ASSIGNABLE
+  Pipedrive owners (active users only, so you never offer an unroutable assignee) + the
+  Source/Channel enum labels. New permission is **`research.pipedrive`** (module, group Research;
+  stored flat as `pipedrive` — so the research app reads it via `userCan(user,'pipedrive')`),
+  NOT `admin.pipedrive` as originally sketched: the button lives on research surfaces and research
+  gates by flat keys. Research side (button + drawer + `api/pipedrive.js` proxy) is in the
+  domain-owner-research repo (see that repo's CLAUDE.md "Add to Pipedrive"). Brian & Sam invited
+  to Pipedrive 2026-07-20, so assignment routing now maps for all three.
+- **NEXT:** automated form/email intake + an Admin **triage queue** (blocked on deciding the
+  intake channel — website form vs a watched inbox — before building; note `research.leads`
+  inbound-lead triage infra already exists and may seed it). Phase 2 webhooks (needs Advanced
+  tier); per-deal BCC email logging.
 
 ---
 
