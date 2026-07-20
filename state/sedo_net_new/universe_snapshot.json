@@ -1,18 +1,22 @@
 [
   {
+    "domain": "smsshort.com",
+    "price": null
+  },
+  {
     "domain": "cleanest.ai",
     "price": 2888.0
   },
   {
-    "domain": "auspices.net",
-    "price": 795.0
+    "domain": "tru.ai",
+    "price": 600000.0
+  },
+  {
+    "domain": "induce.net",
+    "price": 9995.0
   },
   {
     "domain": "papers.co",
-    "price": 18000.0
-  },
-  {
-    "domain": "koreas.co",
-    "price": 356.0
+    "price": 23500.0
   }
 ]

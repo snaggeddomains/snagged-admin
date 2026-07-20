@@ -1,11 +1,10 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 1,
   "domains": [
-    "papers.co",
-    "cleanest.ai"
+    "tru.ai"
   ],
-  "generated_at": "2026-07-20T10:01:54.380987+00:00",
+  "generated_at": "2026-07-20T17:01:06.219598+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
