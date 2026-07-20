@@ -65,10 +65,28 @@ from HubSpot (`lib/hubspot.ts` is the sell-side mirror; the two are independent 
   gates by flat keys. Research side (button + drawer + `api/pipedrive.js` proxy) is in the
   domain-owner-research repo (see that repo's CLAUDE.md "Add to Pipedrive"). Brian & Sam invited
   to Pipedrive 2026-07-20, so assignment routing now maps for all three.
-- **NEXT:** automated form/email intake + an Admin **triage queue** (blocked on deciding the
-  intake channel — website form vs a watched inbox — before building; note `research.leads`
-  inbound-lead triage infra already exists and may seed it). Phase 2 webhooks (needs Advanced
-  tier); per-deal BCC email logging.
+- **Buy-Side triage queue — SHIPPED 2026-07-20 (Reports → Buy-Side Inquiries).** Intake channel
+  is the **inquiry@snagged.com** contact form: Zapier already POSTs each "New Submission" to the
+  research app's `POST /api/lead-enrich` (x-internal-secret), which enriches the lead (person
+  deep-dive + Apollo firmographics + a free Domain Owner report per named domain) into
+  `domain_research_leads` (shared main project). The queue **reads that enriched table directly**
+  (`lib/inquiries.ts` `listBuyInquiries` via `getDb()` — admin SUPABASE_URL == research main) and
+  shapes it: buyer, company, VIP band, intent/budget, the research triage route (VIP→Rob /
+  Notable→Brian / Standard→team), + the dossier link. Buy-side only by default (`looksBuySide`
+  on the "Acquire or Sell?" intent; a "Show sell-side too" toggle reveals the rest). Per-row
+  **human-click convert** (Rob's discretion — no auto-create) opens a modal → `POST
+  /api/admin/inquiries` → `upsertBuyDeal` + `notifyBuyDealAssignment`. Page `app/reports/inquiries/`
+  (`page.tsx` gated `userCan(research.pipedrive)` + `inquiries-client.tsx`), tab in REPORTS_TABS
+  ("Buy-Side Inquiries", perm `research.pipedrive`). The convert action + the internal endpoint now
+  share `lib/pipedrive-notify.ts` `notifyBuyDealAssignment` (bell+email+Slack, extracted). The
+  research **lead dossier** (`#/lead/<key>`) ALSO got an Add-to-Pipedrive button (see research repo).
+  - **Setup/env:** optional `RESEARCH_APP_BASE` (default `https://app.snagged.com/research`) for the
+    dossier deep-link. **DEPENDENCY:** the queue only populates if the Zapier "New Submission" zap
+    POSTs to research `/api/lead-enrich` (with `x-internal-secret`) — verify that zap exists;
+    without it inquiry@ emails still arrive but the enriched table stays empty. A lead shows with
+    basic fields immediately and fills in VIP/firmographics as enrichment completes.
+- **NEXT:** Phase 2 webhooks (needs Advanced tier); per-deal BCC email logging; optional
+  auto-convert for high-confidence Acquire leads (currently human-click only).
 
 ---
 

@@ -117,6 +117,9 @@ export const REPORTS_TABS: { href: string; label: string; perm: ModuleKey | Acti
   { href: "/reports/cost", label: "Cost & usage", perm: "reports.cost" },
   { href: "/reports/client-overlap", label: "Client Overlap", perm: "reports.client_overlap" },
   { href: "/reports/social-sweep", label: "Social Sweep", perm: "reports.social_sweep" },
+  // Buy-side inquiry triage → Pipedrive deals. Gated by research.pipedrive (canTab
+  // routes it to userCan); a pipedrive-only user is admitted to Reports via the tab loop.
+  { href: "/reports/inquiries", label: "Buy-Side Inquiries", perm: "research.pipedrive" },
   // Corporate Portfolios lives in the research app (/research/portfolio) but
   // belongs to the Reports section. Nav renders /research/* as a full-nav anchor.
   { href: "/research/portfolio", label: "Corporate Portfolios", perm: "research.portfolio" },
