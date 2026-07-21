@@ -1,11 +1,10 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 1,
   "domains": [
-    "continuation.co",
-    "wastes.org"
+    "ranges.co"
   ],
-  "generated_at": "2026-07-20T08:13:20.521882+00:00",
+  "generated_at": "2026-07-21T08:12:13.585578+00:00",
   "mub": [],
   "source": "afternic"
 }
