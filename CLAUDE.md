@@ -205,6 +205,13 @@ marketplace deal-finder).
 
 ---
 
+# SNAP Names — Atom column removed (2026-07-21)
+
+Dropped the **Atom** marketplace column from the SNAP Names table (`snap-names-client.tsx`)
+— we aren't using Atom. Removed the header, the per-row `MarketCell`, the `atom` sort case +
+SortKey member, the `atom_listed`/`atom_price` CSV columns, and the footer-note mention. The
+`atom_price` field on the row type is left (harmless; server may still send it).
+
 # SNAP Names — registrar OPERATOR unification + new-name alerts (2026-07-11)
 
 Two additions to Reports → SNAP Names:
