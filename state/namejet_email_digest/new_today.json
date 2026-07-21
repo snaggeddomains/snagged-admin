@@ -1,10 +1,11 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 2,
   "domains": [
-    "tk.org"
+    "presumptuous.com",
+    "unquestionably.com"
   ],
-  "generated_at": "2026-07-20T15:43:42.514663+00:00",
+  "generated_at": "2026-07-21T15:05:42.201349+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
