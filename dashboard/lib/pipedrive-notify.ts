@@ -6,10 +6,12 @@ import { createNotification } from "./notifications";
 import { sendEmail, emailConfigured } from "./email";
 import { slackAlert } from "./orchestrator";
 import { listUsers } from "./users";
+import { getUsers } from "./pipedrive";
 
 export type DealAssignmentInfo = {
   domain: string;
   assigneeEmail?: string;
+  assigneeName?: string; // display name; resolved from Pipedrive if the caller omits it
   buyerName?: string;
   buyerEmail?: string;
   budgetRange?: string;
@@ -17,13 +19,27 @@ export type DealAssignmentInfo = {
   url?: string;
 };
 
+// Resolve the assignee's display name (for a clear "Assigned to: <name>" line) —
+// the caller's value first, else the Pipedrive user directory, else the email.
+async function assigneeDisplayName(info: DealAssignmentInfo): Promise<string> {
+  if (info.assigneeName) return info.assigneeName;
+  try {
+    const u = await getUsers();
+    const hit = (u.data || []).find((x) => x.email?.toLowerCase() === info.assigneeEmail!.toLowerCase());
+    if (hit?.name) return hit.name;
+  } catch { /* fall back to the email */ }
+  return info.assigneeEmail || "";
+}
+
 // Fires only when there's an assignee. Best-effort — a notification failure never
 // affects the deal. Returns true if anything was sent.
 export async function notifyBuyDealAssignment(info: DealAssignmentInfo): Promise<boolean> {
   if (!info.assigneeEmail) return false;
   try {
-    const headline = `📥 New buy-side deal assigned: ${info.domain}`;
+    const assigneeName = await assigneeDisplayName(info);
+    const headline = `📥 New buy-side deal assigned to ${assigneeName}: ${info.domain}`;
     const lines = [
+      `Assigned to: ${assigneeName}`,
       info.buyerName || info.buyerEmail ? `Buyer: ${info.buyerName || ""} ${info.buyerEmail ? `<${info.buyerEmail}>` : ""}`.trim() : "",
       info.budgetRange ? `Budget: ${info.budgetRange}` : "",
       info.source ? `Source: ${info.source}` : "",
