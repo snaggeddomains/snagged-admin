@@ -65,9 +65,20 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
   (`app/api/internal/pipedrive-deal`, path kept for the research client) both now call
   `createDeal` (native) + `notifyAssignment` instead of Pipedrive. The research button label
   still reads "Add to Pipedrive" — cosmetic rename is a pending cross-repo follow-up.
-- **One-time setup:** run `scripts/deals.sql` on the main project. Reuses `SLACK_CHANNEL_DEALS`
-  + the Gmail layer + `RESEARCH_INTERNAL_SECRET`. Grant `deals` per-user (+ `deals.all` for
-  managers who see all deals); admins auto-pass. Optional `DASHBOARD_BASE` (default app.snagged.com).
+- **Notifications = per-user preferences (2026-07-21).** `notify.ts` `deliver()` sends each
+  recipient only on THEIR enabled channels — **in-app bell / email / Slack DM** — from
+  `notif_prefs.deal = {in_app,email,slack}` (default all on; `lib/deals/prefs.ts`). Slack is now a
+  **per-user DM** (`lib/deals/slack-dm.ts`, `users.lookupByEmail`+`chat.postMessage`, best-effort —
+  needs bot scopes `users:read.email`+`chat:write`+`im:write`; no longer the shared #deals channel).
+  **@mentions get the full flow** (bell+email+Slack, per prefs), same as assignment + stage-change.
+  Users set their own prefs via the **🔔** modal on the board (`/api/deals/notif-prefs` GET/POST).
+  Assignment email subject = clean `📥 Deal assigned: <domain>`; the body doesn't repeat the emoji
+  (so the inbox preview isn't a double emoji).
+- **One-time setup:** run `scripts/deals.sql` on the main project (creates the 3 deal tables +
+  `deals.budget_max` + `domain_research_users.notif_prefs`). Reuses the Gmail layer +
+  `RESEARCH_INTERNAL_SECRET` + `SLACK_BOT_TOKEN` (for DMs). Grant `deals` per-user, `deals.assignable`
+  to deal-takers, `deals.inbox`/`deals.all` as needed; admins auto-pass. Optional `DASHBOARD_BASE`
+  (default app.snagged.com).
 - **NEXT (Ph3):** email sequences (outbound) + richer pipeline reporting. Existing Pipedrive
   test deals are NOT migrated (day-one) — start fresh natively.
 

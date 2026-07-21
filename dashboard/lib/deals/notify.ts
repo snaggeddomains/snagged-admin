@@ -4,9 +4,10 @@
 
 import { createNotification } from "../notifications";
 import { sendEmail, emailConfigured } from "../email";
-import { slackAlert } from "../orchestrator";
 import { listUsers } from "../users";
 import { displayName } from "./assignees";
+import { channelsFor } from "./prefs";
+import { slackDm } from "./slack-dm";
 import type { Deal } from "./store";
 
 const APP_BASE = (process.env.DASHBOARD_BASE || "https://app.snagged.com").replace(/\/+$/, "");
@@ -22,20 +23,26 @@ async function idsForEmails(emails: string[]): Promise<string[]> {
   return users.filter((u) => want.has(String(u.email || "").toLowerCase())).map((u) => u.id).filter(Boolean);
 }
 
-async function deliver(emails: string[], title: string, bodyLines: string[], id: string, slack: boolean): Promise<boolean> {
+// Deliver to each recipient on THEIR enabled channels (in-app bell / email / Slack DM).
+// Per-user prefs (notif_prefs.deal), default all on. Slack is a per-user DM now, not a
+// team-channel post, so it honors the recipient's preference.
+async function deliver(emails: string[], title: string, bodyLines: string[], id: string): Promise<boolean> {
   try {
     const body = bodyLines.filter(Boolean).join("\n");
     const url = dealUrl(id);
-    const ids = await idsForEmails(emails);
-    if (ids.length) await createNotification(ids, { kind: "deal", title, body, link: url });
-    if (emailConfigured()) {
-      // NB: the subject carries the headline (with its one emoji). The body deliberately
-      // does NOT repeat it — otherwise the inbox preview shows the same emoji twice.
-      for (const to of emails.filter(Boolean)) {
+    for (const to of emails.filter(Boolean)) {
+      const ch = await channelsFor(to);
+      if (ch.in_app) {
+        const ids = await idsForEmails([to]);
+        if (ids.length) await createNotification(ids, { kind: "deal", title, body, link: url });
+      }
+      // NB: the subject carries the headline (with its one emoji); the body doesn't repeat
+      // it, so the inbox preview doesn't show the same emoji twice.
+      if (ch.email && emailConfigured()) {
         await sendEmail({ to, subject: title, html: `${body ? `<p>${body.replace(/\n/g, "<br>")}</p>` : ""}<p><a href="${url}">Open the deal →</a></p>` });
       }
+      if (ch.slack) await slackDm(to, `${title}\n${body}\n${url}`);
     }
-    if (slack) await slackAlert(`${title}\n${body}\n<${url}|Open deal>`, process.env.SLACK_CHANNEL_DEALS);
     return true;
   } catch {
     return false;
@@ -52,18 +59,19 @@ export async function notifyAssignment(deal: Deal): Promise<boolean> {
     deal.budget_range ? `Budget: ${deal.budget_range}` : "",
     deal.source ? `Source: ${deal.source}` : "",
   ];
-  return deliver([deal.owner_email], `📥 Deal assigned: ${deal.domain}`, lines, deal.id, true);
+  return deliver([deal.owner_email], `📥 Deal assigned: ${deal.domain}`, lines, deal.id);
 }
 
 // Stage moved on the board — tell the owner (unless they moved it themselves).
 export async function notifyStageChange(deal: Deal, fromStage: string, byEmail: string | null): Promise<boolean> {
   if (!deal.owner_email || (byEmail && byEmail.toLowerCase() === deal.owner_email.toLowerCase())) return false;
-  return deliver([deal.owner_email], `🔀 ${deal.domain}: ${fromStage} → ${deal.stage}`, [byEmail ? `Moved by ${byEmail}` : ""], deal.id, true);
+  return deliver([deal.owner_email], `🔀 ${deal.domain}: ${fromStage} → ${deal.stage}`, [byEmail ? `Moved by ${byEmail}` : ""], deal.id);
 }
 
-// @mention in a comment — tell the mentioned users (not Slack).
+// @mention in a note — tell the mentioned users on their enabled channels (bell/email/Slack).
 export async function notifyMention(deal: Deal, mentioned: string[], byEmail: string | null, comment: string): Promise<boolean> {
   const targets = mentioned.map((e) => e.toLowerCase()).filter((e) => e && e !== (byEmail || "").toLowerCase());
   if (!targets.length) return false;
-  return deliver(targets, `💬 ${byEmail || "Someone"} mentioned you on ${deal.domain}`, [comment.slice(0, 300)], deal.id, false);
+  const by = byEmail ? await displayName(byEmail) : "Someone";
+  return deliver(targets, `💬 ${by} mentioned you on ${deal.domain}`, [comment.slice(0, 300)], deal.id);
 }

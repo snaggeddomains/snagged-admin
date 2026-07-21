@@ -76,6 +76,9 @@ create index if not exists idx_deal_emails_deal on deal_emails (deal_id, msg_dat
 -- If `deals` already existed before budget_max was added, this backfills the column.
 alter table deals add column if not exists budget_max numeric;
 
+-- Per-user deal notification preferences ({deal:{in_app,email,slack}}), default all on.
+alter table domain_research_users add column if not exists notif_prefs jsonb;
+
 alter table deals enable row level security;
 alter table deal_activity enable row level security;
 alter table deal_emails enable row level security;

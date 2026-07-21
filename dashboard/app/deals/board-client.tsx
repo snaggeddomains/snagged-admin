@@ -40,6 +40,7 @@ export default function BoardClient() {
   const [dragId, setDragId] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState<string | null>(null);
   const [showNew, setShowNew] = useState(false);
+  const [showPrefs, setShowPrefs] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true); setErr(null);
@@ -103,6 +104,7 @@ export default function BoardClient() {
               <input type="checkbox" checked={mine} onChange={(e) => setMine(e.target.checked)} /> My deals
             </label>
           )}
+          <button style={btn} onClick={() => setShowPrefs(true)} title="Notification preferences">🔔</button>
           <button style={btn} onClick={() => load()} disabled={loading}>{loading ? "…" : "↻"}</button>
           <button style={btnPrimary} onClick={() => setShowNew(true)}>+ New deal</button>
         </div>
@@ -157,7 +159,42 @@ export default function BoardClient() {
       </div>
 
       {showNew && <NewDealModal assignees={data?.assignees || []} onClose={() => setShowNew(false)} onCreated={(id) => { setShowNew(false); router.push(`/deals/${id}`); }} />}
+      {showPrefs && <PrefsModal onClose={() => setShowPrefs(false)} />}
     </main>
+  );
+}
+
+function PrefsModal({ onClose }: { onClose: () => void }) {
+  const [p, setP] = useState<{ in_app: boolean; email: boolean; slack: boolean } | null>(null);
+  const [saving, setSaving] = useState(false);
+  useEffect(() => { fetch("/api/deals/notif-prefs").then((r) => r.json()).then((j) => setP(j.prefs || { in_app: true, email: true, slack: true })).catch(() => setP({ in_app: true, email: true, slack: true })); }, []);
+  const save = async () => {
+    if (!p) return; setSaving(true);
+    try { await fetch("/api/deals/notif-prefs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(p) }); onClose(); }
+    finally { setSaving(false); }
+  };
+  const Row = ({ k, label, hint }: { k: "in_app" | "email" | "slack"; label: string; hint: string }) => (
+    <label style={{ display: "flex", gap: 9, alignItems: "flex-start", padding: "8px 0", cursor: "pointer" }}>
+      <input type="checkbox" checked={!!p?.[k]} onChange={(e) => setP((s) => s ? { ...s, [k]: e.target.checked } : s)} style={{ marginTop: 3 }} />
+      <span><span style={{ fontWeight: 600, fontSize: 14 }}>{label}</span><br /><span className="muted" style={{ fontSize: 12 }}>{hint}</span></span>
+    </label>
+  );
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(20,25,30,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ background: "var(--paper,#fff)", borderRadius: 14, padding: 20, width: "min(400px,100%)" }}>
+        <h2 style={{ fontSize: "1.1rem", margin: "0 0 2px" }}>Deal notifications</h2>
+        <p className="muted" style={{ fontSize: 12.5, margin: "0 0 8px" }}>How you get notified about deals assigned to you, stage changes, and @mentions.</p>
+        {!p ? <p className="muted">Loading…</p> : <>
+          <Row k="in_app" label="In-app bell" hint="The notification bell in the top bar." />
+          <Row k="email" label="Email" hint="An email to your inbox." />
+          <Row k="slack" label="Slack DM" hint="A direct message from the Snagged bot (needs Slack workspace access)." />
+        </>}
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 14 }}>
+          <button style={btn} onClick={onClose} disabled={saving}>Cancel</button>
+          <button style={btnPrimary} onClick={save} disabled={saving || !p}>{saving ? "Saving…" : "Save"}</button>
+        </div>
+      </div>
+    </div>
   );
 }
 
