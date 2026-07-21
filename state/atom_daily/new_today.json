@@ -1,12 +1,24 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 15,
   "domains": [
-    "forsaken.ai",
-    "crock.ai",
-    "zoology.co"
+    "slept.ai",
+    "wilt.com",
+    "examination.io",
+    "genre.io",
+    "chemicals.io",
+    "broader.co",
+    "millions.org",
+    "regiment.io",
+    "femur.ai",
+    "xvii.ai",
+    "sanitation.co",
+    "transports.co",
+    "mekong.co",
+    "refute.org",
+    "ores.org"
   ],
-  "generated_at": "2026-07-20T09:24:26.029129+00:00",
+  "generated_at": "2026-07-21T09:23:05.585160+00:00",
   "mub": [],
   "source": "atom_daily"
 }

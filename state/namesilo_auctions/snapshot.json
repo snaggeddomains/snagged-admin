@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "bid_count": 48,
+    "domain": "ccqc.com",
+    "end_time_utc": "2026-07-22T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namesilo.com/auctions/ccqc.com",
+    "platform": "NameSilo",
+    "price": 510.0
+  }
+]

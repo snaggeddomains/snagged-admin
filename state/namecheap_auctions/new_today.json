@@ -1,30 +1,19 @@
 {
   "capped": false,
-  "count": 19,
+  "count": 10,
   "domains": [
-    "disks.ai",
-    "complies.org",
-    "harlan.ai",
-    "impm.org",
-    "reorganisation.org",
-    "exi.ai",
-    "stole.io",
-    "wedlock.ai",
-    "mogadishu.ai",
-    "zgmc.com",
-    "garuda.ai",
-    "talla.com",
-    "bamba.ai",
-    "hiwv.com",
-    "yah.ai",
-    "leicester.io",
-    "pogba.org",
-    "hwang.co",
-    "practiced.ai"
+    "grieme.org",
+    "straws.ai",
+    "tripsy.ai",
+    "macklemore.org",
+    "tupac.ai",
+    "koran.ai",
+    "bayley.ai",
+    "wheelchairs.ai",
+    "donner.ai",
+    "dealership.ai"
   ],
-  "generated_at": "2026-07-20T09:44:17.815136+00:00",
-  "mub": [
-    "pogba.org"
-  ],
+  "generated_at": "2026-07-21T09:42:14.661726+00:00",
+  "mub": [],
   "source": "namecheap_auctions"
 }
