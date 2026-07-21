@@ -27,7 +27,9 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
   upsert/listDealEmails, boardStats), `notify.ts` (bell+email+Slack for assignment + stage-change;
   bell+email for @mention; Slack → `SLACK_CHANNEL_DEALS`; `dealUrl` = `DASHBOARD_BASE`/deals/<id>),
   `emails.ts` (`ingestDealEmails` — searches deal mailboxes by buyer email/domain via `lib/gmail.ts`,
-  one row per thread, best-effort).
+  one row per thread, best-effort). **Auto-ingested hourly** by cron `app/api/cron/deal-emails`
+  (`vercel.json` `15 * * * *`, CRON_SECRET, open deals newest-first, capped) — the manual "Pull
+  emails" button on the deal stays for on-demand.
 - **API** (gated `deals` module; `deals.all` action sees everyone's, else own + Inbox):
   `app/api/admin/deals/route.ts` GET list (+stats+assignees) / POST create;
   `app/api/admin/deals/[id]/route.ts` GET detail (deal+activity+emails+assignees) / PATCH
