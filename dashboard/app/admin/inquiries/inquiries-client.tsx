@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
+import { BUDGET_BANDS, normalizeBudget } from "@/lib/deals/stages";
 
 type Inquiry = {
   leadKey: string;
@@ -81,7 +82,7 @@ export default function InquiriesClient() {
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
         <div>
           <h1 style={{ fontSize: "1.35rem", margin: 0 }}>Buy-Side Inquiries</h1>
-          <p className="muted" style={{ margin: "4px 0 0" }}>Inbound contact-form inquiries, enriched and triaged. Convert a real buy-side lead into a Pipedrive deal.</p>
+          <p className="muted" style={{ margin: "4px 0 0" }}>Inbound contact-form inquiries, enriched and triaged. Convert a real buy-side lead into a deal.</p>
         </div>
         <button style={btnGhost} onClick={() => load()} disabled={loading}>{loading ? "Loading…" : "↻ Refresh"}</button>
       </div>
@@ -135,7 +136,7 @@ export default function InquiriesClient() {
                     ✓ {r.created ? "Added" : "In Pipedrive"} — open ↗
                   </a>
                 ) : (
-                  <button style={btnPrimary} onClick={() => setActive(i)}>➕ Add to Pipedrive</button>
+                  <button style={btnPrimary} onClick={() => setActive(i)}>➕ Add to deal</button>
                 )}
                 {r && !r.ok && <div style={{ fontSize: 12, color: "#a83265" }}>{r.error}</div>}
               </div>
@@ -166,7 +167,7 @@ function ConvertModal({ inquiry, meta, onClose, onDone }: { inquiry: Inquiry; me
       ? inquiry.suggestedAssigneeEmail : "",
   );
   const [priority, setPriority] = useState("");
-  const [budget, setBudget] = useState(inquiry.budget || "");
+  const [budget, setBudget] = useState(normalizeBudget(inquiry.budget) || "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -204,7 +205,7 @@ function ConvertModal({ inquiry, meta, onClose, onDone }: { inquiry: Inquiry; me
     <div style={{ position: "fixed", inset: 0, background: "rgba(20,25,30,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }} onClick={onClose}>
       <div style={{ background: "var(--paper, #fff)", borderRadius: 14, padding: 20, width: "min(460px, 100%)", maxHeight: "90vh", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <h2 style={{ fontSize: "1.1rem", margin: 0 }}>Add to Pipedrive</h2>
+          <h2 style={{ fontSize: "1.1rem", margin: 0 }}>Add to deal</h2>
           <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 22, cursor: "pointer", lineHeight: 1 }}>×</button>
         </div>
         <p className="muted" style={{ fontSize: 13, margin: "4px 0 0" }}>{inquiry.name || inquiry.email}</p>
@@ -240,12 +241,15 @@ function ConvertModal({ inquiry, meta, onClose, onDone }: { inquiry: Inquiry; me
         </select>
 
         <label style={fieldLabel}>Budget range</label>
-        <input style={input} value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="e.g. $5k–$25k" />
+        <select style={input} value={budget} onChange={(e) => setBudget(e.target.value)}>
+          <option value="">—</option>
+          {BUDGET_BANDS.map((b) => <option key={b} value={b}>{b}</option>)}
+        </select>
 
         {error && <div style={{ color: "#a83265", fontSize: 13, marginTop: 10 }}>{error}</div>}
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16 }}>
           <button style={btnGhost} onClick={onClose} disabled={busy}>Cancel</button>
-          <button style={btnPrimary} onClick={submit} disabled={busy || !domain}>{busy ? "Adding…" : "Add to Pipedrive"}</button>
+          <button style={btnPrimary} onClick={submit} disabled={busy || !domain}>{busy ? "Adding…" : "Create deal"}</button>
         </div>
       </div>
     </div>

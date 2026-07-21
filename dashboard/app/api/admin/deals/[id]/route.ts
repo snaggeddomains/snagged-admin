@@ -9,7 +9,7 @@ import { getDeal, updateDeal, addActivity, listActivity, listDealEmails, type De
 import { notifyAssignment, notifyStageChange, notifyMention } from "@/lib/deals/notify";
 import { ingestDealEmails } from "@/lib/deals/emails";
 import { isStage } from "@/lib/deals/stages";
-import { listUsers } from "@/lib/users";
+import { assignableUsers } from "@/lib/deals/assignees";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -36,8 +36,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const deal = await getDeal(params.id);
   if (!deal) return NextResponse.json({ error: "Not found" }, { status: 404 });
   if (!mayTouch(me!, deal)) return NextResponse.json({ error: "No access to this deal" }, { status: 403 });
-  const [activity, emails, users] = await Promise.all([listActivity(deal.id), listDealEmails(deal.id), listUsers()]);
-  const assignees = users.map((u) => ({ email: u.email })).filter((u) => u.email);
+  const [activity, emails, assignees] = await Promise.all([listActivity(deal.id), listDealEmails(deal.id), assignableUsers()]);
   return NextResponse.json({ ok: true, deal, activity, emails, assignees, me: me!.email });
 }
 
@@ -95,7 +94,9 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     case "note": {
       const text = String(body.body || "").trim();
       if (!text) return NextResponse.json({ error: "Empty note" }, { status: 400 });
-      const act = await addActivity(deal.id, { user_email: me!.email, kind: "note", body: text, meta: null });
+      const mentions = Array.isArray(body.mentions) ? body.mentions.filter(Boolean) : [];
+      const act = await addActivity(deal.id, { user_email: me!.email, kind: "note", body: text, meta: mentions.length ? { mentions } : null });
+      if (mentions.length) await notifyMention(deal, mentions, me!.email, text);
       return NextResponse.json({ ok: true, activity: act });
     }
     case "ingest": {

@@ -36,10 +36,20 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
   (editable-field whitelist; fires assignment+stage notifications) / POST action=comment|note|ingest.
   `mayTouch` = admin/deals.all or own/Inbox.
 - **UI:** `app/deals/layout.tsx` (SectionChrome), `app/deals/page.tsx` + `board-client.tsx`
-  (kanban columns per STAGE, native HTML5 drag-drop to move stage w/ optimistic update, My/All
-  + Open/Won/Lost/All filters, search, stats header, New-deal modal), `app/deals/[id]/page.tsx`
-  + `deal-client.tsx` (inline stage/status/owner/priority controls; editable fields; Save;
-  activity feed; comment box w/ @mention chips; emails panel + Pull button).
+  (**full-width** kanban — columns `flex:1 0 210px` grow to fill the window; native drag-drop;
+  **per-owner color** dot/left-border via `ownerColor(email)`; My/All + Open/Won/Lost/All filters;
+  New-deal modal), `app/deals/[id]/page.tsx` + `deal-client.tsx` (**read-first / locked** — fields
+  show as text with an **✎ Edit** toggle → Save/Cancel, so nobody's nagged to change things; owner
+  shown by NAME; budget = a band `<select>`; a **type-ahead @mention** note box (type `@` → the
+  eligible-user autocomplete, chips removed; `resolveMentions` maps @tokens→emails on Post);
+  Pipedrive-style **email timeline** rows (envelope, subject, from→to, relative time, expandable snippet)).
+- **Assignees + budget (2026-07-21):** every assignee dropdown + the @mention list = `assignableUsers()`
+  (`lib/deals/assignees.ts`) — users with the **`deals.assignable`** permission ("can receive deals"),
+  shown by **first+last name** (kills the "all app users" dupes like rob@ + rschutz@gmail). Budget is a
+  fixed band set (`BUDGET_BANDS` in stages.ts: Under $5k / $5k–$25k / $25k–$50k / $50k–$100k / $100k+),
+  stored canonical + a `budget_max` numeric (band ceiling) for sort/search; `normalizeBudget()` maps a
+  free-text/inquiry budget → the band; `budgetMaxFor()` → the ceiling. **Migration:** `budget_max`
+  column added to `deals.sql` (+ `add column if not exists` for existing tables).
 - **Nav/perms:** `deals` (MODULE) + `deals.all` + `deals.inbox` (ACTIONS) + `DEALS_TABS` +
   `canEnterDeals` in `permissions.ts`; `'deals'` SectionKey + SECTIONS entry in `navigation.ts`
   (hub card + header + sub-nav all derive automatically). CATALOG group "Deals". **Visibility

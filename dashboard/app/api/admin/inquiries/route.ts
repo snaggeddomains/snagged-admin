@@ -10,15 +10,12 @@ import { listBuyInquiries } from "@/lib/inquiries";
 import { createDeal, type CreateDealInput } from "@/lib/deals/store";
 import { notifyAssignment, dealUrl } from "@/lib/deals/notify";
 import { SOURCES } from "@/lib/deals/stages";
-import { listUsers } from "@/lib/users";
+import { assignableUsers } from "@/lib/deals/assignees";
 
-// Drawer metadata (assignable owners = our app users + the Source/Channel labels).
+// Drawer metadata (assignable owners = "can receive deals" users, by name + Source labels).
 async function convertMeta(): Promise<{ assignees: { name: string; email: string }[]; sources: string[] }> {
   let assignees: { name: string; email: string }[] = [];
-  try {
-    const users = await listUsers();
-    assignees = users.filter((u) => u.email).map((u) => ({ name: u.email, email: u.email }));
-  } catch { /* fail-open */ }
+  try { assignees = await assignableUsers(); } catch { /* fail-open */ }
   return { assignees, sources: [...SOURCES] };
 }
 

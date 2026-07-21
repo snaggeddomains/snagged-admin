@@ -7,7 +7,7 @@ import { getCurrentUser } from "@/lib/session";
 import { userCan, userCanAction } from "@/lib/permissions";
 import { listDeals, createDeal, boardStats, dealsConfigured, type CreateDealInput } from "@/lib/deals/store";
 import { notifyAssignment } from "@/lib/deals/notify";
-import { listUsers } from "@/lib/users";
+import { assignableUsers } from "@/lib/deals/assignees";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -25,9 +25,7 @@ export async function GET(req: NextRequest) {
   try {
     const deals = await listDeals({ all, inbox, me: me.email, status: url.searchParams.get("status") || undefined, q: url.searchParams.get("q") || undefined });
     const stats = await boardStats(deals);
-    // Assignable owners = our app users (deal ownership is by our user email).
-    const users = await listUsers();
-    const assignees = users.map((u) => ({ email: u.email })).filter((u) => u.email);
+    const assignees = await assignableUsers(); // {email,name} — only "can receive deals" users
     return NextResponse.json({ ok: true, configured: true, deals, stats, assignees, canSeeAll: all, me: me.email });
   } catch (e) {
     return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });

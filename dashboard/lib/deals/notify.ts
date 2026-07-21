@@ -6,6 +6,7 @@ import { createNotification } from "../notifications";
 import { sendEmail, emailConfigured } from "../email";
 import { slackAlert } from "../orchestrator";
 import { listUsers } from "../users";
+import { displayName } from "./assignees";
 import type { Deal } from "./store";
 
 const APP_BASE = (process.env.DASHBOARD_BASE || "https://app.snagged.com").replace(/\/+$/, "");
@@ -28,8 +29,10 @@ async function deliver(emails: string[], title: string, bodyLines: string[], id:
     const ids = await idsForEmails(emails);
     if (ids.length) await createNotification(ids, { kind: "deal", title, body, link: url });
     if (emailConfigured()) {
+      // NB: the subject carries the headline (with its one emoji). The body deliberately
+      // does NOT repeat it — otherwise the inbox preview shows the same emoji twice.
       for (const to of emails.filter(Boolean)) {
-        await sendEmail({ to, subject: title, html: `<p style="font-size:15px;font-weight:700">${title}</p>${body ? `<p>${body.replace(/\n/g, "<br>")}</p>` : ""}<p><a href="${url}">Open the deal →</a></p>` });
+        await sendEmail({ to, subject: title, html: `${body ? `<p>${body.replace(/\n/g, "<br>")}</p>` : ""}<p><a href="${url}">Open the deal →</a></p>` });
       }
     }
     if (slack) await slackAlert(`${title}\n${body}\n<${url}|Open deal>`, process.env.SLACK_CHANNEL_DEALS);
@@ -42,12 +45,14 @@ async function deliver(emails: string[], title: string, bodyLines: string[], id:
 // A deal was assigned to an owner (on create, or a re-assign).
 export async function notifyAssignment(deal: Deal): Promise<boolean> {
   if (!deal.owner_email) return false;
+  const name = await displayName(deal.owner_email);
   const lines = [
+    `Assigned to: ${name}`,
     deal.buyer_name || deal.buyer_email ? `Buyer: ${deal.buyer_name || ""} ${deal.buyer_email ? `<${deal.buyer_email}>` : ""}`.trim() : "",
     deal.budget_range ? `Budget: ${deal.budget_range}` : "",
     deal.source ? `Source: ${deal.source}` : "",
   ];
-  return deliver([deal.owner_email], `📥 Deal assigned to ${deal.owner_email}: ${deal.domain}`, lines, deal.id, true);
+  return deliver([deal.owner_email], `📥 Deal assigned: ${deal.domain}`, lines, deal.id, true);
 }
 
 // Stage moved on the board — tell the owner (unless they moved it themselves).

@@ -19,6 +19,7 @@ create table if not exists deals (
   asking_price      numeric,
   source            text,
   priority          text,                              -- Top | High | Normal | Low
+  budget_max        numeric,                           -- band ceiling for sort/search (5000/25000/50000/100000/100000000)
   owner_email       text,                              -- assignee (our user's email); null = Inbox
   stage             text not null default 'Unassigned / Inbox',
   status            text not null default 'open',      -- open | won | lost
@@ -71,6 +72,9 @@ create table if not exists deal_emails (
   unique (deal_id, thread_id)
 );
 create index if not exists idx_deal_emails_deal on deal_emails (deal_id, msg_date desc);
+
+-- If `deals` already existed before budget_max was added, this backfills the column.
+alter table deals add column if not exists budget_max numeric;
 
 alter table deals enable row level security;
 alter table deal_activity enable row level security;

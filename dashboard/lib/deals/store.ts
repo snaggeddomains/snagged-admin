@@ -3,7 +3,7 @@
 // writes go through here so the API + board + detail stay consistent.
 
 import { getDb, isDbConfigured } from "../supabase";
-import { entryStage, type Stage, type Status } from "./stages";
+import { entryStage, normalizeBudget, budgetMaxFor, type Stage, type Status } from "./stages";
 
 const DEALS = "deals";
 const ACTIVITY = "deal_activity";
@@ -22,6 +22,7 @@ export type Deal = {
   asking_price: number | null;
   source: string | null;
   priority: string | null;
+  budget_max: number | null;
   owner_email: string | null;
   stage: string;
   status: string;
@@ -117,11 +118,12 @@ export async function createDeal(input: CreateDealInput): Promise<{ deal: Deal; 
     buyer_email: buyerEmail,
     buyer_phone: norm(input.buyerPhone),
     org_name: norm(input.orgName),
-    budget_range: norm(input.budgetRange),
+    budget_range: normalizeBudget(input.budgetRange) || norm(input.budgetRange),
     appraisal_value: input.appraisalValue ?? null,
     asking_price: input.askingPrice ?? null,
     source: norm(input.source),
     priority: norm(input.priority),
+    budget_max: budgetMaxFor(input.budgetRange),
     owner_email: ownerEmail,
     stage,
     status: "open",
@@ -174,7 +176,13 @@ export async function getDeal(id: string): Promise<Deal | null> {
 export async function updateDeal(id: string, patch: Record<string, unknown>, actor: string | null): Promise<Deal> {
   const before = await getDeal(id);
   if (!before) throw new Error("deal not found");
-  const update = { ...patch, updated_at: new Date().toISOString() };
+  const update: Record<string, unknown> = { ...patch, updated_at: new Date().toISOString() };
+  // Keep budget canonical + the numeric sort key in sync when budget changes.
+  if (Object.prototype.hasOwnProperty.call(patch, "budget_range")) {
+    const raw = patch.budget_range as string | null;
+    update.budget_range = normalizeBudget(raw) || raw || null;
+    update.budget_max = budgetMaxFor(raw);
+  }
   const { data, error } = await getDb().from(DEALS).update(update).eq("id", id).select("*").single();
   if (error) throw new Error(`updateDeal: ${error.message}`);
   const after = data as Deal;

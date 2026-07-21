@@ -9,7 +9,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createDeal, type CreateDealInput } from "@/lib/deals/store";
 import { notifyAssignment, dealUrl } from "@/lib/deals/notify";
 import { SOURCES } from "@/lib/deals/stages";
-import { listUsers } from "@/lib/users";
+import { assignableUsers } from "@/lib/deals/assignees";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -25,10 +25,7 @@ function authed(req: NextRequest): boolean {
 export async function GET(req: NextRequest) {
   if (!authed(req)) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   let assignees: { name: string; email: string }[] = [];
-  try {
-    const users = await listUsers();
-    assignees = users.filter((u) => u.email).map((u) => ({ name: u.email, email: u.email }));
-  } catch { /* fail-open */ }
+  try { assignees = await assignableUsers(); } catch { /* fail-open */ }
   return NextResponse.json({ ok: true, assignees, sources: [...SOURCES] });
 }
 

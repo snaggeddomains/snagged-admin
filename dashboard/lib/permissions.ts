@@ -67,6 +67,7 @@ export const ACTIONS = [
   "reports.social_sweep", // view the Social Sweep report (Reddit/X domain-opportunity posts)
   "deals.all", // see + manage EVERYONE's deals (else a user sees strictly their own)
   "deals.inbox", // additionally see the unassigned Inbox (claim new/unassigned deals)
+  "deals.assignable", // "can receive deals" — appears in the assignee dropdowns
 ] as const;
 export type ActionKey = (typeof ACTIONS)[number];
 
@@ -248,4 +249,5 @@ export const CATALOG: CatalogEntry[] = [
   { key: "deals", label: "Deals — buy-side CRM board (your own deals)", group: "Deals", kind: "module" },
   { key: "deals.all", label: "Deals — see everyone's deals", group: "Deals", kind: "action" },
   { key: "deals.inbox", label: "Deals — see the unassigned Inbox", group: "Deals", kind: "action" },
+  { key: "deals.assignable", label: "Deals — can receive deals (shows in assignee lists)", group: "Deals", kind: "action" },
 ];
