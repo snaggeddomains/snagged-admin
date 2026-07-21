@@ -1,14 +1,10 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 1,
   "domains": [
-    "embraces.com",
-    "ordinances.com",
-    "senatorial.com",
-    "ricans.com",
-    "frigates.com"
+    "obstruct.ai"
   ],
-  "generated_at": "2026-07-20T23:00:53.821732+00:00",
+  "generated_at": "2026-07-21T10:01:19.717184+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
