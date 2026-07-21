@@ -1,11 +1,8 @@
 {
   "capped": false,
-  "count": 2,
-  "domains": [
-    "presumptuous.com",
-    "unquestionably.com"
-  ],
-  "generated_at": "2026-07-21T15:08:14.537329+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-07-21T15:10:56.432500+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
