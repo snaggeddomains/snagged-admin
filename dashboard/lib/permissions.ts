@@ -44,6 +44,7 @@ export const MODULES = [
   "research.person", // Person — social-URL deep dive: identity, cross-platform VIP, contacts
   "research.leads", // Inbound-lead triage — the deep-linked dossier for a contact-form inquiry
   "research.pipedrive", // Add-to-Pipedrive — turn a research surface into a buy-side deal (stored flat as `pipedrive`)
+  "deals", // Deals — the native buy-side CRM board (see + own deals)
 ] as const;
 export type ModuleKey = (typeof MODULES)[number];
 
@@ -64,6 +65,7 @@ export const ACTIONS = [
   "reports.chat", // use Chat Analytics (LLM Q&A over the report data)
   "reports.client_overlap", // view the Client Domain Overlap report (new names matching client domains)
   "reports.social_sweep", // view the Social Sweep report (Reddit/X domain-opportunity posts)
+  "deals.all", // see + manage EVERYONE's deals (else a user sees only their own + the Inbox)
 ] as const;
 export type ActionKey = (typeof ACTIONS)[number];
 
@@ -141,6 +143,12 @@ export const RESEARCH_TABS: { href: string; label: string; perm: ModuleKey | Act
   { href: "/research/whois", label: "Whois (domain lookup)", perm: "research.whois" },
 ];
 
+// Deals — the native buy-side CRM (its own top-level module). The board is the home;
+// deal detail lives at /deals/<id>. Gated by the `deals` module (deals.all sees everyone's).
+export const DEALS_TABS: { href: string; label: string; perm: ModuleKey | ActionKey }[] = [
+  { href: "/deals", label: "Board", perm: "deals" },
+];
+
 // SNAP — its own top-level workspace (peer to Research/Admin/Reports). Two tools,
 // each served by a different app: SNAP Eval (the research app) + SNAP Opportunities
 // (the auctions/snap feed, page still at /reports/opportunities). This drives the
@@ -172,6 +180,12 @@ export function canEnterAdmin(user: AppUser | null): boolean {
 export function canReports(user: AppUser | null, key: ModuleKey | ActionKey): boolean {
   if (!user) return false;
   return user.is_admin || isGranted(user.permissions, "reports") || isGranted(user.permissions, key);
+}
+// Deals is its own top-level module (no umbrella) — enter iff the deals module (or the
+// deals.all action, or is_admin) is granted.
+export function canEnterDeals(user: AppUser | null): boolean {
+  if (!user) return false;
+  return user.is_admin || isGranted(user.permissions, "deals") || isGranted(user.permissions, "deals.all");
 }
 export function canEnterReports(user: AppUser | null): boolean {
   if (!user) return false;
@@ -230,4 +244,6 @@ export const CATALOG: CatalogEntry[] = [
   { key: "research.beeper", label: "Beeper (drop watch)", group: "Research", kind: "module" },
   { key: "research.whois", label: "Whois (domain lookup)", group: "Research", kind: "module" },
   { key: "research.portfolio", label: "Corporate Portfolios", group: "Reports", kind: "module" },
+  { key: "deals", label: "Deals — buy-side CRM board", group: "Deals", kind: "module" },
+  { key: "deals.all", label: "Deals — see everyone's deals", group: "Deals", kind: "action" },
 ];

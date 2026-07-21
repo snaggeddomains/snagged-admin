@@ -188,6 +188,7 @@ function ConvertModal({ inquiry, meta, onClose, onDone }: { inquiry: Inquiry; me
           budgetRange: budget || undefined,
           additionalDomains: inquiry.domains.slice(1).join(", ") || undefined,
           orgName: inquiry.company?.name || undefined,
+          leadKey: inquiry.leadKey || undefined,
         }),
       });
       const j = (await res.json()) as ConvertResult;

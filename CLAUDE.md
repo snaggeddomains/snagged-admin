@@ -8,7 +8,56 @@ one-time setup (SQL/env). Same rule in the research repo's CLAUDE.md.
 
 ---
 
-# Pipedrive buy-side deal flow — bridge + setup + create-deal core (2026-07-20)
+# Deals — native buy-side CRM (Pipedrive DROPPED) (2026-07-21)
+
+Replaced the Pipedrive integration with an in-house buy-side CRM — Pipedrive was too
+bloated + per-seat. **Deals is now a top-level module** (peer to Research/Admin/SNAP/Reports)
+with a drag-drop board, deal detail, ownership + per-user permissions, notes/activity, a
+comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive libs
+(`lib/pipedrive*.ts`) are **dormant, not deleted** — nothing imports them now.
+
+- **Data (main project — `scripts/deals.sql`, run once):** `deals` (fields + owner_email +
+  stage + status + tags + position), `deal_activity` (timeline: note/comment/stage_change/
+  status_change/assignment/created; @mentions in meta), `deal_emails` (ingested Gmail threads,
+  unique per deal+thread). RLS enabled (service key bypasses). Idempotency: unique on
+  (lower(domain), lower(buyer_email)) — same buyer+domain never duplicates across convert surfaces.
+- **Core libs** (`lib/deals/`): `stages.ts` (7 STAGES + STATUSES open|won|lost + PRIORITIES +
+  SOURCES; `entryStage(hasOwner)` → Assigned/Inbox), `store.ts` (createDeal find-or-create,
+  listDeals owner-scoped, updateDeal w/ auto activity logging, addActivity/listActivity,
+  upsert/listDealEmails, boardStats), `notify.ts` (bell+email+Slack for assignment + stage-change;
+  bell+email for @mention; Slack → `SLACK_CHANNEL_DEALS`; `dealUrl` = `DASHBOARD_BASE`/deals/<id>),
+  `emails.ts` (`ingestDealEmails` — searches deal mailboxes by buyer email/domain via `lib/gmail.ts`,
+  one row per thread, best-effort).
+- **API** (gated `deals` module; `deals.all` action sees everyone's, else own + Inbox):
+  `app/api/admin/deals/route.ts` GET list (+stats+assignees) / POST create;
+  `app/api/admin/deals/[id]/route.ts` GET detail (deal+activity+emails+assignees) / PATCH
+  (editable-field whitelist; fires assignment+stage notifications) / POST action=comment|note|ingest.
+  `mayTouch` = admin/deals.all or own/Inbox.
+- **UI:** `app/deals/layout.tsx` (SectionChrome), `app/deals/page.tsx` + `board-client.tsx`
+  (kanban columns per STAGE, native HTML5 drag-drop to move stage w/ optimistic update, My/All
+  + Open/Won/Lost/All filters, search, stats header, New-deal modal), `app/deals/[id]/page.tsx`
+  + `deal-client.tsx` (inline stage/status/owner/priority controls; editable fields; Save;
+  activity feed; comment box w/ @mention chips; emails panel + Pull button).
+- **Nav/perms:** `deals` (MODULE) + `deals.all` (ACTION) + `DEALS_TABS` + `canEnterDeals` in
+  `permissions.ts`; `'deals'` SectionKey + SECTIONS entry in `navigation.ts` (hub card + header +
+  sub-nav all derive automatically). CATALOG group "Deals".
+- **Triage + research buttons rewired:** the Admin **Buy-Side Inquiries** convert
+  (`app/api/admin/inquiries`) and the research app's **Add-to-Pipedrive** internal endpoint
+  (`app/api/internal/pipedrive-deal`, path kept for the research client) both now call
+  `createDeal` (native) + `notifyAssignment` instead of Pipedrive. The research button label
+  still reads "Add to Pipedrive" — cosmetic rename is a pending cross-repo follow-up.
+- **One-time setup:** run `scripts/deals.sql` on the main project. Reuses `SLACK_CHANNEL_DEALS`
+  + the Gmail layer + `RESEARCH_INTERNAL_SECRET`. Grant `deals` per-user (+ `deals.all` for
+  managers who see all deals); admins auto-pass. Optional `DASHBOARD_BASE` (default app.snagged.com).
+- **NEXT (Ph3):** email sequences (outbound) + richer pipeline reporting. Existing Pipedrive
+  test deals are NOT migrated (day-one) — start fresh natively.
+
+---
+
+# Pipedrive buy-side deal flow — bridge + setup + create-deal core (2026-07-20) — SUPERSEDED
+
+**Superseded 2026-07-21 by the native Deals CRM above — Pipedrive dropped.** Kept for history;
+`lib/pipedrive*.ts` are dormant (unimported).
 
 Buy-side inquiries (someone wants us to ACQUIRE a domain for them) are tracked in
 **Pipedrive** — a NEW, separate system of record from the HubSpot **sell**-side. Snagged

@@ -34,10 +34,12 @@ import {
   ADMIN_TABS,
   SNAP_TABS,
   REPORTS_TABS,
+  DEALS_TABS,
+  canEnterDeals,
 } from "./permissions";
 
 export type NavTab = { href: string; label: string; perm: ModuleKey | ActionKey };
-export type SectionKey = "research" | "admin" | "snap" | "reports";
+export type SectionKey = "research" | "admin" | "snap" | "reports" | "deals";
 
 export type NavSection = {
   key: SectionKey;
@@ -77,6 +79,13 @@ export const SECTIONS: NavSection[] = [
     blurb: "Site analytics, SEO, revenue & API cost — plus corporate portfolios.",
     tabs: REPORTS_TABS,
   },
+  {
+    key: "deals",
+    label: "Deals",
+    href: "/deals",
+    blurb: "Buy-side CRM — the deal board, ownership, notes & email ingestion.",
+    tabs: DEALS_TABS,
+  },
 ];
 
 const MODULE_SET = new Set<string>(MODULES as readonly string[]);
@@ -103,6 +112,7 @@ export function sectionTabs(user: AppUser | null, key: SectionKey): NavTab[] {
 export function canEnterSection(user: AppUser | null, key: SectionKey): boolean {
   if (key === "admin") return canEnterAdmin(user);
   if (key === "reports") return canEnterReports(user);
+  if (key === "deals") return canEnterDeals(user);
   return sectionTabs(user, key).length > 0;
 }
 
