@@ -50,7 +50,17 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
   stored canonical + a `budget_max` numeric (band ceiling) for sort/search; `normalizeBudget()` maps a
   free-text/inquiry budget → the band; `budgetMaxFor()` → the ceiling. **Migration:** `budget_max`
   column added to `deals.sql` (+ `add column if not exists` for existing tables).
-- **Nav/perms:** `deals` (MODULE) + `deals.all` + `deals.inbox` (ACTIONS) + `DEALS_TABS` +
+- **Sub-nav + Reporting (2026-07-21):** `DEALS_TABS` = **Board** (`/deals`), **List**
+  (`/deals/list` — sortable table, click a row → the deal), **Reporting** (`/deals/reports`,
+  gated by **`deals.reports`**). Reporting = filter across ALL deals by any permutation
+  (status/owner/stage/source/priority/budget band/asking min-max/date/search) via
+  `store.reportDeals` + `reportAggregates` (`app/api/admin/deals/report`), with count/total/by-
+  status/by-owner rollups + CSV export. The top-bar back/refresh/**share** controls now render on
+  the `deals` + `snap` sections too (`NavControls`), and **share on desktop copies the URL** (the
+  native share sheet is used only on touch/mobile — was wrongly firing on desktop for Admin/Reports).
+  The research SPA header gained a **Deals** link (`#topbar-deals`, gated by deals access).
+- **Nav/perms:** `deals` (MODULE) + `deals.all` + `deals.inbox` + `deals.assignable` +
+  `deals.reports` (ACTIONS) + `DEALS_TABS` +
   `canEnterDeals` in `permissions.ts`; `'deals'` SectionKey + SECTIONS entry in `navigation.ts`
   (hub card + header + sub-nav all derive automatically). CATALOG group "Deals". **Visibility
   model:** `deals` = your OWN deals only (strict); `+deals.inbox` = also the unassigned Inbox

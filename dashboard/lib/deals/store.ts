@@ -165,6 +165,45 @@ export async function listDeals(opts: { all: boolean; me: string; inbox?: boolea
   return (data as Deal[]) || [];
 }
 
+export type ReportFilters = {
+  status?: string; owner?: string; stage?: string; source?: string; priority?: string;
+  budgetBand?: string; minAsking?: number; maxAsking?: number; q?: string; from?: string; to?: string;
+};
+
+// Unscoped, filterable query across ALL deals — for the Reporting view (gated by
+// deals.reports). Every filter is optional; capped for safety.
+export async function reportDeals(f: ReportFilters): Promise<Deal[]> {
+  let query = getDb().from(DEALS).select("*").order("created_at", { ascending: false }).limit(2000);
+  if (f.status) query = query.eq("status", f.status);
+  if (f.owner) query = f.owner === "__inbox__" ? query.is("owner_email", null) : query.eq("owner_email", f.owner.toLowerCase());
+  if (f.stage) query = query.eq("stage", f.stage);
+  if (f.source) query = query.eq("source", f.source);
+  if (f.priority) query = query.eq("priority", f.priority);
+  if (f.budgetBand) query = query.eq("budget_range", f.budgetBand);
+  if (f.minAsking != null) query = query.gte("asking_price", f.minAsking);
+  if (f.maxAsking != null) query = query.lte("asking_price", f.maxAsking);
+  if (f.q) query = query.or(`domain.ilike.%${f.q}%,buyer_name.ilike.%${f.q}%,buyer_email.ilike.%${f.q}%,org_name.ilike.%${f.q}%`);
+  if (f.from) query = query.gte("created_at", f.from);
+  if (f.to) query = query.lte("created_at", `${f.to}T23:59:59`);
+  const { data, error } = await query;
+  if (error) throw new Error(`reportDeals: ${error.message}`);
+  return (data as Deal[]) || [];
+}
+
+// Aggregates for the report header (counts + value rollups).
+export function reportAggregates(deals: Deal[]) {
+  const val = (d: Deal) => d.asking_price || d.appraisal_value || 0;
+  const byStage: Record<string, number> = {}, byOwner: Record<string, number> = {}, byStatus: Record<string, number> = {};
+  let askingTotal = 0;
+  for (const d of deals) {
+    byStage[d.stage] = (byStage[d.stage] || 0) + 1;
+    byOwner[d.owner_email || "Inbox"] = (byOwner[d.owner_email || "Inbox"] || 0) + 1;
+    byStatus[d.status] = (byStatus[d.status] || 0) + 1;
+    askingTotal += val(d);
+  }
+  return { count: deals.length, askingTotal, byStage, byOwner, byStatus };
+}
+
 export async function getDeal(id: string): Promise<Deal | null> {
   const { data, error } = await getDb().from(DEALS).select("*").eq("id", id).maybeSingle();
   if (error) throw new Error(`getDeal: ${error.message}`);

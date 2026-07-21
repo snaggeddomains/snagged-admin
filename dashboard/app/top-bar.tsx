@@ -97,14 +97,19 @@ export default function TopBar({
 // clipboard (with a brief "copied" confirmation), then to a prompt.
 function NavControls({ current }: { current?: SectionKey }) {
   const [copied, setCopied] = useState(false);
-  if (current !== "admin" && current !== "reports") return null;
+  if (current !== "admin" && current !== "reports" && current !== "deals" && current !== "snap") return null;
   const btn: React.CSSProperties = {
     width: 34, height: 34, borderRadius: "50%", border: "none", background: "transparent",
     color: "var(--navy, #254254)", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center",
   };
   const onShare = async () => {
     const url = window.location.href;
-    if (typeof navigator !== "undefined" && navigator.share) {
+    // Only use the native share SHEET on an actual touch/mobile device. On desktop it just
+    // copies the URL (the OS share sheet there is clunky and not what people expect).
+    const isMobile = typeof navigator !== "undefined" &&
+      (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+        (typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches));
+    if (isMobile && typeof navigator !== "undefined" && navigator.share) {
       try { await navigator.share({ title: document.title || "Snagged", url }); return; }
       catch (e) { if ((e as Error)?.name === "AbortError") return; /* dismissed — done */ }
     }

@@ -68,6 +68,7 @@ export const ACTIONS = [
   "deals.all", // see + manage EVERYONE's deals (else a user sees strictly their own)
   "deals.inbox", // additionally see the unassigned Inbox (claim new/unassigned deals)
   "deals.assignable", // "can receive deals" — appears in the assignee dropdowns
+  "deals.reports", // the Deals Reporting view — query/aggregate across ALL deals
 ] as const;
 export type ActionKey = (typeof ACTIONS)[number];
 
@@ -149,6 +150,8 @@ export const RESEARCH_TABS: { href: string; label: string; perm: ModuleKey | Act
 // deal detail lives at /deals/<id>. Gated by the `deals` module (deals.all sees everyone's).
 export const DEALS_TABS: { href: string; label: string; perm: ModuleKey | ActionKey }[] = [
   { href: "/deals", label: "Board", perm: "deals" },
+  { href: "/deals/list", label: "List", perm: "deals" },
+  { href: "/deals/reports", label: "Reporting", perm: "deals.reports" },
 ];
 
 // SNAP — its own top-level workspace (peer to Research/Admin/Reports). Two tools,
@@ -250,4 +253,5 @@ export const CATALOG: CatalogEntry[] = [
   { key: "deals.all", label: "Deals — see everyone's deals", group: "Deals", kind: "action" },
   { key: "deals.inbox", label: "Deals — see the unassigned Inbox", group: "Deals", kind: "action" },
   { key: "deals.assignable", label: "Deals — can receive deals (shows in assignee lists)", group: "Deals", kind: "action" },
+  { key: "deals.reports", label: "Deals — Reporting (query/aggregate all deals)", group: "Deals", kind: "action" },
 ];
