@@ -68,12 +68,17 @@ function byRatioThenQuality(a: Pick, b: Pick): number {
 export async function buildPicks(report?: OpportunitiesReport): Promise<PicksReport> {
   const rep = report || (await newOpportunities());
 
-  // Top 5 new-snap by internal quality (report.snap is already quality-sorted).
-  const snapTop = rep.snap.slice(0, TOP_N);
+  // "Worth a look" is a value-÷-cost read, so a pick without a price can't be evaluated
+  // (and isn't actionable). Require a real price — drops the unpriced feed rows (e.g. the
+  // Efty-partner names that come through with no asking price).
+  const hasPrice = (x: { price: number | null }): boolean => x.price != null && x.price > 0;
 
-  // Top 5 auctions expiring TODAY, by internal quality.
+  // Top 5 new-snap by internal quality (report.snap is already quality-sorted), priced only.
+  const snapTop = rep.snap.filter(hasPrice).slice(0, TOP_N);
+
+  // Top 5 auctions expiring TODAY, by internal quality, priced only.
   const auctionTop = rep.auctions
-    .filter((a) => endsToday(a.endTimeUtc))
+    .filter((a) => endsToday(a.endTimeUtc) && hasPrice(a))
     .sort((a, b) => (b.quality_score ?? -1) - (a.quality_score ?? -1))
     .slice(0, TOP_N);
 

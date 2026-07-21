@@ -209,7 +209,11 @@ function PickRow({ p }: { p: Pick }) {
       </td>
       <td style={{ padding: "6px 16px 6px 0" }}><SourcePill source={p.source} /></td>
       <td className="right" style={{ padding: "6px 24px 6px 0", textAlign: "right" }}>{usd(p.cost)}</td>
-      <td className="right" style={{ padding: "6px 24px 6px 0", textAlign: "right" }}>{usd(p.appraisalMid)}</td>
+      <td className="right" style={{ padding: "6px 24px 6px 0", textAlign: "right" }}>
+        {p.appraisalMid != null
+          ? <a href={`/research/appraisal/${encodeURIComponent(p.domain)}`} target="_blank" rel="noreferrer" title="Open the appraisal run for this name" style={{ color: "var(--navy, #254254)", fontWeight: 600 }}>{usd(p.appraisalMid)}</a>
+          : usd(p.appraisalMid)}
+      </td>
       <td className="right" style={{ padding: "6px 24px 6px 0", textAlign: "right", fontWeight: strong ? 800 : 600, color: strong ? "var(--green-deep, #2f7d4f)" : "inherit" }}>{ratioText(p.ratio)}</td>
       <td className="right" style={{ padding: "6px 0 6px 0", textAlign: "right", color: "var(--muted, #667)" }}>{p.tldCount != null ? `${p.tldCount}${p.tldBand ? ` · ${p.tldBand}` : ""}` : "—"}</td>
     </tr>

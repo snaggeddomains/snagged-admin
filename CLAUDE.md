@@ -129,6 +129,11 @@ Daily top picks, appraised and ranked, surfaced in Reports → SNAP Opportunitie
   Fail-open → unvalued picks (still shows the quality shortlist).
 - **UI**: "🔎 Worth a look" section in `app/reports/opportunities/opportunities-client.tsx`
   (lazy-loaded via `app/api/admin/opportunities/picks/route.ts` so the main list stays instant).
+- **Priced-only + appraisal deep-link (2026-07-21):** `buildPicks` now requires a real price
+  (`hasPrice`, price>0) BEFORE the top-5 select for BOTH buckets — a value-÷-cost pick with no
+  cost isn't actionable (drops the unpriced Efty-partner feed rows). The Appraisal cell links to
+  the research appraisal tool `/research/appraisal/<domain>` (opens/auto-runs the appraisal run
+  for that name; cached run loads instantly).
 - **Daily Slack**: cron `app/api/cron/opportunity-picks` (`vercel.json` `0 13 * * *`) → posts the
   two buckets to their channels + warms the research appraisal cache for the day. `?dry=1` builds
   without posting.
