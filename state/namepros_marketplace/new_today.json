@@ -1,12 +1,15 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 6,
   "domains": [
-    "beam.co",
-    "fam.co",
-    "heard.co"
+    "dissect.com",
+    "heatsink.xyz",
+    "realms.com",
+    "scudder.com",
+    "swell.io",
+    "vanquish.co"
   ],
-  "generated_at": "2026-07-21T10:06:21.112088+00:00",
+  "generated_at": "2026-07-21T17:07:32.585789+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
