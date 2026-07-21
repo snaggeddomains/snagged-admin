@@ -38,9 +38,16 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
   + Open/Won/Lost/All filters, search, stats header, New-deal modal), `app/deals/[id]/page.tsx`
   + `deal-client.tsx` (inline stage/status/owner/priority controls; editable fields; Save;
   activity feed; comment box w/ @mention chips; emails panel + Pull button).
-- **Nav/perms:** `deals` (MODULE) + `deals.all` (ACTION) + `DEALS_TABS` + `canEnterDeals` in
-  `permissions.ts`; `'deals'` SectionKey + SECTIONS entry in `navigation.ts` (hub card + header +
-  sub-nav all derive automatically). CATALOG group "Deals".
+- **Nav/perms:** `deals` (MODULE) + `deals.all` + `deals.inbox` (ACTIONS) + `DEALS_TABS` +
+  `canEnterDeals` in `permissions.ts`; `'deals'` SectionKey + SECTIONS entry in `navigation.ts`
+  (hub card + header + sub-nav all derive automatically). CATALOG group "Deals". **Visibility
+  model:** `deals` = your OWN deals only (strict); `+deals.inbox` = also the unassigned Inbox
+  (claim new work); `deals.all` (or admin) = everyone's. `listDeals({all,inbox,me})` +
+  `mayTouch` enforce it.
+- **Pipedrive→native importer** (`app/api/admin/deals/import-pipedrive`, admin-only): GET =
+  dry-run preview, GET `?apply=1` imports every deal in the PD "Buy-Side Deal Flow" pipeline
+  (maps custom fields via the field-key/enum-option maps, stage id→name, user_id→email, preserves
+  stage/status). Idempotent (createDeal dedupes). One-time migration; reuses the dormant PD client.
 - **Triage + research buttons rewired:** the Admin **Buy-Side Inquiries** convert
   (`app/api/admin/inquiries`) and the research app's **Add-to-Pipedrive** internal endpoint
   (`app/api/internal/pipedrive-deal`, path kept for the research client) both now call

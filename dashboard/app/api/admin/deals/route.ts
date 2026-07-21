@@ -21,8 +21,9 @@ export async function GET(req: NextRequest) {
 
   const url = new URL(req.url);
   const all = me.is_admin || userCanAction(me, "deals.all");
+  const inbox = all || userCanAction(me, "deals.inbox");
   try {
-    const deals = await listDeals({ all, me: me.email, status: url.searchParams.get("status") || undefined, q: url.searchParams.get("q") || undefined });
+    const deals = await listDeals({ all, inbox, me: me.email, status: url.searchParams.get("status") || undefined, q: url.searchParams.get("q") || undefined });
     const stats = await boardStats(deals);
     // Assignable owners = our app users (deal ownership is by our user email).
     const users = await listUsers();

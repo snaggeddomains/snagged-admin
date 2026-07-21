@@ -65,7 +65,8 @@ export const ACTIONS = [
   "reports.chat", // use Chat Analytics (LLM Q&A over the report data)
   "reports.client_overlap", // view the Client Domain Overlap report (new names matching client domains)
   "reports.social_sweep", // view the Social Sweep report (Reddit/X domain-opportunity posts)
-  "deals.all", // see + manage EVERYONE's deals (else a user sees only their own + the Inbox)
+  "deals.all", // see + manage EVERYONE's deals (else a user sees strictly their own)
+  "deals.inbox", // additionally see the unassigned Inbox (claim new/unassigned deals)
 ] as const;
 export type ActionKey = (typeof ACTIONS)[number];
 
@@ -244,6 +245,7 @@ export const CATALOG: CatalogEntry[] = [
   { key: "research.beeper", label: "Beeper (drop watch)", group: "Research", kind: "module" },
   { key: "research.whois", label: "Whois (domain lookup)", group: "Research", kind: "module" },
   { key: "research.portfolio", label: "Corporate Portfolios", group: "Reports", kind: "module" },
-  { key: "deals", label: "Deals — buy-side CRM board", group: "Deals", kind: "module" },
+  { key: "deals", label: "Deals — buy-side CRM board (your own deals)", group: "Deals", kind: "module" },
   { key: "deals.all", label: "Deals — see everyone's deals", group: "Deals", kind: "action" },
+  { key: "deals.inbox", label: "Deals — see the unassigned Inbox", group: "Deals", kind: "action" },
 ];

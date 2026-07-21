@@ -147,13 +147,17 @@ export async function createDeal(input: CreateDealInput): Promise<{ deal: Deal; 
   return { deal, created: true };
 }
 
-// Owner-scoped list. `all` (from the deals.all permission) returns everything; otherwise
-// a user sees their OWN deals plus the unassigned Inbox (so they can claim from it).
-export async function listDeals(opts: { all: boolean; me: string; status?: string; q?: string } = { all: true, me: "" }): Promise<Deal[]> {
+// Owner-scoped list. `all` (deals.all) returns everything. Otherwise a user sees strictly
+// their OWN deals — UNLESS `inbox` (deals.inbox) is set, which adds the unassigned Inbox
+// so they can claim new/unassigned work.
+export async function listDeals(opts: { all: boolean; me: string; inbox?: boolean; status?: string; q?: string } = { all: true, me: "" }): Promise<Deal[]> {
   let query = getDb().from(DEALS).select("*").order("stage").order("position");
   if (opts.status) query = query.eq("status", opts.status);
   if (opts.q) query = query.or(`domain.ilike.%${opts.q}%,buyer_name.ilike.%${opts.q}%,buyer_email.ilike.%${opts.q}%,org_name.ilike.%${opts.q}%`);
-  if (!opts.all && opts.me) query = query.or(`owner_email.eq.${opts.me.toLowerCase()},owner_email.is.null`);
+  if (!opts.all && opts.me) {
+    const me = opts.me.toLowerCase();
+    query = opts.inbox ? query.or(`owner_email.eq.${me},owner_email.is.null`) : query.eq("owner_email", me);
+  }
   const { data, error } = await query;
   if (error) throw new Error(`listDeals: ${error.message}`);
   return (data as Deal[]) || [];

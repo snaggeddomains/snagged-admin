@@ -48,6 +48,9 @@ export function getPipelines() { return pd<PdPipeline[]>("GET", "/pipelines"); }
 export function getStages(pipelineId?: number) { return pd<PdStage[]>("GET", `/stages${pipelineId ? `?pipeline_id=${pipelineId}` : ""}`); }
 export function getDealFields() { return pd<PdDealField[]>("GET", "/dealFields"); }
 export function getUsers() { return pd<PdUser[]>("GET", "/users"); }
+// All deals in a pipeline (open + won + lost) — for the one-time import into native Deals.
+export type PdDeal = { id: number; title: string; stage_id: number; status: string; person_name?: string; org_name?: string; user_id?: { id?: number; email?: string } | number | null; [key: string]: unknown };
+export function getDeals(pipelineId: number) { return pd<PdDeal[]>("GET", `/deals?pipeline_id=${pipelineId}&status=all&limit=500`); }
 // /users/me carries the company_domain we need to build web deal URLs.
 export function getMe() { return pd<{ company_domain?: string; id: number }>("GET", "/users/me"); }
 

@@ -15,10 +15,12 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 45;
 
-// May this user act on this deal? deals.all / admin → any; else only their own or the Inbox.
+// May this user act on this deal? deals.all / admin → any; their own → yes; an unassigned
+// Inbox deal → only if they hold deals.inbox (so they can claim it).
 function mayTouch(me: AppUser, deal: Deal): boolean {
   if (me.is_admin || userCanAction(me, "deals.all")) return true;
-  return !deal.owner_email || deal.owner_email.toLowerCase() === me.email.toLowerCase();
+  if (deal.owner_email) return deal.owner_email.toLowerCase() === me.email.toLowerCase();
+  return userCanAction(me, "deals.inbox");
 }
 
 async function gate(_req: NextRequest): Promise<{ me: AppUser | null; err: NextResponse | null }> {
