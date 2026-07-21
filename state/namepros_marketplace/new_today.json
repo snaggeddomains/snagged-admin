@@ -1,19 +1,12 @@
 {
   "capped": false,
-  "count": 10,
+  "count": 3,
   "domains": [
-    "apocalypse.now",
-    "berkshire.org",
-    "flm.com",
-    "mate.co",
-    "rename.co",
-    "replicate.co",
-    "smash.co",
-    "solvent.co",
-    "steer.co",
-    "viz.co"
+    "beam.co",
+    "fam.co",
+    "heard.co"
   ],
-  "generated_at": "2026-07-20T23:07:04.540361+00:00",
+  "generated_at": "2026-07-21T10:06:21.112088+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
