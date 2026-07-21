@@ -10,7 +10,7 @@
 // one-time backfill. The DB accumulates, so old mail need only be scanned once.
 
 import { searchMessages, getMessage } from "../../gmail";
-import { extractApexes, canonicalApex, isIgnoredDomain, isBulkSender, isBulkClientName, cleanClientLabel, isInternalOwner } from "../canonical";
+import { extractApexes, isBulkSender, isBulkClientName, cleanClientLabel, isInternalOwner, looksDomainDeal, looksSellIntent } from "../canonical";
 import { isoFromEpoch } from "../merge";
 import type { RawHit } from "../types";
 
@@ -58,14 +58,21 @@ async function ingestMailbox(mailbox: string, days: number): Promise<RawHit[]> {
     const rawName = (msg.fromName || "").trim();
     const contact = isInternalOwner(rawName) ? null : cleanClientLabel(rawName || msg.from);
     const noteBase = `[Gmail:${mailbox}]${date ? ` Date:${date}` : ""}${msg.subject ? ` Subject:"${excerpt(msg.subject, 120)}"` : ""}`;
+    const blob = `${msg.subject}\n${msg.body}`;
 
-    // (a) counterparty domain (the sender, when it's an outside party)
-    const fromDom = canonicalApex(msg.from);
-    if (fromDom && !isIgnoredDomain(fromDom)) {
-      hits.push({ domain: fromDom, client: contact, source: `[Gmail:${mailbox}]`, note: `${noteBase} Counterparty`, date });
-    }
-    // (b) domains explicitly mentioned in subject + body
-    for (const domain of extractApexes(`${msg.subject}\n${msg.body}`)) {
+    // Sell-side offer (someone offering to SELL us a domain, incl. an "Acquire or Sell?:
+    // Sell" inquiry) → we track domains a client OWNS or is HUNTING to BUY, never a
+    // seller's offer. Harvest nothing from this email.
+    if (looksSellIntent(blob)) continue;
+    // Only harvest from emails that are genuinely about a domain TRANSACTION. A domain
+    // merely mentioned in a donation / PR / newsletter email (e.g. isaiahhouse.org in a
+    // donation note) is not a client domain. This ALSO means we no longer harvest the
+    // sender's own email-address domain (e.g. theverge.com from a @theverge.com sender):
+    // a domain that only appears in the From header — never referenced in a real deal —
+    // no longer qualifies. A domain that IS part of the deal is caught below via mention.
+    if (!looksDomainDeal(blob)) continue;
+    // Domains explicitly mentioned in a genuine domain-deal subject + body.
+    for (const domain of extractApexes(blob)) {
       hits.push({ domain, client: contact, source: `[Gmail:${mailbox}]`, note: `${noteBase} ${excerpt(msg.snippet, 120)}`, date });
     }
   }

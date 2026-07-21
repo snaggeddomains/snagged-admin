@@ -91,6 +91,28 @@ from HubSpot (`lib/hubspot.ts` is the sell-side mirror; the two are independent 
 
 ---
 
+# Client Domain Overlap — Gmail sweep precision (2026-07-21)
+
+The Client Domain corpus (`lib/domain-corpus/`) harvests client domains from the deal
+mailboxes to match against new marketplace/auction names. The Gmail sweep was too eager
+and polluted the tracked list. Three fixes in `sources/gmail.ts` + `canonical.ts`:
+- **Dropped the sender-email-address harvest.** It used to add `canonicalApex(msg.from)` —
+  the counterparty's own email domain — so an email FROM a @theverge.com person made
+  theverge.com a tracked client domain. Removed; a domain that's genuinely part of a deal
+  is still caught via the body-mention path.
+- **Gated body-mention harvest on a real domain-deal signal** (`looksDomainDeal`): only
+  harvest mentioned domains from emails actually about a domain TRANSACTION (buy/acquire/
+  offer/price/inquiry/valuation…). Kills incidental mentions (e.g. isaiahhouse.org in a
+  donation email).
+- **Sell-intent gate** (`looksSellIntent`): an email offering to SELL us a domain (incl. the
+  contact form's "Acquire or Sell?: Sell") is skipped entirely — we track names a client
+  OWNS or is HUNTING to BUY, never a seller's offer (e.g. agentstore.io). Both helpers are
+  pure regexes in `canonical.ts`; tune the term lists there.
+- **Going-forward only** — existing polluted rows in `client_domains` persist (upsert never
+  deletes); dismiss them in the report or prune manually.
+
+---
+
 # SNAP Opportunities — valued "worth a look" picks + per-channel Slack (2026-07-18)
 
 Daily top picks, appraised and ranked, surfaced in Reports → SNAP Opportunities + Slack.

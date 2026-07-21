@@ -95,6 +95,23 @@ export function isBulkSender(email: string): boolean {
   return false;
 }
 
+// The email is genuinely about a domain TRANSACTION (buy-side / neutral), so a domain
+// it names is a real target — not a domain merely mentioned in a donation, PR pitch,
+// newsletter, or signature. Sell-side offers are gated separately (looksSellIntent).
+// Used to decide whether to harvest domains from a mailbox message at all.
+const DEAL_SIGNAL = /\b(buy(?:ing)?|purchas\w+|acquir\w+|acquisition|(?:make|made|submit)\s+(?:an?|you|a serious)\s+offer|asking price|your price|buy[-\s]?it[-\s]?now|\bBIN\b|interested in (?:buying|acquiring|purchasing|the domain)|domain (?:inquiry|purchase|acquisition|of interest)|inquir(?:y|e|ing) about|would like to (?:buy|acquire|purchase)|valuation|apprais\w+|escrow|willing to pay|our budget|the domain name)\b/i;
+export function looksDomainDeal(text: string): boolean {
+  return DEAL_SIGNAL.test(String(text || ""));
+}
+
+// The sender is offering to SELL us a domain (incl. the contact form's "Acquire or
+// Sell?: Sell"). We track domains a client OWNS or is HUNTING to BUY — never a seller's
+// unsolicited offer — so an email with sell intent is skipped entirely by the sweep.
+const SELL_SIGNAL = /\b(look(?:ing)? to sell|want(?:ing)? to sell|(?:i'?m|i am|we'?re|we are) sell\w+|sell(?:ing)? (?:my|our|the|this) domain|(?:my|our|the|this) domains?(?:'?s| is| are)? (?:for sale|available|on the market)|for sale by owner|make me an offer|entertain(?:ing)? offers|open to (?:offers|selling)|acquire or sell\??\s*:?\s*sell)\b/i;
+export function looksSellIntent(text: string): boolean {
+  return SELL_SIGNAL.test(String(text || ""));
+}
+
 // Junk / non-human client labels to drop entirely (a person's name is required).
 const JUNK_CLIENT = /^(reminder|reminders|n\/?a|none|unknown|test|noreply|no-reply|do-not-reply|notification|auction|marketplace|snapshot|snagged master txns|snagged|admin|sales|support|info|team)$/i;
 
