@@ -1,6 +1,46 @@
 [
   {
-    "domain": "kilometre.net",
-    "price": 1700.0
+    "domain": "cattles.com",
+    "price": 6095.0
+  },
+  {
+    "domain": "excites.com",
+    "price": 59100.0
+  },
+  {
+    "domain": "gunness.com",
+    "price": 4595.0
+  },
+  {
+    "domain": "netgolds.com",
+    "price": 175.0
+  },
+  {
+    "domain": "rowers.net",
+    "price": 299.0
+  },
+  {
+    "domain": "blips.net",
+    "price": 2499.0
+  },
+  {
+    "domain": "coralie.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "hermia.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "rothmann.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "weibo.co",
+    "price": 39426.0
+  },
+  {
+    "domain": "accumulated.net",
+    "price": 2795.0
   }
 ]
