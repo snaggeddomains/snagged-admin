@@ -151,7 +151,7 @@ export default function BoardClient() {
           {data?.stats && <p className="muted" style={{ margin: "4px 0 0", fontSize: 13 }}>{data.stats.open} open · {usd(data.stats.pipelineValue)} in pipeline</p>}
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-          <input style={{ ...input, width: 200 }} placeholder="Search domain / buyer…" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") load(); }} />
+          <input style={{ ...input, flex: "1 1 160px", minWidth: 140, maxWidth: 240 }} placeholder="Search domain / buyer…" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") load(); }} />
           <select style={{ ...input, width: "auto" }} value={status} onChange={(e) => setStatus(e.target.value)}>
             <option value="open">Open</option><option value="won">Won</option><option value="lost">Lost</option><option value="archived">Archived</option><option value="all">All</option>
           </select>
