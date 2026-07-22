@@ -23,16 +23,31 @@ function isNoise(from: string | null, subject: string | null): boolean {
   return NOISE_FROM.test(from || "") || NOISE_SUBJECT.test(subject || "");
 }
 
-// Build the Gmail query for a deal. The buyer's address is the reliable tie to THIS
-// deal — a bare domain match pulls in unrelated threads (year-old deals for the same
-// name, marketplace alerts, our own notification emails), so we key on the buyer and
-// only fall back to the domain when there's no buyer on file. Known noise senders are
-// excluded in the query AND re-checked in code below.
+// Free-email providers — for these, only the exact buyer address is a safe match
+// (matching the whole domain would pull every gmail.com thread). For a real company
+// domain we DO match the whole domain, so a colleague on the buyer's side (e.g. the
+// inquiry came from kara@ but the negotiation runs through mallory@) is still caught.
+const FREE_EMAIL = new Set([
+  "gmail.com", "googlemail.com", "yahoo.com", "ymail.com", "hotmail.com", "outlook.com",
+  "live.com", "msn.com", "icloud.com", "me.com", "aol.com", "proton.me", "protonmail.com",
+  "gmx.com", "mail.com", "pm.me",
+]);
+
+// Build the Gmail query for a deal. We tie to the BUYER — their exact address plus,
+// for a real company domain, anyone at that domain (colleagues on the deal) — rather
+// than the bare target domain (which pulled year-old unrelated threads, marketplace
+// alerts, and our own notification emails). Known noise senders are excluded in the
+// query AND re-checked in code below.
 function queryFor(deal: Deal): string | null {
-  const buyer = deal.buyer_email?.trim();
+  const buyer = deal.buyer_email?.trim().toLowerCase();
   const parts: string[] = [];
-  if (buyer) parts.push(`from:${buyer}`, `to:${buyer}`, `cc:${buyer}`);
-  else if (deal.domain) parts.push(`"${deal.domain}"`);
+  if (buyer) {
+    parts.push(`from:${buyer}`, `to:${buyer}`, `cc:${buyer}`);
+    const dom = buyer.split("@")[1];
+    if (dom && !FREE_EMAIL.has(dom)) parts.push(`from:${dom}`, `to:${dom}`, `cc:${dom}`);
+  } else if (deal.domain) {
+    parts.push(`"${deal.domain}"`);
+  }
   if (!parts.length) return null;
   const exclude = "-from:namejet -from:noreply -from:no-reply -from:reports@snagged.com -from:notifications";
   return `{${parts.join(" ")}} ${exclude} -in:chats -in:spam -in:trash newer_than:730d`;

@@ -195,8 +195,17 @@ export default function DealClient({ id }: { id: string }) {
           </>}
         </div>
 
-        {/* Activity + notes (@mention type-ahead) + emails. */}
+        {/* Email chain first (the deal's correspondence), then internal activity/notes. */}
         <div>
+          <div style={card}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <span style={{ fontWeight: 800, fontSize: 14 }}>📥 Emails ({data.emails.length})</span>
+              <button style={btn} onClick={pullEmails} disabled={ingesting}>{ingesting ? "Pulling…" : "↻ Pull emails"}</button>
+            </div>
+            {data.emails.map((m) => <EmailRow key={m.id} m={m} />)}
+            {!data.emails.length && <div className="muted" style={{ fontSize: 12 }}>No emails yet. They&apos;re pulled automatically each hour; “Pull emails” fetches now.</div>}
+          </div>
+
           <div style={card}>
             <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 8 }}>Activity</div>
             <div style={{ position: "relative" }}>
@@ -222,15 +231,6 @@ export default function DealClient({ id }: { id: string }) {
               ))}
               {!data.activity.length && <div className="muted" style={{ fontSize: 12 }}>No activity yet.</div>}
             </div>
-          </div>
-
-          <div style={card}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-              <span style={{ fontWeight: 800, fontSize: 14 }}>📥 Emails ({data.emails.length})</span>
-              <button style={btn} onClick={pullEmails} disabled={ingesting}>{ingesting ? "Pulling…" : "↻ Pull emails"}</button>
-            </div>
-            {data.emails.map((m) => <EmailRow key={m.id} m={m} />)}
-            {!data.emails.length && <div className="muted" style={{ fontSize: 12 }}>No emails yet. They&apos;re pulled automatically each hour; “Pull emails” fetches now.</div>}
           </div>
         </div>
       </div>
