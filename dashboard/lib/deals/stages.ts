@@ -33,7 +33,7 @@ export const LOST_REASONS = [
 
 export const PRIORITIES = ["Top", "High", "Normal", "Low"] as const;
 export const SOURCES = [
-  "Website form", "Inbound email", "Text", "WhatsApp", "Phone", "Referral", "In-person", "Proactive (we're chasing it)",
+  "Website form", "Inbound email", "Returning client", "Text", "WhatsApp", "Phone", "Referral", "In-person", "Proactive (we're chasing it)",
 ] as const;
 
 // Budget bands — the same ranges the inquiry form offers, so budget is a sortable/
