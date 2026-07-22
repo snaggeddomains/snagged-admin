@@ -7,7 +7,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { userCan } from "@/lib/permissions";
 import { listBuyInquiries, setInquiryDismissed } from "@/lib/inquiries";
-import { createDeal, type CreateDealInput } from "@/lib/deals/store";
+import { createDeal, addActivity, type CreateDealInput } from "@/lib/deals/store";
 import { notifyAssignment, dealUrl } from "@/lib/deals/notify";
 import { SOURCES } from "@/lib/deals/stages";
 import { assignableUsers } from "@/lib/deals/assignees";
@@ -72,6 +72,9 @@ export async function POST(req: NextRequest) {
   };
   try {
     const { deal, created } = await createDeal(input);
+    // A triage comment (optional) → the deal's first note on the timeline.
+    const comment = b.comment ? String(b.comment).trim() : "";
+    if (comment) await addActivity(deal.id, { user_email: me.email, kind: "comment", body: comment, meta: { via: "triage" } });
     const notified = created && deal.owner_email ? await notifyAssignment(deal) : false;
     return NextResponse.json({ ok: true, dealId: deal.id, created, url: dealUrl(deal.id), notified });
   } catch (e) {

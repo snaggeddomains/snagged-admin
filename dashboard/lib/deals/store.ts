@@ -137,7 +137,13 @@ export async function createDeal(input: CreateDealInput): Promise<{ deal: Deal; 
     created_by: norm(input.createdBy),
     position: Date.now(), // newest sinks to the bottom of the column initially
   };
-  const ins = await getDb().from(DEALS).insert(row).select("*").single();
+  let ins = await getDb().from(DEALS).insert(row).select("*").single();
+  // Degrade gracefully before the budget_max migration is applied: drop the column + retry.
+  if (ins.error && /budget_max/i.test(ins.error.message)) {
+    const { budget_max, ...rest } = row;
+    void budget_max;
+    ins = await getDb().from(DEALS).insert(rest).select("*").single();
+  }
   if (ins.error) {
     // A concurrent create raced us to the unique index — re-read and return it.
     const again = await getDb().from(DEALS).select("*").eq("domain", domain).eq("buyer_email", buyerEmail ?? "").maybeSingle();
@@ -222,9 +228,15 @@ export async function updateDeal(id: string, patch: Record<string, unknown>, act
     update.budget_range = normalizeBudget(raw) || raw || null;
     update.budget_max = budgetMaxFor(raw);
   }
-  const { data, error } = await getDb().from(DEALS).update(update).eq("id", id).select("*").single();
-  if (error) throw new Error(`updateDeal: ${error.message}`);
-  const after = data as Deal;
+  let upd = await getDb().from(DEALS).update(update).eq("id", id).select("*").single();
+  // Degrade gracefully before the budget_max migration: drop the column + retry.
+  if (upd.error && /budget_max/i.test(upd.error.message)) {
+    const { budget_max, ...rest } = update;
+    void budget_max;
+    upd = await getDb().from(DEALS).update(rest).eq("id", id).select("*").single();
+  }
+  if (upd.error) throw new Error(`updateDeal: ${upd.error.message}`);
+  const after = upd.data as Deal;
 
   if (patch.stage !== undefined && patch.stage !== before.stage) {
     await addActivity(id, { user_email: actor, kind: "stage_change", body: null, meta: { from: before.stage, to: after.stage } });

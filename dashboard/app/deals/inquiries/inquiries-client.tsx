@@ -189,6 +189,7 @@ function ConvertModal({ inquiry, meta, onClose, onDone }: { inquiry: Inquiry; me
   const [buyerName, setBuyerName] = useState(inquiry.name || "");
   const [buyerEmail, setBuyerEmail] = useState(inquiry.email || "");
   const [budget, setBudget] = useState(normalizeBudget(inquiry.budget) || "");
+  const [comment, setComment] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -208,6 +209,7 @@ function ConvertModal({ inquiry, meta, onClose, onDone }: { inquiry: Inquiry; me
           buyerName: buyerName.trim() || undefined,
           buyerEmail: buyerEmail.trim() || undefined,
           budgetRange: budget || undefined,
+          comment: comment.trim() || undefined,
           additionalDomains: inquiry.domains.slice(1).join(", ") || undefined,
           orgName: inquiry.company?.name || undefined,
           leadKey: inquiry.leadKey || undefined,
@@ -272,6 +274,14 @@ function ConvertModal({ inquiry, meta, onClose, onDone }: { inquiry: Inquiry; me
           <option value="">—</option>
           {BUDGET_BANDS.map((b) => <option key={b} value={b}>{b}</option>)}
         </select>
+
+        <label style={fieldLabel}>Comment (optional)</label>
+        <textarea
+          style={{ ...input, minHeight: 64, resize: "vertical", fontFamily: "inherit" }}
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          placeholder="Context for whoever picks this up — added as the first note on the deal"
+        />
 
         {error && <div style={{ color: "#a83265", fontSize: 13, marginTop: 10 }}>{error}</div>}
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16 }}>
