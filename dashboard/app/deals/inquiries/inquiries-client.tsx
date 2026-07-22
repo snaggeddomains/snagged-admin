@@ -169,7 +169,7 @@ export default function InquiriesClient() {
           inquiry={active}
           meta={meta}
           onClose={() => setActive(null)}
-          onDone={(res) => { setResults((m) => ({ ...m, [active.leadKey]: res })); setActive(null); }}
+          onDone={(res) => { setResults((m) => ({ ...m, [active.leadKey]: res })); setActive(null); if (res.ok) load(); /* auto-dismissed on convert → drops off the queue */ }}
         />
       )}
     </main>

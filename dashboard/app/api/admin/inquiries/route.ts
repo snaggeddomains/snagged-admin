@@ -75,8 +75,11 @@ export async function POST(req: NextRequest) {
     // A triage comment (optional) → the deal's first note on the timeline.
     const comment = b.comment ? String(b.comment).trim() : "";
     if (comment) await addActivity(deal.id, { user_email: me.email, kind: "comment", body: comment, meta: { via: "triage" } });
+    // Converting an inquiry into a deal resolves it — auto-dismiss so it drops off the
+    // active triage queue (still visible under "Show dismissed"). Best-effort.
+    if (b.leadKey) { try { await setInquiryDismissed(String(b.leadKey), true, me.email); } catch { /* non-fatal */ } }
     const notified = created && deal.owner_email ? await notifyAssignment(deal) : false;
-    return NextResponse.json({ ok: true, dealId: deal.id, created, url: dealUrl(deal.id), notified });
+    return NextResponse.json({ ok: true, dealId: deal.id, created, url: dealUrl(deal.id), notified, dismissed: !!b.leadKey });
   } catch (e) {
     return NextResponse.json({ ok: false, error: String((e as Error)?.message || e) }, { status: 502 });
   }
