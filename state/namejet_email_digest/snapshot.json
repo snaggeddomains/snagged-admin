@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "domain": "navarro.org",
+    "end_time_utc": "2026-07-23T01:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namejet.com/domain/navarro.org.action",
+    "platform": "NameJet",
+    "price": 69.0
+  },
+  {
+    "domain": "britannia.org",
+    "end_time_utc": "2026-07-22T09:15:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namejet.com/domain/britannia.org.action",
+    "platform": "NameJet",
+    "price": 79.0
+  }
+]
