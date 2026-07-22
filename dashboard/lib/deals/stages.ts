@@ -13,8 +13,23 @@ export const STAGES = [
 ] as const;
 export type Stage = (typeof STAGES)[number];
 
-export const STATUSES = ["open", "won", "lost"] as const;
+// open/won/lost are the pipeline statuses; `archived` parks a test/spam/dead deal
+// off the board without polluting the lost analytics.
+export const STATUSES = ["open", "won", "lost", "archived"] as const;
 export type Status = (typeof STATUSES)[number];
+
+// Preset reasons a deal is marked Lost (from the original spec). "Other" → free text.
+export const LOST_REASONS = [
+  "Price too high",
+  "Budget too low",
+  "Owner won't sell / unreachable",
+  "Buyer went cold / no response",
+  "Bought / found elsewhere",
+  "Changed their mind — didn't move forward",
+  "Not a fit",
+  "Duplicate",
+  "Other",
+] as const;
 
 export const PRIORITIES = ["Top", "High", "Normal", "Low"] as const;
 export const SOURCES = [

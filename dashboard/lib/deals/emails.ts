@@ -4,7 +4,7 @@
 // Best-effort: no Gmail config / no matches → 0, never throws to the caller.
 
 import { dealMailboxes, gmailConfigured, searchMessages, getMessage } from "../gmail";
-import { upsertDealEmails, type Deal } from "./store";
+import { replaceDealEmails, type Deal } from "./store";
 
 const MAX_PER_MAILBOX = 40;
 
@@ -12,13 +12,30 @@ function isoOrNull(epoch: number): string | null {
   return Number.isFinite(epoch) && epoch > 0 ? new Date(epoch).toISOString() : null;
 }
 
-// Build the Gmail query for a deal: mail to/from the buyer, or mentioning the domain.
+// Senders that are never a real buyer conversation: our own system notifications
+// (the "new deal assigned" email), registrar/marketplace alerts (NameJet, drop
+// catchers), and generic no-reply bots. Matched against the From address.
+const NOISE_FROM = /(^|[@.])(namejet|dropcatch|namebright|godaddy|afternic|sedo|dan\.com|dynadot|namesilo|namecheap)\.|reports@snagged\.com|no-?reply|do-?not-?reply|notifications?@|mailer-daemon|postmaster@/i;
+// Our own outbound notification subjects (belt-and-suspenders with the sender filter).
+const NOISE_SUBJECT = /new buy-side deal|deal assigned|namejet alert|domain (alert|backorder)|name ?check/i;
+
+function isNoise(from: string | null, subject: string | null): boolean {
+  return NOISE_FROM.test(from || "") || NOISE_SUBJECT.test(subject || "");
+}
+
+// Build the Gmail query for a deal. The buyer's address is the reliable tie to THIS
+// deal — a bare domain match pulls in unrelated threads (year-old deals for the same
+// name, marketplace alerts, our own notification emails), so we key on the buyer and
+// only fall back to the domain when there's no buyer on file. Known noise senders are
+// excluded in the query AND re-checked in code below.
 function queryFor(deal: Deal): string | null {
+  const buyer = deal.buyer_email?.trim();
   const parts: string[] = [];
-  if (deal.buyer_email) parts.push(`from:${deal.buyer_email}`, `to:${deal.buyer_email}`);
-  if (deal.domain) parts.push(`"${deal.domain}"`);
+  if (buyer) parts.push(`from:${buyer}`, `to:${buyer}`, `cc:${buyer}`);
+  else if (deal.domain) parts.push(`"${deal.domain}"`);
   if (!parts.length) return null;
-  return `{${parts.join(" ")}} -in:chats -in:spam -in:trash newer_than:730d`;
+  const exclude = "-from:namejet -from:noreply -from:no-reply -from:reports@snagged.com -from:notifications";
+  return `{${parts.join(" ")}} ${exclude} -in:chats -in:spam -in:trash newer_than:730d`;
 }
 
 export async function ingestDealEmails(deal: Deal): Promise<number> {
@@ -35,6 +52,7 @@ export async function ingestDealEmails(deal: Deal): Promise<number> {
     for (const stub of stubs) {
       let msg;
       try { msg = await getMessage(mailbox, stub.id); } catch { continue; }
+      if (isNoise(msg.from || null, msg.subject || null)) continue; // drop system/alert noise
       const prev = byThread.get(msg.threadId);
       if (prev && prev.epoch >= (msg.date || 0)) continue; // keep the newest per thread
       byThread.set(msg.threadId, {
@@ -47,5 +65,5 @@ export async function ingestDealEmails(deal: Deal): Promise<number> {
   }
   const rows = [...byThread.values()].map(({ epoch: _epoch, ...r }) => r);
   if (!rows.length) return 0;
-  try { return await upsertDealEmails(deal.id, rows); } catch { return 0; }
+  try { return await replaceDealEmails(deal.id, rows); } catch { return 0; }
 }

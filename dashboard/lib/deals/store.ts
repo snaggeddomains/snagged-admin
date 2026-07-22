@@ -270,6 +270,19 @@ export async function upsertDealEmails(deal_id: string, rows: Omit<DealEmail, "i
   return count ?? rows.length;
 }
 
+// Authoritative sync: upsert the fresh (already-filtered) set, then delete any stale
+// threads no longer matched — so a re-pull PRUNES previously-ingested noise. Only prunes
+// when we have a non-empty fresh set (never wipes on a transient empty search).
+export async function replaceDealEmails(deal_id: string, rows: Omit<DealEmail, "id" | "deal_id" | "ingested_at">[]): Promise<number> {
+  if (!rows.length) return 0;
+  const n = await upsertDealEmails(deal_id, rows);
+  const keep = rows.map((r) => r.thread_id).filter(Boolean);
+  if (keep.length) {
+    await getDb().from(EMAILS).delete().eq("deal_id", deal_id).not("thread_id", "in", `(${keep.join(",")})`);
+  }
+  return n;
+}
+
 export async function listDealEmails(deal_id: string): Promise<DealEmail[]> {
   const { data, error } = await getDb().from(EMAILS).select("*").eq("deal_id", deal_id).order("msg_date", { ascending: false });
   if (error) return [];
