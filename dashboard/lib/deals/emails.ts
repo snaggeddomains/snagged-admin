@@ -33,11 +33,14 @@ const FREE_EMAIL = new Set([
   "gmx.com", "mail.com", "pm.me",
 ]);
 
-// Build the Gmail query for a deal. We tie to the BUYER — their exact address plus,
-// for a real company domain, anyone at that domain (colleagues on the deal) — rather
-// than the bare target domain (which pulled year-old unrelated threads, marketplace
-// alerts, and our own notification emails). Known noise senders are excluded in the
-// query AND re-checked in code below.
+// Build the Gmail query for a deal. Three tied signals, OR'd together:
+//   1. the BUYER's exact address (the inbound inquiry contact),
+//   2. anyone at the buyer's COMPANY email-domain (colleagues on the deal side) —
+//      skipped for free-email providers (matching all of gmail.com is useless),
+//   3. the TARGET DOMAIN NAME itself (e.g. tealhealth.com) — catches the initial
+//      inbound submission + internal threads that reference the name.
+// The noise this used to pull (marketplace alerts, our own "deal assigned" emails)
+// is stripped by the query excludes below AND the isNoise() sender/subject check.
 function queryFor(deal: Deal): string | null {
   const buyer = deal.buyer_email?.trim().toLowerCase();
   const parts: string[] = [];
@@ -45,9 +48,8 @@ function queryFor(deal: Deal): string | null {
     parts.push(`from:${buyer}`, `to:${buyer}`, `cc:${buyer}`);
     const dom = buyer.split("@")[1];
     if (dom && !FREE_EMAIL.has(dom)) parts.push(`from:${dom}`, `to:${dom}`, `cc:${dom}`);
-  } else if (deal.domain) {
-    parts.push(`"${deal.domain}"`);
   }
+  if (deal.domain) parts.push(`"${deal.domain}"`); // the target name itself
   if (!parts.length) return null;
   const exclude = "-from:namejet -from:noreply -from:no-reply -from:reports@snagged.com -from:notifications";
   return `{${parts.join(" ")}} ${exclude} -in:chats -in:spam -in:trash newer_than:730d`;
