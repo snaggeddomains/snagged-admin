@@ -309,10 +309,12 @@ function WonModal({ deal, onClose, onSubmit }: { deal: Deal; onClose: () => void
 
 function RVal({ l, v, href, emoji }: { l: string; v: string | null | undefined; href?: string | null; emoji?: string }) {
   const prefix = emoji ? `${emoji} ` : "";
+  // Internal app links (report / dossier) navigate in the SAME window — the desktop
+  // app spawns a new window on target=_blank, which loses the session.
   const body = (v == null || v === "")
     ? <div style={{ ...readVal, color: "var(--muted,#aab)" }}>—</div>
     : href
-      ? <a href={href} target="_blank" rel="noreferrer" style={{ ...readVal, fontWeight: 600 }}>{prefix}{v}</a>
+      ? <a href={href} style={{ ...readVal, fontWeight: 600 }}>{prefix}{v}</a>
       : <div style={{ ...readVal, whiteSpace: "pre-wrap" }}>{prefix}{v}</div>;
   return (
     <div style={{ marginTop: 8 }}>

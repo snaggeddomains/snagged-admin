@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
-import { STAGES, STATUSES, SOURCES, PRIORITIES, BUDGET_BANDS } from "@/lib/deals/stages";
+import { STAGES, STATUSES, SOURCES, PRIORITIES, BUDGET_BANDS, statusLabel } from "@/lib/deals/stages";
 
 type Deal = {
   id: string; domain: string; buyer_name: string | null; buyer_email: string | null; org_name: string | null;
@@ -59,7 +59,7 @@ export default function ReportsClient() {
 
       {/* Filters */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(150px,1fr))", gap: 10, marginBottom: 12 }}>
-        <div><span style={lbl}>Status</span><select style={input} value={f.status} onChange={(e) => set("status", e.target.value)}><option value="">Any</option>{STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
+        <div><span style={lbl}>Status</span><select style={input} value={f.status} onChange={(e) => set("status", e.target.value)}><option value="">Any</option>{STATUSES.map((s) => <option key={s} value={s}>{statusLabel(s)}</option>)}</select></div>
         <div><span style={lbl}>Owner</span><select style={input} value={f.owner} onChange={(e) => set("owner", e.target.value)}><option value="">Anyone</option><option value="__inbox__">Unassigned</option>{(data?.assignees || []).map((a) => <option key={a.email} value={a.email}>{a.name}</option>)}</select></div>
         <div><span style={lbl}>Stage</span><select style={input} value={f.stage} onChange={(e) => set("stage", e.target.value)}><option value="">Any</option>{STAGES.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
         <div><span style={lbl}>Source</span><select style={input} value={f.source} onChange={(e) => set("source", e.target.value)}><option value="">Any</option>{SOURCES.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
@@ -82,7 +82,7 @@ export default function ReportsClient() {
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 16 }}>
           <div style={stat}><div style={{ fontSize: 22, fontWeight: 800 }}>{agg.count}</div><div className="muted" style={{ fontSize: 12 }}>deals</div></div>
           <div style={stat}><div style={{ fontSize: 22, fontWeight: 800 }}>{usd(agg.askingTotal)}</div><div className="muted" style={{ fontSize: 12 }}>total asking</div></div>
-          <div style={{ ...stat, minWidth: 200 }}><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>BY STATUS</div>{Object.entries(agg.byStatus).map(([k, v]) => <span key={k} style={{ fontSize: 12.5, marginRight: 10 }}>{k}: <b>{v}</b></span>)}</div>
+          <div style={{ ...stat, minWidth: 200 }}><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>BY STATUS</div>{Object.entries(agg.byStatus).map(([k, v]) => <span key={k} style={{ fontSize: 12.5, marginRight: 10 }}>{statusLabel(k)}: <b>{v}</b></span>)}</div>
           <div style={{ ...stat, minWidth: 240, maxWidth: 420 }}><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>BY OWNER</div>{(Object.entries(agg.byOwner) as [string, number][]).sort((a, b) => b[1] - a[1]).map(([k, v]) => <span key={k} style={{ fontSize: 12.5, marginRight: 10 }}>{nameFor(k === "Inbox" ? null : k)}: <b>{v}</b></span>)}</div>
         </div>
       )}

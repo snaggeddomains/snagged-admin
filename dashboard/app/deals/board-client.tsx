@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
-import { STAGES, PRIORITIES, SOURCES, BUDGET_BANDS, LOST_REASONS } from "@/lib/deals/stages";
+import { STAGES, PRIORITIES, SOURCES, BUDGET_BANDS, LOST_REASONS, NOT_PROCEEDED_REASONS, statusLabel } from "@/lib/deals/stages";
 
 type Deal = {
   id: string; domain: string; buyer_name: string | null; buyer_email: string | null; org_name: string | null;
@@ -46,6 +46,7 @@ export default function BoardClient() {
   const [showNew, setShowNew] = useState(false);
   const [showPrefs, setShowPrefs] = useState(false);
   const [lostFor, setLostFor] = useState<string | null>(null); // deal id awaiting a lost reason
+  const [notProceededFor, setNotProceededFor] = useState<string | null>(null); // deal id awaiting a "didn't proceed" reason
   const [wonFor, setWonFor] = useState<string | null>(null);   // deal id awaiting close-won details
 
   const load = useCallback(async () => {
@@ -122,10 +123,10 @@ export default function BoardClient() {
   };
   // Terminal transitions — dropping a card on the Lost/Archive zones. Lost captures a
   // reason (via the modal); Archive parks a test/spam/dead deal off the board.
-  const markStatus = async (id: string, newStatus: "lost" | "archived" | "open" | "won", lost_reason?: string) => {
+  const markStatus = async (id: string, newStatus: "lost" | "archived" | "open" | "won" | "not_proceeded", lost_reason?: string) => {
     const body: Record<string, unknown> = { status: newStatus };
-    if (newStatus === "lost") body.lost_reason = lost_reason || null;
-    if (newStatus === "open") body.lost_reason = null; // reopening clears the lost reason
+    if (newStatus === "lost" || newStatus === "not_proceeded") body.lost_reason = lost_reason || null;
+    if (newStatus === "open") body.lost_reason = null; // reopening clears the reason
     try {
       const res = await fetch(`/api/admin/deals/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       if (!res.ok) throw new Error();
@@ -165,7 +166,7 @@ export default function BoardClient() {
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
           <input style={{ ...input, flex: "1 1 160px", minWidth: 140, maxWidth: 240 }} placeholder="Search domain / buyer…" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") load(); }} />
           <select style={{ ...input, width: "auto" }} value={status} onChange={(e) => setStatus(e.target.value)}>
-            <option value="open">Open</option><option value="won">Won</option><option value="lost">Lost</option><option value="archived">Archived</option><option value="all">All</option>
+            <option value="open">Open</option><option value="won">Won</option><option value="lost">Lost</option><option value="not_proceeded">Didn&apos;t proceed</option><option value="archived">Archived</option><option value="all">All</option>
           </select>
           <select style={{ ...input, width: "auto" }} value={ownerFilter} onChange={(e) => setOwnerFilter(e.target.value)} title="Filter by owner">
             <option value="">All owners</option>
@@ -235,7 +236,7 @@ export default function BoardClient() {
                       </span>
                       <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--navy-2,#4a5b66)" }}>{d.budget_range || usd(d.asking_price || d.appraisal_value)}</span>
                     </div>
-                    {d.status !== "open" && <div style={{ fontSize: 10.5, fontWeight: 700, marginTop: 4, color: d.status === "won" ? "#1f7a5a" : "#a83265" }}>{d.status.toUpperCase()}</div>}
+                    {d.status !== "open" && <div style={{ fontSize: 10.5, fontWeight: 700, marginTop: 4, color: d.status === "won" ? "#1f7a5a" : d.status === "not_proceeded" ? "#b26a00" : d.status === "archived" ? "#7a6f63" : "#a83265" }}>{statusLabel(d.status).toUpperCase()}</div>}
                   </div>
                 );
               })}
@@ -258,6 +259,10 @@ export default function BoardClient() {
             <DropZone label="✗ Mark Lost" hint="pick a reason" color="#a83265"
               onDrop={() => { const id = dragId; setDragId(null); setDragOver(null); setLostFor(id); }} />
           )}
+          {dragDeal?.status !== "not_proceeded" && (
+            <DropZone label="🚫 Didn't proceed" hint="buyer bailed early" color="#b26a00"
+              onDrop={() => { const id = dragId; setDragId(null); setDragOver(null); setNotProceededFor(id); }} />
+          )}
           {dragDeal?.status !== "archived" && (
             <DropZone label="🗄 Archive (test / spam)" hint="off the board" color="#7a6f63"
               onDrop={() => { const id = dragId; setDragId(null); setDragOver(null); if (id && confirm("Archive this deal? It moves off the board (find it via the Archived filter).")) markStatus(id, "archived"); }} />
@@ -272,6 +277,7 @@ export default function BoardClient() {
       {showNew && <NewDealModal assignees={data?.assignees || []} onClose={() => setShowNew(false)} onCreated={(id) => { setShowNew(false); router.push(`/deals/${id}`); }} />}
       {showPrefs && <PrefsModal onClose={() => setShowPrefs(false)} />}
       {lostFor && <LostModal onClose={() => setLostFor(null)} onPick={(reason) => { const id = lostFor; setLostFor(null); if (id) markStatus(id, "lost", reason); }} />}
+      {notProceededFor && <ReasonModal title="Didn't proceed — why?" reasons={NOT_PROCEEDED_REASONS} onClose={() => setNotProceededFor(null)} onPick={(reason) => { const id = notProceededFor; setNotProceededFor(null); if (id) markStatus(id, "not_proceeded", reason); }} />}
       {wonFor && <WonModal onClose={() => setWonFor(null)} onSubmit={(f) => { const id = wonFor; setWonFor(null); if (id) closeWon(id, f); }} />}
     </main>
   );
@@ -323,15 +329,18 @@ function DropZone({ label, hint, color, onDrop }: { label: string; hint: string;
   );
 }
 
-// Reason picker when a deal is marked Lost — presets from the spec, "Other" → free text.
+// Generic reason picker (Lost / Didn't proceed) — presets, "Other" → free text.
 function LostModal({ onClose, onPick }: { onClose: () => void; onPick: (reason: string) => void }) {
+  return <ReasonModal title="Why lost?" reasons={LOST_REASONS} onClose={onClose} onPick={onPick} />;
+}
+function ReasonModal({ title, reasons, onClose, onPick }: { title: string; reasons: readonly string[]; onClose: () => void; onPick: (reason: string) => void }) {
   const [other, setOther] = useState("");
   return (
     <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(20,25,30,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
       <div onClick={(e) => e.stopPropagation()} style={{ background: "var(--paper,#fff)", borderRadius: 14, padding: 20, width: "min(380px,100%)" }}>
-        <h2 style={{ fontSize: "1.1rem", margin: "0 0 10px" }}>Why lost?</h2>
+        <h2 style={{ fontSize: "1.1rem", margin: "0 0 10px" }}>{title}</h2>
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {LOST_REASONS.filter((r) => r !== "Other").map((r) => (
+          {reasons.filter((r) => r !== "Other").map((r) => (
             <button key={r} style={{ ...btn, textAlign: "left", padding: "9px 12px" }} onClick={() => onPick(r)}>{r}</button>
           ))}
           <div style={{ display: "flex", gap: 6, marginTop: 4 }}>

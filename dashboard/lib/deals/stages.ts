@@ -20,10 +20,18 @@ export const CLOSED_WON_STAGE = "Closed - Won";
 export const CLOSED_LOST_STAGE = "Closed - Lost";
 export const isClosedStage = (s: string): boolean => s === CLOSED_WON_STAGE || s === CLOSED_LOST_STAGE;
 
-// open/won/lost are the pipeline statuses; `archived` parks a test/spam/dead deal
-// off the board without polluting the lost analytics.
-export const STATUSES = ["open", "won", "lost", "archived"] as const;
+// open/won/lost are the pipeline statuses; `not_proceeded` is a distinct terminal
+// outcome — the BUYER bailed before we engaged the owner (didn't pay to pursue it),
+// separate from a negotiation Lost; `archived` parks a test/spam/dead deal off the
+// board without polluting the analytics.
+export const STATUSES = ["open", "won", "lost", "not_proceeded", "archived"] as const;
 export type Status = (typeof STATUSES)[number];
+
+// Human labels for a status (the raw value not_proceeded reads badly in the UI).
+export const STATUS_LABELS: Record<string, string> = {
+  open: "Open", won: "Won", lost: "Lost", not_proceeded: "Didn't proceed", archived: "Archived", all: "All",
+};
+export const statusLabel = (s: string): string => STATUS_LABELS[s] || s;
 
 // Preset reasons a deal is marked Lost (from the original spec). "Other" → free text.
 export const LOST_REASONS = [
@@ -35,11 +43,18 @@ export const LOST_REASONS = [
   "Bought / found elsewhere",
   "Changed their mind — didn't move forward",
   "Not a fit",
-  // "Didn't proceed" family — buyer bailed before we engaged the owner.
-  "Didn't proceed — range wasn't high enough",
-  "Didn't proceed — decided on another name",
-  "Didn't proceed — went dark",
   "Duplicate",
+  "Other",
+] as const;
+
+// Reasons for the "Didn't proceed" bucket — the buyer bailed before we engaged the
+// owner (never committed to pursue). Its own drop-zone + picker, like Lost/Archive.
+export const NOT_PROCEEDED_REASONS = [
+  "Range wasn't high enough",
+  "Decided on another name",
+  "Went dark / stopped responding",
+  "Changed their mind",
+  "Budget never materialized",
   "Other",
 ] as const;
 

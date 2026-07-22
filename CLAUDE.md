@@ -133,6 +133,16 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
     for the OLD name — the PATCH **resets `report_link`/`likely_owner`/`owner_contact`/`appraisal_value`
     to null** so the next GET re-links + re-fills + kicks research for the new domain. Blank/unchanged
     domain is ignored.
+- **"Didn't proceed" status + link cleanup (2026-07-22).** New terminal status `not_proceeded`
+  (STATUSES in stages.ts) — the BUYER bailed before we engaged the owner (didn't pay to pursue),
+  distinct from a negotiation Lost. Its own board **drop zone** ("🚫 Didn't proceed", like Mark
+  Lost / Archive) → a reason picker (`NOT_PROCEEDED_REASONS`: range wasn't high enough / decided on
+  another name / went dark / …) stored in `lost_reason`. Generic `ReasonModal` (LostModal now wraps
+  it). `statusLabel()` maps the raw value → "Didn't proceed" everywhere (board badge + filters +
+  list + reports). Status filter option added on board/list/reports; no new stage column (behaves
+  like Archive — off the open board, visible via the filter). Reopen clears it back to open.
+  - **Same-window links.** `RVal` report/dossier links dropped `target=_blank` — the desktop app
+    spawned a new window (losing the session) on internal `app.snagged.com` links.
 - **NEXT (Ph3):** email sequences (outbound) + richer pipeline reporting. Existing Pipedrive
   test deals are NOT migrated (day-one) — start fresh natively.
 

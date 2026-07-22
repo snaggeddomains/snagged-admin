@@ -74,7 +74,7 @@ export default function ListClient() {
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
           <input style={{ ...input, flex: "1 1 160px", minWidth: 140, maxWidth: 240 }} placeholder="Search domain / buyer…" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") load(); }} />
           <select style={input} value={status} onChange={(e) => setStatus(e.target.value)}>
-            <option value="open">Open</option><option value="won">Won</option><option value="lost">Lost</option><option value="archived">Archived</option><option value="all">All</option>
+            <option value="open">Open</option><option value="won">Won</option><option value="lost">Lost</option><option value="not_proceeded">Didn&apos;t proceed</option><option value="archived">Archived</option><option value="all">All</option>
           </select>
           <select style={input} value={ownerFilter} onChange={(e) => setOwnerFilter(e.target.value)} title="Filter by owner">
             <option value="">All owners</option>
