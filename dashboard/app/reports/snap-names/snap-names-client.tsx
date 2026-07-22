@@ -716,8 +716,12 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
           <button onClick={downloadCsv} disabled={!filtered.length} style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid #d5d5e0", background: "#fff", cursor: "pointer", fontSize: 13 }}>
             ⬇ CSV
           </button>
-          <button onClick={() => report && resolveLive(report.rows, true)} disabled={!report || resolving > 0} title="Re-resolve registrar + nameservers live" style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid #d5d5e0", background: "#fff", cursor: "pointer", fontSize: 13 }}>
-            {resolving > 0 ? `Resolving ${resolving}…` : "⟳ Re-resolve live"}
+          <button
+            onClick={() => { if (!report) return; const target = selected.size ? report.rows.filter((r) => selected.has(r.domain)) : report.rows; resolveLive(target, true); }}
+            disabled={!report || resolving > 0}
+            title={selected.size ? `Re-resolve the ${selected.size} selected` : "Re-resolve registrar + nameservers live for every domain"}
+            style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid #d5d5e0", background: "#fff", cursor: "pointer", fontSize: 13 }}>
+            {resolving > 0 ? `Resolving ${resolving}…` : selected.size ? `⟳ Re-resolve ${selected.size} selected` : "⟳ Re-resolve live"}
           </button>
           {canWrite && (
             <button onClick={rebuildInventory} disabled={rebuilding} title="Pull the live domain list from every registrar account to verify possession + expiry" style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid #d5d5e0", background: "#fff", cursor: "pointer", fontSize: 13 }}>
