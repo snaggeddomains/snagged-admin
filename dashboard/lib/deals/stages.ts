@@ -29,6 +29,7 @@ export type Status = (typeof STATUSES)[number];
 export const LOST_REASONS = [
   "Price too high",
   "Budget too low",
+  "Out of buyer's price range",
   "Owner won't sell / unreachable",
   "Buyer went cold / no response",
   "Bought / found elsewhere",
