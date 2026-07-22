@@ -1,15 +1,10 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 1,
   "domains": [
-    "exchanger.net",
-    "humanoid.co",
-    "image.xyz",
-    "prosper.co",
-    "se.vc",
-    "vertical.co"
+    "jerry.co"
   ],
-  "generated_at": "2026-07-21T23:06:35.069127+00:00",
+  "generated_at": "2026-07-22T10:07:02.937648+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
