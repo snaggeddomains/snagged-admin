@@ -7,18 +7,20 @@ import { getDb } from "../supabase";
 import { isGranted } from "../permissions";
 
 const TABLE = "domain_research_users";
-type Row = { id: string; email: string; first_name: string | null; last_name: string | null; permissions: Record<string, unknown> | null };
+type Row = { id: string; email: string; first_name: string | null; last_name: string | null; is_admin: boolean | null; permissions: Record<string, unknown> | null };
 
 function nameOf(r: { first_name?: string | null; last_name?: string | null; email: string }): string {
   const n = [r.first_name, r.last_name].filter(Boolean).join(" ").trim();
   return n || r.email;
 }
 
+// Assignable = "can receive deals" (deals.assignable) OR an admin (always eligible, so the
+// dropdown is never empty). Shown by first+last name.
 export async function assignableUsers(): Promise<{ email: string; name: string }[]> {
-  const { data, error } = await getDb().from(TABLE).select("id,email,first_name,last_name,permissions");
+  const { data, error } = await getDb().from(TABLE).select("id,email,first_name,last_name,is_admin,permissions");
   if (error || !data) return [];
   return (data as Row[])
-    .filter((u) => u.email && isGranted(u.permissions || {}, "deals.assignable"))
+    .filter((u) => u.email && (u.is_admin || isGranted(u.permissions || {}, "deals.assignable")))
     .map((u) => ({ email: u.email, name: nameOf(u) }))
     .sort((a, b) => a.name.localeCompare(b.name));
 }

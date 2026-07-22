@@ -6,7 +6,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { userCan } from "@/lib/permissions";
-import { listBuyInquiries } from "@/lib/inquiries";
+import { listBuyInquiries, setInquiryDismissed } from "@/lib/inquiries";
 import { createDeal, type CreateDealInput } from "@/lib/deals/store";
 import { notifyAssignment, dealUrl } from "@/lib/deals/notify";
 import { SOURCES } from "@/lib/deals/stages";
@@ -29,9 +29,10 @@ export async function GET(req: NextRequest) {
   if (!userCan(me, "research.pipedrive")) return NextResponse.json({ error: "No access" }, { status: 403 });
   const url = new URL(req.url);
   const includeSell = url.searchParams.get("all") === "1";
+  const includeDismissed = url.searchParams.get("dismissed") === "1";
   const q = url.searchParams.get("q") || "";
   try {
-    const [data, meta] = await Promise.all([listBuyInquiries({ includeSell, q }), convertMeta()]);
+    const [data, meta] = await Promise.all([listBuyInquiries({ includeSell, includeDismissed, q }), convertMeta()]);
     return NextResponse.json({ ok: true, ...data, meta });
   } catch (e) {
     return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
@@ -43,7 +44,15 @@ export async function POST(req: NextRequest) {
   if (!me) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   if (!userCan(me, "research.pipedrive")) return NextResponse.json({ error: "No access" }, { status: 403 });
 
-  const b = (await req.json().catch(() => ({}))) as Record<string, unknown> & { assigneeEmail?: string };
+  const b = (await req.json().catch(() => ({}))) as Record<string, unknown> & { assigneeEmail?: string; action?: string; leadKey?: string };
+
+  // Dismiss / restore an inquiry (spam or test entry) — a distinct action.
+  if (b.action === "dismiss" || b.action === "undismiss") {
+    if (!b.leadKey) return NextResponse.json({ error: "leadKey required" }, { status: 400 });
+    try { await setInquiryDismissed(String(b.leadKey), b.action === "dismiss", me.email); return NextResponse.json({ ok: true }); }
+    catch (e) { return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 }); }
+  }
+
   if (!b.domain || !b.source) {
     return NextResponse.json({ error: "domain and source are required" }, { status: 400 });
   }

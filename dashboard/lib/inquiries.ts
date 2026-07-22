@@ -34,6 +34,7 @@ export type Inquiry = {
   dossierUrl: string;
   createdAt: string | null;
   updatedAt: string | null;
+  dismissed: boolean;          // ignored as spam/test
 };
 
 function looksBuySide(intent: string | null): boolean {
@@ -68,7 +69,7 @@ type LeadRow = {
   lead_key: string; email: string | null; name: string | null; company_domain: string | null;
   domain_of_interest: string | null; intent: string | null; budget: string | null;
   form: Record<string, unknown> | null; status: string | null; tier: string | null;
-  result: Record<string, unknown> | null; created_at: string | null; updated_at: string | null;
+  result: Record<string, unknown> | null; dismissed: boolean | null; created_at: string | null; updated_at: string | null;
 };
 
 function num(v: unknown): number | null {
@@ -114,23 +115,38 @@ function mapRow(r: LeadRow): Inquiry {
     dossierUrl: `${RESEARCH_BASE}/#/lead/${r.lead_key}`,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
+    dismissed: r.dismissed === true,
   };
 }
 
 // List recent inquiries. Buy-side only by default; includeSell=true returns everything
 // (with an isBuySide flag so the client can label the sell-side ones).
-export async function listBuyInquiries({ limit = 100, includeSell = false, q = "" }: { limit?: number; includeSell?: boolean; q?: string } = {}): Promise<{ configured: boolean; inquiries: Inquiry[] }> {
+export async function listBuyInquiries({ limit = 100, includeSell = false, includeDismissed = false, q = "" }: { limit?: number; includeSell?: boolean; includeDismissed?: boolean; q?: string } = {}): Promise<{ configured: boolean; inquiries: Inquiry[] }> {
   const { isDbConfigured } = await import("./supabase");
   if (!isDbConfigured()) return { configured: false, inquiries: [] };
   let query = getDb()
     .from(LEADS)
-    .select("lead_key,email,name,company_domain,domain_of_interest,intent,budget,form,status,tier,result,created_at,updated_at")
+    .select("lead_key,email,name,company_domain,domain_of_interest,intent,budget,form,status,tier,result,dismissed,created_at,updated_at")
     .order("created_at", { ascending: false })
     .limit(Math.min(limit, 300));
+  // dismissed IS NOT TRUE keeps null (pre-backfill) + false, hides the ignored ones.
+  if (!includeDismissed) query = query.not("dismissed", "is", true);
   if (q) query = query.or(`name.ilike.%${q}%,email.ilike.%${q}%,domain_of_interest.ilike.%${q}%`);
   const { data, error } = await query;
   if (error) throw new Error(`listBuyInquiries: ${error.message}`);
   let inquiries = (data as LeadRow[] || []).map(mapRow).filter((i) => i.domains.length > 0);
   if (!includeSell) inquiries = inquiries.filter((i) => i.isBuySide);
   return { configured: true, inquiries };
+}
+
+// Dismiss/ignore (or restore) an inquiry. Best-effort strip+retry if the columns
+// aren't there yet (before the migration runs).
+export async function setInquiryDismissed(leadKey: string, dismissed: boolean, by: string): Promise<void> {
+  const patch = { dismissed, dismissed_by: dismissed ? by : null, dismissed_at: dismissed ? new Date().toISOString() : null };
+  const res = await getDb().from(LEADS).update(patch).eq("lead_key", leadKey);
+  if (res.error) {
+    // Column missing → degrade gracefully (no-op) until the migration is applied.
+    if (/column|dismissed/i.test(res.error.message)) return;
+    throw new Error(`setInquiryDismissed: ${res.error.message}`);
+  }
 }

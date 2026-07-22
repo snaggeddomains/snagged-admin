@@ -79,6 +79,11 @@ alter table deals add column if not exists budget_max numeric;
 -- Per-user deal notification preferences ({deal:{in_app,email,slack}}), default all on.
 alter table domain_research_users add column if not exists notif_prefs jsonb;
 
+-- Buy-Side Inquiries triage: let a reviewer dismiss/ignore a spam/test inquiry.
+alter table domain_research_leads add column if not exists dismissed boolean default false;
+alter table domain_research_leads add column if not exists dismissed_by text;
+alter table domain_research_leads add column if not exists dismissed_at timestamptz;
+
 alter table deals enable row level security;
 alter table deal_activity enable row level security;
 alter table deal_emails enable row level security;

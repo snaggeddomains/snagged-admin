@@ -24,6 +24,7 @@ type Inquiry = {
   dossierUrl: string;
   createdAt: string | null;
   updatedAt: string | null;
+  dismissed: boolean;
 };
 type Meta = { assignees: { name: string; email: string }[]; sources: string[] };
 type ListResp = { ok: boolean; configured: boolean; inquiries: Inquiry[]; meta: Meta; error?: string };
@@ -53,6 +54,7 @@ export default function InquiriesClient() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
+  const [showDismissed, setShowDismissed] = useState(false);
   const [q, setQ] = useState("");
   const [active, setActive] = useState<Inquiry | null>(null);
   const [results, setResults] = useState<Record<string, ConvertResult>>({});
@@ -61,7 +63,11 @@ export default function InquiriesClient() {
     setLoading(true);
     setErr(null);
     try {
-      const res = await fetch(`/api/admin/inquiries?${showAll ? "all=1&" : ""}${q ? `q=${encodeURIComponent(q)}` : ""}`);
+      const p = new URLSearchParams();
+      if (showAll) p.set("all", "1");
+      if (showDismissed) p.set("dismissed", "1");
+      if (q) p.set("q", q);
+      const res = await fetch(`/api/admin/inquiries?${p}`);
       const j = (await res.json()) as ListResp;
       if (!res.ok) throw new Error(j.error || `HTTP ${res.status}`);
       setData(j);
@@ -70,7 +76,13 @@ export default function InquiriesClient() {
     } finally {
       setLoading(false);
     }
-  }, [showAll, q]);
+  }, [showAll, showDismissed, q]);
+
+  const dismiss = async (leadKey: string, on: boolean) => {
+    if (on && !window.confirm("Ignore this inquiry? It'll be hidden from the queue (spam/test). You can restore it via “Show dismissed.”")) return;
+    await fetch("/api/admin/inquiries", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: on ? "dismiss" : "undismiss", leadKey }) });
+    load();
+  };
 
   useEffect(() => { load(); }, [load]);
 
@@ -93,6 +105,10 @@ export default function InquiriesClient() {
         <label style={{ fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
           <input type="checkbox" checked={showAll} onChange={(e) => setShowAll(e.target.checked)} />
           Show sell-side too
+        </label>
+        <label style={{ fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
+          <input type="checkbox" checked={showDismissed} onChange={(e) => setShowDismissed(e.target.checked)} />
+          Show dismissed
         </label>
       </div>
 
@@ -133,12 +149,15 @@ export default function InquiriesClient() {
                 <a href={i.dossierUrl} target="_blank" rel="noopener noreferrer" style={{ ...btnGhost, textDecoration: "none" }}>Dossier ↗</a>
                 {r?.ok ? (
                   <a href={r.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, fontWeight: 700, color: "#1f7a5a" }}>
-                    ✓ {r.created ? "Added" : "In Pipedrive"} — open ↗
+                    ✓ {r.created ? "Added" : "In deal"} — open ↗
                   </a>
                 ) : (
                   <button style={btnPrimary} onClick={() => setActive(i)}>➕ Add to deal</button>
                 )}
                 {r && !r.ok && <div style={{ fontSize: 12, color: "#a83265" }}>{r.error}</div>}
+                {i.dismissed
+                  ? <button style={{ ...btnGhost, fontSize: 12, padding: "3px 9px" }} onClick={() => dismiss(i.leadKey, false)}>Restore</button>
+                  : <button style={{ ...btnGhost, fontSize: 12, padding: "3px 9px", color: "#8a94a0" }} onClick={() => dismiss(i.leadKey, true)}>Dismiss</button>}
               </div>
             </div>
           </div>
@@ -167,6 +186,8 @@ function ConvertModal({ inquiry, meta, onClose, onDone }: { inquiry: Inquiry; me
       ? inquiry.suggestedAssigneeEmail : "",
   );
   const [priority, setPriority] = useState("");
+  const [buyerName, setBuyerName] = useState(inquiry.name || "");
+  const [buyerEmail, setBuyerEmail] = useState(inquiry.email || "");
   const [budget, setBudget] = useState(normalizeBudget(inquiry.budget) || "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -184,8 +205,8 @@ function ConvertModal({ inquiry, meta, onClose, onDone }: { inquiry: Inquiry; me
           source,
           assigneeEmail: assignee || undefined,
           priority: priority || undefined,
-          buyerName: inquiry.name || undefined,
-          buyerEmail: inquiry.email || undefined,
+          buyerName: buyerName.trim() || undefined,
+          buyerEmail: buyerEmail.trim() || undefined,
           budgetRange: budget || undefined,
           additionalDomains: inquiry.domains.slice(1).join(", ") || undefined,
           orgName: inquiry.company?.name || undefined,
@@ -239,6 +260,12 @@ function ConvertModal({ inquiry, meta, onClose, onDone }: { inquiry: Inquiry; me
           <option value="Normal">Normal</option>
           <option value="Low">Low</option>
         </select>
+
+        <label style={fieldLabel}>Client / buyer name</label>
+        <input style={input} value={buyerName} onChange={(e) => setBuyerName(e.target.value)} placeholder="Optional" />
+
+        <label style={fieldLabel}>Client / buyer email</label>
+        <input style={input} type="email" value={buyerEmail} onChange={(e) => setBuyerEmail(e.target.value)} placeholder="Optional" />
 
         <label style={fieldLabel}>Budget range</label>
         <select style={input} value={budget} onChange={(e) => setBudget(e.target.value)}>
