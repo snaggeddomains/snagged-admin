@@ -93,8 +93,14 @@ export default function SocialSweepClient() {
 
   const mute = useCallback(async (author: string | null, platform: string | null) => {
     if (!author) return;
-    if (!window.confirm(`Mute @${author}? None of their posts will show in the sweep again.`)) return;
-    await fetch(`/api/admin/social-sweep`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "mute", author, platform }) });
+    const handle = author.replace(/^@+/, "");
+    if (!window.confirm(`Mute @${handle}? None of their posts will show in the sweep again.`)) return;
+    const res = await fetch(`/api/admin/social-sweep`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "mute", author, platform }) });
+    const j = (await res.json().catch(() => ({}))) as { ok?: boolean };
+    if (!res.ok || j.ok === false) {
+      window.alert("Couldn't save the mute — the mute list isn't set up on the server yet. Run scripts/social_sweep.sql (the social_sweep_muted table) on the main project.");
+      return;
+    }
     void load();
   }, [load]);
 
@@ -188,7 +194,7 @@ export default function SocialSweepClient() {
               <span style={{ marginLeft: "auto", whiteSpace: "nowrap" }}>
                 <a href={p.link} target="_blank" rel="noreferrer" style={{ fontSize: 12 }}>open ↗</a>
                 <button onClick={() => dismiss(p.id, !p.dismissed)} style={{ ...linkBtn, color: "#999", marginLeft: 10 }}>{p.dismissed ? "restore" : "dismiss"}</button>
-                {p.author && <button onClick={() => mute(p.author, p.platform)} title={`Mute @${p.author} — hide all their posts`} style={{ ...linkBtn, color: "#b23000", marginLeft: 10 }}>mute{p.author ? ` @${p.author}` : ""}</button>}
+                {p.author && <button onClick={() => mute(p.author, p.platform)} title={`Mute @${p.author.replace(/^@+/, "")} — hide all their posts`} style={{ ...linkBtn, color: "#b23000", marginLeft: 10 }}>mute @{p.author.replace(/^@+/, "")}</button>}
               </span>
             </div>
             <a href={p.link} target="_blank" rel="noreferrer" style={{ display: "block", fontWeight: 600, color: "#1b2a3a", textDecoration: "none", margin: "4px 0 2px" }}>{p.title || "(untitled)"}</a>

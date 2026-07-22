@@ -140,7 +140,7 @@ export async function listPosts(opts: { platform?: string; includeDismissed?: bo
     if (error) break;
     const rows = (data ?? []) as unknown as Record<string, unknown>[];
     for (const row of rows) {
-      if (row.author != null && muted.has(String(row.author).toLowerCase())) continue; // muted author
+      if (row.author != null && muted.has(normHandle(row.author))) continue; // muted author
       out.push({
         id: String(row.id), platform: (row.platform === "x" ? "x" : "reddit"),
         source: String(row.source || ""), title: String(row.title || ""), link: String(row.link || ""),
@@ -176,13 +176,20 @@ export async function setPostDismissed(id: string, dismissed: boolean): Promise<
 const MUTED = "social_sweep_muted";
 export type MutedAuthor = { author: string; platform: string | null; muted_by: string | null; created_at: string };
 
-/** Set of muted author handles (lowercased). Best-effort → empty when the table is absent. */
+// Canonical mute key: lowercased, leading "@" stripped. Post authors are stored WITH the
+// "@" (e.g. "@HobiMichalec"); normalizing both sides means a mute matches regardless of the
+// "@" prefix (which otherwise made the muted-set compare miss).
+export function normHandle(a: unknown): string {
+  return String(a ?? "").trim().toLowerCase().replace(/^@+/, "");
+}
+
+/** Set of muted author handles (normalized). Best-effort → empty when the table is absent. */
 export async function mutedSet(): Promise<Set<string>> {
   if (!isDbConfigured()) return new Set();
   try {
     const { data, error } = await getDb().from(MUTED).select("author");
     if (error) return new Set();
-    return new Set((data ?? []).map((r) => String((r as { author: unknown }).author || "").toLowerCase()).filter(Boolean));
+    return new Set((data ?? []).map((r) => normHandle((r as { author: unknown }).author)).filter(Boolean));
   } catch { return new Set(); }
 }
 
@@ -203,7 +210,7 @@ export async function listMuted(): Promise<MutedAuthor[]> {
 export async function muteAuthor(author: string, platform: string | null, by: string | null): Promise<boolean> {
   if (!isDbConfigured() || !author) return false;
   try {
-    const { error } = await getDb().from(MUTED).upsert({ author: author.toLowerCase(), platform: platform || null, muted_by: by || null, created_at: new Date().toISOString() }, { onConflict: "author" });
+    const { error } = await getDb().from(MUTED).upsert({ author: normHandle(author), platform: platform || null, muted_by: by || null, created_at: new Date().toISOString() }, { onConflict: "author" });
     return !error;
   } catch { return false; }
 }
@@ -212,7 +219,7 @@ export async function muteAuthor(author: string, platform: string | null, by: st
 export async function unmuteAuthor(author: string): Promise<boolean> {
   if (!isDbConfigured() || !author) return false;
   try {
-    const { error } = await getDb().from(MUTED).delete().eq("author", author.toLowerCase());
+    const { error } = await getDb().from(MUTED).delete().eq("author", normHandle(author));
     return !error;
   } catch { return false; }
 }

@@ -6,7 +6,7 @@
 import { xQueries, searchX } from "./x-fetch";
 import { scorePost } from "./score";
 import { draftReplies } from "./reply";
-import { upsertPosts, logSweepRun, mutedSet, type SweepPost } from "./store";
+import { upsertPosts, logSweepRun, mutedSet, normHandle, type SweepPost } from "./store";
 
 export type XSweepSummary = {
   ok: boolean;
@@ -42,7 +42,7 @@ export async function runXSweep(): Promise<XSweepSummary> {
       for (const p of posts) {
         if (seen.has(p.link)) continue; // a tweet can match several queries
         seen.add(p.link);
-        if (p.author && muted.has(p.author.toLowerCase())) continue; // muted author
+        if (p.author && muted.has(normHandle(p.author))) continue; // muted author
         const s = scorePost(p.content, "x");
         if (s.bucket !== "high-signal" && s.bucket !== "maybe") continue;
         scored.push({
