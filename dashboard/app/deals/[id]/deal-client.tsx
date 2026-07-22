@@ -157,7 +157,8 @@ export default function DealClient({ id }: { id: string }) {
         </>}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+      {/* Two columns on desktop, stacks to one on mobile (auto-fit collapses below ~660px). */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 14 }}>
         {/* Details — read-first. */}
         <div style={card}>
           <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 4 }}>Details</div>
