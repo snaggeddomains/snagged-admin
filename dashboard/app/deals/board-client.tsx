@@ -200,7 +200,16 @@ export default function BoardClient() {
             <div key={stage}
               onDragOver={(e) => { if (stageDrag) { e.preventDefault(); setDragOver(stage); } }}
               onDragLeave={() => setDragOver((s) => s === stage ? null : s)}
-              onDrop={(e) => { e.preventDefault(); setDragOver(null); if (stageDrag && dragId) move(dragId, stage); setDragId(null); }}
+              onDrop={(e) => {
+                e.preventDefault(); setDragOver(null);
+                if (stageDrag && dragId) {
+                  // Dropping on a terminal column runs the close flow (confirm details / reason).
+                  if (stage === "Closed - Won") { const id = dragId; setDragId(null); setWonFor(id); return; }
+                  if (stage === "Closed - Lost") { const id = dragId; setDragId(null); setLostFor(id); return; }
+                  move(dragId, stage);
+                }
+                setDragId(null);
+              }}
               style={{ flex: "1 0 210px", minWidth: 210, background: over ? "#eef4f0" : "var(--paper-2,#f4f1ea)", borderRadius: 10, padding: 8, minHeight: 120, border: over ? "1.5px dashed var(--coral,#e2674a)" : "1.5px solid transparent" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "2px 4px 8px" }}>
                 <span style={{ fontSize: 12.5, fontWeight: 800, color: "var(--navy,#254254)" }}>{stage}</span>

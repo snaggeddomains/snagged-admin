@@ -10,8 +10,15 @@ export const STAGES = [
   "Research & Outreach",
   "In Contact",
   "Negotiating",
+  "Closed - Won",
+  "Closed - Lost",
 ] as const;
 export type Stage = (typeof STAGES)[number];
+
+// Terminal stages ↔ terminal statuses (kept in sync by updateDeal).
+export const CLOSED_WON_STAGE = "Closed - Won";
+export const CLOSED_LOST_STAGE = "Closed - Lost";
+export const isClosedStage = (s: string): boolean => s === CLOSED_WON_STAGE || s === CLOSED_LOST_STAGE;
 
 // open/won/lost are the pipeline statuses; `archived` parks a test/spam/dead deal
 // off the board without polluting the lost analytics.

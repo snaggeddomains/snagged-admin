@@ -243,6 +243,18 @@ export async function updateDeal(id: string, patch: Record<string, unknown>, act
     update.budget_range = normalizeBudget(raw) || raw || null;
     update.budget_max = budgetMaxFor(raw);
   }
+  // Keep the terminal STAGE and STATUS in sync (both directions), so "Closed - Won" ⇔
+  // won and "Closed - Lost" ⇔ lost mean the same thing however the change is made.
+  const hasStatus = Object.prototype.hasOwnProperty.call(patch, "status");
+  const hasStage = Object.prototype.hasOwnProperty.call(patch, "stage");
+  if (hasStatus && !hasStage) {
+    if (patch.status === "won") update.stage = "Closed - Won";
+    else if (patch.status === "lost") update.stage = "Closed - Lost";
+    else if (patch.status === "open" && /^Closed - /.test(before.stage || "")) update.stage = "Assigned"; // reopen → back onto the board
+  } else if (hasStage && !hasStatus) {
+    if (patch.stage === "Closed - Won") update.status = "won";
+    else if (patch.stage === "Closed - Lost") update.status = "lost";
+  }
   // Degrade gracefully before a column's migration: if the update names a column that
   // doesn't exist yet (budget_max, sale_price, commission, …), strip it + retry.
   let payload = update;
