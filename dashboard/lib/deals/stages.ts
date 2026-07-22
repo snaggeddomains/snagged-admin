@@ -35,6 +35,10 @@ export const LOST_REASONS = [
   "Bought / found elsewhere",
   "Changed their mind — didn't move forward",
   "Not a fit",
+  // "Didn't proceed" family — buyer bailed before we engaged the owner.
+  "Didn't proceed — range wasn't high enough",
+  "Didn't proceed — decided on another name",
+  "Didn't proceed — went dark",
   "Duplicate",
   "Other",
 ] as const;
