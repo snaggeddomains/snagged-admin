@@ -33,7 +33,7 @@ export async function createUser(input: {
       is_admin: input.is_admin ?? false,
       permissions: input.permissions ?? {},
     })
-    .select("id, email, is_admin, permissions")
+    .select("id, email, is_admin, permissions, first_name, last_name")
     .maybeSingle();
   if (error) {
     if (error.code === "23505" || /duplicate|unique/i.test(error.message)) {
@@ -97,7 +97,7 @@ export async function getUser(id: string): Promise<AppUser | null> {
   if (!id) return null;
   const { data, error } = await getDb()
     .from(TABLE)
-    .select("id, email, is_admin, permissions")
+    .select("id, email, is_admin, permissions, first_name, last_name")
     .eq("id", id)
     .maybeSingle();
   if (error || !data) return null;
@@ -108,7 +108,7 @@ export async function getUser(id: string): Promise<AppUser | null> {
 export async function listUsers(): Promise<AppUser[]> {
   const { data, error } = await getDb()
     .from(TABLE)
-    .select("id, email, is_admin, permissions")
+    .select("id, email, is_admin, permissions, first_name, last_name")
     .order("email", { ascending: true });
   if (error || !data) return [];
   return data.map(rowToUser);
@@ -117,16 +117,18 @@ export async function listUsers(): Promise<AppUser[]> {
 /** Update a user's role/permissions. Only these two fields are writable here. */
 export async function updateUserAccess(
   id: string,
-  patch: { is_admin?: boolean; permissions?: Record<string, unknown> },
+  patch: { is_admin?: boolean; permissions?: Record<string, unknown>; first_name?: string; last_name?: string },
 ): Promise<AppUser | null> {
   const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
   if (typeof patch.is_admin === "boolean") update.is_admin = patch.is_admin;
   if (patch.permissions) update.permissions = patch.permissions;
+  if (patch.first_name !== undefined) update.first_name = patch.first_name.trim() || null;
+  if (patch.last_name !== undefined) update.last_name = patch.last_name.trim() || null;
   const { data, error } = await getDb()
     .from(TABLE)
     .update(update)
     .eq("id", id)
-    .select("id, email, is_admin, permissions")
+    .select("id, email, is_admin, permissions, first_name, last_name")
     .maybeSingle();
   if (error || !data) return null;
   return rowToUser(data);
@@ -138,5 +140,7 @@ function rowToUser(data: Record<string, unknown>): AppUser {
     email: data.email as string,
     is_admin: Boolean(data.is_admin),
     permissions: (data.permissions as Record<string, unknown>) ?? {},
+    first_name: (data.first_name as string) ?? null,
+    last_name: (data.last_name as string) ?? null,
   };
 }

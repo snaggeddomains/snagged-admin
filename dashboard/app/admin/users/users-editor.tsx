@@ -11,12 +11,17 @@ import {
 
 const GROUPS = Array.from(new Set(CATALOG.map((c) => c.group)));
 
-type Draft = { is_admin: boolean; grants: Record<string, boolean> };
+type Draft = { is_admin: boolean; grants: Record<string, boolean>; first_name: string; last_name: string };
 
 function draftFor(u: AppUser): Draft {
   const grants: Record<string, boolean> = {};
   for (const c of CATALOG) grants[c.key] = isGranted(u.permissions, c.key);
-  return { is_admin: u.is_admin, grants };
+  return {
+    is_admin: u.is_admin,
+    grants,
+    first_name: u.first_name || "",
+    last_name: u.last_name || "",
+  };
 }
 
 export default function UsersEditor({
@@ -169,7 +174,13 @@ function UserCard({
       const res = await fetch("/api/users", {
         method: "PATCH",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ id: user.id, is_admin: draft.is_admin, permissions }),
+        body: JSON.stringify({
+        id: user.id,
+        is_admin: draft.is_admin,
+        permissions,
+        first_name: draft.first_name,
+        last_name: draft.last_name,
+      }),
       });
       const data = await res.json().catch(() => ({}));
       setMsg(res.ok ? { ok: true, text: "Saved" } : { ok: false, text: data.error || "Save failed" });
@@ -220,6 +231,31 @@ function UserCard({
           />
           Admin
         </label>
+      </div>
+
+      <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 12, flexWrap: "wrap" }}>
+        <span className="muted" style={{ fontSize: 13 }}>Name</span>
+        <input
+          className="field"
+          type="text"
+          placeholder="First name"
+          value={draft.first_name}
+          autoComplete="off"
+          onChange={(e) => setDraft((d) => ({ ...d, first_name: e.target.value }))}
+          style={{ maxWidth: 180, fontSize: 14 }}
+        />
+        <input
+          className="field"
+          type="text"
+          placeholder="Last name"
+          value={draft.last_name}
+          autoComplete="off"
+          onChange={(e) => setDraft((d) => ({ ...d, last_name: e.target.value }))}
+          style={{ maxWidth: 180, fontSize: 14 }}
+        />
+        <span className="muted" style={{ fontSize: 12 }}>
+          Used for deal assignment &amp; @mentions.
+        </span>
       </div>
 
       <div

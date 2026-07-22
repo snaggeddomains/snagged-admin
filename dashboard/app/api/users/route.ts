@@ -54,6 +54,8 @@ export async function PATCH(req: NextRequest) {
     id?: string;
     is_admin?: boolean;
     permissions?: Record<string, unknown>;
+    first_name?: string;
+    last_name?: string;
   } | null;
   if (!body?.id) return NextResponse.json({ error: "Missing user id" }, { status: 400 });
 
@@ -68,6 +70,8 @@ export async function PATCH(req: NextRequest) {
   const updated = await updateUserAccess(body.id, {
     is_admin: body.is_admin,
     permissions: body.permissions,
+    first_name: body.first_name,
+    last_name: body.last_name,
   });
   if (!updated) return NextResponse.json({ error: "Update failed" }, { status: 500 });
   return NextResponse.json({ user: updated });

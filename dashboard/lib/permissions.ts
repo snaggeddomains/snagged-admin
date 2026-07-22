@@ -18,6 +18,8 @@ export interface AppUser {
   email: string;
   is_admin: boolean;
   permissions: Record<string, unknown>;
+  first_name?: string | null;
+  last_name?: string | null;
 }
 
 // Module keys — gate whether a user can ENTER a module.
