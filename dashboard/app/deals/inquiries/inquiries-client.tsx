@@ -149,9 +149,11 @@ export default function InquiriesClient() {
                 {i.message && <div style={{ fontSize: 13, marginTop: 6, fontStyle: "italic", color: "var(--navy-2, #4a5b66)" }}>&ldquo;{i.message.slice(0, 220)}&rdquo;</div>}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-end", flex: "none" }}>
-                <a href={i.dossierUrl} target="_blank" rel="noopener noreferrer" style={{ ...btnGhost, textDecoration: "none" }}>Dossier ↗</a>
+                {/* Same-window nav (same-origin app.snagged.com) — the desktop app spawns a
+                    new window on target=_blank, losing the session. */}
+                <a href={i.dossierUrl} style={{ ...btnGhost, textDecoration: "none" }}>Dossier ↗</a>
                 {r?.ok ? (
-                  <a href={r.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, fontWeight: 700, color: "#1f7a5a" }}>
+                  <a href={r.url} style={{ fontSize: 13, fontWeight: 700, color: "#1f7a5a" }}>
                     ✓ {r.created ? "Added" : "In deal"} — open ↗
                   </a>
                 ) : (
