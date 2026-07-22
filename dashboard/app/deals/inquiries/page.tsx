@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export default async function InquiriesPage() {
   const user = await getCurrentUser();
-  if (!user) redirect("/login?next=/admin/inquiries");
+  if (!user) redirect("/login?next=/deals/inquiries");
   if (!userCan(user, "research.pipedrive")) {
     return (
       <main>

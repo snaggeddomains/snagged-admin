@@ -70,7 +70,7 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
   dry-run preview, GET `?apply=1` imports every deal in the PD "Buy-Side Deal Flow" pipeline
   (maps custom fields via the field-key/enum-option maps, stage id→name, user_id→email, preserves
   stage/status). Idempotent (createDeal dedupes). One-time migration; reuses the dormant PD client.
-- **Triage + research buttons rewired:** the Admin **Buy-Side Inquiries** convert
+- **Triage + research buttons rewired:** the **Buy-Side Inquiries** convert (Deals tab)
   (`app/api/admin/inquiries`) and the research app's **Add-to-Pipedrive** internal endpoint
   (`app/api/internal/pipedrive-deal`, path kept for the research client) both now call
   `createDeal` (native) + `notifyAssignment` instead of Pipedrive. The research button label
@@ -154,7 +154,7 @@ from HubSpot (`lib/hubspot.ts` is the sell-side mirror; the two are independent 
   gates by flat keys. Research side (button + drawer + `api/pipedrive.js` proxy) is in the
   domain-owner-research repo (see that repo's CLAUDE.md "Add to Pipedrive"). Brian & Sam invited
   to Pipedrive 2026-07-20, so assignment routing now maps for all three.
-- **Buy-Side triage queue — SHIPPED 2026-07-20 (Admin → Buy-Side Inquiries).** Intake channel
+- **Buy-Side triage queue — SHIPPED 2026-07-20 (Deals → Buy-Side Inquiries; moved from Admin 2026-07-21).** Intake channel
   is the **inquiry@snagged.com** contact form: Zapier already POSTs each "New Submission" to the
   research app's `POST /api/lead-enrich` (x-internal-secret), which enriches the lead (person
   deep-dive + Apollo firmographics + a free Domain Owner report per named domain) into
@@ -164,9 +164,9 @@ from HubSpot (`lib/hubspot.ts` is the sell-side mirror; the two are independent 
   Notable→Brian / Standard→team), + the dossier link. Buy-side only by default (`looksBuySide`
   on the "Acquire or Sell?" intent; a "Show sell-side too" toggle reveals the rest). Per-row
   **human-click convert** (Rob's discretion — no auto-create) opens a modal → `POST
-  /api/admin/inquiries` → `upsertBuyDeal` + `notifyBuyDealAssignment`. Page `app/admin/inquiries/`
-  (`page.tsx` gated `userCan(research.pipedrive)` + `inquiries-client.tsx`), tab in ADMIN_TABS
-  ("Buy-Side Inquiries", perm `research.pipedrive`; `canEnterAdmin` admits a pipedrive-only user
+  /api/admin/inquiries` → `upsertBuyDeal` + `notifyBuyDealAssignment`. Page `app/deals/inquiries/`
+  (`page.tsx` gated `userCan(research.pipedrive)` + `inquiries-client.tsx`), tab in DEALS_TABS
+  ("Buy-Side Inquiries", perm `research.pipedrive`; `canEnterDeals` admits a pipedrive-only user
   via the tab loop, `canTab` routes it to `userCan`). The convert action + the internal endpoint now
   share `lib/pipedrive-notify.ts` `notifyBuyDealAssignment` (bell+email+Slack, extracted). The
   research **lead dossier** (`#/lead/<key>`) ALSO got an Add-to-Pipedrive button (see research repo).

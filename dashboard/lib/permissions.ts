@@ -109,9 +109,6 @@ export const ADMIN_TABS: { href: string; label: string; perm: ModuleKey | Action
   { href: "/admin/schedule", label: "Schedule", perm: "admin.schedule" },
   { href: "/admin/users", label: "Users", perm: "admin.users.manage" },
   { href: "/admin/imports", label: "Imports", perm: "admin.imports" },
-  // Buy-side inquiry triage → Pipedrive deals. Gated by research.pipedrive (canTab
-  // routes it to userCan); a pipedrive-only user is admitted to Admin via the tab loop.
-  { href: "/admin/inquiries", label: "Buy-Side Inquiries", perm: "research.pipedrive" },
   { href: "/research/admin", label: "Lessons", perm: "admin.lessons.approve" },
 ];
 
@@ -151,6 +148,8 @@ export const RESEARCH_TABS: { href: string; label: string; perm: ModuleKey | Act
 export const DEALS_TABS: { href: string; label: string; perm: ModuleKey | ActionKey }[] = [
   { href: "/deals", label: "Board", perm: "deals" },
   { href: "/deals/list", label: "List", perm: "deals" },
+  // Buy-side inquiry triage → deals. Gated by research.pipedrive (canTab → userCan).
+  { href: "/deals/inquiries", label: "Buy-Side Inquiries", perm: "research.pipedrive" },
   { href: "/deals/reports", label: "Reporting", perm: "deals.reports" },
 ];
 
@@ -190,7 +189,8 @@ export function canReports(user: AppUser | null, key: ModuleKey | ActionKey): bo
 // deals.all action, or is_admin) is granted.
 export function canEnterDeals(user: AppUser | null): boolean {
   if (!user) return false;
-  return user.is_admin || isGranted(user.permissions, "deals") || isGranted(user.permissions, "deals.all");
+  // research.pipedrive admits the Buy-Side Inquiries triage tab (which now lives here).
+  return user.is_admin || isGranted(user.permissions, "deals") || isGranted(user.permissions, "deals.all") || isGranted(user.permissions, "research.pipedrive");
 }
 export function canEnterReports(user: AppUser | null): boolean {
   if (!user) return false;
