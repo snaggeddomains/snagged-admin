@@ -8,7 +8,7 @@ import { userCan, userCanAction, type AppUser } from "@/lib/permissions";
 import { getDeal, updateDeal, addActivity, listActivity, listDealEmails, type Deal } from "@/lib/deals/store";
 import { notifyAssignment, notifyStageChange, notifyMention } from "@/lib/deals/notify";
 import { ingestDealEmails } from "@/lib/deals/emails";
-import { researchReportLink, kickResearchRun } from "@/lib/deals/research-link";
+import { researchReportLink, kickResearchRun, researchReportSummary } from "@/lib/deals/research-link";
 import { isStage } from "@/lib/deals/stages";
 import { assignableUsers } from "@/lib/deals/assignees";
 
@@ -48,6 +48,18 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     const link = await researchReportLink(deal.domain);
     if (link) { try { deal = await updateDeal(deal.id, { report_link: link }, null); } catch { /* keep unlinked */ } }
     else { await kickResearchRun(deal.domain); }
+  }
+  // Once research/appraisal has run, pull its structured findings into the sidebar so they
+  // don't have to be typed by hand. Fills ONLY still-empty fields (a manual edit always wins).
+  if (deal.report_link && (!deal.likely_owner || !deal.owner_contact || deal.appraisal_value == null)) {
+    const s = await researchReportSummary(deal.domain);
+    if (s) {
+      const patch: Record<string, unknown> = {};
+      if (!deal.likely_owner && s.likely_owner) patch.likely_owner = s.likely_owner;
+      if (!deal.owner_contact && s.owner_contact) patch.owner_contact = s.owner_contact;
+      if (deal.appraisal_value == null && s.appraisal && s.appraisal.mid > 0) patch.appraisal_value = Math.round(s.appraisal.mid);
+      if (Object.keys(patch).length) { try { deal = await updateDeal(deal.id, patch, null); } catch { /* keep as-is */ } }
+    }
   }
   const dossierUrl = deal.lead_key ? `${RESEARCH_APP_BASE}/#/lead/${deal.lead_key}` : null;
   const [activity, emails, assignees] = await Promise.all([listActivity(deal.id), listDealEmails(deal.id), assignableUsers()]);

@@ -160,8 +160,6 @@ export default function DealClient({ id }: { id: string }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
         <h1 style={{ fontSize: "1.5rem", margin: 0 }}>{d.domain}</h1>
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          {d.report_link && <a href={d.report_link} target="_blank" rel="noreferrer" style={{ fontSize: 13, fontWeight: 600 }}>📄 Research report ↗</a>}
-          {data.dossierUrl && <a href={data.dossierUrl} target="_blank" rel="noreferrer" style={{ fontSize: 13, fontWeight: 600 }}>👤 Lead dossier ↗</a>}
           {!editing && d.status === "open" && d.stage === STAGES[STAGES.length - 1] && <button style={{ ...btn, color: "#1f7a5a", borderColor: "#1f7a5a" }} onClick={() => setWonOpen(true)}>✓ Close won</button>}
           {!editing
             ? <button style={btn} onClick={() => { setForm(d); setEditing(true); }}>✎ Edit</button>
@@ -191,7 +189,8 @@ export default function DealClient({ id }: { id: string }) {
         <div style={card}>
           <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 4 }}>Details</div>
           {!editing ? <>
-            <RVal l="Buyer name" v={d.buyer_name} />
+            {/* Buyer name doubles as the lead-dossier link (👤) when the deal came from an inquiry. */}
+            <RVal l="Buyer name" v={d.buyer_name || (data.dossierUrl ? "Lead dossier ↗" : null)} href={data.dossierUrl || undefined} emoji={data.dossierUrl ? "👤" : undefined} />
             <RVal l="Buyer email" v={d.buyer_email} />
             <RVal l="Buyer phone" v={d.buyer_phone} />
             <RVal l="Company" v={d.org_name} />
@@ -199,7 +198,8 @@ export default function DealClient({ id }: { id: string }) {
             <div style={{ display: "flex", gap: 24 }}><RVal l="Appraisal $" v={d.appraisal_value != null ? usd(d.appraisal_value) : null} /><RVal l="Asking $" v={d.asking_price != null ? usd(d.asking_price) : null} /></div>
             <RVal l="Source" v={d.source} />
             <RVal l="Additional domains" v={d.additional_domains} />
-            <RVal l="Research report link" v={d.report_link} link />
+            {/* Compact research-report link — replaces the long raw URL. */}
+            <RVal l="Research report" v={d.report_link ? "Open report ↗" : null} href={d.report_link || undefined} emoji="📄" />
             <RVal l="Likely owner" v={d.likely_owner} />
             <RVal l="Owner contact" v={d.owner_contact} />
             <RVal l="Tags" v={(d.tags || []).join(", ") || null} />
@@ -305,11 +305,17 @@ function WonModal({ deal, onClose, onSubmit }: { deal: Deal; onClose: () => void
   );
 }
 
-function RVal({ l, v, link }: { l: string; v: string | null | undefined; link?: boolean }) {
+function RVal({ l, v, href, emoji }: { l: string; v: string | null | undefined; href?: string | null; emoji?: string }) {
+  const prefix = emoji ? `${emoji} ` : "";
+  const body = (v == null || v === "")
+    ? <div style={{ ...readVal, color: "var(--muted,#aab)" }}>—</div>
+    : href
+      ? <a href={href} target="_blank" rel="noreferrer" style={{ ...readVal, fontWeight: 600 }}>{prefix}{v}</a>
+      : <div style={{ ...readVal, whiteSpace: "pre-wrap" }}>{prefix}{v}</div>;
   return (
     <div style={{ marginTop: 8 }}>
       <span style={lbl}>{l}</span>
-      {v ? (link ? <a href={v} target="_blank" rel="noreferrer" style={{ ...readVal, wordBreak: "break-all" }}>{v}</a> : <div style={{ ...readVal, whiteSpace: "pre-wrap" }}>{v}</div>) : <div style={{ ...readVal, color: "var(--muted,#aab)" }}>—</div>}
+      {body}
     </div>
   );
 }

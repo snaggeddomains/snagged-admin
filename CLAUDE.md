@@ -116,6 +116,17 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
   - **Buyer-name typeahead (returning clients).** New-deal modal buyer-name field type-aheads
     against prior deals: `GET /api/admin/deals?buyers=<q>` → `searchBuyers` (store.ts, distinct
     known buyers by name/email ilike) → pick fills buyer name/email/company. No new table/env.
+- **Sidebar auto-fill from research + link cleanup (2026-07-22).** Two deal-detail polish items:
+  - **Auto-fill Likely owner / Owner contact / Appraisal $ from research.** Once a report/appraisal
+    has run, the detail GET pulls the structured findings into the sidebar so they're not typed by
+    hand. `research-link.ts` `researchReportSummary(domain)` → research `GET /api/internal/report-
+    summary?domain=` (`{likely_owner, owner_type, owner_contact, summary, appraisal:{mid,low,high}}`
+    from the newest DONE run's report PART-1 via `summarizeReport` + cache-first Appraise.net).
+    The GET fills **only still-empty** fields (`likely_owner`/`owner_contact`/`appraisal_value` ← mid)
+    via `updateDeal` — a manual edit always wins, and filled values persist so it stops re-fetching.
+  - **Header links → sidebar.** Dropped the two header icon-links; `deal-client.tsx` now shows the
+    **Buyer name as the 👤 lead-dossier link** (when `dossierUrl` exists) and a compact **📄 Research
+    report "Open report ↗"** row (replacing the long raw URL). `RVal` gained `href`/`emoji` props.
 - **NEXT (Ph3):** email sequences (outbound) + richer pipeline reporting. Existing Pipedrive
   test deals are NOT migrated (day-one) — start fresh natively.
 

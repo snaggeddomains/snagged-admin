@@ -9,6 +9,33 @@ import { getDb } from "../supabase";
 const RESEARCH_BASE = (process.env.RESEARCH_APP_BASE || "https://app.snagged.com/research").replace(/\/+$/, "");
 const RESEARCH_INTERNAL_BASE = (process.env.RESEARCH_INTERNAL_BASE || "https://research.snagged.com").replace(/\/+$/, "");
 
+// Structured "bottom line" for a domain from the research app (report PART-1 owner fields +
+// cache-first appraisal), so a deal's sidebar auto-fills once research has run. Best-effort →
+// null on any failure. Used to fill ONLY empty deal fields (never overwrites a manual edit).
+export type ResearchSummary = {
+  likely_owner: string | null;
+  owner_type: string | null;
+  owner_contact: string | null;
+  summary: string | null;
+  appraisal: { mid: number; low: number | null; high: number | null } | null;
+};
+export async function researchReportSummary(domain: string): Promise<ResearchSummary | null> {
+  const d = String(domain || "").trim().toLowerCase();
+  if (!d || !d.includes(".")) return null;
+  const secret = process.env.RESEARCH_INTERNAL_SECRET;
+  if (!secret) return null;
+  try {
+    const res = await fetch(`${RESEARCH_INTERNAL_BASE}/api/internal/report-summary?domain=${encodeURIComponent(d)}`, {
+      headers: { "x-internal-secret": secret },
+    });
+    if (!res.ok) return null;
+    const j = (await res.json()) as ResearchSummary & { ok?: boolean };
+    return j;
+  } catch {
+    return null;
+  }
+}
+
 // Kick a FREE Domain Owner pre-flight report for a domain so a report-less deal (manually
 // added, or one whose domain we've never researched) gets a report to auto-link. Deduped on
 // the research side — safe to call repeatedly. Best-effort + non-blocking: no secret / a
