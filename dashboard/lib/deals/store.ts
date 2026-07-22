@@ -55,6 +55,7 @@ export type DealEmail = {
   deal_id: string;
   mailbox: string | null;
   thread_id: string;
+  msg_id: string | null;   // per-message id (RFC Message-ID) → one row per email, not per thread
   subject: string | null;
   snippet: string | null;
   body: string | null;
@@ -274,23 +275,44 @@ export async function listActivity(deal_id: string): Promise<Activity[]> {
   return (data as Activity[]) || [];
 }
 
+// PostgREST in-list of string values that may contain special chars (RFC msg-ids have
+// <>@.) — quote each and escape embedded quotes.
+function inList(vals: string[]): string {
+  return `(${vals.map((v) => `"${String(v).replace(/"/g, '\\"')}"`).join(",")})`;
+}
+
 export async function upsertDealEmails(deal_id: string, rows: Omit<DealEmail, "id" | "deal_id" | "ingested_at">[]): Promise<number> {
   if (!rows.length) return 0;
   const payload = rows.map((r) => ({ deal_id, ...r }));
-  const { error, count } = await getDb().from(EMAILS).upsert(payload, { onConflict: "deal_id,thread_id", count: "exact" });
+  // Per-MESSAGE upsert (one row per email). Pre-migration (no msg_id column/index) →
+  // fall back to the old newest-per-thread collapse so it still works.
+  let { error, count } = await getDb().from(EMAILS).upsert(payload, { onConflict: "deal_id,msg_id", count: "exact" });
+  if (error && /msg_id|column|constraint|on conflict/i.test(error.message)) {
+    const byThread = new Map<string, Omit<DealEmail, "id" | "deal_id" | "ingested_at">>();
+    for (const r of rows) {
+      const prev = byThread.get(r.thread_id);
+      if (!prev || (r.msg_date || "") >= (prev.msg_date || "")) byThread.set(r.thread_id, r);
+    }
+    const collapsed = [...byThread.values()].map(({ msg_id: _m, ...rest }) => ({ deal_id, ...rest }));
+    ({ error, count } = await getDb().from(EMAILS).upsert(collapsed, { onConflict: "deal_id,thread_id", count: "exact" }));
+  }
   if (error) throw new Error(`upsertDealEmails: ${error.message}`);
   return count ?? rows.length;
 }
 
-// Authoritative sync: upsert the fresh (already-filtered) set, then delete any stale
-// threads no longer matched — so a re-pull PRUNES previously-ingested noise. Only prunes
-// when we have a non-empty fresh set (never wipes on a transient empty search).
+// Authoritative sync: upsert the fresh (already-filtered) set, then delete any stale rows
+// no longer matched — so a re-pull PRUNES previously-ingested noise. Prunes by msg_id when
+// available (per-message), else by thread_id (pre-migration). Best-effort; never wipes on
+// a transient empty search.
 export async function replaceDealEmails(deal_id: string, rows: Omit<DealEmail, "id" | "deal_id" | "ingested_at">[]): Promise<number> {
   if (!rows.length) return 0;
   const n = await upsertDealEmails(deal_id, rows);
-  const keep = rows.map((r) => r.thread_id).filter(Boolean);
+  const hasMsg = rows.every((r) => r.msg_id);
+  const col = hasMsg ? "msg_id" : "thread_id";
+  const keep = (hasMsg ? rows.map((r) => r.msg_id as string) : rows.map((r) => r.thread_id)).filter(Boolean);
   if (keep.length) {
-    await getDb().from(EMAILS).delete().eq("deal_id", deal_id).not("thread_id", "in", `(${keep.join(",")})`);
+    try { await getDb().from(EMAILS).delete().eq("deal_id", deal_id).not(col, "in", inList(keep)); }
+    catch { /* pre-migration / quoting — skip prune, re-pull still refreshes */ }
   }
   return n;
 }

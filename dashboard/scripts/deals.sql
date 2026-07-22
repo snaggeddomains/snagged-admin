@@ -73,6 +73,12 @@ create table if not exists deal_emails (
 );
 create index if not exists idx_deal_emails_deal on deal_emails (deal_id, msg_date desc);
 
+-- Per-MESSAGE email timeline (one row per email, not per thread — the full back-and-forth).
+-- Add msg_id, drop the old thread-unique constraint, add a per-message unique index.
+alter table deal_emails add column if not exists msg_id text;
+alter table deal_emails drop constraint if exists deal_emails_deal_id_thread_id_key;
+create unique index if not exists deal_emails_deal_msg on deal_emails (deal_id, msg_id);
+
 -- If `deals` already existed before budget_max was added, this backfills the column.
 alter table deals add column if not exists budget_max numeric;
 

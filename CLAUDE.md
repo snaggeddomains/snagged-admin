@@ -26,8 +26,14 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
   listDeals owner-scoped, updateDeal w/ auto activity logging, addActivity/listActivity,
   upsert/listDealEmails, boardStats), `notify.ts` (bell+email+Slack for assignment + stage-change;
   bell+email for @mention; Slack → `SLACK_CHANNEL_DEALS`; `dealUrl` = `DASHBOARD_BASE`/deals/<id>),
-  `emails.ts` (`ingestDealEmails` — searches deal mailboxes by buyer email/domain via `lib/gmail.ts`,
-  one row per thread, best-effort). **Auto-ingested hourly** by cron `app/api/cron/deal-emails`
+  `emails.ts` (`ingestDealEmails` — matches deal mailboxes by buyer address / buyer COMPANY
+  email-domain (colleagues, non-free-mail) / the target domain name, filters noise senders
+  (namejet/marketplace/no-reply/our own notifications), then EXPANDS each matched thread via
+  `getThread` and stores **one row per MESSAGE** (`msg_id` = RFC Message-ID) so the full
+  back-and-forth shows like Pipedrive — not just the latest per thread; `replaceDealEmails`
+  prunes stale on re-pull. **Migration:** `deal_emails.msg_id` + drop the old (deal_id,thread_id)
+  unique + a new (deal_id,msg_id) unique index — see `scripts/deals.sql`; pre-migration it
+  degrades to newest-per-thread). **Auto-ingested hourly** by cron `app/api/cron/deal-emails`
   (`vercel.json` `15 * * * *`, CRON_SECRET, open deals newest-first, capped) — the manual "Pull
   emails" button on the deal stays for on-demand.
 - **API** (gated `deals` module; `deals.all` action sees everyone's, else own + Inbox):

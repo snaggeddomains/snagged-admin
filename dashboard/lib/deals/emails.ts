@@ -1,12 +1,15 @@
-// Per-deal email ingestion. Pulls the Gmail threads relevant to a deal (the buyer's
-// address and/or the target domain) from the deal mailboxes via the existing read-only
-// Gmail layer, dedupes to one row per thread (latest message), and upserts deal_emails.
-// Best-effort: no Gmail config / no matches → 0, never throws to the caller.
+// Per-deal email ingestion. Finds the Gmail threads relevant to a deal (the buyer's
+// address / company domain / the target domain), then expands each matched thread to
+// store EVERY message (one deal_emails row per email — the full back-and-forth, like
+// Pipedrive — not just the latest per thread). Best-effort: no Gmail config / no matches
+// → 0, never throws to the caller.
 
-import { dealMailboxes, gmailConfigured, searchMessages, getMessage } from "../gmail";
+import { dealMailboxes, gmailConfigured, searchMessages, getThread } from "../gmail";
 import { replaceDealEmails, type Deal } from "./store";
 
-const MAX_PER_MAILBOX = 40;
+const MAX_PER_MAILBOX = 40; // matched stubs pulled per mailbox
+const MAX_THREADS = 25;     // threads expanded per deal
+const MAX_ROWS = 150;       // total messages stored per deal (cap a huge thread)
 
 function isoOrNull(epoch: number): string | null {
   return Number.isFinite(epoch) && epoch > 0 ? new Date(epoch).toISOString() : null;
@@ -60,27 +63,39 @@ export async function ingestDealEmails(deal: Deal): Promise<number> {
   const q = queryFor(deal);
   if (!q) return 0;
 
-  // threadId → the newest message we've seen for it (subject/snippet/date/from).
-  const byThread = new Map<string, { mailbox: string; thread_id: string; subject: string | null; snippet: string | null; body: string | null; from_addr: string | null; msg_date: string | null; epoch: number }>();
+  // msg-id → one row per email (RFC Message-ID dedupes the same message across mailboxes).
+  const byMsg = new Map<string, { mailbox: string; thread_id: string; msg_id: string; subject: string | null; snippet: string | null; body: string | null; from_addr: string | null; msg_date: string | null }>();
+  const seenThreads = new Set<string>();
 
   for (const mailbox of dealMailboxes()) {
+    if (byMsg.size >= MAX_ROWS) break;
     let stubs: { id: string; threadId: string }[] = [];
     try { stubs = await searchMessages(mailbox, q, MAX_PER_MAILBOX); } catch { continue; }
-    for (const stub of stubs) {
-      let msg;
-      try { msg = await getMessage(mailbox, stub.id); } catch { continue; }
-      if (isNoise(msg.from || null, msg.subject || null)) continue; // drop system/alert noise
-      const prev = byThread.get(msg.threadId);
-      if (prev && prev.epoch >= (msg.date || 0)) continue; // keep the newest per thread
-      byThread.set(msg.threadId, {
-        mailbox, thread_id: msg.threadId,
-        subject: msg.subject || null, snippet: msg.snippet || null,
-        body: (msg.body || "").slice(0, 8000) || null, from_addr: msg.from || null,
-        msg_date: isoOrNull(msg.date), epoch: msg.date || 0,
-      });
+    // Unique matched threads in this mailbox — expand each to the FULL conversation.
+    const threads: string[] = [];
+    for (const s of stubs) {
+      const k = `${mailbox}::${s.threadId}`;
+      if (!seenThreads.has(k)) { seenThreads.add(k); threads.push(s.threadId); }
+    }
+    for (const threadId of threads.slice(0, MAX_THREADS)) {
+      if (byMsg.size >= MAX_ROWS) break;
+      let msgs;
+      try { msgs = await getThread(mailbox, threadId); } catch { continue; }
+      for (const msg of msgs) {
+        if (isNoise(msg.from || null, msg.subject || null)) continue; // drop system/alert noise
+        const key = msg.mid || `${mailbox}:${msg.id}`;
+        if (byMsg.has(key)) continue; // same RFC message already captured (other mailbox)
+        byMsg.set(key, {
+          mailbox, thread_id: msg.threadId, msg_id: key,
+          subject: msg.subject || null, snippet: msg.snippet || null,
+          body: (msg.body || "").slice(0, 8000) || null, from_addr: msg.from || null,
+          msg_date: isoOrNull(msg.date),
+        });
+        if (byMsg.size >= MAX_ROWS) break;
+      }
     }
   }
-  const rows = [...byThread.values()].map(({ epoch: _epoch, ...r }) => r);
+  const rows = [...byMsg.values()];
   if (!rows.length) return 0;
   try { return await replaceDealEmails(deal.id, rows); } catch { return 0; }
 }
