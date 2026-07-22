@@ -191,6 +191,9 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
   const [tldFilter, setTldFilter] = useState<Set<string>>(new Set()); // empty = all
   const [nsFilter, setNsFilter] = useState<Set<string>>(new Set());
   const [regFilter, setRegFilter] = useState<Set<string>>(new Set());
+  // Listed-on-platform filter — tri-state per platform (any / on / not-on), so you can
+  // ask for e.g. Spaceship AND NOT Afternic, or Marketplace + Afternic.
+  const [platformFilter, setPlatformFilter] = useState<Record<PlatformId, TriState>>({ afternic: "any", spaceship: "any", marketplace: "any" });
   const [sortKey, setSortKey] = useState<SortKey>("domain");
   const [sortDir, setSortDir] = useState<1 | -1>(1);
 
@@ -500,6 +503,17 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
       if (tldFilter.size && !tldFilter.has(r.tld)) return false;
       if (nsFilter.size && !nsFilter.has(live[r.domain]?.ns_provider || "")) return false;
       if (regFilter.size && !regFilter.has(canonicalRegistrar(live[r.domain]?.registrar) || "")) return false;
+      // Listed-on-platform (tri-state per platform). Afternic = live scrape; Spaceship =
+      // NS points to Spaceship; Marketplace = snagged.com/marketplace listing.
+      const pf = platformFilter;
+      if (pf.afternic !== "any" || pf.spaceship !== "any" || pf.marketplace !== "any") {
+        const l = live[r.domain];
+        const on = { afternic: l?.afternic?.listed === true, spaceship: !!(l && /spaceship/i.test(l.ns_provider || "")), marketplace: !!r.on_snagged_marketplace };
+        for (const k of ["afternic", "spaceship", "marketplace"] as PlatformId[]) {
+          if (pf[k] === "on" && !on[k]) return false;
+          if (pf[k] === "off" && on[k]) return false;
+        }
+      }
       if (needle) {
         const reg = live[r.domain]?.registrar || "";
         const ns = (live[r.domain]?.nameservers || []).join(" ");
@@ -548,7 +562,7 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
       return a.domain < b.domain ? -1 : 1;
     });
     return rows;
-  }, [report, q, src, status, tldFilter, nsFilter, regFilter, sortKey, sortDir, live, invOwned, archived, showArchived]);
+  }, [report, q, src, status, tldFilter, nsFilter, regFilter, platformFilter, sortKey, sortDir, live, invOwned, archived, showArchived]);
 
   const setSort = (k: SortKey) => {
     if (k === sortKey) setSortDir((d) => (d === 1 ? -1 : 1));
@@ -862,6 +876,7 @@ export default function SnapNamesClient({ canWrite = false }: { canWrite?: boole
         <MultiSelect label="All TLDs" allLabel="All TLDs" options={tlds} selected={tldFilter} onChange={setTldFilter} fmt={(t) => `.${t}`} />
         <MultiSelect label="All nameservers" allLabel="All nameservers" options={nsProviders} selected={nsFilter} onChange={setNsFilter} />
         <MultiSelect label="All registrars" allLabel="All registrars" options={registrars} selected={regFilter} onChange={setRegFilter} />
+        <PlatformFilter value={platformFilter} onChange={setPlatformFilter} />
         <button
           onClick={() => setShowArchived((v) => !v)}
           title="Archived names are hidden from the main list"
@@ -1233,6 +1248,48 @@ function MultiSelect({
               <input type="checkbox" checked={selected.has(o)} onChange={() => toggle(o)} />
               <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{fmt ? fmt(o) : o}</span>
             </label>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+type PlatformId = "afternic" | "spaceship" | "marketplace";
+type TriState = "any" | "on" | "off";
+const PLATFORM_OPTS: [PlatformId, string][] = [["afternic", "Afternic"], ["spaceship", "Spaceship"], ["marketplace", "Marketplace"]];
+
+// Listed-on-platform filter: per platform pick Any / ✓ On / ✗ Not-on, so you can express
+// "Spaceship but not Afternic", "Marketplace + Afternic", "on both", etc.
+function PlatformFilter({ value, onChange }: { value: Record<PlatformId, TriState>; onChange: (v: Record<PlatformId, TriState>) => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [open]);
+  const active = PLATFORM_OPTS.filter(([k]) => value[k] !== "any");
+  const summary = active.length === 0 ? "Listed on…"
+    : active.map(([k, lbl]) => (value[k] === "off" ? `not ${lbl}` : lbl)).join(" · ");
+  return (
+    <div ref={ref} style={{ position: "relative" }}>
+      <button onClick={() => setOpen((v) => !v)}
+        style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #d5d5e0", background: active.length ? "#eef2ee" : "#fff", color: "#44445a", cursor: "pointer", fontSize: 13, maxWidth: 280, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+        {summary} ▾
+      </button>
+      {open && (
+        <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, zIndex: 20, background: "#fff", border: "1px solid #d5d5e0", borderRadius: 8, boxShadow: "0 8px 24px rgba(0,0,0,.12)", minWidth: 300, padding: 8 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "2px 4px 8px", borderBottom: "1px solid #f0f0f5", marginBottom: 6 }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#44445a" }}>Listed on platform</span>
+            <button onClick={() => onChange({ afternic: "any", spaceship: "any", marketplace: "any" })} style={{ border: "none", background: "none", color: "#3f4a8f", cursor: "pointer", fontSize: 12 }}>Clear</button>
+          </div>
+          {PLATFORM_OPTS.map(([k, lbl]) => (
+            <div key={k} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 4px", gap: 10 }}>
+              <span style={{ fontSize: 13 }}>{lbl}</span>
+              <Segmented value={value[k]} onChange={(v) => onChange({ ...value, [k]: v as TriState })} options={[["any", "Any"], ["on", "✓ On"], ["off", "✗ Not"]]} />
+            </div>
           ))}
         </div>
       )}
