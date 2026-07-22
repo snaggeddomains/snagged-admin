@@ -1,46 +1,22 @@
 [
   {
-    "domain": "cattles.com",
-    "price": 6095.0
-  },
-  {
-    "domain": "gunness.com",
-    "price": 4595.0
-  },
-  {
-    "domain": "sandholes.com",
-    "price": 1530.0
+    "domain": "senzee.com",
+    "price": 5695.0
   },
   {
     "domain": "acces.ai",
     "price": 2888.0
   },
   {
-    "domain": "rowers.net",
-    "price": 299.0
+    "domain": "passer.net",
+    "price": 8995.0
   },
   {
-    "domain": "blips.net",
-    "price": 2499.0
-  },
-  {
-    "domain": "coralie.co",
-    "price": 1988.0
-  },
-  {
-    "domain": "hermia.co",
-    "price": 1988.0
+    "domain": "minihub.co",
+    "price": 475.0
   },
   {
     "domain": "takano.co",
     "price": 1200.0
-  },
-  {
-    "domain": "rothmann.co",
-    "price": 1988.0
-  },
-  {
-    "domain": "accumulated.net",
-    "price": 2795.0
   }
 ]
