@@ -86,6 +86,7 @@ export default function DealClient({ id }: { id: string }) {
     const f = form;
     const money = (v: unknown) => { if (v === "" || v == null) return null; const n = Number(v); return Number.isFinite(n) ? n : null; };
     const payload = {
+      domain: (f.domain || "").trim().toLowerCase(),
       stage: f.stage, status: f.status, owner_email: f.owner_email || null, priority: f.priority || null, lost_reason: f.lost_reason,
       buyer_name: f.buyer_name, buyer_email: f.buyer_email, buyer_phone: f.buyer_phone, org_name: f.org_name,
       budget_range: f.budget_range || null, appraisal_value: money(f.appraisal_value), asking_price: money(f.asking_price),
@@ -205,6 +206,7 @@ export default function DealClient({ id }: { id: string }) {
             <RVal l="Tags" v={(d.tags || []).join(", ") || null} />
             <RVal l="Notes" v={d.notes} />
           </> : <>
+            <span style={lbl}>Target domain</span><input style={inp} value={f.domain || ""} onChange={(e) => set("domain", e.target.value)} placeholder="example.com" />
             <span style={lbl}>Buyer name</span><input style={inp} value={f.buyer_name || ""} onChange={(e) => set("buyer_name", e.target.value)} />
             <span style={lbl}>Buyer email</span><input style={inp} value={f.buyer_email || ""} onChange={(e) => set("buyer_email", e.target.value)} />
             <span style={lbl}>Buyer phone</span><input style={inp} value={f.buyer_phone || ""} onChange={(e) => set("buyer_phone", e.target.value)} />

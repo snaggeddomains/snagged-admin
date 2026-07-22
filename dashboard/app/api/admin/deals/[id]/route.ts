@@ -87,6 +87,21 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     return NextResponse.json({ error: "Unknown stage" }, { status: 400 });
   }
   if (patch.owner_email !== undefined && patch.owner_email) patch.owner_email = String(patch.owner_email).toLowerCase();
+  // Editing the PRIMARY domain (e.g. the client now wants electron.ai, not electron.net):
+  // normalize it, and — since the linked report/owner/appraisal were for the OLD name —
+  // reset those derived fields so the GET re-links + re-fills + kicks research for the new
+  // domain. (A blank/unchanged domain is left alone.)
+  if (patch.domain !== undefined) {
+    const nd = String(patch.domain || "").trim().toLowerCase();
+    if (!nd || !nd.includes(".")) { delete patch.domain; }
+    else if (nd !== String(deal.domain || "").toLowerCase()) {
+      patch.domain = nd;
+      patch.report_link = null;
+      patch.likely_owner = null;
+      patch.owner_contact = null;
+      patch.appraisal_value = null;
+    } else { delete patch.domain; }
+  }
   if (!Object.keys(patch).length) return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
 
   const updated = await updateDeal(params.id, patch, me!.email);

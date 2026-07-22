@@ -127,6 +127,12 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
   - **Header links → sidebar.** Dropped the two header icon-links; `deal-client.tsx` now shows the
     **Buyer name as the 👤 lead-dossier link** (when `dossierUrl` exists) and a compact **📄 Research
     report "Open report ↗"** row (replacing the long raw URL). `RVal` gained `href`/`emoji` props.
+  - **Editable PRIMARY domain (2026-07-22).** The deal-edit form gained a **Target domain** input
+    (`domain` is on the EDITABLE whitelist). Changing it (e.g. client now wants electron.ai, not
+    electron.net) is normalized (lowercase/trim) and — since the linked report/owner/appraisal were
+    for the OLD name — the PATCH **resets `report_link`/`likely_owner`/`owner_contact`/`appraisal_value`
+    to null** so the next GET re-links + re-fills + kicks research for the new domain. Blank/unchanged
+    domain is ignored.
 - **NEXT (Ph3):** email sequences (outbound) + richer pipeline reporting. Existing Pipedrive
   test deals are NOT migrated (day-one) — start fresh natively.
 
