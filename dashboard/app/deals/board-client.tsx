@@ -45,6 +45,7 @@ export default function BoardClient() {
   const [showNew, setShowNew] = useState(false);
   const [showPrefs, setShowPrefs] = useState(false);
   const [lostFor, setLostFor] = useState<string | null>(null); // deal id awaiting a lost reason
+  const [wonFor, setWonFor] = useState<string | null>(null);   // deal id awaiting close-won details
 
   const load = useCallback(async () => {
     setLoading(true); setErr(null);
@@ -116,6 +117,29 @@ export default function BoardClient() {
     try {
       const res = await fetch(`/api/admin/deals/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       if (!res.ok) throw new Error();
+    } finally { load(); }
+  };
+  // Close Won — capture the confirmed owner/contact, price paid, commission + a recap,
+  // set status=won, and log the recap to the timeline.
+  const closeWon = async (id: string, f: WonForm) => {
+    const patch: Record<string, unknown> = { status: "won" };
+    if (f.ownerName.trim()) patch.likely_owner = f.ownerName.trim();
+    if (f.ownerContact.trim()) patch.owner_contact = f.ownerContact.trim();
+    const price = Number(String(f.pricePaid).replace(/[^0-9.]/g, ""));
+    const comm = Number(String(f.commission).replace(/[^0-9.]/g, ""));
+    if (Number.isFinite(price) && price > 0) patch.sale_price = price;
+    if (Number.isFinite(comm) && comm > 0) patch.commission = comm;
+    try {
+      await fetch(`/api/admin/deals/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(patch) });
+      const lines = [
+        "🏆 Closed WON",
+        f.ownerName.trim() && `Owner: ${f.ownerName.trim()}`,
+        f.ownerContact.trim() && `Owner contact: ${f.ownerContact.trim()}`,
+        Number.isFinite(price) && price > 0 && `Price paid: $${price.toLocaleString()}`,
+        Number.isFinite(comm) && comm > 0 && `Commission: $${comm.toLocaleString()}`,
+        f.recap.trim() && `\n${f.recap.trim()}`,
+      ].filter(Boolean).join("\n");
+      await fetch(`/api/admin/deals/${id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "comment", body: lines, mentions: [] }) });
     } finally { load(); }
   };
 
@@ -204,6 +228,10 @@ export default function BoardClient() {
           dragged card's current status (reopen a lost/archived one, archive/lose an open one). */}
       {dragId && (
         <div style={{ display: "flex", gap: 10, marginTop: 4, paddingBottom: 8 }}>
+          {dragDeal?.status !== "won" && (
+            <DropZone label="✓ Close Won" hint="confirm the details" color="#1f7a5a"
+              onDrop={() => { const id = dragId; setDragId(null); setDragOver(null); setWonFor(id); }} />
+          )}
           {dragDeal?.status !== "lost" && (
             <DropZone label="✗ Mark Lost" hint="pick a reason" color="#a83265"
               onDrop={() => { const id = dragId; setDragId(null); setDragOver(null); setLostFor(id); }} />
@@ -222,7 +250,40 @@ export default function BoardClient() {
       {showNew && <NewDealModal assignees={data?.assignees || []} onClose={() => setShowNew(false)} onCreated={(id) => { setShowNew(false); router.push(`/deals/${id}`); }} />}
       {showPrefs && <PrefsModal onClose={() => setShowPrefs(false)} />}
       {lostFor && <LostModal onClose={() => setLostFor(null)} onPick={(reason) => { const id = lostFor; setLostFor(null); if (id) markStatus(id, "lost", reason); }} />}
+      {wonFor && <WonModal onClose={() => setWonFor(null)} onSubmit={(f) => { const id = wonFor; setWonFor(null); if (id) closeWon(id, f); }} />}
     </main>
+  );
+}
+
+type WonForm = { ownerName: string; ownerContact: string; pricePaid: string; commission: string; recap: string };
+
+// Confirm-before-Won: capture the owner + contact, price paid, commission, and a recap
+// before a deal is marked won. Nothing here is optional-gated — it's a deliberate stop.
+function WonModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (f: WonForm) => void }) {
+  const [f, setF] = useState<WonForm>({ ownerName: "", ownerContact: "", pricePaid: "", commission: "", recap: "" });
+  const set = (k: keyof WonForm, v: string) => setF((s) => ({ ...s, [k]: v }));
+  const L: CSSProperties = { display: "block", fontSize: 12, fontWeight: 700, color: "var(--navy-2,#4a5b66)", margin: "10px 0 3px" };
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(20,25,30,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ background: "var(--paper,#fff)", borderRadius: 14, padding: 20, width: "min(440px,100%)", maxHeight: "90vh", overflowY: "auto" }}>
+        <h2 style={{ fontSize: "1.1rem", margin: "0 0 2px" }}>🏆 Close deal — Won</h2>
+        <p className="muted" style={{ fontSize: 12.5, margin: "0 0 6px" }}>Confirm the details before marking this deal won.</p>
+        <label style={L}>Owner name</label>
+        <input style={input} value={f.ownerName} onChange={(e) => set("ownerName", e.target.value)} placeholder="Who we bought from" />
+        <label style={L}>Owner contact</label>
+        <input style={input} value={f.ownerContact} onChange={(e) => set("ownerContact", e.target.value)} placeholder="Email / phone" />
+        <label style={L}>Price paid</label>
+        <input style={input} value={f.pricePaid} onChange={(e) => set("pricePaid", e.target.value)} placeholder="$" inputMode="decimal" />
+        <label style={L}>Commission</label>
+        <input style={input} value={f.commission} onChange={(e) => set("commission", e.target.value)} placeholder="$" inputMode="decimal" />
+        <label style={L}>Recap / deal notes</label>
+        <textarea style={{ ...input, minHeight: 70, resize: "vertical", fontFamily: "inherit" }} value={f.recap} onChange={(e) => set("recap", e.target.value)} placeholder="How it closed, terms, next steps…" />
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16 }}>
+          <button style={btn} onClick={onClose}>Cancel</button>
+          <button style={{ ...btnPrimary, background: "#1f7a5a", borderColor: "#1f7a5a" }} onClick={() => onSubmit(f)}>✓ Mark Won</button>
+        </div>
+      </div>
+    </div>
   );
 }
 

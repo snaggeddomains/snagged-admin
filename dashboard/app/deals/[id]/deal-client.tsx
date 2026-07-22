@@ -37,7 +37,32 @@ export default function DealClient({ id }: { id: string }) {
   const [note, setNote] = useState("");
   const [mq, setMq] = useState<string | null>(null); // active @mention query
   const [ingesting, setIngesting] = useState(false);
+  const [wonOpen, setWonOpen] = useState(false);
   const taRef = useRef<HTMLTextAreaElement>(null);
+
+  // Close Won — confirm owner/contact + price/commission + recap, set won, log the recap.
+  const closeWon = async (f: WonForm) => {
+    const id = data?.deal.id;
+    if (!id) return;
+    const patch: Record<string, unknown> = { status: "won" };
+    if (f.ownerName.trim()) patch.likely_owner = f.ownerName.trim();
+    if (f.ownerContact.trim()) patch.owner_contact = f.ownerContact.trim();
+    const price = Number(String(f.pricePaid).replace(/[^0-9.]/g, ""));
+    const comm = Number(String(f.commission).replace(/[^0-9.]/g, ""));
+    if (Number.isFinite(price) && price > 0) patch.sale_price = price;
+    if (Number.isFinite(comm) && comm > 0) patch.commission = comm;
+    setWonOpen(false);
+    await fetch(`/api/admin/deals/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(patch) });
+    const lines = ["🏆 Closed WON",
+      f.ownerName.trim() && `Owner: ${f.ownerName.trim()}`,
+      f.ownerContact.trim() && `Owner contact: ${f.ownerContact.trim()}`,
+      Number.isFinite(price) && price > 0 && `Price paid: $${price.toLocaleString()}`,
+      Number.isFinite(comm) && comm > 0 && `Commission: $${comm.toLocaleString()}`,
+      f.recap.trim() && `\n${f.recap.trim()}`,
+    ].filter(Boolean).join("\n");
+    await fetch(`/api/admin/deals/${id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "comment", body: lines, mentions: [] }) });
+    await load();
+  };
 
   const load = useCallback(async () => {
     setErr(null);
@@ -135,6 +160,7 @@ export default function DealClient({ id }: { id: string }) {
         <h1 style={{ fontSize: "1.5rem", margin: 0 }}>{d.domain}</h1>
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
           {d.report_link && <a href={d.report_link} target="_blank" rel="noreferrer" style={{ fontSize: 13, fontWeight: 600 }}>📄 Research report ↗</a>}
+          {!editing && d.status === "open" && <button style={{ ...btn, color: "#1f7a5a", borderColor: "#1f7a5a" }} onClick={() => setWonOpen(true)}>✓ Close won</button>}
           {!editing
             ? <button style={btn} onClick={() => { setForm(d); setEditing(true); }}>✎ Edit</button>
             : <><button style={btn} onClick={() => { setForm(d); setEditing(false); }} disabled={saving}>Cancel</button><button style={btnPrimary} onClick={save} disabled={saving}>{saving ? "Saving…" : "Save"}</button></>}
@@ -235,7 +261,45 @@ export default function DealClient({ id }: { id: string }) {
           </div>
         </div>
       </div>
+      {wonOpen && <WonModal deal={d} onClose={() => setWonOpen(false)} onSubmit={closeWon} />}
     </main>
+  );
+}
+
+type WonForm = { ownerName: string; ownerContact: string; pricePaid: string; commission: string; recap: string };
+
+// Confirm-before-Won: prefilled from the deal's researched owner + asking price; captures
+// the final price paid, commission, and a recap before the deal is marked won.
+function WonModal({ deal, onClose, onSubmit }: { deal: Deal; onClose: () => void; onSubmit: (f: WonForm) => void }) {
+  const [f, setF] = useState<WonForm>({
+    ownerName: deal.likely_owner || "",
+    ownerContact: deal.owner_contact || "",
+    pricePaid: deal.asking_price != null ? String(deal.asking_price) : "",
+    commission: "",
+    recap: "",
+  });
+  const set = (k: keyof WonForm, v: string) => setF((s) => ({ ...s, [k]: v }));
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(20,25,30,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ background: "var(--paper,#fff)", borderRadius: 14, padding: 20, width: "min(440px,100%)", maxHeight: "90vh", overflowY: "auto" }}>
+        <h2 style={{ fontSize: "1.1rem", margin: "0 0 2px" }}>🏆 Close deal — Won</h2>
+        <p className="muted" style={{ fontSize: 12.5, margin: "0 0 6px" }}>Confirm the details before marking this deal won.</p>
+        <label style={lbl}>Owner name</label>
+        <input style={inp} value={f.ownerName} onChange={(e) => set("ownerName", e.target.value)} placeholder="Who we bought from" />
+        <label style={lbl}>Owner contact</label>
+        <input style={inp} value={f.ownerContact} onChange={(e) => set("ownerContact", e.target.value)} placeholder="Email / phone" />
+        <label style={lbl}>Price paid</label>
+        <input style={inp} value={f.pricePaid} onChange={(e) => set("pricePaid", e.target.value)} placeholder="$" inputMode="decimal" />
+        <label style={lbl}>Commission</label>
+        <input style={inp} value={f.commission} onChange={(e) => set("commission", e.target.value)} placeholder="$" inputMode="decimal" />
+        <label style={lbl}>Recap / deal notes</label>
+        <textarea style={{ ...inp, minHeight: 70, resize: "vertical", fontFamily: "inherit" }} value={f.recap} onChange={(e) => set("recap", e.target.value)} placeholder="How it closed, terms, next steps…" />
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16 }}>
+          <button style={btn} onClick={onClose}>Cancel</button>
+          <button style={{ ...btnPrimary, background: "#1f7a5a", borderColor: "#1f7a5a" }} onClick={() => onSubmit(f)}>✓ Mark Won</button>
+        </div>
+      </div>
+    </div>
   );
 }
 

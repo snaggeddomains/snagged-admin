@@ -82,6 +82,10 @@ create unique index if not exists deal_emails_deal_msg on deal_emails (deal_id, 
 -- If `deals` already existed before budget_max was added, this backfills the column.
 alter table deals add column if not exists budget_max numeric;
 
+-- Close-Won capture: final price paid + our commission.
+alter table deals add column if not exists sale_price numeric;
+alter table deals add column if not exists commission numeric;
+
 -- Per-user deal notification preferences ({deal:{in_app,email,slack}}), default all on.
 alter table domain_research_users add column if not exists notif_prefs jsonb;
 

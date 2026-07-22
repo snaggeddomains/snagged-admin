@@ -20,6 +20,8 @@ export type Deal = {
   budget_range: string | null;
   appraisal_value: number | null;
   asking_price: number | null;
+  sale_price: number | null;    // final price paid (captured at Close Won)
+  commission: number | null;    // our commission on the close
   source: string | null;
   priority: string | null;
   budget_max: number | null;
@@ -241,12 +243,17 @@ export async function updateDeal(id: string, patch: Record<string, unknown>, act
     update.budget_range = normalizeBudget(raw) || raw || null;
     update.budget_max = budgetMaxFor(raw);
   }
-  let upd = await getDb().from(DEALS).update(update).eq("id", id).select("*").single();
-  // Degrade gracefully before the budget_max migration: drop the column + retry.
-  if (upd.error && /budget_max/i.test(upd.error.message)) {
-    const { budget_max, ...rest } = update;
-    void budget_max;
-    upd = await getDb().from(DEALS).update(rest).eq("id", id).select("*").single();
+  // Degrade gracefully before a column's migration: if the update names a column that
+  // doesn't exist yet (budget_max, sale_price, commission, …), strip it + retry.
+  let payload = update;
+  let upd = await getDb().from(DEALS).update(payload).eq("id", id).select("*").single();
+  for (let i = 0; i < 4 && upd.error; i++) {
+    const m = /column "?([a-z_]+)"? of relation|Could not find the '([a-z_]+)' column/i.exec(upd.error.message);
+    const col = m && (m[1] || m[2]);
+    if (!col || !(col in payload)) break;
+    const { [col]: _drop, ...rest } = payload;
+    payload = rest;
+    upd = await getDb().from(DEALS).update(payload).eq("id", id).select("*").single();
   }
   if (upd.error) throw new Error(`updateDeal: ${upd.error.message}`);
   const after = upd.data as Deal;
