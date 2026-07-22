@@ -1,5 +1,21 @@
 [
   {
+    "domain": "vastness.com",
+    "price": null
+  },
+  {
+    "domain": "meowing.com",
+    "price": null
+  },
+  {
+    "domain": "tayrus.com",
+    "price": null
+  },
+  {
+    "domain": "papage.com",
+    "price": null
+  },
+  {
     "domain": "institutional.ai",
     "price": null
   },
@@ -113824,10 +113840,6 @@
     "price": null
   },
   {
-    "domain": "grizzlybrand.com",
-    "price": 15000.0
-  },
-  {
     "domain": "michiganplus.com",
     "price": 4888.0
   },
@@ -117221,7 +117233,7 @@
   },
   {
     "domain": "denverattorney.com",
-    "price": 12500.0
+    "price": 25000.0
   },
   {
     "domain": "foggy.com",
@@ -144150,10 +144162,6 @@
   {
     "domain": "majorvalley.com",
     "price": null
-  },
-  {
-    "domain": "largesex.com",
-    "price": 299.0
   },
   {
     "domain": "dubaitech.co",
@@ -266740,10 +266748,6 @@
     "price": 5000.0
   },
   {
-    "domain": "passara.com",
-    "price": 7800.0
-  },
-  {
     "domain": "nippit.com",
     "price": 15000.0
   },
@@ -278484,10 +278488,6 @@
     "price": 60000.0
   },
   {
-    "domain": "villagebrand.com",
-    "price": 15000.0
-  },
-  {
     "domain": "tribalbrand.com",
     "price": 7800.0
   },
@@ -278530,10 +278530,6 @@
   {
     "domain": "stockholmtower.com",
     "price": 15000.0
-  },
-  {
-    "domain": "spicybrand.com",
-    "price": 7800.0
   },
   {
     "domain": "sparklingbrand.com",
@@ -278940,10 +278936,6 @@
     "price": 15000.0
   },
   {
-    "domain": "brandlatino.com",
-    "price": 15000.0
-  },
-  {
     "domain": "branditaly.com",
     "price": 15000.0
   },
@@ -278961,10 +278953,6 @@
   },
   {
     "domain": "brandaussie.com",
-    "price": 15000.0
-  },
-  {
-    "domain": "brandarctic.com",
     "price": 15000.0
   },
   {
@@ -279108,10 +279096,6 @@
     "price": 15000.0
   },
   {
-    "domain": "trufflebrand.com",
-    "price": 7800.0
-  },
-  {
     "domain": "treasurebrand.com",
     "price": 7800.0
   },
@@ -279196,20 +279180,12 @@
     "price": 24000.0
   },
   {
-    "domain": "steambrand.com",
-    "price": 7800.0
-  },
-  {
     "domain": "spicykorea.com",
     "price": 7800.0
   },
   {
     "domain": "spermaid.com",
     "price": 24000.0
-  },
-  {
-    "domain": "speedthinker.com",
-    "price": 15000.0
   },
   {
     "domain": "smellbank.com",
@@ -279350,10 +279326,6 @@
   {
     "domain": "norsee.com",
     "price": 15000.0
-  },
-  {
-    "domain": "norsebrand.com",
-    "price": 7800.0
   },
   {
     "domain": "normandybank.com",
@@ -279904,10 +279876,6 @@
     "price": 7800.0
   },
   {
-    "domain": "brandpurple.com",
-    "price": 7800.0
-  },
-  {
     "domain": "brandherbal.com",
     "price": 7800.0
   },
@@ -279958,10 +279926,6 @@
   {
     "domain": "biggestbrand.com",
     "price": 7800.0
-  },
-  {
-    "domain": "bidski.com",
-    "price": 15000.0
   },
   {
     "domain": "bibcock.com",
@@ -280361,10 +280325,6 @@
   },
   {
     "domain": "kobeland.com",
-    "price": 15000.0
-  },
-  {
-    "domain": "jupiterbrand.com",
     "price": 15000.0
   },
   {
@@ -292877,7 +292837,7 @@
   },
   {
     "domain": "denverlawyer.com",
-    "price": 12500.0
+    "price": 25000.0
   },
   {
     "domain": "condosportland.com",
@@ -320525,7 +320485,7 @@
   },
   {
     "domain": "vendorsource.com",
-    "price": null
+    "price": 7500.0
   },
   {
     "domain": "builtbox.com",
@@ -341397,7 +341357,7 @@
   },
   {
     "domain": "usashower.com",
-    "price": null
+    "price": 3999.0
   },
   {
     "domain": "usareclaimed.com",
@@ -342205,7 +342165,7 @@
   },
   {
     "domain": "spysocial.com",
-    "price": null
+    "price": 6750.0
   },
   {
     "domain": "spyready.com",
@@ -343257,7 +343217,7 @@
   },
   {
     "domain": "powerhere.com",
-    "price": null
+    "price": 8900.0
   },
   {
     "domain": "powerher.com",
@@ -344285,7 +344245,7 @@
   },
   {
     "domain": "kitmod.com",
-    "price": null
+    "price": 4899.0
   },
   {
     "domain": "kitchenstop.com",
@@ -347421,7 +347381,7 @@
   },
   {
     "domain": "alltrials.com",
-    "price": null
+    "price": 9500.0
   },
   {
     "domain": "allsingapore.com",
@@ -365521,7 +365481,7 @@
   },
   {
     "domain": "hispan.com",
-    "price": 30000.0
+    "price": 85000.0
   },
   {
     "domain": "jerseybrand.com",
@@ -369561,10 +369521,6 @@
   },
   {
     "domain": "touristbrand.com",
-    "price": 7800.0
-  },
-  {
-    "domain": "shoebrand.com",
     "price": 7800.0
   },
   {

@@ -2,17 +2,19 @@
   "capped": false,
   "count": 9,
   "domains": [
-    "pinocchio.org",
-    "humale.com",
-    "turmeric.net",
-    "aliive.com",
-    "altis.io",
-    "gkul.com",
-    "bessie.co",
-    "sombre.org",
-    "boding.com"
+    "6800.org",
+    "berkshire.net",
+    "worle.com",
+    "mixero.com",
+    "cpon.com",
+    "paym.com",
+    "fortem.com",
+    "dasht.com",
+    "ztaj.com"
   ],
-  "generated_at": "2026-07-21T09:43:53.591712+00:00",
-  "mub": [],
+  "generated_at": "2026-07-22T09:42:39.370600+00:00",
+  "mub": [
+    "worle.com"
+  ],
   "source": "godaddy_auctions"
 }

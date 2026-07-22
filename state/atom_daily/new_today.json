@@ -1,24 +1,22 @@
 {
   "capped": false,
-  "count": 15,
+  "count": 11,
   "domains": [
-    "slept.ai",
-    "wilt.com",
-    "examination.io",
-    "genre.io",
-    "chemicals.io",
-    "broader.co",
-    "millions.org",
-    "regiment.io",
-    "femur.ai",
-    "xvii.ai",
-    "sanitation.co",
-    "transports.co",
-    "mekong.co",
-    "refute.org",
-    "ores.org"
+    "efficiently.ai",
+    "disregard.ai",
+    "sama.com",
+    "bilingual.ai",
+    "fulfillment.ai",
+    "frees.ai",
+    "clique.ai",
+    "piccolo.ai",
+    "hosted.org",
+    "fond.org",
+    "sprinter.org"
   ],
-  "generated_at": "2026-07-21T09:23:05.585160+00:00",
-  "mub": [],
+  "generated_at": "2026-07-22T09:23:30.292975+00:00",
+  "mub": [
+    "sama.com"
+  ],
   "source": "atom_daily"
 }

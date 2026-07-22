@@ -1,19 +1,15 @@
 {
   "capped": false,
-  "count": 10,
+  "count": 6,
   "domains": [
-    "axto.com",
-    "progresso.net",
-    "torsk.com",
-    "grandx.org",
     "vati.com",
-    "gedm.com",
-    "bryg.com",
     "nfluence.com",
     "kpost.com",
-    "puar.com"
+    "rulio.com",
+    "puar.com",
+    "copax.com"
   ],
-  "generated_at": "2026-07-21T09:43:15.346739+00:00",
+  "generated_at": "2026-07-22T09:42:07.481358+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }
