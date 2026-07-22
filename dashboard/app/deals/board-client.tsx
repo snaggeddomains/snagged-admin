@@ -96,7 +96,8 @@ export default function BoardClient() {
     return m;
   }, [deals]);
 
-  const dragEnabled = status === "open";
+  const stageDrag = status === "open"; // stage columns only accept drops in the Open view
+  const dragDeal = dragId ? (data?.deals || []).find((x) => x.id === dragId) : null;
   const move = async (id: string, stage: string) => {
     const d = (data?.deals || []).find((x) => x.id === id);
     if (!d || d.stage === stage) return;
@@ -108,9 +109,10 @@ export default function BoardClient() {
   };
   // Terminal transitions — dropping a card on the Lost/Archive zones. Lost captures a
   // reason (via the modal); Archive parks a test/spam/dead deal off the board.
-  const markStatus = async (id: string, newStatus: "lost" | "archived", lost_reason?: string) => {
+  const markStatus = async (id: string, newStatus: "lost" | "archived" | "open" | "won", lost_reason?: string) => {
     const body: Record<string, unknown> = { status: newStatus };
     if (newStatus === "lost") body.lost_reason = lost_reason || null;
+    if (newStatus === "open") body.lost_reason = null; // reopening clears the lost reason
     try {
       const res = await fetch(`/api/admin/deals/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       if (!res.ok) throw new Error();
@@ -160,9 +162,9 @@ export default function BoardClient() {
           const over = dragOver === stage;
           return (
             <div key={stage}
-              onDragOver={(e) => { if (dragEnabled) { e.preventDefault(); setDragOver(stage); } }}
+              onDragOver={(e) => { if (stageDrag) { e.preventDefault(); setDragOver(stage); } }}
               onDragLeave={() => setDragOver((s) => s === stage ? null : s)}
-              onDrop={(e) => { e.preventDefault(); setDragOver(null); if (dragEnabled && dragId) move(dragId, stage); setDragId(null); }}
+              onDrop={(e) => { e.preventDefault(); setDragOver(null); if (stageDrag && dragId) move(dragId, stage); setDragId(null); }}
               style={{ flex: "1 0 210px", minWidth: 210, background: over ? "#eef4f0" : "var(--paper-2,#f4f1ea)", borderRadius: 10, padding: 8, minHeight: 120, border: over ? "1.5px dashed var(--coral,#e2674a)" : "1.5px solid transparent" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "2px 4px 8px" }}>
                 <span style={{ fontSize: 12.5, fontWeight: 800, color: "var(--navy,#254254)" }}>{stage}</span>
@@ -172,11 +174,11 @@ export default function BoardClient() {
                 const oc = colorFor(d.owner_email);
                 return (
                   <div key={d.id}
-                    draggable={dragEnabled}
+                    draggable
                     onDragStart={() => setDragId(d.id)}
                     onDragEnd={() => { setDragId(null); setDragOver(null); }}
                     onClick={() => router.push(`/deals/${d.id}`)}
-                    style={{ background: "#fff", border: "1px solid var(--line,#e6e0d3)", borderLeft: `4px solid ${oc}`, borderRadius: 8, padding: "9px 10px", marginBottom: 8, cursor: dragEnabled ? "grab" : "pointer", boxShadow: "0 1px 2px rgba(0,0,0,0.04)", opacity: dragId === d.id ? 0.5 : 1 }}>
+                    style={{ background: "#fff", border: "1px solid var(--line,#e6e0d3)", borderLeft: `4px solid ${oc}`, borderRadius: 8, padding: "9px 10px", marginBottom: 8, cursor: "grab", boxShadow: "0 1px 2px rgba(0,0,0,0.04)", opacity: dragId === d.id ? 0.5 : 1 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", gap: 6 }}>
                       <span style={{ fontWeight: 700, fontSize: 13.5, color: "var(--navy,#254254)" }}>{d.domain}</span>
                       {d.priority && <span style={{ fontSize: 10.5, fontWeight: 700, color: PRIORITY_COLOR[d.priority] || "#4a5b66" }}>{d.priority}</span>}
@@ -198,13 +200,22 @@ export default function BoardClient() {
         })}
       </div>
 
-      {/* Drop a card here to close it out — appears only while dragging. */}
-      {dragId && dragEnabled && (
+      {/* Drop a card here to close it out — appears while dragging, tailored to the
+          dragged card's current status (reopen a lost/archived one, archive/lose an open one). */}
+      {dragId && (
         <div style={{ display: "flex", gap: 10, marginTop: 4, paddingBottom: 8 }}>
-          <DropZone label="✗ Mark Lost" hint="pick a reason" color="#a83265"
-            onDrop={() => { const id = dragId; setDragId(null); setDragOver(null); setLostFor(id); }} />
-          <DropZone label="🗄 Archive (test / spam)" hint="hidden from the board" color="#7a6f63"
-            onDrop={() => { const id = dragId; setDragId(null); setDragOver(null); if (id && confirm("Archive this deal? It moves off the board (find it via the Archived filter).")) markStatus(id, "archived"); }} />
+          {dragDeal?.status !== "lost" && (
+            <DropZone label="✗ Mark Lost" hint="pick a reason" color="#a83265"
+              onDrop={() => { const id = dragId; setDragId(null); setDragOver(null); setLostFor(id); }} />
+          )}
+          {dragDeal?.status !== "archived" && (
+            <DropZone label="🗄 Archive (test / spam)" hint="off the board" color="#7a6f63"
+              onDrop={() => { const id = dragId; setDragId(null); setDragOver(null); if (id && confirm("Archive this deal? It moves off the board (find it via the Archived filter).")) markStatus(id, "archived"); }} />
+          )}
+          {dragDeal && dragDeal.status !== "open" && (
+            <DropZone label="↩ Reopen" hint="back to Open" color="#2f7d4f"
+              onDrop={() => { const id = dragId; setDragId(null); setDragOver(null); if (id) markStatus(id, "open"); }} />
+          )}
         </div>
       )}
 
