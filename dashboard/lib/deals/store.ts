@@ -314,12 +314,26 @@ export async function upsertDealEmails(deal_id: string, rows: Omit<DealEmail, "i
 export async function replaceDealEmails(deal_id: string, rows: Omit<DealEmail, "id" | "deal_id" | "ingested_at">[]): Promise<number> {
   if (!rows.length) return 0;
   const n = await upsertDealEmails(deal_id, rows);
-  const hasMsg = rows.every((r) => r.msg_id);
-  const col = hasMsg ? "msg_id" : "thread_id";
-  const keep = (hasMsg ? rows.map((r) => r.msg_id as string) : rows.map((r) => r.thread_id)).filter(Boolean);
-  if (keep.length) {
-    try { await getDb().from(EMAILS).delete().eq("deal_id", deal_id).not(col, "in", inList(keep)); }
-    catch { /* pre-migration / quoting — skip prune, re-pull still refreshes */ }
+  const db = getDb();
+  const msgIds = rows.map((r) => r.msg_id).filter(Boolean) as string[];
+
+  // Prefer per-message pruning (msg_id): delete rows not in the fresh set…
+  if (msgIds.length) {
+    const r1 = await db.from(EMAILS).delete().eq("deal_id", deal_id).not("msg_id", "in", inList(msgIds));
+    if (!r1.error) {
+      // …AND clear pre-migration leftovers (NULL msg_id — e.g. the old NameJet / notification
+      // rows), which `NOT IN` skips because NULL comparisons aren't TRUE.
+      try { await db.from(EMAILS).delete().eq("deal_id", deal_id).is("msg_id", null); } catch { /* best-effort */ }
+      return n;
+    }
+    // msg_id column not there yet → fall through to thread-based pruning.
+  }
+
+  // Pre-migration: prune whole stale THREADS (removes noise ingested before the filters).
+  const threadIds = rows.map((r) => r.thread_id).filter(Boolean);
+  if (threadIds.length) {
+    try { await db.from(EMAILS).delete().eq("deal_id", deal_id).not("thread_id", "in", inList(threadIds)); }
+    catch { /* best-effort — re-pull still refreshes */ }
   }
   return n;
 }
