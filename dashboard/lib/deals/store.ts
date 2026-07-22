@@ -210,6 +210,18 @@ export function reportAggregates(deals: Deal[]) {
   return { count: deals.length, askingTotal, byStage, byOwner, byStatus };
 }
 
+// Is there already a deal for this domain? Returns the best match (an open one first,
+// else the newest) so a research surface can offer "View deal" instead of creating a dup.
+export async function findDealByDomain(domain: string): Promise<Deal | null> {
+  const d = String(domain || "").trim().toLowerCase();
+  if (!d) return null;
+  const { data, error } = await getDb().from(DEALS).select("*").eq("domain", d)
+    .order("created_at", { ascending: false }).limit(25);
+  if (error || !data || !data.length) return null;
+  const rows = data as Deal[];
+  return rows.find((r) => r.status === "open") || rows[0];
+}
+
 export async function getDeal(id: string): Promise<Deal | null> {
   const { data, error } = await getDb().from(DEALS).select("*").eq("id", id).maybeSingle();
   if (error) throw new Error(`getDeal: ${error.message}`);
