@@ -12,7 +12,7 @@ type Deal = {
   owner_contact: string | null; reachability: string | null; notes: string | null; tags: string[] | null; created_at: string;
 };
 type Activity = { id: string; user_email: string | null; kind: string; body: string | null; meta: Record<string, unknown> | null; created_at: string };
-type Email = { id: string; mailbox: string | null; subject: string | null; snippet: string | null; from_addr: string | null; msg_date: string | null };
+type Email = { id: string; mailbox: string | null; subject: string | null; snippet: string | null; body: string | null; from_addr: string | null; msg_date: string | null };
 type Assignee = { email: string; name: string };
 type Resp = { ok: boolean; deal: Deal; activity: Activity[]; emails: Email[]; assignees: Assignee[]; me: string; error?: string };
 
@@ -247,19 +247,71 @@ function RVal({ l, v, link }: { l: string; v: string | null | undefined; link?: 
   );
 }
 
-// Pipedrive-style email row: envelope, subject, from→to, relative time, snippet, expandable body.
+// Parse a raw From header ("Kara Egan <kara@x.com>" / "kara@x.com") into name + email.
+function parseAddr(raw: string | null): { name: string; email: string } {
+  const s = (raw || "").trim();
+  const m = s.match(/^\s*"?([^"<]*?)"?\s*<([^>]+)>/);
+  if (m) return { name: m[1].trim() || m[2].trim(), email: m[2].trim().toLowerCase() };
+  return { name: s.split("@")[0] || s, email: s.toLowerCase() };
+}
+function initialsOf(name: string): string {
+  const parts = name.replace(/[^A-Za-z0-9 ]/g, " ").trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return "?";
+  return (parts[0][0] + (parts[1]?.[0] || "")).toUpperCase();
+}
+const AVATAR_HUES = ["#2f6f7a", "#c0492f", "#6b4a8a", "#2f7d4f", "#946200", "#3f4a8f", "#a83265", "#1f7a5a"];
+function hueFor(key: string): string {
+  let h = 0; for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0;
+  return AVATAR_HUES[h % AVATAR_HUES.length];
+}
+// "6 hours ago" / "2 days ago" — the relative stamp Pipedrive shows next to the date.
+function relTime(iso: string | null): string {
+  if (!iso) return "";
+  const diff = Date.now() - new Date(iso).getTime();
+  if (diff < 0 || !Number.isFinite(diff)) return "";
+  const mins = Math.round(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins} min ago`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24) return `${hrs} hour${hrs === 1 ? "" : "s"} ago`;
+  const days = Math.round(hrs / 24);
+  if (days < 30) return `${days} day${days === 1 ? "" : "s"} ago`;
+  const months = Math.round(days / 30);
+  return `${months} month${months === 1 ? "" : "s"} ago`;
+}
+
+// Pipedrive-style email card: sender avatar (initials) + direction, subject, a
+// date · relative-time · from→to meta line, a truncated preview, and a chevron to
+// expand the full message inline.
 function EmailRow({ m }: { m: Email }) {
   const [open, setOpen] = useState(false);
+  const from = parseAddr(m.from_addr);
+  const outbound = /@snagged\.(com|co)$/i.test(from.email); // we sent it
+  const hue = hueFor(from.email || from.name);
+  const to = m.mailbox ? parseAddr(m.mailbox) : null;
   return (
-    <div style={{ display: "flex", gap: 9, padding: "9px 0", borderTop: "1px solid var(--line,#eee)" }}>
-      <div style={{ flex: "none", width: 24, height: 24, borderRadius: "50%", background: "#eef2f4", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12 }}>✉</div>
-      <div style={{ minWidth: 0, flex: 1, cursor: "pointer" }} onClick={() => setOpen((o) => !o)}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-          <span style={{ fontWeight: 700, fontSize: 13, color: "var(--navy,#254254)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.subject || "(no subject)"}</span>
-          <span style={{ fontSize: 11, color: "var(--muted,#889)", flex: "none" }}>{when(m.msg_date)}</span>
+    <div style={{ display: "flex", gap: 11, padding: 12, border: "1px solid var(--line,#e6e0d3)", borderRadius: 10, marginBottom: 8, background: "#fff", boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}>
+      {/* Sender avatar with a direction badge (↗ we sent · ↙ they sent). */}
+      <div style={{ flex: "none", position: "relative" }}>
+        <div style={{ width: 34, height: 34, borderRadius: "50%", background: hue, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12.5, fontWeight: 700 }} title={from.email}>{initialsOf(from.name)}</div>
+        <span title={outbound ? "Sent by us" : "Received"} style={{ position: "absolute", right: -3, bottom: -3, width: 16, height: 16, borderRadius: "50%", background: outbound ? "#2f7d4f" : "#3f4a8f", color: "#fff", fontSize: 9, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", border: "1.5px solid #fff" }}>{outbound ? "↗" : "↙"}</span>
+      </div>
+      <div style={{ minWidth: 0, flex: 1 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "baseline" }}>
+          <span style={{ fontWeight: 700, fontSize: 13.5, color: "var(--navy,#254254)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{m.subject || "(no subject)"}</span>
+          <button onClick={() => setOpen((o) => !o)} title={open ? "Collapse" : "Expand full message"}
+            style={{ flex: "none", background: "none", border: "none", cursor: "pointer", color: "var(--muted,#889)", fontSize: 14, padding: "0 2px", lineHeight: 1 }}>{open ? "▴" : "▾"}</button>
         </div>
-        <div style={{ fontSize: 11.5, color: "var(--muted,#889)", marginTop: 1 }}>{m.from_addr}{m.mailbox ? ` → ${m.mailbox}` : ""}</div>
-        {m.snippet && <div style={{ fontSize: 12.5, color: "var(--navy-2,#4a5b66)", marginTop: 3, ...(open ? {} : { overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }) }}>{m.snippet}</div>}
+        <div style={{ fontSize: 11.5, color: "var(--muted,#889)", marginTop: 2 }}>
+          <span style={{ fontWeight: 600, color: "var(--navy-2,#4a5b66)" }}>{from.name}</span>
+          {to && <> → {to.name}</>}
+          {m.msg_date && <> · {when(m.msg_date)}{relTime(m.msg_date) && <span> ({relTime(m.msg_date)})</span>}</>}
+        </div>
+        <div onClick={() => setOpen((o) => !o)} style={{ cursor: "pointer", marginTop: 5 }}>
+          {open
+            ? <div style={{ fontSize: 12.5, color: "var(--navy-2,#3f4d57)", whiteSpace: "pre-wrap", wordBreak: "break-word", maxHeight: 360, overflowY: "auto", lineHeight: 1.5, background: "var(--paper-2,#f7f5ef)", borderRadius: 8, padding: "8px 10px" }}>{m.body || m.snippet || "(no content)"}</div>
+            : (m.snippet && <div style={{ fontSize: 12.5, color: "var(--navy-2,#4a5b66)", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const }}>{m.snippet}</div>)}
+        </div>
       </div>
     </div>
   );
