@@ -144,10 +144,10 @@ export async function listBuyInquiries({ limit = 100, includeSell = false, inclu
   let { data, error } = await run(true);
   if (error && /column|dismissed/i.test(error.message)) ({ data, error } = await run(false));
   if (error) throw new Error(`listBuyInquiries: ${error.message}`);
-  // Don't silently drop a buy-side lead just because its requested "domain" didn't parse to a
-  // real domain (e.g. a street address / free text like "9254 winnetka ave") — it's still a
-  // real inquiry to triage (the convert modal lets you set the actual target domain). Only the
-  // sell-side view additionally requires a parsed domain, to keep noise down.
+  // For now, show every buy-side lead in the queue — even one whose requested "domain" didn't
+  // parse to a real domain (free text / a street address like "9254 winnetka ave", often spam):
+  // surface it (flagged "not a domain" in the UI) so nothing is silently hidden, and let a human
+  // dismiss it. Sell-side view still requires a parsed domain to keep noise down.
   let inquiries = (data as unknown as LeadRow[] || []).map(mapRow);
   inquiries = includeSell
     ? inquiries.filter((i) => i.isBuySide || i.domains.length > 0)
