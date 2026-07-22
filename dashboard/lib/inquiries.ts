@@ -124,17 +124,25 @@ function mapRow(r: LeadRow): Inquiry {
 export async function listBuyInquiries({ limit = 100, includeSell = false, includeDismissed = false, q = "" }: { limit?: number; includeSell?: boolean; includeDismissed?: boolean; q?: string } = {}): Promise<{ configured: boolean; inquiries: Inquiry[] }> {
   const { isDbConfigured } = await import("./supabase");
   if (!isDbConfigured()) return { configured: false, inquiries: [] };
-  let query = getDb()
-    .from(LEADS)
-    .select("lead_key,email,name,company_domain,domain_of_interest,intent,budget,form,status,tier,result,dismissed,created_at,updated_at")
-    .order("created_at", { ascending: false })
-    .limit(Math.min(limit, 300));
-  // dismissed IS NOT TRUE keeps null (pre-backfill) + false, hides the ignored ones.
-  if (!includeDismissed) query = query.not("dismissed", "is", true);
-  if (q) query = query.or(`name.ilike.%${q}%,email.ilike.%${q}%,domain_of_interest.ilike.%${q}%`);
-  const { data, error } = await query;
+
+  // Run the query with the `dismissed` column; if it isn't there yet (migration not
+  // applied), retry WITHOUT it so the queue still loads — every row just reads as
+  // not-dismissed until the column + backfill land.
+  async function run(withDismissed: boolean) {
+    const cols = withDismissed
+      ? "lead_key,email,name,company_domain,domain_of_interest,intent,budget,form,status,tier,result,dismissed,created_at,updated_at"
+      : "lead_key,email,name,company_domain,domain_of_interest,intent,budget,form,status,tier,result,created_at,updated_at";
+    let query = getDb().from(LEADS).select(cols).order("created_at", { ascending: false }).limit(Math.min(limit, 300));
+    // dismissed IS NOT TRUE keeps null (pre-backfill) + false, hides the ignored ones.
+    if (withDismissed && !includeDismissed) query = query.not("dismissed", "is", true);
+    if (q) query = query.or(`name.ilike.%${q}%,email.ilike.%${q}%,domain_of_interest.ilike.%${q}%`);
+    return query;
+  }
+
+  let { data, error } = await run(true);
+  if (error && /column|dismissed/i.test(error.message)) ({ data, error } = await run(false));
   if (error) throw new Error(`listBuyInquiries: ${error.message}`);
-  let inquiries = (data as LeadRow[] || []).map(mapRow).filter((i) => i.domains.length > 0);
+  let inquiries = (data as unknown as LeadRow[] || []).map(mapRow).filter((i) => i.domains.length > 0);
   if (!includeSell) inquiries = inquiries.filter((i) => i.isBuySide);
   return { configured: true, inquiries };
 }
