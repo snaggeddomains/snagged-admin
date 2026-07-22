@@ -9,6 +9,7 @@ type Inquiry = {
   email: string | null;
   companyDomain: string | null;
   domains: string[];
+  requested: string | null;
   intent: string | null;
   isBuySide: boolean;
   budget: string | null;
@@ -130,7 +131,9 @@ export default function InquiriesClient() {
                 </div>
                 {i.email && <div className="muted" style={{ fontSize: 13 }}>{i.email}{i.location ? ` · ${i.location}` : ""}</div>}
                 <div style={{ marginTop: 8 }}>
-                  {i.domains.map((d) => <span key={d} style={chip}>{d}</span>)}
+                  {i.domains.length
+                    ? i.domains.map((d) => <span key={d} style={chip}>{d}</span>)
+                    : i.requested && <span style={{ ...chip, background: "#fdf0d2", color: "#946200" }} title="Not a domain — set the target on convert">“{i.requested}” · not a domain</span>}
                 </div>
                 <div style={{ fontSize: 13, marginTop: 6, color: "var(--navy-2, #4a5b66)" }}>
                   {i.intent && <span style={{ marginRight: 12 }}><strong>Intent:</strong> {i.intent}</span>}

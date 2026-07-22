@@ -19,6 +19,7 @@ export type Inquiry = {
   email: string | null;
   companyDomain: string | null;
   domains: string[];           // parsed from domain_of_interest (an inquiry can name several)
+  requested: string | null;    // raw domain_of_interest (may be free text / not a real domain)
   intent: string | null;
   isBuySide: boolean;          // intent looks like acquire/buy
   budget: string | null;
@@ -93,6 +94,7 @@ function mapRow(r: LeadRow): Inquiry {
     email: r.email,
     companyDomain: r.company_domain,
     domains: parseDomains(r.domain_of_interest),
+    requested: r.domain_of_interest ? String(r.domain_of_interest).trim() : null,
     intent: r.intent,
     isBuySide: looksBuySide(r.intent),
     budget: r.budget || null,
@@ -142,8 +144,14 @@ export async function listBuyInquiries({ limit = 100, includeSell = false, inclu
   let { data, error } = await run(true);
   if (error && /column|dismissed/i.test(error.message)) ({ data, error } = await run(false));
   if (error) throw new Error(`listBuyInquiries: ${error.message}`);
-  let inquiries = (data as unknown as LeadRow[] || []).map(mapRow).filter((i) => i.domains.length > 0);
-  if (!includeSell) inquiries = inquiries.filter((i) => i.isBuySide);
+  // Don't silently drop a buy-side lead just because its requested "domain" didn't parse to a
+  // real domain (e.g. a street address / free text like "9254 winnetka ave") — it's still a
+  // real inquiry to triage (the convert modal lets you set the actual target domain). Only the
+  // sell-side view additionally requires a parsed domain, to keep noise down.
+  let inquiries = (data as unknown as LeadRow[] || []).map(mapRow);
+  inquiries = includeSell
+    ? inquiries.filter((i) => i.isBuySide || i.domains.length > 0)
+    : inquiries.filter((i) => i.isBuySide);
   return { configured: true, inquiries };
 }
 
