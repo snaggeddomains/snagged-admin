@@ -1,14 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
+import { BUDGET_BANDS } from "@/lib/deals/stages";
 
 type Deal = {
   id: string; domain: string; buyer_name: string | null; buyer_email: string | null;
   budget_range: string | null; asking_price: number | null; appraisal_value: number | null;
   source: string | null; priority: string | null; owner_email: string | null; stage: string; status: string; updated_at: string;
 };
-type Resp = { ok: boolean; deals: Deal[]; assignees: { email: string; name: string }[]; error?: string };
+type Resp = { ok: boolean; deals: Deal[]; assignees: { email: string; name: string }[]; canSeeAll?: boolean; me?: string; error?: string };
 
 const usd = (n: number | null | undefined) => (n == null || n === 0 ? "—" : `$${Math.round(n).toLocaleString()}`);
 const input: CSSProperties = { padding: "7px 9px", borderRadius: 7, border: "1px solid var(--line,#e3ddcf)", fontSize: 14, boxSizing: "border-box" };
@@ -19,6 +20,9 @@ export default function ListClient() {
   const router = useRouter();
   const [data, setData] = useState<Resp | null>(null);
   const [status, setStatus] = useState("open");
+  const [mine, setMine] = useState(false);
+  const [ownerFilter, setOwnerFilter] = useState("");
+  const [budgetFilter, setBudgetFilter] = useState("");
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<{ k: string; dir: 1 | -1 }>({ k: "updated_at", dir: -1 });
 
@@ -31,13 +35,22 @@ export default function ListClient() {
   }, [status, q]);
   useEffect(() => { load(); }, [load]);
 
+  // Default "My deals" ON for all-viewers (applied once; they can toggle it off).
+  const mineDefaulted = useRef(false);
+  useEffect(() => {
+    if (!mineDefaulted.current && data?.canSeeAll) { mineDefaulted.current = true; setMine(true); }
+  }, [data?.canSeeAll]);
+
   const nameFor = useMemo(() => {
     const m = new Map((data?.assignees || []).map((a) => [a.email.toLowerCase(), a.name]));
     return (e: string | null) => e ? (m.get(e.toLowerCase()) || e.split("@")[0]) : "Inbox";
   }, [data]);
 
   const rows = useMemo(() => {
-    const ds = [...(data?.deals || [])];
+    let ds = [...(data?.deals || [])];
+    if (mine && data?.me) ds = ds.filter((d) => (d.owner_email || "").toLowerCase() === data.me!.toLowerCase());
+    if (ownerFilter) ds = ds.filter((d) => ownerFilter === "__inbox__" ? !d.owner_email : (d.owner_email || "").toLowerCase() === ownerFilter.toLowerCase());
+    if (budgetFilter) ds = ds.filter((d) => (d.budget_range || "") === budgetFilter);
     const val = (d: Deal) => d.asking_price || d.appraisal_value || 0;
     ds.sort((a, b) => {
       let av: string | number, bv: string | number;
@@ -46,7 +59,7 @@ export default function ListClient() {
       return (av < bv ? -1 : av > bv ? 1 : 0) * sort.dir;
     });
     return ds;
-  }, [data, sort]);
+  }, [data, sort, mine, ownerFilter, budgetFilter]);
 
   const H = ({ k, label }: { k: string; label: string }) => (
     <th style={{ ...th, cursor: "pointer" }} onClick={() => setSort((s) => ({ k, dir: s.k === k && s.dir === 1 ? -1 : 1 }))}>
@@ -58,11 +71,26 @@ export default function ListClient() {
     <main style={{ width: "100%", padding: "0 12px", boxSizing: "border-box" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 10 }}>
         <h1 style={{ fontSize: "1.35rem", margin: 0 }}>Deals — list</h1>
-        <div style={{ display: "flex", gap: 8 }}>
-          <input style={{ ...input, width: 220 }} placeholder="Search domain / buyer…" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") load(); }} />
+        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          <input style={{ ...input, flex: "1 1 160px", minWidth: 140, maxWidth: 240 }} placeholder="Search domain / buyer…" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") load(); }} />
           <select style={input} value={status} onChange={(e) => setStatus(e.target.value)}>
-            <option value="open">Open</option><option value="won">Won</option><option value="lost">Lost</option><option value="all">All</option>
+            <option value="open">Open</option><option value="won">Won</option><option value="lost">Lost</option><option value="archived">Archived</option><option value="all">All</option>
           </select>
+          <select style={input} value={ownerFilter} onChange={(e) => setOwnerFilter(e.target.value)} title="Filter by owner">
+            <option value="">All owners</option>
+            <option value="__inbox__">Unassigned</option>
+            {(data?.assignees || []).map((a) => <option key={a.email} value={a.email}>{a.name}</option>)}
+          </select>
+          <select style={input} value={budgetFilter} onChange={(e) => setBudgetFilter(e.target.value)} title="Filter by budget">
+            <option value="">All budgets</option>
+            {BUDGET_BANDS.map((b) => <option key={b} value={b}>{b}</option>)}
+          </select>
+          {(ownerFilter || budgetFilter) && <button style={{ ...input, cursor: "pointer" }} onClick={() => { setOwnerFilter(""); setBudgetFilter(""); }}>Clear</button>}
+          {data?.canSeeAll && (
+            <label style={{ fontSize: 13, display: "inline-flex", alignItems: "center", gap: 5, cursor: "pointer" }}>
+              <input type="checkbox" checked={mine} onChange={(e) => setMine(e.target.checked)} /> My deals
+            </label>
+          )}
         </div>
       </div>
       <p className="muted" style={{ fontSize: 13, margin: "4px 0 12px" }}>{rows.length} deal{rows.length === 1 ? "" : "s"}</p>

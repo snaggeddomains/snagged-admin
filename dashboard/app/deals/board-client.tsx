@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import { STAGES, PRIORITIES, SOURCES, BUDGET_BANDS, LOST_REASONS } from "@/lib/deals/stages";
 
@@ -20,6 +20,7 @@ const btnPrimary: CSSProperties = { ...btn, background: "var(--coral,#e2674a)", 
 const input: CSSProperties = { padding: "7px 9px", borderRadius: 7, border: "1px solid var(--line,#e3ddcf)", fontSize: 14, boxSizing: "border-box", width: "100%" };
 const fieldLabel: CSSProperties = { display: "block", fontSize: 12, fontWeight: 700, color: "var(--navy-2,#4a5b66)", margin: "10px 0 3px" };
 const PRIORITY_COLOR: Record<string, string> = { Top: "#a83265", High: "#c0492f", Normal: "#4a5b66", Low: "#8a94a0" };
+const PRIORITY_RANK: Record<string, number> = { Top: 0, High: 1, Normal: 2, Low: 3 };
 
 // Maximally-separated hues so each owner is instantly distinguishable (teal, orange,
 // purple, green, gold, indigo, magenta, …). Colors are assigned by the owner's INDEX
@@ -62,6 +63,13 @@ export default function BoardClient() {
   }, [status, q]);
   useEffect(() => { load(); }, [load]);
 
+  // Default "My deals" ON for people who can see everyone's — so an all-viewer lands on
+  // their own deals first. Applied once (they can still toggle it off).
+  const mineDefaulted = useRef(false);
+  useEffect(() => {
+    if (!mineDefaulted.current && data?.canSeeAll) { mineDefaulted.current = true; setMine(true); }
+  }, [data?.canSeeAll]);
+
   const nameFor = useMemo(() => {
     const m = new Map<string, string>();
     for (const a of data?.assignees || []) m.set(a.email.toLowerCase(), a.name);
@@ -90,10 +98,14 @@ export default function BoardClient() {
     return all;
   }, [data, mine, ownerFilter, budgetFilter]);
 
+  // Within a column, float higher-priority deals to the top (Top → High → Normal → Low →
+  // none), keeping the manual drag order (position) as the tiebreak.
   const byStage = useMemo(() => {
+    const rank = (p: string | null) => PRIORITY_RANK[p || ""] ?? 4;
     const m: Record<string, Deal[]> = {};
     for (const s of STAGES) m[s] = [];
     for (const d of deals) (m[d.stage] || (m[d.stage] = [])).push(d);
+    for (const s of Object.keys(m)) m[s].sort((a, b) => rank(a.priority) - rank(b.priority));
     return m;
   }, [deals]);
 
