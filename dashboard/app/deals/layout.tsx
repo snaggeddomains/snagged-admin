@@ -26,6 +26,8 @@ export default async function DealsLayout({ children }: { children: ReactNode })
   }
   return (
     <>
+      {/* Marker: widens the centered .wrap to full width on deals routes (see snagged-brand.css). */}
+      <div data-deals-fullbleed hidden />
       <SectionChrome user={user} />
       {children}
     </>
