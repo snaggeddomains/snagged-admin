@@ -1,19 +1,11 @@
 {
   "capped": false,
-  "count": 10,
+  "count": 2,
   "domains": [
-    "billy.co",
-    "capture.co",
-    "colbert.com",
-    "expand.co",
-    "false.co",
-    "flux.co",
-    "gats.com",
-    "peddle.co",
-    "revolve.me",
-    "visible.co"
+    "acorn.co",
+    "available.now"
   ],
-  "generated_at": "2026-07-22T17:06:29.828523+00:00",
+  "generated_at": "2026-07-22T23:06:17.133453+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
