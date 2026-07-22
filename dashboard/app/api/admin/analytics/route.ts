@@ -12,6 +12,8 @@ import { analyticsReport, gaConfigured, type Tranche } from "@/lib/ga";
 import { revenueReport, revenueConfigured } from "@/lib/revenue";
 import { seoReport, gscConfigured, type SeoBucket } from "@/lib/gsc";
 import { xAdsReport, xAdsLift, xAdsEffectiveness, xAdsConfigured } from "@/lib/xads";
+import { redditAdsReport, redditAdsConfigured } from "@/lib/redditads";
+import type { AdPlatform } from "@/lib/ads-types";
 import { leadsReport, leadsConfigured } from "@/lib/leads";
 import { newsletterReport, mailchimpConfigured, recentMemberCounts } from "@/lib/mailchimp";
 import { histSignups, histUnsubs, mergeDaily, emailDataThrough } from "@/lib/historical-email";
@@ -68,11 +70,40 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // Ads tranche → the X (Twitter) Ads API, with the ROI headline pulling the
-  // X-attributed lead count from core GA inside xAdsReport.
+  // Ads tranche → multi-platform ad spend. `platform` picks the source (x | reddit; Meta
+  // & Google are placeholders). Each platform returns the shared AdReport shape so one
+  // view renders any of them; the ROI headline pairs spend with that platform's attributed
+  // leads from core GA. The lazy parts (lift/effectiveness/leads) are X-only for now.
   if (trancheParam === "ads") {
+    // The platform switcher needs to know which platforms are live in this deployment.
+    const platforms: AdPlatform[] = [
+      { id: "x", label: "X", live: xAdsConfigured() },
+      { id: "reddit", label: "Reddit", live: redditAdsConfigured() },
+      { id: "meta", label: "Meta", live: false },
+      { id: "google", label: "Google", live: false },
+    ];
+    const platform = (sp.get("platform") || "x").toLowerCase();
+
+    // Reddit (and any non-X platform): base spend view only, config-gated.
+    if (platform !== "x") {
+      const p = platforms.find((x) => x.id === platform);
+      if (!p) return NextResponse.json({ ok: false, error: `Unknown ad platform "${platform}"` }, { status: 400 });
+      if (!p.live) {
+        const hint = platform === "reddit"
+          ? "Reddit Ads not configured — needs a Reddit BUSINESS account + dev app, then set REDDIT_ADS_CLIENT_ID / REDDIT_ADS_CLIENT_SECRET / REDDIT_ADS_REFRESH_TOKEN / REDDIT_ADS_ACCOUNT_ID."
+          : `${p.label} Ads isn't wired up yet.`;
+        return NextResponse.json({ ok: false, configured: false, tranche: "ads", platform, platforms, error: hint }, { status: 200 });
+      }
+      try {
+        const report = platform === "reddit" ? await redditAdsReport(from, to) : null;
+        return NextResponse.json({ ok: true, configured: true, tranche: "ads", platform, platforms, from, to, report });
+      } catch (e) {
+        return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
+      }
+    }
+
     if (!xAdsConfigured()) {
-      return NextResponse.json({ ok: false, configured: false, error: "X Ads not configured — set X_ADS_CONSUMER_KEY / X_ADS_CONSUMER_SECRET / X_ADS_ACCESS_TOKEN / X_ADS_ACCESS_TOKEN_SECRET / X_ADS_ACCOUNT_ID in this project's env." }, { status: 200 });
+      return NextResponse.json({ ok: false, configured: false, tranche: "ads", platform: "x", platforms, error: "X Ads not configured — set X_ADS_CONSUMER_KEY / X_ADS_CONSUMER_SECRET / X_ADS_ACCESS_TOKEN / X_ADS_ACCESS_TOKEN_SECRET / X_ADS_ACCOUNT_ID in this project's env." }, { status: 200 });
     }
     // The lift model recomputes a trailing 90-day window (~40 throttled X API
     // calls) — too heavy to ride on the main spend load (it was timing out), so
@@ -110,7 +141,7 @@ export async function GET(req: NextRequest) {
     }
     try {
       const report = await xAdsReport(from, to); // spend view honors [from, to]; lift loaded separately
-      return NextResponse.json({ ok: true, configured: true, tranche: "ads", from, to, report });
+      return NextResponse.json({ ok: true, configured: true, tranche: "ads", platform: "x", platforms, from, to, report });
     } catch (e) {
       return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
     }

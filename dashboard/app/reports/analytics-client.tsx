@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { BarList, TrendChart, FunnelChart, Sparkline, type Bar } from "./analytics-charts";
+import type { AdPlatform, AdPlatformId } from "@/lib/ads-types";
 
 // ── Types mirror lib/ga.ts + lib/revenue.ts ─────────────────────────────────
 type Tranche = "core" | "marketplace" | "blog" | "seo" | "revenue" | "email" | "ads";
@@ -96,7 +97,9 @@ export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
   const [preset, setPreset] = useState<Preset>("week");
   const [from, setFrom] = useState(WEEK_START);
   const [to, setTo] = useState(TODAY);
-  const [loaded, setLoaded] = useState<{ tranche: Tranche; report: unknown } | null>(null);
+  const [loaded, setLoaded] = useState<{ tranche: Tranche; report: unknown; platform?: string } | null>(null);
+  const [adPlatform, setAdPlatform] = useState<AdPlatformId>("x");
+  const [adPlatforms, setAdPlatforms] = useState<AdPlatform[]>([]);
   const [configured, setConfigured] = useState(true);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
@@ -116,13 +119,15 @@ export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
     try {
       const q = new URLSearchParams({ tranche, from: range.from, to: range.to });
       if (tranche === "seo") q.set("bucket", seoBucket);
+      if (tranche === "ads") q.set("platform", adPlatform);
       const res = await fetch(`/api/admin/analytics?${q.toString()}`, { cache: "no-store" });
       const data = await res.json();
+      if (Array.isArray(data.platforms)) setAdPlatforms(data.platforms); // keep the switcher live
       if (data.configured === false) { setConfigured(false); setLoaded(null); setMsg(data.error || "Not configured."); return; }
       if (!res.ok) throw new Error(data.error || `Failed (${res.status})`);
-      setConfigured(true); setLoaded({ tranche: data.tranche, report: data.report });
+      setConfigured(true); setLoaded({ tranche: data.tranche, report: data.report, platform: data.platform });
     } catch (e) { setLoaded(null); setMsg(String((e as Error).message || e)); } finally { setLoading(false); }
-  }, [tranche, seoBucket, range.from, range.to]);
+  }, [tranche, seoBucket, adPlatform, range.from, range.to]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -165,6 +170,28 @@ export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
         <span className="muted" style={{ marginLeft: "auto", fontSize: 13 }}>{rangeLabel}</span>
       </div>
 
+      {tranche === "ads" && adPlatforms.length > 0 && (
+        <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8, flexWrap: "wrap" }}>
+          <span className="muted" style={{ fontSize: 12 }}>Ad platform:</span>
+          <div style={{ display: "inline-flex", gap: 4, border: "1px solid #e3ddcf", borderRadius: 8, padding: 3, flexWrap: "wrap" }}>
+            {adPlatforms.map((p) => {
+              const selectable = p.id === "x" || p.id === "reddit"; // implemented platforms
+              const active = adPlatform === p.id;
+              return (
+                <button key={p.id} disabled={!selectable} onClick={() => selectable && setAdPlatform(p.id)} title={selectable ? undefined : "Coming soon"}
+                  style={{
+                    padding: "4px 12px", fontSize: 13, fontWeight: 700, borderRadius: 6, border: "none",
+                    cursor: selectable ? "pointer" : "default", opacity: selectable ? 1 : 0.45,
+                    background: active ? "var(--coral-deep, #c0492f)" : "transparent", color: active ? "#fff" : "var(--navy, #254254)",
+                  }}>
+                  {p.label}{!selectable ? " · soon" : !p.live ? " · not connected" : ""}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {tranche === "seo" && (
         <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8, flexWrap: "wrap" }}>
           <span className="muted" style={{ fontSize: 12 }}>Search by business line:</span>
@@ -189,7 +216,7 @@ export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
         loaded.tranche === "blog" ? <BlogView r={loaded.report as BlogReport} />
             : loaded.tranche === "seo" ? <SeoView r={loaded.report as SeoReport} />
               : loaded.tranche === "email" ? <EmailView r={loaded.report as EmailReport} />
-                : loaded.tranche === "ads" ? <AdsView r={loaded.report as AdsReport} range={range} />
+                : loaded.tranche === "ads" ? <AdsView r={loaded.report as AdsReport} range={range} platform={(loaded.platform as AdPlatformId) || "x"} />
                   : loaded.tranche === "revenue" ? <RevenueView r={loaded.report as RevenueReport} />
                     : <CoreView r={loaded.report as CoreReport} />
       ) : (
@@ -213,7 +240,7 @@ export default function AnalyticsClient({ canCost }: { canCost: boolean }) {
         <p className="muted" style={{ fontSize: 12, marginTop: 22 }}>Source: Mailchimp (largest audience). Audience totals are current; campaigns are those sent within the selected window.</p>
       )}
       {loaded && loaded.tranche === "ads" && (
-        <p className="muted" style={{ fontSize: 12, marginTop: 22 }}>Source: X (Twitter) Ads API (account timezone America/New_York), spend billed in USD. Cost-per-lead pairs X spend with X-attributed leads from the core funnel (&quot;How did you hear about Snagged? → X / Twitter&quot;, blending the historical export with live GA), so it reads low until self-reported source data lands for the window.</p>
+        <p className="muted" style={{ fontSize: 12, marginTop: 22 }}>Source: the selected platform&apos;s Ads API (account timezone America/New_York), spend in USD. Cost-per-lead pairs that platform&apos;s spend with its attributed leads from the core funnel (&quot;How did you hear about Snagged?&quot;, blending the historical export with live GA), so it reads low until self-reported source data lands for the window.</p>
       )}
     </main>
   );
@@ -282,24 +309,25 @@ function RevenueView({ r }: { r: RevenueReport }) {
   );
 }
 
-function AdsView({ r, range }: { r: AdsReport; range: { from: string; to: string } }) {
+function AdsView({ r, range, platform }: { r: AdsReport; range: { from: string; to: string }; platform: AdPlatformId }) {
+  const plabel = platform === "reddit" ? "Reddit" : platform === "meta" ? "Meta" : platform === "google" ? "Google" : "X";
+  const isX = platform === "x"; // per-ad effectiveness / lift / lead tie-back are X-only for now
   const t = r.totals;
   const roi = r.roi;
   const campaignBars: Bar[] = r.byCampaign.slice(0, 15).map((c) => ({ label: c.name, value: c.spend }));
   const spendTrend = r.trend.map((d) => ({ date: d.date, sessions: Math.round(d.spend), pageviews: d.clicks }));
   const cplText = roi.costPerLead != null ? usd(roi.costPerLead) : "—";
   const cplSub = roi.leads != null
-    ? `${fmt(roi.leads)} X lead${roi.leads === 1 ? "" : "s"} · spend ÷ leads`
-    : roi.gaConfigured ? "No X-attributed leads in window" : "GA not configured";
+    ? `${fmt(roi.leads)} ${plabel} lead${roi.leads === 1 ? "" : "s"} · spend ÷ leads`
+    : roi.gaConfigured ? `No ${plabel}-attributed leads in window` : "GA not configured";
   const leadShare = roi.leads != null && roi.totalLeads ? Math.round((roi.leads / roi.totalLeads) * 100) : null;
   return (
     <>
-      {/* ROI headline — the reason this tab exists: X is the #1 lead source, so
-          what are we paying per lead? */}
+      {/* ROI headline — what are we paying per lead on this platform? */}
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-        <StatCard label="Cost per X lead" sub={cplSub} text={cplText} accent />
+        <StatCard label={`Cost per ${plabel} lead`} sub={cplSub} text={cplText} accent />
         <StatCard label="Ad spend" text={usd(t.spend)} accent />
-        <StatCard label="X-attributed leads" sub={leadShare != null ? `${leadShare}% of self-reported` : "self-reported source"} text={roi.leads != null ? fmt(roi.leads) : "—"} accent />
+        <StatCard label={`${plabel}-attributed leads`} sub={leadShare != null ? `${leadShare}% of self-reported` : "self-reported source"} text={roi.leads != null ? fmt(roi.leads) : "—"} accent />
         <StatCard label="Clicks" value={t.clicks} />
       </div>
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 12 }}>
@@ -309,15 +337,16 @@ function AdsView({ r, range }: { r: AdsReport; range: { from: string; to: string
         <StatCard label="CPM" sub="cost / 1k impr" text={t.impressions ? usd(t.cpm) : "—"} />
         <StatCard label="CTR" text={t.impressions ? `${(t.ctr * 100).toFixed(2)}%` : "—"} />
       </div>
-      <Section title="Spend by campaign" blurb={`Where the X budget went${r.campaignCount ? ` (${r.campaignCount} campaign${r.campaignCount === 1 ? "" : "s"} active in the window)` : ""}.`}>
+      <Section title="Spend by campaign" blurb={`Where the ${plabel} budget went${r.campaignCount ? ` (${r.campaignCount} campaign${r.campaignCount === 1 ? "" : "s"} active in the window)` : ""}.`}>
         <BarList rows={campaignBars} money color={CORAL} empty="No campaign spend in this window." />
       </Section>
       <Section title="Daily spend & clicks" blurb="Spend (area, $) against clicks (dashed) over the window.">
         <TrendChart data={spendTrend} labels={["Spend ($)", "Clicks"]} />
       </Section>
-      <LeadsLoader range={range} />
-      <EffectivenessLoader range={range} />
-      <LiftLoader to={range.to} />
+      {/* Lead tie-back, per-ad effectiveness + lift are X-only for now (Reddit shows the
+          core spend view until those endpoints are wired for it). */}
+      {isX && <><LeadsLoader range={range} /><EffectivenessLoader range={range} /><LiftLoader to={range.to} /></>}
+      {platform === "reddit" && <p className="muted" style={{ fontSize: 12.5, marginTop: 14 }}>Reddit shows spend, campaigns and cost-per-lead. Per-ad effectiveness &amp; the lift model are X-only for now. Endpoints are best-effort pending a live verification pass.</p>}
       {r.byCampaign.length > 0 && (
         <Section title="Campaign detail" blurb="Per-campaign spend, reach and efficiency.">
           <div className="table-scroll"><table className="dash">

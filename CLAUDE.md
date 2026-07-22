@@ -665,6 +665,25 @@ For everything else — Sheets reads, Spaceship/Atom/Namecheap APIs,
 Supabase queries, Drive ops, pipeline CLI commands — execute it here and
 report the result. No round-trip, no dispatch link, no copy/paste.
 
+# Reports → Site Analytics: multi-platform Ads (X + Reddit) (2026-07-22)
+
+The Ads tranche is now **platform-delineated** — a platform switcher (X · Reddit · Meta·soon
+· Google·soon) at the top of the Ads view. Shared shape in `dashboard/lib/ads-types.ts`
+(`AdReport`/`AdTotals`/`AdCampaign`/`AdDaily`/`AdRoi` + `AdPlatform`), so every source renders
+in one `AdsView`. The analytics route (`app/api/admin/analytics/route.ts`) `ads` tranche reads
+`&platform=` (default `x`), returns a `platforms[]` (id/label/live) for the switcher, and routes
+to `xAdsReport` or `redditAdsReport`. Per-ad effectiveness / lift / lead tie-back stay **X-only**
+for now (Reddit gets the base spend/campaign/ROI view).
+- **Reddit client** `dashboard/lib/redditads.ts` — OAuth2 (refresh-token → bearer), base
+  `https://ads-api.reddit.com/api/v3`, `POST /ad_accounts/{id}/reports`. Returns the shared
+  `AdReport`; ROI pairs Reddit spend with Reddit-attributed core-GA leads. **⚠️ best-effort, NOT
+  live-verified** (needs a Reddit **BUSINESS** account + approved dev app first). Report parser is
+  defensive (spend micros-or-plain, tolerant field names). **Env (dormant until set):**
+  `REDDIT_ADS_CLIENT_ID` / `REDDIT_ADS_CLIENT_SECRET` / `REDDIT_ADS_REFRESH_TOKEN` /
+  `REDDIT_ADS_ACCOUNT_ID`. Until configured the Reddit tab shows a "not connected" note; X unaffected.
+- **Adding Meta/Google later:** add a `lib/<platform>ads.ts` returning `AdReport`, a `platforms[]`
+  entry + a route branch, and flip its switcher button selectable. No UI changes otherwise.
+
 # Reports → Site Analytics: X Ads tranche (2026-06-08)
 
 The **Ads** tab in Reports → Site Analytics (`dashboard/app/reports/analytics-client.tsx`
