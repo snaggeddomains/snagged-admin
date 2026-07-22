@@ -6,8 +6,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { authorizedCron } from "@/lib/orchestrator";
 import { gmailConfigured } from "@/lib/gmail";
-import { listDeals, dealsConfigured } from "@/lib/deals/store";
+import { listDeals, updateDeal, dealsConfigured } from "@/lib/deals/store";
 import { ingestDealEmails } from "@/lib/deals/emails";
+import { researchReportLink } from "@/lib/deals/research-link";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -27,10 +28,17 @@ export async function GET(req: NextRequest) {
   deals.sort((a, b) => (b.updated_at || "").localeCompare(a.updated_at || ""));
   const batch = deals.slice(0, limit);
 
-  let processed = 0, ingested = 0;
+  let processed = 0, ingested = 0, linked = 0;
   for (const d of batch) {
     try { ingested += await ingestDealEmails(d); } catch { /* one bad deal never sinks the run */ }
+    // Auto-link the Domain Owner report for this domain if one exists + isn't linked yet.
+    if (!d.report_link) {
+      try {
+        const link = await researchReportLink(d.domain);
+        if (link) { await updateDeal(d.id, { report_link: link }, null); linked++; }
+      } catch { /* best-effort */ }
+    }
     processed++;
   }
-  return NextResponse.json({ ok: true, openDeals: total, processed, ingested });
+  return NextResponse.json({ ok: true, openDeals: total, processed, ingested, linked });
 }

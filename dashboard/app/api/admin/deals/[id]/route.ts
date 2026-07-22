@@ -8,6 +8,7 @@ import { userCan, userCanAction, type AppUser } from "@/lib/permissions";
 import { getDeal, updateDeal, addActivity, listActivity, listDealEmails, type Deal } from "@/lib/deals/store";
 import { notifyAssignment, notifyStageChange, notifyMention } from "@/lib/deals/notify";
 import { ingestDealEmails } from "@/lib/deals/emails";
+import { researchReportLink } from "@/lib/deals/research-link";
 import { isStage } from "@/lib/deals/stages";
 import { assignableUsers } from "@/lib/deals/assignees";
 
@@ -33,9 +34,15 @@ async function gate(_req: NextRequest): Promise<{ me: AppUser | null; err: NextR
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const { me, err } = await gate(req);
   if (err) return err;
-  const deal = await getDeal(params.id);
+  let deal = await getDeal(params.id);
   if (!deal) return NextResponse.json({ error: "Not found" }, { status: 404 });
   if (!mayTouch(me!, deal)) return NextResponse.json({ error: "No access to this deal" }, { status: 403 });
+  // Rule: if a Domain Owner report has been run for this exact domain, auto-link it.
+  // Fill (once) when the deal has no report link yet + a completed run exists.
+  if (!deal.report_link) {
+    const link = await researchReportLink(deal.domain);
+    if (link) { try { deal = await updateDeal(deal.id, { report_link: link }, null); } catch { /* keep unlinked */ } }
+  }
   const [activity, emails, assignees] = await Promise.all([listActivity(deal.id), listDealEmails(deal.id), assignableUsers()]);
   return NextResponse.json({ ok: true, deal, activity, emails, assignees, me: me!.email });
 }
