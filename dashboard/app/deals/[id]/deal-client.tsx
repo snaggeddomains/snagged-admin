@@ -160,7 +160,7 @@ export default function DealClient({ id }: { id: string }) {
         <h1 style={{ fontSize: "1.5rem", margin: 0 }}>{d.domain}</h1>
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
           {d.report_link && <a href={d.report_link} target="_blank" rel="noreferrer" style={{ fontSize: 13, fontWeight: 600 }}>📄 Research report ↗</a>}
-          {!editing && d.status === "open" && <button style={{ ...btn, color: "#1f7a5a", borderColor: "#1f7a5a" }} onClick={() => setWonOpen(true)}>✓ Close won</button>}
+          {!editing && d.status === "open" && d.stage === STAGES[STAGES.length - 1] && <button style={{ ...btn, color: "#1f7a5a", borderColor: "#1f7a5a" }} onClick={() => setWonOpen(true)}>✓ Close won</button>}
           {!editing
             ? <button style={btn} onClick={() => { setForm(d); setEditing(true); }}>✎ Edit</button>
             : <><button style={btn} onClick={() => { setForm(d); setEditing(false); }} disabled={saving}>Cancel</button><button style={btnPrimary} onClick={save} disabled={saving}>{saving ? "Saving…" : "Save"}</button></>}

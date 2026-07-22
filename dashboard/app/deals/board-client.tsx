@@ -228,7 +228,8 @@ export default function BoardClient() {
           dragged card's current status (reopen a lost/archived one, archive/lose an open one). */}
       {dragId && (
         <div style={{ display: "flex", gap: 10, marginTop: 4, paddingBottom: 8 }}>
-          {dragDeal?.status !== "won" && (
+          {/* Close Won only at the final stage (Negotiating) — not at every step. */}
+          {dragDeal?.status === "open" && dragDeal?.stage === STAGES[STAGES.length - 1] && (
             <DropZone label="✓ Close Won" hint="confirm the details" color="#1f7a5a"
               onDrop={() => { const id = dragId; setDragId(null); setDragOver(null); setWonFor(id); }} />
           )}
