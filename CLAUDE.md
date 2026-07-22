@@ -95,6 +95,27 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
   `RESEARCH_INTERNAL_SECRET` + `SLACK_BOT_TOKEN` (for DMs). Grant `deals` per-user, `deals.assignable`
   to deal-takers, `deals.inbox`/`deals.all` as needed; admins auto-pass. Optional `DASHBOARD_BASE`
   (default app.snagged.com).
+- **Auto-research + dossier links + convert cleanup (2026-07-22).** Three follow-ups so a deal
+  always ties back to its research/lead:
+  - **Auto-kick a FREE research report for report-less deals.** Rule: "if a Domain Owner report
+    has been run, auto-link it" — now extended so a manually-added deal (or any domain we've never
+    researched) *gets* a report. `lib/deals/research-link.ts` `kickResearchRun(domain)` POSTs the
+    research app's new internal endpoint `POST /api/internal/kick-research` (`x-internal-secret`,
+    `RESEARCH_INTERNAL_BASE` default `https://research.snagged.com`) which dedupes + `createRun` +
+    fires the SHALLOW (free pre-flight) pass — no paid credits. Called on **create** (deals POST)
+    and once from the **detail GET** when there's still no run (so existing report-less deals like
+    donuts.com start one on view); `researchReportLink` (accepts queued/running/done) then fills
+    the link on a later view. Fail-open (no secret / down → link just fills later or never).
+  - **Lead dossier link on the deal detail.** The detail GET returns `dossierUrl` =
+    `${RESEARCH_APP_BASE}/#/lead/<lead_key>` when the deal carries a `lead_key` (i.e. it came from a
+    Buy-Side inquiry); `deal-client.tsx` header shows a **👤 Lead dossier ↗** link next to the
+    research report. Manually-added deals have no lead_key → no dossier link (nothing to link).
+  - **Convert drops the inquiry immediately.** `inquiries-client.tsx` `onDone` now optimistically
+    removes the converted row from the queue (server already auto-dismisses it) instead of leaving
+    it as "Added — open" until a manual refresh — unless "Show dismissed" is on.
+  - **Buyer-name typeahead (returning clients).** New-deal modal buyer-name field type-aheads
+    against prior deals: `GET /api/admin/deals?buyers=<q>` → `searchBuyers` (store.ts, distinct
+    known buyers by name/email ilike) → pick fills buyer name/email/company. No new table/env.
 - **NEXT (Ph3):** email sequences (outbound) + richer pipeline reporting. Existing Pipedrive
   test deals are NOT migrated (day-one) — start fresh natively.
 

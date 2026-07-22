@@ -386,6 +386,31 @@ function NewDealModal({ assignees, onClose, onCreated }: { assignees: Assignee[]
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const set = (k: string, v: string) => setF((s) => ({ ...s, [k]: v }));
+
+  // Returning-client typeahead: look up known buyers from prior deals as you type the name.
+  const [buyerHits, setBuyerHits] = useState<{ name: string | null; email: string | null; company: string | null }[]>([]);
+  const [buyerOpen, setBuyerOpen] = useState(false);
+  const pickedRef = useRef(false);
+  useEffect(() => {
+    if (pickedRef.current) { pickedRef.current = false; return; }
+    const term = f.buyerName.trim();
+    if (term.length < 2) { setBuyerHits([]); return; }
+    let dead = false;
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/admin/deals?buyers=${encodeURIComponent(term)}`);
+        const j = await res.json();
+        if (!dead && Array.isArray(j.buyers)) { setBuyerHits(j.buyers); setBuyerOpen(true); }
+      } catch { /* ignore */ }
+    }, 220);
+    return () => { dead = true; clearTimeout(t); };
+  }, [f.buyerName]);
+  const pickBuyer = (b: { name: string | null; email: string | null; company: string | null }) => {
+    pickedRef.current = true;
+    setF((s) => ({ ...s, buyerName: b.name || s.buyerName, buyerEmail: b.email || s.buyerEmail, orgName: b.company || s.orgName }));
+    setBuyerOpen(false);
+    setBuyerHits([]);
+  };
   const submit = async () => {
     if (!f.domain.trim()) { setError("Domain is required."); return; }
     setBusy(true); setError(null);
@@ -403,7 +428,23 @@ function NewDealModal({ assignees, onClose, onCreated }: { assignees: Assignee[]
         <label style={fieldLabel}>Target domain *</label>
         <input style={input} value={f.domain} onChange={(e) => set("domain", e.target.value)} placeholder="example.com" />
         <label style={fieldLabel}>Buyer name</label>
-        <input style={input} value={f.buyerName} onChange={(e) => set("buyerName", e.target.value)} />
+        <div style={{ position: "relative" }}>
+          <input style={input} value={f.buyerName} autoComplete="off"
+            onChange={(e) => set("buyerName", e.target.value)}
+            onFocus={() => { if (buyerHits.length) setBuyerOpen(true); }}
+            onBlur={() => setTimeout(() => setBuyerOpen(false), 150)} />
+          {buyerOpen && buyerHits.length > 0 && (
+            <div style={{ position: "absolute", top: "100%", left: 0, right: 0, zIndex: 10, background: "var(--paper,#fff)", border: "1px solid var(--line,#e3ddcf)", borderRadius: 8, marginTop: 3, boxShadow: "0 6px 18px rgba(20,25,30,0.12)", maxHeight: 220, overflowY: "auto" }}>
+              {buyerHits.map((b, i) => (
+                <button key={`${b.email || b.name}-${i}`} type="button" onMouseDown={(e) => { e.preventDefault(); pickBuyer(b); }}
+                  style={{ display: "block", width: "100%", textAlign: "left", padding: "7px 10px", background: "transparent", border: "none", borderBottom: i < buyerHits.length - 1 ? "1px solid var(--line,#eee6d6)" : "none", cursor: "pointer", fontSize: 13 }}>
+                  <span style={{ fontWeight: 600 }}>{b.name || b.email}</span>
+                  {(b.email || b.company) && <span style={{ color: "var(--navy-2,#8a94a0)" }}>{" · "}{[b.email, b.company].filter(Boolean).join(" · ")}</span>}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
         <label style={fieldLabel}>Buyer email</label>
         <input style={input} value={f.buyerEmail} onChange={(e) => set("buyerEmail", e.target.value)} />
         <label style={fieldLabel}>Company</label>

@@ -225,6 +225,33 @@ export async function findDealByDomain(domain: string): Promise<Deal | null> {
   return rows.find((r) => r.status === "open") || rows[0];
 }
 
+// Buyer typeahead — known buyers from prior deals (returning clients). Matches name or
+// email, dedupes by (name|email), newest first. Powers the New-deal / convert autocomplete.
+export type BuyerSuggestion = { name: string | null; email: string | null; company: string | null };
+export async function searchBuyers(q: string, limit = 8): Promise<BuyerSuggestion[]> {
+  const s = String(q || "").trim();
+  if (s.length < 2) return [];
+  const like = `%${s}%`;
+  const { data, error } = await getDb()
+    .from(DEALS)
+    .select("buyer_name,buyer_email,org_name,created_at")
+    .or(`buyer_name.ilike.${like},buyer_email.ilike.${like}`)
+    .not("buyer_name", "is", null)
+    .order("created_at", { ascending: false })
+    .limit(200);
+  if (error || !data) return [];
+  const seen = new Set<string>();
+  const out: BuyerSuggestion[] = [];
+  for (const r of data as { buyer_name: string | null; buyer_email: string | null; org_name: string | null }[]) {
+    const key = `${(r.buyer_name || "").toLowerCase()}|${(r.buyer_email || "").toLowerCase()}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({ name: r.buyer_name, email: r.buyer_email, company: r.org_name });
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
 export async function getDeal(id: string): Promise<Deal | null> {
   const { data, error } = await getDb().from(DEALS).select("*").eq("id", id).maybeSingle();
   if (error) throw new Error(`getDeal: ${error.message}`);

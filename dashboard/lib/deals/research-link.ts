@@ -7,6 +7,28 @@
 import { getDb } from "../supabase";
 
 const RESEARCH_BASE = (process.env.RESEARCH_APP_BASE || "https://app.snagged.com/research").replace(/\/+$/, "");
+const RESEARCH_INTERNAL_BASE = (process.env.RESEARCH_INTERNAL_BASE || "https://research.snagged.com").replace(/\/+$/, "");
+
+// Kick a FREE Domain Owner pre-flight report for a domain so a report-less deal (manually
+// added, or one whose domain we've never researched) gets a report to auto-link. Deduped on
+// the research side — safe to call repeatedly. Best-effort + non-blocking: no secret / a
+// failed call just means the link fills in later (or never), never blocks the deal. Free
+// pre-flight only — no paid credits spent.
+export async function kickResearchRun(domain: string): Promise<void> {
+  const d = String(domain || "").trim().toLowerCase();
+  if (!d || !d.includes(".")) return;
+  const secret = process.env.RESEARCH_INTERNAL_SECRET;
+  if (!secret) return;
+  try {
+    await fetch(`${RESEARCH_INTERNAL_BASE}/api/internal/kick-research`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-internal-secret": secret },
+      body: JSON.stringify({ domain: d }),
+    });
+  } catch {
+    /* best-effort — report auto-links later once a run exists */
+  }
+}
 
 export async function researchReportLink(domain: string): Promise<string | null> {
   const d = String(domain || "").trim().toLowerCase();

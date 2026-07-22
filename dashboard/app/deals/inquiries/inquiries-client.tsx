@@ -169,7 +169,18 @@ export default function InquiriesClient() {
           inquiry={active}
           meta={meta}
           onClose={() => setActive(null)}
-          onDone={(res) => { setResults((m) => ({ ...m, [active.leadKey]: res })); setActive(null); if (res.ok) load(); /* auto-dismissed on convert → drops off the queue */ }}
+          onDone={(res) => {
+            const key = active.leadKey;
+            setResults((m) => ({ ...m, [key]: res }));
+            setActive(null);
+            if (res.ok) {
+              // Converting resolves the inquiry (the server auto-dismisses it) — drop it from
+              // the queue right away so it "auto-completes" instead of lingering as "Added",
+              // then reload to reconcile (unless "Show dismissed" is on, where it should stay).
+              if (!showDismissed) setData((d) => (d ? { ...d, inquiries: d.inquiries.filter((i) => i.leadKey !== key) } : d));
+              load();
+            }
+          }}
         />
       )}
     </main>

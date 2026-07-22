@@ -8,13 +8,16 @@ import { userCan, userCanAction, type AppUser } from "@/lib/permissions";
 import { getDeal, updateDeal, addActivity, listActivity, listDealEmails, type Deal } from "@/lib/deals/store";
 import { notifyAssignment, notifyStageChange, notifyMention } from "@/lib/deals/notify";
 import { ingestDealEmails } from "@/lib/deals/emails";
-import { researchReportLink } from "@/lib/deals/research-link";
+import { researchReportLink, kickResearchRun } from "@/lib/deals/research-link";
 import { isStage } from "@/lib/deals/stages";
 import { assignableUsers } from "@/lib/deals/assignees";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 45;
+
+// Base for the research app's inbound-lead dossier deep-link (#/lead/<key>).
+const RESEARCH_APP_BASE = (process.env.RESEARCH_APP_BASE || "https://app.snagged.com/research").replace(/\/+$/, "");
 
 // May this user act on this deal? deals.all / admin → any; their own → yes; an unassigned
 // Inbox deal → only if they hold deals.inbox (so they can claim it).
@@ -38,13 +41,17 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   if (!deal) return NextResponse.json({ error: "Not found" }, { status: 404 });
   if (!mayTouch(me!, deal)) return NextResponse.json({ error: "No access to this deal" }, { status: 403 });
   // Rule: if a Domain Owner report has been run for this exact domain, auto-link it.
-  // Fill (once) when the deal has no report link yet + a completed run exists.
+  // Fill (once) when the deal has no report link yet + a run exists. If NO run exists
+  // yet (e.g. a manually-added deal for a domain we've never researched), kick a FREE
+  // pre-flight report so the link auto-fills on a later view — no button, no waiting.
   if (!deal.report_link) {
     const link = await researchReportLink(deal.domain);
     if (link) { try { deal = await updateDeal(deal.id, { report_link: link }, null); } catch { /* keep unlinked */ } }
+    else { await kickResearchRun(deal.domain); }
   }
+  const dossierUrl = deal.lead_key ? `${RESEARCH_APP_BASE}/#/lead/${deal.lead_key}` : null;
   const [activity, emails, assignees] = await Promise.all([listActivity(deal.id), listDealEmails(deal.id), assignableUsers()]);
-  return NextResponse.json({ ok: true, deal, activity, emails, assignees, me: me!.email });
+  return NextResponse.json({ ok: true, deal, dossierUrl, activity, emails, assignees, me: me!.email });
 }
 
 const EDITABLE = new Set([
