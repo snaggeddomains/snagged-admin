@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
         if (!body.id) return NextResponse.json({ error: "id required" }, { status: 400 });
         const r = await applyCrosslink(body.id, { publish: body.publish === true });
         if (!r.ok) return NextResponse.json({ error: r.error || "Insert failed" }, { status: 400 });
-        return NextResponse.json({ ok: true, published: !!r.published });
+        return NextResponse.json({ ok: true, published: !!r.published, alreadyLinked: !!r.alreadyLinked });
       }
       case "feedback": {
         if (!body.source_id || !body.target_id || (body.rating !== "up" && body.rating !== "down")) return NextResponse.json({ error: "source_id + target_id + rating(up|down) required" }, { status: 400 });

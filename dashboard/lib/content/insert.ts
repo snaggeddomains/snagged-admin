@@ -69,20 +69,51 @@ function flatten(html: string, skip: { headings?: boolean; anchors?: boolean }):
   return { flat, spans };
 }
 
-// Wrap the FIRST occurrence of `anchor` that sits in ordinary body text — not inside a heading,
-// not inside an existing link. Returns the rewritten HTML, or null if no linkable spot was found
-// (the phrase only appears in a heading, or its span would cross a block/heading/link boundary).
-export function wrapAnchor(html: string, anchor: string, slug: string): string | null {
+// Locate the FIRST linkable occurrence of `anchor` (ordinary body text — not a heading, not an
+// existing link) as a raw byte range, OR a precise reason it can't be placed (so the UI can say
+// WHY: only-in-heading / already-a-link / edited-out / spans-formatting, instead of one vague line).
+type Placement = { rawStart: number; rawEnd: number } | { reason: string };
+export function anchorPlacement(html: string, anchor: string): Placement {
   const needle = String(anchor || "").trim().replace(/\s+/g, " ").toLowerCase();
-  if (!needle) return null;
+  if (!needle) return { reason: "empty anchor" };
   const { flat, spans } = flatten(html, { headings: true, anchors: true });
   const i = flat.indexOf(needle);
-  if (i < 0) return null;
+  if (i >= 0) {
+    const rawStart = spans[i].rawStart, rawEnd = spans[i + needle.length - 1].rawEnd;
+    const inner = html.slice(rawStart, rawEnd);
+    // Never wrap across a block boundary, heading, or existing link (inline tags like <strong> are fine).
+    if (/<\/?(?:p|h[1-6]|ul|ol|li|blockquote|div|figure|a)\b/i.test(inner)) return { reason: "the anchor spans across paragraphs/formatting" };
+    return { rawStart, rawEnd };
+  }
+  // Couldn't place in body prose — narrow down why by relaxing each exclusion.
+  if (!flatten(html, {}).flat.includes(needle)) return { reason: "the anchor phrase is no longer in the post body (it may have been edited)" };
+  if (!flatten(html, { headings: true }).flat.includes(needle)) return { reason: "the anchor phrase only appears in a heading (headings aren't linked)" };
+  if (!flatten(html, { anchors: true }).flat.includes(needle)) return { reason: "the anchor phrase is already a link in the post" };
+  return { reason: "the anchor phrase spans across formatting" };
+}
+
+// Wrap the FIRST linkable occurrence of `anchor` in a link, or null if it can't be placed.
+export function wrapAnchor(html: string, anchor: string, slug: string): string | null {
+  const p = anchorPlacement(html, anchor);
+  if ("reason" in p) return null;
+  return `${html.slice(0, p.rawStart)}<a href="${postHref(slug)}">${html.slice(p.rawStart, p.rawEnd)}</a>${html.slice(p.rawEnd)}`;
+}
+
+// True if the anchor phrase is ALREADY hyperlinked to the target post (the cross-link effectively
+// exists — e.g. an episode-list item whose domain name already links to that post). We then treat
+// the opportunity as done rather than erroring or double-linking.
+export function alreadyLinkedToTarget(html: string, anchor: string, targetSlug: string): boolean {
+  const slug = String(targetSlug || "").trim();
+  if (!slug) return false;
+  const needle = String(anchor || "").trim().replace(/\s+/g, " ").toLowerCase();
+  if (!needle) return false;
+  const { flat, spans } = flatten(html, {}); // include existing-link text
+  const i = flat.indexOf(needle);
+  if (i < 0) return false;
   const rawStart = spans[i].rawStart, rawEnd = spans[i + needle.length - 1].rawEnd;
-  const inner = html.slice(rawStart, rawEnd);
-  // Never wrap across a block boundary, a heading, or an existing link (inline tags like <strong> are fine).
-  if (/<\/?(?:p|h[1-6]|ul|ol|li|blockquote|div|figure|a)\b/i.test(inner)) return null;
-  return `${html.slice(0, rawStart)}<a href="${postHref(slug)}">${inner}</a>${html.slice(rawEnd)}`;
+  const region = html.slice(Math.max(0, rawStart - 240), rawEnd + 40); // catch an <a> opening just before the phrase
+  const esc = slug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`href=["'][^"']*/post/${esc}`, "i").test(region);
 }
 
 // Turn a plain sentence into HTML with `anchor` (a substring of it) wrapped in a link.
@@ -128,7 +159,7 @@ function resolveBodySlug(fields: WfField[], fieldData: Record<string, unknown>):
   return slug;
 }
 
-export type ApplyResult = { ok: boolean; error?: string; published?: boolean; preview?: string };
+export type ApplyResult = { ok: boolean; error?: string; published?: boolean; preview?: string; alreadyLinked?: boolean };
 
 // Apply one opportunity to its source post. publish=false stages the edit in the CMS (review in
 // Webflow Designer / publish later); publish=true also pushes it live. dryRun returns the rewrite
@@ -152,11 +183,21 @@ export async function applyCrosslink(id: string, opts: { publish: boolean; dryRu
   const html = String(fieldData[bodySlug] || "");
   if (!html) return { ok: false, error: "Source post body is empty" };
 
+  // If the phrase is already linked to this exact target, the cross-link already exists → mark done.
+  if (opp.kind !== "add_sentence" && alreadyLinkedToTarget(html, opp.anchor || "", opp.target_slug || "")) {
+    await getDb().from(LINKS).update({ status: "inserted" }).eq("id", id);
+    return { ok: true, published: false, alreadyLinked: true };
+  }
   const rewritten = opp.kind === "add_sentence"
     ? insertSentence(html, opp.new_sentence || "", opp.anchor || "", opp.context || "", opp.target_slug || "")
     : wrapAnchor(html, opp.anchor || "", opp.target_slug || "");
   if (rewritten == null) {
-    return { ok: false, error: opp.kind === "add_sentence" ? "Could not build the new sentence" : "Couldn't place the link in body prose (the phrase may only appear in a heading or across formatting) — insert manually" };
+    let reason = "could not build the new sentence";
+    if (opp.kind !== "add_sentence") {
+      const p = anchorPlacement(html, opp.anchor || "");
+      reason = "reason" in p ? p.reason : "couldn't place the link";
+    }
+    return { ok: false, error: `Couldn't insert — ${reason}. Insert manually.` };
   }
   if (rewritten === html) return { ok: false, error: "No change produced" };
   if (opts.dryRun) return { ok: true, preview: rewritten };

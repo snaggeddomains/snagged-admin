@@ -363,7 +363,12 @@ highly-relevant only, with the exact anchor phrase to link.
   collapsed whitespace, or an inline `<strong>` inside it is found and wrapped (splicing into the raw
   html; inline tags inside the span survive). Guard rejects a span that would cross a block/heading/
   existing-link boundary → "insert manually". (The first cut matched raw HTML and errored on most
-  rows.) **Gated by `admin.webflow`** (write
+  rows.) **Precise failure reasons + already-linked auto-complete (2026-07-23):** `anchorPlacement`
+  reports WHY a phrase can't be placed (edited-out / only-in-a-heading / already-a-link / spans-
+  formatting) so the UI error is specific, not one vague line. And `alreadyLinkedToTarget` detects
+  when the phrase is ALREADY hyperlinked to that exact target (e.g. an episode-list item whose domain
+  name already links to the post) → the cross-link already exists, so `applyCrosslink` marks it
+  `inserted` (flips to ✓) instead of erroring/double-linking. **Gated by `admin.webflow`** (write
   token + permission) — the GET returns `canInsert`; the UI shows **Insert** (staged draft, safe/
   calibration default) + **＋ Live** (publish now) per row, or "✓ Inserted". Env `CONTENT_POST_BASE`
   (default `https://www.snagged.com/post`). Tested: token-walk wrap/insert verified on heading/
