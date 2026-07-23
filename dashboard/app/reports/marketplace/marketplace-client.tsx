@@ -88,7 +88,7 @@ export default function MarketplaceClient() {
 
   return (
     <main>
-      <h1 style={{ fontSize: "1.25rem", marginBottom: 4 }}>Marketplace Reporting</h1>
+      <h1 style={{ fontSize: "1.25rem", marginBottom: 4 }}>Marketplace Reports</h1>
       <p className="section-blurb" style={{ marginTop: 0 }}>
         Every domain on <strong>snagged.com/marketplace</strong> with its GA4 traffic for the selected window.
         <strong> Inquiry starts</strong> = the inquiry form was opened on that listing; <strong>Inquiries</strong> = completed

@@ -15,7 +15,7 @@ const BTN: CSSProperties = { padding: "5px 11px", fontSize: 12.5, borderRadius: 
 const asText = (v: unknown): string => v == null ? "" : typeof v === "boolean" ? (v ? "Yes" : "No") : typeof v === "object" ? JSON.stringify(v) : String(v);
 const plain = (s: string): string => s.replace(/<[^>]*>/g, " ").replace(/&nbsp;/gi, " ").replace(/&amp;/gi, "&").replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/&#39;|&rsquo;|&lsquo;/gi, "'").replace(/&quot;/gi, '"').replace(/\s+/g, " ").trim();
 const disp = (v: unknown): string => plain(asText(v));
-const cell: CSSProperties = { padding: "7px 10px", borderBottom: "1px solid var(--line,#eee)", verticalAlign: "top" };
+const cell: CSSProperties = { padding: "7px 10px", borderBottom: "1px solid var(--line,#eee)", verticalAlign: "middle" };
 const th: CSSProperties = { ...cell, textAlign: "left", color: "var(--muted,#888)", fontWeight: 700, whiteSpace: "nowrap", background: "var(--paper-2,#f7f5ef)" };
 const stateOf = (it: WfItem): "published" | "draft" | "archived" => it.isArchived ? "archived" : it.isDraft ? "draft" : "published";
 const money = (v: unknown): string => { const n = Number(String(v).replace(/[^0-9.]/g, "")); return Number.isFinite(n) && n > 0 && String(v).trim() !== "" ? `$${n.toLocaleString()}` : disp(v); };
@@ -33,8 +33,8 @@ function Pills({ raw }: { raw: string }) {
   const parts = raw.split(/,\s*/).map((p) => p.trim()).filter(Boolean);
   if (!parts.length) return <span className="muted">—</span>;
   return (
-    <span style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
-      {parts.map((p, i) => <span key={i} style={{ fontSize: 11.5, fontWeight: 600, background: "#eef2f4", color: "var(--navy,#254254)", border: "1px solid #dbe4e8", borderRadius: 999, padding: "1px 8px" }}>{p}</span>)}
+    <span style={{ display: "flex", flexWrap: "nowrap", gap: 4, overflow: "hidden", maxWidth: 300 }}>
+      {parts.map((p, i) => <span key={i} style={{ fontSize: 11.5, fontWeight: 600, background: "#eef2f4", color: "var(--navy,#254254)", border: "1px solid #dbe4e8", borderRadius: 999, padding: "1px 8px", whiteSpace: "nowrap" }}>{p}</span>)}
     </span>
   );
 }
@@ -119,8 +119,8 @@ export default function MasterClient() {
       {/* Grow the centered column to full window width so the wide table doesn't cut off. */}
       <div data-wide-page hidden />
       <h1 style={{ fontSize: "1.25rem", marginBottom: 4 }}>
-        Marketplace Master
-        <span style={{ marginLeft: 10, fontSize: 11.5, fontWeight: 700, color: "#146c8f", background: "#e6f2f7", border: "1px solid #bfe0eb", borderRadius: 999, padding: "2px 9px", verticalAlign: "middle" }}>◆ Source: Webflow CMS</span>
+        Marketplace CMS
+        <span style={{ marginLeft: 10, fontSize: 11.5, fontWeight: 700, color: "#146c8f", background: "#e6f2f7", border: "1px solid #bfe0eb", borderRadius: 999, padding: "2px 9px", verticalAlign: "middle" }}>◆ Source: Webflow</span>
       </h1>
       <p className="section-blurb" style={{ marginTop: 0 }}>The Marketplace domains from Webflow{data?.collectionName ? ` (${data.collectionName})` : ""} — asking price, minimum offer, descriptions, flags, extension &amp; categories. Read-only.</p>
 
@@ -173,8 +173,13 @@ export default function MasterClient() {
                   <td style={cell}><StatusPill s={stateOf(it)} /></td>
                   {cols.map((c) => {
                     const v = it.fieldData[c.field.slug];
+                    // Keep rows compact: text columns truncate to a single line with an ellipsis
+                    // (full text on hover / in the Edit modal).
+                    const textStyle: CSSProperties = c.kind === "text"
+                      ? { maxWidth: 340, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "var(--navy-2,#4a5b66)" }
+                      : { whiteSpace: "nowrap" };
                     return (
-                      <td key={c.field.id} style={{ ...cell, ...(c.kind === "text" ? { maxWidth: 320, whiteSpace: "normal", wordBreak: "break-word", color: "var(--navy-2,#4a5b66)" } : { whiteSpace: "nowrap" }) }}>
+                      <td key={c.field.id} style={{ ...cell, ...textStyle }} title={(c.kind === "text" || c.kind === "pills") ? disp(v) : undefined}>
                         {c.kind === "bool" ? <BoolPill on={!!v} />
                           : c.kind === "pills" ? <Pills raw={disp(v)} />
                             : c.kind === "money" ? (money(v) || <span className="muted">—</span>)
