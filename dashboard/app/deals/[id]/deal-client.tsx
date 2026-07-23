@@ -15,7 +15,8 @@ type Deal = {
 type Activity = { id: string; user_email: string | null; kind: string; body: string | null; meta: Record<string, unknown> | null; created_at: string };
 type Email = { id: string; mailbox: string | null; subject: string | null; snippet: string | null; body: string | null; from_addr: string | null; msg_date: string | null };
 type Assignee = { email: string; name: string };
-type Resp = { ok: boolean; deal: Deal; dossierUrl: string | null; activity: Activity[]; emails: Email[]; assignees: Assignee[]; me: string; error?: string };
+type AddlDomain = { domain: string; report: string | null };
+type Resp = { ok: boolean; deal: Deal; dossierUrl: string | null; additional?: AddlDomain[]; activity: Activity[]; emails: Email[]; assignees: Assignee[]; me: string; error?: string };
 
 const card: CSSProperties = { border: "1px solid var(--line,#e3ddcf)", borderRadius: 12, padding: 16, background: "var(--paper,#fff)", marginBottom: 14 };
 const lbl: CSSProperties = { display: "block", fontSize: 11.5, fontWeight: 700, color: "var(--navy-2,#4a5b66)", margin: "9px 0 3px", textTransform: "uppercase", letterSpacing: ".02em" };
@@ -217,7 +218,20 @@ export default function DealClient({ id }: { id: string }) {
             <RVal l="Budget range" v={d.budget_range} />
             <div style={{ display: "flex", gap: 24 }}><RVal l="Appraisal $" v={d.appraisal_value != null ? usd(d.appraisal_value) : null} /><RVal l="Asking $" v={d.asking_price != null ? usd(d.asking_price) : null} /></div>
             <RVal l="Source" v={d.source} />
-            <RVal l="Additional domains" v={d.additional_domains} />
+            {/* Each additional domain on its own line, with its own research report link. */}
+            <div style={{ marginTop: 8 }}>
+              <span style={lbl}>Additional domains</span>
+              {data.additional && data.additional.length ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                  {data.additional.map((a) => (
+                    <div key={a.domain} style={{ ...readVal, display: "flex", gap: 10, alignItems: "baseline", flexWrap: "wrap" }}>
+                      <span>{a.domain}</span>
+                      {a.report && <a href={a.report} style={{ fontSize: 12.5, fontWeight: 600 }}>📄 Open report ↗</a>}
+                    </div>
+                  ))}
+                </div>
+              ) : <div style={{ ...readVal, color: "var(--muted,#aab)" }}>—</div>}
+            </div>
             {/* Compact research-report link — replaces the long raw URL. */}
             <RVal l="Research report" v={d.report_link ? "Open report ↗" : null} href={d.report_link || undefined} emoji="📄" />
             <RVal l="Likely owner" v={d.likely_owner} />

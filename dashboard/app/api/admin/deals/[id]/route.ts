@@ -62,8 +62,17 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     }
   }
   const dossierUrl = deal.lead_key ? `${RESEARCH_APP_BASE}/#/lead/${deal.lead_key}` : null;
+  // A deal can name several domains — resolve a research report for EACH additional domain too
+  // (kick a free pre-flight for any we haven't researched), so each links its own report.
+  const addlDomains = String(deal.additional_domains || "")
+    .split(/[,;\s]+/).map((d) => d.trim().toLowerCase()).filter((d) => d.includes("."));
+  const additional = await Promise.all([...new Set(addlDomains)].map(async (d) => {
+    const report = await researchReportLink(d);
+    if (!report) await kickResearchRun(d); // fills on a later view
+    return { domain: d, report };
+  }));
   const [activity, emails, assignees] = await Promise.all([listActivity(deal.id), listDealEmails(deal.id), assignableUsers()]);
-  return NextResponse.json({ ok: true, deal, dossierUrl, activity, emails, assignees, me: me!.email });
+  return NextResponse.json({ ok: true, deal, dossierUrl, additional, activity, emails, assignees, me: me!.email });
 }
 
 const EDITABLE = new Set([
