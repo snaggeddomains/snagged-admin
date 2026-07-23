@@ -253,6 +253,11 @@ and polluted the tracked list. Three fixes in `sources/gmail.ts` + `canonical.ts
   pure regexes in `canonical.ts`; tune the term lists there.
 - **Going-forward only** — existing polluted rows in `client_domains` persist (upsert never
   deletes); dismiss them in the report or prune manually.
+- **Email distribution (2026-07-23):** the daily overlap email (`app/api/cron/client-overlap`)
+  goes to the `reports.client_overlap`-permissioned users PLUS an always-include set —
+  `CLIENT_OVERLAP_EXTRA_EMAILS` (comma-separated, default `brian@snagged.com`), deduped into the
+  `to`. So Brian gets the email regardless of his report permission (the bell notification stays
+  permission-gated). Slack still → `SLACK_CHANNEL_CLIENT_OVERLAP`.
 
 ---
 

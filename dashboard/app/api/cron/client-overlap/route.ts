@@ -43,10 +43,15 @@ export async function GET(req: NextRequest) {
     }
     // Dedicated client-overlap channel when set (C0BJ51Q4Q77); else the shared fallback.
     const slackOk = await slackAlert(digest.slack, process.env.SLACK_CHANNEL_CLIENT_OVERLAP);
+    // Always-include recipients (beyond the permission-gated users) — Brian is on the
+    // distribution regardless of his report permission. Env-overridable, comma-separated.
+    const extraEmails = (process.env.CLIENT_OVERLAP_EXTRA_EMAILS || "brian@snagged.com")
+      .split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
+    const emailTo = [...new Set([...recipients.map((r) => r.email.toLowerCase()), ...extraEmails])];
     let emailed = 0;
-    if (emailConfigured() && recipients.length) {
-      const ok = await sendEmail({ to: recipients.map((r) => r.email), subject: digest.subject, html: digest.html });
-      if (ok) emailed = recipients.length;
+    if (emailConfigured() && emailTo.length) {
+      const ok = await sendEmail({ to: emailTo, subject: digest.subject, html: digest.html });
+      if (ok) emailed = emailTo.length;
     }
     await createNotification(recipients.map((r) => r.id).filter(Boolean), {
       kind: "client_overlap",
