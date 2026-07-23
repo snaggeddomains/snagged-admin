@@ -1,11 +1,11 @@
 {
-  "dropped_count": 43,
-  "fresh_added": 43,
-  "generated_at": "2026-07-22T08:19:44.698402+00:00",
+  "dropped_count": 3,
+  "fresh_added": 3,
+  "generated_at": "2026-07-23T08:29:44.691505+00:00",
   "label": "Afternic",
-  "new_count": 43,
-  "price_change_count": 0,
-  "running_total_after": 4103,
+  "new_count": 3,
+  "price_change_count": 1,
+  "running_total_after": 4112,
   "slack_posted": true,
   "source": "afternic",
   "status": "ok"
