@@ -1,22 +1,15 @@
 {
   "capped": false,
-  "count": 11,
+  "count": 6,
   "domains": [
-    "efficiently.ai",
-    "disregard.ai",
-    "sama.com",
-    "bilingual.ai",
-    "fulfillment.ai",
-    "frees.ai",
-    "clique.ai",
-    "piccolo.ai",
-    "hosted.org",
-    "fond.org",
-    "sprinter.org"
+    "morocco.com",
+    "wilt.com",
+    "identifier.ai",
+    "statutory.co",
+    "interventions.co",
+    "carolinas.co"
   ],
-  "generated_at": "2026-07-22T09:23:30.292975+00:00",
-  "mub": [
-    "sama.com"
-  ],
+  "generated_at": "2026-07-23T09:22:37.826492+00:00",
+  "mub": [],
   "source": "atom_daily"
 }

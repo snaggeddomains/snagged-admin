@@ -1,5 +1,625 @@
 [
   {
+    "domain": "mailingtape.com",
+    "price": null
+  },
+  {
+    "domain": "repaycollege.com",
+    "price": null
+  },
+  {
+    "domain": "puppyvet.com",
+    "price": null
+  },
+  {
+    "domain": "organicraised.com",
+    "price": null
+  },
+  {
+    "domain": "lostrecordings.com",
+    "price": null
+  },
+  {
+    "domain": "hondurasblog.com",
+    "price": null
+  },
+  {
+    "domain": "hipcode.com",
+    "price": null
+  },
+  {
+    "domain": "faillisted.com",
+    "price": null
+  },
+  {
+    "domain": "exoticbar.com",
+    "price": null
+  },
+  {
+    "domain": "diabeticcheck.com",
+    "price": null
+  },
+  {
+    "domain": "dallasbased.com",
+    "price": null
+  },
+  {
+    "domain": "commodityfirm.com",
+    "price": null
+  },
+  {
+    "domain": "casperweather.com",
+    "price": null
+  },
+  {
+    "domain": "cashur.com",
+    "price": null
+  },
+  {
+    "domain": "cairoblog.com",
+    "price": null
+  },
+  {
+    "domain": "boliviablog.com",
+    "price": null
+  },
+  {
+    "domain": "belgiumblog.com",
+    "price": null
+  },
+  {
+    "domain": "ageingserum.com",
+    "price": null
+  },
+  {
+    "domain": "ageingformula.com",
+    "price": null
+  },
+  {
+    "domain": "tulsablog.com",
+    "price": null
+  },
+  {
+    "domain": "trickgum.com",
+    "price": null
+  },
+  {
+    "domain": "trickdice.com",
+    "price": null
+  },
+  {
+    "domain": "tampabased.com",
+    "price": null
+  },
+  {
+    "domain": "rewindaging.com",
+    "price": null
+  },
+  {
+    "domain": "rewindage.com",
+    "price": null
+  },
+  {
+    "domain": "publicbuses.com",
+    "price": null
+  },
+  {
+    "domain": "pigthree.com",
+    "price": null
+  },
+  {
+    "domain": "phoenixbased.com",
+    "price": null
+  },
+  {
+    "domain": "packingchips.com",
+    "price": null
+  },
+  {
+    "domain": "obsceneshirts.com",
+    "price": null
+  },
+  {
+    "domain": "mosquitorings.com",
+    "price": null
+  },
+  {
+    "domain": "iraoption.com",
+    "price": null
+  },
+  {
+    "domain": "industrialrags.com",
+    "price": null
+  },
+  {
+    "domain": "gasmedications.com",
+    "price": null
+  },
+  {
+    "domain": "formulayouth.com",
+    "price": null
+  },
+  {
+    "domain": "feepass.com",
+    "price": null
+  },
+  {
+    "domain": "custardmix.com",
+    "price": null
+  },
+  {
+    "domain": "conduitcutter.com",
+    "price": null
+  },
+  {
+    "domain": "buttbleaching.com",
+    "price": null
+  },
+  {
+    "domain": "baggedcandy.com",
+    "price": null
+  },
+  {
+    "domain": "agingserum.com",
+    "price": null
+  },
+  {
+    "domain": "ageserum.com",
+    "price": null
+  },
+  {
+    "domain": "adultdough.com",
+    "price": null
+  },
+  {
+    "domain": "youthformula.com",
+    "price": null
+  },
+  {
+    "domain": "wrinkleoil.com",
+    "price": null
+  },
+  {
+    "domain": "wildlifetrap.com",
+    "price": null
+  },
+  {
+    "domain": "wallbarometer.com",
+    "price": null
+  },
+  {
+    "domain": "vehicletent.com",
+    "price": null
+  },
+  {
+    "domain": "underwearset.com",
+    "price": null
+  },
+  {
+    "domain": "truckingtarp.com",
+    "price": null
+  },
+  {
+    "domain": "trentonweather.com",
+    "price": null
+  },
+  {
+    "domain": "tonguejack.com",
+    "price": null
+  },
+  {
+    "domain": "timingmodule.com",
+    "price": null
+  },
+  {
+    "domain": "thermaltee.com",
+    "price": null
+  },
+  {
+    "domain": "spraydust.com",
+    "price": null
+  },
+  {
+    "domain": "soldestates.com",
+    "price": null
+  },
+  {
+    "domain": "shreddocument.com",
+    "price": null
+  },
+  {
+    "domain": "shapingslips.com",
+    "price": null
+  },
+  {
+    "domain": "shapingslip.com",
+    "price": null
+  },
+  {
+    "domain": "seedgrinder.com",
+    "price": null
+  },
+  {
+    "domain": "saleforms.com",
+    "price": null
+  },
+  {
+    "domain": "roastingrack.com",
+    "price": null
+  },
+  {
+    "domain": "renthelicopter.com",
+    "price": null
+  },
+  {
+    "domain": "raisinloaf.com",
+    "price": null
+  },
+  {
+    "domain": "prunebutter.com",
+    "price": null
+  },
+  {
+    "domain": "premiumroast.com",
+    "price": null
+  },
+  {
+    "domain": "premain.com",
+    "price": null
+  },
+  {
+    "domain": "polyesterbag.com",
+    "price": null
+  },
+  {
+    "domain": "pettaxis.com",
+    "price": null
+  },
+  {
+    "domain": "pepperstick.com",
+    "price": null
+  },
+  {
+    "domain": "patchroof.com",
+    "price": null
+  },
+  {
+    "domain": "panamablog.com",
+    "price": null
+  },
+  {
+    "domain": "palmbracelets.com",
+    "price": null
+  },
+  {
+    "domain": "palmbracelet.com",
+    "price": null
+  },
+  {
+    "domain": "onionextract.com",
+    "price": null
+  },
+  {
+    "domain": "olympiaweather.com",
+    "price": null
+  },
+  {
+    "domain": "nicaraguablog.com",
+    "price": null
+  },
+  {
+    "domain": "nashvillebased.com",
+    "price": null
+  },
+  {
+    "domain": "mustardpackets.com",
+    "price": null
+  },
+  {
+    "domain": "musicbracelets.com",
+    "price": null
+  },
+  {
+    "domain": "musicbracelet.com",
+    "price": null
+  },
+  {
+    "domain": "moisturebar.com",
+    "price": null
+  },
+  {
+    "domain": "milwaukeebased.com",
+    "price": null
+  },
+  {
+    "domain": "memphisbased.com",
+    "price": null
+  },
+  {
+    "domain": "massagewheel.com",
+    "price": null
+  },
+  {
+    "domain": "maconweather.com",
+    "price": null
+  },
+  {
+    "domain": "limablog.com",
+    "price": null
+  },
+  {
+    "domain": "leasebillboard.com",
+    "price": null
+  },
+  {
+    "domain": "ketchuppackets.com",
+    "price": null
+  },
+  {
+    "domain": "jokesbook.com",
+    "price": null
+  },
+  {
+    "domain": "jawreduction.com",
+    "price": null
+  },
+  {
+    "domain": "istanbulblog.com",
+    "price": null
+  },
+  {
+    "domain": "instantniche.com",
+    "price": null
+  },
+  {
+    "domain": "imageretriever.com",
+    "price": null
+  },
+  {
+    "domain": "hirehelicopter.com",
+    "price": null
+  },
+  {
+    "domain": "hazardstrip.com",
+    "price": null
+  },
+  {
+    "domain": "hardbag.com",
+    "price": null
+  },
+  {
+    "domain": "happycuts.com",
+    "price": null
+  },
+  {
+    "domain": "glassadhesive.com",
+    "price": null
+  },
+  {
+    "domain": "gardeningspade.com",
+    "price": null
+  },
+  {
+    "domain": "fullaudience.com",
+    "price": null
+  },
+  {
+    "domain": "frenchlamp.com",
+    "price": null
+  },
+  {
+    "domain": "floorhoist.com",
+    "price": null
+  },
+  {
+    "domain": "erectmedia.com",
+    "price": null
+  },
+  {
+    "domain": "erectionoil.com",
+    "price": null
+  },
+  {
+    "domain": "erectiongel.com",
+    "price": null
+  },
+  {
+    "domain": "enzymemask.com",
+    "price": null
+  },
+  {
+    "domain": "earnfee.com",
+    "price": null
+  },
+  {
+    "domain": "earlymortgage.com",
+    "price": null
+  },
+  {
+    "domain": "dustspray.com",
+    "price": null
+  },
+  {
+    "domain": "dishpads.com",
+    "price": null
+  },
+  {
+    "domain": "dishpad.com",
+    "price": null
+  },
+  {
+    "domain": "dicetrick.com",
+    "price": null
+  },
+  {
+    "domain": "diabeticalert.com",
+    "price": null
+  },
+  {
+    "domain": "denverbased.com",
+    "price": null
+  },
+  {
+    "domain": "dailylinkage.com",
+    "price": null
+  },
+  {
+    "domain": "dailycure.com",
+    "price": null
+  },
+  {
+    "domain": "cryptoily.com",
+    "price": null
+  },
+  {
+    "domain": "crowdsim.com",
+    "price": null
+  },
+  {
+    "domain": "cosmeticgames.com",
+    "price": null
+  },
+  {
+    "domain": "cosmeticgame.com",
+    "price": null
+  },
+  {
+    "domain": "contourbra.com",
+    "price": null
+  },
+  {
+    "domain": "concreterake.com",
+    "price": null
+  },
+  {
+    "domain": "claimrebate.com",
+    "price": null
+  },
+  {
+    "domain": "citydetour.com",
+    "price": null
+  },
+  {
+    "domain": "chimneyseal.com",
+    "price": null
+  },
+  {
+    "domain": "chicagobased.com",
+    "price": null
+  },
+  {
+    "domain": "chicagoalert.com",
+    "price": null
+  },
+  {
+    "domain": "cementgrinder.com",
+    "price": null
+  },
+  {
+    "domain": "carvingtable.com",
+    "price": null
+  },
+  {
+    "domain": "calligraphyset.com",
+    "price": null
+  },
+  {
+    "domain": "buyalbum.com",
+    "price": null
+  },
+  {
+    "domain": "brassrecycling.com",
+    "price": null
+  },
+  {
+    "domain": "brassfinishing.com",
+    "price": null
+  },
+  {
+    "domain": "braliners.com",
+    "price": null
+  },
+  {
+    "domain": "bodywipe.com",
+    "price": null
+  },
+  {
+    "domain": "blistercream.com",
+    "price": null
+  },
+  {
+    "domain": "bakerycups.com",
+    "price": null
+  },
+  {
+    "domain": "bagelmix.com",
+    "price": null
+  },
+  {
+    "domain": "automotivejack.com",
+    "price": null
+  },
+  {
+    "domain": "aluminumbike.com",
+    "price": null
+  },
+  {
+    "domain": "aloeserum.com",
+    "price": null
+  },
+  {
+    "domain": "aleppopepper.com",
+    "price": null
+  },
+  {
+    "domain": "aircooker.com",
+    "price": null
+  },
+  {
+    "domain": "actorshomepage.com",
+    "price": null
+  },
+  {
+    "domain": "sinless.com",
+    "price": null
+  },
+  {
+    "domain": "surprisehotels.com",
+    "price": 1799.0
+  },
+  {
+    "domain": "arenafit.com",
+    "price": null
+  },
+  {
+    "domain": "macproperty.com",
+    "price": null
+  },
+  {
+    "domain": "headcutters.com",
+    "price": null
+  },
+  {
+    "domain": "greeners.com",
+    "price": null
+  },
+  {
+    "domain": "paochun.com",
+    "price": null
+  },
+  {
+    "domain": "zenchong.com",
+    "price": null
+  },
+  {
+    "domain": "niaore.com",
+    "price": null
+  },
+  {
+    "domain": "lanong.com",
+    "price": null
+  },
+  {
     "domain": "vastness.com",
     "price": null
   },
@@ -71713,7 +72333,7 @@
   },
   {
     "domain": "camsly.com",
-    "price": 8377.0
+    "price": 8000.0
   },
   {
     "domain": "kiwicares.com",
@@ -84498,10 +85118,6 @@
   {
     "domain": "labelgaming.com",
     "price": 3888.0
-  },
-  {
-    "domain": "judgmentchain.com",
-    "price": 1888.0
   },
   {
     "domain": "gustavopizza.com",
@@ -116156,10 +116772,6 @@
     "price": null
   },
   {
-    "domain": "brandorient.com",
-    "price": 7800.0
-  },
-  {
     "domain": "implying.com",
     "price": null
   },
@@ -143601,7 +144213,7 @@
   },
   {
     "domain": "blackvoters.ai",
-    "price": 90000.0
+    "price": null
   },
   {
     "domain": "wirelesscredit.com",
@@ -143769,7 +144381,7 @@
   },
   {
     "domain": "blackvoters.org",
-    "price": 50000.0
+    "price": null
   },
   {
     "domain": "contuse.com",
@@ -265845,7 +266457,7 @@
   },
   {
     "domain": "streamtap.com",
-    "price": 39500.0
+    "price": 19500.0
   },
   {
     "domain": "hyperretro.com",
@@ -278592,10 +279204,6 @@
     "price": 7800.0
   },
   {
-    "domain": "rebelism.com",
-    "price": 15000.0
-  },
-  {
     "domain": "realtorbrand.com",
     "price": 7800.0
   },
@@ -279742,10 +280350,6 @@
   {
     "domain": "downtownbank.com",
     "price": 60000.0
-  },
-  {
-    "domain": "dnareview.com",
-    "price": 24000.0
   },
   {
     "domain": "dieselbrand.com",
@@ -280949,7 +281553,7 @@
   },
   {
     "domain": "monsterboobs.com",
-    "price": 699.0
+    "price": 499.0
   },
   {
     "domain": "cityjungle.com",
@@ -290980,10 +291584,6 @@
     "price": 7500.0
   },
   {
-    "domain": "singlesorlando.com",
-    "price": 995.0
-  },
-  {
     "domain": "sarasotapool.com",
     "price": 1500.0
   },
@@ -294821,7 +295421,7 @@
   },
   {
     "domain": "greatbelts.com",
-    "price": 2495.0
+    "price": 2500.0
   },
   {
     "domain": "gotosarasota.com",
@@ -295197,7 +295797,7 @@
   },
   {
     "domain": "investjobs.com",
-    "price": null
+    "price": 7500.0
   },
   {
     "domain": "increasepenis.com",
@@ -296574,10 +297174,6 @@
   {
     "domain": "storagephilly.com",
     "price": null
-  },
-  {
-    "domain": "singlesaustin.com",
-    "price": 1250.0
   },
   {
     "domain": "sellcondo.com",
@@ -310681,7 +311277,7 @@
   },
   {
     "domain": "bootforum.com",
-    "price": 1999.0
+    "price": 1988.0
   },
   {
     "domain": "beamvault.com",
@@ -330728,10 +331324,6 @@
     "price": null
   },
   {
-    "domain": "bongsolutions.com",
-    "price": null
-  },
-  {
     "domain": "dubainetwork.co",
     "price": 4500.0
   },
@@ -332449,7 +333041,7 @@
   },
   {
     "domain": "uaetires.com",
-    "price": 15000.0
+    "price": 12000.0
   },
   {
     "domain": "tiredubai.com",
@@ -334357,7 +334949,7 @@
   },
   {
     "domain": "brickexperts.com",
-    "price": 999.0
+    "price": 699.0
   },
   {
     "domain": "neatlogo.com",
@@ -363858,10 +364450,6 @@
   {
     "domain": "laughingowl.com",
     "price": 3500.0
-  },
-  {
-    "domain": "landscapeboss.com",
-    "price": 3000.0
   },
   {
     "domain": "codingboss.com",

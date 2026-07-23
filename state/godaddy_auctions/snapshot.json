@@ -1,83 +1,74 @@
 [
   {
-    "bid_count": 5,
-    "domain": "6800.org",
-    "end_time_utc": "2026-07-22T16:37:00+00:00",
+    "bid_count": 0,
+    "domain": "palin.co",
+    "end_time_utc": "2026-07-23T16:13:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/6800-org-713843952?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/palin-co-714046815?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 19.0
+    "price": 1.0
   },
   {
-    "bid_count": 29,
-    "domain": "berkshire.net",
-    "end_time_utc": "2026-07-22T17:15:00+00:00",
+    "bid_count": 11,
+    "domain": "dfruit.co",
+    "end_time_utc": "2026-07-23T16:25:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/berkshire-net-713404162?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/dfruit-co-714044596?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 1025.0
+    "price": 1913.0
+  },
+  {
+    "bid_count": 38,
+    "domain": "rfpg.com",
+    "end_time_utc": "2026-07-23T16:26:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/rfpg-com-714027980?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 493.0
   },
   {
     "bid_count": 9,
-    "domain": "worle.com",
-    "end_time_utc": "2026-07-22T17:53:00+00:00",
+    "domain": "ckw.net",
+    "end_time_utc": "2026-07-23T17:10:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/ckw-net-714019207?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 166.0
+  },
+  {
+    "bid_count": 11,
+    "domain": "naija.org",
+    "end_time_utc": "2026-07-23T17:34:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/naija-org-713467903?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 51.0
+  },
+  {
+    "bid_count": 6,
+    "domain": "vono.co",
+    "end_time_utc": "2026-07-23T18:01:00+00:00",
     "is_mub": true,
-    "link": "https://www.godaddy.com/domain-auctions/worle-com-713959155?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/vono-co-714036517?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 65.0
-  },
-  {
-    "bid_count": 5,
-    "domain": "mixero.com",
-    "end_time_utc": "2026-07-22T18:47:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/mixero-com-713944808?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 16.0
-  },
-  {
-    "bid_count": 33,
-    "domain": "cpon.com",
-    "end_time_utc": "2026-07-22T19:06:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/cpon-com-713959046?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1076.0
-  },
-  {
-    "bid_count": 70,
-    "domain": "paym.com",
-    "end_time_utc": "2026-07-22T19:19:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/paym-com-713944430?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 8500.0
-  },
-  {
-    "bid_count": 37,
-    "domain": "fortem.com",
-    "end_time_utc": "2026-07-22T19:20:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/fortem-com-713175929?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 6766.0
-  },
-  {
-    "bid_count": 8,
-    "domain": "dasht.com",
-    "end_time_utc": "2026-07-22T19:39:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/dasht-com-712202884?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 33.0
+    "price": 136.0
   },
   {
     "bid_count": 9,
-    "domain": "ztaj.com",
-    "end_time_utc": "2026-07-22T21:16:00+00:00",
+    "domain": "kcw.net",
+    "end_time_utc": "2026-07-23T18:21:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/ztaj-com-713942138?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/kcw-net-714019189?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 93.0
+    "price": 171.0
+  },
+  {
+    "bid_count": 7,
+    "domain": "phazes.com",
+    "end_time_utc": "2026-07-23T20:01:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/phazes-com-714032703?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 31.0
   }
 ]

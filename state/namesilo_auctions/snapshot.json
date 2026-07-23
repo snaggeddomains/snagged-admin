@@ -1,56 +1,56 @@
 [
   {
-    "bid_count": 8,
-    "domain": "tsxsw.net",
-    "end_time_utc": "2026-07-22T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/tsxsw.net",
-    "platform": "NameSilo",
-    "price": 116.0
-  },
-  {
-    "bid_count": 51,
-    "domain": "ccqc.com",
-    "end_time_utc": "2026-07-22T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/ccqc.com",
-    "platform": "NameSilo",
-    "price": 565.0
-  },
-  {
     "bid_count": 7,
-    "domain": "beoos.com",
-    "end_time_utc": "2026-07-22T15:00:00+00:00",
+    "domain": "bradzy.com",
+    "end_time_utc": "2026-07-23T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/beoos.com",
+    "link": "https://www.namesilo.com/auctions/bradzy.com",
     "platform": "NameSilo",
-    "price": 13.0
+    "price": 9.0
   },
   {
-    "bid_count": 21,
+    "bid_count": 25,
     "domain": "phyp.com",
     "end_time_utc": "2026-07-23T15:00:00+00:00",
     "is_mub": false,
     "link": "https://www.namesilo.com/auctions/phyp.com",
     "platform": "NameSilo",
-    "price": 155.0
+    "price": 325.0
   },
   {
-    "bid_count": 10,
+    "bid_count": 11,
     "domain": "thyp.com",
     "end_time_utc": "2026-07-23T15:00:00+00:00",
     "is_mub": false,
     "link": "https://www.namesilo.com/auctions/thyp.com",
     "platform": "NameSilo",
-    "price": 150.0
+    "price": 155.0
   },
   {
-    "bid_count": 36,
+    "bid_count": 39,
     "domain": "czr.net",
     "end_time_utc": "2026-07-23T15:00:00+00:00",
     "is_mub": false,
     "link": "https://www.namesilo.com/auctions/czr.net",
     "platform": "NameSilo",
-    "price": 245.9
+    "price": 314.26
+  },
+  {
+    "bid_count": 10,
+    "domain": "hiwv.com",
+    "end_time_utc": "2026-07-24T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namesilo.com/auctions/hiwv.com",
+    "platform": "NameSilo",
+    "price": 102.0
+  },
+  {
+    "bid_count": 76,
+    "domain": "zgmc.com",
+    "end_time_utc": "2026-07-24T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namesilo.com/auctions/zgmc.com",
+    "platform": "NameSilo",
+    "price": 170.0
   }
 ]

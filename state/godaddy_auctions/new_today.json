@@ -1,20 +1,19 @@
 {
   "capped": false,
-  "count": 9,
+  "count": 8,
   "domains": [
-    "6800.org",
-    "berkshire.net",
-    "worle.com",
-    "mixero.com",
-    "cpon.com",
-    "paym.com",
-    "fortem.com",
-    "dasht.com",
-    "ztaj.com"
+    "palin.co",
+    "dfruit.co",
+    "rfpg.com",
+    "ckw.net",
+    "naija.org",
+    "vono.co",
+    "kcw.net",
+    "phazes.com"
   ],
-  "generated_at": "2026-07-22T09:42:39.370600+00:00",
+  "generated_at": "2026-07-23T09:43:13.649545+00:00",
   "mub": [
-    "worle.com"
+    "vono.co"
   ],
   "source": "godaddy_auctions"
 }

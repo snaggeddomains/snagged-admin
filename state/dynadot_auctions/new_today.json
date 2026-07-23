@@ -1,13 +1,11 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 2,
   "domains": [
-    "laurora.com",
-    "grunts.co",
-    "inserts.org",
-    "paye.io"
+    "cokop.com",
+    "krazy.org"
   ],
-  "generated_at": "2026-07-22T09:42:00.372717+00:00",
+  "generated_at": "2026-07-23T09:42:25.158001+00:00",
   "mub": [],
   "source": "dynadot_auctions"
 }

@@ -1,11 +1,11 @@
 {
-  "dropped_count": 5,
-  "fresh_added": 11,
-  "generated_at": "2026-07-22T09:23:30.292761+00:00",
+  "dropped_count": 2,
+  "fresh_added": 6,
+  "generated_at": "2026-07-23T09:22:37.826235+00:00",
   "label": "Atom",
-  "new_count": 11,
-  "price_change_count": 19,
-  "running_appended": 9,
+  "new_count": 6,
+  "price_change_count": 33,
+  "running_appended": 2,
   "slack_posted": true,
   "source": "atom_daily",
   "status": "ok"
