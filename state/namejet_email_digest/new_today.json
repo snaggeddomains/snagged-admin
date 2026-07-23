@@ -2,10 +2,10 @@
   "capped": false,
   "count": 2,
   "domains": [
-    "navarro.org",
-    "britannia.org"
+    "preoccupied.com",
+    "reorganisation.com"
   ],
-  "generated_at": "2026-07-22T15:14:14.764189+00:00",
+  "generated_at": "2026-07-23T15:06:26.573074+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
