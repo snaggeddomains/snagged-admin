@@ -108,16 +108,18 @@ function sim(a: Vec, b: Vec): number {
 }
 
 // ---------- LLM pass ----------
-type RawOpp = { target: number; anchor: string; context?: string; score: number; reason?: string };
+type RawOpp = { target: number; anchor: string; context?: string; score: number; reason?: string; kind?: string; new_sentence?: string; insert_after?: string };
 async function llmOpps(source: Post, candidates: Post[], avoidTitles: string[], preferTitles: string[]): Promise<RawOpp[]> {
   const key = process.env.ANTHROPIC_API_KEY!;
   const list = candidates.map((c, i) => `[${i}] ${c.title}${c.summary ? ` — ${c.summary.slice(0, 160)}` : ""}`).join("\n");
   const system =
     `You improve SEO by finding INTERNAL cross-link opportunities between blog posts on snagged.com (a domain marketplace/blog). ` +
     `Given the SOURCE post and a list of CANDIDATE posts, find where the source post should link to a candidate — but ONLY when it is HIGHLY, SPECIFICALLY relevant (a reader clicking the link gets a genuinely related, useful next read). Reject loose/topical-only matches. ` +
-    `For each opportunity return: "target" (candidate index), "anchor" (a short phrase COPIED VERBATIM from the SOURCE post body to turn into the link — 2-6 words, must appear exactly in the text), "context" (the sentence it's in), "score" (an INTEGER 0-100 relevance, e.g. 82 — NEVER a 0-1 decimal), "reason" (one short line). ` +
-    `CRITICAL — the anchor must be BODY PROSE, never a heading/section title. Do NOT pick a phrase that is (or is part of) one of the SOURCE HEADINGS listed below; we never turn headings into links. Choose a phrase from an actual sentence in the running text that reads naturally as a link. If a candidate is relevant but the only matching phrase is a heading, pick a different body phrase instead, or skip that candidate. ` +
-    `Return AT MOST ${MAX_OPPS_PER_POST}, best first. Return STRICT JSON: [{"target":0,"anchor":"","context":"","score":0,"reason":""}]. Empty array if nothing is strongly relevant. ` +
+    `Each opportunity has a "kind": "anchor" (DEFAULT — link a phrase that already exists in the body) or "add_sentence" (write ONE new sentence to host the link). ` +
+    `For kind "anchor" return: "kind":"anchor", "target" (candidate index), "anchor" (a short phrase COPIED VERBATIM from the SOURCE post body to turn into the link — 2-6 words, must appear exactly in the running text), "context" (the sentence it's in), "score" (an INTEGER 0-100 relevance, e.g. 82 — NEVER a 0-1 decimal), "reason" (one short line). ` +
+    `CRITICAL — an "anchor" must be BODY PROSE, never a heading/section title. Do NOT pick a phrase that is (or is part of) one of the SOURCE HEADINGS listed below; we never turn headings into links. Choose a phrase from an actual sentence in the running text that reads naturally as a link. ` +
+    `For kind "add_sentence" — use this ONLY when the candidate is genuinely HIGHLY relevant but there is NO natural existing body phrase to anchor (e.g. the connection lives at a heading) — return: "kind":"add_sentence", "target", "new_sentence" (ONE new sentence, factual and in the post's voice, that reads naturally and introduces the link; it must be NEW — do NOT repeat text already in the post), "anchor" (2-6 words that appear INSIDE your new_sentence — the part to hyperlink), "insert_after" (a short VERBATIM quote of the heading or the last few words of the paragraph the new sentence should follow, so we can place it), "score", "reason". Prefer "anchor" whenever a good body phrase exists; reach for "add_sentence" sparingly, for high-value links only. ` +
+    `Return AT MOST ${MAX_OPPS_PER_POST}, best first. Return STRICT JSON — an array of either shape: [{"kind":"anchor","target":0,"anchor":"","context":"","score":0,"reason":""}] or {"kind":"add_sentence","target":0,"new_sentence":"","anchor":"","insert_after":"","score":0,"reason":""}. Empty array if nothing is strongly relevant. ` +
     (avoidTitles.length ? `Do NOT suggest these targets (previously judged NOT relevant): ${avoidTitles.slice(0, 12).join("; ")}. ` : "") +
     (preferTitles.length ? `These were judged HIGHLY relevant before — prefer them when they fit: ${preferTitles.slice(0, 12).join("; ")}. ` : "");
   const headingList = source.headings.length ? `\n\nSOURCE HEADINGS (never use these as the anchor):\n${source.headings.slice(0, 40).map((h) => `- ${h}`).join("\n")}` : "";
@@ -150,6 +152,7 @@ export type Opportunity = {
   id: string; source_id: string; source_title: string | null; source_slug: string | null;
   target_id: string; target_title: string | null; target_slug: string | null;
   anchor: string | null; context: string | null; rationale: string | null; score: number | null; status: string;
+  kind: string | null; new_sentence: string | null;
 };
 export type Feedback = { source_id: string; target_id: string; rating: "up" | "down"; note: string | null };
 
@@ -180,6 +183,23 @@ async function pool<T, R>(items: T[], n: number, fn: (t: T, i: number) => Promis
     while (idx < items.length) { const i = idx++; out[i] = await fn(items[i], i); }
   }));
   return out;
+}
+
+// Insert opportunity rows, degrading gracefully if the kind/new_sentence columns aren't migrated yet:
+// on a missing-column error, drop the add_sentence rows and re-insert the anchor rows column-free.
+async function insertOpps(rows: Record<string, unknown>[]): Promise<number> {
+  const { error } = await getDb().from(LINKS).insert(rows);
+  if (!error) return rows.length;
+  const code = (error as { code?: string }).code;
+  if (code === "42703" || code === "PGRST204" || /column .*(kind|new_sentence)/i.test(error.message || "")) {
+    const legacy = rows
+      .filter((r) => r.kind !== "add_sentence") // add_sentence needs the new column — skip until migrated
+      .map(({ kind, new_sentence, ...rest }) => { void kind; void new_sentence; return rest; });
+    if (!legacy.length) return 0;
+    const retry = await getDb().from(LINKS).insert(legacy);
+    return retry.error ? 0 : legacy.length;
+  }
+  return 0;
 }
 
 // Run the whole analysis: fetch posts, generate candidates, LLM-rank, persist. Returns the run id.
@@ -218,12 +238,25 @@ export async function analyzeCrosslinks(by: string | null): Promise<{ runId: str
       .map((o) => {
         const target = scored[o.target];
         if (!target) return null;
+        const kind = o.kind === "add_sentence" ? "add_sentence" : "anchor";
         const anchor = String(o.anchor || "").trim();
-        // Anchor must actually appear in the source body (drop hallucinations).
-        if (!anchor || !src.text.toLowerCase().includes(anchor.toLowerCase())) return null;
-        // Never link a heading — reject an anchor drawn from (contained in) a heading line.
-        const anchorNorm = normPhrase(anchor);
-        if (anchorNorm && headingNorms.some((h) => h === anchorNorm || h.includes(anchorNorm))) return null;
+        let newSentence: string | null = null;
+        let context = String(o.context || "").slice(0, 400);
+        if (kind === "add_sentence") {
+          // A brand-new sentence hosts the link — the anchor must live inside that sentence, and
+          // the sentence must not already exist in the post (it's an addition, not a restatement).
+          newSentence = String(o.new_sentence || "").trim();
+          if (!newSentence || !anchor) return null;
+          if (!newSentence.toLowerCase().includes(anchor.toLowerCase())) return null;
+          if (src.text.toLowerCase().includes(newSentence.toLowerCase())) return null;
+          newSentence = newSentence.slice(0, 400);
+          context = String(o.insert_after || "").slice(0, 400); // where to place it
+        } else {
+          // Existing-phrase link: anchor must appear verbatim in the body and NOT be a heading.
+          if (!anchor || !src.text.toLowerCase().includes(anchor.toLowerCase())) return null;
+          const anchorNorm = normPhrase(anchor);
+          if (anchorNorm && headingNorms.some((h) => h === anchorNorm || h.includes(anchorNorm))) return null;
+        }
         // The model sometimes returns a 0-1 decimal instead of 0-100 — normalize either way.
         let score = Number(o.score) || 0;
         if (score > 0 && score <= 1) score *= 100;
@@ -232,11 +265,12 @@ export async function analyzeCrosslinks(by: string | null): Promise<{ runId: str
         return {
           run_id: runId, source_id: src.id, source_title: src.title, source_slug: src.slug,
           target_id: target.id, target_title: target.title, target_slug: target.slug,
-          anchor, context: String(o.context || "").slice(0, 400), rationale: String(o.reason || "").slice(0, 300), score,
+          kind, new_sentence: newSentence,
+          anchor, context, rationale: String(o.reason || "").slice(0, 300), score,
         };
       })
       .filter(Boolean) as Record<string, unknown>[];
-    if (rows.length) { await getDb().from(LINKS).insert(rows); total += rows.length; }
+    if (rows.length) { total += await insertOpps(rows); }
   });
 
   await getDb().from(RUNS).update({ status: "done", finished_at: new Date().toISOString(), opportunities: total }).eq("id", runId);

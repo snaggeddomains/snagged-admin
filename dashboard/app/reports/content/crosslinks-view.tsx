@@ -7,6 +7,7 @@ type Opp = {
   target_id: string; target_title: string | null; target_slug: string | null;
   anchor: string | null; context: string | null; rationale: string | null; score: number | null;
   status: string; feedback: "up" | "down" | null;
+  kind: string | null; new_sentence: string | null;
 };
 type Run = { id: string; status: string; started_at: string; finished_at: string | null; posts: number | null; opportunities: number | null; error: string | null };
 type Resp = { ok: boolean; configured: boolean; run: Run | null; opportunities: Opp[]; error?: string };
@@ -32,6 +33,35 @@ function PostLink({ title, slug, color, prefix }: { title: string | null; slug: 
       {url && <a href={url} target="_blank" rel="noreferrer" title="Open post ↗" style={{ flex: "none", color: "var(--muted,#888)", textDecoration: "none", fontSize: 12.5 }}>↗</a>}
     </div>
   );
+}
+
+// Render a proposed new sentence with the anchor portion highlighted (add_sentence opportunities).
+function SentenceWithAnchor({ sentence, anchor }: { sentence: string; anchor: string | null }) {
+  const a = (anchor || "").trim();
+  const i = a ? sentence.toLowerCase().indexOf(a.toLowerCase()) : -1;
+  if (i < 0) return <span style={{ fontStyle: "italic" }}>{sentence}</span>;
+  return (
+    <span style={{ fontStyle: "italic" }}>
+      {sentence.slice(0, i)}
+      <span style={{ background: "#fdf3d8", borderRadius: 4, padding: "1px 5px", fontStyle: "normal", fontWeight: 600 }}>{sentence.slice(i, i + a.length)}</span>
+      {sentence.slice(i + a.length)}
+    </span>
+  );
+}
+
+// The "Anchor text" cell: an existing-phrase link (kind=anchor) or a proposed new sentence
+// to insert (kind=add_sentence — shown with a badge + where it goes).
+function AnchorCell({ o }: { o: Opp }) {
+  if (o.kind === "add_sentence") {
+    return (
+      <div style={{ display: "grid", gap: 4 }}>
+        <span style={{ display: "inline-block", width: "fit-content", fontSize: 10.5, fontWeight: 800, letterSpacing: 0.3, textTransform: "uppercase", color: "#8a5a00", background: "#fbe7c2", borderRadius: 999, padding: "1px 7px" }}>＋ Add sentence</span>
+        <span style={{ color: "var(--navy,#254254)" }}><SentenceWithAnchor sentence={o.new_sentence || ""} anchor={o.anchor} /></span>
+        {o.context && <span className="muted" style={{ fontSize: 11.5 }}>after: “{o.context}”</span>}
+      </div>
+    );
+  }
+  return <span style={{ background: "#fdf3d8", borderRadius: 4, padding: "1px 5px", fontWeight: 600 }}>{o.anchor || "—"}</span>;
 }
 
 export default function CrosslinksView() {
@@ -87,7 +117,7 @@ export default function CrosslinksView() {
     const t = q.trim().toLowerCase();
     return (data?.opportunities || []).filter((o) =>
       (Number(o.score) || 0) >= minScore &&
-      (!t || `${o.source_title} ${o.target_title} ${o.anchor} ${o.rationale}`.toLowerCase().includes(t)));
+      (!t || `${o.source_title} ${o.target_title} ${o.anchor} ${o.new_sentence} ${o.rationale}`.toLowerCase().includes(t)));
   }, [data, q, minScore]);
 
   const run = data?.run;
@@ -102,7 +132,7 @@ export default function CrosslinksView() {
         </span>
       </div>
       <p className="section-blurb" style={{ marginTop: 0 }}>
-        Stack-ranked internal-link opportunities — where one post should link to another, for SEO. 👍 super-relevant / 👎 not relevant trains future runs; 👎 removes it. Highly-relevant only.
+        Stack-ranked internal-link opportunities — where one post should link to another, for SEO. Most link an existing phrase; a <b style={{ color: "#8a5a00" }}>＋ Add sentence</b> row proposes a new sentence to host the link when the best spot would otherwise land on a heading (we never link headings). 👍 super-relevant / 👎 not relevant trains future runs; 👎 removes it. Highly-relevant only.
       </p>
 
       {(data?.opportunities?.length ?? 0) > 0 && (
@@ -138,7 +168,7 @@ export default function CrosslinksView() {
                 <tr key={o.id} style={{ background: o.feedback === "up" ? "#f2f8f4" : undefined }}>
                   <td style={{ ...cell, fontWeight: 800, color: scoreColor(Number(o.score) || 0) }}>{Math.round(Number(o.score) || 0)}</td>
                   <td style={cell}><PostLink title={o.source_title} slug={o.source_slug} color="var(--navy,#254254)" /></td>
-                  <td style={{ ...cell, maxWidth: 260 }} title={o.context || ""}><span style={{ background: "#fdf3d8", borderRadius: 4, padding: "1px 5px", fontWeight: 600 }}>{o.anchor || "—"}</span></td>
+                  <td style={{ ...cell, maxWidth: 320 }} title={o.kind === "add_sentence" ? (o.new_sentence || "") : (o.context || "")}><AnchorCell o={o} /></td>
                   <td style={cell}><PostLink title={o.target_title} slug={o.target_slug} color="#2f6f7a" prefix="→ " /></td>
                   <td style={{ ...cell, maxWidth: 300, color: "var(--navy-2,#4a5b66)" }}>{o.rationale || "—"}</td>
                   <td style={{ ...cell, whiteSpace: "nowrap", textAlign: "right" }}>

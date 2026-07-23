@@ -322,12 +322,20 @@ highly-relevant only, with the exact anchor phrase to link.
   (`normPhrase`). So even if the model slips, a heading anchor never persists. (Phase 2's link
   INSERTION can then place the body-prose anchor, or add a sentence, without ever editing a header.)
   - **RULE (Rob, 2026-07-23): a header is NEVER the anchor, but the header spot is not lost.** If the
-    BEST place for a relevant link falls on/near a heading, we ADD a relevant sentence beneath it to
-    make room for the link rather than drop the opportunity. Implication for the engine: a
-    highly-relevant target whose only match is a heading should be SURFACED with a proposed new
-    hosting sentence + its body-prose anchor (an `add_sentence` opportunity), not silently dropped as
-    it is today. Build this into Phase-2 insertion (and, if we want the rerun to show them, into the
-    analysis pass as a distinct opportunity kind).
+    BEST place for a relevant link falls on/near a heading, we ADD a relevant sentence to make room
+    for the link rather than drop the opportunity.
+  - **`add_sentence` opportunity kind — SHIPPED in the analysis pass (2026-07-23).** Each opportunity
+    now carries a `kind`: **`anchor`** (default — link an existing body phrase, the header-safe path
+    above) or **`add_sentence`** (a highly-relevant target with NO natural existing body anchor). For
+    `add_sentence` the LLM returns a NEW `new_sentence` (factual, in the post's voice, must not repeat
+    existing text) with the `anchor` phrase INSIDE it, plus `insert_after` (a verbatim heading/paragraph
+    tail = placement hint, stored in `context`). Validation: anchor must be inside new_sentence + the
+    sentence must be genuinely new (not already in the body). The model is told to PREFER `anchor` and
+    use `add_sentence` sparingly for high-value links only. UI (`crosslinks-view.tsx`): an `add_sentence`
+    row shows a **＋ Add sentence** badge + the proposed sentence (anchor highlighted) + "after: …"
+    placement. **Migration:** `content_crosslinks.kind`/`new_sentence` (`scripts/content_crosslinks.sql`,
+    `add column if not exists`); `insertOpps` degrades gracefully pre-migration (drops add_sentence rows,
+    inserts the anchor rows column-free) so a reanalyze before the SQL still lands the clean anchor set.
 - **Feedback trains it:** `content_crosslink_feedback` (pk `source_id,target_id`) — 👍 up (boost +25,
   fed to the LLM as "prefer") / 👎 down (suppressed from output AND from candidate gen AND fed as
   "avoid"). Persists across re-runs.

@@ -26,13 +26,18 @@ create table if not exists content_crosslinks (
   target_id    text not null,        -- Webflow item id of the post it links TO
   target_title text,
   target_slug  text,
-  anchor       text,                 -- the exact phrase in the source to turn into the link
-  context      text,                 -- the surrounding sentence (so it's placeable)
+  anchor       text,                 -- the exact phrase (kind=anchor) OR the phrase inside new_sentence (kind=add_sentence)
+  context      text,                 -- kind=anchor: the surrounding sentence; kind=add_sentence: where to insert (after this heading/text)
   rationale    text,                 -- why it's relevant
   score        numeric,              -- 0-100 relevance
+  kind         text not null default 'anchor',  -- anchor (link an existing phrase) | add_sentence (write a new sentence to host the link)
+  new_sentence text,                 -- kind=add_sentence only: the new sentence to insert (contains the anchor)
   status       text not null default 'suggested', -- suggested | inserted | dismissed
   created_at   timestamptz not null default now()
 );
+-- Migrate an existing table (columns added after v1).
+alter table content_crosslinks add column if not exists kind text not null default 'anchor';
+alter table content_crosslinks add column if not exists new_sentence text;
 create index if not exists idx_crosslinks_run on content_crosslinks (run_id, score desc);
 create index if not exists idx_crosslinks_pair on content_crosslinks (source_id, target_id);
 
