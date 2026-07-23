@@ -122,6 +122,8 @@ export const ADMIN_TABS: { href: string; label: string; perm: ModuleKey | Action
 export const REPORTS_TABS: { href: string; label: string; perm: ModuleKey | ActionKey }[] = [
   { href: "/reports", label: "Site analytics", perm: "reports.analytics" },
   { href: "/reports/marketplace", label: "Marketplace", perm: "reports.marketplace" },
+  // Marketplace Master — every Webflow CMS field for every listing (read-only pull).
+  { href: "/reports/marketplace-master", label: "Marketplace Master", perm: "reports.marketplace" },
   { href: "/reports/chat", label: "Chat", perm: "reports.chat" },
   { href: "/reports/cost", label: "Cost & usage", perm: "reports.cost" },
   { href: "/reports/client-overlap", label: "Client Overlap", perm: "reports.client_overlap" },

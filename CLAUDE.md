@@ -253,8 +253,14 @@ This adds a real Webflow **Data API v2** integration to pull every listing and e
   `LiveListings`): pulls the PUBLISHED (live) items of the marketplace collection straight from the
   CMS and lists them (count + search + CSV) under the GA traffic table. Fed by
   `app/api/admin/marketplace/live/route.ts` (gated `reports.marketplace`, read-only) →
-  `resolveMarketplaceCollectionId` + `listAllItems({live:true})`. This is the read-only surface a
-  read-only token lights up (no editing here — editing lives on the Admin → Webflow CMS tab).
+  `resolveMarketplaceCollectionId` + `listAllItems`. `?all=1` returns the FULL set (published +
+  draft); default returns published only. This is the read-only surface a read-only token lights
+  up (no editing here — editing lives on the Admin → Webflow CMS tab).
+- **Reports → Marketplace Master tab** (`/reports/marketplace-master`, `REPORTS_TABS`, gated
+  `reports.marketplace`): the wide "every Webflow field for every listing" view — one column per
+  CMS field (one-line description, description, extension, categories, …), sticky Status column,
+  search across all fields, wrap toggle, CSV of all fields. A "◆ Source: Webflow CMS" badge makes
+  the origin unmistakable. Reads `…/marketplace/live?all=1`. `app/reports/marketplace-master/`.
 - **Permission** `admin.webflow` (MODULE + ADMIN_TABS + CATALOG, group Admin) gates the EDIT tab;
   the Reports live-listings section is gated by `reports.marketplace`. Admins auto-pass.
 - **One-time setup:** in Webflow → Site settings → Apps & integrations → API access → **Generate
