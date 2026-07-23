@@ -1,82 +1,34 @@
 [
   {
-    "domain": "bandung.com",
-    "price": 500000.0
+    "domain": "macaron.com",
+    "price": null
   },
   {
-    "domain": "desember.com",
-    "price": 2150.0
-  },
-  {
-    "domain": "padang.com",
-    "price": 45000.0
-  },
-  {
-    "domain": "malang.com",
-    "price": 98888.0
-  },
-  {
-    "domain": "balang.com",
-    "price": 2500.0
-  },
-  {
-    "domain": "winars.com",
-    "price": 17250.0
+    "domain": "dealings.com",
+    "price": 48399.0
   },
   {
     "domain": "steall.com",
     "price": 2150.0
   },
   {
-    "domain": "infocomic.com",
-    "price": 5999.0
+    "domain": "midsummer.com",
+    "price": null
   },
   {
-    "domain": "hainan.ai",
-    "price": 2888.0
-  },
-  {
-    "domain": "bethani.net",
-    "price": 2150.0
-  },
-  {
-    "domain": "sissies.net",
-    "price": 500.0
+    "domain": "glorify.ai",
+    "price": null
   },
   {
     "domain": "wisata.net",
     "price": 2150.0
   },
   {
-    "domain": "pizza.co",
-    "price": null
+    "domain": "vinnie.net",
+    "price": 549.0
   },
   {
     "domain": "cohorts.co",
     "price": 549.0
-  },
-  {
-    "domain": "kayley.co",
-    "price": 1988.0
-  },
-  {
-    "domain": "vation.co",
-    "price": 1988.0
-  },
-  {
-    "domain": "thetra.co",
-    "price": 1988.0
-  },
-  {
-    "domain": "rosser.co",
-    "price": 1988.0
-  },
-  {
-    "domain": "feride.co",
-    "price": 1988.0
-  },
-  {
-    "domain": "fixtec.co",
-    "price": 1988.0
   }
 ]
