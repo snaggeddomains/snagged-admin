@@ -159,7 +159,7 @@ function resolveBodySlug(fields: WfField[], fieldData: Record<string, unknown>):
   return slug;
 }
 
-export type ApplyResult = { ok: boolean; error?: string; published?: boolean; preview?: string; alreadyLinked?: boolean };
+export type ApplyResult = { ok: boolean; error?: string; published?: boolean; preview?: string; alreadyLinked?: boolean; dismissed?: boolean };
 
 // Apply one opportunity to its source post. publish=false stages the edit in the CMS (review in
 // Webflow Designer / publish later); publish=true also pushes it live. dryRun returns the rewrite
@@ -188,7 +188,12 @@ export async function applyCrosslink(id: string, opts: { publish: boolean; dryRu
     await getDb().from(LINKS).update({ status: "inserted" }).eq("id", id);
     return { ok: true, published: false, alreadyLinked: true };
   }
-  if (rw.kind === "fail") return { ok: false, error: `Couldn't insert — ${rw.reason}. Insert manually.` };
+  if (rw.kind === "fail") {
+    // A structural fail (already a link / only in a heading / spans formatting / edited out) can
+    // never be auto-inserted — hide the row instead of leaving a red error the user keeps hitting.
+    if (!opts.dryRun) await getDb().from(LINKS).update({ status: "dismissed" }).eq("id", id);
+    return { ok: false, error: `Not placeable — ${rw.reason}. Hidden from the list.`, dismissed: true };
+  }
   if (opts.dryRun) return { ok: true, preview: rw.html };
 
   const upd = await updateItem(collectionId, opp.source_id, { [bodySlug]: rw.html }, { live: false });
@@ -216,7 +221,7 @@ function computeRewrite(opp: Opp, html: string): Rewrite {
   return { kind: "html", html: rewritten };
 }
 
-export type BulkResult = { id: string; ok: boolean; published?: boolean; alreadyLinked?: boolean; error?: string };
+export type BulkResult = { id: string; ok: boolean; published?: boolean; alreadyLinked?: boolean; dismissed?: boolean; error?: string };
 
 // Insert MANY opportunities at once. Groups by source post so multiple links into the same post are
 // applied to ONE body and written/published once (avoids read-modify-write clobbering). publish=true
@@ -251,13 +256,14 @@ export async function applyCrosslinksBulk(ids: string[], opts: { publish: boolea
     const bodySlug = resolveBodySlug(fields, fieldData);
     if (!bodySlug) { for (const id of groupIds) results.push({ id, ok: false, error: "could not find the post body field" }); continue; }
     let html = String(fieldData[bodySlug] || "");
-    const newlyInserted: string[] = [], linked: string[] = [];
+    const newlyInserted: string[] = [], linked: string[] = [], unplaceable: string[] = [];
     for (const id of groupIds) {
       const rw = computeRewrite(byId.get(id) as Opp, html);
       if (rw.kind === "linked") { linked.push(id); results.push({ id, ok: true, alreadyLinked: true }); }
       else if (rw.kind === "html") { html = rw.html; newlyInserted.push(id); results.push({ id, ok: true }); }
-      else results.push({ id, ok: false, error: rw.reason });
+      else { unplaceable.push(id); results.push({ id, ok: false, dismissed: true, error: rw.reason }); }
     }
+    if (unplaceable.length) await getDb().from(LINKS).update({ status: "dismissed" }).in("id", unplaceable);
     let published = false;
     if (newlyInserted.length) {
       const upd = await updateItem(collectionId, sourceId, { [bodySlug]: html }, { live: false });

@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
         if (!canAdmin(me, "admin.webflow")) return NextResponse.json({ error: "Editing the blog requires the admin.webflow permission" }, { status: 403 });
         if (!body.id) return NextResponse.json({ error: "id required" }, { status: 400 });
         const r = await applyCrosslink(body.id, { publish: body.publish === true });
-        if (!r.ok) return NextResponse.json({ error: r.error || "Insert failed" }, { status: 400 });
+        if (!r.ok) return NextResponse.json({ error: r.error || "Insert failed", dismissed: !!r.dismissed }, { status: 400 });
         return NextResponse.json({ ok: true, published: !!r.published, alreadyLinked: !!r.alreadyLinked });
       }
       case "insert_bulk": {

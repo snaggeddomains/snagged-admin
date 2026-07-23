@@ -111,7 +111,13 @@ export default function CrosslinksView() {
     try {
       const res = await fetch("/api/admin/content/crosslinks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "insert", id: o.id, publish }) });
       const j = await res.json();
-      if (!res.ok || j.ok === false) throw new Error(j.error || `HTTP ${res.status}`);
+      if (!res.ok || j.ok === false) {
+        if (j.dismissed) { // can never be auto-inserted → remove it quietly rather than error
+          setData((d) => d ? { ...d, opportunities: d.opportunities.filter((x) => x.id !== o.id) } : d);
+          return;
+        }
+        throw new Error(j.error || `HTTP ${res.status}`);
+      }
       setData((d) => d ? { ...d, opportunities: d.opportunities.map((x) => x.id === o.id ? { ...x, status: "inserted" } : x) } : d);
     } catch (e) { setErr(String((e as Error)?.message || e)); }
     finally { setBusyId(null); }
@@ -128,12 +134,13 @@ export default function CrosslinksView() {
       const res = await fetch("/api/admin/content/crosslinks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "insert_bulk", ids, publish }) });
       const j = await res.json();
       if (!res.ok || j.ok === false) throw new Error(j.error || `HTTP ${res.status}`);
-      const results: { id: string; ok: boolean; error?: string }[] = j.results || [];
+      const results: { id: string; ok: boolean; error?: string; dismissed?: boolean }[] = j.results || [];
       const okIds = new Set(results.filter((r) => r.ok).map((r) => r.id));
-      const fails = results.filter((r) => !r.ok);
-      setData((d) => d ? { ...d, opportunities: d.opportunities.map((x) => okIds.has(x.id) ? { ...x, status: "inserted" } : x) } : d);
+      const hiddenIds = new Set(results.filter((r) => !r.ok && r.dismissed).map((r) => r.id)); // unplaceable → drop from list
+      const fails = results.filter((r) => !r.ok && !r.dismissed);                                // transient errors → report
+      setData((d) => d ? { ...d, opportunities: d.opportunities.filter((x) => !hiddenIds.has(x.id)).map((x) => okIds.has(x.id) ? { ...x, status: "inserted" } : x) } : d);
       setSelected(new Set());
-      if (fails.length) setErr(`${okIds.size} done · ${fails.length} skipped — ${[...new Set(fails.map((f) => f.error))].slice(0, 3).join("; ")}${fails.length > 3 ? "…" : ""}`);
+      if (fails.length || hiddenIds.size) setErr(`${okIds.size} done${hiddenIds.size ? ` · ${hiddenIds.size} not placeable (hidden)` : ""}${fails.length ? ` · ${fails.length} failed — ${[...new Set(fails.map((f) => f.error))].slice(0, 2).join("; ")}` : ""}`);
     } catch (e) { setErr(String((e as Error)?.message || e)); }
     finally { setBulkBusy(false); }
   };
