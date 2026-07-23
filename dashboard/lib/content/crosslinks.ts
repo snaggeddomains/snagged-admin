@@ -26,8 +26,26 @@ const stripHtml = (s: string): string => String(s || "").replace(/<[^>]*>/g, " "
 function tokens(s: string): string[] {
   return (s.toLowerCase().match(/[a-z][a-z'-]{2,}/g) || []).filter((w) => !STOP.has(w));
 }
+// Normalize a phrase for heading-matching: lowercase, drop punctuation, collapse whitespace.
+const normPhrase = (s: string): string => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
+// Pull the heading text (h1–h6) out of a body's HTML so we can keep anchors out of headings.
+// Webflow RichText also renders a standalone bold line as its own <p><strong>…</strong></p>; treat a
+// paragraph that is ENTIRELY a single bold/strong run (a mini-heading) as a heading too.
+function extractHeadings(html: string): string[] {
+  const out: string[] = [];
+  for (const m of String(html || "").matchAll(/<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>/gi)) {
+    const t = stripHtml(m[1]);
+    if (t) out.push(t);
+  }
+  for (const m of String(html || "").matchAll(/<p[^>]*>\s*(<(?:strong|b)[^>]*>[\s\S]*?<\/(?:strong|b)>)\s*<\/p>/gi)) {
+    const inner = m[1].replace(/<\/?(?:strong|b)[^>]*>/gi, "");
+    // Only a heading if the whole paragraph was the bold run (no other prose after stripping).
+    if (!/<[^>]+>/.test(inner)) { const t = stripHtml(inner); if (t) out.push(t); }
+  }
+  return out;
+}
 
-export type Post = { id: string; title: string; slug: string; summary: string; text: string; linkedSlugs: Set<string>; isDraft: boolean };
+export type Post = { id: string; title: string; slug: string; summary: string; text: string; headings: string[]; linkedSlugs: Set<string>; isDraft: boolean };
 
 // Detect the title / slug / summary / body fields, then map items → Post.
 function toPosts(fields: WfField[], items: WfItem[]): Post[] {
@@ -55,6 +73,7 @@ function toPosts(fields: WfField[], items: WfItem[]): Post[] {
       slug: String(it.fieldData[urlSlug] || "").trim(),
       summary: summarySlug ? stripHtml(String(it.fieldData[summarySlug] || "")) : "",
       text: stripHtml(bodyHtml),
+      headings: extractHeadings(bodyHtml),
       linkedSlugs,
       isDraft: !!it.isDraft,
     };
@@ -97,10 +116,12 @@ async function llmOpps(source: Post, candidates: Post[], avoidTitles: string[], 
     `You improve SEO by finding INTERNAL cross-link opportunities between blog posts on snagged.com (a domain marketplace/blog). ` +
     `Given the SOURCE post and a list of CANDIDATE posts, find where the source post should link to a candidate — but ONLY when it is HIGHLY, SPECIFICALLY relevant (a reader clicking the link gets a genuinely related, useful next read). Reject loose/topical-only matches. ` +
     `For each opportunity return: "target" (candidate index), "anchor" (a short phrase COPIED VERBATIM from the SOURCE post body to turn into the link — 2-6 words, must appear exactly in the text), "context" (the sentence it's in), "score" (an INTEGER 0-100 relevance, e.g. 82 — NEVER a 0-1 decimal), "reason" (one short line). ` +
+    `CRITICAL — the anchor must be BODY PROSE, never a heading/section title. Do NOT pick a phrase that is (or is part of) one of the SOURCE HEADINGS listed below; we never turn headings into links. Choose a phrase from an actual sentence in the running text that reads naturally as a link. If a candidate is relevant but the only matching phrase is a heading, pick a different body phrase instead, or skip that candidate. ` +
     `Return AT MOST ${MAX_OPPS_PER_POST}, best first. Return STRICT JSON: [{"target":0,"anchor":"","context":"","score":0,"reason":""}]. Empty array if nothing is strongly relevant. ` +
     (avoidTitles.length ? `Do NOT suggest these targets (previously judged NOT relevant): ${avoidTitles.slice(0, 12).join("; ")}. ` : "") +
     (preferTitles.length ? `These were judged HIGHLY relevant before — prefer them when they fit: ${preferTitles.slice(0, 12).join("; ")}. ` : "");
-  const user = `SOURCE POST: ${source.title}\n\nSOURCE BODY:\n${source.text.slice(0, BODY_CHARS)}\n\nCANDIDATE POSTS:\n${list}`;
+  const headingList = source.headings.length ? `\n\nSOURCE HEADINGS (never use these as the anchor):\n${source.headings.slice(0, 40).map((h) => `- ${h}`).join("\n")}` : "";
+  const user = `SOURCE POST: ${source.title}\n\nSOURCE BODY:\n${source.text.slice(0, BODY_CHARS)}${headingList}\n\nCANDIDATE POSTS:\n${list}`;
   try {
     const res = await fetch(ANTHROPIC_URL, {
       method: "POST",
@@ -192,6 +213,7 @@ export async function analyzeCrosslinks(by: string | null): Promise<{ runId: str
     const avoid = fbRows.filter((f) => f.source_id === src.id && f.rating === "down").map((f) => titleById.get(f.target_id) || "").filter(Boolean);
     const prefer = fbRows.filter((f) => f.source_id === src.id && f.rating === "up").map((f) => titleById.get(f.target_id) || "").filter(Boolean);
     const raw = await llmOpps(src, scored, avoid, prefer);
+    const headingNorms = src.headings.map(normPhrase).filter(Boolean);
     const rows = raw
       .map((o) => {
         const target = scored[o.target];
@@ -199,6 +221,9 @@ export async function analyzeCrosslinks(by: string | null): Promise<{ runId: str
         const anchor = String(o.anchor || "").trim();
         // Anchor must actually appear in the source body (drop hallucinations).
         if (!anchor || !src.text.toLowerCase().includes(anchor.toLowerCase())) return null;
+        // Never link a heading — reject an anchor drawn from (contained in) a heading line.
+        const anchorNorm = normPhrase(anchor);
+        if (anchorNorm && headingNorms.some((h) => h === anchorNorm || h.includes(anchorNorm))) return null;
         // The model sometimes returns a 0-1 decimal instead of 0-100 — normalize either way.
         let score = Number(o.score) || 0;
         if (score > 0 && score <= 1) score *= 100;

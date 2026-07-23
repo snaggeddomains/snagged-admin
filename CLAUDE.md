@@ -311,6 +311,16 @@ highly-relevant only, with the exact anchor phrase to link.
   **anchor phrase copied verbatim from the source body** (validated to actually appear — drops
   hallucinations), context sentence, score 0-100, rationale. Runs with concurrency 6, inserts
   per-post so partial progress persists; `maxDuration=300`.
+- **Never anchor on a HEADING (2026-07-23).** Calibration surfaced that many suggested anchors were
+  section headers ("Get Smart with Domain Valuations", "Always Use Escrow (Non-Negotiable)") — we
+  don't turn headings into links, we want body prose that reads naturally. `stripHtml` had flattened
+  headings into the body text, so a header passed the verbatim-appears check. Fix in `crosslinks.ts`:
+  `extractHeadings(bodyHtml)` pulls `<h1>–<h6>` **and** a standalone bold paragraph (`<p><strong>…`,
+  a Webflow mini-heading) BEFORE stripping → `Post.headings[]`. Those are fed to the LLM ("SOURCE
+  HEADINGS — never use as the anchor; pick body prose, or skip the candidate") AND hard-filtered
+  post-hoc: an anchor whose normalized text equals or is contained in any heading is dropped
+  (`normPhrase`). So even if the model slips, a heading anchor never persists. (Phase 2's link
+  INSERTION can then place the body-prose anchor, or add a sentence, without ever editing a header.)
 - **Feedback trains it:** `content_crosslink_feedback` (pk `source_id,target_id`) — 👍 up (boost +25,
   fed to the LLM as "prefer") / 👎 down (suppressed from output AND from candidate gen AND fed as
   "avoid"). Persists across re-runs.
