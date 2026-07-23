@@ -155,6 +155,105 @@ export default function MarketplaceClient() {
         </table>
         {!loading && listings.length === 0 && <p className="muted" style={{ padding: 8 }}>No marketplace listings with data in this window.</p>}
       </div>
+
+      <LiveListings />
     </main>
+  );
+}
+
+// ---- Live Marketplace listings, pulled straight from the Webflow CMS (the authoritative
+// live/active set on snagged.com/marketplace). Read-only. ----
+type WfField = { id: string; slug: string; displayName?: string; type: string };
+type WfItem = { id: string; isDraft?: boolean; isArchived?: boolean; fieldData: Record<string, unknown> };
+type LiveResp = { ok: boolean; configured: boolean; resolved?: boolean; collectionName?: string | null; fields?: WfField[]; items?: WfItem[]; total?: number; error?: string };
+const asText = (v: unknown): string => v == null ? "" : typeof v === "boolean" ? (v ? "Yes" : "No") : typeof v === "object" ? JSON.stringify(v) : String(v);
+
+function LiveListings() {
+  const [data, setData] = useState<LiveResp | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState<string | null>(null);
+  const [q, setQ] = useState("");
+
+  const load = useCallback(async () => {
+    setLoading(true); setErr(null);
+    try {
+      const res = await fetch("/api/admin/marketplace/live", { cache: "no-store" });
+      const j = (await res.json()) as LiveResp;
+      if (!res.ok) throw new Error(j.error || `HTTP ${res.status}`);
+      setData(j);
+    } catch (e) { setErr(String((e as Error)?.message || e)); }
+    finally { setLoading(false); }
+  }, []);
+  useEffect(() => { void load(); }, [load]);
+
+  const fields = data?.fields || [];
+  const primary = useMemo(() => fields.find((f) => f.slug === "name")?.slug || fields.find((f) => /name|domain|title/i.test(f.slug))?.slug || "name", [fields]);
+  const extraCols = useMemo(() => fields.filter((f) => f.slug !== primary && f.slug !== "slug" && /price|status|tld|sold|extension|category|for.?sale|active|listed/i.test(f.slug)).slice(0, 4), [fields, primary]);
+  const items = data?.items || [];
+  const rows = useMemo(() => {
+    const t = q.trim().toLowerCase();
+    return t ? items.filter((it) => Object.values(it.fieldData).some((v) => asText(v).toLowerCase().includes(t))) : items;
+  }, [items, q]);
+  const exportCsv = () => {
+    const cols = [primary, "slug", ...extraCols.map((f) => f.slug)];
+    const csv = [cols.join(","), ...rows.map((it) => cols.map((c) => `"${asText(it.fieldData[c]).replace(/"/g, '""')}"`).join(","))].join("\n");
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    a.download = "marketplace-live.csv"; a.click();
+  };
+
+  const cell = { padding: "6px 10px", borderBottom: "1px solid var(--line, #eee)", whiteSpace: "nowrap" as const };
+
+  return (
+    <section style={{ marginTop: 30, borderTop: "2px solid var(--line,#e3ddcf)", paddingTop: 18 }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+        <div>
+          <h2 style={{ fontSize: "1.1rem", margin: 0 }}>Live on the Marketplace <span className="muted" style={{ fontWeight: 400, fontSize: 13 }}>· Webflow CMS</span></h2>
+          <p className="section-blurb" style={{ marginTop: 4, marginBottom: 0 }}>Every domain currently <strong>published (live)</strong> on snagged.com/marketplace, straight from the CMS.{data?.collectionName ? ` Collection: ${data.collectionName}.` : ""}</p>
+        </div>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <input style={{ ...CTL, maxWidth: 200 }} placeholder="Search listings…" value={q} onChange={(e) => setQ(e.target.value)} />
+          <button style={BTN} onClick={() => void load()} disabled={loading}>{loading ? "…" : "↻"}</button>
+          <button style={BTN} onClick={exportCsv} disabled={!rows.length}>⬇ CSV</button>
+        </div>
+      </div>
+
+      {err && <p style={{ color: CORAL, marginTop: 10 }}>{err}</p>}
+      {data && !data.configured && <p className="muted" style={{ marginTop: 10 }}>Webflow isn&apos;t connected on this deployment (set <code>WEBFLOW_API_TOKEN_CMS_READ_ONLY</code>).</p>}
+      {data && data.configured && data.resolved === false && <p className="muted" style={{ marginTop: 10 }}>Couldn&apos;t identify the Marketplace collection — set <code>WEBFLOW_MARKETPLACE_COLLECTION_ID</code>.</p>}
+
+      {data?.configured && data.resolved !== false && (
+        <>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 10 }}>
+            <StatCard label="Live listings" value={data.total ?? items.length} accent />
+            {q && <StatCard label="Matching search" value={rows.length} />}
+          </div>
+          <div style={{ overflowX: "auto", marginTop: 14 }}>
+            <table style={{ width: "auto", borderCollapse: "collapse", fontSize: 13 }}>
+              <thead>
+                <tr>
+                  <th style={{ ...cell, textAlign: "left", color: "var(--muted,#888)", fontWeight: 600 }}>{fields.find((f) => f.slug === primary)?.displayName || "Domain"}</th>
+                  {extraCols.map((f) => <th key={f.id} style={{ ...cell, textAlign: "left", color: "var(--muted,#888)", fontWeight: 600 }}>{f.displayName || f.slug}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((it) => {
+                  const slug = asText(it.fieldData.slug);
+                  return (
+                    <tr key={it.id}>
+                      <td style={{ ...cell, textAlign: "left", fontWeight: 600 }}>
+                        {asText(it.fieldData[primary]) || <span className="muted">—</span>}
+                        {slug && <a href={`https://www.snagged.com/marketplace/${slug}`} target="_blank" rel="noreferrer" title="Open listing" style={{ color: "var(--muted,#888)", textDecoration: "none", marginLeft: 6, fontSize: 12 }}>↗</a>}
+                      </td>
+                      {extraCols.map((f) => <td key={f.id} style={{ ...cell, textAlign: "left", maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis" }}>{asText(it.fieldData[f.slug])}</td>)}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            {!loading && !rows.length && <p className="muted" style={{ padding: 8 }}>{q ? "No live listings match." : "No live listings found."}</p>}
+          </div>
+        </>
+      )}
+    </section>
   );
 }

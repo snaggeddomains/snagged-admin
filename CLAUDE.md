@@ -223,6 +223,49 @@ glance whether the cron ran. If it says "not run yet" long after a deploy, the c
 
 ---
 
+# Webflow CMS — Marketplace listings (pull + edit) (2026-07-23)
+
+snagged.com is a Webflow CMS site; the Marketplace listings are a CMS collection (we used to
+only SCRAPE `snagged.com/marketplace` HTML — see `lib/snap-names.ts` `snaggedMarketplaceSet`).
+This adds a real Webflow **Data API v2** integration to pull every listing and edit it.
+
+- **Client** `lib/webflow.ts` (dependency-free, mirrors hubspot/pipedrive shape — every call →
+  `{ok,status,data,error}`, never throws, fail-open when unconfigured). Base
+  `https://api.webflow.com/v2`, 429-retry. **Two token envs so a READ-ONLY token can pull without
+  granting writes:** a write token (`WEBFLOW_API_TOKEN` / `WEBFLOW_SITE_TOKEN`) is preferred for
+  everything; a read-only token (`WEBFLOW_API_TOKEN_CMS_READ_ONLY`) serves reads only.
+  `webflowCanWrite()` is true only when a write token is set — the API blocks POST writes (403
+  "read-only") and the UI hides editing + shows a 🔒 read-only banner otherwise. Covers sites, collections
+  (+ field schema), items (`listItems`/`listAllItems` paginated, `getItem`, `createItem`,
+  `updateItem`, `deleteItem`, `publishItems`, `publishSite`). Staged vs live via the `/items` vs
+  `/items/live` suffix (`live:true`).
+- **API** `app/api/admin/webflow/route.ts` (gated `admin.webflow`): GET → connection status +
+  sites + the resolved site's collections + a best-guess `marketplaceCollectionId`
+  (env `WEBFLOW_MARKETPLACE_COLLECTION_ID` wins, else name/slug regex); GET `?collection=` →
+  field schema + ALL items; POST `{action: update|publish|delete}` (update sends only CHANGED
+  fields, `publish:true` writes live). `guessMarketplace` picks the collection by name.
+- **UI** `app/admin/webflow/{page,webflow-client}.tsx` — Admin → **Webflow CMS** tab. Not
+  connected → shows the token setup steps. Connected → collection picker (auto-selects the
+  Marketplace), searchable table of every listing (name + price/status-ish columns + CSV), and a
+  schema-driven **Edit modal** (renders each editable field by type: PlainText/RichText/Number/
+  Switch/… ; publishes the change live by default, uncheck to just stage it).
+- **Reports → Marketplace "Live listings" section** (`app/reports/marketplace/marketplace-client.tsx`
+  `LiveListings`): pulls the PUBLISHED (live) items of the marketplace collection straight from the
+  CMS and lists them (count + search + CSV) under the GA traffic table. Fed by
+  `app/api/admin/marketplace/live/route.ts` (gated `reports.marketplace`, read-only) →
+  `resolveMarketplaceCollectionId` + `listAllItems({live:true})`. This is the read-only surface a
+  read-only token lights up (no editing here — editing lives on the Admin → Webflow CMS tab).
+- **Permission** `admin.webflow` (MODULE + ADMIN_TABS + CATALOG, group Admin) gates the EDIT tab;
+  the Reports live-listings section is gated by `reports.marketplace`. Admins auto-pass.
+- **One-time setup:** in Webflow → Site settings → Apps & integrations → API access → **Generate
+  API token** with CMS read+write (+ Sites read) → set `WEBFLOW_API_TOKEN` in the ADMIN Vercel
+  project → redeploy. Optional `WEBFLOW_SITE_ID` / `WEBFLOW_MARKETPLACE_COLLECTION_ID` to pin
+  (else auto-discovered). **NB Site API tokens are scoped to one site.**
+- **Follow-up idea:** replace the `snaggedMarketplaceSet` HTML scrape with `listAllItems` (the
+  API is the authoritative live set), and/or push SNAP inventory → new listings via `createItem`.
+
+---
+
 # Pipedrive buy-side deal flow — bridge + setup + create-deal core (2026-07-20) — SUPERSEDED
 
 **Superseded 2026-07-21 by the native Deals CRM above — Pipedrive dropped.** Kept for history;
