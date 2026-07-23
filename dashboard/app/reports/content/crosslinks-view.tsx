@@ -20,6 +20,20 @@ const th: CSSProperties = { ...cell, textAlign: "left", color: "var(--muted,#888
 const postUrl = (slug: string | null) => slug ? `https://www.snagged.com/post/${slug}` : null;
 const when = (iso: string | null) => iso ? new Date(iso).toLocaleString() : "";
 
+// A post title that truncates but keeps a visible ↗ open-link (both title + arrow open the post),
+// so you can cross-check the source and target side by side.
+function PostLink({ title, slug, color, prefix }: { title: string | null; slug: string | null; color: string; prefix?: string }) {
+  const url = postUrl(slug);
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 5, maxWidth: 240 }}>
+      {url
+        ? <a href={url} target="_blank" rel="noreferrer" title={title || "Open post"} style={{ fontWeight: 600, color, textDecoration: "none", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{prefix}{title || "—"}</a>
+        : <span style={{ fontWeight: 600, color, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{prefix}{title || "—"}</span>}
+      {url && <a href={url} target="_blank" rel="noreferrer" title="Open post ↗" style={{ flex: "none", color: "var(--muted,#888)", textDecoration: "none", fontSize: 12.5 }}>↗</a>}
+    </div>
+  );
+}
+
 export default function CrosslinksView() {
   const [data, setData] = useState<Resp | null>(null);
   const [loading, setLoading] = useState(true);
@@ -123,13 +137,9 @@ export default function CrosslinksView() {
               {rows.map((o) => (
                 <tr key={o.id} style={{ background: o.feedback === "up" ? "#f2f8f4" : undefined }}>
                   <td style={{ ...cell, fontWeight: 800, color: scoreColor(Number(o.score) || 0) }}>{Math.round(Number(o.score) || 0)}</td>
-                  <td style={{ ...cell, fontWeight: 600, whiteSpace: "nowrap", maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis" }} title={o.source_title || ""}>
-                    {o.source_title || "—"}{postUrl(o.source_slug) && <a href={postUrl(o.source_slug)!} target="_blank" rel="noreferrer" title="Open source post" style={{ color: "var(--muted,#888)", textDecoration: "none", marginLeft: 5, fontSize: 12 }}>↗</a>}
-                  </td>
+                  <td style={cell}><PostLink title={o.source_title} slug={o.source_slug} color="var(--navy,#254254)" /></td>
                   <td style={{ ...cell, maxWidth: 260 }} title={o.context || ""}><span style={{ background: "#fdf3d8", borderRadius: 4, padding: "1px 5px", fontWeight: 600 }}>{o.anchor || "—"}</span></td>
-                  <td style={{ ...cell, whiteSpace: "nowrap", maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", color: "#2f6f7a", fontWeight: 600 }} title={o.target_title || ""}>
-                    → {o.target_title || "—"}{postUrl(o.target_slug) && <a href={postUrl(o.target_slug)!} target="_blank" rel="noreferrer" title="Open target post" style={{ color: "var(--muted,#888)", textDecoration: "none", marginLeft: 5, fontSize: 12 }}>↗</a>}
-                  </td>
+                  <td style={cell}><PostLink title={o.target_title} slug={o.target_slug} color="#2f6f7a" prefix="→ " /></td>
                   <td style={{ ...cell, maxWidth: 300, color: "var(--navy-2,#4a5b66)" }}>{o.rationale || "—"}</td>
                   <td style={{ ...cell, whiteSpace: "nowrap", textAlign: "right" }}>
                     <button title="Super relevant (boost + learn)" style={{ ...BTN, padding: "3px 8px", borderColor: o.feedback === "up" ? "#1f7a5a" : undefined, color: o.feedback === "up" ? "#1f7a5a" : undefined }} disabled={busyId === o.id} onClick={() => act(o, "up")}>👍</button>{" "}

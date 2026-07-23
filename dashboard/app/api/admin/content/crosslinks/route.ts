@@ -30,9 +30,12 @@ export async function GET() {
   if (!run) return NextResponse.json({ ok: true, configured: true, run: null, opportunities: [] });
   const [opps, fb] = await Promise.all([listOpportunities(run.id), listFeedback()]);
   const fbMap = new Map(fb.map((f) => [`${f.source_id}|${f.target_id}`, f.rating]));
+  // Normalize any 0-1 scores an earlier run may have stored to the 0-100 scale, then re-rank.
+  const norm = (s: number | null): number | null => s == null ? s : (s > 0 && s <= 1 ? Math.round(s * 100) : Math.round(s));
   const merged = opps
     .filter((o) => o.status !== "dismissed" && fbMap.get(`${o.source_id}|${o.target_id}`) !== "down")
-    .map((o) => ({ ...o, feedback: fbMap.get(`${o.source_id}|${o.target_id}`) || null }));
+    .map((o) => ({ ...o, score: norm(Number(o.score)), feedback: fbMap.get(`${o.source_id}|${o.target_id}`) || null }))
+    .sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0));
   return NextResponse.json({ ok: true, configured: true, run, opportunities: merged });
 }
 

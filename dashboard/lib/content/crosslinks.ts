@@ -14,7 +14,7 @@ const MODEL = process.env.CONTENT_CROSSLINK_MODEL || "claude-haiku-4-5-20251001"
 const CANDIDATES_PER_POST = 8;   // shortlist size fed to the LLM
 const MAX_OPPS_PER_POST = 4;     // cap so one post doesn't flood the list
 const BODY_CHARS = 3800;         // source-body budget per LLM call
-const CONCURRENCY = 6;
+const CONCURRENCY = 12;          // fit a ~144-post corpus inside the 300s function limit
 
 export function crosslinksConfigured(): boolean {
   return isDbConfigured() && webflowConfigured() && Boolean(process.env.ANTHROPIC_API_KEY) && Boolean(process.env.WEBFLOW_BLOG_POSTS_ID);
@@ -96,7 +96,7 @@ async function llmOpps(source: Post, candidates: Post[], avoidTitles: string[], 
   const system =
     `You improve SEO by finding INTERNAL cross-link opportunities between blog posts on snagged.com (a domain marketplace/blog). ` +
     `Given the SOURCE post and a list of CANDIDATE posts, find where the source post should link to a candidate — but ONLY when it is HIGHLY, SPECIFICALLY relevant (a reader clicking the link gets a genuinely related, useful next read). Reject loose/topical-only matches. ` +
-    `For each opportunity return: "target" (candidate index), "anchor" (a short phrase COPIED VERBATIM from the SOURCE post body to turn into the link — 2-6 words, must appear exactly in the text), "context" (the sentence it's in), "score" (0-100 relevance), "reason" (one short line). ` +
+    `For each opportunity return: "target" (candidate index), "anchor" (a short phrase COPIED VERBATIM from the SOURCE post body to turn into the link — 2-6 words, must appear exactly in the text), "context" (the sentence it's in), "score" (an INTEGER 0-100 relevance, e.g. 82 — NEVER a 0-1 decimal), "reason" (one short line). ` +
     `Return AT MOST ${MAX_OPPS_PER_POST}, best first. Return STRICT JSON: [{"target":0,"anchor":"","context":"","score":0,"reason":""}]. Empty array if nothing is strongly relevant. ` +
     (avoidTitles.length ? `Do NOT suggest these targets (previously judged NOT relevant): ${avoidTitles.slice(0, 12).join("; ")}. ` : "") +
     (preferTitles.length ? `These were judged HIGHLY relevant before — prefer them when they fit: ${preferTitles.slice(0, 12).join("; ")}. ` : "");
@@ -199,7 +199,10 @@ export async function analyzeCrosslinks(by: string | null): Promise<{ runId: str
         const anchor = String(o.anchor || "").trim();
         // Anchor must actually appear in the source body (drop hallucinations).
         if (!anchor || !src.text.toLowerCase().includes(anchor.toLowerCase())) return null;
-        let score = Math.max(0, Math.min(100, Number(o.score) || 0));
+        // The model sometimes returns a 0-1 decimal instead of 0-100 — normalize either way.
+        let score = Number(o.score) || 0;
+        if (score > 0 && score <= 1) score *= 100;
+        score = Math.max(0, Math.min(100, score));
         if (fb.get(`${src.id}|${target.id}`) === "up") score = Math.min(100, score + 25); // boost confirmed-good
         return {
           run_id: runId, source_id: src.id, source_title: src.title, source_slug: src.slug,
