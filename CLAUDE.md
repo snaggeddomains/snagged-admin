@@ -143,6 +143,14 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
   like Archive — off the open board, visible via the filter). Reopen clears it back to open.
   - **Same-window links.** `RVal` report/dossier links dropped `target=_blank` — the desktop app
     spawned a new window (losing the session) on internal `app.snagged.com` links.
+- **Comments UI (Asana-style) + collapsed emails (2026-07-23).** The deal-detail right column was
+  reworked: **Comments** (renamed from Activity) now sits ABOVE Emails and renders as an
+  Asana-style thread — per row a circular initials `Avatar` (colored by email) + name + relative
+  time + body, with @mentions highlighted (`renderMentionBody`), chronological (oldest→newest),
+  composer at the BOTTOM ("Comment" button + "N will be notified" hint). System events
+  (created/stage/status/assignment) render as compact muted one-liners. **Emails are collapsed by
+  default** (▸ toggle) — a deal can have 47+ messages and blew up the page; expand to view the
+  chain + the "Pull emails" button. `deal-client.tsx` only.
 - **NEXT (Ph3):** email sequences (outbound) + richer pipeline reporting. Existing Pipedrive
   test deals are NOT migrated (day-one) — start fresh natively.
 

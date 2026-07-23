@@ -39,6 +39,7 @@ export default function DealClient({ id }: { id: string }) {
   const [mq, setMq] = useState<string | null>(null); // active @mention query
   const [ingesting, setIngesting] = useState(false);
   const [wonOpen, setWonOpen] = useState(false);
+  const [emailsOpen, setEmailsOpen] = useState(false); // email chain collapsed by default (can be 47+)
   const taRef = useRef<HTMLTextAreaElement>(null);
 
   // Close Won — confirm owner/contact + price/commission + recap, set won, log the recap.
@@ -226,21 +227,35 @@ export default function DealClient({ id }: { id: string }) {
           </>}
         </div>
 
-        {/* Email chain first (the deal's correspondence), then internal activity/notes. */}
+        {/* Comments first (Asana-style threaded), then the collapsed email chain. */}
         <div>
           <div style={card}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-              <span style={{ fontWeight: 800, fontSize: 14 }}>📥 Emails ({data.emails.length})</span>
-              <button style={btn} onClick={pullEmails} disabled={ingesting}>{ingesting ? "Pulling…" : "↻ Pull emails"}</button>
+            <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 12 }}>💬 Comments</div>
+            {/* Thread — chronological (oldest first), composer at the bottom like Asana. */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              {[...data.activity].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()).map((a) => {
+                const who = nameFor(a.user_email) || "system";
+                const isMsg = a.kind === "comment" || a.kind === "note";
+                return isMsg ? (
+                  <div key={a.id} style={{ display: "flex", gap: 10 }}>
+                    <Avatar email={a.user_email} name={who} />
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div style={{ fontSize: 13 }}><span style={{ fontWeight: 700, color: "var(--navy,#254254)" }}>{who}</span> <span style={{ color: "var(--muted,#8a94a0)" }}>· {relTime(a.created_at) || when(a.created_at)}</span></div>
+                      <div style={{ fontSize: 14, color: "var(--navy,#254254)", marginTop: 3, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{renderMentionBody(a.body || "")}</div>
+                    </div>
+                  </div>
+                ) : (
+                  // System event (created / stage / status / assignment) — compact muted line.
+                  <div key={a.id} style={{ fontSize: 12, color: "var(--muted,#8a94a0)", paddingLeft: 38 }}>
+                    {who} {activityText(a)} · {relTime(a.created_at) || when(a.created_at)}
+                  </div>
+                );
+              })}
+              {!data.activity.length && <div className="muted" style={{ fontSize: 12 }}>No comments yet.</div>}
             </div>
-            {data.emails.map((m) => <EmailRow key={m.id} m={m} />)}
-            {!data.emails.length && <div className="muted" style={{ fontSize: 12 }}>No emails yet. They&apos;re pulled automatically each hour; “Pull emails” fetches now.</div>}
-          </div>
-
-          <div style={card}>
-            <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 8 }}>Activity</div>
-            <div style={{ position: "relative" }}>
-              <textarea ref={taRef} style={{ ...inp, minHeight: 60, resize: "vertical" }} placeholder="Add a note… type @ to mention someone" value={note}
+            {/* Composer */}
+            <div style={{ position: "relative", marginTop: 14 }}>
+              <textarea ref={taRef} style={{ ...inp, minHeight: 60, resize: "vertical" }} placeholder="Add a comment… type @ to mention someone" value={note}
                 onChange={(e) => onNoteChange(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && mentionMatches.length && mq) { e.preventDefault(); pickMention(mentionMatches[0]); } }} />
               {mq != null && mentionMatches.length > 0 && (
                 <div style={{ position: "absolute", zIndex: 20, left: 6, right: 6, background: "#fff", border: "1px solid var(--line,#e3ddcf)", borderRadius: 8, boxShadow: "0 4px 14px rgba(0,0,0,0.12)", overflow: "hidden" }}>
@@ -252,16 +267,24 @@ export default function DealClient({ id }: { id: string }) {
                 </div>
               )}
             </div>
-            <div style={{ marginTop: 8 }}><button style={btnPrimary} onClick={postNote} disabled={!note.trim()}>Post note</button></div>
-            <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 9 }}>
-              {[...data.activity].reverse().map((a) => (
-                <div key={a.id} style={{ fontSize: 12.5, borderLeft: "2px solid var(--line,#e6e0d3)", paddingLeft: 9 }}>
-                  <div style={{ color: "var(--muted,#889)", fontSize: 11 }}>{nameFor(a.user_email) || "system"} · {when(a.created_at)}</div>
-                  <div style={{ color: "var(--navy,#254254)", marginTop: 1 }}>{activityText(a)}</div>
-                </div>
-              ))}
-              {!data.activity.length && <div className="muted" style={{ fontSize: 12 }}>No activity yet.</div>}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
+              <span className="muted" style={{ fontSize: 11 }}>{resolveMentions(note).length ? `${resolveMentions(note).length} will be notified` : ""}</span>
+              <button style={btnPrimary} onClick={postNote} disabled={!note.trim()}>Comment</button>
             </div>
+          </div>
+
+          {/* Emails — collapsed by default (can be 47+); expand to view the chain. */}
+          <div style={card}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: emailsOpen ? 8 : 0 }}>
+              <button onClick={() => setEmailsOpen((v) => !v)} style={{ background: "none", border: "none", cursor: "pointer", padding: 0, fontWeight: 800, fontSize: 14, color: "var(--navy,#254254)", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                <span style={{ fontSize: 11 }}>{emailsOpen ? "▾" : "▸"}</span> 📥 Emails ({data.emails.length})
+              </button>
+              {emailsOpen && <button style={btn} onClick={pullEmails} disabled={ingesting}>{ingesting ? "Pulling…" : "↻ Pull emails"}</button>}
+            </div>
+            {emailsOpen && <>
+              {data.emails.map((m) => <EmailRow key={m.id} m={m} />)}
+              {!data.emails.length && <div className="muted" style={{ fontSize: 12 }}>No emails yet. They&apos;re pulled automatically each hour; “Pull emails” fetches now.</div>}
+            </>}
           </div>
         </div>
       </div>
@@ -304,6 +327,22 @@ function WonModal({ deal, onClose, onSubmit }: { deal: Deal; onClose: () => void
         </div>
       </div>
     </div>
+  );
+}
+
+// Highlight @mentions (a capitalized name after @) as a chip, Asana-style.
+function renderMentionBody(body: string) {
+  return String(body || "").split(/(@[A-Z][A-Za-z]*(?:\s[A-Z][A-Za-z]*)?)/g).map((p, i) =>
+    /^@[A-Z]/.test(p)
+      ? <span key={i} style={{ color: "#2f6f7a", fontWeight: 700 }}>{p}</span>
+      : <span key={i}>{p}</span>);
+}
+// Small circular initials avatar (colored by the person's email), like Asana's comment avatars.
+function Avatar({ email, name, size = 28 }: { email: string | null; name: string; size?: number }) {
+  return (
+    <span style={{ width: size, height: size, flex: `0 0 ${size}px`, borderRadius: "50%", background: ownerColor(email), color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.4, fontWeight: 700 }}>
+      {initialsOf(name)}
+    </span>
   );
 }
 
