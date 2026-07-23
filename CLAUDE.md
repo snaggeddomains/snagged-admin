@@ -368,7 +368,18 @@ highly-relevant only, with the exact anchor phrase to link.
   formatting) so the UI error is specific, not one vague line. And `alreadyLinkedToTarget` detects
   when the phrase is ALREADY hyperlinked to that exact target (e.g. an episode-list item whose domain
   name already links to the post) → the cross-link already exists, so `applyCrosslink` marks it
-  `inserted` (flips to ✓) instead of erroring/double-linking. **Gated by `admin.webflow`** (write
+  `inserted` (flips to ✓) instead of erroring/double-linking.
+  - **Analysis only proposes INSERTABLE anchors (2026-07-23).** The analysis pass now gates each
+    `anchor`-kind opportunity on `anchorPlacement(src.html, anchor)` (the SAME engine the inserter
+    uses; `Post.html` carries the raw body) — so a phrase that's only in a heading, already a link,
+    or spans formatting is dropped at analysis time, not surfaced then failed at insert. Every anchor
+    row shown is one-click insertable. (Re-analyze to clear old un-insertable rows.)
+  - **Bulk insert (2026-07-23).** A checkbox in the first column + a header select-all; when any are
+    selected a toolbar shows **Insert staged** / **＋ Insert & publish live** / Clear. `insert_bulk`
+    action → `applyCrosslinksBulk(ids,{publish})` GROUPS ids by source post so multiple links into
+    one post apply to a single body and write/publish ONCE (no read-modify-write clobber); returns
+    per-id results (ok / alreadyLinked / error reason). 200-id cap. UI flips done rows to ✓ and
+    summarizes skips. **Gated by `admin.webflow`** (write
   token + permission) — the GET returns `canInsert`; the UI shows **Insert** (staged draft, safe/
   calibration default) + **＋ Live** (publish now) per row, or "✓ Inserted". Env `CONTENT_POST_BASE`
   (default `https://www.snagged.com/post`). Tested: token-walk wrap/insert verified on heading/

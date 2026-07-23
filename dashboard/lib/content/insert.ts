@@ -183,29 +183,96 @@ export async function applyCrosslink(id: string, opts: { publish: boolean; dryRu
   const html = String(fieldData[bodySlug] || "");
   if (!html) return { ok: false, error: "Source post body is empty" };
 
-  // If the phrase is already linked to this exact target, the cross-link already exists → mark done.
-  if (opp.kind !== "add_sentence" && alreadyLinkedToTarget(html, opp.anchor || "", opp.target_slug || "")) {
+  const rw = computeRewrite(opp, html);
+  if (rw.kind === "linked") {
     await getDb().from(LINKS).update({ status: "inserted" }).eq("id", id);
     return { ok: true, published: false, alreadyLinked: true };
   }
-  const rewritten = opp.kind === "add_sentence"
-    ? insertSentence(html, opp.new_sentence || "", opp.anchor || "", opp.context || "", opp.target_slug || "")
-    : wrapAnchor(html, opp.anchor || "", opp.target_slug || "");
-  if (rewritten == null) {
-    let reason = "could not build the new sentence";
-    if (opp.kind !== "add_sentence") {
-      const p = anchorPlacement(html, opp.anchor || "");
-      reason = "reason" in p ? p.reason : "couldn't place the link";
-    }
-    return { ok: false, error: `Couldn't insert — ${reason}. Insert manually.` };
-  }
-  if (rewritten === html) return { ok: false, error: "No change produced" };
-  if (opts.dryRun) return { ok: true, preview: rewritten };
+  if (rw.kind === "fail") return { ok: false, error: `Couldn't insert — ${rw.reason}. Insert manually.` };
+  if (opts.dryRun) return { ok: true, preview: rw.html };
 
-  const upd = await updateItem(collectionId, opp.source_id, { [bodySlug]: rewritten }, { live: false });
+  const upd = await updateItem(collectionId, opp.source_id, { [bodySlug]: rw.html }, { live: false });
   if (!upd.ok) return { ok: false, error: upd.error || "Webflow update failed" };
   let published = false;
   if (opts.publish) { const p = await publishItems(collectionId, [opp.source_id]); published = p.ok; }
   await getDb().from(LINKS).update({ status: "inserted" }).eq("id", id);
   return { ok: true, published };
+}
+
+// Pure decision for one opportunity against a body: already-linked / a new html / a failure reason.
+type Opp = { kind?: string | null; anchor?: string | null; new_sentence?: string | null; context?: string | null; target_slug?: string | null };
+type Rewrite = { kind: "linked" } | { kind: "html"; html: string } | { kind: "fail"; reason: string };
+function computeRewrite(opp: Opp, html: string): Rewrite {
+  if (opp.kind !== "add_sentence" && alreadyLinkedToTarget(html, opp.anchor || "", opp.target_slug || "")) return { kind: "linked" };
+  const rewritten = opp.kind === "add_sentence"
+    ? insertSentence(html, opp.new_sentence || "", opp.anchor || "", opp.context || "", opp.target_slug || "")
+    : wrapAnchor(html, opp.anchor || "", opp.target_slug || "");
+  if (rewritten == null) {
+    let reason = "could not build the new sentence";
+    if (opp.kind !== "add_sentence") { const p = anchorPlacement(html, opp.anchor || ""); reason = "reason" in p ? p.reason : "couldn't place the link"; }
+    return { kind: "fail", reason };
+  }
+  if (rewritten === html) return { kind: "fail", reason: "no change produced" };
+  return { kind: "html", html: rewritten };
+}
+
+export type BulkResult = { id: string; ok: boolean; published?: boolean; alreadyLinked?: boolean; error?: string };
+
+// Insert MANY opportunities at once. Groups by source post so multiple links into the same post are
+// applied to ONE body and written/published once (avoids read-modify-write clobbering). publish=true
+// pushes each touched post live. Order within a post follows the requested id order.
+export async function applyCrosslinksBulk(ids: string[], opts: { publish: boolean }): Promise<{ ok: boolean; error?: string; results: BulkResult[] }> {
+  if (!webflowConfigured()) return { ok: false, error: "Webflow not configured", results: [] };
+  if (!webflowCanWrite()) return { ok: false, error: "Webflow token is read-only", results: [] };
+  const collectionId = process.env.WEBFLOW_BLOG_POSTS_ID;
+  if (!collectionId) return { ok: false, error: "WEBFLOW_BLOG_POSTS_ID not set", results: [] };
+  const uniq = [...new Set(ids)].slice(0, 200); // safety cap for the 300s function budget
+  if (!uniq.length) return { ok: true, results: [] };
+
+  const { data } = await getDb().from(LINKS).select("*").in("id", uniq);
+  const byId = new Map((data as Record<string, unknown>[] || []).map((o) => [o.id as string, o]));
+  const coll = await getCollection(collectionId);
+  const fields = coll.data?.fields || [];
+
+  // Group requested ids by source post, preserving order; skip missing / already-inserted.
+  const groups = new Map<string, string[]>();
+  for (const id of uniq) {
+    const o = byId.get(id) as { source_id?: string; status?: string } | undefined;
+    if (!o || o.status === "inserted") continue;
+    const arr = groups.get(o.source_id!) || [];
+    arr.push(id); groups.set(o.source_id!, arr);
+  }
+
+  const results: BulkResult[] = [];
+  for (const [sourceId, groupIds] of groups) {
+    const item = await getItem(collectionId, sourceId);
+    const fieldData = item.data?.fieldData || {};
+    if (!item.ok || !item.data) { for (const id of groupIds) results.push({ id, ok: false, error: item.error || "could not load post" }); continue; }
+    const bodySlug = resolveBodySlug(fields, fieldData);
+    if (!bodySlug) { for (const id of groupIds) results.push({ id, ok: false, error: "could not find the post body field" }); continue; }
+    let html = String(fieldData[bodySlug] || "");
+    const newlyInserted: string[] = [], linked: string[] = [];
+    for (const id of groupIds) {
+      const rw = computeRewrite(byId.get(id) as Opp, html);
+      if (rw.kind === "linked") { linked.push(id); results.push({ id, ok: true, alreadyLinked: true }); }
+      else if (rw.kind === "html") { html = rw.html; newlyInserted.push(id); results.push({ id, ok: true }); }
+      else results.push({ id, ok: false, error: rw.reason });
+    }
+    let published = false;
+    if (newlyInserted.length) {
+      const upd = await updateItem(collectionId, sourceId, { [bodySlug]: html }, { live: false });
+      if (!upd.ok) {
+        for (const id of newlyInserted) { const r = results.find((x) => x.id === id)!; r.ok = false; r.error = upd.error || "Webflow update failed"; }
+        // keep any already-linked rows as done below
+      } else if (opts.publish) {
+        published = (await publishItems(collectionId, [sourceId])).ok;
+        for (const id of newlyInserted) { const r = results.find((x) => x.id === id)!; r.published = published; }
+      }
+    }
+    const done = [...linked, ...newlyInserted.filter((id) => results.find((x) => x.id === id)!.ok)];
+    if (done.length) await getDb().from(LINKS).update({ status: "inserted" }).in("id", done);
+  }
+  // Ids that weren't in any group (missing/already-inserted) — report them as skipped no-ops.
+  for (const id of uniq) if (!results.find((r) => r.id === id)) results.push({ id, ok: true, alreadyLinked: false });
+  return { ok: true, results };
 }

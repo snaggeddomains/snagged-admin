@@ -8,6 +8,7 @@
 
 import { getDb, isDbConfigured } from "../supabase";
 import { webflowConfigured, loadCollectionResolved, type WfField, type WfItem } from "../webflow";
+import { anchorPlacement } from "./insert";
 
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = process.env.CONTENT_CROSSLINK_MODEL || "claude-haiku-4-5-20251001";
@@ -26,8 +27,6 @@ const stripHtml = (s: string): string => String(s || "").replace(/<[^>]*>/g, " "
 function tokens(s: string): string[] {
   return (s.toLowerCase().match(/[a-z][a-z'-]{2,}/g) || []).filter((w) => !STOP.has(w));
 }
-// Normalize a phrase for heading-matching: lowercase, drop punctuation, collapse whitespace.
-const normPhrase = (s: string): string => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
 // Pull the heading text (h1–h6) out of a body's HTML so we can keep anchors out of headings.
 // Webflow RichText also renders a standalone bold line as its own <p><strong>…</strong></p>; treat a
 // paragraph that is ENTIRELY a single bold/strong run (a mini-heading) as a heading too.
@@ -45,7 +44,7 @@ function extractHeadings(html: string): string[] {
   return out;
 }
 
-export type Post = { id: string; title: string; slug: string; summary: string; text: string; headings: string[]; linkedSlugs: Set<string>; isDraft: boolean };
+export type Post = { id: string; title: string; slug: string; summary: string; text: string; html: string; headings: string[]; linkedSlugs: Set<string>; isDraft: boolean };
 
 // Detect the title / slug / summary / body fields, then map items → Post.
 function toPosts(fields: WfField[], items: WfItem[]): Post[] {
@@ -73,6 +72,7 @@ function toPosts(fields: WfField[], items: WfItem[]): Post[] {
       slug: String(it.fieldData[urlSlug] || "").trim(),
       summary: summarySlug ? stripHtml(String(it.fieldData[summarySlug] || "")) : "",
       text: stripHtml(bodyHtml),
+      html: bodyHtml,
       headings: extractHeadings(bodyHtml),
       linkedSlugs,
       isDraft: !!it.isDraft,
@@ -233,7 +233,6 @@ export async function analyzeCrosslinks(by: string | null): Promise<{ runId: str
     const avoid = fbRows.filter((f) => f.source_id === src.id && f.rating === "down").map((f) => titleById.get(f.target_id) || "").filter(Boolean);
     const prefer = fbRows.filter((f) => f.source_id === src.id && f.rating === "up").map((f) => titleById.get(f.target_id) || "").filter(Boolean);
     const raw = await llmOpps(src, scored, avoid, prefer);
-    const headingNorms = src.headings.map(normPhrase).filter(Boolean);
     const rows = raw
       .map((o) => {
         const target = scored[o.target];
@@ -252,10 +251,12 @@ export async function analyzeCrosslinks(by: string | null): Promise<{ runId: str
           newSentence = newSentence.slice(0, 400);
           context = String(o.insert_after || "").slice(0, 400); // where to place it
         } else {
-          // Existing-phrase link: anchor must appear verbatim in the body and NOT be a heading.
-          if (!anchor || !src.text.toLowerCase().includes(anchor.toLowerCase())) return null;
-          const anchorNorm = normPhrase(anchor);
-          if (anchorNorm && headingNorms.some((h) => h === anchorNorm || h.includes(anchorNorm))) return null;
+          // Existing-phrase link: only keep it if the link can ACTUALLY be placed in body prose —
+          // the same engine the inserter uses. This drops anchors that are only in a heading, are
+          // already a link, span formatting, etc., so every anchor row shown is one-click insertable.
+          if (!anchor) return null;
+          const place = anchorPlacement(src.html, anchor);
+          if ("reason" in place) return null;
         }
         // The model sometimes returns a 0-1 decimal instead of 0-100 — normalize either way.
         let score = Number(o.score) || 0;

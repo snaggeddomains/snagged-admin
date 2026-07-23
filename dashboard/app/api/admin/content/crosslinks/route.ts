@@ -14,7 +14,7 @@ import {
   crosslinksConfigured, analyzeCrosslinks, latestRun, listOpportunities, listFeedback,
   upsertFeedback, setOpportunityStatus,
 } from "@/lib/content/crosslinks";
-import { applyCrosslink } from "@/lib/content/insert";
+import { applyCrosslink, applyCrosslinksBulk } from "@/lib/content/insert";
 import { webflowCanWrite } from "@/lib/webflow";
 
 export const runtime = "nodejs";
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
   if (!canReports(me, "reports.content")) return NextResponse.json({ error: "No access" }, { status: 403 });
   if (!crosslinksConfigured()) return NextResponse.json({ error: "Not configured (need Webflow + ANTHROPIC_API_KEY + WEBFLOW_BLOG_POSTS_ID)" }, { status: 503 });
 
-  const body = (await req.json().catch(() => ({}))) as { action?: string; source_id?: string; target_id?: string; rating?: string; note?: string; id?: string; publish?: boolean };
+  const body = (await req.json().catch(() => ({}))) as { action?: string; source_id?: string; target_id?: string; rating?: string; note?: string; id?: string; ids?: string[]; publish?: boolean };
   try {
     switch (body.action) {
       case "analyze": {
@@ -63,6 +63,13 @@ export async function POST(req: NextRequest) {
         const r = await applyCrosslink(body.id, { publish: body.publish === true });
         if (!r.ok) return NextResponse.json({ error: r.error || "Insert failed" }, { status: 400 });
         return NextResponse.json({ ok: true, published: !!r.published, alreadyLinked: !!r.alreadyLinked });
+      }
+      case "insert_bulk": {
+        if (!canAdmin(me, "admin.webflow")) return NextResponse.json({ error: "Editing the blog requires the admin.webflow permission" }, { status: 403 });
+        if (!Array.isArray(body.ids) || !body.ids.length) return NextResponse.json({ error: "ids[] required" }, { status: 400 });
+        const r = await applyCrosslinksBulk(body.ids, { publish: body.publish === true });
+        if (!r.ok) return NextResponse.json({ error: r.error || "Bulk insert failed" }, { status: 400 });
+        return NextResponse.json({ ok: true, results: r.results });
       }
       case "feedback": {
         if (!body.source_id || !body.target_id || (body.rating !== "up" && body.rating !== "down")) return NextResponse.json({ error: "source_id + target_id + rating(up|down) required" }, { status: 400 });

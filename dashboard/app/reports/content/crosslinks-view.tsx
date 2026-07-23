@@ -72,6 +72,8 @@ export default function CrosslinksView() {
   const [q, setQ] = useState("");
   const [minScore, setMinScore] = useState(0);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true); setErr(null);
@@ -115,6 +117,27 @@ export default function CrosslinksView() {
     finally { setBusyId(null); }
   };
 
+  const toggleOne = (id: string) => setSelected((prev) => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+
+  // Insert every selected row in one request (grouped server-side by post). publish pushes them live.
+  const bulkInsert = async (publish: boolean, ids: string[]) => {
+    if (!ids.length) return;
+    if (!confirm(`Insert ${ids.length} link${ids.length > 1 ? "s" : ""} ${publish ? "and PUBLISH them live" : "as staged drafts in Webflow"}?`)) return;
+    setBulkBusy(true); setErr(null);
+    try {
+      const res = await fetch("/api/admin/content/crosslinks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "insert_bulk", ids, publish }) });
+      const j = await res.json();
+      if (!res.ok || j.ok === false) throw new Error(j.error || `HTTP ${res.status}`);
+      const results: { id: string; ok: boolean; error?: string }[] = j.results || [];
+      const okIds = new Set(results.filter((r) => r.ok).map((r) => r.id));
+      const fails = results.filter((r) => !r.ok);
+      setData((d) => d ? { ...d, opportunities: d.opportunities.map((x) => okIds.has(x.id) ? { ...x, status: "inserted" } : x) } : d);
+      setSelected(new Set());
+      if (fails.length) setErr(`${okIds.size} done · ${fails.length} skipped — ${[...new Set(fails.map((f) => f.error))].slice(0, 3).join("; ")}${fails.length > 3 ? "…" : ""}`);
+    } catch (e) { setErr(String((e as Error)?.message || e)); }
+    finally { setBulkBusy(false); }
+  };
+
   // Feedback: up = boost, down = remove (suppressed going forward). Dismiss = hide this one.
   const act = async (o: Opp, kind: "up" | "down" | "dismiss") => {
     setBusyId(o.id);
@@ -140,6 +163,11 @@ export default function CrosslinksView() {
 
   const run = data?.run;
   const scoreColor = (s: number) => s >= 75 ? "#1f7a5a" : s >= 55 ? "#946200" : "#7a6f63";
+  const canInsert = !!data?.canInsert;
+  const selectable = rows.filter((o) => o.status !== "inserted");             // inserted rows aren't re-selectable
+  const allSelected = selectable.length > 0 && selectable.every((o) => selected.has(o.id));
+  const selectedIds = selectable.filter((o) => selected.has(o.id)).map((o) => o.id);
+  const toggleAll = () => setSelected(allSelected ? new Set() : new Set(selectable.map((o) => o.id)));
 
   return (
     <div>
@@ -163,6 +191,16 @@ export default function CrosslinksView() {
         </div>
       )}
 
+      {canInsert && selectedIds.length > 0 && (
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "8px 0", padding: "8px 10px", background: "#f2f8f4", border: "1px solid #cfe6d8", borderRadius: 8 }}>
+          <b style={{ fontSize: 13, color: "var(--navy,#254254)" }}>{selectedIds.length} selected</b>
+          <button style={{ ...BTN, padding: "4px 10px" }} disabled={bulkBusy} onClick={() => bulkInsert(false, selectedIds)}>{bulkBusy ? "Working…" : "Insert staged"}</button>
+          <button style={{ ...BTNP, padding: "4px 10px" }} disabled={bulkBusy} onClick={() => bulkInsert(true, selectedIds)}>{bulkBusy ? "Working…" : "＋ Insert & publish live"}</button>
+          <button style={{ ...BTN, padding: "4px 10px" }} disabled={bulkBusy} onClick={() => setSelected(new Set())}>Clear</button>
+          <span className="muted" style={{ fontSize: 11.5 }}>Already-linked rows resolve automatically; unplaceable ones are skipped with a reason.</span>
+        </div>
+      )}
+
       {err && <p style={{ color: CORAL }}>{err}</p>}
       {analyzing && <p className="muted" style={{ fontSize: 12.5 }}>Reading every post and scoring link opportunities… keep this tab open.</p>}
       {data && !data.configured && <p className="muted">Needs Webflow + <code>WEBFLOW_BLOG_POSTS_ID</code> + <code>ANTHROPIC_API_KEY</code>, plus <code>scripts/content_crosslinks.sql</code>.</p>}
@@ -173,6 +211,7 @@ export default function CrosslinksView() {
           <table style={{ borderCollapse: "collapse", fontSize: 13, width: "100%" }}>
             <thead>
               <tr>
+                {canInsert && <th style={{ ...th, width: 30, textAlign: "center" }}><input type="checkbox" checked={allSelected} onChange={toggleAll} title="Select all shown" style={{ cursor: "pointer" }} /></th>}
                 <th style={{ ...th, width: 60 }}>Score</th>
                 <th style={th}>In this post</th>
                 <th style={th}>Anchor text</th>
@@ -184,7 +223,8 @@ export default function CrosslinksView() {
             </thead>
             <tbody>
               {rows.map((o) => (
-                <tr key={o.id} style={{ background: o.feedback === "up" ? "#f2f8f4" : undefined }}>
+                <tr key={o.id} style={{ background: selected.has(o.id) ? "#eaf4ee" : o.feedback === "up" ? "#f2f8f4" : undefined }}>
+                  {canInsert && <td style={{ ...cell, textAlign: "center" }}>{o.status === "inserted" ? null : <input type="checkbox" checked={selected.has(o.id)} onChange={() => toggleOne(o.id)} style={{ cursor: "pointer" }} />}</td>}
                   <td style={{ ...cell, fontWeight: 800, color: scoreColor(Number(o.score) || 0) }}>{Math.round(Number(o.score) || 0)}</td>
                   <td style={cell}><PostLink title={o.source_title} slug={o.source_slug} color="var(--navy,#254254)" /></td>
                   <td style={{ ...cell, maxWidth: 320 }} title={o.kind === "add_sentence" ? (o.new_sentence || "") : (o.context || "")}><AnchorCell o={o} /></td>
