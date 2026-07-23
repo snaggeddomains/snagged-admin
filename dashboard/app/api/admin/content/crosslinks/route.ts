@@ -34,13 +34,15 @@ export async function GET() {
   const fbMap = new Map(fb.map((f) => [`${f.source_id}|${f.target_id}`, f.rating]));
   // Normalize any 0-1 scores an earlier run may have stored to the 0-100 scale, then re-rank.
   const norm = (s: number | null): number | null => s == null ? s : (s > 0 && s <= 1 ? Math.round(s * 100) : Math.round(s));
+  // Hide done rows — the screen shows only what still needs attention (inserted are already live/staged).
+  const insertedCount = opps.filter((o) => o.status === "inserted").length;
   const merged = opps
-    .filter((o) => o.status !== "dismissed" && fbMap.get(`${o.source_id}|${o.target_id}`) !== "down")
+    .filter((o) => o.status !== "dismissed" && o.status !== "inserted" && fbMap.get(`${o.source_id}|${o.target_id}`) !== "down")
     .map((o) => ({ ...o, score: norm(Number(o.score)), feedback: fbMap.get(`${o.source_id}|${o.target_id}`) || null }))
     .sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0));
   // Inserting a link WRITES to the Webflow CMS — needs a write token + the admin.webflow permission.
   const canInsert = webflowCanWrite() && canAdmin(me, "admin.webflow");
-  return NextResponse.json({ ok: true, configured: true, run, opportunities: merged, canInsert });
+  return NextResponse.json({ ok: true, configured: true, run, opportunities: merged, canInsert, insertedCount });
 }
 
 export async function POST(req: NextRequest) {
@@ -62,7 +64,7 @@ export async function POST(req: NextRequest) {
         if (!body.id) return NextResponse.json({ error: "id required" }, { status: 400 });
         const r = await applyCrosslink(body.id, { publish: body.publish === true });
         if (!r.ok) return NextResponse.json({ error: r.error || "Insert failed", dismissed: !!r.dismissed }, { status: 400 });
-        return NextResponse.json({ ok: true, published: !!r.published, alreadyLinked: !!r.alreadyLinked });
+        return NextResponse.json({ ok: true, published: !!r.published, alreadyLinked: !!r.alreadyLinked, repointed: !!r.repointed });
       }
       case "insert_bulk": {
         if (!canAdmin(me, "admin.webflow")) return NextResponse.json({ error: "Editing the blog requires the admin.webflow permission" }, { status: 403 });

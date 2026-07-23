@@ -10,7 +10,7 @@ type Opp = {
   kind: string | null; new_sentence: string | null;
 };
 type Run = { id: string; status: string; started_at: string; finished_at: string | null; posts: number | null; opportunities: number | null; error: string | null };
-type Resp = { ok: boolean; configured: boolean; run: Run | null; opportunities: Opp[]; error?: string; canInsert?: boolean };
+type Resp = { ok: boolean; configured: boolean; run: Run | null; opportunities: Opp[]; error?: string; canInsert?: boolean; insertedCount?: number };
 
 const CORAL = "var(--coral-deep, #c0492f)";
 const BTN: CSSProperties = { padding: "5px 11px", fontSize: 12.5, borderRadius: 8, border: "1px solid #d8d0bf", background: "#fff", color: "var(--navy,#254254)", cursor: "pointer", whiteSpace: "nowrap" };
@@ -71,6 +71,8 @@ export default function CrosslinksView() {
   const [err, setErr] = useState<string | null>(null);
   const [q, setQ] = useState("");
   const [minScore, setMinScore] = useState(0);
+  const [note, setNote] = useState<string | null>(null);
+  const [insertedThisSession, setInsertedThisSession] = useState(0);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkBusy, setBulkBusy] = useState(false);
@@ -107,18 +109,21 @@ export default function CrosslinksView() {
       ? `Insert this link into “${o.source_title}” and PUBLISH it live?${what}`
       : `Insert this link into “${o.source_title}” as a staged draft in Webflow (review & publish later)?${what}`;
     if (!confirm(msg)) return;
-    setBusyId(o.id); setErr(null);
+    setBusyId(o.id); setErr(null); setNote(null);
     try {
       const res = await fetch("/api/admin/content/crosslinks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "insert", id: o.id, publish }) });
       const j = await res.json();
       if (!res.ok || j.ok === false) {
         if (j.dismissed) { // can never be auto-inserted → remove it quietly rather than error
           setData((d) => d ? { ...d, opportunities: d.opportunities.filter((x) => x.id !== o.id) } : d);
+          setNote("Hidden — not placeable (already a link elsewhere / heading).");
           return;
         }
         throw new Error(j.error || `HTTP ${res.status}`);
       }
-      setData((d) => d ? { ...d, opportunities: d.opportunities.map((x) => x.id === o.id ? { ...x, status: "inserted" } : x) } : d);
+      setData((d) => d ? { ...d, opportunities: d.opportunities.filter((x) => x.id !== o.id) } : d); // done → off the active screen
+      setInsertedThisSession((n) => n + 1);
+      if (j.repointed) setNote("↪ Repointed an existing link to our post.");
     } catch (e) { setErr(String((e as Error)?.message || e)); }
     finally { setBusyId(null); }
   };
@@ -129,18 +134,21 @@ export default function CrosslinksView() {
   const bulkInsert = async (publish: boolean, ids: string[]) => {
     if (!ids.length) return;
     if (!confirm(`Insert ${ids.length} link${ids.length > 1 ? "s" : ""} ${publish ? "and PUBLISH them live" : "as staged drafts in Webflow"}?`)) return;
-    setBulkBusy(true); setErr(null);
+    setBulkBusy(true); setErr(null); setNote(null);
     try {
       const res = await fetch("/api/admin/content/crosslinks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "insert_bulk", ids, publish }) });
       const j = await res.json();
       if (!res.ok || j.ok === false) throw new Error(j.error || `HTTP ${res.status}`);
-      const results: { id: string; ok: boolean; error?: string; dismissed?: boolean }[] = j.results || [];
+      const results: { id: string; ok: boolean; error?: string; dismissed?: boolean; repointed?: boolean }[] = j.results || [];
       const okIds = new Set(results.filter((r) => r.ok).map((r) => r.id));
       const hiddenIds = new Set(results.filter((r) => !r.ok && r.dismissed).map((r) => r.id)); // unplaceable → drop from list
       const fails = results.filter((r) => !r.ok && !r.dismissed);                                // transient errors → report
-      setData((d) => d ? { ...d, opportunities: d.opportunities.filter((x) => !hiddenIds.has(x.id)).map((x) => okIds.has(x.id) ? { ...x, status: "inserted" } : x) } : d);
+      const repointed = results.filter((r) => r.ok && r.repointed).length;
+      setData((d) => d ? { ...d, opportunities: d.opportunities.filter((x) => !hiddenIds.has(x.id) && !okIds.has(x.id)) } : d);
       setSelected(new Set());
-      if (fails.length || hiddenIds.size) setErr(`${okIds.size} done${hiddenIds.size ? ` · ${hiddenIds.size} not placeable (hidden)` : ""}${fails.length ? ` · ${fails.length} failed — ${[...new Set(fails.map((f) => f.error))].slice(0, 2).join("; ")}` : ""}`);
+      setInsertedThisSession((n) => n + okIds.size);
+      setNote(`${okIds.size} inserted${repointed ? ` (${repointed} repointed)` : ""}${hiddenIds.size ? ` · ${hiddenIds.size} not placeable (hidden)` : ""}`);
+      if (fails.length) setErr(`${fails.length} failed — ${[...new Set(fails.map((f) => f.error))].slice(0, 2).join("; ")}`);
     } catch (e) { setErr(String((e as Error)?.message || e)); }
     finally { setBulkBusy(false); }
   };
@@ -164,6 +172,7 @@ export default function CrosslinksView() {
   const rows = useMemo(() => {
     const t = q.trim().toLowerCase();
     return (data?.opportunities || []).filter((o) =>
+      o.status !== "inserted" &&  // done rows drop off the active screen
       (Number(o.score) || 0) >= minScore &&
       (!t || `${o.source_title} ${o.target_title} ${o.anchor} ${o.new_sentence} ${o.rationale}`.toLowerCase().includes(t)));
   }, [data, q, minScore]);
@@ -181,7 +190,7 @@ export default function CrosslinksView() {
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", margin: "6px 0 10px" }}>
         <button style={BTNP} onClick={analyze} disabled={analyzing}>{analyzing ? "Analyzing… (a few min)" : (run ? "↻ Re-analyze" : "Analyze the blog")}</button>
         <span className="muted" style={{ fontSize: 12.5 }}>
-          {run ? <>Last analyzed {when(run.finished_at || run.started_at)} · {run.opportunities ?? 0} opportunities across {run.posts ?? 0} posts{run.status !== "done" ? ` · ${run.status}` : ""}</> : "Not analyzed yet."}
+          {run ? <>Last analyzed {when(run.finished_at || run.started_at)} · {run.opportunities ?? 0} opportunities across {run.posts ?? 0} posts{run.status !== "done" ? ` · ${run.status}` : ""}{((data?.insertedCount ?? 0) + insertedThisSession) > 0 ? ` · ✓ ${(data?.insertedCount ?? 0) + insertedThisSession} inserted` : ""}</> : "Not analyzed yet."}
         </span>
       </div>
       <p className="section-blurb" style={{ marginTop: 0 }}>
@@ -208,6 +217,7 @@ export default function CrosslinksView() {
         </div>
       )}
 
+      {note && <p style={{ color: "#1f7a5a", fontSize: 12.5, margin: "6px 0" }}>{note}</p>}
       {err && <p style={{ color: CORAL }}>{err}</p>}
       {analyzing && <p className="muted" style={{ fontSize: 12.5 }}>Reading every post and scoring link opportunities… keep this tab open.</p>}
       {data && !data.configured && <p className="muted">Needs Webflow + <code>WEBFLOW_BLOG_POSTS_ID</code> + <code>ANTHROPIC_API_KEY</code>, plus <code>scripts/content_crosslinks.sql</code>.</p>}

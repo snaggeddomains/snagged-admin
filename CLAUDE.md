@@ -374,6 +374,17 @@ highly-relevant only, with the exact anchor phrase to link.
     uses; `Post.html` carries the raw body) — so a phrase that's only in a heading, already a link,
     or spans formatting is dropped at analysis time, not surfaced then failed at insert. Every anchor
     row shown is one-click insertable. (Re-analyze to clear old un-insertable rows.)
+  - **Repoint an existing link (2026-07-23).** If the anchor phrase is ALREADY a link but to a
+    worse/external target, we don't skip — `repointAnchorLink` replaces that `<a>`'s href with our
+    internal post (only when the whole phrase is the link's visible text AND the current href is NOT
+    already an internal `/post/` link, so a deliberate internal cross-link is never hijacked;
+    attributes preserved). `computeRewrite` tries body-prose wrap first, then repoint. The analysis
+    gate KEEPS an already-a-link anchor only when it's repointable (whole-phrase, non-internal, not
+    already our target). Response carries `repointed`; UI notes "↪ Repointed an existing link."
+  - **Done rows hide (2026-07-23).** The GET drops `inserted` rows (returns `insertedCount`) and the
+    UI removes a row the moment it's inserted/repointed — the screen shows only what needs attention.
+    A truly un-insertable click (already-a-link partial / heading / edited) auto-dismisses the row
+    with a note instead of a persistent error. Header shows "✓ N inserted".
   - **Bulk insert (2026-07-23).** A checkbox in the first column + a header select-all; when any are
     selected a toolbar shows **Insert staged** / **＋ Insert & publish live** / Clear. `insert_bulk`
     action → `applyCrosslinksBulk(ids,{publish})` GROUPS ids by source post so multiple links into

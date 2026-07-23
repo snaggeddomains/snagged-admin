@@ -116,6 +116,30 @@ export function alreadyLinkedToTarget(html: string, anchor: string, targetSlug: 
   return new RegExp(`href=["'][^"']*/post/${esc}`, "i").test(region);
 }
 
+// Re-point an EXISTING link whose visible text is exactly the anchor to our internal target post.
+// Only repoints a NON-internal link (an external/other href) — never hijacks an existing /post/
+// cross-link. Returns the rewritten html, or null if there's no such repointable link.
+export function repointAnchorLink(html: string, anchor: string, slug: string): string | null {
+  const want = String(anchor || "").trim().replace(/\s+/g, " ").toLowerCase();
+  if (!want || !slug) return null;
+  const target = postHref(slug);
+  const re = /<a\b([^>]*)>([\s\S]*?)<\/a>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html))) {
+    const innerText = decodeEntities(m[2].replace(/<[^>]*>/g, " ")).replace(/\s+/g, " ").trim().toLowerCase();
+    if (innerText !== want) continue;
+    const openEnd = m[0].indexOf(">") + 1;
+    const openTag = m[0].slice(0, openEnd);
+    const cur = openTag.match(/\bhref\s*=\s*["']([^"']*)["']/i)?.[1] || "";
+    if (/\/post\//i.test(cur)) return null;                 // already an internal cross-link — leave it
+    const newOpen = /\bhref\s*=\s*["'][^"']*["']/i.test(openTag)
+      ? openTag.replace(/\bhref\s*=\s*["'][^"']*["']/i, `href="${target}"`)
+      : openTag.replace(/^<a\b/i, `<a href="${target}"`);
+    return html.slice(0, m.index) + newOpen + m[2] + "</a>" + html.slice(m.index + m[0].length);
+  }
+  return null;
+}
+
 // Turn a plain sentence into HTML with `anchor` (a substring of it) wrapped in a link.
 export function linkifySentence(sentence: string, anchor: string, slug: string): string {
   const s = String(sentence || "");
@@ -159,7 +183,7 @@ function resolveBodySlug(fields: WfField[], fieldData: Record<string, unknown>):
   return slug;
 }
 
-export type ApplyResult = { ok: boolean; error?: string; published?: boolean; preview?: string; alreadyLinked?: boolean; dismissed?: boolean };
+export type ApplyResult = { ok: boolean; error?: string; published?: boolean; preview?: string; alreadyLinked?: boolean; dismissed?: boolean; repointed?: boolean };
 
 // Apply one opportunity to its source post. publish=false stages the edit in the CMS (review in
 // Webflow Designer / publish later); publish=true also pushes it live. dryRun returns the rewrite
@@ -201,27 +225,30 @@ export async function applyCrosslink(id: string, opts: { publish: boolean; dryRu
   let published = false;
   if (opts.publish) { const p = await publishItems(collectionId, [opp.source_id]); published = p.ok; }
   await getDb().from(LINKS).update({ status: "inserted" }).eq("id", id);
-  return { ok: true, published };
+  return { ok: true, published, repointed: rw.repoint };
 }
 
 // Pure decision for one opportunity against a body: already-linked / a new html / a failure reason.
 type Opp = { kind?: string | null; anchor?: string | null; new_sentence?: string | null; context?: string | null; target_slug?: string | null };
-type Rewrite = { kind: "linked" } | { kind: "html"; html: string } | { kind: "fail"; reason: string };
+type Rewrite = { kind: "linked" } | { kind: "html"; html: string; repoint?: boolean } | { kind: "fail"; reason: string };
 function computeRewrite(opp: Opp, html: string): Rewrite {
-  if (opp.kind !== "add_sentence" && alreadyLinkedToTarget(html, opp.anchor || "", opp.target_slug || "")) return { kind: "linked" };
-  const rewritten = opp.kind === "add_sentence"
-    ? insertSentence(html, opp.new_sentence || "", opp.anchor || "", opp.context || "", opp.target_slug || "")
-    : wrapAnchor(html, opp.anchor || "", opp.target_slug || "");
-  if (rewritten == null) {
-    let reason = "could not build the new sentence";
-    if (opp.kind !== "add_sentence") { const p = anchorPlacement(html, opp.anchor || ""); reason = "reason" in p ? p.reason : "couldn't place the link"; }
-    return { kind: "fail", reason };
+  if (opp.kind === "add_sentence") {
+    const rewritten = insertSentence(html, opp.new_sentence || "", opp.anchor || "", opp.context || "", opp.target_slug || "");
+    if (rewritten == null || rewritten === html) return { kind: "fail", reason: "could not build the new sentence" };
+    return { kind: "html", html: rewritten };
   }
-  if (rewritten === html) return { kind: "fail", reason: "no change produced" };
-  return { kind: "html", html: rewritten };
+  // anchor kind:
+  if (alreadyLinkedToTarget(html, opp.anchor || "", opp.target_slug || "")) return { kind: "linked" };
+  const wrapped = wrapAnchor(html, opp.anchor || "", opp.target_slug || "");
+  if (wrapped && wrapped !== html) return { kind: "html", html: wrapped };
+  // No unlinked occurrence in body prose — if the phrase is an existing (non-internal) link, repoint it.
+  const repointed = repointAnchorLink(html, opp.anchor || "", opp.target_slug || "");
+  if (repointed && repointed !== html) return { kind: "html", html: repointed, repoint: true };
+  const p = anchorPlacement(html, opp.anchor || "");
+  return { kind: "fail", reason: "reason" in p ? p.reason : "couldn't place the link" };
 }
 
-export type BulkResult = { id: string; ok: boolean; published?: boolean; alreadyLinked?: boolean; dismissed?: boolean; error?: string };
+export type BulkResult = { id: string; ok: boolean; published?: boolean; alreadyLinked?: boolean; dismissed?: boolean; repointed?: boolean; error?: string };
 
 // Insert MANY opportunities at once. Groups by source post so multiple links into the same post are
 // applied to ONE body and written/published once (avoids read-modify-write clobbering). publish=true
@@ -260,7 +287,7 @@ export async function applyCrosslinksBulk(ids: string[], opts: { publish: boolea
     for (const id of groupIds) {
       const rw = computeRewrite(byId.get(id) as Opp, html);
       if (rw.kind === "linked") { linked.push(id); results.push({ id, ok: true, alreadyLinked: true }); }
-      else if (rw.kind === "html") { html = rw.html; newlyInserted.push(id); results.push({ id, ok: true }); }
+      else if (rw.kind === "html") { html = rw.html; newlyInserted.push(id); results.push({ id, ok: true, repointed: rw.repoint }); }
       else { unplaceable.push(id); results.push({ id, ok: false, dismissed: true, error: rw.reason }); }
     }
     if (unplaceable.length) await getDb().from(LINKS).update({ status: "dismissed" }).in("id", unplaceable);

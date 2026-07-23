@@ -8,7 +8,7 @@
 
 import { getDb, isDbConfigured } from "../supabase";
 import { webflowConfigured, loadCollectionResolved, type WfField, type WfItem } from "../webflow";
-import { anchorPlacement } from "./insert";
+import { anchorPlacement, alreadyLinkedToTarget, repointAnchorLink } from "./insert";
 
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = process.env.CONTENT_CROSSLINK_MODEL || "claude-haiku-4-5-20251001";
@@ -251,12 +251,18 @@ export async function analyzeCrosslinks(by: string | null): Promise<{ runId: str
           newSentence = newSentence.slice(0, 400);
           context = String(o.insert_after || "").slice(0, 400); // where to place it
         } else {
-          // Existing-phrase link: only keep it if the link can ACTUALLY be placed in body prose —
-          // the same engine the inserter uses. This drops anchors that are only in a heading, are
-          // already a link, span formatting, etc., so every anchor row shown is one-click insertable.
+          // Existing-phrase link: keep it only if the inserter can actually act on it — either place
+          // the link in body prose, OR repoint an existing (non-internal) link on the exact phrase to
+          // our post. Drop the rest (only-in-heading / edited-out / spans-formatting) so every anchor
+          // row shown is one-click actionable.
           if (!anchor) return null;
           const place = anchorPlacement(src.html, anchor);
-          if ("reason" in place) return null;
+          if ("reason" in place) {
+            const repointable = place.reason === "the anchor phrase is already a link in the post"
+              && !alreadyLinkedToTarget(src.html, anchor, target.slug)
+              && repointAnchorLink(src.html, anchor, target.slug) != null;
+            if (!repointable) return null;
+          }
         }
         // The model sometimes returns a 0-1 decimal instead of 0-100 — normalize either way.
         let score = Number(o.score) || 0;
