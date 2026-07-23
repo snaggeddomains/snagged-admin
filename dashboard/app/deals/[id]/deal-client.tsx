@@ -251,25 +251,23 @@ export default function DealClient({ id }: { id: string }) {
             <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 12 }}>💬 Comments</div>
             {/* Thread — chronological (oldest first), composer at the bottom like Asana. */}
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              {[...data.activity].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()).map((a) => {
-                const who = nameFor(a.user_email) || "system";
-                const isMsg = a.kind === "comment" || a.kind === "note";
-                return isMsg ? (
-                  <div key={a.id} style={{ display: "flex", gap: 10 }}>
-                    <Avatar name={who} bg={commentColor(a.user_email)} />
-                    <div style={{ minWidth: 0, flex: 1 }}>
-                      <div style={{ fontSize: 13 }}><span style={{ fontWeight: 700, color: commentColor(a.user_email) }}>{who}</span> <span style={{ color: "var(--muted,#8a94a0)" }}>· {relTime(a.created_at) || when(a.created_at)}</span></div>
-                      <div style={{ fontSize: 14, color: "var(--navy,#254254)", marginTop: 3, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{renderMentionBody(a.body || "")}</div>
+              {(() => {
+                const comments = data.activity
+                  .filter((a) => a.kind === "comment" || a.kind === "note")
+                  .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+                return comments.length ? comments.map((a) => {
+                  const who = nameFor(a.user_email) || "system";
+                  return (
+                    <div key={a.id} style={{ display: "flex", gap: 10 }}>
+                      <Avatar name={who} bg={commentColor(a.user_email)} />
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div style={{ fontSize: 13 }}><span style={{ fontWeight: 700, color: commentColor(a.user_email) }}>{who}</span> <span style={{ color: "var(--muted,#8a94a0)" }}>· {relTime(a.created_at) || when(a.created_at)}</span></div>
+                        <div style={{ fontSize: 14, color: "var(--navy,#254254)", marginTop: 3, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{renderMentionBody(a.body || "")}</div>
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  // System event (created / stage / status / assignment) — compact muted line.
-                  <div key={a.id} style={{ fontSize: 12, color: "var(--muted,#8a94a0)", paddingLeft: 38 }}>
-                    {who} {activityText(a)} · {relTime(a.created_at) || when(a.created_at)}
-                  </div>
-                );
-              })}
-              {!data.activity.length && <div className="muted" style={{ fontSize: 12 }}>No comments yet.</div>}
+                  );
+                }) : <div className="muted" style={{ fontSize: 12 }}>No comments yet.</div>;
+              })()}
             </div>
             {/* Composer */}
             <div style={{ position: "relative", marginTop: 14 }}>
@@ -304,6 +302,27 @@ export default function DealClient({ id }: { id: string }) {
               {!data.emails.length && <div className="muted" style={{ fontSize: 12 }}>No emails yet. They&apos;re pulled automatically each hour; “Pull emails” fetches now.</div>}
             </>}
           </div>
+
+          {/* Activity — the internal system log (created / stage / status / assignment), separate
+              from the discussion Comments. Compact, muted, chronological. */}
+          {(() => {
+            const events = data.activity
+              .filter((a) => a.kind !== "comment" && a.kind !== "note")
+              .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+            if (!events.length) return null;
+            return (
+              <div style={card}>
+                <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 10 }}>Activity</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+                  {events.map((a) => (
+                    <div key={a.id} style={{ fontSize: 12, color: "var(--muted,#8a94a0)" }}>
+                      <span style={{ fontWeight: 600 }}>{nameFor(a.user_email) || "system"}</span> {activityText(a)} · {relTime(a.created_at) || when(a.created_at)}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </div>
       {wonOpen && <WonModal deal={d} onClose={() => setWonOpen(false)} onSubmit={closeWon} />}
