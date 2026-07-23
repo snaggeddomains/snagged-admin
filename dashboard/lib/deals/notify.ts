@@ -26,10 +26,10 @@ async function idsForEmails(emails: string[]): Promise<string[]> {
 // Deliver to each recipient on THEIR enabled channels (in-app bell / email / Slack DM).
 // Per-user prefs (notif_prefs.deal), default all on. Slack is a per-user DM now, not a
 // team-channel post, so it honors the recipient's preference.
-async function deliver(emails: string[], title: string, bodyLines: string[], id: string): Promise<boolean> {
+async function deliver(emails: string[], title: string, bodyLines: string[], id: string, hash = ""): Promise<boolean> {
   try {
     const body = bodyLines.filter(Boolean).join("\n");
-    const url = dealUrl(id);
+    const url = dealUrl(id) + hash;
     for (const to of emails.filter(Boolean)) {
       const ch = await channelsFor(to);
       if (ch.in_app) {
@@ -73,5 +73,5 @@ export async function notifyMention(deal: Deal, mentioned: string[], byEmail: st
   const targets = mentioned.map((e) => e.toLowerCase()).filter((e) => e && e !== (byEmail || "").toLowerCase());
   if (!targets.length) return false;
   const by = byEmail ? await displayName(byEmail) : "Someone";
-  return deliver(targets, `💬 ${by} mentioned you on ${deal.domain}`, [comment.slice(0, 300)], deal.id);
+  return deliver(targets, `💬 ${by} mentioned you on ${deal.domain}`, [comment.slice(0, 300)], deal.id, "#comments");
 }

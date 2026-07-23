@@ -151,6 +151,12 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
   (created/stage/status/assignment) render as compact muted one-liners. **Emails are collapsed by
   default** (▸ toggle) — a deal can have 47+ messages and blew up the page; expand to view the
   chain + the "Pull emails" button. `deal-client.tsx` only.
+  - **Per-user comment colors + deep-link (2026-07-23).** Each distinct commenter gets a
+    clearly-different color (avatar + name), assigned by order-of-appearance over `OWNER_PALETTE`
+    (`commentColor`), so it's easy to see who said what (hash-based `ownerColor` was colliding).
+    The Comments card has `id="comments"`; arriving with `…/deals/<id>#comments` scrolls to it. A
+    **@mention notification** now links to `dealUrl(id) + "#comments"` (`notify.ts` `deliver` gained
+    a `hash` param) so clicking the bell jumps straight into the thread.
 - **NEXT (Ph3):** email sequences (outbound) + richer pipeline reporting. Existing Pipedrive
   test deals are NOT migrated (day-one) — start fresh natively.
 

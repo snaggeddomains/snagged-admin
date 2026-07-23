@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import { STAGES, STATUSES, PRIORITIES, SOURCES, BUDGET_BANDS } from "@/lib/deals/stages";
 
@@ -76,10 +76,28 @@ export default function DealClient({ id }: { id: string }) {
     } catch (e) { setErr(String((e as Error)?.message || e)); }
   }, [id]);
   useEffect(() => { load(); }, [load]);
+  // Deep-link from a comment/@mention notification (…/deals/<id>#comments) → scroll to the thread.
+  useEffect(() => {
+    if (data && typeof window !== "undefined" && window.location.hash === "#comments") {
+      setTimeout(() => document.getElementById("comments")?.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
+    }
+  }, [data]);
 
   const nameFor = useCallback((email: string | null) => {
     if (!email) return "Inbox";
     return (data?.assignees || []).find((a) => a.email.toLowerCase() === email.toLowerCase())?.name || email;
+  }, [data]);
+
+  // Assign each distinct commenter a clearly-different color (by order of appearance), so it's
+  // easy to tell who said what — avoids the hash-collision look where two people read the same.
+  const commentColor = useMemo(() => {
+    const map: Record<string, string> = {}; let n = 0;
+    for (const a of data?.activity || []) {
+      const e = (a.user_email || "").toLowerCase();
+      if (!e || map[e]) continue;
+      map[e] = OWNER_PALETTE[n % OWNER_PALETTE.length]; n += 1;
+    }
+    return (email: string | null) => map[(email || "").toLowerCase()] || ownerColor(email);
   }, [data]);
 
   const save = async () => {
@@ -229,7 +247,7 @@ export default function DealClient({ id }: { id: string }) {
 
         {/* Comments first (Asana-style threaded), then the collapsed email chain. */}
         <div>
-          <div style={card}>
+          <div id="comments" style={{ ...card, scrollMarginTop: 16 }}>
             <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 12 }}>💬 Comments</div>
             {/* Thread — chronological (oldest first), composer at the bottom like Asana. */}
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -238,9 +256,9 @@ export default function DealClient({ id }: { id: string }) {
                 const isMsg = a.kind === "comment" || a.kind === "note";
                 return isMsg ? (
                   <div key={a.id} style={{ display: "flex", gap: 10 }}>
-                    <Avatar email={a.user_email} name={who} />
+                    <Avatar name={who} bg={commentColor(a.user_email)} />
                     <div style={{ minWidth: 0, flex: 1 }}>
-                      <div style={{ fontSize: 13 }}><span style={{ fontWeight: 700, color: "var(--navy,#254254)" }}>{who}</span> <span style={{ color: "var(--muted,#8a94a0)" }}>· {relTime(a.created_at) || when(a.created_at)}</span></div>
+                      <div style={{ fontSize: 13 }}><span style={{ fontWeight: 700, color: commentColor(a.user_email) }}>{who}</span> <span style={{ color: "var(--muted,#8a94a0)" }}>· {relTime(a.created_at) || when(a.created_at)}</span></div>
                       <div style={{ fontSize: 14, color: "var(--navy,#254254)", marginTop: 3, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{renderMentionBody(a.body || "")}</div>
                     </div>
                   </div>
@@ -337,10 +355,11 @@ function renderMentionBody(body: string) {
       ? <span key={i} style={{ color: "#2f6f7a", fontWeight: 700 }}>{p}</span>
       : <span key={i}>{p}</span>);
 }
-// Small circular initials avatar (colored by the person's email), like Asana's comment avatars.
-function Avatar({ email, name, size = 28 }: { email: string | null; name: string; size?: number }) {
+// Small circular initials avatar, like Asana's comment avatars. `bg` lets the thread assign
+// each distinct commenter a clearly-different color (so it's easy to see who said what).
+function Avatar({ name, bg, size = 28 }: { name: string; bg: string; size?: number }) {
   return (
-    <span style={{ width: size, height: size, flex: `0 0 ${size}px`, borderRadius: "50%", background: ownerColor(email), color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.4, fontWeight: 700 }}>
+    <span style={{ width: size, height: size, flex: `0 0 ${size}px`, borderRadius: "50%", background: bg, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.4, fontWeight: 700 }}>
       {initialsOf(name)}
     </span>
   );
