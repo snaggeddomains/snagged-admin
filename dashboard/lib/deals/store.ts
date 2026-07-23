@@ -22,6 +22,8 @@ export type Deal = {
   asking_price: number | null;
   sale_price: number | null;    // final price paid (captured at Close Won)
   commission: number | null;    // our commission on the close
+  upfront_fee: number | null;   // what we charged the client up front to pursue the acquisition
+  upfront_paid: boolean | null; // auto-true once the deal reaches Research & Outreach
   source: string | null;
   priority: string | null;
   budget_max: number | null;
@@ -281,6 +283,11 @@ export async function updateDeal(id: string, patch: Record<string, unknown>, act
   } else if (hasStage && !hasStatus) {
     if (patch.stage === "Closed - Won") update.status = "won";
     else if (patch.stage === "Closed - Lost") update.status = "lost";
+  }
+  // Reaching "Research & Outreach" means the client paid the upfront fee to pursue it — flip
+  // the paid flag automatically (once; a manual edit can still override).
+  if (hasStage && patch.stage === "Research & Outreach" && !before.upfront_paid) {
+    update.upfront_paid = true;
   }
   // Degrade gracefully before a column's migration: if the update names a column that
   // doesn't exist yet (budget_max, sale_price, commission, …), strip it + retry.

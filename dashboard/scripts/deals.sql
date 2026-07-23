@@ -86,6 +86,11 @@ alter table deals add column if not exists budget_max numeric;
 alter table deals add column if not exists sale_price numeric;
 alter table deals add column if not exists commission numeric;
 
+-- Upfront fee we charged the client to pursue the acquisition; upfront_paid auto-flips true
+-- once the deal reaches the "Research & Outreach" stage.
+alter table deals add column if not exists upfront_fee numeric;
+alter table deals add column if not exists upfront_paid boolean default false;
+
 -- Per-user deal notification preferences ({deal:{in_app,email,slack}}), default all on.
 alter table domain_research_users add column if not exists notif_prefs jsonb;
 

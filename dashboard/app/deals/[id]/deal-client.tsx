@@ -7,7 +7,7 @@ import { STAGES, STATUSES, PRIORITIES, SOURCES, BUDGET_BANDS } from "@/lib/deals
 type Deal = {
   id: string; domain: string; additional_domains: string | null; buyer_name: string | null; buyer_email: string | null;
   buyer_phone: string | null; org_name: string | null; budget_range: string | null; appraisal_value: number | null;
-  asking_price: number | null; source: string | null; priority: string | null; owner_email: string | null;
+  asking_price: number | null; upfront_fee: number | null; upfront_paid: boolean | null; source: string | null; priority: string | null; owner_email: string | null;
   stage: string; status: string; lost_reason: string | null; report_link: string | null; likely_owner: string | null;
   owner_contact: string | null; reachability: string | null; notes: string | null; tags: string[] | null; created_at: string;
   lead_key: string | null;
@@ -109,7 +109,7 @@ export default function DealClient({ id }: { id: string }) {
       domain: (f.domain || "").trim().toLowerCase(),
       stage: f.stage, status: f.status, owner_email: f.owner_email || null, priority: f.priority || null, lost_reason: f.lost_reason,
       buyer_name: f.buyer_name, buyer_email: f.buyer_email, buyer_phone: f.buyer_phone, org_name: f.org_name,
-      budget_range: f.budget_range || null, appraisal_value: money(f.appraisal_value), asking_price: money(f.asking_price),
+      budget_range: f.budget_range || null, appraisal_value: money(f.appraisal_value), asking_price: money(f.asking_price), upfront_fee: money(f.upfront_fee),
       source: f.source || null, additional_domains: f.additional_domains, report_link: f.report_link,
       likely_owner: f.likely_owner, owner_contact: f.owner_contact, reachability: f.reachability,
       tags: typeof (f.tags as unknown) === "string" ? String(f.tags).split(",").map((t) => t.trim()).filter(Boolean) : f.tags,
@@ -217,6 +217,16 @@ export default function DealClient({ id }: { id: string }) {
             <RVal l="Company" v={d.org_name} />
             <RVal l="Budget range" v={d.budget_range} />
             <div style={{ display: "flex", gap: 24 }}><RVal l="Appraisal $" v={d.appraisal_value != null ? usd(d.appraisal_value) : null} /><RVal l="Asking $" v={d.asking_price != null ? usd(d.asking_price) : null} /></div>
+            {/* Upfront fee we charged the client — "Paid" flips automatically at Research & Outreach. */}
+            <div style={{ marginTop: 8 }}>
+              <span style={lbl}>Upfront fee</span>
+              <div style={{ ...readVal, display: "flex", gap: 8, alignItems: "center" }}>
+                <span>{d.upfront_fee != null ? usd(d.upfront_fee) : "—"}</span>
+                {d.upfront_fee != null && (d.upfront_paid
+                  ? <span style={{ fontSize: 11, fontWeight: 700, color: "#1f7a5a", background: "#e4f2ea", padding: "1px 8px", borderRadius: 999 }}>✓ Paid</span>
+                  : <span style={{ fontSize: 11, fontWeight: 700, color: "#946200", background: "#fdf0d2", padding: "1px 8px", borderRadius: 999 }}>Unpaid</span>)}
+              </div>
+            </div>
             <RVal l="Source" v={d.source} />
             {/* Each additional domain on its own line, with its own research report link. */}
             <div style={{ marginTop: 8 }}>
@@ -249,6 +259,8 @@ export default function DealClient({ id }: { id: string }) {
               <div style={{ flex: 1 }}><span style={lbl}>Appraisal $</span><input style={inp} value={f.appraisal_value ?? ""} onChange={(e) => set("appraisal_value", e.target.value)} /></div>
               <div style={{ flex: 1 }}><span style={lbl}>Asking $</span><input style={inp} value={f.asking_price ?? ""} onChange={(e) => set("asking_price", e.target.value)} /></div>
             </div>
+            <span style={lbl}>Upfront fee $ <span style={{ fontWeight: 400, textTransform: "none", color: "var(--muted,#8a94a0)" }}>— what we charged the client to pursue it</span></span>
+            <input style={inp} value={f.upfront_fee ?? ""} onChange={(e) => set("upfront_fee", e.target.value)} inputMode="decimal" placeholder="$" />
             <span style={lbl}>Source</span><select style={inp} value={f.source || ""} onChange={(e) => set("source", e.target.value)}><option value="">—</option>{SOURCES.map((s) => <option key={s} value={s}>{s}</option>)}</select>
             <span style={lbl}>Additional domains</span><input style={inp} value={f.additional_domains || ""} onChange={(e) => set("additional_domains", e.target.value)} />
             <span style={lbl}>Research report link</span><input style={inp} value={f.report_link || ""} onChange={(e) => set("report_link", e.target.value)} />
