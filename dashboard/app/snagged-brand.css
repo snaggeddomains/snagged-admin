@@ -121,6 +121,9 @@ p { margin: 0 0 1em; }
    routes the centered content container drops its max-width. Marker rendered by
    the deals layout. */
 body:has([data-deals-fullbleed]) .wrap { max-width: none; }
+/* Generic opt-in for any page that wants the full window width (e.g. a wide data table
+   that should grow with the window instead of cutting off at the centered column). */
+body:has([data-wide-page]) .wrap { max-width: none; }
 
 @media (max-width: 560px) { body { font-size: 16px; } .wrap { padding: 0 14px; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }

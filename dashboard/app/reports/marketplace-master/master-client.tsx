@@ -5,24 +5,48 @@ import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "r
 type WfField = { id: string; slug: string; displayName?: string; type: string };
 type WfItem = { id: string; isDraft?: boolean; isArchived?: boolean; lastPublished?: string | null; fieldData: Record<string, unknown> };
 type CollLite = { id: string; name: string; slug: string | null };
-type Resp = { ok: boolean; configured: boolean; resolved?: boolean; collectionId?: string; collections?: CollLite[]; collectionName?: string | null; fields?: WfField[]; items?: WfItem[]; total?: number; discoverError?: string | null; error?: string };
+type Resp = { ok: boolean; configured: boolean; resolved?: boolean; canEdit?: boolean; collectionId?: string; collections?: CollLite[]; collectionName?: string | null; fields?: WfField[]; items?: WfItem[]; total?: number; discoverError?: string | null; error?: string };
+type EditCol = { field: WfField; label: string; kind: "money" | "text" | "bool" };
 
 const CORAL = "var(--coral-deep, #c0492f)";
 const CTL: CSSProperties = { padding: "5px 9px", fontSize: 13, borderRadius: 8, border: "1px solid #d8d0bf", background: "#fff", color: "var(--navy,#254254)", cursor: "pointer" };
 const BTN: CSSProperties = { padding: "5px 11px", fontSize: 12.5, borderRadius: 8, border: "1px solid #d8d0bf", background: "#fff", color: "var(--navy,#254254)", cursor: "pointer", whiteSpace: "nowrap" };
 const asText = (v: unknown): string => v == null ? "" : typeof v === "boolean" ? (v ? "Yes" : "No") : typeof v === "object" ? JSON.stringify(v) : String(v);
-// RichText fields (One-liner / Description) come back as HTML — show readable plain text.
 const plain = (s: string): string => s.replace(/<[^>]*>/g, " ").replace(/&nbsp;/gi, " ").replace(/&amp;/gi, "&").replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/&#39;|&rsquo;|&lsquo;/gi, "'").replace(/&quot;/gi, '"').replace(/\s+/g, " ").trim();
 const disp = (v: unknown): string => plain(asText(v));
-const cell: CSSProperties = { padding: "6px 10px", borderBottom: "1px solid var(--line,#eee)", verticalAlign: "top" };
+const cell: CSSProperties = { padding: "7px 10px", borderBottom: "1px solid var(--line,#eee)", verticalAlign: "top" };
+const th: CSSProperties = { ...cell, textAlign: "left", color: "var(--muted,#888)", fontWeight: 700, whiteSpace: "nowrap", background: "var(--paper-2,#f7f5ef)" };
+const stateOf = (it: WfItem): "published" | "draft" | "archived" => it.isArchived ? "archived" : it.isDraft ? "draft" : "published";
+const money = (v: unknown): string => { const n = Number(String(v).replace(/[^0-9.]/g, "")); return Number.isFinite(n) && n > 0 && String(v).trim() !== "" ? `$${n.toLocaleString()}` : disp(v); };
+
+function StatusPill({ s }: { s: string }) {
+  const c = s === "published" ? { bg: "#e4f2ea", fg: "#1f7a5a" } : s === "draft" ? { bg: "#fdf0d2", fg: "#946200" } : { bg: "#eee8e0", fg: "#7a6f63" };
+  return <span style={{ fontSize: 11, fontWeight: 700, background: c.bg, color: c.fg, borderRadius: 999, padding: "2px 9px", textTransform: "capitalize" }}>{s}</span>;
+}
+function BoolPill({ on }: { on: boolean }) {
+  return on
+    ? <span style={{ fontSize: 11, fontWeight: 700, background: "#e6f2f7", color: "#146c8f", borderRadius: 999, padding: "2px 9px" }}>Yes</span>
+    : <span style={{ fontSize: 11, color: "var(--muted,#aab)" }}>—</span>;
+}
+function Pills({ raw }: { raw: string }) {
+  const parts = raw.split(/,\s*/).map((p) => p.trim()).filter(Boolean);
+  if (!parts.length) return <span className="muted">—</span>;
+  return (
+    <span style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+      {parts.map((p, i) => <span key={i} style={{ fontSize: 11.5, fontWeight: 600, background: "#eef2f4", color: "var(--navy,#254254)", border: "1px solid #dbe4e8", borderRadius: 999, padding: "1px 8px" }}>{p}</span>)}
+    </span>
+  );
+}
 
 export default function MasterClient() {
   const [data, setData] = useState<Resp | null>(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [q, setQ] = useState("");
-  const [wrap, setWrap] = useState(false); // wrap long cells vs. single-line + ellipsis
-  const [collId, setCollId] = useState(""); // manual collection pick (when auto-detect can't)
+  const [statusF, setStatusF] = useState<"published" | "draft" | "archived" | "all">("published");
+  const [collId, setCollId] = useState("");
+  const [editing, setEditing] = useState<WfItem | null>(null);
+  const canEdit = !!data?.canEdit;
 
   const load = useCallback(async () => {
     setLoading(true); setErr(null);
@@ -38,40 +62,62 @@ export default function MasterClient() {
   }, [collId]);
   useEffect(() => { void load(); }, [load]);
 
-  // Every CMS field is a column. Put the name field first, then the rest in schema order.
-  const fields = useMemo(() => {
-    const fs = data?.fields || [];
-    const nameIdx = fs.findIndex((f) => f.slug === "name");
-    if (nameIdx > 0) { const copy = [...fs]; const [n] = copy.splice(nameIdx, 1); copy.unshift(n); return copy; }
-    return fs;
-  }, [data]);
+  const fields = data?.fields || [];
+  // Curated, ordered columns (drop Domain Logo / Slug / the rest). Matched flexibly by
+  // slug or display name so it survives small CMS renames.
+  const cols = useMemo(() => {
+    const find = (re: RegExp) => fields.find((f) => re.test(f.slug) || re.test(f.displayName || ""));
+    const exact = (name: string) => fields.find((f) => f.slug === name || (f.displayName || "").toLowerCase() === name);
+    const spec: { field?: WfField; label: string; kind: "money" | "text" | "bool" | "pills" }[] = [
+      { field: find(/asking/i) || find(/\bprice\b/i), label: "Asking price", kind: "money" },
+      { field: find(/min.*offer|minimum.*offer|min.?offer/i), label: "Min offer", kind: "money" },
+      { field: find(/one.?liner/i), label: "One-liner", kind: "text" },
+      { field: exact("description"), label: "Description", kind: "text" },
+      { field: find(/featured/i), label: "Featured", kind: "bool" },
+      { field: find(/premium/i), label: "Premium", kind: "bool" },
+      { field: find(/hand.?pick/i), label: "Hand-picked", kind: "bool" },
+      { field: find(/extension/i), label: "Extension", kind: "pills" },
+      { field: find(/categor/i), label: "Categories", kind: "pills" },
+    ];
+    const seen = new Set<string>();
+    return spec.filter((c) => c.field && !seen.has(c.field.id) && seen.add(c.field.id)) as { field: WfField; label: string; kind: "money" | "text" | "bool" | "pills" }[];
+  }, [fields]);
+  const nameSlug = useMemo(() => (fields.find((f) => f.slug === "name")?.slug || fields.find((f) => /^name$|domain|title/i.test(f.slug))?.slug || "name"), [fields]);
+  // Editable set for the modal = Name + the curated non-reference fields (Extension/Categories
+  // are references — not editable here). Values come from the raw fieldData.
+  const editCols = useMemo<EditCol[]>(() => {
+    const nameF = fields.find((f) => f.slug === nameSlug);
+    const head: EditCol[] = nameF ? [{ field: nameF, label: "Name", kind: "text" }] : [];
+    return [...head, ...cols.filter((c) => c.kind !== "pills").map((c) => ({ field: c.field, label: c.label, kind: c.kind as EditCol["kind"] }))];
+  }, [fields, nameSlug, cols]);
+
   const items = data?.items || [];
   const rows = useMemo(() => {
     const t = q.trim().toLowerCase();
-    return t ? items.filter((it) => Object.values(it.fieldData).some((v) => disp(v).toLowerCase().includes(t))) : items;
-  }, [items, q]);
+    return items.filter((it) => (statusF === "all" || stateOf(it) === statusF) && (!t || Object.values(it.fieldData).some((v) => disp(v).toLowerCase().includes(t))));
+  }, [items, q, statusF]);
+  const counts = useMemo(() => {
+    const c = { published: 0, draft: 0, archived: 0 };
+    for (const it of items) c[stateOf(it)]++;
+    return c;
+  }, [items]);
 
   const exportCsv = () => {
-    const cols = ["_status", ...fields.map((f) => f.slug)];
-    const head = ["Status", ...fields.map((f) => f.displayName || f.slug)].join(",");
-    const body = rows.map((it) => cols.map((c) => {
-      const val = c === "_status" ? (it.isArchived ? "archived" : it.isDraft ? "draft" : "published") : disp(it.fieldData[c]);
-      return `"${val.replace(/"/g, '""')}"`;
-    }).join(",")).join("\n");
+    const head = ["Name", "Status", ...cols.map((c) => c.label)].join(",");
+    const body = rows.map((it) => [disp(it.fieldData[nameSlug]), stateOf(it), ...cols.map((c) => c.kind === "money" ? money(it.fieldData[c.field.slug]) : disp(it.fieldData[c.field.slug]))].map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([head + "\n" + body], { type: "text/csv" }));
     a.download = "marketplace-master.csv"; a.click();
   };
 
   return (
     <main>
+      {/* Grow the centered column to full window width so the wide table doesn't cut off. */}
+      <div data-wide-page hidden />
       <h1 style={{ fontSize: "1.25rem", marginBottom: 4 }}>
         Marketplace Master
         <span style={{ marginLeft: 10, fontSize: 11.5, fontWeight: 700, color: "#146c8f", background: "#e6f2f7", border: "1px solid #bfe0eb", borderRadius: 999, padding: "2px 9px", verticalAlign: "middle" }}>◆ Source: Webflow CMS</span>
       </h1>
-      <p className="section-blurb" style={{ marginTop: 0 }}>
-        Every listing with <strong>all its Webflow CMS fields</strong> — one-line description, description, extension, categories, and the rest —
-        pulled live from the Marketplace collection{data?.collectionName ? ` (${data.collectionName})` : ""}. Read-only.
-      </p>
+      <p className="section-blurb" style={{ marginTop: 0 }}>The Marketplace domains from Webflow{data?.collectionName ? ` (${data.collectionName})` : ""} — asking price, minimum offer, descriptions, flags, extension &amp; categories. Read-only.</p>
 
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "10px 0 4px" }}>
         {(data?.collections?.length ?? 0) > 0 && (
@@ -79,57 +125,144 @@ export default function MasterClient() {
             {data!.collections!.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         )}
-        <input style={{ ...CTL, minWidth: 200 }} placeholder="Search across all fields…" value={q} onChange={(e) => setQ(e.target.value)} />
+        <select style={CTL} value={statusF} onChange={(e) => setStatusF(e.target.value as typeof statusF)} title="Filter by status">
+          <option value="published">Published ({counts.published})</option>
+          <option value="draft">Draft ({counts.draft})</option>
+          <option value="archived">Archived ({counts.archived})</option>
+          <option value="all">All ({items.length})</option>
+        </select>
+        <input style={{ ...CTL, minWidth: 200 }} placeholder="Search…" value={q} onChange={(e) => setQ(e.target.value)} />
         <button style={BTN} onClick={() => void load()} disabled={loading}>{loading ? "working…" : "↻ Refresh"}</button>
         <button style={BTN} onClick={exportCsv} disabled={!rows.length}>⬇ CSV</button>
-        <label style={{ fontSize: 12.5, display: "inline-flex", alignItems: "center", gap: 5, cursor: "pointer" }}>
-          <input type="checkbox" checked={wrap} onChange={(e) => setWrap(e.target.checked)} /> Wrap long text
-        </label>
-        {data && <span className="muted" style={{ fontSize: 12 }}>{q ? `${rows.length} / ${data.total ?? items.length}` : `${data.total ?? items.length}`} listings · {fields.length} fields</span>}
+        {data && <span className="muted" style={{ fontSize: 12 }}>{rows.length} shown</span>}
       </div>
 
       {err && <p style={{ color: CORAL }}>{err}</p>}
-      {data && !data.configured && <p className="muted">Webflow isn&apos;t connected on this deployment (set <code>WEBFLOW_API_TOKEN_CMS_READ_ONLY</code>).</p>}
+      {data && !data.configured && <p className="muted">Webflow isn&apos;t connected on this deployment.</p>}
       {data && data.configured && data.resolved === false && (
         <p className="muted">
           {(data.collections?.length ?? 0) > 0
             ? "Pick the collection above (the domains listing) to load it."
-            : <>Couldn&apos;t list collections{data.discoverError ? ` (${data.discoverError})` : ""} — the read-only token may lack <em>Sites: read</em>. Set <code>WEBFLOW_MARKETPLACE_COLLECTION_ID=6998a906939f81e325694dc9</code> in Vercel to pin the Domains collection.</>}
+            : <>Couldn&apos;t list collections{data.discoverError ? ` (${data.discoverError})` : ""} — set <code>WEBFLOW_MARKETPLACE_COLLECTION_ID=6998a906939f81e325694dc9</code> in Vercel.</>}
         </p>
       )}
 
       {data?.configured && data.resolved !== false && (
         <div style={{ overflowX: "auto", marginTop: 12, border: "1px solid var(--line,#e3ddcf)", borderRadius: 10 }}>
-          <table style={{ borderCollapse: "collapse", fontSize: 12.5 }}>
+          <table style={{ borderCollapse: "collapse", fontSize: 12.5, width: "100%" }}>
             <thead>
-              <tr style={{ background: "var(--paper-2,#f7f5ef)" }}>
-                <th style={{ ...cell, textAlign: "left", position: "sticky", left: 0, background: "var(--paper-2,#f7f5ef)", color: "var(--muted,#888)", fontWeight: 700 }}>Status</th>
-                {fields.map((f) => (
-                  <th key={f.id} style={{ ...cell, textAlign: "left", color: "var(--muted,#888)", fontWeight: 700, whiteSpace: "nowrap" }} title={`${f.slug} · ${f.type}`}>{f.displayName || f.slug}</th>
-                ))}
+              <tr>
+                <th style={{ ...th, position: "sticky", left: 0, zIndex: 1 }}>Name</th>
+                <th style={th}>Published</th>
+                {cols.map((c) => <th key={c.field.id} style={th} title={`${c.field.slug} · ${c.field.type}`}>{c.label}</th>)}
+                {canEdit && <th style={th}></th>}
               </tr>
             </thead>
             <tbody>
               {rows.map((it) => (
                 <tr key={it.id}>
-                  <td style={{ ...cell, position: "sticky", left: 0, background: "var(--paper,#fff)", fontSize: 11, whiteSpace: "nowrap" }}>
-                    {it.isArchived ? <span style={{ color: "#7a6f63" }}>archived</span> : it.isDraft ? <span style={{ color: "#946200" }}>draft</span> : <span style={{ color: "#1f7a5a" }}>published</span>}
+                  <td style={{ ...cell, position: "sticky", left: 0, background: "var(--paper,#fff)", fontWeight: 700, whiteSpace: "nowrap" }}>
+                    {disp(it.fieldData[nameSlug]) || <span className="muted">—</span>}
+                    {disp(it.fieldData.slug) && <a href={`https://www.snagged.com/domains/${disp(it.fieldData.slug)}`} target="_blank" rel="noreferrer" title="Open listing" style={{ color: "var(--muted,#888)", textDecoration: "none", marginLeft: 6, fontSize: 12 }}>↗</a>}
                   </td>
-                  {fields.map((f) => {
-                    const raw = disp(it.fieldData[f.slug]);
+                  <td style={cell}><StatusPill s={stateOf(it)} /></td>
+                  {cols.map((c) => {
+                    const v = it.fieldData[c.field.slug];
                     return (
-                      <td key={f.id} style={{ ...cell, maxWidth: wrap ? 320 : 260, ...(wrap ? { whiteSpace: "normal", wordBreak: "break-word" } : { whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }), fontWeight: f.slug === "name" ? 600 : 400 }} title={raw}>
-                        {raw || <span className="muted">—</span>}
+                      <td key={c.field.id} style={{ ...cell, ...(c.kind === "text" ? { maxWidth: 320, whiteSpace: "normal", wordBreak: "break-word", color: "var(--navy-2,#4a5b66)" } : { whiteSpace: "nowrap" }) }}>
+                        {c.kind === "bool" ? <BoolPill on={!!v} />
+                          : c.kind === "pills" ? <Pills raw={disp(v)} />
+                            : c.kind === "money" ? (money(v) || <span className="muted">—</span>)
+                              : (disp(v) || <span className="muted">—</span>)}
                       </td>
                     );
                   })}
+                  {canEdit && <td style={{ ...cell, whiteSpace: "nowrap", textAlign: "right" }}><button style={{ ...BTN, padding: "3px 10px", fontSize: 12 }} onClick={() => setEditing(it)}>✎ Edit</button></td>}
                 </tr>
               ))}
             </tbody>
           </table>
-          {!loading && !rows.length && <p className="muted" style={{ padding: 12 }}>{q ? "No listings match." : "No listings found."}</p>}
+          {!loading && !rows.length && <p className="muted" style={{ padding: 12 }}>{q || statusF !== "all" ? "No listings match." : "No listings found."}</p>}
         </div>
       )}
+
+      {editing && data?.collectionId && (
+        <EditModal item={editing} cols={editCols} nameSlug={nameSlug} collectionId={data.collectionId}
+          onClose={() => setEditing(null)} onSaved={() => { setEditing(null); void load(); }} />
+      )}
     </main>
+  );
+}
+
+// Edit one listing — Name + the curated non-reference fields. RichText is edited as plain text
+// (re-wrapped in <p> on save); Number sends a number; Switch a boolean. Only CHANGED fields are
+// sent (PATCH merges), so the resolved Extension/Categories names are never written back.
+function EditModal({ item, cols, nameSlug, collectionId, onClose, onSaved }: {
+  item: WfItem; cols: EditCol[]; nameSlug: string; collectionId: string; onClose: () => void; onSaved: () => void;
+}) {
+  const isRich = (f: WfField) => /richtext/i.test(f.type);
+  const initial = () => {
+    const o: Record<string, unknown> = {};
+    for (const c of cols) { const raw = item.fieldData[c.field.slug]; o[c.field.slug] = c.kind === "bool" ? !!raw : isRich(c.field) ? plain(asText(raw)) : asText(raw); }
+    return o;
+  };
+  const [vals, setVals] = useState<Record<string, unknown>>(initial);
+  const [publish, setPublish] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const set = (slug: string, v: unknown) => setVals((s) => ({ ...s, [slug]: v }));
+
+  const save = async () => {
+    setSaving(true); setError(null);
+    const fieldData: Record<string, unknown> = {};
+    for (const c of cols) {
+      const f = c.field, now = vals[f.slug];
+      let out: unknown = now;
+      if (c.kind === "bool") out = !!now;
+      else if (isRich(f)) out = String(now || "").trim() ? `<p>${String(now)}</p>` : "";
+      else if (c.field.type === "Number") out = now === "" || now == null ? null : Number(String(now).replace(/[^0-9.]/g, ""));
+      // Compare against the same normalization of the original.
+      const before = c.kind === "bool" ? !!item.fieldData[f.slug]
+        : isRich(f) ? (plain(asText(item.fieldData[f.slug])).trim() ? `<p>${plain(asText(item.fieldData[f.slug]))}</p>` : "")
+        : c.field.type === "Number" ? (item.fieldData[f.slug] ?? null)
+        : asText(item.fieldData[f.slug]);
+      if (JSON.stringify(before ?? null) !== JSON.stringify(out ?? null)) fieldData[f.slug] = out;
+    }
+    if (!Object.keys(fieldData).length) { onClose(); return; }
+    try {
+      const res = await fetch("/api/admin/webflow", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "update", collection: collectionId, itemId: item.id, fieldData, publish }) });
+      const j = await res.json();
+      if (!res.ok || j.ok === false) throw new Error(j.error || `HTTP ${res.status}`);
+      onSaved();
+    } catch (e) { setError(String((e as Error)?.message || e)); setSaving(false); }
+  };
+
+  const L: CSSProperties = { display: "block", fontSize: 11.5, fontWeight: 700, color: "var(--navy-2,#4a5b66)", margin: "10px 0 3px", textTransform: "uppercase", letterSpacing: ".02em" };
+  const inp: CSSProperties = { width: "100%", padding: "7px 9px", borderRadius: 7, border: "1px solid var(--line,#e3ddcf)", fontSize: 14, boxSizing: "border-box" };
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(20,25,30,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ background: "var(--paper,#fff)", borderRadius: 14, padding: 20, width: "min(520px,100%)", maxHeight: "92vh", overflowY: "auto" }}>
+        <h2 style={{ fontSize: "1.15rem", margin: "0 0 8px" }}>✎ {disp(item.fieldData[nameSlug]) || "Edit listing"}</h2>
+        {cols.map((c) => (
+          <div key={c.field.id}>
+            <label style={L}>{c.label}</label>
+            {c.kind === "bool"
+              ? <label style={{ display: "inline-flex", gap: 7, alignItems: "center", fontSize: 14 }}><input type="checkbox" checked={!!vals[c.field.slug]} onChange={(e) => set(c.field.slug, e.target.checked)} /> {vals[c.field.slug] ? "Yes" : "No"}</label>
+              : isRich(c.field)
+                ? <textarea style={{ ...inp, minHeight: 70, resize: "vertical", fontFamily: "inherit" }} value={String(vals[c.field.slug] ?? "")} onChange={(e) => set(c.field.slug, e.target.value)} />
+                : <input style={inp} inputMode={c.kind === "money" ? "decimal" : undefined} value={String(vals[c.field.slug] ?? "")} onChange={(e) => set(c.field.slug, e.target.value)} />}
+          </div>
+        ))}
+        {error && <div style={{ color: "#a83265", fontSize: 13, marginTop: 10 }}>{error}</div>}
+        <label style={{ display: "flex", gap: 7, alignItems: "center", fontSize: 13, marginTop: 14 }}>
+          <input type="checkbox" checked={publish} onChange={(e) => setPublish(e.target.checked)} /> Publish the change live (uncheck to just stage it)
+        </label>
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 14 }}>
+          <button style={BTN} onClick={onClose} disabled={saving}>Cancel</button>
+          <button style={{ ...BTN, background: "var(--coral,#e2674a)", color: "#fff", borderColor: "var(--coral,#e2674a)" }} onClick={save} disabled={saving}>{saving ? "Saving…" : "Save"}</button>
+        </div>
+      </div>
+    </div>
   );
 }

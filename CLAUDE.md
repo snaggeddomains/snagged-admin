@@ -258,11 +258,22 @@ This adds a real Webflow **Data API v2** integration to pull every listing and e
   draft); default returns published only. This is the read-only surface a read-only token lights
   up (no editing here — editing lives on the Admin → Webflow CMS tab).
 - **Reports → Marketplace Master tab** (`/reports/marketplace-master`, `REPORTS_TABS`, gated
-  `reports.marketplace`): the wide "every Webflow field for every listing" view — one column per
-  CMS field (one-line description, description, extension, categories, …), sticky Status column,
-  search across all fields, wrap toggle, CSV of all fields, and a collection **picker** (when
-  Sites-read is available). A "◆ Source: Webflow CMS" badge makes the origin unmistakable. Reads
+  `reports.marketplace`): a CURATED table of the Domains listings — columns Name · Published ·
+  Asking price · Min offer · One-liner · Description · Featured · Premium · Hand-picked ·
+  Extension · Categories (Extension/Categories rendered as **pills**, switches as Yes pills,
+  descriptions HTML-stripped). Sticky Name column, **Status filter defaulting to Published**
+  (+ draft/archived/all with counts), search, CSV, collection picker. Full-window width via a
+  generic `[data-wide-page]` marker (`body:has([data-wide-page]) .wrap{max-width:none}` in
+  snagged-brand.css, same trick as the deals board). Columns matched flexibly by slug/displayName
+  so small CMS renames survive. A "◆ Source: Webflow CMS" badge marks the origin. Reads
   `…/marketplace/live?all=1`. `app/reports/marketplace-master/`.
+- **Per-row editing on Master** (one at a time): an ✎ Edit modal (Name + the non-reference curated
+  fields; RichText edited as plain text, re-wrapped in `<p>` on save; Number→number; Switch→bool;
+  only CHANGED fields sent). POSTs to the `/api/admin/webflow` update endpoint (publishes live by
+  default). Gated: the endpoint returns `canEdit = webflowCanWrite() && canAdmin(admin.webflow)` —
+  the Edit button only shows when a WRITE token is set AND the user has `admin.webflow`; the write
+  endpoint itself enforces `admin.webflow`. So `reports.marketplace` alone = read; editing needs
+  the admin.webflow grant too.
 - **The Marketplace collection is Webflow "Domains"** — collection id `6998a906939f81e325694dc9`
   (slug `domains`, 149 items; fields: Name/Slug, Domain Logo, One-liner Description + Description
   (RichText), Is Featured/Premium/Hand-picked (Switch), **Extension (Reference)**, **Categories

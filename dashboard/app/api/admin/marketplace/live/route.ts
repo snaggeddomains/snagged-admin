@@ -4,8 +4,8 @@
 
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
-import { canReports } from "@/lib/permissions";
-import { webflowConfigured, defaultSiteId, listSites, listCollections, getCollection, listAllItems, type WfCollection } from "@/lib/webflow";
+import { canReports, canAdmin } from "@/lib/permissions";
+import { webflowConfigured, webflowCanWrite, defaultSiteId, listSites, listCollections, getCollection, listAllItems, type WfCollection } from "@/lib/webflow";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -81,6 +81,9 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     ok: true, configured: true, resolved: true,
+    // Editing on this page requires BOTH a write token AND the admin.webflow permission
+    // (the write endpoint enforces admin.webflow); the button hides otherwise.
+    canEdit: webflowCanWrite() && canAdmin(me, "admin.webflow"),
     collectionId, collections: collectionsLite,
     collectionName: coll.data?.displayName || coll.data?.slug || null,
     fields, items: rows,
