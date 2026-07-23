@@ -595,6 +595,15 @@ the hub, header, or layouts again.
 **Runbook — add a top-level section:** add its tab array + any new permission keys to
 `lib/permissions.ts` (MODULES/ACTIONS + CATALOG), then add one `NavSection` to
 `SECTIONS`. Done — card, header item, mobile menu, sub-nav all appear.
+
+**⌘K command palette (2026-07-22):** `app/command-palette.tsx` — a universal Cmd/Ctrl-K
+quick-switch mounted in `TopBar` (so it works on every admin-app page: Admin/SNAP/Reports/
+Deals/hub). Destinations are built from `visibleSections(user) × sectionTabs(user, key)` — so
+it's permission-gated and auto-covers Admin's Users/Lessons/Sources/… (which the research
+SPA's palette can't see, since those tabs live only in this app). Fuzzy-ranked (exact-prefix >
+word-prefix > substring > subsequence); `/research/*` full-navs, same-app routes use the client
+router. The research SPA has its own mirror palette (see that repo's CLAUDE.md "⌘K palette") +
+a cross-app registry for Admin/Deals tabs.
 **Runbook — add a tab:** add one row to that section's tab array in permissions.ts.
 **Runbook — move a tool between sections:** move its row to the other section's tab
 array (and update its CATALOG `group`). `sectionForPath` handles the URL→section

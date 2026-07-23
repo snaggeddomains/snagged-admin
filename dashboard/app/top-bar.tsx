@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { type AppUser } from "@/lib/permissions";
 import { visibleSections, sectionTabs, type SectionKey } from "@/lib/navigation";
 import NotificationsBell from "./notifications-bell";
+import CommandPalette from "./command-palette";
 
 // The global chrome shared across every umbrella surface (hub, admin) and
 // mirrored by research. Logo -> hub, permission-aware module switcher, account.
@@ -26,6 +27,7 @@ export default function TopBar({
 
   return (
     <header className="topbar">
+      <CommandPalette user={user} />
       <Link href="/" className="topbar__brand wordmark">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="brand-mark" src="/brand/logomark-round.svg" alt="" />
