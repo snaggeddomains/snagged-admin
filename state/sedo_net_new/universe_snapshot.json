@@ -1,22 +1,42 @@
 [
   {
-    "domain": "senzee.com",
-    "price": 5695.0
+    "domain": "bandung.com",
+    "price": 500000.0
   },
   {
-    "domain": "acces.ai",
-    "price": 2888.0
+    "domain": "desember.com",
+    "price": 2150.0
   },
   {
-    "domain": "passer.net",
-    "price": 8995.0
+    "domain": "padang.com",
+    "price": 45000.0
   },
   {
-    "domain": "minihub.co",
-    "price": 475.0
+    "domain": "malang.com",
+    "price": 98888.0
   },
   {
-    "domain": "takano.co",
-    "price": 1200.0
+    "domain": "balang.com",
+    "price": 2500.0
+  },
+  {
+    "domain": "winars.com",
+    "price": 17250.0
+  },
+  {
+    "domain": "infocomic.com",
+    "price": 5999.0
+  },
+  {
+    "domain": "bethani.net",
+    "price": 2150.0
+  },
+  {
+    "domain": "vation.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "thetra.co",
+    "price": 1988.0
   }
 ]
