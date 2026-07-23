@@ -1,11 +1,8 @@
 {
   "capped": false,
-  "count": 2,
-  "domains": [
-    "reorganisation.com",
-    "lurks.org"
-  ],
-  "generated_at": "2026-07-23T15:07:09.073577+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-07-23T17:16:36.746190+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
