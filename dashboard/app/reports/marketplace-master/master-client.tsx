@@ -4,12 +4,16 @@ import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "r
 
 type WfField = { id: string; slug: string; displayName?: string; type: string };
 type WfItem = { id: string; isDraft?: boolean; isArchived?: boolean; lastPublished?: string | null; fieldData: Record<string, unknown> };
-type Resp = { ok: boolean; configured: boolean; resolved?: boolean; collectionName?: string | null; fields?: WfField[]; items?: WfItem[]; total?: number; error?: string };
+type CollLite = { id: string; name: string; slug: string | null };
+type Resp = { ok: boolean; configured: boolean; resolved?: boolean; collectionId?: string; collections?: CollLite[]; collectionName?: string | null; fields?: WfField[]; items?: WfItem[]; total?: number; discoverError?: string | null; error?: string };
 
 const CORAL = "var(--coral-deep, #c0492f)";
 const CTL: CSSProperties = { padding: "5px 9px", fontSize: 13, borderRadius: 8, border: "1px solid #d8d0bf", background: "#fff", color: "var(--navy,#254254)", cursor: "pointer" };
 const BTN: CSSProperties = { padding: "5px 11px", fontSize: 12.5, borderRadius: 8, border: "1px solid #d8d0bf", background: "#fff", color: "var(--navy,#254254)", cursor: "pointer", whiteSpace: "nowrap" };
 const asText = (v: unknown): string => v == null ? "" : typeof v === "boolean" ? (v ? "Yes" : "No") : typeof v === "object" ? JSON.stringify(v) : String(v);
+// RichText fields (One-liner / Description) come back as HTML — show readable plain text.
+const plain = (s: string): string => s.replace(/<[^>]*>/g, " ").replace(/&nbsp;/gi, " ").replace(/&amp;/gi, "&").replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/&#39;|&rsquo;|&lsquo;/gi, "'").replace(/&quot;/gi, '"').replace(/\s+/g, " ").trim();
+const disp = (v: unknown): string => plain(asText(v));
 const cell: CSSProperties = { padding: "6px 10px", borderBottom: "1px solid var(--line,#eee)", verticalAlign: "top" };
 
 export default function MasterClient() {
@@ -18,17 +22,20 @@ export default function MasterClient() {
   const [err, setErr] = useState<string | null>(null);
   const [q, setQ] = useState("");
   const [wrap, setWrap] = useState(false); // wrap long cells vs. single-line + ellipsis
+  const [collId, setCollId] = useState(""); // manual collection pick (when auto-detect can't)
 
   const load = useCallback(async () => {
     setLoading(true); setErr(null);
     try {
-      const res = await fetch("/api/admin/marketplace/live?all=1", { cache: "no-store" });
+      const qs = new URLSearchParams({ all: "1" });
+      if (collId) qs.set("collection", collId);
+      const res = await fetch(`/api/admin/marketplace/live?${qs.toString()}`, { cache: "no-store" });
       const j = (await res.json()) as Resp;
       if (!res.ok) throw new Error(j.error || `HTTP ${res.status}`);
       setData(j);
     } catch (e) { setErr(String((e as Error)?.message || e)); }
     finally { setLoading(false); }
-  }, []);
+  }, [collId]);
   useEffect(() => { void load(); }, [load]);
 
   // Every CMS field is a column. Put the name field first, then the rest in schema order.
@@ -41,14 +48,14 @@ export default function MasterClient() {
   const items = data?.items || [];
   const rows = useMemo(() => {
     const t = q.trim().toLowerCase();
-    return t ? items.filter((it) => Object.values(it.fieldData).some((v) => asText(v).toLowerCase().includes(t))) : items;
+    return t ? items.filter((it) => Object.values(it.fieldData).some((v) => disp(v).toLowerCase().includes(t))) : items;
   }, [items, q]);
 
   const exportCsv = () => {
     const cols = ["_status", ...fields.map((f) => f.slug)];
     const head = ["Status", ...fields.map((f) => f.displayName || f.slug)].join(",");
     const body = rows.map((it) => cols.map((c) => {
-      const val = c === "_status" ? (it.isArchived ? "archived" : it.isDraft ? "draft" : "published") : asText(it.fieldData[c]);
+      const val = c === "_status" ? (it.isArchived ? "archived" : it.isDraft ? "draft" : "published") : disp(it.fieldData[c]);
       return `"${val.replace(/"/g, '""')}"`;
     }).join(",")).join("\n");
     const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([head + "\n" + body], { type: "text/csv" }));
@@ -67,6 +74,11 @@ export default function MasterClient() {
       </p>
 
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "10px 0 4px" }}>
+        {(data?.collections?.length ?? 0) > 0 && (
+          <select style={CTL} value={collId || data?.collectionId || ""} onChange={(e) => setCollId(e.target.value)} title="CMS collection">
+            {data!.collections!.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+        )}
         <input style={{ ...CTL, minWidth: 200 }} placeholder="Search across all fields…" value={q} onChange={(e) => setQ(e.target.value)} />
         <button style={BTN} onClick={() => void load()} disabled={loading}>{loading ? "working…" : "↻ Refresh"}</button>
         <button style={BTN} onClick={exportCsv} disabled={!rows.length}>⬇ CSV</button>
@@ -78,7 +90,13 @@ export default function MasterClient() {
 
       {err && <p style={{ color: CORAL }}>{err}</p>}
       {data && !data.configured && <p className="muted">Webflow isn&apos;t connected on this deployment (set <code>WEBFLOW_API_TOKEN_CMS_READ_ONLY</code>).</p>}
-      {data && data.configured && data.resolved === false && <p className="muted">Couldn&apos;t identify the Marketplace collection — set <code>WEBFLOW_MARKETPLACE_COLLECTION_ID</code>.</p>}
+      {data && data.configured && data.resolved === false && (
+        <p className="muted">
+          {(data.collections?.length ?? 0) > 0
+            ? "Pick the collection above (the domains listing) to load it."
+            : <>Couldn&apos;t list collections{data.discoverError ? ` (${data.discoverError})` : ""} — the read-only token may lack <em>Sites: read</em>. Set <code>WEBFLOW_MARKETPLACE_COLLECTION_ID=6998a906939f81e325694dc9</code> in Vercel to pin the Domains collection.</>}
+        </p>
+      )}
 
       {data?.configured && data.resolved !== false && (
         <div style={{ overflowX: "auto", marginTop: 12, border: "1px solid var(--line,#e3ddcf)", borderRadius: 10 }}>
@@ -98,7 +116,7 @@ export default function MasterClient() {
                     {it.isArchived ? <span style={{ color: "#7a6f63" }}>archived</span> : it.isDraft ? <span style={{ color: "#946200" }}>draft</span> : <span style={{ color: "#1f7a5a" }}>published</span>}
                   </td>
                   {fields.map((f) => {
-                    const raw = asText(it.fieldData[f.slug]);
+                    const raw = disp(it.fieldData[f.slug]);
                     return (
                       <td key={f.id} style={{ ...cell, maxWidth: wrap ? 320 : 260, ...(wrap ? { whiteSpace: "normal", wordBreak: "break-word" } : { whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }), fontWeight: f.slug === "name" ? 600 : 400 }} title={raw}>
                         {raw || <span className="muted">—</span>}

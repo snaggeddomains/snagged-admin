@@ -89,7 +89,7 @@ export async function publishSite(siteId: string, opts?: { toSubdomain?: boolean
 }
 
 // ---- Collections ----
-export type WfField = { id: string; slug: string; displayName?: string; type: string; isRequired?: boolean; isEditable?: boolean };
+export type WfField = { id: string; slug: string; displayName?: string; type: string; isRequired?: boolean; isEditable?: boolean; validations?: { collectionId?: string; options?: { id: string; name: string }[] } | null };
 export type WfCollection = { id: string; displayName?: string; slug?: string; singularName?: string; fields?: WfField[] };
 export async function listCollections(siteId: string): Promise<WfResult<{ collections: WfCollection[] }>> {
   return wf<{ collections: WfCollection[] }>("GET", `/sites/${siteId}/collections`);

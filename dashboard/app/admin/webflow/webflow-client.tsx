@@ -67,9 +67,11 @@ export default function WebflowClient() {
   // The primary "name" field + a few informative extras for the table columns.
   const primarySlug = useMemo(() => (fields.find((f) => f.slug === "name")?.slug || fields.find((f) => /name|domain|title/i.test(f.slug))?.slug || "name"), [fields]);
   const extraCols = useMemo(() => {
-    const pref = fields.filter((f) => f.slug !== primarySlug && f.slug !== "slug" && /price|status|tld|sold|extension|category|for.?sale|active|listed/i.test(f.slug));
+    const re = /asking|price|min.?offer|make.?offer|\boffer|bin|buy.?now|status|tld|sold|extension|categor|for.?sale|active|listed/i;
+    const hit = (f: Field) => re.test(f.slug) || re.test(f.displayName || "");
+    const pref = fields.filter((f) => f.slug !== primarySlug && f.slug !== "slug" && hit(f));
     const rest = fields.filter((f) => f.slug !== primarySlug && f.slug !== "slug" && !pref.includes(f) && EDITABLE_TYPES.has(f.type));
-    return [...pref, ...rest].slice(0, 4);
+    return [...pref, ...rest].slice(0, 6);
   }, [fields, primarySlug]);
 
   const items = detail?.items || [];

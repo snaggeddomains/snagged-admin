@@ -259,8 +259,20 @@ This adds a real Webflow **Data API v2** integration to pull every listing and e
 - **Reports → Marketplace Master tab** (`/reports/marketplace-master`, `REPORTS_TABS`, gated
   `reports.marketplace`): the wide "every Webflow field for every listing" view — one column per
   CMS field (one-line description, description, extension, categories, …), sticky Status column,
-  search across all fields, wrap toggle, CSV of all fields. A "◆ Source: Webflow CMS" badge makes
-  the origin unmistakable. Reads `…/marketplace/live?all=1`. `app/reports/marketplace-master/`.
+  search across all fields, wrap toggle, CSV of all fields, and a collection **picker** (when
+  Sites-read is available). A "◆ Source: Webflow CMS" badge makes the origin unmistakable. Reads
+  `…/marketplace/live?all=1`. `app/reports/marketplace-master/`.
+- **The Marketplace collection is Webflow "Domains"** — collection id `6998a906939f81e325694dc9`
+  (slug `domains`, 149 items; fields: Name/Slug, Domain Logo, One-liner Description + Description
+  (RichText), Is Featured/Premium/Hand-picked (Switch), **Extension (Reference)**, **Categories
+  (Multi-reference)**, …). A **read-only CMS token can't list Sites/collections** (needs Sites-read),
+  so auto-detect fails → **pin `WEBFLOW_MARKETPLACE_COLLECTION_ID=6998a906939f81e325694dc9`** in the
+  admin Vercel project. Reading the collection's items works on CMS-read alone.
+- **Reference fields resolved to labels** (`marketplace/live` route): Extension/Categories come back
+  as item IDs; the route fetches each referenced collection once (Domain Extensions / Categories),
+  maps id→`name`, and swaps ids for readable "com" / "Tech, Finance". RichText (descriptions) is
+  HTML — the Master client strips tags (`plain`) for display/CSV/search. The condensed Live-listings
+  + Admin tables prioritize asking-price + min/make-offer columns (`pickColumns` / broadened regex).
 - **Permission** `admin.webflow` (MODULE + ADMIN_TABS + CATALOG, group Admin) gates the EDIT tab;
   the Reports live-listings section is gated by `reports.marketplace`. Admins auto-pass.
 - **One-time setup:** in Webflow → Site settings → Apps & integrations → API access → **Generate

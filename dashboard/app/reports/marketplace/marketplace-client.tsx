@@ -168,6 +168,18 @@ type WfItem = { id: string; isDraft?: boolean; isArchived?: boolean; fieldData: 
 type LiveResp = { ok: boolean; configured: boolean; resolved?: boolean; collectionName?: string | null; fields?: WfField[]; items?: WfItem[]; total?: number; error?: string };
 const asText = (v: unknown): string => v == null ? "" : typeof v === "boolean" ? (v ? "Yes" : "No") : typeof v === "object" ? JSON.stringify(v) : String(v);
 
+// Pick the columns for the condensed table: asking price + min/make offer first, then the
+// other status-ish fields. (The Master tab shows every field; this is the compact view.)
+const COL_PRIORITY = /asking|price|min.?offer|make.?offer|\boffer|bin|buy.?now/i;
+const COL_SECONDARY = /status|tld|extension|categor|sold|for.?sale|active|listed/i;
+function pickColumns(fields: WfField[], primary: string): WfField[] {
+  const avail = fields.filter((f) => f.slug !== primary && f.slug !== "slug");
+  const test = (f: WfField, re: RegExp) => re.test(f.slug) || re.test(f.displayName || "");
+  const pri = avail.filter((f) => test(f, COL_PRIORITY));
+  const sec = avail.filter((f) => !pri.includes(f) && test(f, COL_SECONDARY));
+  return [...pri, ...sec].slice(0, 6);
+}
+
 function LiveListings() {
   const [data, setData] = useState<LiveResp | null>(null);
   const [loading, setLoading] = useState(true);
@@ -188,7 +200,7 @@ function LiveListings() {
 
   const fields = data?.fields || [];
   const primary = useMemo(() => fields.find((f) => f.slug === "name")?.slug || fields.find((f) => /name|domain|title/i.test(f.slug))?.slug || "name", [fields]);
-  const extraCols = useMemo(() => fields.filter((f) => f.slug !== primary && f.slug !== "slug" && /price|status|tld|sold|extension|category|for.?sale|active|listed/i.test(f.slug)).slice(0, 4), [fields, primary]);
+  const extraCols = useMemo(() => pickColumns(fields, primary), [fields, primary]);
   const items = data?.items || [];
   const rows = useMemo(() => {
     const t = q.trim().toLowerCase();
