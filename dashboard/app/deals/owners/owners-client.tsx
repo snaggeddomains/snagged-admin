@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 
 type Owner = {
@@ -87,6 +87,24 @@ function NewOwnerModal({ onClose, onCreated }: { onClose: () => void; onCreated:
   const [error, setError] = useState<string | null>(null);
   const set = (k: string, v: string) => setF((s) => ({ ...s, [k]: v }));
   const L: CSSProperties = { display: "block", fontSize: 12, fontWeight: 700, color: "var(--navy-2,#4a5b66)", margin: "10px 0 3px" };
+
+  // Match-to-existing typeahead — so filling in a name that's already in the directory opens
+  // that owner instead of creating a duplicate.
+  const [hits, setHits] = useState<{ id: string; name: string; email: string | null; company: string | null }[]>([]);
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    const term = f.name.trim();
+    if (term.length < 2) { setHits([]); return; }
+    let dead = false;
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/admin/deals/owners?typeahead=${encodeURIComponent(term)}`);
+        const j = await res.json();
+        if (!dead && Array.isArray(j.owners)) { setHits(j.owners); setOpen(true); }
+      } catch { /* ignore */ }
+    }, 220);
+    return () => { dead = true; clearTimeout(t); };
+  }, [f.name]);
   const submit = async () => {
     if (!f.name.trim()) { setError("Name is required."); return; }
     setBusy(true); setError(null);
@@ -103,7 +121,21 @@ function NewOwnerModal({ onClose, onCreated }: { onClose: () => void; onCreated:
       <div onClick={(e) => e.stopPropagation()} style={{ background: "var(--paper,#fff)", borderRadius: 14, padding: 20, width: "min(420px,100%)", maxHeight: "90vh", overflowY: "auto" }}>
         <h2 style={{ fontSize: "1.1rem", margin: "0 0 4px" }}>New owner</h2>
         <label style={L}>Name *</label>
-        <input style={{ ...input, width: "100%" }} value={f.name} onChange={(e) => set("name", e.target.value)} placeholder="Person or company" />
+        <div style={{ position: "relative" }}>
+          <input style={{ ...input, width: "100%" }} value={f.name} autoComplete="off" onChange={(e) => set("name", e.target.value)}
+            onFocus={() => { if (hits.length) setOpen(true); }} onBlur={() => setTimeout(() => setOpen(false), 150)} placeholder="Person or company" />
+          {open && hits.length > 0 && (
+            <div style={{ position: "absolute", top: "100%", left: 0, right: 0, zIndex: 10, background: "var(--paper,#fff)", border: "1px solid var(--line,#e3ddcf)", borderRadius: 8, marginTop: 3, boxShadow: "0 6px 18px rgba(20,25,30,0.12)", maxHeight: 220, overflowY: "auto" }}>
+              <div style={{ padding: "5px 10px", fontSize: 11, color: "var(--muted,#8a94a0)", borderBottom: "1px solid var(--line,#eee6d6)" }}>Already in the directory — open instead of duplicating</div>
+              {hits.map((h) => (
+                <button key={h.id} type="button" onMouseDown={(e) => { e.preventDefault(); onCreated(h.id); }}
+                  style={{ display: "block", width: "100%", textAlign: "left", padding: "7px 10px", background: "transparent", border: "none", cursor: "pointer", fontSize: 13 }}>
+                  <span style={{ fontWeight: 600 }}>{h.name}</span>{(h.email || h.company) && <span style={{ color: "var(--muted,#8a94a0)" }}>{" · "}{[h.email, h.company].filter(Boolean).join(" · ")}</span>}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
         <label style={L}>Type</label>
         <select style={{ ...input, width: "100%" }} value={f.kind} onChange={(e) => set("kind", e.target.value)}><option value="person">Person</option><option value="company">Company</option><option value="unknown">Unknown</option></select>
         <label style={L}>Company</label>

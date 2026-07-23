@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import { STAGES, PRIORITIES, SOURCES, BUDGET_BANDS, LOST_REASONS, NOT_PROCEEDED_REASONS, statusLabel } from "@/lib/deals/stages";
-import ConfirmOwnerModal, { type ConfirmOwnerSeed } from "../confirm-owner-modal";
+import ConfirmOwnerModal, { type ConfirmOwnerSeed } from "./confirm-owner-modal";
 
 const NEGOTIATING = "Negotiating";
 
