@@ -120,7 +120,7 @@ export const ADMIN_TABS: { href: string; label: string; perm: ModuleKey | Action
 // is_admin) grant both; otherwise the specific action is needed.
 export const REPORTS_TABS: { href: string; label: string; perm: ModuleKey | ActionKey }[] = [
   { href: "/reports", label: "Site analytics", perm: "reports.analytics" },
-  { href: "/reports/marketplace", label: "Marketplace", perm: "reports.marketplace" },
+  { href: "/reports/marketplace", label: "Marketplace Reporting", perm: "reports.marketplace" },
   // Marketplace Master — every Webflow CMS field for every listing (read-only pull).
   { href: "/reports/marketplace-master", label: "Marketplace Master", perm: "reports.marketplace" },
   { href: "/reports/chat", label: "Chat", perm: "reports.chat" },
