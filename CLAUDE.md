@@ -356,7 +356,14 @@ highly-relevant only, with the exact anchor phrase to link.
   the new sentence (`linkifySentence`, HTML-escaped) and inserts it as a `<p>` after the block
   containing the `insert_after` hint (fallback: after the first block). Resolves the body RichText
   field per-item (`resolveBodySlug`), `getItem`→rewrite→`updateItem` staged, then `publishItems` if
-  `publish`. `status='inserted'` (idempotent — won't re-apply). **Gated by `admin.webflow`** (write
+  `publish`. `status='inserted'` (idempotent — won't re-apply). **Anchor matching is normalized, not
+  raw-substring (2026-07-23 fix):** `flatten()` builds a lowercased, whitespace-collapsed,
+  entity-decoded view of the body with each flat char mapped back to its raw byte range — the SAME
+  normalization stripHtml/the analysis used — so a valid anchor with an `&amp;`/apostrophe entity,
+  collapsed whitespace, or an inline `<strong>` inside it is found and wrapped (splicing into the raw
+  html; inline tags inside the span survive). Guard rejects a span that would cross a block/heading/
+  existing-link boundary → "insert manually". (The first cut matched raw HTML and errored on most
+  rows.) **Gated by `admin.webflow`** (write
   token + permission) — the GET returns `canInsert`; the UI shows **Insert** (staged draft, safe/
   calibration default) + **＋ Live** (publish now) per row, or "✓ Inserted". Env `CONTENT_POST_BASE`
   (default `https://www.snagged.com/post`). Tested: token-walk wrap/insert verified on heading/

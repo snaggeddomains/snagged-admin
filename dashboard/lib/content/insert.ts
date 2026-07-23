@@ -28,16 +28,21 @@ export function tokenizeHtml(html: string): Tok[] {
   return tokens;
 }
 
-// Wrap the FIRST occurrence of `anchor` that sits in ordinary body text — not inside a heading,
-// not inside an existing link. Returns the rewritten HTML, or null if no linkable spot was found
-// (e.g. the phrase only appears inside a heading, or straddles inline tags).
-export function wrapAnchor(html: string, anchor: string, slug: string): string | null {
-  const needle = String(anchor || "").trim();
-  if (!needle) return null;
+// Decode the same entities stripHtml decodes, so anchor matching lines up with the text the
+// analysis validated the anchor against (which was the decoded, whitespace-collapsed body).
+const decodeEntities = (s: string): string =>
+  String(s || "").replace(/&nbsp;/gi, " ").replace(/&amp;/gi, "&").replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/&#39;|&rsquo;|&lsquo;/gi, "'").replace(/&quot;/gi, '"');
+
+// Build a normalized, lowercased "flat" view of the HTML's text where each flat char is mapped back
+// to its raw byte range: whitespace runs collapse to one space, the entities stripHtml decodes are
+// decoded, and text inside skipped regions (headings, existing links) is omitted. This mirrors
+// exactly what the analysis validated the anchor against, so a valid anchor is always found — while
+// the raw offsets let us splice a link into the ORIGINAL html (inline tags inside the span survive).
+type Span = { rawStart: number; rawEnd: number };
+function flatten(html: string, skip: { headings?: boolean; anchors?: boolean }): { flat: string; spans: Span[] } {
   const tokens = tokenizeHtml(html);
-  const aLower = needle.toLowerCase();
-  const href = postHref(slug);
-  let inHeading = 0, inAnchor = 0, done = false;
+  let raw = 0, inHeading = 0, inAnchor = 0, flat = "";
+  const spans: Span[] = [];
   for (const tok of tokens) {
     if (tok.t === "tag") {
       const tag = tok.v.toLowerCase();
@@ -45,17 +50,39 @@ export function wrapAnchor(html: string, anchor: string, slug: string): string |
       else if (/^<\/h[1-6]\s*>/.test(tag)) inHeading = Math.max(0, inHeading - 1);
       else if (/^<a[\s>]/.test(tag)) inAnchor++;
       else if (/^<\/a\s*>/.test(tag)) inAnchor = Math.max(0, inAnchor - 1);
+      raw += tok.v.length;
       continue;
     }
-    if (done || inHeading || inAnchor) continue;
-    const idx = tok.v.toLowerCase().indexOf(aLower);
-    if (idx >= 0) {
-      const orig = tok.v.slice(idx, idx + needle.length); // preserve the body's own casing
-      tok.v = `${tok.v.slice(0, idx)}<a href="${href}">${orig}</a>${tok.v.slice(idx + needle.length)}`;
-      done = true;
+    const skipHere = Boolean((skip.headings && inHeading) || (skip.anchors && inAnchor));
+    const re = /&(?:nbsp|amp|lt|gt|quot|#39|rsquo|lsquo);|\s+|[\s\S]/gi;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(tok.v))) {
+      if (skipHere) continue;
+      const piece = m[0];
+      const start = raw + m.index, end = start + piece.length;
+      const ch = /^\s+$/.test(piece) ? " " : (piece[0] === "&" ? decodeEntities(piece) : piece);
+      flat += ch.toLowerCase();
+      spans.push({ rawStart: start, rawEnd: end });
     }
+    raw += tok.v.length;
   }
-  return done ? tokens.map((t) => t.v).join("") : null;
+  return { flat, spans };
+}
+
+// Wrap the FIRST occurrence of `anchor` that sits in ordinary body text — not inside a heading,
+// not inside an existing link. Returns the rewritten HTML, or null if no linkable spot was found
+// (the phrase only appears in a heading, or its span would cross a block/heading/link boundary).
+export function wrapAnchor(html: string, anchor: string, slug: string): string | null {
+  const needle = String(anchor || "").trim().replace(/\s+/g, " ").toLowerCase();
+  if (!needle) return null;
+  const { flat, spans } = flatten(html, { headings: true, anchors: true });
+  const i = flat.indexOf(needle);
+  if (i < 0) return null;
+  const rawStart = spans[i].rawStart, rawEnd = spans[i + needle.length - 1].rawEnd;
+  const inner = html.slice(rawStart, rawEnd);
+  // Never wrap across a block boundary, a heading, or an existing link (inline tags like <strong> are fine).
+  if (/<\/?(?:p|h[1-6]|ul|ol|li|blockquote|div|figure|a)\b/i.test(inner)) return null;
+  return `${html.slice(0, rawStart)}<a href="${postHref(slug)}">${inner}</a>${html.slice(rawEnd)}`;
 }
 
 // Turn a plain sentence into HTML with `anchor` (a substring of it) wrapped in a link.
@@ -75,10 +102,14 @@ export function insertSentence(html: string, newSentence: string, anchor: string
   const para = `<p>${inner}</p>`;
   const closeRe = /<\/(h[1-6]|p|ul|ol|blockquote|figure)>/gi;
   let pos = -1;
-  const hint = String(insertAfter || "").trim();
+  const hint = String(insertAfter || "").trim().replace(/\s+/g, " ").toLowerCase();
   if (hint) {
-    const hi = html.toLowerCase().indexOf(hint.toLowerCase());
-    if (hi >= 0) { closeRe.lastIndex = hi; const m = closeRe.exec(html); if (m) pos = m.index + m[0].length; }
+    // Locate the hint via the same normalized view (it's decoded heading/paragraph text), then
+    // insert after the block it lives in. Fall back to a raw search, then to the first block.
+    const { flat, spans } = flatten(html, {});
+    const fi = flat.indexOf(hint);
+    const rawAt = fi >= 0 ? spans[fi + hint.length - 1].rawEnd : html.toLowerCase().indexOf(hint);
+    if (rawAt >= 0) { closeRe.lastIndex = rawAt; const m = closeRe.exec(html); if (m) pos = m.index + m[0].length; }
   }
   if (pos < 0) { const m = /<\/(h[1-6]|p)>/i.exec(html); pos = m ? m.index + m[0].length : html.length; }
   return html.slice(0, pos) + para + html.slice(pos);
