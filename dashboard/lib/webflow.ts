@@ -182,3 +182,33 @@ export async function publishItems(collectionId: string, itemIds: string[]): Pro
   if (!itemIds.length) return { ok: true, status: 200, data: null, error: null };
   return wf("POST", `/collections/${collectionId}/items/publish`, { itemIds });
 }
+
+// Fetch a collection's field schema + all its items, with Reference / Multi-reference fields
+// resolved from item ids to their human labels (e.g. Author → "Rob Schutz", Category → "SEO").
+// Read-only helper shared by the marketplace + content report surfaces.
+export async function loadCollectionResolved(
+  collectionId: string,
+  opts: { live?: boolean } = {},
+): Promise<{ ok: boolean; error: string | null; collection: WfCollection | null; fields: WfField[]; items: WfItem[]; total: number }> {
+  const [coll, items] = await Promise.all([getCollection(collectionId), listAllItems(collectionId, { live: opts.live })]);
+  const fields = coll.data?.fields || [];
+  const rows = items.data?.items || [];
+  const refFields = fields.filter((f) => /reference/i.test(f.type) && f.validations?.collectionId);
+  const targetIds = [...new Set(refFields.map((f) => f.validations!.collectionId!))];
+  const nameMaps: Record<string, Record<string, string>> = {};
+  await Promise.all(targetIds.map(async (tid) => {
+    const r = await listAllItems(tid);
+    const m: Record<string, string> = {};
+    for (const it of r.data?.items || []) m[it.id] = String((it.fieldData?.name ?? it.fieldData?.slug ?? it.id) as string);
+    nameMaps[tid] = m;
+  }));
+  for (const it of rows) {
+    for (const f of refFields) {
+      const m = nameMaps[f.validations!.collectionId!]; if (!m) continue;
+      const v = it.fieldData[f.slug];
+      if (Array.isArray(v)) it.fieldData[f.slug] = v.map((id) => m[String(id)] || String(id)).join(", ");
+      else if (typeof v === "string" && v) it.fieldData[f.slug] = m[v] || v;
+    }
+  }
+  return { ok: items.ok, error: items.error, collection: coll.data, fields, items: rows, total: items.data?.total ?? rows.length };
+}

@@ -280,6 +280,23 @@ This adds a real Webflow **Data API v2** integration to pull every listing and e
   (`PATCH /collections/{cid}/items/{itemId}/live`), NOT after `/items` — the collection-level
   list/create use `/items/live`. Getting this wrong = `RouteNotFoundError 404`. Fixed in
   `updateItem`/`deleteItem`.
+- **Publish / Unpublish + sort + filters (2026-07-23).** Marketplace CMS edit modal has
+  **Unpublish** (`DELETE …/items/{id}/live` — off the live site, kept in the CMS; webflow route
+  action `unpublish`) / **Publish live** (`publishItems`) buttons. The `delete` action now does a
+  TRUE delete (`live:false`). The table: **every column is click-to-sort** (money numeric, bool,
+  else string) and a filter row filters by **extension / category / each flag**. Header blurb
+  trimmed to "The Marketplace domains from Webflow CMS."
+
+## Reports → Content — Webflow blog posts (2026-07-23)
+
+New permission-gated Reports tab **Content** (`/reports/content`, `reports.content` in
+ACTIONS+CATALOG+REPORTS_TABS) listing the Webflow **Blog Posts** collection (env
+`WEBFLOW_BLOG_POSTS_ID`). Read-only: Title (+ ↗ to `snagged.com/post/<slug>`), Summary
+(ellipsis), Author, Category. Endpoint `app/api/admin/content/blog/route.ts` (gated
+`reports.content`) → `loadCollectionResolved(id,{live:true})` — a **new shared webflow.ts helper**
+that fetches a collection's items with Reference/Multi-reference fields resolved to labels (Author,
+Category). UI `app/reports/content/{page,content-client}.tsx`; fields located by slug/displayName
+regex so small CMS renames survive. **Setup: `WEBFLOW_BLOG_POSTS_ID` set; grant `reports.content`.**
 - **The Marketplace collection is Webflow "Domains"** — collection id `6998a906939f81e325694dc9`
   (slug `domains`, 149 items; fields: Name/Slug, Domain Logo, One-liner Description + Description
   (RichText), Is Featured/Premium/Hand-picked (Switch), **Extension (Reference)**, **Categories

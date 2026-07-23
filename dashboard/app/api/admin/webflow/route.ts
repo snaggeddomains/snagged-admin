@@ -105,9 +105,17 @@ export async function POST(req: NextRequest) {
         if (!r.ok) return NextResponse.json({ error: r.error }, { status: 502 });
         return NextResponse.json({ ok: true });
       }
-      case "delete": {
+      case "unpublish": {
+        // Remove the item from the LIVE site (keeps it staged in the CMS) — DELETE …/items/{id}/live.
         if (!body.itemId) return NextResponse.json({ error: "itemId required" }, { status: 400 });
         const r = await deleteItem(collection, body.itemId, { live: true });
+        if (!r.ok) return NextResponse.json({ error: r.error }, { status: 502 });
+        return NextResponse.json({ ok: true });
+      }
+      case "delete": {
+        // Fully delete the staged item (removes it from the CMS entirely).
+        if (!body.itemId) return NextResponse.json({ error: "itemId required" }, { status: 400 });
+        const r = await deleteItem(collection, body.itemId, { live: false });
         if (!r.ok) return NextResponse.json({ error: r.error }, { status: 502 });
         return NextResponse.json({ ok: true });
       }

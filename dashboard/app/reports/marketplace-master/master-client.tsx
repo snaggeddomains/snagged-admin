@@ -47,6 +47,8 @@ export default function MasterClient() {
   const [statusF, setStatusF] = useState<"published" | "draft" | "archived" | "all">("published");
   const [collId, setCollId] = useState("");
   const [editing, setEditing] = useState<WfItem | null>(null);
+  const [sort, setSort] = useState<{ key: string; dir: 1 | -1 } | null>(null);
+  const [facet, setFacet] = useState<Record<string, string>>({}); // per-column filter (extension / category / flags)
   const canEdit = !!data?.canEdit;
 
   const load = useCallback(async () => {
@@ -97,15 +99,51 @@ export default function MasterClient() {
   }, [fields, nameSlug, cols]);
 
   const items = data?.items || [];
+  // Filterable facets: extension, categories, and the boolean flag columns.
+  const extCol = useMemo(() => cols.find((c) => c.kind === "pills" && /extension/i.test(c.field.slug + (c.field.displayName || ""))), [cols]);
+  const catCol = useMemo(() => cols.find((c) => c.kind === "pills" && /categor/i.test(c.field.slug + (c.field.displayName || ""))), [cols]);
+  const boolCols = useMemo(() => cols.filter((c) => c.kind === "bool"), [cols]);
+  const distinctOf = useCallback((slug?: string) => {
+    const s = new Set<string>();
+    if (slug) for (const it of items) { const v = disp(it.fieldData[slug]); if (v) v.split(/,\s*/).forEach((x) => x && s.add(x)); }
+    return [...s].sort();
+  }, [items]);
+  const extOptions = useMemo(() => distinctOf(extCol?.field.slug), [distinctOf, extCol]);
+  const catOptions = useMemo(() => distinctOf(catCol?.field.slug), [distinctOf, catCol]);
+
   const rows = useMemo(() => {
     const t = q.trim().toLowerCase();
-    return items.filter((it) => (statusF === "all" || stateOf(it) === statusF) && (!t || Object.values(it.fieldData).some((v) => disp(v).toLowerCase().includes(t))));
-  }, [items, q, statusF]);
+    let out = items.filter((it) => {
+      if (statusF !== "all" && stateOf(it) !== statusF) return false;
+      if (t && !Object.values(it.fieldData).some((v) => disp(v).toLowerCase().includes(t))) return false;
+      if (extCol && facet[extCol.field.slug] && !disp(it.fieldData[extCol.field.slug]).split(/,\s*/).includes(facet[extCol.field.slug])) return false;
+      if (catCol && facet[catCol.field.slug] && !disp(it.fieldData[catCol.field.slug]).split(/,\s*/).includes(facet[catCol.field.slug])) return false;
+      for (const bc of boolCols) { const f = facet[bc.field.slug]; if (f === "yes" && !it.fieldData[bc.field.slug]) return false; if (f === "no" && it.fieldData[bc.field.slug]) return false; }
+      return true;
+    });
+    if (sort) {
+      const { key, dir } = sort;
+      const col = cols.find((c) => c.field.slug === key);
+      const val = (it: WfItem): number | string => {
+        if (key === "name") return disp(it.fieldData[nameSlug]).toLowerCase();
+        if (key === "status") return ({ published: 0, draft: 1, archived: 2 } as Record<string, number>)[stateOf(it)];
+        if (!col) return "";
+        if (col.kind === "money") { const n = Number(String(it.fieldData[col.field.slug] ?? "").replace(/[^0-9.]/g, "")); return Number.isFinite(n) && String(it.fieldData[col.field.slug] ?? "").trim() ? n : -Infinity; }
+        if (col.kind === "bool") return it.fieldData[col.field.slug] ? 1 : 0;
+        return disp(it.fieldData[col.field.slug]).toLowerCase();
+      };
+      out = [...out].sort((a, b) => { const av = val(a), bv = val(b); return (av < bv ? -1 : av > bv ? 1 : 0) * dir; });
+    }
+    return out;
+  }, [items, q, statusF, facet, sort, extCol, catCol, boolCols, cols, nameSlug]);
   const counts = useMemo(() => {
     const c = { published: 0, draft: 0, archived: 0 };
     for (const it of items) c[stateOf(it)]++;
     return c;
   }, [items]);
+  const toggleSort = (key: string) => setSort((s) => (s && s.key === key ? { key, dir: (s.dir === 1 ? -1 : 1) as 1 | -1 } : { key, dir: 1 }));
+  const arrow = (key: string) => (sort?.key === key ? (sort.dir === 1 ? " ▲" : " ▼") : "");
+  const anyFacet = Object.values(facet).some(Boolean);
 
   const exportCsv = () => {
     const head = ["Name", "Status", ...cols.map((c) => c.label)].join(",");
@@ -122,7 +160,7 @@ export default function MasterClient() {
         Marketplace CMS
         <span style={{ marginLeft: 10, fontSize: 11.5, fontWeight: 700, color: "#146c8f", background: "#e6f2f7", border: "1px solid #bfe0eb", borderRadius: 999, padding: "2px 9px", verticalAlign: "middle" }}>◆ Source: Webflow</span>
       </h1>
-      <p className="section-blurb" style={{ marginTop: 0 }}>The Marketplace domains from Webflow{data?.collectionName ? ` (${data.collectionName})` : ""} — asking price, minimum offer, descriptions, flags, extension &amp; categories. Read-only.</p>
+      <p className="section-blurb" style={{ marginTop: 0 }}>The Marketplace domains from Webflow CMS.</p>
 
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "10px 0 4px" }}>
         {(data?.collections?.length ?? 0) > 0 && (
@@ -142,6 +180,32 @@ export default function MasterClient() {
         {data && <span className="muted" style={{ fontSize: 12 }}>{rows.length} shown</span>}
       </div>
 
+      {/* Per-column filters — extension, categories, and each flag. */}
+      {data?.configured && data.resolved !== false && (cols.length > 0) && (
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "0 0 4px" }}>
+          {extCol && (
+            <select style={CTL} value={facet[extCol.field.slug] || ""} onChange={(e) => setFacet((f) => ({ ...f, [extCol.field.slug]: e.target.value }))} title="Filter by extension">
+              <option value="">All extensions</option>
+              {extOptions.map((o) => <option key={o} value={o}>{o}</option>)}
+            </select>
+          )}
+          {catCol && (
+            <select style={CTL} value={facet[catCol.field.slug] || ""} onChange={(e) => setFacet((f) => ({ ...f, [catCol.field.slug]: e.target.value }))} title="Filter by category">
+              <option value="">All categories</option>
+              {catOptions.map((o) => <option key={o} value={o}>{o}</option>)}
+            </select>
+          )}
+          {boolCols.map((bc) => (
+            <select key={bc.field.slug} style={CTL} value={facet[bc.field.slug] || ""} onChange={(e) => setFacet((f) => ({ ...f, [bc.field.slug]: e.target.value }))} title={`Filter by ${bc.label}`}>
+              <option value="">{bc.label}: any</option>
+              <option value="yes">{bc.label}: yes</option>
+              <option value="no">{bc.label}: no</option>
+            </select>
+          ))}
+          {anyFacet && <button style={BTN} onClick={() => setFacet({})}>Clear filters</button>}
+        </div>
+      )}
+
       {err && <p style={{ color: CORAL }}>{err}</p>}
       {data && !data.configured && <p className="muted">Webflow isn&apos;t connected on this deployment.</p>}
       {data && data.configured && data.resolved === false && (
@@ -157,9 +221,9 @@ export default function MasterClient() {
           <table style={{ borderCollapse: "collapse", fontSize: 12.5, width: "100%" }}>
             <thead>
               <tr>
-                <th style={{ ...th, position: "sticky", left: 0, zIndex: 1 }}>Name</th>
-                <th style={th}>Published</th>
-                {cols.map((c) => <th key={c.field.id} style={th} title={`${c.field.slug} · ${c.field.type}`}>{c.label}</th>)}
+                <th style={{ ...th, position: "sticky", left: 0, zIndex: 1, cursor: "pointer", userSelect: "none" }} onClick={() => toggleSort("name")}>Name{arrow("name")}</th>
+                <th style={{ ...th, cursor: "pointer", userSelect: "none" }} onClick={() => toggleSort("status")}>Published{arrow("status")}</th>
+                {cols.map((c) => <th key={c.field.id} style={{ ...th, cursor: "pointer", userSelect: "none" }} title={`${c.field.slug} · ${c.field.type} — click to sort`} onClick={() => toggleSort(c.field.slug)}>{c.label}{arrow(c.field.slug)}</th>)}
                 {canEdit && <th style={th}></th>}
               </tr>
             </thead>
@@ -226,6 +290,19 @@ function EditModal({ item, cols, nameSlug, collectionId, refOptions, onClose, on
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const set = (slug: string, v: unknown) => setVals((s) => ({ ...s, [slug]: v }));
+  const isPublished = !item.isArchived && !item.isDraft;
+  // Publish / unpublish this listing on the live site (keeps it in the CMS either way).
+  const setLiveState = async (action: "publish" | "unpublish") => {
+    if (action === "unpublish" && !confirm("Unpublish this listing? It comes off the live snagged.com/marketplace but stays in the CMS.")) return;
+    setSaving(true); setError(null);
+    try {
+      const res = await fetch("/api/admin/webflow", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, collection: collectionId, itemId: item.id, itemIds: [item.id] }) });
+      const j = await res.json();
+      if (!res.ok || j.ok === false) throw new Error(j.error || `HTTP ${res.status}`);
+      onSaved();
+    } catch (e) { setError(String((e as Error)?.message || e)); setSaving(false); }
+  };
   const toggleMulti = (slug: string, id: string) => setVals((s) => {
     const arr = Array.isArray(s[slug]) ? [...(s[slug] as string[])] : [];
     const i = arr.indexOf(id); if (i >= 0) arr.splice(i, 1); else arr.push(id);
@@ -293,9 +370,14 @@ function EditModal({ item, cols, nameSlug, collectionId, refOptions, onClose, on
         <label style={{ display: "flex", gap: 7, alignItems: "center", fontSize: 13, marginTop: 14 }}>
           <input type="checkbox" checked={publish} onChange={(e) => setPublish(e.target.checked)} /> Publish the change live (uncheck to just stage it)
         </label>
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 14 }}>
-          <button style={BTN} onClick={onClose} disabled={saving}>Cancel</button>
-          <button style={{ ...BTN, background: "var(--coral,#e2674a)", color: "#fff", borderColor: "var(--coral,#e2674a)" }} onClick={save} disabled={saving}>{saving ? "Saving…" : "Save"}</button>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, marginTop: 14 }}>
+          {isPublished
+            ? <button style={{ ...BTN, color: "#a83265", borderColor: "#e3c2cd" }} onClick={() => setLiveState("unpublish")} disabled={saving}>Unpublish</button>
+            : <button style={{ ...BTN, color: "#1f7a5a", borderColor: "#bfe0cc" }} onClick={() => setLiveState("publish")} disabled={saving}>Publish live</button>}
+          <div style={{ display: "flex", gap: 8 }}>
+            <button style={BTN} onClick={onClose} disabled={saving}>Cancel</button>
+            <button style={{ ...BTN, background: "var(--coral,#e2674a)", color: "#fff", borderColor: "var(--coral,#e2674a)" }} onClick={save} disabled={saving}>{saving ? "Saving…" : "Save"}</button>
+          </div>
         </div>
       </div>
     </div>
