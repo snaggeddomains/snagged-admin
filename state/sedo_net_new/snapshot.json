@@ -1,1 +1,29 @@
-[]
+[
+  {
+    "currency": "USD",
+    "domain": "neg.ai",
+    "end_time_utc": "2026-07-23T14:10:12+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=neg.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "pizza.co",
+    "end_time_utc": "2026-07-23T11:18:08+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=pizza.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "cohorts.co",
+    "end_time_utc": "2026-07-23T16:51:15+00:00",
+    "is_mub": false,
+    "price": 549.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=cohorts.co"
+  }
+]

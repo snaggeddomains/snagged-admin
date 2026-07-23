@@ -24,12 +24,40 @@
     "price": 17250.0
   },
   {
+    "domain": "steall.com",
+    "price": 2150.0
+  },
+  {
     "domain": "infocomic.com",
     "price": 5999.0
   },
   {
+    "domain": "hainan.ai",
+    "price": 2888.0
+  },
+  {
     "domain": "bethani.net",
     "price": 2150.0
+  },
+  {
+    "domain": "sissies.net",
+    "price": 500.0
+  },
+  {
+    "domain": "wisata.net",
+    "price": 2150.0
+  },
+  {
+    "domain": "pizza.co",
+    "price": null
+  },
+  {
+    "domain": "cohorts.co",
+    "price": 549.0
+  },
+  {
+    "domain": "kayley.co",
+    "price": 1988.0
   },
   {
     "domain": "vation.co",
@@ -37,6 +65,18 @@
   },
   {
     "domain": "thetra.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "rosser.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "feride.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "fixtec.co",
     "price": 1988.0
   }
 ]
