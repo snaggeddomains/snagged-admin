@@ -2,10 +2,10 @@
   "capped": false,
   "count": 2,
   "domains": [
-    "preoccupied.com",
-    "reorganisation.com"
+    "reorganisation.com",
+    "lurks.org"
   ],
-  "generated_at": "2026-07-23T15:06:26.573074+00:00",
+  "generated_at": "2026-07-23T15:07:09.073577+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
