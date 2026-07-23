@@ -68,18 +68,30 @@ export async function GET(req: NextRequest) {
     for (const it of r.data?.items || []) m[it.id] = String((it.fieldData?.name ?? it.fieldData?.slug ?? it.id) as string);
     nameMaps[tid] = m;
   }));
+  // The choices for each reference field (id→name), for the edit modal's selects.
+  const refOptions: Record<string, { id: string; name: string }[]> = {};
+  for (const f of refFields) {
+    const m = nameMaps[f.validations!.collectionId!] || {};
+    refOptions[f.slug] = Object.entries(m).map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name));
+  }
   if (refFields.length) {
     for (const it of rows) {
+      // Stash the RAW ids (before we swap them for display names) so the editor can preselect
+      // + send ids back.
+      const refIds: Record<string, unknown> = {};
       for (const f of refFields) {
+        refIds[f.slug] = it.fieldData[f.slug] ?? null;
         const m = nameMaps[f.validations!.collectionId!]; if (!m) continue;
         const v = it.fieldData[f.slug];
         if (Array.isArray(v)) it.fieldData[f.slug] = v.map((id) => m[String(id)] || String(id)).join(", ");
         else if (typeof v === "string" && v) it.fieldData[f.slug] = m[v] || v;
       }
+      (it as unknown as { refIds: Record<string, unknown> }).refIds = refIds;
     }
   }
 
   return NextResponse.json({
+    refOptions,
     ok: true, configured: true, resolved: true,
     // Editing on this page requires BOTH a write token AND the admin.webflow permission
     // (the write endpoint enforces admin.webflow); the button hides otherwise.

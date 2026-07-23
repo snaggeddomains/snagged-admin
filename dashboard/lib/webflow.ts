@@ -166,13 +166,15 @@ export async function updateItem(
   fieldData: Record<string, unknown>,
   opts: { live?: boolean } = {},
 ): Promise<WfResult<WfItem>> {
-  const suffix = opts.live ? "/items/live" : "/items";
-  return wf<WfItem>("PATCH", `/collections/${collectionId}${suffix}/${itemId}`, { fieldData });
+  // For a SINGLE item, `/live` goes AFTER the item id (…/items/{id}/live), unlike the
+  // collection-level list/create where it's …/items/live.
+  const live = opts.live ? "/live" : "";
+  return wf<WfItem>("PATCH", `/collections/${collectionId}/items/${itemId}${live}`, { fieldData });
 }
 
 export async function deleteItem(collectionId: string, itemId: string, opts: { live?: boolean } = {}): Promise<WfResult> {
-  const suffix = opts.live ? "/items/live" : "/items";
-  return wf("DELETE", `/collections/${collectionId}${suffix}/${itemId}`);
+  const live = opts.live ? "/live" : "";
+  return wf("DELETE", `/collections/${collectionId}/items/${itemId}${live}`);
 }
 
 // Publish specific staged items (make draft/updated items live without a full site publish).

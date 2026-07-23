@@ -3,10 +3,11 @@
 import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 
 type WfField = { id: string; slug: string; displayName?: string; type: string };
-type WfItem = { id: string; isDraft?: boolean; isArchived?: boolean; lastPublished?: string | null; fieldData: Record<string, unknown> };
+type WfItem = { id: string; isDraft?: boolean; isArchived?: boolean; lastPublished?: string | null; fieldData: Record<string, unknown>; refIds?: Record<string, unknown> };
 type CollLite = { id: string; name: string; slug: string | null };
-type Resp = { ok: boolean; configured: boolean; resolved?: boolean; canEdit?: boolean; collectionId?: string; collections?: CollLite[]; collectionName?: string | null; fields?: WfField[]; items?: WfItem[]; total?: number; discoverError?: string | null; error?: string };
-type EditCol = { field: WfField; label: string; kind: "money" | "text" | "bool" };
+type RefOption = { id: string; name: string };
+type Resp = { ok: boolean; configured: boolean; resolved?: boolean; canEdit?: boolean; collectionId?: string; collections?: CollLite[]; collectionName?: string | null; fields?: WfField[]; items?: WfItem[]; total?: number; refOptions?: Record<string, RefOption[]>; discoverError?: string | null; error?: string };
+type EditCol = { field: WfField; label: string; kind: "money" | "text" | "bool" | "ref"; multi?: boolean };
 
 const CORAL = "var(--coral-deep, #c0492f)";
 const CTL: CSSProperties = { padding: "5px 9px", fontSize: 13, borderRadius: 8, border: "1px solid #d8d0bf", background: "#fff", color: "var(--navy,#254254)", cursor: "pointer" };
@@ -88,7 +89,11 @@ export default function MasterClient() {
   const editCols = useMemo<EditCol[]>(() => {
     const nameF = fields.find((f) => f.slug === nameSlug);
     const head: EditCol[] = nameF ? [{ field: nameF, label: "Name", kind: "text" }] : [];
-    return [...head, ...cols.filter((c) => c.kind !== "pills").map((c) => ({ field: c.field, label: c.label, kind: c.kind as EditCol["kind"] }))];
+    // Include EVERY curated field: the plain ones + the reference fields (Extension / Categories),
+    // which become single/multi selects (multi = a MultiReference type).
+    return [...head, ...cols.map((c) => c.kind === "pills"
+      ? { field: c.field, label: c.label, kind: "ref" as const, multi: /multi/i.test(c.field.type) }
+      : { field: c.field, label: c.label, kind: c.kind as EditCol["kind"] })];
   }, [fields, nameSlug, cols]);
 
   const items = data?.items || [];
@@ -187,23 +192,28 @@ export default function MasterClient() {
       )}
 
       {editing && data?.collectionId && (
-        <EditModal item={editing} cols={editCols} nameSlug={nameSlug} collectionId={data.collectionId}
+        <EditModal item={editing} cols={editCols} nameSlug={nameSlug} collectionId={data.collectionId} refOptions={data.refOptions || {}}
           onClose={() => setEditing(null)} onSaved={() => { setEditing(null); void load(); }} />
       )}
     </main>
   );
 }
 
-// Edit one listing — Name + the curated non-reference fields. RichText is edited as plain text
-// (re-wrapped in <p> on save); Number sends a number; Switch a boolean. Only CHANGED fields are
-// sent (PATCH merges), so the resolved Extension/Categories names are never written back.
-function EditModal({ item, cols, nameSlug, collectionId, onClose, onSaved }: {
-  item: WfItem; cols: EditCol[]; nameSlug: string; collectionId: string; onClose: () => void; onSaved: () => void;
+// Edit one listing — Name, the plain fields, AND the reference fields (Extension = single
+// select, Categories = multi-select) from their option lists. RichText edited as plain text
+// (re-wrapped in <p> on save); Number→number; Switch→bool; references send item id(s). Only
+// CHANGED fields are sent (PATCH merges).
+function EditModal({ item, cols, nameSlug, collectionId, refOptions, onClose, onSaved }: {
+  item: WfItem; cols: EditCol[]; nameSlug: string; collectionId: string; refOptions: Record<string, RefOption[]>; onClose: () => void; onSaved: () => void;
 }) {
   const isRich = (f: WfField) => /richtext/i.test(f.type);
+  const refOf = (slug: string): unknown => (item.refIds || {})[slug];
   const initial = () => {
     const o: Record<string, unknown> = {};
-    for (const c of cols) { const raw = item.fieldData[c.field.slug]; o[c.field.slug] = c.kind === "bool" ? !!raw : isRich(c.field) ? plain(asText(raw)) : asText(raw); }
+    for (const c of cols) {
+      if (c.kind === "ref") { const v = refOf(c.field.slug); o[c.field.slug] = c.multi ? (Array.isArray(v) ? v : v ? [v] : []) : (typeof v === "string" ? v : ""); }
+      else { const raw = item.fieldData[c.field.slug]; o[c.field.slug] = c.kind === "bool" ? !!raw : isRich(c.field) ? plain(asText(raw)) : asText(raw); }
+    }
     return o;
   };
   const [vals, setVals] = useState<Record<string, unknown>>(initial);
@@ -211,21 +221,25 @@ function EditModal({ item, cols, nameSlug, collectionId, onClose, onSaved }: {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const set = (slug: string, v: unknown) => setVals((s) => ({ ...s, [slug]: v }));
+  const toggleMulti = (slug: string, id: string) => setVals((s) => {
+    const arr = Array.isArray(s[slug]) ? [...(s[slug] as string[])] : [];
+    const i = arr.indexOf(id); if (i >= 0) arr.splice(i, 1); else arr.push(id);
+    return { ...s, [slug]: arr };
+  });
 
   const save = async () => {
     setSaving(true); setError(null);
     const fieldData: Record<string, unknown> = {};
     for (const c of cols) {
       const f = c.field, now = vals[f.slug];
-      let out: unknown = now;
-      if (c.kind === "bool") out = !!now;
-      else if (isRich(f)) out = String(now || "").trim() ? `<p>${String(now)}</p>` : "";
-      else if (c.field.type === "Number") out = now === "" || now == null ? null : Number(String(now).replace(/[^0-9.]/g, ""));
-      // Compare against the same normalization of the original.
-      const before = c.kind === "bool" ? !!item.fieldData[f.slug]
-        : isRich(f) ? (plain(asText(item.fieldData[f.slug])).trim() ? `<p>${plain(asText(item.fieldData[f.slug]))}</p>` : "")
-        : c.field.type === "Number" ? (item.fieldData[f.slug] ?? null)
-        : asText(item.fieldData[f.slug]);
+      let out: unknown, before: unknown;
+      if (c.kind === "ref") {
+        if (c.multi) { out = Array.isArray(now) ? now : []; before = Array.isArray(refOf(f.slug)) ? refOf(f.slug) : (refOf(f.slug) ? [refOf(f.slug)] : []); }
+        else { out = now || null; before = (typeof refOf(f.slug) === "string" ? refOf(f.slug) : null); }
+      } else if (c.kind === "bool") { out = !!now; before = !!item.fieldData[f.slug]; }
+      else if (isRich(f)) { out = String(now || "").trim() ? `<p>${String(now)}</p>` : ""; before = plain(asText(item.fieldData[f.slug])).trim() ? `<p>${plain(asText(item.fieldData[f.slug]))}</p>` : ""; }
+      else if (f.type === "Number") { out = now === "" || now == null ? null : Number(String(now).replace(/[^0-9.]/g, "")); before = item.fieldData[f.slug] ?? null; }
+      else { out = now; before = asText(item.fieldData[f.slug]); }
       if (JSON.stringify(before ?? null) !== JSON.stringify(out ?? null)) fieldData[f.slug] = out;
     }
     if (!Object.keys(fieldData).length) { onClose(); return; }
@@ -244,16 +258,32 @@ function EditModal({ item, cols, nameSlug, collectionId, onClose, onSaved }: {
     <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(20,25,30,0.45)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
       <div onClick={(e) => e.stopPropagation()} style={{ background: "var(--paper,#fff)", borderRadius: 14, padding: 20, width: "min(520px,100%)", maxHeight: "92vh", overflowY: "auto" }}>
         <h2 style={{ fontSize: "1.15rem", margin: "0 0 8px" }}>✎ {disp(item.fieldData[nameSlug]) || "Edit listing"}</h2>
-        {cols.map((c) => (
-          <div key={c.field.id}>
-            <label style={L}>{c.label}</label>
-            {c.kind === "bool"
-              ? <label style={{ display: "inline-flex", gap: 7, alignItems: "center", fontSize: 14 }}><input type="checkbox" checked={!!vals[c.field.slug]} onChange={(e) => set(c.field.slug, e.target.checked)} /> {vals[c.field.slug] ? "Yes" : "No"}</label>
-              : isRich(c.field)
-                ? <textarea style={{ ...inp, minHeight: 70, resize: "vertical", fontFamily: "inherit" }} value={String(vals[c.field.slug] ?? "")} onChange={(e) => set(c.field.slug, e.target.value)} />
-                : <input style={inp} inputMode={c.kind === "money" ? "decimal" : undefined} value={String(vals[c.field.slug] ?? "")} onChange={(e) => set(c.field.slug, e.target.value)} />}
-          </div>
-        ))}
+        {cols.map((c) => {
+          const opts = refOptions[c.field.slug] || [];
+          return (
+            <div key={c.field.id}>
+              <label style={L}>{c.label}</label>
+              {c.kind === "bool"
+                ? <label style={{ display: "inline-flex", gap: 7, alignItems: "center", fontSize: 14 }}><input type="checkbox" checked={!!vals[c.field.slug]} onChange={(e) => set(c.field.slug, e.target.checked)} /> {vals[c.field.slug] ? "Yes" : "No"}</label>
+                : c.kind === "ref" && c.multi
+                  ? <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                      {opts.map((o) => { const on = Array.isArray(vals[c.field.slug]) && (vals[c.field.slug] as string[]).includes(o.id); return (
+                        <button key={o.id} type="button" onClick={() => toggleMulti(c.field.slug, o.id)}
+                          style={{ fontSize: 12.5, fontWeight: 600, borderRadius: 999, padding: "3px 11px", cursor: "pointer", border: `1px solid ${on ? "#146c8f" : "#dbe4e8"}`, background: on ? "#146c8f" : "#eef2f4", color: on ? "#fff" : "var(--navy,#254254)" }}>{o.name}</button>
+                      ); })}
+                      {!opts.length && <span className="muted" style={{ fontSize: 12 }}>No options available.</span>}
+                    </div>
+                  : c.kind === "ref"
+                    ? <select style={inp} value={String(vals[c.field.slug] ?? "")} onChange={(e) => set(c.field.slug, e.target.value)}>
+                        <option value="">—</option>
+                        {opts.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
+                      </select>
+                    : isRich(c.field)
+                      ? <textarea style={{ ...inp, minHeight: 70, resize: "vertical", fontFamily: "inherit" }} value={String(vals[c.field.slug] ?? "")} onChange={(e) => set(c.field.slug, e.target.value)} />
+                      : <input style={inp} inputMode={c.kind === "money" ? "decimal" : undefined} value={String(vals[c.field.slug] ?? "")} onChange={(e) => set(c.field.slug, e.target.value)} />}
+            </div>
+          );
+        })}
         {error && <div style={{ color: "#a83265", fontSize: 13, marginTop: 10 }}>{error}</div>}
         <label style={{ display: "flex", gap: 7, alignItems: "center", fontSize: 13, marginTop: 14 }}>
           <input type="checkbox" checked={publish} onChange={(e) => setPublish(e.target.checked)} /> Publish the change live (uncheck to just stage it)

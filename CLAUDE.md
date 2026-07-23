@@ -245,11 +245,12 @@ This adds a real Webflow **Data API v2** integration to pull every listing and e
   (env `WEBFLOW_MARKETPLACE_COLLECTION_ID` wins, else name/slug regex); GET `?collection=` →
   field schema + ALL items; POST `{action: update|publish|delete}` (update sends only CHANGED
   fields, `publish:true` writes live). `guessMarketplace` picks the collection by name.
-- **UI** `app/admin/webflow/{page,webflow-client}.tsx` — Admin → **Webflow CMS** tab. Not
-  connected → shows the token setup steps. Connected → collection picker (auto-selects the
-  Marketplace), searchable table of every listing (name + price/status-ish columns + CSV), and a
-  schema-driven **Edit modal** (renders each editable field by type: PlainText/RichText/Number/
-  Switch/… ; publishes the change live by default, uncheck to just stage it).
+- **Admin → Webflow CMS tab REMOVED (2026-07-23)** — editing moved to Reports → Marketplace Master
+  (below), so `app/admin/webflow/` was deleted and its `ADMIN_TABS` entry removed. The
+  `/api/admin/webflow` **write endpoint stays** (Master's edit modal POSTs to it) and `admin.webflow`
+  stays as the write-gate permission (relabeled + regrouped to Reports in CATALOG; no longer an
+  Admin tab). The Admin tab had also hit `OAuthForbidden: missing sites:read` on its overview
+  (it enumerated sites/collections) — Master sidesteps that by pinning the collection id.
 - **Reports → Marketplace "Live listings" section** (`app/reports/marketplace/marketplace-client.tsx`
   `LiveListings`): pulls the PUBLISHED (live) items of the marketplace collection straight from the
   CMS and lists them (count + search + CSV) under the GA traffic table. Fed by
@@ -267,13 +268,18 @@ This adds a real Webflow **Data API v2** integration to pull every listing and e
   snagged-brand.css, same trick as the deals board). Columns matched flexibly by slug/displayName
   so small CMS renames survive. A "◆ Source: Webflow CMS" badge marks the origin. Reads
   `…/marketplace/live?all=1`. `app/reports/marketplace-master/`.
-- **Per-row editing on Master** (one at a time): an ✎ Edit modal (Name + the non-reference curated
-  fields; RichText edited as plain text, re-wrapped in `<p>` on save; Number→number; Switch→bool;
-  only CHANGED fields sent). POSTs to the `/api/admin/webflow` update endpoint (publishes live by
-  default). Gated: the endpoint returns `canEdit = webflowCanWrite() && canAdmin(admin.webflow)` —
-  the Edit button only shows when a WRITE token is set AND the user has `admin.webflow`; the write
-  endpoint itself enforces `admin.webflow`. So `reports.marketplace` alone = read; editing needs
-  the admin.webflow grant too.
+- **Per-row editing on Master** (one at a time): an ✎ Edit modal for **every** curated field —
+  Name, asking/min-offer, one-liner/description (RichText edited as plain text, re-wrapped in `<p>`),
+  the switches, AND the **references** (Extension = single `<select>`, Categories = multi-select
+  pills) chosen from their option lists. The `marketplace/live` route returns `refOptions`
+  (id→name per ref field) + stashes each item's raw ref `refIds` (so display keeps names but the
+  editor has/sends ids). Number→number, Switch→bool, only CHANGED fields sent. POSTs to the
+  `/api/admin/webflow` update endpoint (publishes live by default). Gated:
+  `canEdit = webflowCanWrite() && canAdmin(admin.webflow)`.
+- **⚠️ Webflow item live-route gotcha:** for a SINGLE item, `/live` goes AFTER the item id
+  (`PATCH /collections/{cid}/items/{itemId}/live`), NOT after `/items` — the collection-level
+  list/create use `/items/live`. Getting this wrong = `RouteNotFoundError 404`. Fixed in
+  `updateItem`/`deleteItem`.
 - **The Marketplace collection is Webflow "Domains"** — collection id `6998a906939f81e325694dc9`
   (slug `domains`, 149 items; fields: Name/Slug, Domain Logo, One-liner Description + Description
   (RichText), Is Featured/Premium/Hand-picked (Switch), **Extension (Reference)**, **Categories
@@ -285,8 +291,9 @@ This adds a real Webflow **Data API v2** integration to pull every listing and e
   maps id→`name`, and swaps ids for readable "com" / "Tech, Finance". RichText (descriptions) is
   HTML — the Master client strips tags (`plain`) for display/CSV/search. The condensed Live-listings
   + Admin tables prioritize asking-price + min/make-offer columns (`pickColumns` / broadened regex).
-- **Permission** `admin.webflow` (MODULE + ADMIN_TABS + CATALOG, group Admin) gates the EDIT tab;
-  the Reports live-listings section is gated by `reports.marketplace`. Admins auto-pass.
+- **Permission** `admin.webflow` (MODULE + CATALOG, group Reports) gates EDITING (the write
+  endpoint + the Master edit button); the read surfaces are gated by `reports.marketplace`.
+  Admins auto-pass.
 - **One-time setup:** in Webflow → Site settings → Apps & integrations → API access → **Generate
   API token** with CMS read+write (+ Sites read) → set `WEBFLOW_API_TOKEN` in the ADMIN Vercel
   project → redeploy. Optional `WEBFLOW_SITE_ID` / `WEBFLOW_MARKETPLACE_COLLECTION_ID` to pin

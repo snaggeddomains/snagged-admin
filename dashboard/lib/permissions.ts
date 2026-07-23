@@ -29,7 +29,7 @@ export const MODULES = [
   "admin.config", // Configuration tab (/admin/config)
   "admin.schedule", // Schedule tab (/admin/schedule)
   "admin.imports", // the domain import tool (/admin/imports)
-  "admin.webflow", // Webflow CMS — pull/edit the snagged.com Marketplace listings (/admin/webflow)
+  "admin.webflow", // Webflow CMS write — gates editing on Reports → Marketplace Master (+ the /api/admin/webflow write endpoint)
   "reports", // top-level Reports module (/reports) — analytics + cost; NOT under admin
   "research.domain_owner",
   "research.trademark",
@@ -112,7 +112,6 @@ export const ADMIN_TABS: { href: string; label: string; perm: ModuleKey | Action
   { href: "/admin/schedule", label: "Schedule", perm: "admin.schedule" },
   { href: "/admin/users", label: "Users", perm: "admin.users.manage" },
   { href: "/admin/imports", label: "Imports", perm: "admin.imports" },
-  { href: "/admin/webflow", label: "Webflow CMS", perm: "admin.webflow" },
   { href: "/research/admin", label: "Lessons", perm: "admin.lessons.approve" },
 ];
 
@@ -228,7 +227,7 @@ export const CATALOG: CatalogEntry[] = [
   { key: "admin.users.manage", label: "Users — manage users & permissions", group: "Admin", kind: "action" },
   { key: "admin.imports", label: "Imports", group: "Admin", kind: "module" },
   { key: "admin.imports.replace", label: "Imports — Replace mode (destructive)", group: "Admin", kind: "action" },
-  { key: "admin.webflow", label: "Webflow CMS — Marketplace listings (pull / edit)", group: "Admin", kind: "module" },
+  { key: "admin.webflow", label: "Marketplace Master — edit listings (Webflow CMS write)", group: "Reports", kind: "module" },
   { key: "admin.lessons.approve", label: "Lessons — curate / approve", group: "Admin", kind: "action" },
   { key: "reports", label: "Reports — full access (analytics + cost)", group: "Reports", kind: "module" },
   { key: "reports.analytics", label: "Reports — Site Analytics", group: "Reports", kind: "action" },
