@@ -10,7 +10,7 @@ type Opp = {
   kind: string | null; new_sentence: string | null;
 };
 type Run = { id: string; status: string; started_at: string; finished_at: string | null; posts: number | null; opportunities: number | null; error: string | null };
-type Resp = { ok: boolean; configured: boolean; run: Run | null; opportunities: Opp[]; error?: string };
+type Resp = { ok: boolean; configured: boolean; run: Run | null; opportunities: Opp[]; error?: string; canInsert?: boolean };
 
 const CORAL = "var(--coral-deep, #c0492f)";
 const BTN: CSSProperties = { padding: "5px 11px", fontSize: 12.5, borderRadius: 8, border: "1px solid #d8d0bf", background: "#fff", color: "var(--navy,#254254)", cursor: "pointer", whiteSpace: "nowrap" };
@@ -97,6 +97,24 @@ export default function CrosslinksView() {
     finally { setAnalyzing(false); }
   };
 
+  // Insert the link into the actual post. publish=false stages it in Webflow (review/publish later);
+  // publish=true also pushes it live. add_sentence adds a new sentence; anchor wraps an existing phrase.
+  const insert = async (o: Opp, publish: boolean) => {
+    const what = o.kind === "add_sentence" ? "\n\nThis ADDS a new sentence to the post to host the link." : "";
+    const msg = publish
+      ? `Insert this link into “${o.source_title}” and PUBLISH it live?${what}`
+      : `Insert this link into “${o.source_title}” as a staged draft in Webflow (review & publish later)?${what}`;
+    if (!confirm(msg)) return;
+    setBusyId(o.id); setErr(null);
+    try {
+      const res = await fetch("/api/admin/content/crosslinks", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "insert", id: o.id, publish }) });
+      const j = await res.json();
+      if (!res.ok || j.ok === false) throw new Error(j.error || `HTTP ${res.status}`);
+      setData((d) => d ? { ...d, opportunities: d.opportunities.map((x) => x.id === o.id ? { ...x, status: "inserted" } : x) } : d);
+    } catch (e) { setErr(String((e as Error)?.message || e)); }
+    finally { setBusyId(null); }
+  };
+
   // Feedback: up = boost, down = remove (suppressed going forward). Dismiss = hide this one.
   const act = async (o: Opp, kind: "up" | "down" | "dismiss") => {
     setBusyId(o.id);
@@ -160,6 +178,7 @@ export default function CrosslinksView() {
                 <th style={th}>Anchor text</th>
                 <th style={th}>Link to</th>
                 <th style={th}>Why</th>
+                {data?.canInsert && <th style={th}>Insert</th>}
                 <th style={{ ...th, textAlign: "right" }}>Rate</th>
               </tr>
             </thead>
@@ -171,6 +190,16 @@ export default function CrosslinksView() {
                   <td style={{ ...cell, maxWidth: 320 }} title={o.kind === "add_sentence" ? (o.new_sentence || "") : (o.context || "")}><AnchorCell o={o} /></td>
                   <td style={cell}><PostLink title={o.target_title} slug={o.target_slug} color="#2f6f7a" prefix="→ " /></td>
                   <td style={{ ...cell, maxWidth: 300, color: "var(--navy-2,#4a5b66)" }}>{o.rationale || "—"}</td>
+                  {data?.canInsert && (
+                    <td style={{ ...cell, whiteSpace: "nowrap" }}>
+                      {o.status === "inserted"
+                        ? <span style={{ color: "#1f7a5a", fontWeight: 700, fontSize: 12 }}>✓ Inserted</span>
+                        : <span style={{ display: "inline-flex", gap: 4 }}>
+                            <button title="Insert as a staged draft in Webflow (review, then publish)" style={{ ...BTN, padding: "3px 8px" }} disabled={busyId === o.id} onClick={() => insert(o, false)}>Insert</button>
+                            <button title="Insert and publish live now" style={{ ...BTNP, padding: "3px 8px" }} disabled={busyId === o.id} onClick={() => insert(o, true)}>＋ Live</button>
+                          </span>}
+                    </td>
+                  )}
                   <td style={{ ...cell, whiteSpace: "nowrap", textAlign: "right" }}>
                     <button title="Super relevant (boost + learn)" style={{ ...BTN, padding: "3px 8px", borderColor: o.feedback === "up" ? "#1f7a5a" : undefined, color: o.feedback === "up" ? "#1f7a5a" : undefined }} disabled={busyId === o.id} onClick={() => act(o, "up")}>👍</button>{" "}
                     <button title="Not relevant (remove + learn)" style={{ ...BTN, padding: "3px 8px" }} disabled={busyId === o.id} onClick={() => act(o, "down")}>👎</button>{" "}

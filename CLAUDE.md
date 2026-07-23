@@ -342,15 +342,29 @@ highly-relevant only, with the exact anchor phrase to link.
 - **Data** `scripts/content_crosslinks.sql` (run once): `content_crosslink_runs`,
   `content_crosslinks` (the ranked opps), `content_crosslink_feedback`. RLS enabled.
 - **API** `app/api/admin/content/crosslinks/route.ts` (gated `reports.content`): GET latest run +
-  opps (down-voted/dismissed filtered out); POST `{action: analyze|feedback|dismiss}`.
+  opps (down-voted/dismissed filtered out) + `canInsert`; POST `{action: analyze|feedback|dismiss|insert}`.
 - **UI** `app/reports/content/crosslinks-view.tsx`: Analyze button (heavy, minutes), ranked table
-  (score · source ↗ · anchor · → target ↗ · why · 👍/👎/✕), search + min-score filter.
+  (score · source ↗ · anchor/＋add-sentence · → target ↗ · why · Insert · 👍/👎/✕), search + min-score filter.
 - **Setup:** run the SQL; needs `ANTHROPIC_API_KEY` + `WEBFLOW_BLOG_POSTS_ID` (already set). Optional
   `CONTENT_CROSSLINK_MODEL` (default Haiku — bump to sonnet for sharper relevance).
-- **ROADMAP (not built):** Ph2 = one-click **insert the link into the post + publish** (single
-  approvals first to calibrate → bulk once trusted — will edit the RichText body via `updateItem`).
-  Then a **light weekly cron** that scans only newly-published posts for new backlink spots (vs this
-  one-time full-corpus heavy lift).
+- **Ph2 — one-click INSERT into the post (SHIPPED v1, 2026-07-23).** `lib/content/insert.ts`
+  `applyCrosslink(id,{publish})` writes the link into the actual Webflow blog body.
+  `wrapAnchor(html,anchor,slug)` is **HTML-token-aware** (`tokenizeHtml`) — it wraps the first
+  occurrence of the anchor in ordinary body text and NEVER links inside a heading (`<h1>–<h6>`) or an
+  existing `<a>`, preserving the body's own casing; returns null if the phrase only lives in a heading
+  or straddles inline tags (→ "insert manually"). `insertSentence(...)` (add_sentence kind) linkifies
+  the new sentence (`linkifySentence`, HTML-escaped) and inserts it as a `<p>` after the block
+  containing the `insert_after` hint (fallback: after the first block). Resolves the body RichText
+  field per-item (`resolveBodySlug`), `getItem`→rewrite→`updateItem` staged, then `publishItems` if
+  `publish`. `status='inserted'` (idempotent — won't re-apply). **Gated by `admin.webflow`** (write
+  token + permission) — the GET returns `canInsert`; the UI shows **Insert** (staged draft, safe/
+  calibration default) + **＋ Live** (publish now) per row, or "✓ Inserted". Env `CONTENT_POST_BASE`
+  (default `https://www.snagged.com/post`). Tested: token-walk wrap/insert verified on heading/
+  existing-link/escaping cases (10/10). **ROADMAP:** bulk-apply once calibrated; a **light weekly
+  cron** scanning only newly-published posts for new backlink spots (vs the full-corpus heavy lift).
+- **BACKLOG — NamePros "buy/wanted" sweep (Rob, 2026-07-23):** add the NamePros **Buy Domains /
+  wanted** board (`namepros.com/marketplace/buy-domains/?prefix_id=325`) as a section in the SNAP +
+  auction sweeps (Python pipeline — `auctions/` + the SNAP `namepros_marketplace` source). Not built.
 - **The Marketplace collection is Webflow "Domains"** — collection id `6998a906939f81e325694dc9`
   (slug `domains`, 149 items; fields: Name/Slug, Domain Logo, One-liner Description + Description
   (RichText), Is Featured/Premium/Hand-picked (Switch), **Extension (Reference)**, **Categories
