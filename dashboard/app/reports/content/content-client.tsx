@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
+import CrosslinksView from "./crosslinks-view";
 
 type WfField = { id: string; slug: string; displayName?: string; type: string };
 type WfItem = { id: string; isDraft?: boolean; isArchived?: boolean; fieldData: Record<string, unknown> };
@@ -14,12 +15,14 @@ const plain = (s: string): string => s.replace(/<[^>]*>/g, " ").replace(/&nbsp;/
 const disp = (v: unknown): string => plain(asText(v));
 const cell: CSSProperties = { padding: "8px 10px", borderBottom: "1px solid var(--line,#eee)", verticalAlign: "middle" };
 const th: CSSProperties = { ...cell, textAlign: "left", color: "var(--muted,#888)", fontWeight: 700, whiteSpace: "nowrap", background: "var(--paper-2,#f7f5ef)" };
+const seg = (active: boolean): CSSProperties => ({ padding: "5px 12px", fontSize: 13, fontWeight: 600, borderRadius: 8, border: "1px solid #d8d0bf", cursor: "pointer", background: active ? "var(--navy,#254254)" : "#fff", color: active ? "#fff" : "var(--navy,#254254)" });
 
 export default function ContentClient() {
   const [data, setData] = useState<Resp | null>(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [q, setQ] = useState("");
+  const [tab, setTab] = useState<"posts" | "crosslinks">("posts");
 
   const load = useCallback(async () => {
     setLoading(true); setErr(null);
@@ -66,6 +69,12 @@ export default function ContentClient() {
         Content
         <span style={{ marginLeft: 10, fontSize: 11.5, fontWeight: 700, color: "#146c8f", background: "#e6f2f7", border: "1px solid #bfe0eb", borderRadius: 999, padding: "2px 9px", verticalAlign: "middle" }}>◆ Source: Webflow</span>
       </h1>
+      <div style={{ display: "flex", gap: 6, margin: "8px 0 4px" }}>
+        <button onClick={() => setTab("posts")} style={seg(tab === "posts")}>Posts</button>
+        <button onClick={() => setTab("crosslinks")} style={seg(tab === "crosslinks")}>Crosslinking</button>
+      </div>
+
+      {tab === "crosslinks" ? <CrosslinksView /> : (<>
       <p className="section-blurb" style={{ marginTop: 0 }}>Blog posts from the Webflow CMS.</p>
 
       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "10px 0 4px" }}>
@@ -111,6 +120,7 @@ export default function ContentClient() {
           {!loading && !rows.length && <p className="muted" style={{ padding: 12 }}>{q ? "No posts match." : "No posts found."}</p>}
         </div>
       )}
+      </>)}
     </main>
   );
 }

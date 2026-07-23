@@ -297,6 +297,35 @@ ACTIONS+CATALOG+REPORTS_TABS) listing the Webflow **Blog Posts** collection (env
 that fetches a collection's items with Reference/Multi-reference fields resolved to labels (Author,
 Category). UI `app/reports/content/{page,content-client}.tsx`; fields located by slug/displayName
 regex so small CMS renames survive. **Setup: `WEBFLOW_BLOG_POSTS_ID` set; grant `reports.content`.**
+
+## Content → Crosslinking — SEO internal-link opportunities (2026-07-23)
+
+A sub-view on the Content tab (Posts / Crosslinking toggle in `content-client.tsx`) that stack-ranks
+the best INTERNAL cross-link opportunities across the blog (source post → target post) for SEO —
+highly-relevant only, with the exact anchor phrase to link.
+- **Engine** `lib/content/crosslinks.ts` `analyzeCrosslinks(by)`: pulls ALL posts (published + draft
+  — `loadCollectionResolved(WEBFLOW_BLOG_POSTS_ID,{live:false})`), strips HTML, parses existing
+  `/post/<slug>` links to skip them. Stage 1 = deterministic **tf-idf term-overlap** shortlists
+  `CANDIDATES_PER_POST=8` targets per post (excludes self / already-linked / down-voted). Stage 2 =
+  one **LLM call per post** (`CONTENT_CROSSLINK_MODEL`||Haiku) picks ≤4 opportunities: target,
+  **anchor phrase copied verbatim from the source body** (validated to actually appear — drops
+  hallucinations), context sentence, score 0-100, rationale. Runs with concurrency 6, inserts
+  per-post so partial progress persists; `maxDuration=300`.
+- **Feedback trains it:** `content_crosslink_feedback` (pk `source_id,target_id`) — 👍 up (boost +25,
+  fed to the LLM as "prefer") / 👎 down (suppressed from output AND from candidate gen AND fed as
+  "avoid"). Persists across re-runs.
+- **Data** `scripts/content_crosslinks.sql` (run once): `content_crosslink_runs`,
+  `content_crosslinks` (the ranked opps), `content_crosslink_feedback`. RLS enabled.
+- **API** `app/api/admin/content/crosslinks/route.ts` (gated `reports.content`): GET latest run +
+  opps (down-voted/dismissed filtered out); POST `{action: analyze|feedback|dismiss}`.
+- **UI** `app/reports/content/crosslinks-view.tsx`: Analyze button (heavy, minutes), ranked table
+  (score · source ↗ · anchor · → target ↗ · why · 👍/👎/✕), search + min-score filter.
+- **Setup:** run the SQL; needs `ANTHROPIC_API_KEY` + `WEBFLOW_BLOG_POSTS_ID` (already set). Optional
+  `CONTENT_CROSSLINK_MODEL` (default Haiku — bump to sonnet for sharper relevance).
+- **ROADMAP (not built):** Ph2 = one-click **insert the link into the post + publish** (single
+  approvals first to calibrate → bulk once trusted — will edit the RichText body via `updateItem`).
+  Then a **light weekly cron** that scans only newly-published posts for new backlink spots (vs this
+  one-time full-corpus heavy lift).
 - **The Marketplace collection is Webflow "Domains"** — collection id `6998a906939f81e325694dc9`
   (slug `domains`, 149 items; fields: Name/Slug, Domain Logo, One-liner Description + Description
   (RichText), Is Featured/Premium/Hand-picked (Switch), **Extension (Reference)**, **Categories
