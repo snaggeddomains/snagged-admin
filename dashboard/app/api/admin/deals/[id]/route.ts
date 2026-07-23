@@ -135,22 +135,24 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (!deal) return NextResponse.json({ error: "Not found" }, { status: 404 });
   if (!mayTouch(me!, deal)) return NextResponse.json({ error: "No access to this deal" }, { status: 403 });
 
-  const body = (await req.json().catch(() => ({}))) as { action?: string; body?: string; mentions?: string[] };
+  type Attach = { url: string; name?: string; type?: string };
+  const body = (await req.json().catch(() => ({}))) as { action?: string; body?: string; mentions?: string[]; attachments?: Attach[] };
+  // Sanitize attachments to our own storage host only (never render an arbitrary URL).
+  const cleanAttachments = (Array.isArray(body.attachments) ? body.attachments : [])
+    .filter((a) => a && typeof a.url === "string" && /^https?:\/\//i.test(a.url))
+    .slice(0, 10)
+    .map((a) => ({ url: a.url, name: String(a.name || "image").slice(0, 200), type: String(a.type || "") }));
   switch (body.action) {
-    case "comment": {
-      const text = String(body.body || "").trim();
-      if (!text) return NextResponse.json({ error: "Empty comment" }, { status: 400 });
-      const mentions = Array.isArray(body.mentions) ? body.mentions.filter(Boolean) : [];
-      const act = await addActivity(deal.id, { user_email: me!.email, kind: "comment", body: text, meta: mentions.length ? { mentions } : null });
-      if (mentions.length) await notifyMention(deal, mentions, me!.email, text);
-      return NextResponse.json({ ok: true, activity: act });
-    }
+    case "comment":
     case "note": {
       const text = String(body.body || "").trim();
-      if (!text) return NextResponse.json({ error: "Empty note" }, { status: 400 });
+      if (!text && !cleanAttachments.length) return NextResponse.json({ error: "Empty comment" }, { status: 400 });
       const mentions = Array.isArray(body.mentions) ? body.mentions.filter(Boolean) : [];
-      const act = await addActivity(deal.id, { user_email: me!.email, kind: "note", body: text, meta: mentions.length ? { mentions } : null });
-      if (mentions.length) await notifyMention(deal, mentions, me!.email, text);
+      const meta: Record<string, unknown> = {};
+      if (mentions.length) meta.mentions = mentions;
+      if (cleanAttachments.length) meta.attachments = cleanAttachments;
+      const act = await addActivity(deal.id, { user_email: me!.email, kind: body.action, body: text, meta: Object.keys(meta).length ? meta : null });
+      if (mentions.length) await notifyMention(deal, mentions, me!.email, text || "(image)");
       return NextResponse.json({ ok: true, activity: act });
     }
     case "ingest": {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ClipboardEvent as RClipboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { STAGES, STATUSES, PRIORITIES, SOURCES, BUDGET_BANDS } from "@/lib/deals/stages";
 import ConfirmOwnerModal, { type ConfirmOwnerSeed } from "../confirm-owner-modal";
@@ -46,7 +46,10 @@ export default function DealClient({ id }: { id: string }) {
   const [wonOpen, setWonOpen] = useState(false);
   const [emailsOpen, setEmailsOpen] = useState(false); // email chain collapsed by default (can be 47+)
   const [negSeed, setNegSeed] = useState<ConfirmOwnerSeed | null>(null); // confirm-owner on move to Negotiating
+  const [pendingAtts, setPendingAtts] = useState<{ url: string; name: string; type: string }[]>([]); // images staged for the next comment
+  const [uploading, setUploading] = useState(false);
   const taRef = useRef<HTMLTextAreaElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   // Close Won — confirm owner/contact + price/commission + recap, set won, log the recap.
   const closeWon = async (f: WonForm) => {
@@ -159,13 +162,32 @@ export default function DealClient({ id }: { id: string }) {
     setNote(next); setMq(null);
     setTimeout(() => { el?.focus(); const p = before.length; el?.setSelectionRange(p, p); }, 0);
   };
+  // Upload pasted/selected images → staged as pending attachments for the next comment.
+  const uploadFiles = async (files: FileList | File[]) => {
+    const imgs = Array.from(files).filter((f) => f.type.startsWith("image/"));
+    if (!imgs.length) return;
+    setUploading(true); setErr(null);
+    try {
+      for (const f of imgs) {
+        const fd = new FormData(); fd.append("file", f);
+        const res = await fetch(`/api/admin/deals/${id}/upload`, { method: "POST", body: fd });
+        const j = await res.json().catch(() => ({}));
+        if (res.ok && j.attachment) setPendingAtts((a) => [...a, j.attachment]);
+        else setErr(j.error || "Image upload failed");
+      }
+    } finally { setUploading(false); }
+  };
+  const onPaste = (e: RClipboardEvent) => {
+    const files = Array.from(e.clipboardData?.items || []).filter((i) => i.kind === "file").map((i) => i.getAsFile()).filter(Boolean) as File[];
+    if (files.length) { e.preventDefault(); uploadFiles(files); }
+  };
   const postNote = async () => {
-    if (!note.trim()) return;
+    if (!note.trim() && !pendingAtts.length) return;
     const mentions = resolveMentions(note);
     try {
-      const res = await fetch(`/api/admin/deals/${id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "note", body: note.trim(), mentions }) });
+      const res = await fetch(`/api/admin/deals/${id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "note", body: note.trim(), mentions, attachments: pendingAtts }) });
       if (!res.ok) throw new Error();
-      setNote(""); setMq(null); load();
+      setNote(""); setMq(null); setPendingAtts([]); load();
     } catch { /* keep the text */ }
   };
 
@@ -308,16 +330,20 @@ export default function DealClient({ id }: { id: string }) {
                       <Avatar name={who} bg={commentColor(a.user_email)} />
                       <div style={{ minWidth: 0, flex: 1 }}>
                         <div style={{ fontSize: 13 }}><span style={{ fontWeight: 700, color: commentColor(a.user_email) }}>{who}</span> <span style={{ color: "var(--muted,#8a94a0)" }}>· {relTime(a.created_at) || when(a.created_at)}</span></div>
-                        <div style={{ fontSize: 14, color: "var(--navy,#254254)", marginTop: 3, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{renderMentionBody(a.body || "")}</div>
+                        {a.body && <div style={{ fontSize: 14, color: "var(--navy,#254254)", marginTop: 3, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{renderMentionBody(a.body)}</div>}
+                        <CommentImages meta={a.meta} />
                       </div>
                     </div>
                   );
                 }) : <div className="muted" style={{ fontSize: 12 }}>No comments yet.</div>;
               })()}
             </div>
-            {/* Composer */}
-            <div style={{ position: "relative", marginTop: 14 }}>
-              <textarea ref={taRef} style={{ ...inp, minHeight: 60, resize: "vertical" }} placeholder="Add a comment… type @ to mention someone" value={note}
+            {/* Composer — supports @mentions + pasted / attached images */}
+            <div style={{ position: "relative", marginTop: 14 }}
+              onDragOver={(e) => { e.preventDefault(); }}
+              onDrop={(e) => { e.preventDefault(); if (e.dataTransfer?.files?.length) uploadFiles(e.dataTransfer.files); }}>
+              <textarea ref={taRef} style={{ ...inp, minHeight: 60, resize: "vertical" }} placeholder="Add a comment… paste or drop an image · type @ to mention" value={note}
+                onPaste={onPaste}
                 onChange={(e) => onNoteChange(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && mentionMatches.length && mq) { e.preventDefault(); pickMention(mentionMatches[0]); } }} />
               {mq != null && mentionMatches.length > 0 && (
                 <div style={{ position: "absolute", zIndex: 20, left: 6, right: 6, background: "#fff", border: "1px solid var(--line,#e3ddcf)", borderRadius: 8, boxShadow: "0 4px 14px rgba(0,0,0,0.12)", overflow: "hidden" }}>
@@ -329,9 +355,26 @@ export default function DealClient({ id }: { id: string }) {
                 </div>
               )}
             </div>
+            {/* Staged image thumbnails (remove with ✕ before posting) */}
+            {(pendingAtts.length > 0 || uploading) && (
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
+                {pendingAtts.map((a, i) => (
+                  <div key={a.url} style={{ position: "relative" }}>
+                    <img src={a.url} alt={a.name} style={{ width: 56, height: 56, objectFit: "cover", borderRadius: 8, border: "1px solid var(--line,#e3ddcf)" }} />
+                    <button title="Remove" onClick={() => setPendingAtts((s) => s.filter((_, j) => j !== i))}
+                      style={{ position: "absolute", top: -6, right: -6, width: 18, height: 18, borderRadius: "50%", border: "none", background: "#254254", color: "#fff", fontSize: 11, cursor: "pointer", lineHeight: 1 }}>✕</button>
+                  </div>
+                ))}
+                {uploading && <span className="muted" style={{ fontSize: 12, alignSelf: "center" }}>Uploading…</span>}
+              </div>
+            )}
+            <input ref={fileRef} type="file" accept="image/*" multiple hidden onChange={(e) => { if (e.target.files) uploadFiles(e.target.files); e.target.value = ""; }} />
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
-              <span className="muted" style={{ fontSize: 11 }}>{resolveMentions(note).length ? `${resolveMentions(note).length} will be notified` : ""}</span>
-              <button style={btnPrimary} onClick={postNote} disabled={!note.trim()}>Comment</button>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <button style={{ ...btn, padding: "5px 10px", fontSize: 12.5 }} onClick={() => fileRef.current?.click()} disabled={uploading}>📎 Image</button>
+                <span className="muted" style={{ fontSize: 11 }}>{resolveMentions(note).length ? `${resolveMentions(note).length} will be notified` : ""}</span>
+              </div>
+              <button style={btnPrimary} onClick={postNote} disabled={uploading || (!note.trim() && !pendingAtts.length)}>Comment</button>
             </div>
           </div>
 
@@ -410,6 +453,21 @@ function WonModal({ deal, onClose, onSubmit }: { deal: Deal; onClose: () => void
           <button style={{ ...btnPrimary, background: "#1f7a5a", borderColor: "#1f7a5a" }} onClick={() => onSubmit(f)}>✓ Mark Won</button>
         </div>
       </div>
+    </div>
+  );
+}
+
+// Render any image attachments stored on a comment's meta (opens full-size in a new tab).
+function CommentImages({ meta }: { meta: Record<string, unknown> | null }) {
+  const atts = (meta && Array.isArray((meta as { attachments?: unknown }).attachments) ? (meta as { attachments: { url: string; name?: string }[] }).attachments : []);
+  if (!atts.length) return null;
+  return (
+    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 6 }}>
+      {atts.map((im) => (
+        <a key={im.url} href={im.url} target="_blank" rel="noreferrer">
+          <img src={im.url} alt={im.name || "image"} style={{ maxWidth: 240, maxHeight: 240, borderRadius: 8, border: "1px solid var(--line,#e3ddcf)", display: "block" }} />
+        </a>
+      ))}
     </div>
   );
 }

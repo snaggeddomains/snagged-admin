@@ -113,11 +113,14 @@ export default function BoardClient() {
 
   const deals = useMemo(() => {
     let all = data?.deals || [];
-    if (mine && data) all = all.filter((d) => (d.owner_email || "").toLowerCase() === data.me.toLowerCase());
+    // A search by an all-viewer spans EVERYONE's deals, even with "My deals" checked — so you
+    // can always find any deal by domain/buyer. (Without a search, "My deals" still scopes.)
+    const searchingAll = q.trim().length > 0 && !!data?.canSeeAll;
+    if (mine && data && !searchingAll) all = all.filter((d) => (d.owner_email || "").toLowerCase() === data.me.toLowerCase());
     if (ownerFilter) all = all.filter((d) => ownerFilter === "__inbox__" ? !d.owner_email : (d.owner_email || "").toLowerCase() === ownerFilter.toLowerCase());
     if (budgetFilter) all = all.filter((d) => (d.budget_range || "") === budgetFilter);
     return all;
-  }, [data, mine, ownerFilter, budgetFilter]);
+  }, [data, mine, ownerFilter, budgetFilter, q]);
 
   // Within a column, float higher-priority deals to the top (Top → High → Normal → Low →
   // none), keeping the manual drag order (position) as the tiebreak.

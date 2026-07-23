@@ -202,6 +202,25 @@ glance whether the cron ran. If it says "not run yet" long after a deploy, the c
 **One-time setup:** run the updated `scripts/deals.sql` (adds `deal_owners`, `deals.domain_owner_id`,
 `cron_heartbeats`). No new env/permission.
 
+## Comment image uploads + board search-all (2026-07-23)
+
+- **Image attachments in deal comments.** Paste a screenshot into the comment box, drop a file,
+  or use the **📎 Image** button → staged as thumbnails (removable) → posted with the comment and
+  rendered inline (click = full-size in a new tab). `lib/deals/attachments.ts` uploads to a PUBLIC
+  Supabase Storage bucket **`deal-attachments`** (auto-created on first use, unguessable UUID
+  paths, 10MB image-only cap) via the service key. Upload route
+  `app/api/admin/deals/[id]/upload/route.ts` (multipart `file`, gated like the deal). The
+  comment/note POST now accepts `attachments:[{url,name,type}]` → stored on `deal_activity.meta`
+  (`meta.attachments`); the URL list is sanitized (http(s) only, ≤10). `deal-client.tsx`: composer
+  paste/drop/button + pending thumbnails; `CommentImages` renders `meta.attachments`. **No SQL** —
+  reuses the `deal_activity.meta` jsonb; the bucket self-creates. A comment can now be image-only
+  (no text required).
+- **Board search spans ALL deals for an all-viewer.** The board's "My deals" checkbox no longer
+  hides other people's deals from a **search** — when a user who `canSeeAll` types a query, the
+  results span everyone's deals even with "My deals" checked (so any deal is findable by
+  domain/buyer). Without a search, "My deals" still scopes. `board-client.tsx` `deals` memo
+  (`searchingAll` guard; `q` added to deps).
+
 ---
 
 # Pipedrive buy-side deal flow — bridge + setup + create-deal core (2026-07-20) — SUPERSEDED
