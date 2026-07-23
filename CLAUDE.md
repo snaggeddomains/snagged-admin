@@ -341,8 +341,10 @@ marketplace deal-finder).
 - **Runs** (`run.ts`/`x-run.ts` inline in cron routes `app/api/cron/{reddit,x}-sweep`), UI
   `app/reports/social-sweep-client.tsx` (VIP-sorted, suggested-reply copy), digest `digest.ts`.
   Permission `reports.social_sweep`.
-- **Slack:** posts via `slackAlert(digest.slack)` → the DEFAULT channel (`SLACK_CHANNEL_SNAP`).
-  Give it a dedicated channel later if wanted (pass an explicit channel like the picks/overlap crons).
+- **Slack:** posts via `slackAlert(digest.slack, process.env.SLACK_CHANNEL_CONTENT_SWEEP)` — its
+  own **content-sweep** channel (2026-07-22); falls back to `SLACK_CHANNEL_SNAP` when the var is
+  unset. Both cron routes (reddit-sweep + x-sweep). Set `SLACK_CHANNEL_CONTENT_SWEEP` in the
+  ADMIN Vercel project (same place as the other Slack channel vars).
 - **⏰ Schedule (2026-07-18):** `reddit-sweep` + `x-sweep` now run **3×/day at 13/18/23 UTC**
   (`vercel.json`) — added after calibration sign-off (they'd been manual-only during tuning).
 

@@ -38,7 +38,8 @@ export async function GET(req: NextRequest) {
         .map((u) => ({ id: String((u as { id?: unknown }).id || ""), email: String((u as { email?: unknown }).email || "") }))
         .filter((u) => u.email);
     } catch { /* no email recipients */ }
-    const slackOk = await slackAlert(digest.slack);
+    // Post to the dedicated content-sweep channel when configured (else falls back to SNAP).
+    const slackOk = await slackAlert(digest.slack, process.env.SLACK_CHANNEL_CONTENT_SWEEP);
     let emailed = 0;
     if (emailConfigured() && recipients.length) {
       const ok = await sendEmail({ to: recipients.map((r) => r.email), subject: digest.subject, html: digest.html });
