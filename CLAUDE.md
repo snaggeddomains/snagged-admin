@@ -321,6 +321,13 @@ highly-relevant only, with the exact anchor phrase to link.
   post-hoc: an anchor whose normalized text equals or is contained in any heading is dropped
   (`normPhrase`). So even if the model slips, a heading anchor never persists. (Phase 2's link
   INSERTION can then place the body-prose anchor, or add a sentence, without ever editing a header.)
+  - **RULE (Rob, 2026-07-23): a header is NEVER the anchor, but the header spot is not lost.** If the
+    BEST place for a relevant link falls on/near a heading, we ADD a relevant sentence beneath it to
+    make room for the link rather than drop the opportunity. Implication for the engine: a
+    highly-relevant target whose only match is a heading should be SURFACED with a proposed new
+    hosting sentence + its body-prose anchor (an `add_sentence` opportunity), not silently dropped as
+    it is today. Build this into Phase-2 insertion (and, if we want the rerun to show them, into the
+    analysis pass as a distinct opportunity kind).
 - **Feedback trains it:** `content_crosslink_feedback` (pk `source_id,target_id`) — 👍 up (boost +25,
   fed to the LLM as "prefer") / 👎 down (suppressed from output AND from candidate gen AND fed as
   "avoid"). Persists across re-runs.
