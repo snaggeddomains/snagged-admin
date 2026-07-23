@@ -11,6 +11,7 @@ import { ingestDealEmails } from "@/lib/deals/emails";
 import { researchReportLink, kickResearchRun, researchReportSummary } from "@/lib/deals/research-link";
 import { isStage } from "@/lib/deals/stages";
 import { assignableUsers } from "@/lib/deals/assignees";
+import { getOwner } from "@/lib/deals/owners";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -72,7 +73,10 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     return { domain: d, report };
   }));
   const [activity, emails, assignees] = await Promise.all([listActivity(deal.id), listDealEmails(deal.id), assignableUsers()]);
-  return NextResponse.json({ ok: true, deal, dossierUrl, additional, activity, emails, assignees, me: me!.email });
+  // The confirmed owner record (built at Negotiating), for the sidebar link + directory.
+  let ownerRecord: { id: string; name: string } | null = null;
+  if (deal.domain_owner_id) { try { const o = await getOwner(deal.domain_owner_id); if (o) ownerRecord = { id: o.id, name: o.name }; } catch { /* best-effort */ } }
+  return NextResponse.json({ ok: true, deal, dossierUrl, additional, ownerRecord, activity, emails, assignees, me: me!.email });
 }
 
 const EDITABLE = new Set([

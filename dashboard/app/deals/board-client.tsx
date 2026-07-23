@@ -3,16 +3,35 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import { STAGES, PRIORITIES, SOURCES, BUDGET_BANDS, LOST_REASONS, NOT_PROCEEDED_REASONS, statusLabel } from "@/lib/deals/stages";
+import ConfirmOwnerModal, { type ConfirmOwnerSeed } from "../confirm-owner-modal";
+
+const NEGOTIATING = "Negotiating";
 
 type Deal = {
   id: string; domain: string; buyer_name: string | null; buyer_email: string | null; org_name: string | null;
   budget_range: string | null; appraisal_value: number | null; asking_price: number | null;
   source: string | null; priority: string | null; owner_email: string | null; stage: string; status: string;
   tags: string[] | null; updated_at: string;
+  likely_owner: string | null; owner_contact: string | null; domain_owner_id: string | null;
 };
 type Assignee = { email: string; name: string };
 type Stats = { open: number; pipelineValue: number; byStage: Record<string, number> };
-type Resp = { ok: boolean; configured: boolean; deals: Deal[]; stats: Stats | null; assignees: Assignee[]; canSeeAll: boolean; me: string; error?: string };
+type Heartbeat = { name: string; last_run_at: string; last_result: Record<string, unknown> | null };
+type Resp = { ok: boolean; configured: boolean; deals: Deal[]; stats: Stats | null; assignees: Assignee[]; emailSync?: Heartbeat | null; canSeeAll: boolean; me: string; error?: string };
+
+// "42 min ago" / "3 hours ago" — for the email-cron heartbeat line.
+function ago(iso: string | null | undefined): string {
+  if (!iso) return "never";
+  const diff = Date.now() - new Date(iso).getTime();
+  if (diff < 0 || !Number.isFinite(diff)) return "just now";
+  const mins = Math.round(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins} min ago`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24) return `${hrs} hour${hrs === 1 ? "" : "s"} ago`;
+  const days = Math.round(hrs / 24);
+  return `${days} day${days === 1 ? "" : "s"} ago`;
+}
 
 const usd = (n: number | null | undefined) => (n == null || n === 0 ? "—" : `$${Math.round(n).toLocaleString()}`);
 const btn: CSSProperties = { padding: "6px 12px", borderRadius: 8, border: "1px solid var(--line,#e3ddcf)", background: "transparent", fontSize: 13, fontWeight: 600, cursor: "pointer", color: "var(--navy,#254254)" };
@@ -48,6 +67,7 @@ export default function BoardClient() {
   const [lostFor, setLostFor] = useState<string | null>(null); // deal id awaiting a lost reason
   const [notProceededFor, setNotProceededFor] = useState<string | null>(null); // deal id awaiting a "didn't proceed" reason
   const [wonFor, setWonFor] = useState<string | null>(null);   // deal id awaiting close-won details
+  const [negSeed, setNegSeed] = useState<ConfirmOwnerSeed | null>(null); // confirm-owner on move to Negotiating
 
   const load = useCallback(async () => {
     setLoading(true); setErr(null);
@@ -162,6 +182,11 @@ export default function BoardClient() {
         <div>
           <h1 style={{ fontSize: "1.35rem", margin: 0 }}>Deal board</h1>
           {data?.stats && <p className="muted" style={{ margin: "4px 0 0", fontSize: 13 }}>{data.stats.open} open · {usd(data.stats.pipelineValue)} in pipeline</p>}
+          {data && "emailSync" in data && (
+            <p className="muted" style={{ margin: "2px 0 0", fontSize: 11.5 }} title={data.emailSync?.last_run_at ? new Date(data.emailSync.last_run_at).toLocaleString() : "The hourly email-sync cron has not run yet"}>
+              📥 Email auto-sync: {data.emailSync ? ago(data.emailSync.last_run_at) : "not run yet"}
+            </p>
+          )}
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
           <input style={{ ...input, flex: "1 1 160px", minWidth: 140, maxWidth: 240 }} placeholder="Search domain / buyer…" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") load(); }} />
@@ -207,7 +232,13 @@ export default function BoardClient() {
                   // Dropping on a terminal column runs the close flow (confirm details / reason).
                   if (stage === "Closed - Won") { const id = dragId; setDragId(null); setWonFor(id); return; }
                   if (stage === "Closed - Lost") { const id = dragId; setDragId(null); setLostFor(id); return; }
+                  const dropped = (data?.deals || []).find((x) => x.id === dragId);
                   move(dragId, stage);
+                  // Reaching Negotiating = we're confident who owns it → capture/confirm the owner.
+                  // (Skip if this deal already has an owner record.)
+                  if (stage === NEGOTIATING && dropped && !dropped.domain_owner_id) {
+                    setNegSeed({ dealId: dropped.id, domain: dropped.domain, likelyOwner: dropped.likely_owner, ownerContact: dropped.owner_contact, company: dropped.org_name });
+                  }
                 }
                 setDragId(null);
               }}
@@ -279,6 +310,7 @@ export default function BoardClient() {
       {lostFor && <LostModal onClose={() => setLostFor(null)} onPick={(reason) => { const id = lostFor; setLostFor(null); if (id) markStatus(id, "lost", reason); }} />}
       {notProceededFor && <ReasonModal title="Didn't proceed — why?" reasons={NOT_PROCEEDED_REASONS} onClose={() => setNotProceededFor(null)} onPick={(reason) => { const id = notProceededFor; setNotProceededFor(null); if (id) markStatus(id, "not_proceeded", reason); }} />}
       {wonFor && <WonModal onClose={() => setWonFor(null)} onSubmit={(f) => { const id = wonFor; setWonFor(null); if (id) closeWon(id, f); }} />}
+      {negSeed && <ConfirmOwnerModal seed={negSeed} onClose={() => setNegSeed(null)} onDone={() => { setNegSeed(null); load(); }} />}
     </main>
   );
 }

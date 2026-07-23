@@ -94,6 +94,43 @@ alter table deals add column if not exists upfront_paid boolean default false;
 -- Per-user deal notification preferences ({deal:{in_app,email,slack}}), default all on.
 alter table domain_research_users add column if not exists notif_prefs jsonb;
 
+-- Owner intelligence directory — a persistent record of every domain owner we work with:
+-- contact info, a general dossier, and how they've negotiated over time. Built over time,
+-- seeded from a deal's researched "likely owner" and confirmed at the Negotiating stage
+-- (when we're confident they truly own the name). A deal links to one owner via
+-- deals.domain_owner_id, so an owner's detail aggregates every name/deal we've worked with them.
+create table if not exists deal_owners (
+  id                uuid primary key default gen_random_uuid(),
+  name              text not null,                 -- person or company display name
+  kind              text default 'unknown',        -- person | company | unknown
+  company           text,                          -- employer/org, if the owner is a person
+  emails            text[] default '{}',
+  phones            text[] default '{}',
+  links             text[] default '{}',           -- profile / social / marketplace URLs
+  reachability      text,                          -- how best to reach them
+  notes             text,                          -- general dossier
+  negotiation_notes text,                          -- how they negotiate (accrued over deals)
+  created_by        text,
+  created_at        timestamptz not null default now(),
+  updated_at        timestamptz not null default now()
+);
+create index if not exists idx_deal_owners_name on deal_owners (lower(name));
+-- Link a deal to its confirmed owner (many deals → one owner).
+alter table deals add column if not exists domain_owner_id uuid references deal_owners(id) on delete set null;
+create index if not exists idx_deals_domain_owner on deals (domain_owner_id);
+alter table deal_owners enable row level security;
+
+-- Cron heartbeat — a tiny append-in-place log so we can SEE whether a scheduled job
+-- actually fired (Vercel gives no in-app visibility). Each cron upserts its row at the end
+-- of a run; the UI reads last_run_at to show "emails auto-synced N min ago".
+create table if not exists cron_heartbeats (
+  name         text primary key,
+  last_run_at  timestamptz not null default now(),
+  last_result  jsonb,
+  updated_at   timestamptz not null default now()
+);
+alter table cron_heartbeats enable row level security;
+
 -- Buy-Side Inquiries triage: let a reviewer dismiss/ignore a spam/test inquiry.
 alter table domain_research_leads add column if not exists dismissed boolean default false;
 alter table domain_research_leads add column if not exists dismissed_by text;

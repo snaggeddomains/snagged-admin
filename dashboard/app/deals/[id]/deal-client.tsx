@@ -3,6 +3,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import { STAGES, STATUSES, PRIORITIES, SOURCES, BUDGET_BANDS } from "@/lib/deals/stages";
+import ConfirmOwnerModal, { type ConfirmOwnerSeed } from "../confirm-owner-modal";
+
+const NEGOTIATING = "Negotiating";
 
 type Deal = {
   id: string; domain: string; additional_domains: string | null; buyer_name: string | null; buyer_email: string | null;
@@ -10,13 +13,14 @@ type Deal = {
   asking_price: number | null; upfront_fee: number | null; upfront_paid: boolean | null; source: string | null; priority: string | null; owner_email: string | null;
   stage: string; status: string; lost_reason: string | null; report_link: string | null; likely_owner: string | null;
   owner_contact: string | null; reachability: string | null; notes: string | null; tags: string[] | null; created_at: string;
-  lead_key: string | null;
+  lead_key: string | null; domain_owner_id: string | null;
 };
 type Activity = { id: string; user_email: string | null; kind: string; body: string | null; meta: Record<string, unknown> | null; created_at: string };
 type Email = { id: string; mailbox: string | null; subject: string | null; snippet: string | null; body: string | null; from_addr: string | null; msg_date: string | null };
 type Assignee = { email: string; name: string };
 type AddlDomain = { domain: string; report: string | null };
-type Resp = { ok: boolean; deal: Deal; dossierUrl: string | null; additional?: AddlDomain[]; activity: Activity[]; emails: Email[]; assignees: Assignee[]; me: string; error?: string };
+type OwnerRecord = { id: string; name: string };
+type Resp = { ok: boolean; deal: Deal; dossierUrl: string | null; ownerRecord?: OwnerRecord | null; additional?: AddlDomain[]; activity: Activity[]; emails: Email[]; assignees: Assignee[]; me: string; error?: string };
 
 const card: CSSProperties = { border: "1px solid var(--line,#e3ddcf)", borderRadius: 12, padding: 16, background: "var(--paper,#fff)", marginBottom: 14 };
 const lbl: CSSProperties = { display: "block", fontSize: 11.5, fontWeight: 700, color: "var(--navy-2,#4a5b66)", margin: "9px 0 3px", textTransform: "uppercase", letterSpacing: ".02em" };
@@ -41,6 +45,7 @@ export default function DealClient({ id }: { id: string }) {
   const [ingesting, setIngesting] = useState(false);
   const [wonOpen, setWonOpen] = useState(false);
   const [emailsOpen, setEmailsOpen] = useState(false); // email chain collapsed by default (can be 47+)
+  const [negSeed, setNegSeed] = useState<ConfirmOwnerSeed | null>(null); // confirm-owner on move to Negotiating
   const taRef = useRef<HTMLTextAreaElement>(null);
 
   // Close Won — confirm owner/contact + price/commission + recap, set won, log the recap.
@@ -114,10 +119,15 @@ export default function DealClient({ id }: { id: string }) {
       likely_owner: f.likely_owner, owner_contact: f.owner_contact, reachability: f.reachability,
       tags: typeof (f.tags as unknown) === "string" ? String(f.tags).split(",").map((t) => t.trim()).filter(Boolean) : f.tags,
     };
+    const before = data?.deal;
     try {
       const res = await fetch(`/api/admin/deals/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       if (!res.ok) { const j = await res.json().catch(() => ({})); throw new Error(j.error || `HTTP ${res.status}`); }
       await load(); setEditing(false);
+      // Moving to Negotiating = we're confident who owns it → confirm the owner into the directory.
+      if (payload.stage === NEGOTIATING && before && before.stage !== NEGOTIATING && !before.domain_owner_id) {
+        setNegSeed({ dealId: before.id, domain: before.domain, likelyOwner: before.likely_owner, ownerContact: before.owner_contact, company: before.org_name });
+      }
     } catch (e) { setErr(String((e as Error)?.message || e)); }
     finally { setSaving(false); }
   };
@@ -246,6 +256,16 @@ export default function DealClient({ id }: { id: string }) {
             <RVal l="Research report" v={d.report_link ? "Open report ↗" : null} href={d.report_link || undefined} emoji="📄" />
             <RVal l="Likely owner" v={d.likely_owner} />
             <RVal l="Owner contact" v={d.owner_contact} />
+            {/* Owner directory record — set at Negotiating; links to the owner's full dossier
+                (contact info + every name we've worked with them + negotiation history). */}
+            {data.ownerRecord
+              ? <RVal l="Owner record" v={`${data.ownerRecord.name} ↗`} href={`/deals/owners/${data.ownerRecord.id}`} emoji="👤" />
+              : (d.stage === NEGOTIATING && (
+                <div style={{ marginTop: 8 }}>
+                  <span style={lbl}>Owner record</span>
+                  <div style={readVal}><button style={{ ...btn, padding: "4px 10px", fontSize: 12 }} onClick={() => setNegSeed({ dealId: d.id, domain: d.domain, likelyOwner: d.likely_owner, ownerContact: d.owner_contact, company: d.org_name })}>👤 Confirm owner</button></div>
+                </div>
+              ))}
             <RVal l="Tags" v={(d.tags || []).join(", ") || null} />
             <RVal l="Notes" v={d.notes} />
           </> : <>
@@ -352,6 +372,7 @@ export default function DealClient({ id }: { id: string }) {
         </div>
       </div>
       {wonOpen && <WonModal deal={d} onClose={() => setWonOpen(false)} onSubmit={closeWon} />}
+      {negSeed && <ConfirmOwnerModal seed={negSeed} onClose={() => setNegSeed(null)} onDone={() => { setNegSeed(null); load(); }} />}
     </main>
   );
 }

@@ -9,6 +9,7 @@ import { gmailConfigured } from "@/lib/gmail";
 import { listDeals, updateDeal, dealsConfigured } from "@/lib/deals/store";
 import { ingestDealEmails } from "@/lib/deals/emails";
 import { researchReportLink } from "@/lib/deals/research-link";
+import { recordHeartbeat } from "@/lib/cron-heartbeat";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -40,5 +41,7 @@ export async function GET(req: NextRequest) {
     }
     processed++;
   }
+  // Heartbeat so the UI can show "emails auto-synced N min ago" — proof the cron fired.
+  await recordHeartbeat("deal-emails", { openDeals: total, processed, ingested, linked });
   return NextResponse.json({ ok: true, openDeals: total, processed, ingested, linked });
 }

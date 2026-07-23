@@ -9,6 +9,7 @@ import { listDeals, createDeal, boardStats, searchBuyers, dealsConfigured, type 
 import { notifyAssignment } from "@/lib/deals/notify";
 import { kickResearchRun } from "@/lib/deals/research-link";
 import { assignableUsers } from "@/lib/deals/assignees";
+import { getHeartbeat } from "@/lib/cron-heartbeat";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -33,7 +34,8 @@ export async function GET(req: NextRequest) {
     const deals = await listDeals({ all, inbox, me: me.email, status: url.searchParams.get("status") || undefined, q: url.searchParams.get("q") || undefined });
     const stats = await boardStats(deals);
     const assignees = await assignableUsers(); // {email,name} — only "can receive deals" users
-    return NextResponse.json({ ok: true, configured: true, deals, stats, assignees, canSeeAll: all, me: me.email });
+    const emailSync = await getHeartbeat("deal-emails"); // proof the hourly email cron fired
+    return NextResponse.json({ ok: true, configured: true, deals, stats, assignees, emailSync, canSeeAll: all, me: me.email });
   } catch (e) {
     return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
   }

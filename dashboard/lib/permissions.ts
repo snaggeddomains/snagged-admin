@@ -150,6 +150,8 @@ export const RESEARCH_TABS: { href: string; label: string; perm: ModuleKey | Act
 export const DEALS_TABS: { href: string; label: string; perm: ModuleKey | ActionKey }[] = [
   { href: "/deals", label: "Board", perm: "deals" },
   { href: "/deals/list", label: "List", perm: "deals" },
+  // Owner intelligence directory — every domain owner we work with + negotiation history.
+  { href: "/deals/owners", label: "Owners", perm: "deals" },
   // Buy-side inquiry triage → deals. Gated by research.pipedrive (canTab → userCan).
   { href: "/deals/inquiries", label: "Buy-Side Inquiries", perm: "research.pipedrive" },
   { href: "/deals/reports", label: "Reporting", perm: "deals.reports" },

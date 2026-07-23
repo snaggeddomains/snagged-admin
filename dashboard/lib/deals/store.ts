@@ -38,6 +38,7 @@ export type Deal = {
   notes: string | null;
   tags: string[] | null;
   lead_key: string | null;
+  domain_owner_id: string | null;  // confirmed owner record (set at Negotiating)
   created_by: string | null;
   position: number | null;
   created_at: string;

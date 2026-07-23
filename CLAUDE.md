@@ -160,6 +160,48 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
 - **NEXT (Ph3):** email sequences (outbound) + richer pipeline reporting. Existing Pipedrive
   test deals are NOT migrated (day-one) — start fresh natively.
 
+## Owner intelligence directory + email-cron heartbeat (2026-07-23)
+
+Two additions to the Deals CRM.
+
+**Owner directory (Deals → Owners).** A persistent record of every domain owner we work
+with — contact info, a general dossier, and **how they've negotiated over time** — built up
+across deals so we accrue a robust view of who owns what and how they deal. Confirmed at the
+**Negotiating** stage (when we're confident who truly owns the name).
+- **Data** (`scripts/deals.sql`, run once): `deal_owners` (name, kind person|company|unknown,
+  company, emails[]/phones[]/links[], reachability, notes, **negotiation_notes**, created_by) +
+  `deals.domain_owner_id uuid → deal_owners(id) on delete set null`. RLS enabled (service key
+  bypasses). Emails stored **lowercased** so dedup (array overlap) is reliable.
+- **Lib** `lib/deals/owners.ts`: `listOwners({q})` (+ deal counts), `getOwner`/`ownerDeals`,
+  `findOwner` (dedup by shared email, else exact name), `createOwner`/`updateOwner` (array
+  `*_add` merge; `negotiation_append` appends a `[date · user] …` line so history accrues),
+  `linkDealOwner`, **`confirmOwnerForDeal`** (find-or-create + link + merge contacts + append a
+  neg note — idempotent), `searchOwnersTypeahead`.
+- **API** `app/api/admin/deals/owners/route.ts` (gated `deals`): GET list / `?id=` detail (owner
+  + every linked deal) / `?typeahead=`; POST `{action: save|confirm|link|unlink}`.
+- **UI**: `app/deals/owners/{page,owners-client}.tsx` (searchable card grid + New-owner modal),
+  `app/deals/owners/[id]/{page,owner-client}.tsx` (contact/dossier + editable **negotiation
+  history** + the names we've worked with them → each links to its deal). Tab added to
+  `DEALS_TABS` ("Owners", perm `deals`). No new permission — `deals` gates it.
+- **Confirm-owner modal** `app/deals/confirm-owner-modal.tsx` (shared by board + detail): fires
+  when a deal **moves to Negotiating** — board drag into the Negotiating column OR the deal-detail
+  stage change (post-save transition). Prefilled from the deal's `likely_owner` + `owner_contact`
+  (contact string auto-split into emails/phones), with a **typeahead to link an existing owner**
+  (avoid dupes) + a first negotiation note. Skips if the deal already has `domain_owner_id`; a
+  "👤 Confirm owner" button on the detail sidebar re-opens it if skipped. Deal detail GET returns
+  `ownerRecord {id,name}` → sidebar "👤 Owner record ↗" link.
+
+**Email-cron heartbeat.** Rob couldn't tell if the hourly `deal-emails` cron was actually
+firing (manual "Pull emails" always worked). Added `cron_heartbeats` (name pk, last_run_at,
+last_result) + `lib/cron-heartbeat.ts` (`recordHeartbeat`/`getHeartbeat`, best-effort). The
+`deal-emails` cron upserts its row at the end of a run; the board GET returns `emailSync` and the
+board header shows **"📥 Email auto-sync: N min ago"** (or "not run yet") so you can see at a
+glance whether the cron ran. If it says "not run yet" long after a deploy, the cron isn't firing
+(check the Vercel project's cron settings / plan), not a code bug.
+
+**One-time setup:** run the updated `scripts/deals.sql` (adds `deal_owners`, `deals.domain_owner_id`,
+`cron_heartbeats`). No new env/permission.
+
 ---
 
 # Pipedrive buy-side deal flow — bridge + setup + create-deal core (2026-07-20) — SUPERSEDED
