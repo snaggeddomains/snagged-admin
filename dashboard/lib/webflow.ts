@@ -5,17 +5,17 @@
 // throws, and it's fail-open when unconfigured (no token → ok:false, callers degrade).
 //
 // Auth: a Webflow **Site API token** (Site settings → Apps & integrations → API access →
-// Generate API token). Scoped to one site. Two env vars, so a READ-ONLY token can be wired for
-// pulling data without granting write access:
-//   WEBFLOW_API_TOKEN / WEBFLOW_SITE_TOKEN     — a WRITE-scoped token (CMS read+write) — enables editing
-//   WEBFLOW_API_TOKEN_CMS_READ_ONLY            — a READ-only token — pulls work, edits are blocked
-//   WEBFLOW_SITE_ID                            — default site id (optional; discoverable via listSites)
+// Generate API token). Scoped to one site. Separate write/read env vars, so a READ-ONLY token can
+// be wired for pulling data without granting write access:
+//   WEBFLOW_API_KEY / WEBFLOW_API_TOKEN / WEBFLOW_SITE_TOKEN  — a WRITE-scoped token (CMS read+write) — enables editing
+//   WEBFLOW_API_TOKEN_CMS_READ_ONLY                           — a READ-only token — pulls work, edits blocked
+//   WEBFLOW_SITE_ID                                           — default site id (optional; discoverable via listSites)
 // A write token (if set) is preferred for everything; otherwise the read-only token serves reads.
 
 const BASE = "https://api.webflow.com/v2";
 
 function writeToken(): string | undefined {
-  return process.env.WEBFLOW_API_TOKEN || process.env.WEBFLOW_SITE_TOKEN;
+  return process.env.WEBFLOW_API_KEY || process.env.WEBFLOW_API_TOKEN || process.env.WEBFLOW_SITE_TOKEN;
 }
 function token(): string | undefined {
   return writeToken() || process.env.WEBFLOW_API_TOKEN_CMS_READ_ONLY;

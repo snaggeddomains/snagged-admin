@@ -231,9 +231,10 @@ This adds a real Webflow **Data API v2** integration to pull every listing and e
 
 - **Client** `lib/webflow.ts` (dependency-free, mirrors hubspot/pipedrive shape — every call →
   `{ok,status,data,error}`, never throws, fail-open when unconfigured). Base
-  `https://api.webflow.com/v2`, 429-retry. **Two token envs so a READ-ONLY token can pull without
-  granting writes:** a write token (`WEBFLOW_API_TOKEN` / `WEBFLOW_SITE_TOKEN`) is preferred for
-  everything; a read-only token (`WEBFLOW_API_TOKEN_CMS_READ_ONLY`) serves reads only.
+  `https://api.webflow.com/v2`, 429-retry. **Separate token envs so a READ-ONLY token can pull
+  without granting writes:** a write token (`WEBFLOW_API_KEY` / `WEBFLOW_API_TOKEN` /
+  `WEBFLOW_SITE_TOKEN`, CMS read+write) is preferred for everything; a read-only token
+  (`WEBFLOW_API_TOKEN_CMS_READ_ONLY`) serves reads only.
   `webflowCanWrite()` is true only when a write token is set — the API blocks POST writes (403
   "read-only") and the UI hides editing + shows a 🔒 read-only banner otherwise. Covers sites, collections
   (+ field schema), items (`listItems`/`listAllItems` paginated, `getItem`, `createItem`,
