@@ -1,5 +1,5 @@
 {
-  "count": 33,
+  "count": 34,
   "domains": [
     "264.io",
     "appraise.net",
@@ -25,6 +25,7 @@
     "oy.com",
     "raspy.ai",
     "rebuke.io",
+    "riggs.com",
     "saw.com",
     "seoul.io",
     "separated.io",
@@ -36,5 +37,5 @@
     "wordpress.com"
   ],
   "source": "reddit_domains",
-  "updated_at": "2026-07-24T17:00:38.200078+00:00"
+  "updated_at": "2026-07-24T23:01:05.277315+00:00"
 }

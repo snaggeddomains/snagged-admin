@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-24T17:00:38.199441+00:00",
+  "count": 1,
+  "domains": [
+    "riggs.com"
+  ],
+  "generated_at": "2026-07-24T23:01:05.035273+00:00",
   "mub": [],
   "source": "reddit_domains"
 }
