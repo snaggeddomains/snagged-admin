@@ -232,9 +232,9 @@ export default function BoardClient() {
               onDrop={(e) => {
                 e.preventDefault(); setDragOver(null);
                 if (stageDrag && dragId) {
-                  // Dropping on a terminal column runs the close flow (confirm details / reason).
+                  // Dropping on the Won column runs the close-won flow (confirm details). Lost has
+                  // no column — it's the bottom "✗ Mark Lost" drop-zone.
                   if (stage === "Closed - Won") { const id = dragId; setDragId(null); setWonFor(id); return; }
-                  if (stage === "Closed - Lost") { const id = dragId; setDragId(null); setLostFor(id); return; }
                   const dropped = (data?.deals || []).find((x) => x.id === dragId);
                   move(dragId, stage);
                   // Reaching Negotiating = we're confident who owns it → capture/confirm the owner.
@@ -284,11 +284,8 @@ export default function BoardClient() {
           dragged card's current status (reopen a lost/archived one, archive/lose an open one). */}
       {dragId && (
         <div style={{ display: "flex", gap: 10, marginTop: 4, paddingBottom: 8 }}>
-          {/* Close Won only at the final stage (Negotiating) — not at every step. */}
-          {dragDeal?.status === "open" && dragDeal?.stage === STAGES[STAGES.length - 1] && (
-            <DropZone label="✓ Close Won" hint="confirm the details" color="#1f7a5a"
-              onDrop={() => { const id = dragId; setDragId(null); setDragOver(null); setWonFor(id); }} />
-          )}
+          {/* Won is the "Closed - Won" column (drop there to win). The bottom zones cover the
+              statuses that have NO column: Lost / Didn't-proceed / Archive (+ Reopen). */}
           {dragDeal?.status !== "lost" && (
             <DropZone label="✗ Mark Lost" hint="pick a reason" color="#a83265"
               onDrop={() => { const id = dragId; setDragId(null); setDragOver(null); setLostFor(id); }} />

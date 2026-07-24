@@ -273,17 +273,16 @@ export async function updateDeal(id: string, patch: Record<string, unknown>, act
     update.budget_range = normalizeBudget(raw) || raw || null;
     update.budget_max = budgetMaxFor(raw);
   }
-  // Keep the terminal STAGE and STATUS in sync (both directions), so "Closed - Won" ⇔
-  // won and "Closed - Lost" ⇔ lost mean the same thing however the change is made.
+  // Keep the WON stage/column and status in sync (both directions) — "Closed - Won" ⇔ won.
+  // Lost has NO column: marking a deal lost keeps its working stage + a LOST badge (like
+  // not_proceeded/archived), so we don't relocate its stage.
   const hasStatus = Object.prototype.hasOwnProperty.call(patch, "status");
   const hasStage = Object.prototype.hasOwnProperty.call(patch, "stage");
   if (hasStatus && !hasStage) {
     if (patch.status === "won") update.stage = "Closed - Won";
-    else if (patch.status === "lost") update.stage = "Closed - Lost";
-    else if (patch.status === "open" && /^Closed - /.test(before.stage || "")) update.stage = "Assigned"; // reopen → back onto the board
+    else if (patch.status === "open" && /^Closed - /.test(before.stage || "")) update.stage = "Assigned"; // reopen a won deal → back onto the board
   } else if (hasStage && !hasStatus) {
     if (patch.stage === "Closed - Won") update.status = "won";
-    else if (patch.stage === "Closed - Lost") update.status = "lost";
   }
   // Reaching "Research & Outreach" means the client paid the upfront fee to pursue it — flip
   // the paid flag automatically (once; a manual edit can still override).

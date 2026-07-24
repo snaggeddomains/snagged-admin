@@ -1,6 +1,8 @@
-// The buy-side pipeline definition — the board columns, in order. Won/Lost are terminal
-// STATUSES (not columns), matching the original Pipedrive design. Kept as plain data so
-// adding/renaming a stage is a one-line change (and the board derives from it).
+// The buy-side pipeline definition — the board columns, in order. "Closed - Won" is the one
+// terminal COLUMN; Lost / Didn't-proceed / Archived are terminal STATUSES applied via the
+// board's bottom drop-zones (no column — a lost deal keeps its working stage + a LOST badge,
+// like not_proceeded/archived). Kept as plain data so adding/renaming a stage is a one-line
+// change (and the board derives from it).
 
 export const STAGES = [
   "Unassigned / Inbox",
@@ -10,12 +12,13 @@ export const STAGES = [
   "Research & Outreach",
   "In Contact",
   "Negotiating",
+  "Transaction",
   "Closed - Won",
-  "Closed - Lost",
 ] as const;
 export type Stage = (typeof STAGES)[number];
 
-// Terminal stages ↔ terminal statuses (kept in sync by updateDeal).
+// The terminal WON stage/column ↔ won status (kept in sync by updateDeal). CLOSED_LOST_STAGE is
+// retained only so isClosedStage still recognizes any legacy "Closed - Lost" row (Lost has no column).
 export const CLOSED_WON_STAGE = "Closed - Won";
 export const CLOSED_LOST_STAGE = "Closed - Lost";
 export const isClosedStage = (s: string): boolean => s === CLOSED_WON_STAGE || s === CLOSED_LOST_STAGE;

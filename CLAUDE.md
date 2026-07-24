@@ -143,6 +143,15 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
   like Archive — off the open board, visible via the filter). Reopen clears it back to open.
   - **Same-window links.** `RVal` report/dossier links dropped `target=_blank` — the desktop app
     spawned a new window (losing the session) on internal `app.snagged.com` links.
+- **Board stages: Transaction added, Closed-Lost column removed (2026-07-24).** `STAGES` (stages.ts)
+  is now …In Contact · Negotiating · **Transaction** · **Closed - Won** — added a `Transaction` stage
+  (escrow/transfer, after Negotiating & before the Won column) and REMOVED the `Closed - Lost` column
+  (redundant with the bottom **✗ Mark Lost** drop-zone). Lost now has no column: `store.ts` no longer
+  relocates a lost deal to a "Closed - Lost" stage — it keeps its working stage + a LOST badge, like
+  not_proceeded/archived (0 deals had the old stage, so no migration). `board-client.tsx`: dropped the
+  dead Closed-Lost column drop-handler AND the redundant bottom "✓ Close Won" zone (Won = drop on the
+  Closed-Won column, which fires the confirm-details modal). `CLOSED_LOST_STAGE`/`isClosedStage` kept
+  so any legacy row still reads as closed.
 - **Comments UI (Asana-style) + collapsed emails (2026-07-23).** The deal-detail right column was
   reworked: **Comments** (renamed from Activity) now sits ABOVE Emails and renders as an
   Asana-style thread — per row a circular initials `Avatar` (colored by email) + name + relative
