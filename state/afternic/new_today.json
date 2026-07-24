@@ -1,12 +1,19 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 10,
   "domains": [
-    "swept.org",
-    "prone.org",
-    "come.ai"
+    "crenshaw.co",
+    "leaving.io",
+    "located.co",
+    "apparently.io",
+    "but.net",
+    "considering.com",
+    "claimed.com",
+    "determined.com",
+    "conflict.com",
+    "distribution.com"
   ],
-  "generated_at": "2026-07-23T08:29:44.691738+00:00",
+  "generated_at": "2026-07-24T08:18:00.065142+00:00",
   "mub": [],
   "source": "afternic"
 }
