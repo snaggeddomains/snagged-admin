@@ -1,13 +1,15 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 6,
   "domains": [
-    "cross.co",
-    "rosa.gg",
-    "serie.now",
-    "visit.co"
+    "goody.co",
+    "income.to",
+    "kinder.co",
+    "onward.co",
+    "pledge.co",
+    "polar.co"
   ],
-  "generated_at": "2026-07-24T17:07:27.349253+00:00",
+  "generated_at": "2026-07-24T23:07:15.974932+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
