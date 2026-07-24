@@ -35,6 +35,26 @@ def test_entry_from_row_rejects_zero_weight_tld():
     assert src.entry_from_row({"title": "table.xyz", "price": "500"}) is None
 
 
+def test_entry_from_row_rejects_pending_verification():
+    # verified=0 / blank = "Pending Verification" on Atom = possibly-fake listing → skip.
+    assert src.entry_from_row({"title": "table.com", "price": "500", "verified": "0"}) is None
+    assert src.entry_from_row({"title": "table.com", "price": "500", "verified": ""}) is None
+
+
+def test_entry_from_row_keeps_verified_listing():
+    e = src.entry_from_row({"title": "table.com", "price": "500", "verified": "1"})
+    assert e is not None and e.domain == "table.com"
+
+
+def test_universe_entries_skip_pending_verification():
+    rows = [
+        {"title": "table.com", "price": "500", "verified": "1"},
+        {"title": "fake.com", "price": "3499", "verified": "0"},
+    ]
+    out = src._universe_entries_from_rows(rows)
+    assert {r["domain"] for r in out} == {"table.com"}
+
+
 def test_atom_deal_score_is_unscaled():
     """Atom's deal score is intentionally NOT multiplied by 10000 — legacy parity."""
     # zipf=5, weight=1.0, price=100 -> 5/100*1 = 0.05 (not 500)

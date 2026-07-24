@@ -574,6 +574,19 @@ Daily top picks, appraised and ranked, surfaced in Reports → SNAP Opportunitie
 
 ---
 
+# Atom feed — ignore pending-verification (fake) listings (2026-07-24)
+
+Atom's partner feed (`atom_daily`) lets a submitter LIST a name they don't actually own — it
+shows as **"Pending Verification"** on atom.com and is effectively a fake listing. The feed marks
+real ones with a **`verified` column** (`1` = ownership-verified; `0`/blank = pending). `_is_verified(row)`
+in `src/marketplace_pipeline/sources/atom_daily.py` now gates BOTH the SNAP filter (`entry_from_row`)
+and the naming-universe path (`_universe_entries_from_rows`) — a row with `verified != 1` is skipped
+everywhere. Backward-safe: a row/feed with NO `verified` column is treated as verified (so legacy
+`domain`-column feeds + tests never get dropped). Live feed 2026-07-24: 18,730 verified · ~89 pending.
+Tests in `tests/test_atom_daily.py`.
+
+---
+
 # NameClub — one-time dictionary-gated .com pull into Universe (2026-07-20)
 
 Evaluated NameClub (nameclub.com/marketplace) as a Universe feed. **Verdict: NOT a feed**

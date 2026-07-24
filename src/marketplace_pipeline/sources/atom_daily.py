@@ -38,12 +38,28 @@ SOURCE_LABEL = "Atom"
 UNIVERSE_SNAPSHOT_FILE = "universe_snapshot.json"
 
 
+def _is_verified(row: dict[str, str]) -> bool:
+    """Atom's partner feed marks ownership-verified listings with verified=1.
+    A submitter can list a name that shows as "Pending Verification" (verified=0
+    / blank) without actually owning it — those are effectively fake listings, so
+    we ignore them everywhere (SNAP report + naming universe).
+
+    Only filters when the feed actually carries a `verified` column; a feed/row
+    without it (legacy `domain`-column feeds, tests) is treated as verified so we
+    never drop everything if the column ever disappears."""
+    if "verified" not in row:
+        return True
+    return str(row.get("verified") or "").strip() == "1"
+
+
 def _universe_entries_from_rows(rows: list[dict[str, str]]) -> list[dict[str, Any]]:
     """Apply ONLY the universe filter to Atom raw rows. Atom uses 'title' as
     the domain column (or 'domain' as fallback) and 'price' or
     'discount_price' for price — match both."""
     out: list[dict[str, Any]] = []
     for row in rows:
+        if not _is_verified(row):  # skip pending-verification (unowned/fake) listings
+            continue
         domain = (row.get("title") or row.get("domain") or "").strip().lower()
         if not domain or not univ.passes_universe_filter(domain):
             continue
@@ -166,6 +182,10 @@ def parse_csv_rows(content: bytes) -> list[dict[str, str]]:
 
 
 def entry_from_row(row: dict[str, str]) -> Entry | None:
+    # Skip pending-verification listings — the submitter may not actually own the
+    # name (Atom shows "Pending Verification"), so it's a fake listing we ignore.
+    if not _is_verified(row):
+        return None
     # Atom feed uses 'title' for the domain; some legacy feeds also use 'domain'
     domain = (row.get("title") or row.get("domain") or "").strip().lower()
     if not domain or not flt.allow_domain(domain):
