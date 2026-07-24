@@ -10,6 +10,7 @@ import { notifyAssignment } from "@/lib/deals/notify";
 import { kickResearchRun } from "@/lib/deals/research-link";
 import { assignableUsers } from "@/lib/deals/assignees";
 import { getHeartbeat } from "@/lib/cron-heartbeat";
+import { countBuyInquiries } from "@/lib/inquiries";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -35,7 +36,11 @@ export async function GET(req: NextRequest) {
     const stats = await boardStats(deals);
     const assignees = await assignableUsers(); // {email,name} — only "can receive deals" users
     const emailSync = await getHeartbeat("deal-emails"); // proof the hourly email cron fired
-    return NextResponse.json({ ok: true, configured: true, deals, stats, assignees, emailSync, canSeeAll: all, me: me.email });
+    // The Inbox column points to the buy-side opportunity queue — surface the pending count so the
+    // (usually empty) Unassigned/Inbox column links to where new opportunities actually land. Only
+    // for users who can open that tab (research.pipedrive).
+    const inquiryCount = userCan(me, "research.pipedrive") ? await countBuyInquiries() : null;
+    return NextResponse.json({ ok: true, configured: true, deals, stats, assignees, emailSync, inquiryCount, canSeeAll: all, me: me.email });
   } catch (e) {
     return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
   }

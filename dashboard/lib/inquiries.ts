@@ -155,6 +155,15 @@ export async function listBuyInquiries({ limit = 100, includeSell = false, inclu
   return { configured: true, inquiries };
 }
 
+// How many pending (buy-side, not-dismissed) inquiries are in the queue — for the board's
+// Inbox → Buy-Side Inquiries pointer. Fail-open to 0 (never break the board).
+export async function countBuyInquiries(): Promise<number> {
+  try {
+    const { inquiries } = await listBuyInquiries({ limit: 300 });
+    return inquiries.length;
+  } catch { return 0; }
+}
+
 // Dismiss/ignore (or restore) an inquiry. Best-effort strip+retry if the columns
 // aren't there yet (before the migration runs).
 export async function setInquiryDismissed(leadKey: string, dismissed: boolean, by: string): Promise<void> {

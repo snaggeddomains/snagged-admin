@@ -17,7 +17,7 @@ type Deal = {
 type Assignee = { email: string; name: string };
 type Stats = { open: number; pipelineValue: number; byStage: Record<string, number> };
 type Heartbeat = { name: string; last_run_at: string; last_result: Record<string, unknown> | null };
-type Resp = { ok: boolean; configured: boolean; deals: Deal[]; stats: Stats | null; assignees: Assignee[]; emailSync?: Heartbeat | null; canSeeAll: boolean; me: string; error?: string };
+type Resp = { ok: boolean; configured: boolean; deals: Deal[]; stats: Stats | null; assignees: Assignee[]; emailSync?: Heartbeat | null; inquiryCount?: number | null; canSeeAll: boolean; me: string; error?: string };
 
 // "42 min ago" / "3 hours ago" — for the email-cron heartbeat line.
 function ago(iso: string | null | undefined): string {
@@ -274,7 +274,13 @@ export default function BoardClient() {
                   </div>
                 );
               })}
-              {!col.length && <div style={{ fontSize: 12, color: "var(--muted,#aab)", textAlign: "center", padding: "10px 0" }}>—</div>}
+              {stage === "Unassigned / Inbox" && (data?.inquiryCount ?? 0) > 0 && (
+                <button onClick={(e) => { e.stopPropagation(); router.push("/deals/inquiries"); }}
+                  style={{ width: "100%", textAlign: "left", background: "#fff", border: "1px dashed var(--coral,#e2674a)", borderRadius: 8, padding: "9px 10px", marginBottom: 8, cursor: "pointer", color: "var(--navy,#254254)", fontSize: 12.5, fontWeight: 600 }}>
+                  📥 {data!.inquiryCount} buy-side {data!.inquiryCount === 1 ? "inquiry" : "inquiries"} to triage →
+                </button>
+              )}
+              {!col.length && !(stage === "Unassigned / Inbox" && (data?.inquiryCount ?? 0) > 0) && <div style={{ fontSize: 12, color: "var(--muted,#aab)", textAlign: "center", padding: "10px 0" }}>—</div>}
             </div>
           );
         })}

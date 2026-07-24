@@ -152,6 +152,12 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
   dead Closed-Lost column drop-handler AND the redundant bottom "✓ Close Won" zone (Won = drop on the
   Closed-Won column, which fires the confirm-details modal). `CLOSED_LOST_STAGE`/`isClosedStage` kept
   so any legacy row still reads as closed.
+- **Inbox column → Buy-Side Inquiries pointer (2026-07-24).** The (usually empty) "Unassigned / Inbox"
+  column now surfaces the pending buy-side opportunity queue: the board GET returns `inquiryCount`
+  (`countBuyInquiries()` in `lib/inquiries.ts` — buy-side, not-dismissed leads; fail-open 0), only for
+  users with `research.pipedrive`; `board-client.tsx` renders a dashed **"📥 N buy-side inquiries to
+  triage →"** card in that column linking to `/deals/inquiries`. So the empty Inbox points to where new
+  buy-side opportunities actually land (the enriched inquiry@ queue) rather than reading as dead space.
 - **Comments UI (Asana-style) + collapsed emails (2026-07-23).** The deal-detail right column was
   reworked: **Comments** (renamed from Activity) now sits ABOVE Emails and renders as an
   Asana-style thread — per row a circular initials `Avatar` (colored by email) + name + relative
