@@ -1,12 +1,10 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 1,
   "domains": [
-    "dealings.com",
-    "midsummer.com",
-    "glorify.ai"
+    "msa.co"
   ],
-  "generated_at": "2026-07-23T23:00:33.807507+00:00",
+  "generated_at": "2026-07-24T10:00:48.125175+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
