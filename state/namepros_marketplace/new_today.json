@@ -1,12 +1,20 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 11,
   "domains": [
-    "answers.to",
-    "flesh.co",
-    "stride.co"
+    "aero.me",
+    "ayre.ai",
+    "binds.ai",
+    "disks.ai",
+    "grounded.now",
+    "gwyn.ai",
+    "needle.co",
+    "reject.now",
+    "squires.ai",
+    "straws.ai",
+    "tableware.ai"
   ],
-  "generated_at": "2026-07-23T23:06:52.695825+00:00",
+  "generated_at": "2026-07-24T10:06:45.030530+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
