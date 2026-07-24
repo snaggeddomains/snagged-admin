@@ -59,8 +59,12 @@ export default function CommandPalette({ user }: { user: AppUser }) {
     if (!d) return;
     setOpen(false);
     // /research/* is the separate SPA → full nav; everything else is a client route.
-    if (d.href.startsWith("/research")) window.location.assign(d.href);
-    else router.push(d.href);
+    if (d.href.startsWith("/research")) {
+      // Same-origin one-shot flag: the research SPA's boot handler focuses its lookup field on
+      // arrival (its own in-SPA focus can't survive this full-page reload).
+      try { sessionStorage.setItem("cmdkFocus", "1"); } catch { /* ignore */ }
+      window.location.assign(d.href);
+    } else router.push(d.href);
   }, [router]);
 
   // Global ⌘K / Ctrl-K toggle.

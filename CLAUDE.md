@@ -947,7 +947,10 @@ it's permission-gated and auto-covers Admin's Users/Lessons/Sources/… (which t
 SPA's palette can't see, since those tabs live only in this app). Fuzzy-ranked (exact-prefix >
 word-prefix > substring > subsequence); `/research/*` full-navs, same-app routes use the client
 router. The research SPA has its own mirror palette (see that repo's CLAUDE.md "⌘K palette") +
-a cross-app registry for Admin/Deals tabs.
+a cross-app registry for Admin/Deals tabs. When it full-navs to `/research/*` it first sets a
+one-shot `sessionStorage['cmdkFocus']` flag (same-origin) so the research SPA focuses its lookup
+field on arrival — otherwise a ⌘K jump from the admin app landed on research with no cursor in
+the search bar (the research SPA's boot handler consumes the flag; see that repo's CLAUDE.md).
 **Runbook — add a tab:** add one row to that section's tab array in permissions.ts.
 **Runbook — move a tool between sections:** move its row to the other section's tab
 array (and update its CATALOG `group`). `sectionForPath` handles the URL→section
