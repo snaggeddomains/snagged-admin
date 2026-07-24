@@ -74,6 +74,33 @@ def test_is_one_or_two_dictionary_words_respects_threshold():
     assert univ.is_one_or_two_dictionary_words("cirro", min_zipf=3.0) is False
 
 
+def test_name_portfolio_compound_is_demoted():
+    # <first name> + <business word> = a personal-brand portfolio name (julianfirm,
+    # juliancorp, gracefinance) — demoted below the SNAP quality floor (1.0) so a
+    # one-seller flood can't dominate the SNAP list.
+    for sld in ("julianfirm", "juliancorp", "julianadvice", "julianventures", "gracefinance"):
+        assert univ.quality_zipf(sld) < 1.0, sld
+        assert univ.is_name_portfolio(*_split_name(sld))
+
+
+def _split_name(sld):
+    # helper: these all split cleanly as <name>+<suffix> at the known boundary
+    for name in ("julian", "grace"):
+        if sld.startswith(name):
+            return name, sld[len(name):]
+    return sld, ""
+
+
+def test_legit_compounds_not_demoted():
+    # real two-word brandables and name+non-business compounds keep their score.
+    assert univ.quality_zipf("freshcoffee") > 3.0
+    assert univ.quality_zipf("lunchmoney") > 3.0
+    assert univ.quality_zipf("gracewell") > 3.0    # name + non-business word → NOT a portfolio
+    assert univ.quality_zipf("markdown") > 3.0     # name + non-business word
+    assert not univ.is_name_portfolio("fresh", "coffee")
+    assert not univ.is_name_portfolio("grace", "well")
+
+
 def test_max_consonant_run_helper():
     assert univ.max_consonant_run("table") == 2   # 't','bl' → max 2
     assert univ.max_consonant_run("strng") == 5

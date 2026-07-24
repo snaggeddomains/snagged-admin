@@ -83,6 +83,44 @@ def _zipf(word: str) -> float:
     return zipf_frequency(word, "en") if word else 0.0
 
 
+# ── Personal-name portfolio demotion ────────────────────────────────────────
+# A two-word compound whose LEADING half is a common personal first name and whose
+# TRAILING half is a generic company/entity word (julianfirm, juliancorp, gracefinance)
+# is a personal-brand PORTFOLIO name — someone listing <their name> + <business word>
+# permutations — NOT a premium brandable. The compound scorer would otherwise score it
+# like any good two-word .com (both halves are real "words"), so a whole portfolio clears
+# the SNAP quality floor at once (the julian* flood). Detect + demote that shape.
+_NAMES_PATH = os.path.join(os.path.dirname(__file__), "first_names.txt")
+
+
+@lru_cache(maxsize=1)
+def _first_names() -> frozenset:
+    try:
+        with open(_NAMES_PATH, encoding="utf-8") as f:
+            return frozenset(w.strip().lower() for w in f if w.strip())
+    except OSError:
+        return frozenset()
+
+
+# Generic company/entity words = the trailing half of a personal-brand portfolio name.
+BIZ_SUFFIXES = frozenset({
+    "corp", "corporation", "inc", "incorporated", "llc", "llp", "ltd", "co", "company",
+    "group", "holdings", "holding", "ventures", "venture", "capital", "partners", "partner",
+    "associates", "advisors", "advisers", "advisory", "advice", "consulting", "consultants",
+    "consult", "finance", "financial", "enterprises", "enterprise", "industries", "firm",
+    "services", "solutions", "agency", "insights", "board", "global", "worldwide", "brands",
+})
+
+# How hard to demote a name+suffix compound vs the normal COMPOUND_FACTOR. 3.99 ("julian")
+# * 0.15 = 0.60 — below the SNAP quality floor (1.0), so these drop off the SNAP list.
+NAME_SUFFIX_PENALTY = 0.15
+
+
+def is_name_portfolio(left: str, right: str) -> bool:
+    """True if a 2-word split reads as <first name> + <business word>."""
+    return left.lower() in _first_names() and right.lower() in BIZ_SUFFIXES
+
+
 def is_one_or_two_dictionary_words(sld: str, min_zipf: float = DICT_WORD_MIN_ZIPF) -> bool:
     """True if sld is a single dictionary word OR two concatenated dictionary
     words, using wordfreq zipf as the dictionary proxy.
@@ -150,11 +188,19 @@ def quality_zipf(sld: str, raw_zipf: float | None = None, min_zipf: float = DICT
     if z >= min_zipf:
         return z
     best = 0.0
+    best_penalized = False
     for i in range(MIN_HALF_LEN, len(sld) - MIN_HALF_LEN + 1):
-        zl, zr = _zipf(sld[:i]), _zipf(sld[i:])
+        left, right = sld[:i], sld[i:]
+        zl, zr = _zipf(left), _zipf(right)
         if zl >= min_zipf and zr >= min_zipf:
-            best = max(best, min(zl, zr))
-    return best * COMPOUND_FACTOR if best else 0.0
+            val = min(zl, zr)
+            if val > best:
+                best = val
+                # Demote a <first name> + <business word> compound (personal-brand portfolio).
+                best_penalized = is_name_portfolio(left, right)
+    if not best:
+        return 0.0
+    return best * (NAME_SUFFIX_PENALTY if best_penalized else COMPOUND_FACTOR)
 
 
 def count_syllables(sld: str) -> int:

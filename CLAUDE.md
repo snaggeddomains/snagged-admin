@@ -603,6 +603,27 @@ Daily top picks, appraised and ranked, surfaced in Reports → SNAP Opportunitie
 
 ---
 
+# Quality scoring — demote `<first name> + <business word>` portfolios (2026-07-24)
+
+Root fix for the julian* flood (a seller listing `<their name> + <business word>` permutations
+— julianfirm/juliancorp/julianadvice/… — on Efty). The two-word compound scorer `quality_zipf`
+(`filters/universe.py`) rescues real two-word brandables (`lunchmoney`) from a 0 whole-SLD zipf by
+scoring the weaker half; but "julian" is a real token to wordfreq (zipf 3.99), so a personal-brand
+portfolio scored ~3.4 like any good 2-word .com and the whole batch cleared the SNAP floor at once.
+- **`is_name_portfolio(left,right)`** = leading half ∈ a common **first-names** set
+  (`filters/data/first_names.txt`, 6,772 SSA names incl. julian/grace, len≥3, `_first_names()` cached)
+  AND trailing half ∈ **`BIZ_SUFFIXES`** (corp/inc/llc/ventures/finance/firm/services/advisory/…).
+- `quality_zipf` tracks whether the WINNING split is a name-portfolio and, if so, multiplies by
+  **`NAME_SUFFIX_PENALTY` 0.15** instead of `COMPOUND_FACTOR` 0.85 → 3.99×0.15 = **0.60**, below the
+  SNAP quality floor (1.0), so they drop off the SNAP list. Only the business-suffix shape is hit —
+  `gracewell` (name+non-business word) and `markdown` and real compounds (`freshcoffee`) are untouched.
+- **Reaches the display via** `supabase_writer.py` (stored `name_universe.quality_score` = `quality_zipf`
+  × tld_weight) + `backfill_structural.py` (both call `quality_zipf`). So FUTURE ingests store ~0.6;
+  a **structural backfill re-scores existing rows** to purge the current ones (the admin de-flood
+  already hides today's). Tests: `tests/test_universe.py`. Tunable: names file, `BIZ_SUFFIXES`, penalty.
+
+---
+
 # Atom feed — ignore pending-verification (fake) listings (2026-07-24)
 
 Atom's partner feed (`atom_daily`) lets a submitter LIST a name they don't actually own — it
