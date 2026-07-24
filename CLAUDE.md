@@ -559,6 +559,12 @@ Daily top picks, appraised and ranked, surfaced in Reports → SNAP Opportunitie
 - **Daily Slack**: cron `app/api/cron/opportunity-picks` (`vercel.json` `0 13 * * *`) → posts the
   two buckets to their channels + warms the research appraisal cache for the day. `?dry=1` builds
   without posting.
+- **Per-row quick appraisal (2026-07-24).** Every Auctions + Snap row has an **Appraise** button
+  (`AppraiseCell` in `opportunities-client.tsx`) → `GET /api/admin/opportunities/valuate?domain=`
+  (gated `reports.opportunities`) → `valuateDomains([d])` (research `/api/internal/valuate`, cached
+  there) → shows the Appraise.net **value + TLD-demand count** (+band) inline. Cached per-domain in
+  component state (survives filter/sort). POST `{domains}` (≤40) also supported for a future
+  appraise-all. Uses the existing `RESEARCH_INTERNAL_SECRET` — no new env.
 - **Per-publisher Slack routing** (`lib/orchestrator.ts`): `slackAlert(text, channel?)` +
   `slackPost(text, channel?)` (returns `{ok,error}` for diagnostics). Auctions →
   `SLACK_CHANNEL_AUCTIONS`, snap → `SLACK_CHANNEL_SNAP`, client-overlap →

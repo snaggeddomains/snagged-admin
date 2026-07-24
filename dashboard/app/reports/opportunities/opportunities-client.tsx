@@ -55,6 +55,24 @@ function snapLink(domain: string, source: string | null): string {
   return `http://${domain}`;
 }
 const linkBtn: CSSProperties = { display: "inline-block", padding: "3px 11px", borderRadius: 7, background: "var(--navy, #254254)", color: "#fff", fontSize: 12, fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" };
+const apBtn: CSSProperties = { padding: "2px 9px", borderRadius: 7, border: "1px solid #d9d2c2", background: "#fff", color: "var(--navy, #254254)", fontSize: 11.5, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" };
+
+type Val = { appraisalMid: number | null; appraisalLow: number | null; appraisalHigh: number | null; tldCount: number | null; tldBand: string | null };
+type ValState = Val | "loading" | "error" | undefined;
+
+// Quick-click appraisal + TLD-demand for one row. Click → fetch Appraise.net value + TLD count
+// from the research app (cached there, so re-views are cheap), shown inline.
+function AppraiseCell({ domain, val, onAppraise }: { domain: string; val: ValState; onAppraise: (d: string) => void }) {
+  if (val === "loading") return <span className="muted" style={{ fontSize: 12 }}>appraising…</span>;
+  if (val === undefined || val === "error")
+    return <button style={apBtn} onClick={() => onAppraise(domain)} title="Get Appraise.net value + TLD count">{val === "error" ? "retry" : "Appraise"}</button>;
+  return (
+    <span style={{ fontSize: 12, whiteSpace: "nowrap" }} title={val.appraisalLow != null && val.appraisalHigh != null ? `Range ${usd(val.appraisalLow)}–${usd(val.appraisalHigh)}` : undefined}>
+      <b style={{ color: "var(--green-deep, #2f7d4f)" }}>{val.appraisalMid != null ? usd(val.appraisalMid) : "n/a"}</b>
+      {val.tldCount != null ? <span className="muted"> · {val.tldCount} TLD{val.tldCount === 1 ? "" : "s"}{val.tldBand ? ` (${val.tldBand})` : ""}</span> : null}
+    </span>
+  );
+}
 
 function countdown(end: string | null, now: number): { text: string; soon: boolean; ended: boolean } {
   if (!end) return { text: "—", soon: false, ended: false };
@@ -289,6 +307,18 @@ export default function OpportunitiesClient() {
   // while the ~10 appraisals run in the research app.
   const [picks, setPicks] = useState<PicksReport | null>(null);
   const [picksLoading, setPicksLoading] = useState(false);
+  const [vals, setVals] = useState<Record<string, ValState>>({});
+
+  // Quick per-row appraisal — fetch once per domain, cache in state (survives filtering/sorting).
+  const appraise = useCallback(async (domain: string) => {
+    setVals((v) => (v[domain] && v[domain] !== "error" ? v : { ...v, [domain]: "loading" }));
+    try {
+      const res = await fetch(`/api/admin/opportunities/valuate?domain=${encodeURIComponent(domain)}`, { cache: "no-store" });
+      const j = await res.json();
+      if (!res.ok || j.ok === false) throw new Error(j.error || `HTTP ${res.status}`);
+      setVals((v) => ({ ...v, [domain]: (j.valuation as Val) || { appraisalMid: null, appraisalLow: null, appraisalHigh: null, tldCount: null, tldBand: null } }));
+    } catch { setVals((v) => ({ ...v, [domain]: "error" })); }
+  }, []);
   useEffect(() => {
     let cancelled = false;
     setPicksLoading(true);
@@ -349,6 +379,7 @@ export default function OpportunitiesClient() {
                   <SortHeader label="Quality" k="quality" sort={aucSort} setSort={setAucSort} />
                   <SortHeader label="Ends in" k="ends" sort={aucSort} setSort={setAucSort} />
                   <SortHeader label="Source" k="source" sort={aucSort} setSort={setAucSort} />
+                  <th style={{ padding: "0 16px 4px 0" }}>Appraisal</th>
                   <th></th>
                 </tr></thead>
                 <tbody>
@@ -360,6 +391,7 @@ export default function OpportunitiesClient() {
                       <td><QualityCell q={a.quality_score} /></td>
                       <td><CountdownBadge end={a.endTimeUtc} now={now} />{a.bidCount != null ? <span className="muted" style={{ fontSize: 11, marginLeft: 8 }}>{a.bidCount} bid{a.bidCount === 1 ? "" : "s"}</span> : null}</td>
                       <td><SourcePill source={a.source} />{a.altSources && a.altSources.length > 0 ? <span className="muted" style={{ fontSize: 11, marginLeft: 6, whiteSpace: "nowrap" }} title={`Also on ${a.altSources.map((s) => sourceDisplay(s).name).join(", ")}`}>+{a.altSources.length}</span> : null}</td>
+                      <td><AppraiseCell domain={a.domain} val={vals[a.domain]} onAppraise={appraise} /></td>
                       <td className="right">{a.link ? <a href={a.link} target="_blank" rel="noreferrer" style={linkBtn}>Bid →</a> : null}</td>
                     </tr>
                   ))}
@@ -380,6 +412,7 @@ export default function OpportunitiesClient() {
                   <SortHeader label="Price" k="price" sort={snapSort} setSort={setSnapSort} align="right" />
                   <SortHeader label="Quality" k="quality" sort={snapSort} setSort={setSnapSort} />
                   <SortHeader label="Source" k="source" sort={snapSort} setSort={setSnapSort} />
+                  <th style={{ padding: "0 16px 4px 0" }}>Appraisal</th>
                   <th></th>
                 </tr></thead>
                 <tbody>
@@ -390,6 +423,7 @@ export default function OpportunitiesClient() {
                       <td className="right">{usd(d.price)}</td>
                       <td><QualityCell q={d.quality_score} /></td>
                       <td><SourcePill source={d.source} /></td>
+                      <td><AppraiseCell domain={d.domain} val={vals[d.domain]} onAppraise={appraise} /></td>
                       <td className="right"><a href={snapLink(d.domain, d.source)} target="_blank" rel="noreferrer" style={linkBtn}>View →</a></td>
                     </tr>
                   ))}
