@@ -1,26 +1,54 @@
 [
   {
+    "domain": "ugandas.com",
+    "price": 2495.0
+  },
+  {
     "domain": "showrom.com",
     "price": 2288.0
   },
   {
-    "domain": "bailie.com",
-    "price": 162977.0
+    "domain": "peso.com",
+    "price": null
+  },
+  {
+    "domain": "mud.com",
+    "price": null
+  },
+  {
+    "domain": "dispensed.ai",
+    "price": 9799.0
+  },
+  {
+    "domain": "turning.net",
+    "price": 1750.0
   },
   {
     "domain": "embraces.net",
     "price": 2488.0
   },
   {
+    "domain": "exertion.net",
+    "price": 2988.0
+  },
+  {
     "domain": "slums.net",
     "price": 1688.0
   },
   {
-    "domain": "whitehawk.co",
-    "price": 250.0
+    "domain": "integrales.net",
+    "price": null
   },
   {
-    "domain": "msa.co",
-    "price": 57500.0
+    "domain": "fbi.net",
+    "price": 13286.0
+  },
+  {
+    "domain": "connaught.co",
+    "price": null
+  },
+  {
+    "domain": "whitehawk.co",
+    "price": 250.0
   }
 ]
