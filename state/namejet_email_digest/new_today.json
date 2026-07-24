@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-24T15:04:40.272695+00:00",
+  "count": 1,
+  "domains": [
+    "appreciate.org"
+  ],
+  "generated_at": "2026-07-24T15:05:27.425987+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
