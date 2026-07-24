@@ -574,6 +574,14 @@ Daily top picks, appraised and ranked, surfaced in Reports → SNAP Opportunitie
 - **Daily Slack**: cron `app/api/cron/opportunity-picks` (`vercel.json` `0 13 * * *`) → posts the
   two buckets to their channels + warms the research appraisal cache for the day. `?dry=1` builds
   without posting.
+- **Single-seller portfolio de-flood (2026-07-24).** One owner listing `<name>+word` permutations
+  (e.g. julianadvice/julianpartners/juliancorp… from the Efty Partner feed, all unpriced) was
+  flooding the SNAP list. `defloodSnap()` in `lib/opportunities.ts` clusters UNPRICED names within a
+  source by their leading token (first 5 chars of the SLD); a cluster of ≥5 keeps only the top 3 by
+  quality and drops the rest. Priced names are never touched. Report carries `snapCollapsed`; the Snap
+  header shows "· N portfolio dupes hidden" (non-silent). Display-layer only (doesn't touch
+  state/universe) so it's immediate + affects the SNAP screen + Worth-a-look. Tunable: MIN_PREFIX 5 /
+  FLOOD 5 / CAP 3.
 - **Per-row quick appraisal (2026-07-24).** Every Auctions + Snap row has an **Appraise** button
   (`AppraiseCell` in `opportunities-client.tsx`) → `GET /api/admin/opportunities/valuate?domain=`
   (gated `reports.opportunities`) → `valuateDomains([d])` (research `/api/internal/valuate`, cached

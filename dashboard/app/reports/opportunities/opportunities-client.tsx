@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState, type CSSProperties } from "react";
 
 type SnapOpp = { domain: string; quality_score: number | null; category: string | null; enriched: boolean; price: number | null; best_price_source: string | null; num_words: number | null; is_mub: boolean | null; source: string };
 type AucOpp = { domain: string; price: number | null; endTimeUtc: string | null; bidCount: number | null; link: string | null; quality_score: number | null; num_words: number | null; is_mub: boolean | null; source: string; altSources?: string[] };
-type Report = { snap: SnapOpp[]; auctions: AucOpp[]; snapSources: number; auctionSources: number; generatedAt: string };
+type Report = { snap: SnapOpp[]; auctions: AucOpp[]; snapSources: number; auctionSources: number; snapCollapsed?: number; generatedAt: string };
 type Pick = { domain: string; bucket: "snap" | "auction"; source: string; link: string | null; cost: number | null; quality_score: number | null; is_mub: boolean | null; endTimeUtc?: string | null; appraisalMid: number | null; tldCount: number | null; tldBand: string | null; ratio: number | null };
 type PicksReport = { snap: Pick[]; auctions: Pick[]; valued: boolean; generatedAt: string };
 
@@ -401,7 +401,7 @@ export default function OpportunitiesClient() {
           </section>
 
           <section style={{ marginTop: 28 }}>
-            <h2 style={{ fontSize: 17 }}>Snap <span className="muted" style={{ fontWeight: 400, fontSize: 13 }}>· {snapShown.length.toLocaleString()} {filtersActive(filters) ? "match" : "new today"} (quality ≥ {BASE_FLOOR.toFixed(1)}, ≥ {XYZ_FLOOR.toFixed(1)} for .xyz) · {report.snapSources} sources</span></h2>
+            <h2 style={{ fontSize: 17 }}>Snap <span className="muted" style={{ fontWeight: 400, fontSize: 13 }}>· {snapShown.length.toLocaleString()} {filtersActive(filters) ? "match" : "new today"} (quality ≥ {BASE_FLOOR.toFixed(1)}, ≥ {XYZ_FLOOR.toFixed(1)} for .xyz) · {report.snapSources} sources{report.snapCollapsed ? ` · ${report.snapCollapsed} portfolio dupes hidden` : ""}</span></h2>
             {report.snap.length === 0 ? <p className="muted">No new SNAP candidates today.</p> : snapShown.length === 0 ? (
               <p className="muted">{filtersActive(filters) ? "No names match these filters." : "No names clear today’s quality floor."}</p>
             ) : (
