@@ -1,20 +1,17 @@
 {
   "capped": false,
-  "count": 9,
+  "count": 8,
   "domains": [
-    "nfluence.com",
-    "kpost.com",
-    "uprize.com",
     "rulio.com",
+    "crossbowmen.com",
+    "poligo.com",
     "motivy.com",
     "puar.com",
     "rayons.com",
     "bxno.com",
     "copax.com"
   ],
-  "generated_at": "2026-07-23T09:42:32.679291+00:00",
-  "mub": [
-    "uprize.com"
-  ],
+  "generated_at": "2026-07-24T09:43:22.707915+00:00",
+  "mub": [],
   "source": "dropcatch_auctions"
 }

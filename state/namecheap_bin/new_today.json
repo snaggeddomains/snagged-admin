@@ -1,8 +1,11 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-23T09:02:52.583060+00:00",
+  "count": 2,
+  "domains": [
+    "altruistic.ai",
+    "woof.ai"
+  ],
+  "generated_at": "2026-07-24T09:03:35.957532+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

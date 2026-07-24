@@ -1,5 +1,189 @@
 [
   {
+    "domain": "ottoinsights.com",
+    "price": null
+  },
+  {
+    "domain": "julianinsights.com",
+    "price": null
+  },
+  {
+    "domain": "ottostrategies.com",
+    "price": null
+  },
+  {
+    "domain": "ottoleadership.com",
+    "price": null
+  },
+  {
+    "domain": "ottocompany.com",
+    "price": null
+  },
+  {
+    "domain": "juliancompany.com",
+    "price": null
+  },
+  {
+    "domain": "ottoenterprise.com",
+    "price": null
+  },
+  {
+    "domain": "ottobiz.com",
+    "price": null
+  },
+  {
+    "domain": "julianbiz.com",
+    "price": null
+  },
+  {
+    "domain": "ottoadvice.com",
+    "price": null
+  },
+  {
+    "domain": "julianadvice.com",
+    "price": null
+  },
+  {
+    "domain": "ottoassociates.com",
+    "price": null
+  },
+  {
+    "domain": "ottofirm.com",
+    "price": null
+  },
+  {
+    "domain": "julianfirm.com",
+    "price": null
+  },
+  {
+    "domain": "ottoservices.com",
+    "price": null
+  },
+  {
+    "domain": "julianservices.com",
+    "price": null
+  },
+  {
+    "domain": "ottocorporate.com",
+    "price": null
+  },
+  {
+    "domain": "ottooperations.com",
+    "price": null
+  },
+  {
+    "domain": "ottogovernance.com",
+    "price": null
+  },
+  {
+    "domain": "ottoboard.com",
+    "price": null
+  },
+  {
+    "domain": "julianboard.com",
+    "price": null
+  },
+  {
+    "domain": "ottomanagement.com",
+    "price": null
+  },
+  {
+    "domain": "ottoventures.com",
+    "price": null
+  },
+  {
+    "domain": "julianventures.com",
+    "price": null
+  },
+  {
+    "domain": "ottopartners.com",
+    "price": null
+  },
+  {
+    "domain": "julianpartners.com",
+    "price": null
+  },
+  {
+    "domain": "ottoadvisors.com",
+    "price": null
+  },
+  {
+    "domain": "julianadvisors.com",
+    "price": null
+  },
+  {
+    "domain": "ottocorp.com",
+    "price": null
+  },
+  {
+    "domain": "juliancorp.com",
+    "price": null
+  },
+  {
+    "domain": "ottoglobal.com",
+    "price": null
+  },
+  {
+    "domain": "julianglobal.com",
+    "price": null
+  },
+  {
+    "domain": "ottostrategic.com",
+    "price": null
+  },
+  {
+    "domain": "ottofinance.com",
+    "price": null
+  },
+  {
+    "domain": "julianfinance.com",
+    "price": null
+  },
+  {
+    "domain": "ottoconsult.com",
+    "price": null
+  },
+  {
+    "domain": "julianconsult.com",
+    "price": null
+  },
+  {
+    "domain": "ottocapital.com",
+    "price": null
+  },
+  {
+    "domain": "julianadvisory.com",
+    "price": null
+  },
+  {
+    "domain": "ottoadvisory.com",
+    "price": null
+  },
+  {
+    "domain": "julianaret.com",
+    "price": null
+  },
+  {
+    "domain": "ottojulian.com",
+    "price": null
+  },
+  {
+    "domain": "julianotto.com",
+    "price": null
+  },
+  {
+    "domain": "joejock.com",
+    "price": 320000.0
+  },
+  {
+    "domain": "contractable.com",
+    "price": null
+  },
+  {
+    "domain": "spygeek.xyz",
+    "price": 7500.0
+  },
+  {
     "domain": "mailingtape.com",
     "price": null
   },
@@ -1297,7 +1481,7 @@
   },
   {
     "domain": "buydomains.xyz",
-    "price": 10500.0
+    "price": null
   },
   {
     "domain": "firstsighting.com",
@@ -74953,7 +75137,7 @@
   },
   {
     "domain": "investingangel.com",
-    "price": 5499.0
+    "price": 2499.0
   },
   {
     "domain": "turkishport.com",
@@ -75845,7 +76029,7 @@
   },
   {
     "domain": "maritimeegypt.com",
-    "price": null
+    "price": 2999.0
   },
   {
     "domain": "sweaty.com",
@@ -75869,11 +76053,11 @@
   },
   {
     "domain": "chiprip.com",
-    "price": 4888.0
+    "price": 1999.0
   },
   {
     "domain": "bestbullies.com",
-    "price": 1499.0
+    "price": 2499.0
   },
   {
     "domain": "registrarflow.com",
@@ -78437,7 +78621,7 @@
   },
   {
     "domain": "agentsroot.com",
-    "price": 2995.0
+    "price": 1300.0
   },
   {
     "domain": "chatbuilt.com",
@@ -98073,7 +98257,7 @@
   },
   {
     "domain": "geminiintel.com",
-    "price": 4888.0
+    "price": 9888.0
   },
   {
     "domain": "wonderintel.com",
@@ -120825,7 +121009,7 @@
   },
   {
     "domain": "classicsec.com",
-    "price": 2977.0
+    "price": 1977.0
   },
   {
     "domain": "divasec.com",
@@ -120877,11 +121061,11 @@
   },
   {
     "domain": "sonicsec.com",
-    "price": 2977.0
+    "price": 9888.0
   },
   {
     "domain": "voxsec.com",
-    "price": 2977.0
+    "price": 9888.0
   },
   {
     "domain": "stockspal.com",
@@ -121597,7 +121781,7 @@
   },
   {
     "domain": "phiinvest.com",
-    "price": 1977.0
+    "price": 9888.0
   },
   {
     "domain": "poseidonteam.com",
@@ -125281,7 +125465,7 @@
   },
   {
     "domain": "bisonplus.com",
-    "price": 1977.0
+    "price": 9888.0
   },
   {
     "domain": "argosland.com",
@@ -144141,7 +144325,7 @@
   },
   {
     "domain": "siriuscentre.com",
-    "price": 2977.0
+    "price": 1977.0
   },
   {
     "domain": "senseintl.com",
@@ -150565,7 +150749,7 @@
   },
   {
     "domain": "eclipsehire.com",
-    "price": 4888.0
+    "price": 1977.0
   },
   {
     "domain": "odysseyhire.com",
@@ -279392,10 +279576,6 @@
     "price": 15000.0
   },
   {
-    "domain": "goosebrand.com",
-    "price": 15000.0
-  },
-  {
     "domain": "glacierbrand.com",
     "price": 15000.0
   },
@@ -279466,10 +279646,6 @@
   {
     "domain": "dallasbrand.com",
     "price": 15000.0
-  },
-  {
-    "domain": "crimsonbrand.com",
-    "price": 7800.0
   },
   {
     "domain": "coolsweden.com",
@@ -280732,10 +280908,6 @@
     "price": 7800.0
   },
   {
-    "domain": "capebrand.com",
-    "price": 15000.0
-  },
-  {
     "domain": "burmabrand.com",
     "price": 15000.0
   },
@@ -280886,10 +281058,6 @@
   {
     "domain": "perthtower.com",
     "price": 15000.0
-  },
-  {
-    "domain": "palmbrand.com",
-    "price": 7800.0
   },
   {
     "domain": "nordicloud.com",
@@ -295365,7 +295533,7 @@
   },
   {
     "domain": "mortgagenevada.com",
-    "price": 1495.0
+    "price": 2500.0
   },
   {
     "domain": "louisianamoves.com",
@@ -295405,7 +295573,7 @@
   },
   {
     "domain": "honoluludining.com",
-    "price": null
+    "price": 1500.0
   },
   {
     "domain": "homesmilwaukee.com",
@@ -295473,7 +295641,7 @@
   },
   {
     "domain": "brazilwine.com",
-    "price": 1495.0
+    "price": 1500.0
   },
   {
     "domain": "brazilrental.com",
@@ -295605,7 +295773,7 @@
   },
   {
     "domain": "laserseattle.com",
-    "price": 1495.0
+    "price": 1500.0
   },
   {
     "domain": "indiavisit.com",
@@ -295625,7 +295793,7 @@
   },
   {
     "domain": "hawaiidining.com",
-    "price": null
+    "price": 1500.0
   },
   {
     "domain": "francerooms.com",
@@ -351352,31 +351520,7 @@
     "price": null
   },
   {
-    "domain": "stakeholes.com",
-    "price": null
-  },
-  {
-    "domain": "residencyhacks.com",
-    "price": null
-  },
-  {
-    "domain": "pediatricheart.net",
-    "price": null
-  },
-  {
-    "domain": "holidaysales.org",
-    "price": null
-  },
-  {
     "domain": "diabetesannex.com",
-    "price": null
-  },
-  {
-    "domain": "phdwriters.co",
-    "price": null
-  },
-  {
-    "domain": "medicalwriters.co",
     "price": null
   },
   {
@@ -351393,18 +351537,6 @@
   },
   {
     "domain": "unclerich.com",
-    "price": null
-  },
-  {
-    "domain": "pawnhoof.com",
-    "price": null
-  },
-  {
-    "domain": "nicheprinter.net",
-    "price": null
-  },
-  {
-    "domain": "nicheprinter.com",
     "price": null
   },
   {
@@ -351517,7 +351649,7 @@
   },
   {
     "domain": "maxblockchain.com",
-    "price": 24500.0
+    "price": 49888.0
   },
   {
     "domain": "uavdetector.com",
