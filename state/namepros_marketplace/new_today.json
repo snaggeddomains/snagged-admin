@@ -1,11 +1,10 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 1,
   "domains": [
-    "chime.co",
-    "volt.co"
+    "outpace.co"
   ],
-  "generated_at": "2026-07-25T17:05:53.959342+00:00",
+  "generated_at": "2026-07-25T23:05:52.097544+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
