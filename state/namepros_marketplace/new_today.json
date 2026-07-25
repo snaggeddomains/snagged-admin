@@ -1,18 +1,11 @@
 {
   "capped": false,
-  "count": 9,
+  "count": 2,
   "domains": [
-    "8886.io",
-    "aoi.xyz",
-    "examine.co",
-    "g.net",
-    "gesture.com",
-    "karla.com",
-    "proton.co",
-    "reserve.co",
-    "stork.me"
+    "chime.co",
+    "volt.co"
   ],
-  "generated_at": "2026-07-25T10:06:10.560862+00:00",
+  "generated_at": "2026-07-25T17:05:53.959342+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
