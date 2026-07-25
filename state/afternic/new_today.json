@@ -1,19 +1,12 @@
 {
   "capped": false,
-  "count": 10,
+  "count": 3,
   "domains": [
-    "crenshaw.co",
-    "leaving.io",
-    "located.co",
-    "apparently.io",
-    "but.net",
-    "considering.com",
-    "claimed.com",
-    "determined.com",
-    "conflict.com",
-    "distribution.com"
+    "skeletal.co",
+    "released.com",
+    "material.com"
   ],
-  "generated_at": "2026-07-24T08:18:00.065142+00:00",
+  "generated_at": "2026-07-25T08:17:49.935440+00:00",
   "mub": [],
   "source": "afternic"
 }
