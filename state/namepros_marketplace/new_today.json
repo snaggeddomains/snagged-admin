@@ -1,15 +1,18 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 9,
   "domains": [
-    "goody.co",
-    "income.to",
-    "kinder.co",
-    "onward.co",
-    "pledge.co",
-    "polar.co"
+    "8886.io",
+    "aoi.xyz",
+    "examine.co",
+    "g.net",
+    "gesture.com",
+    "karla.com",
+    "proton.co",
+    "reserve.co",
+    "stork.me"
   ],
-  "generated_at": "2026-07-24T23:07:15.974932+00:00",
+  "generated_at": "2026-07-25T10:06:10.560862+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
