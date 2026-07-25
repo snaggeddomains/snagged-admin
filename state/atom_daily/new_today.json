@@ -1,21 +1,19 @@
 {
   "capped": false,
-  "count": 9,
+  "count": 10,
   "domains": [
-    "hayes.com",
-    "black.co",
-    "red.co",
-    "summon.ai",
-    "yorker.ai",
-    "lemon.co",
-    "lifes.ai",
-    "ceremonies.co",
-    "bottles.org"
+    "shout.ai",
+    "electron.ai",
+    "combo.ai",
+    "losing.io",
+    "allegiance.ai",
+    "tortillas.com",
+    "clique.ai",
+    "supernova.ai",
+    "disturb.co",
+    "breeding.org"
   ],
-  "generated_at": "2026-07-24T09:22:58.582976+00:00",
-  "mub": [
-    "rita.com",
-    "hove.com"
-  ],
+  "generated_at": "2026-07-25T09:22:59.950261+00:00",
+  "mub": [],
   "source": "atom_daily"
 }

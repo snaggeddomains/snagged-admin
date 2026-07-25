@@ -1,91 +1,28 @@
 [
   {
-    "bid_count": 15,
-    "domain": "purq.com",
-    "end_time_utc": "2026-07-24T16:22:00+00:00",
+    "bid_count": 22,
+    "domain": "hyzn.com",
+    "end_time_utc": "2026-07-25T16:22:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/purq-com-714203007?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/hyzn-com-714355905?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 455.0
-  },
-  {
-    "bid_count": 11,
-    "domain": "happet.com",
-    "end_time_utc": "2026-07-24T16:29:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/happet-com-714220708?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 100.0
-  },
-  {
-    "bid_count": 9,
-    "domain": "kacr.com",
-    "end_time_utc": "2026-07-24T16:50:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/kacr-com-714221195?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 237.0
-  },
-  {
-    "bid_count": 10,
-    "domain": "tweets.org",
-    "end_time_utc": "2026-07-24T17:19:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/tweets-org-714031418?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 50.0
-  },
-  {
-    "bid_count": 58,
-    "domain": "riggs.com",
-    "end_time_utc": "2026-07-24T18:05:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/riggs-com-714205637?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 6300.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "committees.co",
-    "end_time_utc": "2026-07-24T19:08:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/committees-co-714186983?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "backhand.co",
-    "end_time_utc": "2026-07-24T19:12:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/backhand-co-714196291?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "migrants.co",
-    "end_time_utc": "2026-07-24T19:20:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/migrants-co-714216477?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1.0
+    "price": 160.0
   },
   {
     "bid_count": 12,
-    "domain": "redefine.net",
-    "end_time_utc": "2026-07-24T20:35:00+00:00",
+    "domain": "kula.io",
+    "end_time_utc": "2026-07-25T18:42:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/redefine-net-714205843?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/kula-io-714369945?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 93.0
+    "price": 227.0
   },
   {
     "bid_count": 0,
-    "domain": "committees.io",
-    "end_time_utc": "2026-07-24T21:28:00+00:00",
+    "domain": "swordsman.co",
+    "end_time_utc": "2026-07-25T21:18:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/committees-io-714187860?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/swordsman-co-714403428?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
     "price": 1.0
   }

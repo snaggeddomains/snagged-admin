@@ -1,17 +1,18 @@
 {
   "capped": false,
-  "count": 8,
+  "count": 9,
   "domains": [
-    "rulio.com",
-    "crossbowmen.com",
-    "poligo.com",
-    "motivy.com",
     "puar.com",
     "rayons.com",
     "bxno.com",
-    "copax.com"
+    "scoor.com",
+    "zfaq.com",
+    "ironmat.com",
+    "copax.com",
+    "kweek.com",
+    "makings.com"
   ],
-  "generated_at": "2026-07-24T09:43:22.707915+00:00",
+  "generated_at": "2026-07-25T09:42:43.242269+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }
