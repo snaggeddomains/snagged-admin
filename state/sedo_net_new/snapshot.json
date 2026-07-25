@@ -1,33 +1,6 @@
 [
   {
     "currency": "USD",
-    "domain": "artiste.ai",
-    "end_time_utc": "2026-07-25T13:00:12+00:00",
-    "is_mub": false,
-    "price": null,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=artiste.ai"
-  },
-  {
-    "currency": "EUR",
-    "domain": "tinker.ai",
-    "end_time_utc": "2026-07-25T12:53:10+00:00",
-    "is_mub": false,
-    "price": 2000000.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=tinker.ai"
-  },
-  {
-    "currency": "USD",
-    "domain": "armed.ai",
-    "end_time_utc": "2026-07-25T07:11:43+00:00",
-    "is_mub": false,
-    "price": 69995.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=armed.ai"
-  },
-  {
-    "currency": "USD",
     "domain": "discreetly.ai",
     "end_time_utc": "2026-07-25T13:30:25+00:00",
     "is_mub": false,
