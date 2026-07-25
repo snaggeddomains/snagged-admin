@@ -4,10 +4,6 @@
     "price": 10795.0
   },
   {
-    "domain": "collieries.com",
-    "price": 3497.0
-  },
-  {
     "domain": "policysend.com",
     "price": 995.0
   },
@@ -16,8 +12,20 @@
     "price": 19995.0
   },
   {
+    "domain": "tinker.ai",
+    "price": 2000000.0
+  },
+  {
     "domain": "armed.ai",
     "price": 69995.0
+  },
+  {
+    "domain": "discreetly.ai",
+    "price": 79000.0
+  },
+  {
+    "domain": "cooing.net",
+    "price": 300.0
   },
   {
     "domain": "sociales.net",
@@ -40,12 +48,12 @@
     "price": 695.0
   },
   {
-    "domain": "helpdesk.co",
-    "price": 2988.0
-  },
-  {
     "domain": "orijin.co",
     "price": 3000.0
+  },
+  {
+    "domain": "homeelectric.net",
+    "price": 2500.0
   },
   {
     "domain": "shipbuilding.net",
