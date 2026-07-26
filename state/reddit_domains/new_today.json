@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-26T17:00:55.172616+00:00",
+  "count": 1,
+  "domains": [
+    "keanu.com"
+  ],
+  "generated_at": "2026-07-26T23:01:00.828609+00:00",
   "mub": [],
   "source": "reddit_domains"
 }
