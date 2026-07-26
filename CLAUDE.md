@@ -113,6 +113,15 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
   - **Convert drops the inquiry immediately.** `inquiries-client.tsx` `onDone` now optimistically
     removes the converted row from the queue (server already auto-dismisses it) instead of leaving
     it as "Added — open" until a manual refresh — unless "Show dismissed" is on.
+  - **Dossier convert also dismisses + converted inquiries self-hide (2026-07-24).** A deal created
+    from the research **lead dossier** ("Add to deal" → internal `/api/internal/pipedrive-deal`) now
+    calls `setInquiryDismissed(leadKey,…)` after `createDeal` — same as the in-app triage convert —
+    so it drops off the Buy-Side Inquiries queue + the Inbox pointer count (it previously only did
+    this on the triage-tab convert, so a dossier-created deal like catalist.com lingered in the
+    queue). Belt-and-suspenders: `listBuyInquiries` now also EXCLUDES any inquiry whose `lead_key`
+    already has a deal (`deals.lead_key` lookup, active view only, fail-open) — so an inquiry that's
+    been converted by ANY path self-hides even if the dismiss flag wasn't set (fixes existing rows
+    without a DB write). `countBuyInquiries` inherits the filter → the Inbox count stays accurate.
   - **Buyer-name typeahead (returning clients).** New-deal modal buyer-name field type-aheads
     against prior deals: `GET /api/admin/deals?buyers=<q>` → `searchBuyers` (store.ts, distinct
     known buyers by name/email ilike) → pick fills buyer name/email/company. No new table/env.

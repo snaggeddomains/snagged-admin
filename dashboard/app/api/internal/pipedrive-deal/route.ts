@@ -7,6 +7,7 @@
 
 import { NextResponse, type NextRequest } from "next/server";
 import { createDeal, findDealByDomain, type CreateDealInput } from "@/lib/deals/store";
+import { setInquiryDismissed } from "@/lib/inquiries";
 import { notifyAssignment, dealUrl } from "@/lib/deals/notify";
 import { SOURCES } from "@/lib/deals/stages";
 import { assignableUsers } from "@/lib/deals/assignees";
@@ -65,6 +66,12 @@ export async function POST(req: NextRequest) {
 
   try {
     const { deal, created } = await createDeal(input);
+    // Converting the inquiry into a deal (from the research lead dossier) resolves it — auto-dismiss
+    // the source lead so it drops off the Buy-Side Inquiries queue + the Inbox pointer count, the
+    // same as the in-app triage convert. Best-effort; keyed off the lead_key the dossier passes.
+    if (input.leadKey) {
+      try { await setInquiryDismissed(input.leadKey, true, deal.owner_email || "research-dossier"); } catch { /* non-fatal */ }
+    }
     const notified = created && deal.owner_email ? await notifyAssignment(deal) : false;
     return NextResponse.json({ ok: true, dealId: deal.id, created, url: dealUrl(deal.id), notified });
   } catch (e) {

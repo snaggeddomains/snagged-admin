@@ -152,6 +152,19 @@ export async function listBuyInquiries({ limit = 100, includeSell = false, inclu
   inquiries = includeSell
     ? inquiries.filter((i) => i.isBuySide || i.domains.length > 0)
     : inquiries.filter((i) => i.isBuySide);
+  // Hide inquiries already CONVERTED to a deal (a deal carries this lead_key) — the queue is for
+  // not-yet-triaged leads, so once a deal exists it should drop off (and out of the Inbox count),
+  // even if the convert path didn't set the dismiss flag (e.g. an older dossier convert). Best-effort.
+  if (!includeDismissed) {
+    const keys = [...new Set(inquiries.map((i) => i.leadKey).filter(Boolean))];
+    if (keys.length) {
+      try {
+        const { data: deals } = await getDb().from("deals").select("lead_key").in("lead_key", keys);
+        const converted = new Set((deals as { lead_key?: string }[] || []).map((d) => String(d.lead_key || "")).filter(Boolean));
+        if (converted.size) inquiries = inquiries.filter((i) => !converted.has(i.leadKey));
+      } catch { /* deals table absent / query failed — leave the list as-is */ }
+    }
+  }
   return { configured: true, inquiries };
 }
 
