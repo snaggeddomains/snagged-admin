@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-25T09:03:06.581094+00:00",
+  "count": 1,
+  "domains": [
+    "picture.co"
+  ],
+  "generated_at": "2026-07-26T09:04:00.466618+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

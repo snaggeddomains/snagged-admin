@@ -1,29 +1,83 @@
 [
   {
-    "bid_count": 22,
-    "domain": "hyzn.com",
-    "end_time_utc": "2026-07-25T16:22:00+00:00",
+    "bid_count": 24,
+    "domain": "luge.org",
+    "end_time_utc": "2026-07-26T16:41:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/hyzn-com-714355905?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/luge-org-713085271?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 160.0
+    "price": 310.0
   },
   {
-    "bid_count": 12,
-    "domain": "kula.io",
-    "end_time_utc": "2026-07-25T18:42:00+00:00",
+    "bid_count": 7,
+    "domain": "sejn.com",
+    "end_time_utc": "2026-07-26T16:47:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/kula-io-714369945?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/sejn-com-714514284?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 227.0
+    "price": 120.0
+  },
+  {
+    "bid_count": 43,
+    "domain": "nitros.com",
+    "end_time_utc": "2026-07-26T16:54:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/nitros-com-714515175?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 4550.0
   },
   {
     "bid_count": 0,
-    "domain": "swordsman.co",
-    "end_time_utc": "2026-07-25T21:18:00+00:00",
+    "domain": "handouts.org",
+    "end_time_utc": "2026-07-26T18:03:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/swordsman-co-714403428?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/handouts-org-714384267?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
     "price": 1.0
+  },
+  {
+    "bid_count": 49,
+    "domain": "entic.com",
+    "end_time_utc": "2026-07-26T19:15:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/entic-com-714494052?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 910.0
+  },
+  {
+    "bid_count": 77,
+    "domain": "ryu.com",
+    "end_time_utc": "2026-07-26T19:30:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/ryu-com-714526468?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 48550.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "estimates.co",
+    "end_time_utc": "2026-07-26T20:21:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/estimates-co-714515886?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 1.0
+  },
+  {
+    "bid_count": 9,
+    "domain": "gpuz.com",
+    "end_time_utc": "2026-07-26T20:53:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/gpuz-com-714501687?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 145.0
+  },
+  {
+    "bid_count": 25,
+    "domain": "fhcc.com",
+    "end_time_utc": "2026-07-26T21:15:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/fhcc-com-714526466?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 810.0
   }
 ]

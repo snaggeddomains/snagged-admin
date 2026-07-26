@@ -1,19 +1,16 @@
 {
   "capped": false,
-  "count": 10,
+  "count": 7,
   "domains": [
-    "shout.ai",
-    "electron.ai",
-    "combo.ai",
-    "losing.io",
-    "allegiance.ai",
-    "tortillas.com",
-    "clique.ai",
-    "supernova.ai",
-    "disturb.co",
-    "breeding.org"
+    "sustainable.com",
+    "protocol.com",
+    "prima.com",
+    "digestion.ai",
+    "pooch.ai",
+    "faucet.co",
+    "roadways.co"
   ],
-  "generated_at": "2026-07-25T09:22:59.950261+00:00",
+  "generated_at": "2026-07-26T09:24:19.264551+00:00",
   "mub": [],
   "source": "atom_daily"
 }

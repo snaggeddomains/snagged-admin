@@ -1,12 +1,12 @@
 [
   {
-    "bid_count": 52,
+    "bid_count": 64,
     "domain": "nitso.com",
     "end_time_utc": "2026-07-26T20:00:00+00:00",
     "is_mub": false,
     "link": null,
     "platform": "Park.io",
-    "price": 337.53
+    "price": 640.66
   },
   {
     "bid_count": 2,

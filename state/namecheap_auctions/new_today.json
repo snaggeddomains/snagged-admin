@@ -1,24 +1,27 @@
 {
   "capped": false,
-  "count": 13,
+  "count": 18,
   "domains": [
-    "mogadishu.ai",
-    "wedlock.ai",
-    "stole.io",
-    "hwang.co",
-    "leicester.io",
-    "intractable.ai",
-    "yearly.io",
-    "drado.com",
-    "proves.ai",
-    "beastie.ai",
-    "hester.ai",
-    "liabilities.ai",
-    "natives.ai"
+    "macklemore.org",
+    "bayley.ai",
+    "tupac.ai",
+    "wheelchairs.ai",
+    "fpost.com",
+    "xdepot.com",
+    "beverley.org",
+    "dilute.ai",
+    "sociopath.ai",
+    "uneasy.ai",
+    "fala.ai",
+    "strictly.org",
+    "varies.co",
+    "appreciates.org",
+    "unrest.co",
+    "cellulite.ai",
+    "impersonation.ai",
+    "mortals.ai"
   ],
-  "generated_at": "2026-07-25T09:41:55.878044+00:00",
-  "mub": [
-    "drado.com"
-  ],
+  "generated_at": "2026-07-26T09:45:20.458629+00:00",
+  "mub": [],
   "source": "namecheap_auctions"
 }
