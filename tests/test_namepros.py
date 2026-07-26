@@ -184,3 +184,24 @@ def test_backfill_links_binds_widget_only_domain_to_thread():
     src.backfill_links(html, {"impeccable.co": 500, "lourdes.net": 1200}, links)
     assert links["lourdes.net"] == "https://www.namepros.com/threads/lourdes-net.222"
     assert links["impeccable.co"] == "https://www.namepros.com/threads/impeccable-co.111"
+
+
+def test_require_post_url_drops_domains_without_a_thread_url():
+    # Only names tied to a captured NamePros listing-thread URL qualify — a name with no thread
+    # URL (would fall back to a "find on NamePros" search) is not a specific for-sale/auction post.
+    listings = {"fate.co": 500, "booger.com": None, "meter.co": 250, "tire.xyz": 99}
+    links = {
+        "fate.co": "https://www.namepros.com/threads/fate-co.123/",
+        "tire.xyz": "https://www.namepros.com/threads/tire-xyz.456/",
+        # booger.com + meter.co have NO thread URL → dropped
+    }
+    kept, dropped = src.require_post_url(listings, links)
+    assert set(kept) == {"fate.co", "tire.xyz"}
+    assert dropped == 2
+
+
+def test_require_post_url_keeps_all_when_every_domain_has_a_url():
+    listings = {"a.com": 1, "b.co": None}
+    links = {"a.com": "https://www.namepros.com/threads/a.1/", "b.co": "https://www.namepros.com/threads/b.2/"}
+    kept, dropped = src.require_post_url(listings, links)
+    assert kept == listings and dropped == 0

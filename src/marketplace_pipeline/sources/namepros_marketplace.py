@@ -231,6 +231,15 @@ def _parse_post_domains(text: str, url: str) -> dict[str, tuple[int | None, str]
     return out
 
 
+def require_post_url(listings: dict[str, int | None], links: dict[str, str]) -> tuple[dict[str, int | None], int]:
+    """Keep ONLY domains tied to a captured NamePros listing-thread URL — a specific buy-domains or
+    auction post where the seller is actively liquidating the name. A domain with no thread URL
+    (which would fall back to a generic "find on NamePros" search) is merely mentioned/listed on a
+    page, not an actionable for-sale post, so it does NOT qualify. Returns (kept, dropped_count)."""
+    kept = {d: p for d, p in listings.items() if links.get(d)}
+    return kept, len(listings) - len(kept)
+
+
 def extract_links(html: str) -> dict[str, str]:
     """{domain: NamePros listing-thread URL} so the UI/sheet links to the actual
     NamePros page rather than the bare domain."""
@@ -557,6 +566,12 @@ def run() -> int:
     # Backfill thread URLs for listings the title parse missed (info-widget / fallback
     # domains), so their Slack/sheet links open the real thread instead of a search page.
     backfill_links(html, listings, links)
+
+    # REQUIRE a specific for-sale / auction POST (see require_post_url).
+    listings, no_post = require_post_url(listings, links)
+    if no_post:
+        print(f"      dropped {no_post} candidate(s) with no NamePros post URL "
+              f"(not a specific for-sale/auction thread)")
 
     # Net-new gating: only alert on domains we haven't surfaced in a prior run.
     seen = load_seen()

@@ -633,6 +633,22 @@ portfolio scored ~3.4 like any good 2-word .com and the whole batch cleared the 
 
 ---
 
+# NamePros SNAP — require a real for-sale/auction POST (2026-07-24)
+
+The `namepros_marketplace` source was flagging names that were merely mentioned/"listed" on the
+buy-domains page but that we couldn't tie to a specific thread — those fell back to a generic
+"find on NamePros" Google `site:namepros.com` search link (not an actual for-sale post). Rob's rule:
+a name only qualifies if it's a **specific post under auctions or the buy tab** (someone actively
+liquidating it), not just present on a landing page. Fix: after `backfill_links`, `require_post_url`
+(`sources/namepros_marketplace.py`) drops any candidate without a captured NamePros listing-thread
+URL in `links` — so a domain must be tied to a real buy-domains/auction thread to be surfaced (Slack
++ new_today + snapshot). The `SEARCH_URL` "find on NamePros" fallback is now effectively dead (no
+qualifying domain lacks a URL). Tests: `tests/test_namepros.py`. **NB** still-open precision edge: an
+info-widget/title domain can be *mis-bound* to the nearest thread (a "NamePros post" link to a thread
+where the name isn't the listing) — would need per-thread verification to fully close.
+
+---
+
 # Atom feed — ignore pending-verification (fake) listings (2026-07-24)
 
 Atom's partner feed (`atom_daily`) lets a submitter LIST a name they don't actually own — it
