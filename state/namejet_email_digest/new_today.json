@@ -1,12 +1,10 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 1,
   "domains": [
-    "vocalists.org",
-    "cranks.org",
-    "appreciate.org"
+    "cranks.org"
   ],
-  "generated_at": "2026-07-26T15:11:47.014094+00:00",
+  "generated_at": "2026-07-26T15:12:28.863133+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
