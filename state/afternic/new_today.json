@@ -1,12 +1,11 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 2,
   "domains": [
-    "skeletal.co",
-    "released.com",
-    "material.com"
+    "verbs.co",
+    "bournemouth.co"
   ],
-  "generated_at": "2026-07-25T08:17:49.935440+00:00",
+  "generated_at": "2026-07-26T08:17:25.059731+00:00",
   "mub": [],
   "source": "afternic"
 }
