@@ -1,18 +1,18 @@
 [
   {
-    "domain": "bumping.net",
-    "price": 2695.0
+    "domain": "matured.ai",
+    "price": 32999.0
+  },
+  {
+    "domain": "smallish.ai",
+    "price": 9999.0
+  },
+  {
+    "domain": "addressing.ai",
+    "price": 24999.0
   },
   {
     "domain": "toritos.net",
     "price": null
-  },
-  {
-    "domain": "matted.net",
-    "price": 1795.0
-  },
-  {
-    "domain": "omnisports.net",
-    "price": 250.0
   }
 ]
