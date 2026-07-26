@@ -1,15 +1,17 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 8,
   "domains": [
-    "2080.io",
-    "blank.co",
-    "commit.co",
-    "marxism.io",
-    "passage.co",
-    "vgz.com"
+    "booger.com",
+    "fade.co",
+    "fate.co",
+    "meter.co",
+    "myriad.co",
+    "puff.co",
+    "repaired.xyz",
+    "tire.xyz"
   ],
-  "generated_at": "2026-07-26T10:06:42.733794+00:00",
+  "generated_at": "2026-07-26T17:07:42.767413+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
