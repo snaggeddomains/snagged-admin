@@ -1,11 +1,10 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 1,
   "domains": [
-    "freezing.org",
-    "combustible.org"
+    "appreciate.org"
   ],
-  "generated_at": "2026-07-27T15:08:36.001784+00:00",
+  "generated_at": "2026-07-27T15:14:20.612111+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
