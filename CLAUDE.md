@@ -133,6 +133,12 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
     from the newest DONE run's report PART-1 via `summarizeReport` + cache-first Appraise.net).
     The GET fills **only still-empty** fields (`likely_owner`/`owner_contact`/`appraisal_value` ← mid)
     via `updateDeal` — a manual edit always wins, and filled values persist so it stops re-fetching.
+  - **"↻ Re-sync from research" (2026-07-27).** Because the GET only fills EMPTIES, a report that's
+    RE-RUN (owner changed) won't flow through on its own. A button in the deal sidebar (shown when a
+    `report_link` exists) POSTs `action:'resync-research'` → re-pulls `researchReportSummary` +
+    `researchReportLink` and **OVERWRITES** `likely_owner`/`owner_contact`/`appraisal_value` (+ logs a
+    note on the timeline). Explicit user action, so overwriting a prior value is intended.
+    `deal-client.tsx` `resyncResearch`; route action in `app/api/admin/deals/[id]/route.ts`.
   - **Header links → sidebar.** Dropped the two header icon-links; `deal-client.tsx` now shows the
     **Buyer name as the 👤 lead-dossier link** (when `dossierUrl` exists) and a compact **📄 Research
     report "Open report ↗"** row (replacing the long raw URL). `RVal` gained `href`/`emoji` props.

@@ -199,6 +199,22 @@ export default function DealClient({ id }: { id: string }) {
     } finally { setIngesting(false); }
   };
 
+  // Re-pull likely owner / owner contact / appraisal from the (possibly re-run) research
+  // report, OVERWRITING the sidebar — the auto-fill only fills empties, so a re-run whose
+  // owner changed won't flow through on its own.
+  const [resyncing, setResyncing] = useState(false);
+  const [resyncMsg, setResyncMsg] = useState<string | null>(null);
+  const resyncResearch = async () => {
+    setResyncing(true); setResyncMsg(null);
+    try {
+      const res = await fetch(`/api/admin/deals/${id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "resync-research" }) });
+      const j = await res.json().catch(() => ({}));
+      if (res.ok && j.ok) { setResyncMsg("Updated from research."); load(); }
+      else setResyncMsg(j.error || "Couldn't re-sync.");
+    } catch { setResyncMsg("Couldn't re-sync."); }
+    finally { setResyncing(false); }
+  };
+
   if (err && !data) return <main><p style={{ color: "#a83265" }}>Couldn&apos;t load the deal: {err}</p></main>;
   if (!data) return <main><p className="muted">Loading…</p></main>;
   const d = data.deal, f = form;
@@ -278,6 +294,16 @@ export default function DealClient({ id }: { id: string }) {
             <RVal l="Research report" v={d.report_link ? "Open report ↗" : null} href={d.report_link || undefined} emoji="📄" />
             <RVal l="Likely owner" v={d.likely_owner} />
             <RVal l="Owner contact" v={d.owner_contact} />
+            {/* Force the (possibly re-run) research report's owner/appraisal into the deal —
+                the auto-fill only fills empties, so a changed owner won't flow through on its own. */}
+            {d.report_link && (
+              <div style={{ marginTop: 6 }}>
+                <button style={{ ...btn, padding: "4px 10px", fontSize: 12 }} onClick={resyncResearch} disabled={resyncing}>
+                  {resyncing ? "Re-syncing…" : "↻ Re-sync from research"}
+                </button>
+                {resyncMsg && <span style={{ marginLeft: 8, fontSize: 12, color: "var(--muted,#7c8b95)" }}>{resyncMsg}</span>}
+              </div>
+            )}
             {/* Owner directory record — set at Negotiating; links to the owner's full dossier
                 (contact info + every name we've worked with them + negotiation history). */}
             {data.ownerRecord

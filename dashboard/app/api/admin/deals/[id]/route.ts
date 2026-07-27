@@ -160,6 +160,26 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       const emails = await listDealEmails(deal.id);
       return NextResponse.json({ ok: true, ingested: count, emails });
     }
+    case "resync-research": {
+      // Re-pull the research findings and OVERWRITE the owner/appraisal sidebar fields.
+      // The GET auto-fill only fills EMPTY fields (so a manual edit persists), so it won't
+      // pick up a CHANGED likely owner after a report is re-run — this is the explicit
+      // "force the new report into the deal" action. Report link is refreshed too.
+      const patch: Record<string, unknown> = {};
+      try { const link = await researchReportLink(deal.domain); if (link) patch.report_link = link; } catch { /* keep */ }
+      const s = await researchReportSummary(deal.domain);
+      if (s) {
+        if (s.likely_owner) patch.likely_owner = s.likely_owner;
+        if (s.owner_contact) patch.owner_contact = s.owner_contact;
+        if (s.appraisal && s.appraisal.mid > 0) patch.appraisal_value = Math.round(s.appraisal.mid);
+      }
+      if (!Object.keys(patch).length) {
+        return NextResponse.json({ ok: false, error: "No research findings yet for this domain." }, { status: 200 });
+      }
+      const updated = await updateDeal(deal.id, patch, me!.email);
+      const act = await addActivity(deal.id, { user_email: me!.email, kind: "note", body: "Re-synced likely owner / contact / appraisal from the research report.", meta: { via: "resync" } });
+      return NextResponse.json({ ok: true, deal: updated, activity: act });
+    }
     default:
       return NextResponse.json({ error: "Unknown action" }, { status: 400 });
   }
