@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "bid_count": 0,
+    "domain": "lactic.co",
+    "end_time_utc": "2026-07-28T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namesilo.com/auctions/lactic.co",
+    "platform": "NameSilo",
+    "price": 1.0
+  }
+]

@@ -1,10 +1,11 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 2,
   "domains": [
-    "picture.co"
+    "eliminated.ai",
+    "riddle.ai"
   ],
-  "generated_at": "2026-07-26T09:04:00.466618+00:00",
+  "generated_at": "2026-07-27T09:02:58.959913+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

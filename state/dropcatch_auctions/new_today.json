@@ -1,17 +1,16 @@
 {
   "capped": false,
-  "count": 8,
+  "count": 7,
   "domains": [
     "puar.com",
     "rayons.com",
     "scoor.com",
     "bxno.com",
-    "zfaq.com",
     "copax.com",
     "kweek.com",
     "makings.com"
   ],
-  "generated_at": "2026-07-26T09:46:33.952565+00:00",
+  "generated_at": "2026-07-27T09:44:59.890198+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }

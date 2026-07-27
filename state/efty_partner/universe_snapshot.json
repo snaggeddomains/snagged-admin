@@ -1,5 +1,497 @@
 [
   {
+    "domain": "virtualnovels.com",
+    "price": null
+  },
+  {
+    "domain": "viewermate.com",
+    "price": null
+  },
+  {
+    "domain": "uavcad.com",
+    "price": null
+  },
+  {
+    "domain": "twinchain.com",
+    "price": null
+  },
+  {
+    "domain": "telepoker.com",
+    "price": null
+  },
+  {
+    "domain": "tapetube.com",
+    "price": null
+  },
+  {
+    "domain": "storysphere.com",
+    "price": null
+  },
+  {
+    "domain": "starsonic.com",
+    "price": null
+  },
+  {
+    "domain": "spherepad.com",
+    "price": null
+  },
+  {
+    "domain": "spherebase.com",
+    "price": null
+  },
+  {
+    "domain": "speedtourism.com",
+    "price": null
+  },
+  {
+    "domain": "spacebrowser.com",
+    "price": null
+  },
+  {
+    "domain": "soundroad.com",
+    "price": null
+  },
+  {
+    "domain": "softgenie.com",
+    "price": null
+  },
+  {
+    "domain": "snowboardguru.com",
+    "price": null
+  },
+  {
+    "domain": "snackgenie.com",
+    "price": null
+  },
+  {
+    "domain": "sexyverse.com",
+    "price": null
+  },
+  {
+    "domain": "sensebots.com",
+    "price": null
+  },
+  {
+    "domain": "samplebot.com",
+    "price": null
+  },
+  {
+    "domain": "royalfifty.com",
+    "price": null
+  },
+  {
+    "domain": "routeguard.com",
+    "price": null
+  },
+  {
+    "domain": "robobeats.com",
+    "price": null
+  },
+  {
+    "domain": "roadpath.com",
+    "price": null
+  },
+  {
+    "domain": "resinfactory.com",
+    "price": null
+  },
+  {
+    "domain": "reddemon.com",
+    "price": null
+  },
+  {
+    "domain": "realitymate.com",
+    "price": null
+  },
+  {
+    "domain": "realitygeeks.com",
+    "price": null
+  },
+  {
+    "domain": "readersoft.com",
+    "price": null
+  },
+  {
+    "domain": "protonote.com",
+    "price": null
+  },
+  {
+    "domain": "polyminer.com",
+    "price": null
+  },
+  {
+    "domain": "pinkshrimp.com",
+    "price": null
+  },
+  {
+    "domain": "pianogeek.com",
+    "price": null
+  },
+  {
+    "domain": "pamaya.com",
+    "price": null
+  },
+  {
+    "domain": "overdisk.com",
+    "price": null
+  },
+  {
+    "domain": "openswap.com",
+    "price": null
+  },
+  {
+    "domain": "openjapanese.com",
+    "price": null
+  },
+  {
+    "domain": "omegapost.com",
+    "price": null
+  },
+  {
+    "domain": "novelscape.com",
+    "price": null
+  },
+  {
+    "domain": "neurosessions.com",
+    "price": null
+  },
+  {
+    "domain": "neurosession.com",
+    "price": null
+  },
+  {
+    "domain": "neurojam.com",
+    "price": null
+  },
+  {
+    "domain": "neurodream.com",
+    "price": null
+  },
+  {
+    "domain": "neuraline.com",
+    "price": null
+  },
+  {
+    "domain": "nanoband.com",
+    "price": null
+  },
+  {
+    "domain": "nanabi.com",
+    "price": null
+  },
+  {
+    "domain": "mysticgeek.com",
+    "price": null
+  },
+  {
+    "domain": "mothergrid.com",
+    "price": null
+  },
+  {
+    "domain": "moeboard.com",
+    "price": null
+  },
+  {
+    "domain": "minerview.com",
+    "price": null
+  },
+  {
+    "domain": "metaversus.com",
+    "price": null
+  },
+  {
+    "domain": "metasuit.com",
+    "price": null
+  },
+  {
+    "domain": "metamessage.com",
+    "price": null
+  },
+  {
+    "domain": "metadojo.com",
+    "price": null
+  },
+  {
+    "domain": "mapcube.com",
+    "price": null
+  },
+  {
+    "domain": "mangaexpo.com",
+    "price": null
+  },
+  {
+    "domain": "mangabit.com",
+    "price": null
+  },
+  {
+    "domain": "manasoft.com",
+    "price": null
+  },
+  {
+    "domain": "magimarket.com",
+    "price": null
+  },
+  {
+    "domain": "lessoncloud.com",
+    "price": null
+  },
+  {
+    "domain": "lendgurus.com",
+    "price": null
+  },
+  {
+    "domain": "ledgeria.com",
+    "price": null
+  },
+  {
+    "domain": "ledgerbots.com",
+    "price": null
+  },
+  {
+    "domain": "kinkylabs.com",
+    "price": null
+  },
+  {
+    "domain": "kinkcity.com",
+    "price": null
+  },
+  {
+    "domain": "idolmaster.com",
+    "price": null
+  },
+  {
+    "domain": "hyperminer.com",
+    "price": null
+  },
+  {
+    "domain": "hyperkeys.com",
+    "price": null
+  },
+  {
+    "domain": "hyperfiles.com",
+    "price": null
+  },
+  {
+    "domain": "hackkit.com",
+    "price": null
+  },
+  {
+    "domain": "ginami.com",
+    "price": null
+  },
+  {
+    "domain": "gamevouchers.com",
+    "price": null
+  },
+  {
+    "domain": "gamesignal.com",
+    "price": null
+  },
+  {
+    "domain": "framesense.com",
+    "price": null
+  },
+  {
+    "domain": "framescape.com",
+    "price": null
+  },
+  {
+    "domain": "fireledger.com",
+    "price": null
+  },
+  {
+    "domain": "eventhunt.com",
+    "price": null
+  },
+  {
+    "domain": "dreadless.com",
+    "price": null
+  },
+  {
+    "domain": "dormhub.com",
+    "price": null
+  },
+  {
+    "domain": "desktopkit.com",
+    "price": null
+  },
+  {
+    "domain": "deltastack.com",
+    "price": null
+  },
+  {
+    "domain": "deeptools.com",
+    "price": null
+  },
+  {
+    "domain": "createrobots.com",
+    "price": null
+  },
+  {
+    "domain": "cosplaygeeks.com",
+    "price": null
+  },
+  {
+    "domain": "coinstudent.com",
+    "price": null
+  },
+  {
+    "domain": "cheapbots.com",
+    "price": null
+  },
+  {
+    "domain": "chartscope.com",
+    "price": null
+  },
+  {
+    "domain": "chainmeter.com",
+    "price": null
+  },
+  {
+    "domain": "chainhack.com",
+    "price": null
+  },
+  {
+    "domain": "blockshock.com",
+    "price": null
+  },
+  {
+    "domain": "blockshame.com",
+    "price": null
+  },
+  {
+    "domain": "blocklift.com",
+    "price": null
+  },
+  {
+    "domain": "blockchainzoom.com",
+    "price": null
+  },
+  {
+    "domain": "bitsune.com",
+    "price": null
+  },
+  {
+    "domain": "bitsessions.com",
+    "price": null
+  },
+  {
+    "domain": "bitbillion.com",
+    "price": null
+  },
+  {
+    "domain": "beatpunch.com",
+    "price": null
+  },
+  {
+    "domain": "augmentedbots.com",
+    "price": null
+  },
+  {
+    "domain": "applaboratory.com",
+    "price": null
+  },
+  {
+    "domain": "animatedworks.com",
+    "price": null
+  },
+  {
+    "domain": "aniblock.com",
+    "price": null
+  },
+  {
+    "domain": "altgenie.com",
+    "price": null
+  },
+  {
+    "domain": "altboost.com",
+    "price": null
+  },
+  {
+    "domain": "alphaswap.com",
+    "price": null
+  },
+  {
+    "domain": "alertchain.com",
+    "price": null
+  },
+  {
+    "domain": "airfreaks.com",
+    "price": null
+  },
+  {
+    "domain": "afterpath.com",
+    "price": null
+  },
+  {
+    "domain": "jackpotseo.com",
+    "price": 9995.0
+  },
+  {
+    "domain": "formwin.com",
+    "price": 9995.0
+  },
+  {
+    "domain": "dogecasinos.com",
+    "price": 4995.0
+  },
+  {
+    "domain": "deliriumbet.com",
+    "price": 9995.0
+  },
+  {
+    "domain": "cleopatracoins.com",
+    "price": 9995.0
+  },
+  {
+    "domain": "windetect.com",
+    "price": 4995.0
+  },
+  {
+    "domain": "vanitybets.com",
+    "price": 4995.0
+  },
+  {
+    "domain": "trumpbets.com",
+    "price": 4995.0
+  },
+  {
+    "domain": "richestbet.com",
+    "price": 4995.0
+  },
+  {
+    "domain": "rainbowlotto.com",
+    "price": 4995.0
+  },
+  {
+    "domain": "prixwin.com",
+    "price": 4995.0
+  },
+  {
+    "domain": "pastabet.com",
+    "price": 4995.0
+  },
+  {
+    "domain": "ovalbets.com",
+    "price": 4995.0
+  },
+  {
+    "domain": "membets.com",
+    "price": 4995.0
+  },
+  {
+    "domain": "martinibet.com",
+    "price": 4995.0
+  },
+  {
+    "domain": "marketply.com",
+    "price": 14000.0
+  },
+  {
+    "domain": "luckybabes.com",
+    "price": 9995.0
+  },
+  {
     "domain": "starbattle.com",
     "price": null
   },
@@ -886,10 +1378,6 @@
   {
     "domain": "surprisehotels.com",
     "price": 1799.0
-  },
-  {
-    "domain": "arenafit.com",
-    "price": null
   },
   {
     "domain": "macproperty.com",
@@ -5369,7 +5857,7 @@
   },
   {
     "domain": "glowplump.com",
-    "price": 14888.0
+    "price": 18888.0
   },
   {
     "domain": "kiabet.com",
@@ -88569,7 +89057,7 @@
   },
   {
     "domain": "exposedcasinos.com",
-    "price": 9995.0
+    "price": 4995.0
   },
   {
     "domain": "esportssociety.com",
@@ -88589,7 +89077,7 @@
   },
   {
     "domain": "casinochelsea.com",
-    "price": 9995.0
+    "price": 4995.0
   },
   {
     "domain": "betsillinois.com",
@@ -110733,7 +111221,7 @@
   },
   {
     "domain": "betaud.com",
-    "price": 4995.0
+    "price": 9995.0
   },
   {
     "domain": "antiquesmaps.com",
@@ -128981,7 +129469,7 @@
   },
   {
     "domain": "singbetting.com",
-    "price": 4995.0
+    "price": 2495.0
   },
   {
     "domain": "simbabets.com",
@@ -129545,7 +130033,7 @@
   },
   {
     "domain": "lulugames.com",
-    "price": 9995.0
+    "price": 4995.0
   },
   {
     "domain": "herculesbet.com",
@@ -134149,7 +134637,7 @@
   },
   {
     "domain": "hannabet.com",
-    "price": 9995.0
+    "price": 4995.0
   },
   {
     "domain": "evilbet.com",
@@ -138261,7 +138749,7 @@
   },
   {
     "domain": "playatic.com",
-    "price": 9995.0
+    "price": 4995.0
   },
   {
     "domain": "mysticbets.com",
@@ -138281,7 +138769,7 @@
   },
   {
     "domain": "emptybet.com",
-    "price": 4995.0
+    "price": 9995.0
   },
   {
     "domain": "disasterbet.com",
@@ -139337,7 +139825,7 @@
   },
   {
     "domain": "skillempire.com",
-    "price": 4995.0
+    "price": 9995.0
   },
   {
     "domain": "scottymedia.com",
@@ -140697,7 +141185,7 @@
   },
   {
     "domain": "spingala.com",
-    "price": 9995.0
+    "price": 4995.0
   },
   {
     "domain": "slotsbuddy.com",
@@ -144934,10 +145422,6 @@
   {
     "domain": "proportionate.com",
     "price": null
-  },
-  {
-    "domain": "videomilf.com",
-    "price": 299.0
   },
   {
     "domain": "europemeet.com",
@@ -153184,10 +153668,6 @@
     "price": 14000.0
   },
   {
-    "domain": "dbsbets.com",
-    "price": 2495.0
-  },
-  {
     "domain": "cryptopunch.com",
     "price": 9995.0
   },
@@ -157489,7 +157969,7 @@
   },
   {
     "domain": "speedycbd.com",
-    "price": 699.0
+    "price": 499.0
   },
   {
     "domain": "porncritic.com",
@@ -166025,7 +166505,7 @@
   },
   {
     "domain": "squeezebet.com",
-    "price": 4995.0
+    "price": 9995.0
   },
   {
     "domain": "slotspoker.com",
@@ -166493,7 +166973,7 @@
   },
   {
     "domain": "playatom.com",
-    "price": 4995.0
+    "price": 9995.0
   },
   {
     "domain": "norwaycasino.com",
@@ -167457,7 +167937,7 @@
   },
   {
     "domain": "betobserver.com",
-    "price": 4995.0
+    "price": 9995.0
   },
   {
     "domain": "betniagara.com",
@@ -167581,7 +168061,7 @@
   },
   {
     "domain": "roxyaffiliates.com",
-    "price": 4995.0
+    "price": 2495.0
   },
   {
     "domain": "pokerprofits.com",
@@ -167613,7 +168093,7 @@
   },
   {
     "domain": "insertbet.com",
-    "price": 4995.0
+    "price": 2495.0
   },
   {
     "domain": "hoopsbets.com",
@@ -167641,7 +168121,7 @@
   },
   {
     "domain": "blakebet.com",
-    "price": 4995.0
+    "price": 9995.0
   },
   {
     "domain": "betnectar.com",
@@ -167793,7 +168273,7 @@
   },
   {
     "domain": "sportingwealth.com",
-    "price": 4995.0
+    "price": 2495.0
   },
   {
     "domain": "specialistbet.com",
@@ -168601,7 +169081,7 @@
   },
   {
     "domain": "petrabet.com",
-    "price": 9995.0
+    "price": 14000.0
   },
   {
     "domain": "ooobets.com",
@@ -168633,7 +169113,7 @@
   },
   {
     "domain": "misterdice.com",
-    "price": 4995.0
+    "price": 2495.0
   },
   {
     "domain": "ligainvest.com",
@@ -223297,7 +223777,7 @@
   },
   {
     "domain": "playranch.com",
-    "price": 4995.0
+    "price": 9995.0
   },
   {
     "domain": "playao.com",
@@ -223673,7 +224153,7 @@
   },
   {
     "domain": "cryptoviva.com",
-    "price": 4995.0
+    "price": 2495.0
   },
   {
     "domain": "casinomango.com",
@@ -225605,7 +226085,7 @@
   },
   {
     "domain": "sheikhcasino.com",
-    "price": 4995.0
+    "price": 9995.0
   },
   {
     "domain": "rambomedia.com",
@@ -225625,7 +226105,7 @@
   },
   {
     "domain": "ghettobet.com",
-    "price": 4995.0
+    "price": 9995.0
   },
   {
     "domain": "forexbonuses.com",
@@ -225633,7 +226113,7 @@
   },
   {
     "domain": "cricketcricket.com",
-    "price": 4995.0
+    "price": 2495.0
   },
   {
     "domain": "lawyerfla.com",
@@ -225789,7 +226269,7 @@
   },
   {
     "domain": "shivabet.com",
-    "price": 9995.0
+    "price": 14000.0
   },
   {
     "domain": "royalsino.com",
@@ -225821,7 +226301,7 @@
   },
   {
     "domain": "bitdimes.com",
-    "price": 4995.0
+    "price": 2495.0
   },
   {
     "domain": "betutah.com",
@@ -226129,7 +226609,7 @@
   },
   {
     "domain": "saloonbet.com",
-    "price": 4995.0
+    "price": 9995.0
   },
   {
     "domain": "piratemaps.com",
@@ -226153,7 +226633,7 @@
   },
   {
     "domain": "hurdlebet.com",
-    "price": 4995.0
+    "price": 9995.0
   },
   {
     "domain": "historyraiders.com",
@@ -226173,7 +226653,7 @@
   },
   {
     "domain": "curiousbet.com",
-    "price": 4995.0
+    "price": 9995.0
   },
   {
     "domain": "csgotutorial.com",
@@ -226185,7 +226665,7 @@
   },
   {
     "domain": "btctreasure.com",
-    "price": 4995.0
+    "price": 2495.0
   },
   {
     "domain": "btcroyale.com",
@@ -226345,7 +226825,7 @@
   },
   {
     "domain": "betcomments.com",
-    "price": 4995.0
+    "price": 2495.0
   },
   {
     "domain": "fadbank.net",
@@ -236608,10 +237088,6 @@
     "price": 4995.0
   },
   {
-    "domain": "deltaslots.com",
-    "price": 2495.0
-  },
-  {
     "domain": "casinolions.com",
     "price": 9995.0
   },
@@ -243877,7 +244353,7 @@
   },
   {
     "domain": "bingosquad.com",
-    "price": 4995.0
+    "price": 2495.0
   },
   {
     "domain": "betritz.com",
@@ -250249,7 +250725,7 @@
   },
   {
     "domain": "roosterbet.com",
-    "price": 14000.0
+    "price": 18000.0
   },
   {
     "domain": "winnerpalace.com",
@@ -250433,7 +250909,7 @@
   },
   {
     "domain": "bellabet.com",
-    "price": 9995.0
+    "price": 14000.0
   },
   {
     "domain": "seriesbet.com",
@@ -250493,7 +250969,7 @@
   },
   {
     "domain": "peachbet.com",
-    "price": 9995.0
+    "price": 14000.0
   },
   {
     "domain": "formabet.com",
@@ -250509,7 +250985,7 @@
   },
   {
     "domain": "slotexperts.com",
-    "price": 4995.0
+    "price": 2495.0
   },
   {
     "domain": "lirabets.com",
@@ -250762,10 +251238,6 @@
   {
     "domain": "betsing.com",
     "price": 9995.0
-  },
-  {
-    "domain": "premierbet.co",
-    "price": 2495.0
   },
   {
     "domain": "betbac.com",
@@ -251041,7 +251513,7 @@
   },
   {
     "domain": "betsaloon.com",
-    "price": 4995.0
+    "price": 9995.0
   },
   {
     "domain": "winpacific.com",
@@ -252588,10 +253060,6 @@
     "price": 4995.0
   },
   {
-    "domain": "satoshibonus.com",
-    "price": 2495.0
-  },
-  {
     "domain": "satoshibets.com",
     "price": 70000.0
   },
@@ -252909,7 +253377,7 @@
   },
   {
     "domain": "pokerideas.com",
-    "price": 4995.0
+    "price": 2495.0
   },
   {
     "domain": "pokerfocus.com",
@@ -253290,10 +253758,6 @@
   {
     "domain": "oddsbot.com",
     "price": 4995.0
-  },
-  {
-    "domain": "oddsblog.com",
-    "price": 2495.0
   },
   {
     "domain": "oddsbase.com",
@@ -254864,10 +255328,6 @@
     "price": 4995.0
   },
   {
-    "domain": "csgomania.com",
-    "price": 2495.0
-  },
-  {
     "domain": "csgoexpert.com",
     "price": 2495.0
   },
@@ -255665,7 +256125,7 @@
   },
   {
     "domain": "betskill.com",
-    "price": 14000.0
+    "price": 23000.0
   },
   {
     "domain": "betsexpert.com",
@@ -255753,7 +256213,7 @@
   },
   {
     "domain": "betraffle.com",
-    "price": 4995.0
+    "price": 9995.0
   },
   {
     "domain": "betquiz.com",
@@ -256029,7 +256489,7 @@
   },
   {
     "domain": "betgbp.com",
-    "price": 4995.0
+    "price": 9995.0
   },
   {
     "domain": "betgangster.com",
@@ -256145,7 +256605,7 @@
   },
   {
     "domain": "betdesktop.com",
-    "price": 4995.0
+    "price": 2495.0
   },
   {
     "domain": "betdesi.com",
@@ -256169,7 +256629,7 @@
   },
   {
     "domain": "betdar.com",
-    "price": 4995.0
+    "price": 2495.0
   },
   {
     "domain": "betcsgo.com",
@@ -256201,7 +256661,7 @@
   },
   {
     "domain": "betconcierge.com",
-    "price": 9995.0
+    "price": 14000.0
   },
   {
     "domain": "betcomparison.com",
@@ -256385,7 +256845,7 @@
   },
   {
     "domain": "betaff.com",
-    "price": 4995.0
+    "price": 9995.0
   },
   {
     "domain": "betadvice.com",
@@ -256565,7 +257025,7 @@
   },
   {
     "domain": "africaodds.com",
-    "price": 4995.0
+    "price": 9995.0
   },
   {
     "domain": "africanbets.com",
@@ -274829,7 +275289,7 @@
   },
   {
     "domain": "sleepmerch.com",
-    "price": 2977.0
+    "price": 1977.0
   },
   {
     "domain": "caremerch.com",
@@ -287512,10 +287972,6 @@
     "price": 2000.0
   },
   {
-    "domain": "cbdguard.com",
-    "price": null
-  },
-  {
     "domain": "realitycrypto.com",
     "price": 50000.0
   },
@@ -295813,7 +296269,7 @@
   },
   {
     "domain": "snatchdomains.com",
-    "price": 995.0
+    "price": 1500.0
   },
   {
     "domain": "securitydenver.com",
@@ -309741,7 +310197,7 @@
   },
   {
     "domain": "adultbang.com",
-    "price": 499.0
+    "price": 699.0
   },
   {
     "domain": "xxxdeal.com",
@@ -311664,10 +312120,6 @@
     "price": null
   },
   {
-    "domain": "harvestdrops.com",
-    "price": null
-  },
-  {
     "domain": "valuesvote.com",
     "price": null
   },
@@ -311958,10 +312410,6 @@
   {
     "domain": "winddown.com",
     "price": null
-  },
-  {
-    "domain": "cuminpussy.com",
-    "price": 299.0
   },
   {
     "domain": "bangdate.com",
@@ -328756,10 +329204,6 @@
     "price": 3495.0
   },
   {
-    "domain": "cleardab.com",
-    "price": null
-  },
-  {
     "domain": "cannabiscouple.com",
     "price": null
   },
@@ -328877,10 +329321,6 @@
   },
   {
     "domain": "wholegym.com",
-    "price": null
-  },
-  {
-    "domain": "pleasurelabs.com",
     "price": null
   },
   {
@@ -333197,10 +333637,6 @@
   },
   {
     "domain": "unlocktime.com",
-    "price": null
-  },
-  {
-    "domain": "cbdpod.com",
     "price": null
   },
   {
@@ -340533,10 +340969,6 @@
   },
   {
     "domain": "hybriddrink.com",
-    "price": null
-  },
-  {
-    "domain": "harvestdinner.com",
     "price": null
   },
   {

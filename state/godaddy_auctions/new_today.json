@@ -1,18 +1,19 @@
 {
   "capped": false,
-  "count": 9,
+  "count": 10,
   "domains": [
-    "luge.org",
-    "sejn.com",
-    "nitros.com",
-    "handouts.org",
-    "entic.com",
-    "ryu.com",
-    "estimates.co",
-    "gpuz.com",
-    "fhcc.com"
+    "dput.com",
+    "naivo.com",
+    "healq.com",
+    "bfuy.com",
+    "umew.com",
+    "pursuing.org",
+    "drizzles.com",
+    "lstar.com",
+    "bzye.com",
+    "candels.com"
   ],
-  "generated_at": "2026-07-26T09:47:14.097770+00:00",
+  "generated_at": "2026-07-27T09:45:38.573981+00:00",
   "mub": [],
   "source": "godaddy_auctions"
 }
