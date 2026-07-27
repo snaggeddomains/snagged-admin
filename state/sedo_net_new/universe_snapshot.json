@@ -1,18 +1,30 @@
 [
   {
-    "domain": "matured.ai",
-    "price": 32999.0
+    "domain": "infosize.com",
+    "price": 3495.0
   },
   {
-    "domain": "smallish.ai",
-    "price": 9999.0
+    "domain": "marketply.com",
+    "price": 14995.0
   },
   {
-    "domain": "addressing.ai",
-    "price": 24999.0
+    "domain": "harmonella.com",
+    "price": 3095.0
   },
   {
-    "domain": "toritos.net",
+    "domain": "hiatus.ai",
+    "price": 8999.0
+  },
+  {
+    "domain": "disks.ai",
     "price": null
+  },
+  {
+    "domain": "hollybridge.com",
+    "price": 826.0
+  },
+  {
+    "domain": "genetically.net",
+    "price": 1995.0
   }
 ]
