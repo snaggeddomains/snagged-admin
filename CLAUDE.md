@@ -934,6 +934,11 @@ and stays in `REPORTS_TABS` for the in-Reports sub-nav).
 - **Deal-history reuse:** SNAP Eval reads `marketplace_deal_reports` directly from
   the shared main project (admin `SUPABASE_URL` == research `SUPABASE_URL`) for a
   domain's real offers — no new internal endpoint, cached read, fail-open.
+- **Expiring .ai (2026-07-27):** new module `research.expiring` (stored flat `expiring`;
+  MODULES + SNAP_TABS + CATALOG group SNAP) gates a SNAP report of good one-word `.ai`
+  names entering the redemption window. Tool + engine live in the **domain-owner-research**
+  repo (see that repo's CLAUDE.md "Expiring .ai"). Grant per-user; admins auto-pass. The
+  admin ⌘K palette + SNAP hub sub-nav pick it up automatically from `SNAP_TABS`.
 
 # Navigation registry — single source of truth for menus (2026-06-28)
 
