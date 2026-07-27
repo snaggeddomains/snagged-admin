@@ -2,9 +2,9 @@
   "capped": false,
   "count": 1,
   "domains": [
-    "cranks.org"
+    "navarro.org"
   ],
-  "generated_at": "2026-07-26T15:12:28.863133+00:00",
+  "generated_at": "2026-07-27T15:04:25.787423+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
