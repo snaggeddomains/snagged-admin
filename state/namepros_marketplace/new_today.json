@@ -1,12 +1,21 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 10,
   "domains": [
-    "flame.co",
-    "hercules.io",
-    "testing.vc"
+    "888.com",
+    "banana.com",
+    "cat.com",
+    "classic.com",
+    "hala.com",
+    "it.com",
+    "journey.com",
+    "radar.com",
+    "sama.com",
+    "senior.com"
   ],
-  "generated_at": "2026-07-26T23:06:49.435951+00:00",
-  "mub": [],
+  "generated_at": "2026-07-27T10:05:49.531228+00:00",
+  "mub": [
+    "sama.com"
+  ],
   "source": "namepros_marketplace"
 }
