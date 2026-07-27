@@ -1,21 +1,15 @@
 {
   "capped": false,
-  "count": 10,
+  "count": 6,
   "domains": [
-    "888.com",
-    "banana.com",
-    "cat.com",
-    "classic.com",
-    "hala.com",
-    "it.com",
-    "journey.com",
-    "radar.com",
-    "sama.com",
-    "senior.com"
+    "aftershock.org",
+    "apprehend.com",
+    "chain.co",
+    "happenings.co",
+    "woman.io",
+    "workstation.co"
   ],
-  "generated_at": "2026-07-27T10:05:49.531228+00:00",
-  "mub": [
-    "sama.com"
-  ],
+  "generated_at": "2026-07-27T17:06:56.430722+00:00",
+  "mub": [],
   "source": "namepros_marketplace"
 }
