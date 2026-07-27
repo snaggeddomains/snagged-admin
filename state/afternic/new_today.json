@@ -1,11 +1,12 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 3,
   "domains": [
-    "verbs.co",
-    "bournemouth.co"
+    "swept.org",
+    "prone.org",
+    "colonization.co"
   ],
-  "generated_at": "2026-07-26T08:17:25.059731+00:00",
+  "generated_at": "2026-07-27T08:14:41.342179+00:00",
   "mub": [],
   "source": "afternic"
 }
