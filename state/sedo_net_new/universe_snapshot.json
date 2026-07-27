@@ -1,7 +1,19 @@
 [
   {
+    "domain": "ugandas.com",
+    "price": 2495.0
+  },
+  {
+    "domain": "shashe.com",
+    "price": 8970.0
+  },
+  {
     "domain": "infosize.com",
     "price": 3495.0
+  },
+  {
+    "domain": "nonveg.com",
+    "price": null
   },
   {
     "domain": "marketply.com",
@@ -10,14 +22,6 @@
   {
     "domain": "harmonella.com",
     "price": 3095.0
-  },
-  {
-    "domain": "hiatus.ai",
-    "price": 8999.0
-  },
-  {
-    "domain": "disks.ai",
-    "price": null
   },
   {
     "domain": "hollybridge.com",
