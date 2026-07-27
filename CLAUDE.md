@@ -643,9 +643,16 @@ liquidating it), not just present on a landing page. Fix: after `backfill_links`
 (`sources/namepros_marketplace.py`) drops any candidate without a captured NamePros listing-thread
 URL in `links` — so a domain must be tied to a real buy-domains/auction thread to be surfaced (Slack
 + new_today + snapshot). The `SEARCH_URL` "find on NamePros" fallback is now effectively dead (no
-qualifying domain lacks a URL). Tests: `tests/test_namepros.py`. **NB** still-open precision edge: an
-info-widget/title domain can be *mis-bound* to the nearest thread (a "NamePros post" link to a thread
-where the name isn't the listing) — would need per-thread verification to fully close.
+qualifying domain lacks a URL). Tests: `tests/test_namepros.py`.
+
+**Mis-binding fixed (2026-07-27).** `backfill_links` bound a link-less domain (info-widget / fallback
+scan) to the NEAREST preceding thread row — even when that row was a different name, manufacturing a
+bogus post URL that then survived `require_post_url` (e.g. **aftershock.org $53 → the xfun.xyz thread**,
+because aftershock.org only appeared on the page in a "similar threads" box). Fix: backfill now binds
+only to the nearest preceding thread **whose slug actually NAMES the domain** (`_url_names_domain` — the
+SLD is a token in `/threads/<slug>`). A stray domain under an unrelated thread is left unbound →
+`require_post_url` drops it. Keeps the legit widget-only case (lourdes.net → `/threads/lourdes-net.222`,
+whose slug names it). Regression test `test_backfill_does_not_bind_stray_domain_to_unrelated_thread`.
 
 ---
 

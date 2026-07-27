@@ -246,12 +246,29 @@ def extract_links(html: str) -> dict[str, str]:
     return {d: u for d, (_p, u) in _parse_threads(html).items()}
 
 
+def _url_names_domain(url: str, host: str) -> bool:
+    """True if a thread URL actually NAMES this domain — the domain's SLD appears as a
+    slug token (e.g. /threads/lourdes-net.222 names lourdes.net). This is what separates
+    a real widget-only listing sitting under its OWN thread row (lourdes.net →
+    lourdes-net.222) from a stray domain that merely appears elsewhere on the page — in a
+    'similar threads' box, a signature, or another seller's widget — which must NOT be
+    bound to the nearest unrelated thread (aftershock.org ↛ the xfun.xyz thread)."""
+    sld = str(host or "").split(".")[0].lower()
+    if not sld:
+        return False
+    slug = str(url or "").lower().rsplit("/threads/", 1)[-1]
+    return sld in re.split(r"[^a-z0-9]+", slug)
+
+
 def backfill_links(html: str, domains, links: dict[str, str]) -> None:
     """Give a thread URL to listing domains that the TITLE parse missed — the ones
     captured via the info-widget / fallback scan in extract_listings (they'd otherwise
-    fall back to a NamePros *search* URL, which just lands on a search page). Bind each
-    to the NEAREST preceding thread row (`data-preview-url`) in the page, so its Slack /
-    sheet link opens the actual listing thread. Best-effort + in-place: only fills gaps."""
+    fall back to a NamePros *search* URL, which just lands on a search page). Bind each to
+    the NEAREST preceding thread row (`data-preview-url`) **whose slug actually names the
+    domain** — so a name only links to a post that is genuinely selling it. A domain that
+    appears on the page under an unrelated thread (cross-linked 'similar thread',
+    signature, another listing's widget) is left unbound, so require_post_url drops it
+    rather than mis-linking it to a post about a different name. Best-effort + in-place."""
     raw = html or ""
     thread_pos = [(m.start(), NAMEPROS_BASE + m.group(1).replace("/preview", ""))
                   for m in THREAD_RE.finditer(raw)]
@@ -265,11 +282,11 @@ def backfill_links(html: str, domains, links: dict[str, str]) -> None:
         if i < 0:
             continue
         url = None
-        for pos, u in thread_pos:  # nearest thread row starting at/before the domain
-            if pos <= i:
-                url = u
-            else:
+        for pos, u in thread_pos:  # nearest preceding thread row that NAMES this domain
+            if pos > i:
                 break
+            if _url_names_domain(u, host):
+                url = u
         if url:
             links[host] = url
 

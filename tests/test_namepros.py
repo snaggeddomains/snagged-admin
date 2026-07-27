@@ -186,6 +186,23 @@ def test_backfill_links_binds_widget_only_domain_to_thread():
     assert links["impeccable.co"] == "https://www.namepros.com/threads/impeccable-co.111"
 
 
+def test_backfill_does_not_bind_stray_domain_to_unrelated_thread():
+    # A domain that appears on the page but NOT under its own listing (e.g. in a
+    # "similar threads" box next to an unrelated auction) must NOT be bound to that
+    # nearest thread — its slug doesn't name the domain. This is the aftershock.org
+    # ↛ xfun.xyz bug: the only thread row is xfun.xyz, and aftershock.org shows up
+    # later on the page as a cross-reference.
+    html = (
+        '<a data-preview-url="/threads/xfun-xyz-next-bid-6-20-bin.1393424/preview">xfun.xyz - next bid $6.20 BIN</a>'
+        '<div class="similarThreads"><a href="/threads/aftershock-org.999/">AfterShock.org - $53</a></div>'
+    )
+    links = {}
+    src.backfill_links(html, {"aftershock.org": 53}, links)
+    assert "aftershock.org" not in links  # not bound to the xfun.xyz thread
+    kept, dropped = src.require_post_url({"aftershock.org": 53}, links)
+    assert kept == {} and dropped == 1
+
+
 def test_require_post_url_drops_domains_without_a_thread_url():
     # Only names tied to a captured NamePros listing-thread URL qualify — a name with no thread
     # URL (would fall back to a "find on NamePros" search) is not a specific for-sale/auction post.
