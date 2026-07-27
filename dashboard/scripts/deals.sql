@@ -120,6 +120,10 @@ alter table deals add column if not exists domain_owner_id uuid references deal_
 create index if not exists idx_deals_domain_owner on deals (domain_owner_id);
 alter table deal_owners enable row level security;
 
+-- Which research-derived owner fields the user MANUALLY edited (so they stop auto-syncing
+-- from the research report; everything else auto-refreshes on view). e.g. {"likely_owner":true}.
+alter table deals add column if not exists owner_manual jsonb;
+
 -- Cron heartbeat — a tiny append-in-place log so we can SEE whether a scheduled job
 -- actually fired (Vercel gives no in-app visibility). Each cron upserts its row at the end
 -- of a run; the UI reads last_run_at to show "emails auto-synced N min ago".

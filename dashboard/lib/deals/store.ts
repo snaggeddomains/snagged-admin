@@ -39,6 +39,9 @@ export type Deal = {
   tags: string[] | null;
   lead_key: string | null;
   domain_owner_id: string | null;  // confirmed owner record (set at Negotiating)
+  // Which research-derived fields the user has MANUALLY edited — those stop auto-syncing
+  // from the research report; everything else auto-refreshes on view. e.g. {likely_owner:true}.
+  owner_manual: Record<string, boolean> | null;
   created_by: string | null;
   position: number | null;
   created_at: string;

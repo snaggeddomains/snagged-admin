@@ -131,14 +131,23 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
     hand. `research-link.ts` `researchReportSummary(domain)` → research `GET /api/internal/report-
     summary?domain=` (`{likely_owner, owner_type, owner_contact, summary, appraisal:{mid,low,high}}`
     from the newest DONE run's report PART-1 via `summarizeReport` + cache-first Appraise.net).
-    The GET fills **only still-empty** fields (`likely_owner`/`owner_contact`/`appraisal_value` ← mid)
-    via `updateDeal` — a manual edit always wins, and filled values persist so it stops re-fetching.
-  - **"↻ Re-sync from research" (2026-07-27).** Because the GET only fills EMPTIES, a report that's
-    RE-RUN (owner changed) won't flow through on its own. A button in the deal sidebar (shown when a
-    `report_link` exists) POSTs `action:'resync-research'` → re-pulls `researchReportSummary` +
-    `researchReportLink` and **OVERWRITES** `likely_owner`/`owner_contact`/`appraisal_value` (+ logs a
-    note on the timeline). Explicit user action, so overwriting a prior value is intended.
-    `deal-client.tsx` `resyncResearch`; route action in `app/api/admin/deals/[id]/route.ts`.
+    (Superseded 2026-07-27 — now AUTO-SYNCS, see below.)
+  - **Auto-sync owner/appraisal from research + manual-freeze (2026-07-27).** The GET now refreshes
+    `likely_owner`/`owner_contact`/`appraisal_value` to the report's CURRENT findings on EVERY view
+    (only writing when a value actually changed), so a **re-run report** whose likely owner changed
+    flows into the deal on its own. A field the user has **manually edited** is FROZEN and never
+    overwritten — tracked in **`deals.owner_manual` jsonb** (`{likely_owner:true,…}`): the PATCH marks
+    a field manual only when its incoming value actually DIFFERS from the current one (so an unchanged
+    field submitted by the edit form doesn't freeze it); a domain change resets `owner_manual` to null.
+    Existing deals have no `owner_manual` → all three auto-sync (which is why tealhealth.com updates on
+    next view). Cost: `researchReportSummary` is fetched per deal-detail view (bounded internal DB read;
+    add a throttle column later if needed).
+  - **"↻ Re-sync from research" button** (deal sidebar, shown when `report_link` exists): POSTs
+    `action:'resync-research'` → re-pulls + OVERWRITES the three fields AND clears `owner_manual`
+    (un-freezes everything so it resumes auto-syncing) + logs a timeline note. `deal-client.tsx`
+    `resyncResearch`; route action in `app/api/admin/deals/[id]/route.ts`.
+    **Migration:** `deals.owner_manual jsonb` (`scripts/deals.sql`, `add column if not exists`);
+    `updateDeal` strip-retries so auto-sync works pre-migration (only the manual-freeze needs the column).
   - **Header links → sidebar.** Dropped the two header icon-links; `deal-client.tsx` now shows the
     **Buyer name as the 👤 lead-dossier link** (when `dossierUrl` exists) and a compact **📄 Research
     report "Open report ↗"** row (replacing the long raw URL). `RVal` gained `href`/`emoji` props.

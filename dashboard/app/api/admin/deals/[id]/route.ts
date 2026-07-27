@@ -50,15 +50,21 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     if (link) { try { deal = await updateDeal(deal.id, { report_link: link }, null); } catch { /* keep unlinked */ } }
     else { await kickResearchRun(deal.domain); }
   }
-  // Once research/appraisal has run, pull its structured findings into the sidebar so they
-  // don't have to be typed by hand. Fills ONLY still-empty fields (a manual edit always wins).
-  if (deal.report_link && (!deal.likely_owner || !deal.owner_contact || deal.appraisal_value == null)) {
+  // Auto-sync the sidebar from research: on each view, refresh likely owner / owner contact /
+  // appraisal to the report's CURRENT findings — so a re-run report (owner changed) flows through
+  // on its own. A field the user has MANUALLY edited (tracked in owner_manual) is frozen and never
+  // overwritten; everything else tracks research. Only writes when a value actually changed.
+  if (deal.report_link) {
     const s = await researchReportSummary(deal.domain);
     if (s) {
+      const manual = (deal.owner_manual || {}) as Record<string, boolean>;
       const patch: Record<string, unknown> = {};
-      if (!deal.likely_owner && s.likely_owner) patch.likely_owner = s.likely_owner;
-      if (!deal.owner_contact && s.owner_contact) patch.owner_contact = s.owner_contact;
-      if (deal.appraisal_value == null && s.appraisal && s.appraisal.mid > 0) patch.appraisal_value = Math.round(s.appraisal.mid);
+      if (!manual.likely_owner && s.likely_owner && deal.likely_owner !== s.likely_owner) patch.likely_owner = s.likely_owner;
+      if (!manual.owner_contact && s.owner_contact && deal.owner_contact !== s.owner_contact) patch.owner_contact = s.owner_contact;
+      if (!manual.appraisal_value && s.appraisal && s.appraisal.mid > 0) {
+        const mid = Math.round(s.appraisal.mid);
+        if (deal.appraisal_value !== mid) patch.appraisal_value = mid;
+      }
       if (Object.keys(patch).length) { try { deal = await updateDeal(deal.id, patch, null); } catch { /* keep as-is */ } }
     }
   }
@@ -96,6 +102,19 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
   const patch: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(body)) if (EDITABLE.has(k)) patch[k] = v;
+  // A research-derived field (likely owner / owner contact / appraisal) the user ACTUALLY
+  // changes gets frozen — it stops auto-syncing from the report. Compare to the current value
+  // so an unchanged field submitted by the edit form doesn't accidentally freeze it.
+  {
+    const manual = { ...((deal.owner_manual || {}) as Record<string, boolean>) };
+    let touched = false;
+    for (const fld of ["likely_owner", "owner_contact", "appraisal_value"] as const) {
+      if (fld in patch && String(patch[fld] ?? "") !== String((deal as Record<string, unknown>)[fld] ?? "")) {
+        manual[fld] = true; touched = true;
+      }
+    }
+    if (touched) patch.owner_manual = manual;
+  }
   if (patch.stage !== undefined && typeof patch.stage === "string" && !isStage(patch.stage)) {
     return NextResponse.json({ error: "Unknown stage" }, { status: 400 });
   }
@@ -113,6 +132,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       patch.likely_owner = null;
       patch.owner_contact = null;
       patch.appraisal_value = null;
+      patch.owner_manual = null;   // new domain → fields auto-sync fresh from its report
     } else { delete patch.domain; }
   }
   if (!Object.keys(patch).length) return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
@@ -165,15 +185,16 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       // The GET auto-fill only fills EMPTY fields (so a manual edit persists), so it won't
       // pick up a CHANGED likely owner after a report is re-run — this is the explicit
       // "force the new report into the deal" action. Report link is refreshed too.
-      const patch: Record<string, unknown> = {};
+      const patch: Record<string, unknown> = { owner_manual: null };   // un-freeze → resume auto-sync
       try { const link = await researchReportLink(deal.domain); if (link) patch.report_link = link; } catch { /* keep */ }
       const s = await researchReportSummary(deal.domain);
+      let gotFindings = false;
       if (s) {
-        if (s.likely_owner) patch.likely_owner = s.likely_owner;
-        if (s.owner_contact) patch.owner_contact = s.owner_contact;
-        if (s.appraisal && s.appraisal.mid > 0) patch.appraisal_value = Math.round(s.appraisal.mid);
+        if (s.likely_owner) { patch.likely_owner = s.likely_owner; gotFindings = true; }
+        if (s.owner_contact) { patch.owner_contact = s.owner_contact; gotFindings = true; }
+        if (s.appraisal && s.appraisal.mid > 0) { patch.appraisal_value = Math.round(s.appraisal.mid); gotFindings = true; }
       }
-      if (!Object.keys(patch).length) {
+      if (!gotFindings && !patch.report_link) {
         return NextResponse.json({ ok: false, error: "No research findings yet for this domain." }, { status: 200 });
       }
       const updated = await updateDeal(deal.id, patch, me!.email);
