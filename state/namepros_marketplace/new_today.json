@@ -1,15 +1,10 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 1,
   "domains": [
-    "aftershock.org",
-    "apprehend.com",
-    "chain.co",
-    "happenings.co",
-    "woman.io",
-    "workstation.co"
+    "stoicism.xyz"
   ],
-  "generated_at": "2026-07-27T17:06:56.430722+00:00",
+  "generated_at": "2026-07-27T23:06:35.254019+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
