@@ -1,1 +1,38 @@
-[]
+[
+  {
+    "currency": "USD",
+    "domain": "labourers.com",
+    "end_time_utc": "2026-07-27T21:20:08+00:00",
+    "is_mub": false,
+    "price": 19999.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=labourers.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "organisms.com",
+    "end_time_utc": "2026-07-27T21:19:33+00:00",
+    "is_mub": false,
+    "price": 199970.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=organisms.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "obligations.com",
+    "end_time_utc": "2026-07-27T21:20:24+00:00",
+    "is_mub": false,
+    "price": 149970.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=obligations.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "cleanliness.ai",
+    "end_time_utc": "2026-07-27T21:36:18+00:00",
+    "is_mub": false,
+    "price": 75000.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=cleanliness.ai"
+  }
+]
