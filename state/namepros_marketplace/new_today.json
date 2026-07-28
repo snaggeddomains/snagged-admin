@@ -1,8 +1,11 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-28T17:06:39.996313+00:00",
+  "count": 2,
+  "domains": [
+    "unable.io",
+    "word.com"
+  ],
+  "generated_at": "2026-07-28T23:06:29.143172+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
