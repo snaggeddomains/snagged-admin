@@ -1,7 +1,143 @@
 [
   {
-    "domain": "trippin.com",
-    "price": 300000.0
+    "domain": "novated.com",
+    "price": null
+  },
+  {
+    "domain": "aidens.com",
+    "price": 16000.0
+  },
+  {
+    "domain": "walkers.ai",
+    "price": null
+  },
+  {
+    "domain": "valuing.ai",
+    "price": null
+  },
+  {
+    "domain": "biospan.ai",
+    "price": null
+  },
+  {
+    "domain": "compair.ai",
+    "price": null
+  },
+  {
+    "domain": "roboter.ai",
+    "price": null
+  },
+  {
+    "domain": "biodome.ai",
+    "price": null
+  },
+  {
+    "domain": "visable.ai",
+    "price": null
+  },
+  {
+    "domain": "levate.ai",
+    "price": null
+  },
+  {
+    "domain": "robins.ai",
+    "price": null
+  },
+  {
+    "domain": "manabu.ai",
+    "price": null
+  },
+  {
+    "domain": "sanita.ai",
+    "price": null
+  },
+  {
+    "domain": "megatron.ai",
+    "price": null
+  },
+  {
+    "domain": "chlorine.ai",
+    "price": null
+  },
+  {
+    "domain": "stamford.ai",
+    "price": null
+  },
+  {
+    "domain": "delfin.ai",
+    "price": null
+  },
+  {
+    "domain": "educat.ai",
+    "price": null
+  },
+  {
+    "domain": "oakville.ai",
+    "price": null
+  },
+  {
+    "domain": "janine.ai",
+    "price": null
+  },
+  {
+    "domain": "yvonne.ai",
+    "price": null
+  },
+  {
+    "domain": "sartor.ai",
+    "price": null
+  },
+  {
+    "domain": "greenbank.ai",
+    "price": null
+  },
+  {
+    "domain": "organised.ai",
+    "price": null
+  },
+  {
+    "domain": "himalayas.ai",
+    "price": null
+  },
+  {
+    "domain": "philately.ai",
+    "price": null
+  },
+  {
+    "domain": "vidas.ai",
+    "price": null
+  },
+  {
+    "domain": "caine.ai",
+    "price": null
+  },
+  {
+    "domain": "headmaster.ai",
+    "price": null
+  },
+  {
+    "domain": "authorised.ai",
+    "price": null
+  },
+  {
+    "domain": "tats.ai",
+    "price": null
+  },
+  {
+    "domain": "nucleotide.ai",
+    "price": null
+  },
+  {
+    "domain": "tear.ai",
+    "price": null
+  },
+  {
+    "domain": "whitefield.ai",
+    "price": null
+  },
+  {
+    "domain": "promarketing.ai",
+    "price": null
   },
   {
     "domain": "pretech.net",
@@ -16,19 +152,11 @@
     "price": 30.0
   },
   {
-    "domain": "flys.net",
-    "price": 2499.0
-  },
-  {
     "domain": "tellers.co",
     "price": 250.0
   },
   {
     "domain": "marvins.co",
     "price": 250.0
-  },
-  {
-    "domain": "andhra.co",
-    "price": 4118.0
   }
 ]

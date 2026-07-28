@@ -1,10 +1,25 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 14,
   "domains": [
-    "andhra.co"
+    "yvonne.ai",
+    "walkers.ai",
+    "tear.ai",
+    "stamford.ai",
+    "robins.ai",
+    "organised.ai",
+    "nucleotide.ai",
+    "lgbt.ai",
+    "janine.ai",
+    "himalayas.ai",
+    "headmaster.ai",
+    "erick.ai",
+    "chlorine.ai",
+    "caine.ai"
   ],
-  "generated_at": "2026-07-28T10:00:57.859379+00:00",
-  "mub": [],
+  "generated_at": "2026-07-28T17:01:27.220720+00:00",
+  "mub": [
+    "janine.ai"
+  ],
   "source": "sedo_net_new"
 }
