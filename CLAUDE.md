@@ -286,6 +286,12 @@ Two additions to the Deals CRM: share a deal with a colleague, and a personal "M
     /api/admin/deals?scope=shared` → `sharedDealIdsFor` + `getDealsByIds`, view-only/drag-disabled);
     the rest filter client-side. Budget filter kept as its own select. Search by an all-viewer still
     spans everyone even in `__mine__`.
+  - **Hide snoozed (on the BOARD, 2026-07-28).** A **"Hide snoozed (N)"** checkbox in the board
+    header (default ON, `localStorage['dealsHideSnoozed']`) drops deals the current user has snoozed to
+    a FUTURE date off the board until the revisit date arrives (then it resurfaces as a boomerang on
+    their My Tasks). The board GET returns `snoozedIds` (`pendingReminders(me.email)` filtered to
+    future); the checkbox only shows when the user has something snoozed. A search overrides it so a
+    snoozed deal is still findable. (This lives on the Board, not My Tasks.)
 - **My Tasks** (`/deals/tasks`, the **FIRST/default** Deals tab — `SECTIONS.deals.href` = `/deals/tasks`
   so the header/hub "Deals" link lands here; gated `deals`) — a person's Deals to-do list,
   computed LIVE from existing data (no task table to maintain): `lib/deals/tasks.ts` `myTasks(email)`
@@ -293,12 +299,9 @@ Two additions to the Deals CRM: share a deal with a colleague, and a personal "M
   **assignments** (my open deals I haven't touched yet = freshly handed to me), **boomerangs** (deals I
   snoozed whose date arrived), **shared** (deals shared with me). Each clears itself as the condition
   resolves. API `app/api/admin/deals/tasks/route.ts`; UI `app/deals/tasks/{page,tasks-client}.tsx`
-  (Asana-style grouped list, click a row → the deal).
-  - **Hide snoozed toggle (2026-07-28).** `myTasks` also returns `snoozedIds` (deals with a FUTURE,
-    not-yet-due reminder — from `pendingReminders`). The My Tasks header has a **"Hide snoozed (N)"**
-    checkbox (default ON, `localStorage['dealsHideSnoozed']`) that drops those deals from the replies /
-    assignments / shared buckets until they come due (then they resurface as boomerangs). Boomerangs
-    are never hidden (a due snooze IS the task). The checkbox only shows when something is snoozed.
+  (Asana-style grouped list, click a row → the deal). (A future-snoozed deal is hidden on the BOARD,
+  not here — see the board "Hide snoozed" note above; My Tasks surfaces a snooze only once it comes
+  due, as a boomerang.)
 - **Boomerangs** (`lib/deals/reminders.ts` + `deal_reminders` table): a **⏰ Snooze** control on the
   deal detail sets a PERSONAL revisit date (Tomorrow / 3d / week / custom + a "why" note); it surfaces
   in My Tasks when due. One active reminder per (deal,user). Detail actions `snooze`/`unsnooze`.

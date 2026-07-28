@@ -9,7 +9,7 @@
 
 import { getDb, isDbConfigured } from "../supabase";
 import { listDeals, getDealsByIds, type Deal, type Activity } from "./store";
-import { dueReminders, pendingReminders, type Reminder } from "./reminders";
+import { dueReminders, type Reminder } from "./reminders";
 import { sharesFor } from "./sharing";
 
 const lc = (e: string): string => String(e || "").trim().toLowerCase();
@@ -23,7 +23,6 @@ export type MyTasks = {
   assignments: Deal[];
   boomerangs: BoomerangTask[];
   shared: SharedTask[];
-  snoozedIds: string[];   // deals with a FUTURE (not-yet-due) reminder → hidden when "Hide snoozed" is on
   counts: { replies: number; assignments: number; boomerangs: number; shared: number; actionable: number };
 };
 
@@ -77,17 +76,12 @@ async function newAssignments(me: string): Promise<Deal[]> {
 
 export async function myTasks(email: string): Promise<MyTasks> {
   const me = lc(email);
-  const [replies, assignments, dueRems, shares, pending] = await Promise.all([
+  const [replies, assignments, dueRems, shares] = await Promise.all([
     repliesNeeded(me).catch(() => [] as ReplyTask[]),
     newAssignments(me).catch(() => [] as Deal[]),
     dueReminders(me).catch(() => [] as Reminder[]),
     sharesFor(me).catch(() => []),
-    pendingReminders(me).catch(() => [] as Reminder[]),
   ]);
-  // Deals I've snoozed to a FUTURE date — the "Hide snoozed" toggle drops these from the
-  // active buckets until they come due (then they resurface as boomerangs).
-  const now = Date.now();
-  const snoozedIds = [...new Set(pending.filter((r) => Date.parse(r.remind_at) > now).map((r) => r.deal_id))];
   const remById = new Map((await getDealsByIds(dueRems.map((r) => r.deal_id))).map((d) => [d.id, d]));
   const boomerangs = dueRems.map((r) => { const d = remById.get(r.deal_id); return d ? { deal: d, reminder: r } : null; }).filter(Boolean) as BoomerangTask[];
   const shById = new Map((await getDealsByIds(shares.map((s) => s.deal_id))).map((d) => [d.id, d]));
@@ -96,5 +90,5 @@ export async function myTasks(email: string): Promise<MyTasks> {
     replies: replies.length, assignments: assignments.length, boomerangs: boomerangs.length, shared: shared.length,
     actionable: replies.length + boomerangs.length,   // the "needs you now" badge (mentions + due boomerangs)
   };
-  return { replies, assignments, boomerangs, shared, snoozedIds, counts };
+  return { replies, assignments, boomerangs, shared, counts };
 }

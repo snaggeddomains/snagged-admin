@@ -7,6 +7,7 @@ import { getCurrentUser } from "@/lib/session";
 import { userCan, userCanAction } from "@/lib/permissions";
 import { listDeals, getDealsByIds, createDeal, boardStats, searchBuyers, dealsConfigured, type CreateDealInput } from "@/lib/deals/store";
 import { sharedDealIdsFor } from "@/lib/deals/sharing";
+import { pendingReminders } from "@/lib/deals/reminders";
 import { notifyAssignment } from "@/lib/deals/notify";
 import { kickResearchRun } from "@/lib/deals/research-link";
 import { assignableUsers } from "@/lib/deals/assignees";
@@ -49,7 +50,12 @@ export async function GET(req: NextRequest) {
     // (usually empty) Unassigned/Inbox column links to where new opportunities actually land. Only
     // for users who can open that tab (research.pipedrive).
     const inquiryCount = userCan(me, "research.pipedrive") ? await countBuyInquiries() : null;
-    return NextResponse.json({ ok: true, configured: true, deals, stats, assignees, emailSync, inquiryCount, canSeeAll: all, me: me.email });
+    // Deals this user has snoozed to a FUTURE date — the board's "Hide snoozed" toggle drops
+    // these until their revisit date arrives (then they resurface on their My Tasks as boomerangs).
+    const now = Date.now();
+    const snoozedIds = [...new Set((await pendingReminders(me.email).catch(() => []))
+      .filter((r) => Date.parse(r.remind_at) > now).map((r) => r.deal_id))];
+    return NextResponse.json({ ok: true, configured: true, deals, stats, assignees, emailSync, inquiryCount, snoozedIds, canSeeAll: all, me: me.email });
   } catch (e) {
     return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
   }

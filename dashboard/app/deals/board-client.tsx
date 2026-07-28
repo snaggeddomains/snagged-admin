@@ -17,7 +17,7 @@ type Deal = {
 type Assignee = { email: string; name: string };
 type Stats = { open: number; pipelineValue: number; byStage: Record<string, number> };
 type Heartbeat = { name: string; last_run_at: string; last_result: Record<string, unknown> | null };
-type Resp = { ok: boolean; configured: boolean; deals: Deal[]; stats: Stats | null; assignees: Assignee[]; emailSync?: Heartbeat | null; inquiryCount?: number | null; canSeeAll: boolean; me: string; error?: string };
+type Resp = { ok: boolean; configured: boolean; deals: Deal[]; stats: Stats | null; assignees: Assignee[]; emailSync?: Heartbeat | null; inquiryCount?: number | null; snoozedIds?: string[]; canSeeAll: boolean; me: string; error?: string };
 
 // "42 min ago" / "3 hours ago" — for the email-cron heartbeat line.
 function ago(iso: string | null | undefined): string {
@@ -60,6 +60,7 @@ export default function BoardClient() {
   //  ""=all deals · __mine__=my deals · __shared__=shared with me · __inbox__=unassigned · <owner-email>
   const [scope, setScope] = useState("");
   const [budgetFilter, setBudgetFilter] = useState("");
+  const [hideSnoozed, setHideSnoozed] = useState(true);   // hide deals I've snoozed until they come due
   const [q, setQ] = useState("");
   const [dragId, setDragId] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState<string | null>(null);
@@ -92,6 +93,8 @@ export default function BoardClient() {
   useEffect(() => {
     if (!scopeDefaulted.current && data?.canSeeAll) { scopeDefaulted.current = true; setScope("__mine__"); }
   }, [data?.canSeeAll]);
+  useEffect(() => { try { const v = localStorage.getItem("dealsHideSnoozed"); if (v != null) setHideSnoozed(v === "1"); } catch { /* ignore */ } }, []);
+  const toggleHideSnoozed = (v: boolean) => { setHideSnoozed(v); try { localStorage.setItem("dealsHideSnoozed", v ? "1" : "0"); } catch { /* ignore */ } };
 
   const nameFor = useMemo(() => {
     const m = new Map<string, string>();
@@ -113,6 +116,7 @@ export default function BoardClient() {
     return (email: string | null) => email ? (m.get(email.toLowerCase()) || hashColor(email)) : "#b7bcc2";
   }, [data]);
 
+  const snoozed = useMemo(() => new Set(data?.snoozedIds || []), [data]);
   const deals = useMemo(() => {
     let all = data?.deals || [];
     // "Shared with me" is a server-side scope — the rows are already the right set, don't filter.
@@ -125,8 +129,11 @@ export default function BoardClient() {
       else if (scope && scope !== "__mine__") all = all.filter((d) => (d.owner_email || "").toLowerCase() === scope.toLowerCase());
     }
     if (budgetFilter) all = all.filter((d) => (d.budget_range || "") === budgetFilter);
+    // Hide deals I've snoozed to a future date (until the revisit date arrives). A search overrides
+    // this so a snoozed deal is still findable by domain/buyer.
+    if (hideSnoozed && snoozed.size && !q.trim()) all = all.filter((d) => !snoozed.has(d.id));
     return all;
-  }, [data, scope, budgetFilter, q]);
+  }, [data, scope, budgetFilter, q, hideSnoozed, snoozed]);
 
   // Within a column, float higher-priority deals to the top (Top → High → Normal → Low →
   // none), keeping the manual drag order (position) as the tiebreak.
@@ -215,6 +222,11 @@ export default function BoardClient() {
             {BUDGET_BANDS.map((b) => <option key={b} value={b}>{b}</option>)}
           </select>
           {budgetFilter && <button style={btn} onClick={() => setBudgetFilter("")}>Clear</button>}
+          {snoozed.size > 0 && (
+            <label style={{ fontSize: 13, display: "inline-flex", alignItems: "center", gap: 5, cursor: "pointer", color: "var(--navy-2,#4a5b66)" }} title="Hide deals you've snoozed until their revisit date">
+              <input type="checkbox" checked={hideSnoozed} onChange={(e) => toggleHideSnoozed(e.target.checked)} /> Hide snoozed{hideSnoozed ? ` (${snoozed.size})` : ""}
+            </label>
+          )}
           <button style={btn} onClick={() => setShowPrefs(true)} title="Notification preferences">🔔</button>
           <button style={btn} onClick={() => load()} disabled={loading}>{loading ? "…" : "↻"}</button>
           <button style={btnPrimary} onClick={() => setShowNew(true)}>+ New deal</button>
