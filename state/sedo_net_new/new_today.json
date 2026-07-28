@@ -1,13 +1,10 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 1,
   "domains": [
-    "organisms.com",
-    "obligations.com",
-    "cleanliness.ai",
-    "labourers.com"
+    "andhra.co"
   ],
-  "generated_at": "2026-07-27T23:00:48.551154+00:00",
+  "generated_at": "2026-07-28T10:00:57.859379+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }

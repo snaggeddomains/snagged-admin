@@ -1,54 +1,34 @@
 [
   {
-    "domain": "ugandas.com",
-    "price": 2495.0
+    "domain": "trippin.com",
+    "price": 300000.0
   },
   {
-    "domain": "shashe.com",
-    "price": 8970.0
-  },
-  {
-    "domain": "perfects.com",
-    "price": 199970.0
-  },
-  {
-    "domain": "analogues.com",
-    "price": 15970.0
-  },
-  {
-    "domain": "labourers.com",
-    "price": 19999.0
-  },
-  {
-    "domain": "organisms.com",
-    "price": 199970.0
-  },
-  {
-    "domain": "obligations.com",
-    "price": 149970.0
-  },
-  {
-    "domain": "cleanliness.ai",
-    "price": 75000.0
-  },
-  {
-    "domain": "alcohols.net",
-    "price": 1999.0
+    "domain": "pretech.net",
+    "price": 4777.0
   },
   {
     "domain": "fishings.net",
-    "price": 50.0
+    "price": 30.0
   },
   {
-    "domain": "tumor.net",
-    "price": 4870.0
+    "domain": "acnes.net",
+    "price": 30.0
   },
   {
-    "domain": "barometer.net",
-    "price": 1999.0
+    "domain": "flys.net",
+    "price": 2499.0
   },
   {
-    "domain": "photogallery.net",
-    "price": 1970.0
+    "domain": "tellers.co",
+    "price": 250.0
+  },
+  {
+    "domain": "marvins.co",
+    "price": 250.0
+  },
+  {
+    "domain": "andhra.co",
+    "price": 4118.0
   }
 ]
