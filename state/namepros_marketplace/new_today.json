@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "feeble.ai"
-  ],
-  "generated_at": "2026-07-28T10:05:50.828050+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-07-28T17:06:39.996313+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
