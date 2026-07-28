@@ -140,6 +140,42 @@ alter table domain_research_leads add column if not exists dismissed boolean def
 alter table domain_research_leads add column if not exists dismissed_by text;
 alter table domain_research_leads add column if not exists dismissed_at timestamptz;
 
+-- ============================================================================
+-- Deal SHARING + My Tasks (boomerangs) — 2026-07-28
+-- ============================================================================
+
+-- Share a deal with a colleague. Created explicitly (Share button) OR implicitly when
+-- you @mention someone in a comment. A shared user gets VIEW + COMMENT access to that
+-- deal (not edit / stage / reassign — the owner stays in control). One row per (deal,user).
+create table if not exists deal_shares (
+  id          uuid primary key default gen_random_uuid(),
+  deal_id     uuid not null references deals(id) on delete cascade,
+  user_email  text not null,                       -- lowercased
+  shared_by   text,                                -- who granted access (email)
+  created_at  timestamptz not null default now(),
+  unique (deal_id, user_email)
+);
+create index if not exists idx_deal_shares_user on deal_shares (lower(user_email));
+create index if not exists idx_deal_shares_deal on deal_shares (deal_id);
+alter table deal_shares enable row level security;
+
+-- Boomerang / snooze: a PERSONAL reminder to revisit a deal on a date (everyone sets their
+-- own). Surfaces in My Tasks when remind_at passes; `done` clears it. One active reminder
+-- per (deal,user) — setting a new one supersedes the prior active one.
+create table if not exists deal_reminders (
+  id          uuid primary key default gen_random_uuid(),
+  deal_id     uuid not null references deals(id) on delete cascade,
+  user_email  text not null,                       -- whose reminder (lowercased)
+  remind_at   timestamptz not null,                -- when it boomerangs back
+  note        text,                                -- optional "why"
+  done        boolean not null default false,
+  created_by  text,
+  created_at  timestamptz not null default now()
+);
+create index if not exists idx_deal_reminders_due on deal_reminders (lower(user_email), done, remind_at);
+create index if not exists idx_deal_reminders_deal on deal_reminders (deal_id, lower(user_email));
+alter table deal_reminders enable row level security;
+
 alter table deals enable row level security;
 alter table deal_activity enable row level security;
 alter table deal_emails enable row level security;

@@ -75,3 +75,17 @@ export async function notifyMention(deal: Deal, mentioned: string[], byEmail: st
   const by = byEmail ? await displayName(byEmail) : "Someone";
   return deliver(targets, `💬 ${by} mentioned you on ${deal.domain}`, [comment.slice(0, 300)], deal.id, "#comments");
 }
+
+// A deal was explicitly SHARED with someone (Share button, no comment) — tell them they now
+// have access. (An @mention auto-share is announced by notifyMention instead, so this is only
+// used for the button path with the NEWLY-added collaborators.)
+export async function notifyShare(deal: Deal, sharedWith: string[], byEmail: string | null): Promise<boolean> {
+  const targets = sharedWith.map((e) => e.toLowerCase()).filter((e) => e && e !== (byEmail || "").toLowerCase());
+  if (!targets.length) return false;
+  const by = byEmail ? await displayName(byEmail) : "Someone";
+  const lines = [
+    `${by} shared a deal with you — you can now view it and join the discussion.`,
+    deal.buyer_name ? `Buyer: ${deal.buyer_name}` : "",
+  ];
+  return deliver(targets, `🤝 ${by} shared ${deal.domain} with you`, lines, deal.id, "#comments");
+}

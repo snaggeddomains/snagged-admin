@@ -20,7 +20,8 @@ type Email = { id: string; mailbox: string | null; subject: string | null; snipp
 type Assignee = { email: string; name: string };
 type AddlDomain = { domain: string; report: string | null };
 type OwnerRecord = { id: string; name: string };
-type Resp = { ok: boolean; deal: Deal; dossierUrl: string | null; ownerRecord?: OwnerRecord | null; additional?: AddlDomain[]; activity: Activity[]; emails: Email[]; assignees: Assignee[]; me: string; error?: string };
+type Reminder = { id: string; remind_at: string; note: string | null };
+type Resp = { ok: boolean; deal: Deal; dossierUrl: string | null; ownerRecord?: OwnerRecord | null; additional?: AddlDomain[]; activity: Activity[]; emails: Email[]; assignees: Assignee[]; shares?: string[]; reminder?: Reminder | null; canEdit?: boolean; me: string; error?: string };
 
 const card: CSSProperties = { border: "1px solid var(--line,#e3ddcf)", borderRadius: 12, padding: 16, background: "var(--paper,#fff)", marginBottom: 14 };
 const lbl: CSSProperties = { display: "block", fontSize: 11.5, fontWeight: 700, color: "var(--navy-2,#4a5b66)", margin: "9px 0 3px", textTransform: "uppercase", letterSpacing: ".02em" };
@@ -48,8 +49,30 @@ export default function DealClient({ id }: { id: string }) {
   const [negSeed, setNegSeed] = useState<ConfirmOwnerSeed | null>(null); // confirm-owner on move to Negotiating
   const [pendingAtts, setPendingAtts] = useState<{ url: string; name: string; type: string }[]>([]); // images staged for the next comment
   const [uploading, setUploading] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [snoozeOpen, setSnoozeOpen] = useState(false);
   const taRef = useRef<HTMLTextAreaElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // Share a deal with a colleague (view + comment). Also happens implicitly on @mention.
+  const shareWith = async (email: string) => {
+    await fetch(`/api/admin/deals/${id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "share", emails: [email] }) });
+    await load();
+  };
+  const unshare = async (email: string) => {
+    await fetch(`/api/admin/deals/${id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "unshare", email }) });
+    await load();
+  };
+  // Boomerang — snooze the deal to revisit on a date (personal; surfaces in My Tasks when due).
+  const snooze = async (remindAt: string, noteText: string) => {
+    if (!remindAt) return;
+    await fetch(`/api/admin/deals/${id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "snooze", remind_at: remindAt, note: noteText }) });
+    setSnoozeOpen(false); await load();
+  };
+  const unsnooze = async () => {
+    await fetch(`/api/admin/deals/${id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "unsnooze" }) });
+    await load();
+  };
 
   // Close Won — confirm owner/contact + price/commission + recap, set won, log the recap.
   const closeWon = async (f: WonForm) => {
@@ -222,19 +245,56 @@ export default function DealClient({ id }: { id: string }) {
   const tagsStr = Array.isArray(f.tags) ? f.tags.join(", ") : (f.tags || "");
   const oc = ownerColor(d.owner_email);
   const mentionMatches = mq != null ? (data.assignees.filter((a) => a.name.toLowerCase().includes(mq) || a.email.toLowerCase().includes(mq)).slice(0, 6)) : [];
+  const canEdit = data.canEdit !== false;                 // a shared viewer can comment but not edit
+  const shares = data.shares || [];
+  const shareable = data.assignees.filter((a) => a.email.toLowerCase() !== (d.owner_email || "").toLowerCase() && !shares.includes(a.email.toLowerCase()));
 
   return (
     <main style={{ maxWidth: 1080, margin: "0 auto" }}>
       <button style={{ ...btn, border: "none", padding: "4px 0", marginBottom: 8 }} onClick={() => router.push("/deals")}>← Board</button>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 8 }}>
         <h1 style={{ fontSize: "1.5rem", margin: 0 }}>{d.domain}</h1>
-        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          {!editing && d.status === "open" && d.stage === STAGES[STAGES.length - 1] && <button style={{ ...btn, color: "#1f7a5a", borderColor: "#1f7a5a" }} onClick={() => setWonOpen(true)}>✓ Close won</button>}
-          {!editing
+        <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+          {!canEdit && <span style={{ fontSize: 12, fontWeight: 700, color: "#1f6b52", background: "#dff2ea", borderRadius: 999, padding: "3px 10px" }}>🔗 Shared with you · view &amp; comment</span>}
+          {data.reminder
+            ? <button style={{ ...btn, color: "#9a3412", borderColor: "#f0c9a8" }} onClick={unsnooze} title={`Boomerangs ${when(data.reminder.remind_at)}`}>⏰ Snoozed · clear</button>
+            : <button style={btn} onClick={() => setSnoozeOpen((v) => !v)}>⏰ Snooze</button>}
+          <button style={btn} onClick={() => setShareOpen((v) => !v)}>🤝 Share{shares.length ? ` (${shares.length})` : ""}</button>
+          {canEdit && !editing && d.status === "open" && d.stage === STAGES[STAGES.length - 1] && <button style={{ ...btn, color: "#1f7a5a", borderColor: "#1f7a5a" }} onClick={() => setWonOpen(true)}>✓ Close won</button>}
+          {canEdit && (!editing
             ? <button style={btn} onClick={() => { setForm(d); setEditing(true); }}>✎ Edit</button>
-            : <><button style={btn} onClick={() => { setForm(d); setEditing(false); }} disabled={saving}>Cancel</button><button style={btnPrimary} onClick={save} disabled={saving}>{saving ? "Saving…" : "Save"}</button></>}
+            : <><button style={btn} onClick={() => { setForm(d); setEditing(false); }} disabled={saving}>Cancel</button><button style={btnPrimary} onClick={save} disabled={saving}>{saving ? "Saving…" : "Save"}</button></>)}
         </div>
       </div>
+
+      {/* Snooze / boomerang panel */}
+      {snoozeOpen && !data.reminder && (
+        <div style={{ ...card, marginTop: 10, marginBottom: 0, display: "flex", gap: 10, alignItems: "flex-end", flexWrap: "wrap" }}>
+          <SnoozeForm onSet={snooze} onCancel={() => setSnoozeOpen(false)} />
+        </div>
+      )}
+
+      {/* Share panel — who this deal is shared with + add a colleague. */}
+      {shareOpen && (
+        <div style={{ ...card, marginTop: 10, marginBottom: 0 }}>
+          <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 6 }}>Shared with</div>
+          {shares.length === 0 && <div className="muted" style={{ fontSize: 12.5, marginBottom: 6 }}>Not shared yet. Share a deal to let a colleague view it and join the comment thread (they can&apos;t edit). @mentioning someone in a comment shares it too.</div>}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 8 }}>
+            {shares.map((email) => (
+              <span key={email} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#eef4f2", borderRadius: 999, padding: "3px 6px 3px 10px", fontSize: 12.5 }}>
+                <span style={{ color: ownerColor(email), fontWeight: 700 }}>●</span> {nameFor(email)}
+                <button onClick={() => unshare(email)} title="Remove" style={{ border: "none", background: "transparent", cursor: "pointer", color: "#94a3b8", fontSize: 14, lineHeight: 1 }}>✕</button>
+              </span>
+            ))}
+          </div>
+          {shareable.length > 0 && (
+            <select style={{ ...inp, maxWidth: 280 }} value="" onChange={(e) => { if (e.target.value) shareWith(e.target.value); }}>
+              <option value="">＋ Share with…</option>
+              {shareable.map((a) => <option key={a.email} value={a.email}>{a.name}</option>)}
+            </select>
+          )}
+        </div>
+      )}
 
       {/* Stage / Status / Owner / Priority — locked by default; the Edit toggle unlocks. */}
       <div style={{ ...card, display: "flex", gap: 22, flexWrap: "wrap", marginTop: 12 }}>
@@ -512,6 +572,29 @@ function Avatar({ name, bg, size = 28 }: { name: string; bg: string; size?: numb
     <span style={{ width: size, height: size, flex: `0 0 ${size}px`, borderRadius: "50%", background: bg, color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: size * 0.4, fontWeight: 700 }}>
       {initialsOf(name)}
     </span>
+  );
+}
+
+// Boomerang picker — a date (quick presets or a custom date) + optional reason.
+function SnoozeForm({ onSet, onCancel }: { onSet: (remindAt: string, note: string) => void; onCancel: () => void }) {
+  const [date, setDate] = useState("");
+  const [note, setNote] = useState("");
+  const preset = (days: number) => { const dt = new Date(); dt.setDate(dt.getDate() + days); dt.setHours(9, 0, 0, 0); return dt.toISOString(); };
+  return (
+    <>
+      <div>
+        <span style={lbl}>Revisit this deal</span>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          <button style={{ ...btn, padding: "5px 10px", fontSize: 12 }} onClick={() => onSet(preset(1), note)}>Tomorrow</button>
+          <button style={{ ...btn, padding: "5px 10px", fontSize: 12 }} onClick={() => onSet(preset(3), note)}>In 3 days</button>
+          <button style={{ ...btn, padding: "5px 10px", fontSize: 12 }} onClick={() => onSet(preset(7), note)}>In a week</button>
+          <input type="date" style={{ ...inp, width: "auto" }} value={date} onChange={(e) => setDate(e.target.value)} />
+        </div>
+      </div>
+      <input style={{ ...inp, flex: "1 1 160px" }} placeholder="Why revisit? (optional)" value={note} onChange={(e) => setNote(e.target.value)} />
+      <button style={btnPrimary} disabled={!date} onClick={() => date && onSet(new Date(`${date}T09:00:00`).toISOString(), note)}>Set</button>
+      <button style={btn} onClick={onCancel}>Cancel</button>
+    </>
   );
 }
 

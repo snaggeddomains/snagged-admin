@@ -260,6 +260,42 @@ glance whether the cron ran. If it says "not run yet" long after a deploy, the c
   domain/buyer). Without a search, "My deals" still scopes. `board-client.tsx` `deals` memo
   (`searchingAll` guard; `q` added to deps).
 
+## Deal sharing + My Tasks (2026-07-28)
+
+Two additions to the Deals CRM: share a deal with a colleague, and a personal "My Tasks" to-do list.
+
+- **Sharing = VIEW + COMMENT (not edit).** A shared user can read the whole deal and reply in
+  comments / @mention, but can't edit fields, move stages, or reassign — the owner stays in control.
+  - **Data** (`scripts/deals.sql`, run once): `deal_shares` (deal_id, user_email lowercased,
+    shared_by, unique per deal+user). Lib `lib/deals/sharing.ts` (`listSharesForDeal`, `isSharedWith`,
+    `sharedDealIdsFor`, `sharesFor`, `shareDeal` idempotent, `unshareDeal`). RLS enabled.
+  - **Two ways to share:** (1) the **🤝 Share** button on the deal detail (pick from `assignableUsers`);
+    (2) **@mentioning** someone in a comment AUTO-shares the deal with them (the mention handler in
+    `[id]/route.ts` calls `shareDeal` then `notifyMention`). Explicit share fires `notifyShare`
+    (bell+email+Slack, `notify.ts`).
+  - **Access split** (`[id]/route.ts`): `mayEdit` (admin/deals.all/owner/inbox) vs `mayView` (mayEdit
+    OR shared). GET/comment/snooze/share use `mayView`; PATCH + ingest + resync-research require
+    `mayEdit` (a shared viewer gets a 403 "view but not edit"). GET returns `shares`, `reminder`,
+    `canEdit`; `deal-client.tsx` hides ✎ Edit / Close-won for a shared viewer + shows a "🔗 Shared with
+    you · view & comment" badge, and a Share panel (chips + add).
+  - **Board "🤝 Shared with me" scope** (`board-client.tsx` `shared` toggle → `GET
+    /api/admin/deals?scope=shared` → `sharedDealIdsFor` + `getDealsByIds`); those cards are view-only
+    (drag disabled).
+- **My Tasks** (`/deals/tasks`, tab in `DEALS_TABS`, gated `deals`) — a person's Deals to-do list,
+  computed LIVE from existing data (no task table to maintain): `lib/deals/tasks.ts` `myTasks(email)`
+  → 4 buckets: **replies** (a comment @mentioned me and I haven't replied since — from deal_activity),
+  **assignments** (my open deals I haven't touched yet = freshly handed to me), **boomerangs** (deals I
+  snoozed whose date arrived), **shared** (deals shared with me). Each clears itself as the condition
+  resolves. API `app/api/admin/deals/tasks/route.ts`; UI `app/deals/tasks/{page,tasks-client}.tsx`
+  (Asana-style grouped list, click a row → the deal).
+- **Boomerangs** (`lib/deals/reminders.ts` + `deal_reminders` table): a **⏰ Snooze** control on the
+  deal detail sets a PERSONAL revisit date (Tomorrow / 3d / week / custom + a "why" note); it surfaces
+  in My Tasks when due. One active reminder per (deal,user). Detail actions `snooze`/`unsnooze`.
+- **Degrades gracefully pre-SQL:** the sharing/reminder lib fns fail-open (missing table → [] / null),
+  so My Tasks still shows replies + assignments and the deal detail works; sharing + boomerangs light
+  up once `deal_shares` + `deal_reminders` are created. **One-time setup:** run the updated
+  `scripts/deals.sql`. No new permission (the `deals` module gates it) — a shared user just needs `deals`.
+
 ---
 
 # Webflow CMS — Marketplace listings (pull + edit) (2026-07-23)

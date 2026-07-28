@@ -156,6 +156,8 @@ export const RESEARCH_TABS: { href: string; label: string; perm: ModuleKey | Act
 // deal detail lives at /deals/<id>. Gated by the `deals` module (deals.all sees everyone's).
 export const DEALS_TABS: { href: string; label: string; perm: ModuleKey | ActionKey }[] = [
   { href: "/deals", label: "Board", perm: "deals" },
+  // Personal to-do list — replies owed, new assignments, boomerangs, deals shared with you.
+  { href: "/deals/tasks", label: "My Tasks", perm: "deals" },
   { href: "/deals/list", label: "List", perm: "deals" },
   // Owner intelligence directory — every domain owner we work with + negotiation history.
   { href: "/deals/owners", label: "Owners", perm: "deals" },

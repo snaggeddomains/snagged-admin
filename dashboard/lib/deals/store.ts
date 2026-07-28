@@ -264,6 +264,17 @@ export async function getDeal(id: string): Promise<Deal | null> {
   return (data as Deal) || null;
 }
 
+// Fetch a set of deals by id (order preserved to match the caller's id order). Used by the
+// "Shared with me" scope + My Tasks, which resolve a list of ids to full deals.
+export async function getDealsByIds(ids: string[]): Promise<Deal[]> {
+  const want = [...new Set(ids.filter(Boolean))];
+  if (!want.length) return [];
+  const { data, error } = await getDb().from(DEALS).select("*").in("id", want);
+  if (error) return [];
+  const byId = new Map((data as Deal[]).map((d) => [d.id, d]));
+  return want.map((id) => byId.get(id)).filter(Boolean) as Deal[];
+}
+
 // Patch mutable fields. Records a field_change / stage_change / status_change / assignment
 // activity for the meaningful ones. `actor` is the acting user's email.
 export async function updateDeal(id: string, patch: Record<string, unknown>, actor: string | null): Promise<Deal> {

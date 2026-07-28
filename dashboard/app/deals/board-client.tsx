@@ -57,6 +57,7 @@ export default function BoardClient() {
   const [err, setErr] = useState<string | null>(null);
   const [status, setStatus] = useState("open");
   const [mine, setMine] = useState(false);
+  const [shared, setShared] = useState(false);   // "Shared with me" scope (view-only deals)
   const [ownerFilter, setOwnerFilter] = useState("");
   const [budgetFilter, setBudgetFilter] = useState("");
   const [q, setQ] = useState("");
@@ -73,6 +74,7 @@ export default function BoardClient() {
     setLoading(true); setErr(null);
     try {
       const p = new URLSearchParams();
+      if (shared) p.set("scope", "shared");
       if (status !== "all") p.set("status", status);
       if (q) p.set("q", q);
       const res = await fetch(`/api/admin/deals?${p.toString()}`, { cache: "no-store" });
@@ -81,7 +83,7 @@ export default function BoardClient() {
       setData(j);
     } catch (e) { setErr(String((e as Error)?.message || e)); }
     finally { setLoading(false); }
-  }, [status, q]);
+  }, [status, q, shared]);
   useEffect(() => { load(); }, [load]);
 
   // Default "My deals" ON for people who can see everyone's — so an all-viewer lands on
@@ -116,7 +118,7 @@ export default function BoardClient() {
     // A search by an all-viewer spans EVERYONE's deals, even with "My deals" checked — so you
     // can always find any deal by domain/buyer. (Without a search, "My deals" still scopes.)
     const searchingAll = q.trim().length > 0 && !!data?.canSeeAll;
-    if (mine && data && !searchingAll) all = all.filter((d) => (d.owner_email || "").toLowerCase() === data.me.toLowerCase());
+    if (mine && !shared && data && !searchingAll) all = all.filter((d) => (d.owner_email || "").toLowerCase() === data.me.toLowerCase());
     if (ownerFilter) all = all.filter((d) => ownerFilter === "__inbox__" ? !d.owner_email : (d.owner_email || "").toLowerCase() === ownerFilter.toLowerCase());
     if (budgetFilter) all = all.filter((d) => (d.budget_range || "") === budgetFilter);
     return all;
@@ -133,7 +135,7 @@ export default function BoardClient() {
     return m;
   }, [deals]);
 
-  const stageDrag = status === "open"; // stage columns only accept drops in the Open view
+  const stageDrag = status === "open" && !shared; // stage columns only accept drops in the Open view (shared deals are view-only)
   const dragDeal = dragId ? (data?.deals || []).find((x) => x.id === dragId) : null;
   const move = async (id: string, stage: string) => {
     const d = (data?.deals || []).find((x) => x.id === id);
@@ -206,11 +208,14 @@ export default function BoardClient() {
             {BUDGET_BANDS.map((b) => <option key={b} value={b}>{b}</option>)}
           </select>
           {(ownerFilter || budgetFilter) && <button style={btn} onClick={() => { setOwnerFilter(""); setBudgetFilter(""); }}>Clear</button>}
-          {data?.canSeeAll && (
+          {data?.canSeeAll && !shared && (
             <label style={{ fontSize: 13, display: "inline-flex", alignItems: "center", gap: 5, cursor: "pointer" }}>
               <input type="checkbox" checked={mine} onChange={(e) => setMine(e.target.checked)} /> My deals
             </label>
           )}
+          <label style={{ fontSize: 13, display: "inline-flex", alignItems: "center", gap: 5, cursor: "pointer" }} title="Deals colleagues have shared with you (view + comment only)">
+            <input type="checkbox" checked={shared} onChange={(e) => setShared(e.target.checked)} /> 🤝 Shared with me
+          </label>
           <button style={btn} onClick={() => setShowPrefs(true)} title="Notification preferences">🔔</button>
           <button style={btn} onClick={() => load()} disabled={loading}>{loading ? "…" : "↻"}</button>
           <button style={btnPrimary} onClick={() => setShowNew(true)}>+ New deal</button>
