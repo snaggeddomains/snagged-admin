@@ -1,10 +1,11 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 2,
   "domains": [
-    "steal.org"
+    "steal.org",
+    "reorganisation.com"
   ],
-  "generated_at": "2026-07-28T15:04:27.417163+00:00",
+  "generated_at": "2026-07-28T15:06:02.338132+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
