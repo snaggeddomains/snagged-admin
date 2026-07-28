@@ -1,12 +1,10 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 1,
   "domains": [
-    "swept.org",
-    "prone.org",
-    "colonization.co"
+    "inherited.org"
   ],
-  "generated_at": "2026-07-27T08:14:41.342179+00:00",
+  "generated_at": "2026-07-28T08:18:35.831823+00:00",
   "mub": [],
   "source": "afternic"
 }
