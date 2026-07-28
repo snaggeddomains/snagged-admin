@@ -278,16 +278,27 @@ Two additions to the Deals CRM: share a deal with a colleague, and a personal "M
     `mayEdit` (a shared viewer gets a 403 "view but not edit"). GET returns `shares`, `reminder`,
     `canEdit`; `deal-client.tsx` hides ✎ Edit / Close-won for a shared viewer + shows a "🔗 Shared with
     you · view & comment" badge, and a Share panel (chips + add).
-  - **Board "🤝 Shared with me" scope** (`board-client.tsx` `shared` toggle → `GET
-    /api/admin/deals?scope=shared` → `sharedDealIdsFor` + `getDealsByIds`); those cards are view-only
-    (drag disabled).
-- **My Tasks** (`/deals/tasks`, tab in `DEALS_TABS`, gated `deals`) — a person's Deals to-do list,
+  - **Board scope dropdown (2026-07-28).** The board header's My-deals + Shared-with-me checkboxes +
+    the All-owners dropdown were consolidated into ONE **scope `<select>`** (`board-client.tsx`
+    `scope` state): `""`=All deals (all-viewers) / `__mine__`=My deals / `__shared__`=🤝 Shared with me
+    / `__inbox__`=Unassigned / `<owner-email>`=that owner. All-viewers default to `__mine__`; non-all
+    viewers see only My deals + Shared. `__shared__` is a server scope (`GET
+    /api/admin/deals?scope=shared` → `sharedDealIdsFor` + `getDealsByIds`, view-only/drag-disabled);
+    the rest filter client-side. Budget filter kept as its own select. Search by an all-viewer still
+    spans everyone even in `__mine__`.
+- **My Tasks** (`/deals/tasks`, the **FIRST/default** Deals tab — `SECTIONS.deals.href` = `/deals/tasks`
+  so the header/hub "Deals" link lands here; gated `deals`) — a person's Deals to-do list,
   computed LIVE from existing data (no task table to maintain): `lib/deals/tasks.ts` `myTasks(email)`
   → 4 buckets: **replies** (a comment @mentioned me and I haven't replied since — from deal_activity),
   **assignments** (my open deals I haven't touched yet = freshly handed to me), **boomerangs** (deals I
   snoozed whose date arrived), **shared** (deals shared with me). Each clears itself as the condition
   resolves. API `app/api/admin/deals/tasks/route.ts`; UI `app/deals/tasks/{page,tasks-client}.tsx`
   (Asana-style grouped list, click a row → the deal).
+  - **Hide snoozed toggle (2026-07-28).** `myTasks` also returns `snoozedIds` (deals with a FUTURE,
+    not-yet-due reminder — from `pendingReminders`). The My Tasks header has a **"Hide snoozed (N)"**
+    checkbox (default ON, `localStorage['dealsHideSnoozed']`) that drops those deals from the replies /
+    assignments / shared buckets until they come due (then they resurface as boomerangs). Boomerangs
+    are never hidden (a due snooze IS the task). The checkbox only shows when something is snoozed.
 - **Boomerangs** (`lib/deals/reminders.ts` + `deal_reminders` table): a **⏰ Snooze** control on the
   deal detail sets a PERSONAL revisit date (Tomorrow / 3d / week / custom + a "why" note); it surfaces
   in My Tasks when due. One active reminder per (deal,user). Detail actions `snooze`/`unsnooze`.

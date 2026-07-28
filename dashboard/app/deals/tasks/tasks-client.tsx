@@ -13,6 +13,7 @@ type SharedTask = { deal: Deal; shared_by: string | null; created_at: string };
 type Assignee = { email: string; name: string };
 type Payload = {
   replies: ReplyTask[]; assignments: Deal[]; boomerangs: BoomerangTask[]; shared: SharedTask[];
+  snoozedIds: string[];
   counts: { replies: number; assignments: number; boomerangs: number; shared: number; actionable: number };
   assignees: Assignee[]; me: string;
 };
@@ -33,6 +34,9 @@ export default function TasksClient() {
   const [data, setData] = useState<Payload | null>(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
+  const [hideSnoozed, setHideSnoozed] = useState(true);   // snoozed deals stay hidden until due
+  useEffect(() => { try { const v = localStorage.getItem("dealsHideSnoozed"); if (v != null) setHideSnoozed(v === "1"); } catch { /* ignore */ } }, []);
+  const toggleHideSnoozed = (v: boolean) => { setHideSnoozed(v); try { localStorage.setItem("dealsHideSnoozed", v ? "1" : "0"); } catch { /* ignore */ } };
 
   const load = useCallback(async () => {
     setLoading(true); setErr(null);
@@ -54,14 +58,28 @@ export default function TasksClient() {
     };
   }, [data]);
 
-  const c = data?.counts;
-  const total = c ? c.replies + c.boomerangs + c.shared + c.assignments : 0;
+  // Hide deals I've snoozed to a future date (until they come due → boomerangs).
+  const snoozed = useMemo(() => new Set(data?.snoozedIds || []), [data]);
+  const keep = useCallback((id: string) => !hideSnoozed || !snoozed.has(id), [hideSnoozed, snoozed]);
+  const replies = (data?.replies || []).filter((t) => keep(t.deal.id));
+  const assignments = (data?.assignments || []).filter((d) => keep(d.id));
+  const shared = (data?.shared || []).filter((t) => keep(t.deal.id));
+  const boomerangs = data?.boomerangs || [];
+  const total = replies.length + boomerangs.length + shared.length + assignments.length;
+  const hiddenCount = snoozed.size;
 
   return (
     <main style={{ maxWidth: 860, margin: "0 auto" }}>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, marginBottom: 4 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 4, flexWrap: "wrap" }}>
         <h1 style={{ fontSize: "1.5rem", margin: 0 }}>My Tasks</h1>
-        <button onClick={load} disabled={loading} style={{ fontSize: 13, background: "transparent", border: "1px solid #dbe3e7", borderRadius: 8, padding: "4px 12px", cursor: "pointer", color: "#475569" }}>↻ Refresh</button>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          {hiddenCount > 0 && (
+            <label style={{ fontSize: 13, display: "inline-flex", alignItems: "center", gap: 5, cursor: "pointer", color: "#475569" }} title="Hide deals you've snoozed until their revisit date">
+              <input type="checkbox" checked={hideSnoozed} onChange={(e) => toggleHideSnoozed(e.target.checked)} /> Hide snoozed{hideSnoozed ? ` (${hiddenCount})` : ""}
+            </label>
+          )}
+          <button onClick={load} disabled={loading} style={{ fontSize: 13, background: "transparent", border: "1px solid #dbe3e7", borderRadius: 8, padding: "4px 12px", cursor: "pointer", color: "#475569" }}>↻ Refresh</button>
+        </div>
       </div>
       <p className="muted" style={{ marginTop: 0, fontSize: 13 }}>
         Your Deals to-do list — comments to reply to, deals just handed to you, boomerangs that came back, and deals shared with you.
@@ -73,38 +91,38 @@ export default function TasksClient() {
         <div style={{ padding: "40px 0", textAlign: "center" }}>
           <div style={{ fontSize: 40 }}>🎉</div>
           <div style={{ fontWeight: 600, marginTop: 6 }}>You&apos;re all caught up</div>
-          <div className="muted" style={{ fontSize: 13 }}>No replies owed, no boomerangs due, nothing new on your plate.</div>
+          <div className="muted" style={{ fontSize: 13 }}>No replies owed, no boomerangs due, nothing new on your plate.{hideSnoozed && hiddenCount > 0 ? ` (${hiddenCount} snoozed hidden)` : ""}</div>
         </div>
       )}
 
       {data && (
         <>
-          <Section title="Replies needed" emoji="💬" color="#b45309" count={c!.replies}>
-            {data.replies.map((t) => (
+          <Section title="Replies needed" emoji="💬" color="#b45309" count={replies.length}>
+            {replies.map((t) => (
               <Row key={t.deal.id + t.comment.id} deal={t.deal} nameOf={nameOf} router={router}
                 context={<><b>{nameOf(t.comment.user_email)}</b> mentioned you{t.comment.body ? `: ${t.comment.body.slice(0, 120)}` : ""}</>}
                 time={t.comment.created_at} />
             ))}
           </Section>
 
-          <Section title="Boomerangs — time to revisit" emoji="⏰" color="#9a3412" count={c!.boomerangs}>
-            {data.boomerangs.map((t) => (
+          <Section title="Boomerangs — time to revisit" emoji="⏰" color="#9a3412" count={boomerangs.length}>
+            {boomerangs.map((t) => (
               <Row key={t.deal.id + t.reminder.id} deal={t.deal} nameOf={nameOf} router={router}
                 context={<>Snoozed to revisit{t.reminder.note ? ` — ${t.reminder.note}` : ""}</>}
                 time={t.reminder.remind_at} />
             ))}
           </Section>
 
-          <Section title="Shared with you" emoji="🤝" color="#1f6b52" count={c!.shared}>
-            {data.shared.map((t) => (
+          <Section title="Shared with you" emoji="🤝" color="#1f6b52" count={shared.length}>
+            {shared.map((t) => (
               <Row key={t.deal.id} deal={t.deal} nameOf={nameOf} router={router}
                 context={<><b>{nameOf(t.shared_by)}</b> looped you in</>}
                 time={t.created_at} />
             ))}
           </Section>
 
-          <Section title="New on your plate" emoji="📥" color="#475569" count={c!.assignments}>
-            {data.assignments.map((d) => (
+          <Section title="New on your plate" emoji="📥" color="#475569" count={assignments.length}>
+            {assignments.map((d) => (
               <Row key={d.id} deal={d} nameOf={nameOf} router={router}
                 context={<>Assigned to you — {d.stage}</>} time={null} />
             ))}
