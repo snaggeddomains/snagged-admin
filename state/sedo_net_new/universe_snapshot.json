@@ -4,8 +4,36 @@
     "price": null
   },
   {
+    "domain": "favore.com",
+    "price": 33000.0
+  },
+  {
+    "domain": "spanding.com",
+    "price": 13750.0
+  },
+  {
     "domain": "aidens.com",
     "price": 16000.0
+  },
+  {
+    "domain": "jannah.com",
+    "price": 999999.0
+  },
+  {
+    "domain": "salaam.com",
+    "price": 999999.0
+  },
+  {
+    "domain": "changgong.com",
+    "price": 7722.0
+  },
+  {
+    "domain": "connotion.com",
+    "price": 13750.0
+  },
+  {
+    "domain": "unabridge.com",
+    "price": 10450.0
   },
   {
     "domain": "walkers.ai",
@@ -52,19 +80,19 @@
     "price": null
   },
   {
-    "domain": "megatron.ai",
-    "price": null
-  },
-  {
-    "domain": "chlorine.ai",
-    "price": null
-  },
-  {
     "domain": "stamford.ai",
     "price": null
   },
   {
     "domain": "delfin.ai",
+    "price": null
+  },
+  {
+    "domain": "megatron.ai",
+    "price": null
+  },
+  {
+    "domain": "chlorine.ai",
     "price": null
   },
   {
@@ -100,10 +128,6 @@
     "price": null
   },
   {
-    "domain": "philately.ai",
-    "price": null
-  },
-  {
     "domain": "vidas.ai",
     "price": null
   },
@@ -112,7 +136,23 @@
     "price": null
   },
   {
+    "domain": "philately.ai",
+    "price": null
+  },
+  {
+    "domain": "perfectives.com",
+    "price": 10450.0
+  },
+  {
     "domain": "headmaster.ai",
+    "price": null
+  },
+  {
+    "domain": "tear.ai",
+    "price": null
+  },
+  {
+    "domain": "nucleotide.ai",
     "price": null
   },
   {
@@ -124,14 +164,6 @@
     "price": null
   },
   {
-    "domain": "nucleotide.ai",
-    "price": null
-  },
-  {
-    "domain": "tear.ai",
-    "price": null
-  },
-  {
     "domain": "whitefield.ai",
     "price": null
   },
@@ -140,23 +172,15 @@
     "price": null
   },
   {
-    "domain": "pretech.net",
-    "price": 4777.0
+    "domain": "sissies.net",
+    "price": 500.0
   },
   {
-    "domain": "fishings.net",
-    "price": 30.0
+    "domain": "freed.co",
+    "price": 4995.0
   },
   {
-    "domain": "acnes.net",
-    "price": 30.0
-  },
-  {
-    "domain": "tellers.co",
-    "price": 250.0
-  },
-  {
-    "domain": "marvins.co",
-    "price": 250.0
+    "domain": "swims.co",
+    "price": 14999.0
   }
 ]

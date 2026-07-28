@@ -1,6 +1,15 @@
 [
   {
     "currency": "USD",
+    "domain": "salaam.com",
+    "end_time_utc": "2026-07-28T23:04:54+00:00",
+    "is_mub": false,
+    "price": 999999.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=salaam.com"
+  },
+  {
+    "currency": "USD",
     "domain": "walkers.ai",
     "end_time_utc": "2026-07-28T14:19:20+00:00",
     "is_mub": false,
@@ -19,21 +28,21 @@
   },
   {
     "currency": "USD",
-    "domain": "chlorine.ai",
-    "end_time_utc": "2026-07-28T14:20:00+00:00",
-    "is_mub": false,
-    "price": null,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=chlorine.ai"
-  },
-  {
-    "currency": "USD",
     "domain": "stamford.ai",
     "end_time_utc": "2026-07-28T14:18:35+00:00",
     "is_mub": false,
     "price": null,
     "tld": "ai",
     "url": "https://sedo.com/search/details/?domain=stamford.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "chlorine.ai",
+    "end_time_utc": "2026-07-28T14:20:00+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=chlorine.ai"
   },
   {
     "currency": "USD",
@@ -100,15 +109,6 @@
   },
   {
     "currency": "USD",
-    "domain": "nucleotide.ai",
-    "end_time_utc": "2026-07-28T14:18:29+00:00",
-    "is_mub": false,
-    "price": null,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=nucleotide.ai"
-  },
-  {
-    "currency": "USD",
     "domain": "tear.ai",
     "end_time_utc": "2026-07-28T14:18:45+00:00",
     "is_mub": false,
@@ -118,11 +118,38 @@
   },
   {
     "currency": "USD",
+    "domain": "nucleotide.ai",
+    "end_time_utc": "2026-07-28T14:18:29+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=nucleotide.ai"
+  },
+  {
+    "currency": "USD",
     "domain": "lgbt.ai",
     "end_time_utc": "2026-07-28T14:18:20+00:00",
     "is_mub": false,
     "price": null,
     "tld": "ai",
     "url": "https://sedo.com/search/details/?domain=lgbt.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "freed.co",
+    "end_time_utc": "2026-07-28T18:49:20+00:00",
+    "is_mub": false,
+    "price": 4995.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=freed.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "swims.co",
+    "end_time_utc": "2026-07-28T22:04:13+00:00",
+    "is_mub": false,
+    "price": 14999.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=swims.co"
   }
 ]
