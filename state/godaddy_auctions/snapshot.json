@@ -1,92 +1,65 @@
 [
   {
-    "bid_count": 13,
-    "domain": "dput.com",
-    "end_time_utc": "2026-07-27T16:17:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/dput-com-714799052?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 296.0
-  },
-  {
-    "bid_count": 5,
-    "domain": "naivo.com",
-    "end_time_utc": "2026-07-27T17:14:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/naivo-com-714811348?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 21.0
-  },
-  {
     "bid_count": 6,
-    "domain": "healq.com",
-    "end_time_utc": "2026-07-27T17:19:00+00:00",
+    "domain": "attn.io",
+    "end_time_utc": "2026-07-28T16:03:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/healq-com-714812330?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/attn-io-715102756?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 20.0
+    "price": 38.0
   },
   {
-    "bid_count": 5,
-    "domain": "bfuy.com",
-    "end_time_utc": "2026-07-27T17:40:00+00:00",
+    "bid_count": 8,
+    "domain": "zenda.org",
+    "end_time_utc": "2026-07-28T17:19:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/bfuy-com-714787350?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/zenda-org-714812142?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 68.0
+    "price": 67.0
   },
   {
-    "bid_count": 18,
-    "domain": "umew.com",
-    "end_time_utc": "2026-07-27T18:10:00+00:00",
+    "bid_count": 101,
+    "domain": "distilled.com",
+    "end_time_utc": "2026-07-28T18:10:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/umew-com-714802469?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/distilled-com-715139198?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 186.0
+    "price": 15749.0
   },
   {
     "bid_count": 0,
-    "domain": "pursuing.org",
-    "end_time_utc": "2026-07-27T18:34:00+00:00",
+    "domain": "appeared.org",
+    "end_time_utc": "2026-07-28T18:32:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/pursuing-org-713985963?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/appeared-org-714781046?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
     "price": 1.0
   },
   {
-    "bid_count": 23,
-    "domain": "drizzles.com",
-    "end_time_utc": "2026-07-27T18:58:00+00:00",
+    "bid_count": 16,
+    "domain": "depts.com",
+    "end_time_utc": "2026-07-28T18:49:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/drizzles-com-714787812?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/depts-com-713901351?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 384.0
+    "price": 530.0
   },
   {
-    "bid_count": 29,
-    "domain": "lstar.com",
-    "end_time_utc": "2026-07-27T19:50:00+00:00",
+    "bid_count": 70,
+    "domain": "2286.com",
+    "end_time_utc": "2026-07-28T20:30:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/lstar-com-713340290?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/2286-com-715121308?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 285.0
+    "price": 5706.0
   },
   {
-    "bid_count": 9,
-    "domain": "bzye.com",
-    "end_time_utc": "2026-07-27T20:35:00+00:00",
+    "bid_count": 18,
+    "domain": "shavy.com",
+    "end_time_utc": "2026-07-28T21:15:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/bzye-com-714787378?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/shavy-com-715123932?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 75.0
-  },
-  {
-    "bid_count": 15,
-    "domain": "candels.com",
-    "end_time_utc": "2026-07-27T21:09:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/candels-com-714787891?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 290.0
+    "price": 265.0
   }
 ]

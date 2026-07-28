@@ -7,5 +7,14 @@
     "link": "https://www.namesilo.com/auctions/lactic.co",
     "platform": "NameSilo",
     "price": 1.0
+  },
+  {
+    "bid_count": 46,
+    "domain": "drado.com",
+    "end_time_utc": "2026-07-29T15:00:00+00:00",
+    "is_mub": true,
+    "link": "https://www.namesilo.com/auctions/drado.com",
+    "platform": "NameSilo",
+    "price": 305.0
   }
 ]

@@ -1,19 +1,16 @@
 {
   "capped": false,
-  "count": 10,
+  "count": 7,
   "domains": [
-    "dput.com",
-    "naivo.com",
-    "healq.com",
-    "bfuy.com",
-    "umew.com",
-    "pursuing.org",
-    "drizzles.com",
-    "lstar.com",
-    "bzye.com",
-    "candels.com"
+    "attn.io",
+    "zenda.org",
+    "distilled.com",
+    "appeared.org",
+    "depts.com",
+    "2286.com",
+    "shavy.com"
   ],
-  "generated_at": "2026-07-27T09:45:38.573981+00:00",
+  "generated_at": "2026-07-28T09:44:31.876742+00:00",
   "mub": [],
   "source": "godaddy_auctions"
 }

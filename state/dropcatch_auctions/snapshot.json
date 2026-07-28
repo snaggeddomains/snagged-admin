@@ -1,65 +1,65 @@
 [
   {
-    "bid_count": 37,
-    "domain": "puar.com",
-    "end_time_utc": "2026-07-27T18:59:58.607351+00:00",
+    "bid_count": 42,
+    "domain": "xeid.com",
+    "end_time_utc": "2026-07-28T18:59:55.970594+00:00",
     "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Puar.com",
+    "link": "https://www.dropcatch.com/domain/xeid.com",
     "platform": "DropCatch",
-    "price": 1800.0
+    "price": 1204.0
   },
   {
-    "bid_count": 48,
-    "domain": "rayons.com",
-    "end_time_utc": "2026-07-27T18:59:58.607351+00:00",
+    "bid_count": 31,
+    "domain": "kweek.com",
+    "end_time_utc": "2026-07-28T18:59:55.970594+00:00",
     "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Rayons.com",
+    "link": "https://www.dropcatch.com/domain/Kweek.com",
     "platform": "DropCatch",
-    "price": 350.0
-  },
-  {
-    "bid_count": 32,
-    "domain": "scoor.com",
-    "end_time_utc": "2026-07-27T18:59:58.607351+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Scoor.com",
-    "platform": "DropCatch",
-    "price": 174.0
-  },
-  {
-    "bid_count": 17,
-    "domain": "bxno.com",
-    "end_time_utc": "2026-07-27T18:59:58.607351+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Bxno.com",
-    "platform": "DropCatch",
-    "price": 166.0
+    "price": 850.0
   },
   {
     "bid_count": 9,
     "domain": "copax.com",
-    "end_time_utc": "2026-07-28T18:59:58.607351+00:00",
+    "end_time_utc": "2026-07-28T18:59:55.970594+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/copax.com",
     "platform": "DropCatch",
     "price": 800.0
   },
   {
-    "bid_count": 29,
-    "domain": "kweek.com",
-    "end_time_utc": "2026-07-28T18:59:58.607351+00:00",
+    "bid_count": 27,
+    "domain": "grandx.org",
+    "end_time_utc": "2026-07-28T18:59:55.970594+00:00",
     "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Kweek.com",
+    "link": "https://www.dropcatch.com/domain/GranDx.org",
     "platform": "DropCatch",
-    "price": 750.0
+    "price": 242.0
   },
   {
     "bid_count": 33,
     "domain": "makings.com",
-    "end_time_utc": "2026-07-31T18:59:58.607351+00:00",
+    "end_time_utc": "2026-07-31T18:59:55.970594+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Makings.com",
     "platform": "DropCatch",
     "price": 380.0
+  },
+  {
+    "bid_count": 35,
+    "domain": "tgl.net",
+    "end_time_utc": "2026-07-31T18:59:55.970594+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Tgl.net",
+    "platform": "DropCatch",
+    "price": 151.0
+  },
+  {
+    "bid_count": 12,
+    "domain": "vpsa.com",
+    "end_time_utc": "2026-08-03T18:59:55.970594+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/vpsa.com",
+    "platform": "DropCatch",
+    "price": 115.0
   }
 ]

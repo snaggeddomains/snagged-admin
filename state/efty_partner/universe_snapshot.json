@@ -1,5 +1,369 @@
 [
   {
+    "domain": "lividly.com",
+    "price": 85000.0
+  },
+  {
+    "domain": "servicesupport.com",
+    "price": null
+  },
+  {
+    "domain": "applogic.org",
+    "price": null
+  },
+  {
+    "domain": "fingerpass.com",
+    "price": null
+  },
+  {
+    "domain": "countryfrog.com",
+    "price": null
+  },
+  {
+    "domain": "cosytoy.com",
+    "price": 200.0
+  },
+  {
+    "domain": "coolinglass.com",
+    "price": 200.0
+  },
+  {
+    "domain": "coolgurus.com",
+    "price": 300.0
+  },
+  {
+    "domain": "comocoffees.com",
+    "price": 500.0
+  },
+  {
+    "domain": "comicars.com",
+    "price": 200.0
+  },
+  {
+    "domain": "collegepot.com",
+    "price": 200.0
+  },
+  {
+    "domain": "coachpride.com",
+    "price": 200.0
+  },
+  {
+    "domain": "clubgadgets.com",
+    "price": 200.0
+  },
+  {
+    "domain": "clearbeverages.com",
+    "price": 200.0
+  },
+  {
+    "domain": "cleanmoms.com",
+    "price": 200.0
+  },
+  {
+    "domain": "cleaningcube.com",
+    "price": 200.0
+  },
+  {
+    "domain": "citywipe.com",
+    "price": 200.0
+  },
+  {
+    "domain": "chuyee.com",
+    "price": 500.0
+  },
+  {
+    "domain": "chromesupport.com",
+    "price": 200.0
+  },
+  {
+    "domain": "childsalon.com",
+    "price": 200.0
+  },
+  {
+    "domain": "childhoodpics.com",
+    "price": 100.0
+  },
+  {
+    "domain": "cherryfarmer.com",
+    "price": 300.0
+  },
+  {
+    "domain": "cheerwatch.com",
+    "price": 200.0
+  },
+  {
+    "domain": "ceoschools.com",
+    "price": 250.0
+  },
+  {
+    "domain": "centrefunding.com",
+    "price": 250.0
+  },
+  {
+    "domain": "celebrityband.com",
+    "price": 300.0
+  },
+  {
+    "domain": "cashtwice.com",
+    "price": 250.0
+  },
+  {
+    "domain": "cashclot.com",
+    "price": 250.0
+  },
+  {
+    "domain": "cargoshops.com",
+    "price": 300.0
+  },
+  {
+    "domain": "careerswaps.com",
+    "price": 200.0
+  },
+  {
+    "domain": "careersummer.com",
+    "price": 250.0
+  },
+  {
+    "domain": "careercaps.com",
+    "price": 300.0
+  },
+  {
+    "domain": "cardiopain.com",
+    "price": 300.0
+  },
+  {
+    "domain": "carbanco.com",
+    "price": 250.0
+  },
+  {
+    "domain": "cameradoctors.com",
+    "price": 2580.0
+  },
+  {
+    "domain": "callphysician.com",
+    "price": 250.0
+  },
+  {
+    "domain": "cakespoint.com",
+    "price": 250.0
+  },
+  {
+    "domain": "busybosses.com",
+    "price": 200.0
+  },
+  {
+    "domain": "bunkerplan.com",
+    "price": 300.0
+  },
+  {
+    "domain": "buildpink.com",
+    "price": 200.0
+  },
+  {
+    "domain": "buildlong.com",
+    "price": 200.0
+  },
+  {
+    "domain": "builderbars.com",
+    "price": 200.0
+  },
+  {
+    "domain": "brothertrader.com",
+    "price": 200.0
+  },
+  {
+    "domain": "brokerbankers.com",
+    "price": 200.0
+  },
+  {
+    "domain": "breezyplay.com",
+    "price": 200.0
+  },
+  {
+    "domain": "bravobuilds.com",
+    "price": 200.0
+  },
+  {
+    "domain": "borrobe.com",
+    "price": 200.0
+  },
+  {
+    "domain": "bookaccountant.com",
+    "price": 300.0
+  },
+  {
+    "domain": "bodypanda.com",
+    "price": 200.0
+  },
+  {
+    "domain": "blueveg.com",
+    "price": 200.0
+  },
+  {
+    "domain": "blingbubble.com",
+    "price": 200.0
+  },
+  {
+    "domain": "blackflights.com",
+    "price": 500.0
+  },
+  {
+    "domain": "biotechsale.com",
+    "price": 200.0
+  },
+  {
+    "domain": "bingoguys.com",
+    "price": 200.0
+  },
+  {
+    "domain": "billionmagic.com",
+    "price": 200.0
+  },
+  {
+    "domain": "bigvivid.com",
+    "price": 200.0
+  },
+  {
+    "domain": "bigaxiom.com",
+    "price": 200.0
+  },
+  {
+    "domain": "biblehelpline.com",
+    "price": 300.0
+  },
+  {
+    "domain": "beepar.com",
+    "price": 300.0
+  },
+  {
+    "domain": "bebecapital.com",
+    "price": 200.0
+  },
+  {
+    "domain": "hangluo.com",
+    "price": null
+  },
+  {
+    "domain": "feicong.com",
+    "price": null
+  },
+  {
+    "domain": "mainao.com",
+    "price": null
+  },
+  {
+    "domain": "naojun.com",
+    "price": null
+  },
+  {
+    "domain": "pingshou.com",
+    "price": null
+  },
+  {
+    "domain": "beanbars.com",
+    "price": 1000.0
+  },
+  {
+    "domain": "batterychicago.com",
+    "price": 200.0
+  },
+  {
+    "domain": "barterhands.com",
+    "price": 200.0
+  },
+  {
+    "domain": "bartercall.com",
+    "price": 200.0
+  },
+  {
+    "domain": "bagsmate.com",
+    "price": 300.0
+  },
+  {
+    "domain": "awsmobile.com",
+    "price": 300.0
+  },
+  {
+    "domain": "avidbuyers.com",
+    "price": 300.0
+  },
+  {
+    "domain": "astrospirits.com",
+    "price": 300.0
+  },
+  {
+    "domain": "astromods.com",
+    "price": 300.0
+  },
+  {
+    "domain": "astrodubai.com",
+    "price": 10000.0
+  },
+  {
+    "domain": "assetsbot.com",
+    "price": 300.0
+  },
+  {
+    "domain": "ashfordcollege.com",
+    "price": 200.0
+  },
+  {
+    "domain": "artistwatches.com",
+    "price": 200.0
+  },
+  {
+    "domain": "arabianpacific.com",
+    "price": 300.0
+  },
+  {
+    "domain": "applyexperts.com",
+    "price": 200.0
+  },
+  {
+    "domain": "appliedcourses.com",
+    "price": 300.0
+  },
+  {
+    "domain": "appleplants.com",
+    "price": 200.0
+  },
+  {
+    "domain": "anyoneday.com",
+    "price": 200.0
+  },
+  {
+    "domain": "anotherlevels.com",
+    "price": 200.0
+  },
+  {
+    "domain": "amazonvista.com",
+    "price": 200.0
+  },
+  {
+    "domain": "alienmask.com",
+    "price": 30.0
+  },
+  {
+    "domain": "akbarmarket.com",
+    "price": 300.0
+  },
+  {
+    "domain": "agilemoms.com",
+    "price": 300.0
+  },
+  {
+    "domain": "africabargain.com",
+    "price": 300.0
+  },
+  {
+    "domain": "adventjourney.com",
+    "price": 300.0
+  },
+  {
+    "domain": "academyfun.com",
+    "price": 20.0
+  },
+  {
     "domain": "virtualnovels.com",
     "price": null
   },
@@ -81288,10 +81652,6 @@
     "price": null
   },
   {
-    "domain": "fiscalpoll.com",
-    "price": null
-  },
-  {
     "domain": "filesection.com",
     "price": null
   },
@@ -92257,10 +92617,6 @@
   },
   {
     "domain": "alphas.ai",
-    "price": null
-  },
-  {
-    "domain": "whitewand.com",
     "price": null
   },
   {
@@ -279040,10 +279396,6 @@
     "price": null
   },
   {
-    "domain": "comecloser.net",
-    "price": null
-  },
-  {
     "domain": "coffeetables.net",
     "price": null
   },
@@ -296301,7 +296653,7 @@
   },
   {
     "domain": "oaklanddivorce.com",
-    "price": 1495.0
+    "price": 1500.0
   },
   {
     "domain": "notebooksite.com",
@@ -296321,7 +296673,7 @@
   },
   {
     "domain": "livingportland.com",
-    "price": 1495.0
+    "price": 2500.0
   },
   {
     "domain": "lawyerspokane.com",
@@ -366217,10 +366569,6 @@
   },
   {
     "domain": "blockexpert.com",
-    "price": null
-  },
-  {
-    "domain": "nelvis.com",
     "price": null
   },
   {

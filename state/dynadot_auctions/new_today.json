@@ -1,16 +1,8 @@
 {
   "capped": false,
-  "count": 5,
-  "domains": [
-    "playfun.net",
-    "viennese.org",
-    "folsom.co",
-    "staturf.com",
-    "grips.org"
-  ],
-  "generated_at": "2026-07-27T09:44:51.824291+00:00",
-  "mub": [
-    "folsom.co"
-  ],
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-07-28T09:43:45.728432+00:00",
+  "mub": [],
   "source": "dynadot_auctions"
 }
