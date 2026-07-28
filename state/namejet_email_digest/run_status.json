@@ -1,10 +1,10 @@
 {
-  "deduped_against_existing": 0,
+  "deduped_against_existing": 1,
   "emails_processed": 1,
-  "generated_at": "2026-07-28T15:11:20.937463+00:00",
+  "generated_at": "2026-07-28T15:44:32.740528+00:00",
   "label": "NameJet Email",
-  "new_count": 0,
-  "sheet_total_after": 1298,
+  "new_count": 2,
+  "sheet_total_after": 1300,
   "slack_posted": true,
   "source": "namejet_email_digest",
   "status": "ok"
