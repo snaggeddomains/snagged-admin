@@ -1,12 +1,10 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 1,
   "domains": [
-    "salaam.com",
-    "swims.co",
-    "freed.co"
+    "pains.com"
   ],
-  "generated_at": "2026-07-28T23:00:58.033140+00:00",
+  "generated_at": "2026-07-29T10:01:05.970098+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
