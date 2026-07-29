@@ -1,11 +1,10 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 1,
   "domains": [
-    "f.com",
-    "z.com"
+    "dml.com"
   ],
-  "generated_at": "2026-07-29T17:06:54.736073+00:00",
+  "generated_at": "2026-07-29T23:06:45.004289+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
