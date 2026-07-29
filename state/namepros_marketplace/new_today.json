@@ -2,10 +2,10 @@
   "capped": false,
   "count": 2,
   "domains": [
-    "football.com",
-    "ron.xyz"
+    "f.com",
+    "z.com"
   ],
-  "generated_at": "2026-07-29T10:05:57.708285+00:00",
+  "generated_at": "2026-07-29T17:06:54.736073+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
