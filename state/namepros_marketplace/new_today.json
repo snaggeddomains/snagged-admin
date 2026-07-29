@@ -2,10 +2,10 @@
   "capped": false,
   "count": 2,
   "domains": [
-    "unable.io",
-    "word.com"
+    "football.com",
+    "ron.xyz"
   ],
-  "generated_at": "2026-07-28T23:06:29.143172+00:00",
+  "generated_at": "2026-07-29T10:05:57.708285+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
