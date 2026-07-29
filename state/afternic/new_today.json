@@ -1,10 +1,15 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 6,
   "domains": [
-    "inherited.org"
+    "crenshaw.co",
+    "nevertheless.io",
+    "economies.co",
+    "animators.ai",
+    "reimbursement.co",
+    "conjecture.co"
   ],
-  "generated_at": "2026-07-28T08:18:35.831823+00:00",
+  "generated_at": "2026-07-29T08:17:39.086093+00:00",
   "mub": [],
   "source": "afternic"
 }
