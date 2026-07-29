@@ -1,11 +1,10 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 1,
   "domains": [
-    "cigs.org",
-    "poorer.org"
+    "serpent.org"
   ],
-  "generated_at": "2026-07-29T15:10:46.412225+00:00",
+  "generated_at": "2026-07-29T15:46:44.146361+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
