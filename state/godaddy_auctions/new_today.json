@@ -1,16 +1,23 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 14,
   "domains": [
-    "attn.io",
-    "zenda.org",
-    "distilled.com",
-    "appeared.org",
-    "depts.com",
-    "2286.com",
-    "shavy.com"
+    "savants.com",
+    "introduces.org",
+    "irje.com",
+    "drible.com",
+    "bulw.com",
+    "dvly.com",
+    "skylines.net",
+    "belgo.com",
+    "joins.co",
+    "tzki.com",
+    "mavis.co",
+    "gyana.com",
+    "dummi.com",
+    "lykh.com"
   ],
-  "generated_at": "2026-07-28T09:44:31.876742+00:00",
+  "generated_at": "2026-07-29T09:47:13.909827+00:00",
   "mub": [],
   "source": "godaddy_auctions"
 }

@@ -1,65 +1,47 @@
 [
   {
-    "bid_count": 42,
-    "domain": "xeid.com",
-    "end_time_utc": "2026-07-28T18:59:55.970594+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/xeid.com",
-    "platform": "DropCatch",
-    "price": 1204.0
-  },
-  {
-    "bid_count": 31,
-    "domain": "kweek.com",
-    "end_time_utc": "2026-07-28T18:59:55.970594+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Kweek.com",
-    "platform": "DropCatch",
-    "price": 850.0
-  },
-  {
-    "bid_count": 9,
-    "domain": "copax.com",
-    "end_time_utc": "2026-07-28T18:59:55.970594+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/copax.com",
-    "platform": "DropCatch",
-    "price": 800.0
-  },
-  {
-    "bid_count": 27,
-    "domain": "grandx.org",
-    "end_time_utc": "2026-07-28T18:59:55.970594+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/GranDx.org",
-    "platform": "DropCatch",
-    "price": 242.0
-  },
-  {
-    "bid_count": 33,
+    "bid_count": 35,
     "domain": "makings.com",
-    "end_time_utc": "2026-07-31T18:59:55.970594+00:00",
+    "end_time_utc": "2026-07-31T18:59:30.069298+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Makings.com",
     "platform": "DropCatch",
-    "price": 380.0
+    "price": 1655.0
   },
   {
-    "bid_count": 35,
+    "bid_count": 116,
+    "domain": "svai.com",
+    "end_time_utc": "2026-07-31T18:59:30.069298+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Svai.com",
+    "platform": "DropCatch",
+    "price": 1001.0
+  },
+  {
+    "bid_count": 41,
     "domain": "tgl.net",
-    "end_time_utc": "2026-07-31T18:59:55.970594+00:00",
+    "end_time_utc": "2026-07-31T18:59:30.069298+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Tgl.net",
     "platform": "DropCatch",
-    "price": 151.0
+    "price": 220.0
   },
   {
-    "bid_count": 12,
+    "bid_count": 27,
+    "domain": "xilos.com",
+    "end_time_utc": "2026-07-31T18:59:30.069298+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Xilos.com",
+    "platform": "DropCatch",
+    "price": 114.0
+  },
+  {
+    "bid_count": 36,
     "domain": "vpsa.com",
-    "end_time_utc": "2026-08-03T18:59:55.970594+00:00",
+    "end_time_utc": "2026-08-03T18:59:30.069298+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/vpsa.com",
     "platform": "DropCatch",
-    "price": 115.0
+    "price": 465.0
   }
 ]

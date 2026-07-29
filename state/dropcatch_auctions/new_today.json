@@ -1,16 +1,14 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 5,
   "domains": [
-    "xeid.com",
-    "kweek.com",
-    "copax.com",
-    "grandx.org",
     "makings.com",
+    "svai.com",
     "tgl.net",
+    "xilos.com",
     "vpsa.com"
   ],
-  "generated_at": "2026-07-28T09:43:57.025695+00:00",
+  "generated_at": "2026-07-29T09:46:31.342822+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }
