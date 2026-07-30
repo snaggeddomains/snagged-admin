@@ -1,11 +1,10 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 1,
   "domains": [
-    "6900.org",
-    "reaching.co"
+    "revenge.now"
   ],
-  "generated_at": "2026-07-30T10:07:06.932586+00:00",
+  "generated_at": "2026-07-30T17:06:36.821168+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
