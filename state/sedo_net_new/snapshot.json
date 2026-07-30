@@ -4,18 +4,27 @@
     "domain": "dictators.com",
     "end_time_utc": "2026-07-30T11:15:09+00:00",
     "is_mub": false,
-    "price": null,
+    "price": 98000.0,
     "tld": "com",
     "url": "https://sedo.com/search/details/?domain=dictators.com"
   },
   {
     "currency": "USD",
-    "domain": "qlb.com",
-    "end_time_utc": "2026-07-30T02:43:07+00:00",
+    "domain": "forsyth.ai",
+    "end_time_utc": "2026-07-30T17:24:22+00:00",
     "is_mub": false,
-    "price": 103578.0,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=qlb.com"
+    "price": 9800.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=forsyth.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "passwords.ai",
+    "end_time_utc": "2026-07-30T12:45:21+00:00",
+    "is_mub": false,
+    "price": 120000.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=passwords.ai"
   },
   {
     "currency": "USD",
