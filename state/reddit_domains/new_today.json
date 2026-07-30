@@ -1,8 +1,11 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-30T10:01:10.903835+00:00",
+  "count": 2,
+  "domains": [
+    "apartments.com",
+    "finals.io"
+  ],
+  "generated_at": "2026-07-30T17:01:12.309136+00:00",
   "mub": [],
   "source": "reddit_domains"
 }
