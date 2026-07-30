@@ -1,23 +1,14 @@
 {
   "capped": false,
-  "count": 14,
+  "count": 5,
   "domains": [
-    "savants.com",
-    "introduces.org",
-    "irje.com",
-    "drible.com",
-    "bulw.com",
-    "dvly.com",
-    "skylines.net",
-    "belgo.com",
-    "joins.co",
-    "tzki.com",
-    "mavis.co",
-    "gyana.com",
-    "dummi.com",
-    "lykh.com"
+    "reduces.org",
+    "zigma.co",
+    "fsuz.com",
+    "pffs.com",
+    "vailo.com"
   ],
-  "generated_at": "2026-07-29T09:47:13.909827+00:00",
+  "generated_at": "2026-07-30T09:48:34.643798+00:00",
   "mub": [],
   "source": "godaddy_auctions"
 }

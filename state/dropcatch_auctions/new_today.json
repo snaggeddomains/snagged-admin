@@ -1,14 +1,16 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 7,
   "domains": [
-    "makings.com",
+    "piffer.com",
     "svai.com",
+    "makings.com",
     "tgl.net",
     "xilos.com",
-    "vpsa.com"
+    "vpsa.com",
+    "luxen.com"
   ],
-  "generated_at": "2026-07-29T09:46:31.342822+00:00",
+  "generated_at": "2026-07-30T09:47:52.446740+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }

@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "swims.co"
-  ],
-  "generated_at": "2026-07-29T09:02:34.094514+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-07-30T09:04:04.351231+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

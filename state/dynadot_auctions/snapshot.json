@@ -1,65 +1,65 @@
 [
   {
-    "bid_count": 6,
-    "domain": "lidx.com",
-    "end_time_utc": "2026-07-29T13:44:54+00:00",
+    "bid_count": 10,
+    "domain": "tingx.com",
+    "end_time_utc": "2026-07-30T13:29:54+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41711017.html",
+    "link": "https://www.dynadot.com/market/auction/41761296.html",
     "platform": "Dynadot",
-    "price": 264.8
+    "price": 76.21
   },
   {
-    "bid_count": 48,
-    "domain": "drado.com",
-    "end_time_utc": "2026-07-29T15:00:00+00:00",
-    "is_mub": true,
-    "link": "https://www.dynadot.com/market/auction/40702519.html",
+    "bid_count": 41,
+    "domain": "strictly.org",
+    "end_time_utc": "2026-07-30T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.dynadot.com/market/auction/40735487.html",
     "platform": "Dynadot",
-    "price": 311.49
+    "price": 68.55
   },
   {
-    "bid_count": 17,
-    "domain": "dubson.com",
-    "end_time_utc": "2026-07-29T15:00:00+00:00",
+    "bid_count": 10,
+    "domain": "sexe.org",
+    "end_time_utc": "2026-07-30T16:37:40+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40702733.html",
+    "link": "https://www.dynadot.com/market/auction/41782707.html",
     "platform": "Dynadot",
-    "price": 90.0
+    "price": 56.9
   },
   {
-    "bid_count": 0,
-    "domain": "dreyfus.co",
-    "end_time_utc": "2026-07-29T19:29:59+00:00",
+    "bid_count": 31,
+    "domain": "aromma.com",
+    "end_time_utc": "2026-07-30T18:22:38+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41700405.html",
+    "link": "https://www.dynadot.com/market/auction/41740101.html",
     "platform": "Dynadot",
-    "price": 7.99
+    "price": 105.0
   },
   {
-    "bid_count": 8,
-    "domain": "ndgo.net",
-    "end_time_utc": "2026-07-29T20:00:00+00:00",
+    "bid_count": 29,
+    "domain": "givw.com",
+    "end_time_utc": "2026-07-30T18:42:53+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41348905.html",
+    "link": "https://www.dynadot.com/market/auction/41740920.html",
     "platform": "Dynadot",
-    "price": 14.0
+    "price": 115.06
   },
   {
-    "bid_count": 20,
-    "domain": "uleaf.com",
-    "end_time_utc": "2026-07-29T20:00:00+00:00",
+    "bid_count": 58,
+    "domain": "besl.com",
+    "end_time_utc": "2026-07-30T19:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41348471.html",
+    "link": "https://www.dynadot.com/market/auction/41763384.html",
     "platform": "Dynadot",
-    "price": 255.0
+    "price": 1325.0
   },
   {
-    "bid_count": 19,
-    "domain": "caradio.com",
-    "end_time_utc": "2026-07-30T00:00:00+00:00",
+    "bid_count": 11,
+    "domain": "decaf.net",
+    "end_time_utc": "2026-07-30T19:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41705093.html",
+    "link": "https://www.dynadot.com/market/auction/41763382.html",
     "platform": "Dynadot",
-    "price": 59.2
+    "price": 23.76
   }
 ]
