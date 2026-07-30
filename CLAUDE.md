@@ -122,6 +122,15 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
     already has a deal (`deals.lead_key` lookup, active view only, fail-open) — so an inquiry that's
     been converted by ANY path self-hides even if the dismiss flag wasn't set (fixes existing rows
     without a DB write). `countBuyInquiries` inherits the filter → the Inbox count stays accurate.
+  - **Dedup also by buyer-email + domain (2026-07-30).** The `lead_key`-only match missed a deal
+    created OUTSIDE the queue that didn't carry the lead_key (a dossier "Add to deal", a manual add,
+    another surface) — the inquiry lingered in the queue even though its deal was on the board (e.g.
+    theventure.com / Stephanie Grant). `listBuyInquiries` now excludes an inquiry when EITHER a deal
+    carries its `lead_key` OR a deal exists for its **buyer email + one of its domains** (`deals`
+    `domain`+`buyer_email` are stored lowercased == the idempotency key, so a lowercased `.in()` match
+    is exact). Two parallel `deals` queries (by lead_key, by buyer_email), fail-open. `countBuyInquiries`
+    inherits it → the Inbox pointer stays accurate. Display-layer only (no DB write); works for existing
+    rows regardless of how the deal was created.
   - **Buyer-name typeahead (returning clients).** New-deal modal buyer-name field type-aheads
     against prior deals: `GET /api/admin/deals?buyers=<q>` → `searchBuyers` (store.ts, distinct
     known buyers by name/email ilike) → pick fills buyer name/email/company. No new table/env.

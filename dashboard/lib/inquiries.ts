@@ -152,16 +152,39 @@ export async function listBuyInquiries({ limit = 100, includeSell = false, inclu
   inquiries = includeSell
     ? inquiries.filter((i) => i.isBuySide || i.domains.length > 0)
     : inquiries.filter((i) => i.isBuySide);
-  // Hide inquiries already CONVERTED to a deal (a deal carries this lead_key) — the queue is for
-  // not-yet-triaged leads, so once a deal exists it should drop off (and out of the Inbox count),
-  // even if the convert path didn't set the dismiss flag (e.g. an older dossier convert). Best-effort.
+  // Hide inquiries already CONVERTED to a deal — the queue is for not-yet-triaged leads, so once a
+  // deal exists for one it should drop off (and out of the Inbox count), NO MATTER how the deal was
+  // created. We match TWO ways, because a deal made outside the queue (dossier "Add to deal", manual
+  // add, another surface) may not carry the inquiry's lead_key:
+  //   1) a deal carries this inquiry's `lead_key` (the in-queue / dossier convert path), OR
+  //   2) a deal exists for this buyer's EMAIL + one of the inquiry's DOMAINS (the deal's natural
+  //      identity — domain+buyer_email are stored lowercased, same as the idempotency key).
+  // Best-effort — if the deals table is absent / the query fails, the list is left as-is.
   if (!includeDismissed) {
     const keys = [...new Set(inquiries.map((i) => i.leadKey).filter(Boolean))];
-    if (keys.length) {
+    const emails = [...new Set(inquiries.map((i) => (i.email || "").trim().toLowerCase()).filter(Boolean))];
+    if (keys.length || emails.length) {
       try {
-        const { data: deals } = await getDb().from("deals").select("lead_key").in("lead_key", keys);
-        const converted = new Set((deals as { lead_key?: string }[] || []).map((d) => String(d.lead_key || "")).filter(Boolean));
-        if (converted.size) inquiries = inquiries.filter((i) => !converted.has(i.leadKey));
+        const convertedKeys = new Set<string>();
+        const dealPairs = new Set<string>();   // `${buyer_email}|${domain}`
+        const [byKey, byEmail] = await Promise.all([
+          keys.length ? getDb().from("deals").select("lead_key").in("lead_key", keys) : Promise.resolve({ data: [] }),
+          emails.length ? getDb().from("deals").select("domain,buyer_email").in("buyer_email", emails) : Promise.resolve({ data: [] }),
+        ]);
+        for (const d of (byKey.data as { lead_key?: string }[] | null) || []) { if (d.lead_key) convertedKeys.add(String(d.lead_key)); }
+        for (const d of (byEmail.data as { domain?: string; buyer_email?: string }[] | null) || []) {
+          const em = String(d.buyer_email || "").trim().toLowerCase();
+          const dm = String(d.domain || "").trim().toLowerCase();
+          if (em && dm) dealPairs.add(`${em}|${dm}`);
+        }
+        if (convertedKeys.size || dealPairs.size) {
+          inquiries = inquiries.filter((i) => {
+            if (i.leadKey && convertedKeys.has(i.leadKey)) return false;
+            const em = (i.email || "").trim().toLowerCase();
+            if (em && i.domains.some((d) => dealPairs.has(`${em}|${String(d).trim().toLowerCase()}`))) return false;
+            return true;
+          });
+        }
       } catch { /* deals table absent / query failed — leave the list as-is */ }
     }
   }
