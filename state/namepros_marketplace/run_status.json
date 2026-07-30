@@ -1,11 +1,11 @@
 {
-  "candidates_on_page": 80,
-  "generated_at": "2026-07-30T17:06:37.020434+00:00",
+  "candidates_on_page": 79,
+  "generated_at": "2026-07-30T23:06:23.751765+00:00",
   "label": "NamePros Marketplace",
-  "new_count": 1,
+  "new_count": 0,
   "priced_count": 0,
   "seen_total": 823,
-  "slack_posted": true,
+  "slack_posted": false,
   "source": "namepros_marketplace",
   "status": "ok"
 }
