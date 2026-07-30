@@ -36,6 +36,35 @@ def test_appraisal_and_discussion_posts_are_skipped():
     assert listings == {}  # all three are appraisal/discussion, not sales
 
 
+def test_valuation_and_rating_posts_are_skipped():
+    # The exact posts Rob flagged (2026-07-30): valuation/rating requests with NO explicit
+    # sale phrase must NOT hit SNAP, even though they name a domain.
+    data = {"data": {"children": [
+        _post(title="What is the rating of a domain name for apartments?",
+              selftext="I have a domain name for apartments. 2letters+apartments.com"),
+        _post(title="How would you value Finals.io?",
+              selftext="I recently acquired Finals.io and would like honest opinions on its value. "
+                       "Possible uses include esports, tournaments, sports."),
+    ]}}
+    listings, _ = src.extract_listings(data)
+    assert listings == {}
+
+
+def test_appraisal_flair_excludes_even_with_price():
+    # An "Appraisal" flair is authoritative — even a quoted price is a valuation, not a listing.
+    data = {"data": {"children": [
+        _post(title="Thoughts on example.com? Paid $500", flair="Appraisal"),
+    ]}}
+    listings, _ = src.extract_listings(data)
+    assert "example.com" not in listings
+
+
+def test_for_sale_flair_includes():
+    data = {"data": {"children": [_post(title="garden.io", flair="For Sale")]}}
+    listings, _ = src.extract_listings(data)
+    assert "garden.io" in listings
+
+
 def test_hyphenated_host_does_not_yield_subspan():
     # "anti-spiritual.com" must NOT surface as spiritual.com (the user's example).
     data = {"data": {"children": [_post(title="For sale: anti-spiritual.com BIN $150")]}}

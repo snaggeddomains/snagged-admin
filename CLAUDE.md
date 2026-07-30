@@ -710,6 +710,22 @@ portfolio scored ~3.4 like any good 2-word .com and the whole batch cleared the 
 
 ---
 
+# Reddit r/Domains SNAP — only mine VERY CLEARLY for-sale posts (2026-07-30)
+
+r/Domains is mostly appraisal / "how would you value X" / "rate my name" posts, not sales, so the
+`reddit_domains` source was surfacing names from valuation-request posts (e.g. "What is the rating of
+a domain name for apartments?", "How would you value Finals.io?"). Rob's rule: a Reddit post only
+hits SNAP if it's **very clearly for sale**. Fix in `sources/reddit_domains.py` `_is_sale_post`,
+inverted from a permissive scan to require an explicit signal:
+- **Flair-first:** a NON-sale flair (`Appraisal`/`Discussion`/`Help`/`Question`/`Opinion`/…) → never a
+  sale (even with a quoted price); a sale flair (`For Sale`/`Auction`/`Selling`) → trust it.
+- **No decisive flair:** require an EXPLICIT sale phrase (`STRONG_SALE_RE`: for sale / selling / BIN /
+  buy now / make offer / taking offers / asking / OBO / auction / firm / `$N obo|firm|bin|net`) — a lone
+  `$` or "offer" is deliberately NOT enough (appraisal posts say "any offers?" / quote what they paid).
+  A strong keyword still loses to `APPRAISAL_RE` when there's no firm `LISTING_MARKER_RE` (real price /
+  for-sale/selling/BIN/asking) — so "is auction the best way? what's it worth" stays out, while
+  "selling X $5k, thoughts?" stays in. Tests: `tests/test_reddit_domains.py` (incl. the two flagged posts).
+
 # NamePros SNAP — require a real for-sale/auction POST (2026-07-24)
 
 The `namepros_marketplace` source was flagging names that were merely mentioned/"listed" on the

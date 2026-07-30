@@ -35,27 +35,55 @@ from .namepros_marketplace import (
     shape_ok, _find_price, DOMAIN_RE, COMP_CONTEXT_RE, slack_line, _embedded_in_phrase,
 )
 
-# r/Domains is mostly appraisal / discussion ("what's this worth", "rate my
-# name"), not sales — so a post must actually look like a SALE before we mine it
-# for names, or the feed fills with domains that aren't for sale.
-SALE_SIGNAL_RE = re.compile(
-    r"\b(for ?sale|selling|sell|sale|\$|usd|bin|buy ?now|make ?offer|offers?|"
-    r"auction|asking|obo|priced?|reduced|firm|lease|take ?over)\b",
-    re.IGNORECASE)
-# Appraisal / discussion posts to exclude even if they trip a weak signal.
+# r/Domains is MOSTLY appraisal / discussion ("what's this worth", "rate my name",
+# "how would you value X") — NOT sales. So the rule is inverted from a permissive
+# scan: a post is mined ONLY when it's VERY CLEARLY for sale (Rob, 2026-07-30) —
+# an explicit sale flair or an explicit sale phrase — not merely because it mentions
+# "$" or "offer" (appraisal posts say "any offers?" / quote a price they paid).
+
+# Reddit post flair is the strongest signal when present.
+SALE_FLAIR_RE = re.compile(r"\b(for\s*sale|sale|selling|auction|liquidat\w*|marketplace)\b", re.IGNORECASE)
+NONSALE_FLAIR_RE = re.compile(
+    r"\b(apprais\w*|discussion|help|news|showcase|question|advice|opinion\w*|"
+    r"rating|rant|meta|guide|support)\b", re.IGNORECASE)
+
+# The post READS as an appraisal / valuation / rating / opinion request.
 APPRAISAL_RE = re.compile(
-    r"\b(apprais|what.{0,6}worth|how much.{0,6}worth|rate my|thoughts on|"
-    r"feedback|opinion|what do you think|is this|value of|evaluate)\b",
-    re.IGNORECASE)
+    r"\b(apprais\w*|valuat\w*|worth|how\s*(much|would|could|should)|how would you (value|price|rate)|"
+    r"value of|what.{0,15}worth|is (this|it|that).{0,15}(worth|good|valuable)|"
+    r"rate\s+(my|this|these|it|the)|ratings?|opinion\w*|thoughts?|feedback|"
+    r"what do you think|advice|evaluate|estimate)\b", re.IGNORECASE)
+
+# An EXPLICIT for-sale signal — a lone "$" or "offer" is deliberately NOT enough.
+STRONG_SALE_RE = re.compile(
+    r"\bfor\s*sale\b|\bselling\b|\bsale:\b|\bbuy\s*now\b|\bbin\b|"
+    r"\bmake\s*(me\s*)?(an?\s*)?offer\b|\b(taking|accepting|open\s*to)\s+offers?\b|"
+    r"\basking\b|\bpriced?\s*(at|:)|\bobo\b|\bauction\w*\b|\bfirm\b|"
+    r"\blease\s*to\s*own\b|\blto\b|\breduced\b|\bfire\s*sale\b|"
+    r"\$[\d,]+\s*(k\b|obo|firm|bin|net|or\s+best)", re.IGNORECASE)
+# A FIRM listing marker (a real price or an explicit list phrase) — used to keep a genuine
+# sale that also asks for thoughts, while dropping a discussion that merely says "auction".
+LISTING_MARKER_RE = re.compile(
+    r"\bfor\s*sale\b|\bselling\b|\bbin\b|\bbuy\s*now\b|\basking\b|\bobo\b|\$\s?\d", re.IGNORECASE)
 
 
 def _is_sale_post(p: dict) -> bool:
-    """A post worth mining: a sale signal present and not an appraisal/discussion."""
+    """True only when the post is VERY CLEARLY a sale (Rob's rule), so the feed stops
+    filling with appraisal / valuation / rating / opinion posts."""
     flair = (p.get("link_flair_text") or "")
-    hay = f"{flair}\n{p.get('title') or ''}\n{p.get('selftext') or ''}"
-    if APPRAISAL_RE.search(hay) and "$" not in hay and not re.search(r"\bfor ?sale\b", hay, re.I):
+    if NONSALE_FLAIR_RE.search(flair):
+        return False                       # flair says appraisal/discussion/help → never a sale
+    if SALE_FLAIR_RE.search(flair):
+        return True                        # flair says For Sale / Auction → trust it
+    hay = f"{p.get('title') or ''}\n{p.get('selftext') or ''}"
+    if not STRONG_SALE_RE.search(hay):
+        return False                       # no explicit sale phrase → not clearly for sale
+    # A strong keyword fired, but if the post reads as an appraisal/discussion AND carries no
+    # firm listing marker (a real price / "for sale"/"selling"/"BIN"/"asking"), it's a
+    # discussion that happened to say "auction"/"firm" — not a listing.
+    if APPRAISAL_RE.search(hay) and not LISTING_MARKER_RE.search(hay):
         return False
-    return bool(SALE_SIGNAL_RE.search(hay))
+    return True
 
 SOURCE_ID = "reddit_domains"
 SOURCE_LABEL = "Reddit r/Domains"
