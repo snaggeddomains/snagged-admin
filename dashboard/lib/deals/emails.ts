@@ -17,13 +17,19 @@ function isoOrNull(epoch: number): string | null {
 
 // Senders that are never a real buyer conversation: our own system notifications
 // (the "new deal assigned" email), registrar/marketplace alerts (NameJet, drop
-// catchers), and generic no-reply bots. Matched against the From address.
-const NOISE_FROM = /(^|[@.])(namejet|dropcatch|namebright|godaddy|afternic|sedo|dan\.com|dynadot|namesilo|namecheap)\.|reports@snagged\.com|no-?reply|do-?not-?reply|notifications?@|mailer-daemon|postmaster@/i;
-// Our own outbound notification subjects (belt-and-suspenders with the sender filter).
-const NOISE_SUBJECT = /new buy-side deal|deal assigned|namejet alert|domain (alert|backorder)|name ?check/i;
+// catchers), domain-monitoring services (DomainScout), and generic no-reply bots.
+// Matched against the From address.
+const NOISE_FROM = /(^|[@.])(namejet|dropcatch|namebright|godaddy|afternic|sedo|dan\.com|dynadot|namesilo|namecheap|domainscout)\.|reports@snagged\.com|no-?reply|do-?not-?reply|notifications?@|mailer-daemon|postmaster@/i;
+// Our own outbound notification subjects + monitoring-alert subjects (belt-and-suspenders
+// with the sender + body filters). "<domain> has been updated." is DomainScout's format.
+const NOISE_SUBJECT = /new buy-side deal|deal assigned|namejet alert|domain (alert|backorder)|name ?check|has been updated\.?\s*$/i;
+// Transactional/monitoring BODY markers — a real negotiation never contains these. Catches
+// DomainScout "…has been updated. The EPP Status Codes have been changed from […] to […]"
+// and similar WHOIS/nameserver change notifications, regardless of who the sender shows as.
+const NOISE_BODY = /domainscout|epp status codes?|status codes? (?:have|has) been changed|(?:whois record|nameservers?) .{0,40}(?:changed|updated)/i;
 
-function isNoise(from: string | null, subject: string | null): boolean {
-  return NOISE_FROM.test(from || "") || NOISE_SUBJECT.test(subject || "");
+function isNoise(from: string | null, subject: string | null, body: string | null): boolean {
+  return NOISE_FROM.test(from || "") || NOISE_SUBJECT.test(subject || "") || NOISE_BODY.test(body || "");
 }
 
 // Free-email providers — for these, only the exact buyer address is a safe match
@@ -82,7 +88,8 @@ export async function ingestDealEmails(deal: Deal): Promise<number> {
       let msgs;
       try { msgs = await getThread(mailbox, threadId); } catch { continue; }
       for (const msg of msgs) {
-        if (isNoise(msg.from || null, msg.subject || null)) continue; // drop system/alert noise
+        // drop system/alert noise — check body/snippet too (DomainScout etc. can show as "rob → rob")
+        if (isNoise(msg.from || null, msg.subject || null, `${msg.snippet || ""} ${msg.body || ""}`)) continue;
         const key = msg.mid || `${mailbox}:${msg.id}`;
         if (byMsg.has(key)) continue; // same RFC message already captured (other mailbox)
         byMsg.set(key, {

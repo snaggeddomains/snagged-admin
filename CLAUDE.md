@@ -28,7 +28,10 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
   bell+email for @mention; Slack → `SLACK_CHANNEL_DEALS`; `dealUrl` = `DASHBOARD_BASE`/deals/<id>),
   `emails.ts` (`ingestDealEmails` — matches deal mailboxes by buyer address / buyer COMPANY
   email-domain (colleagues, non-free-mail) / the target domain name, filters noise senders
-  (namejet/marketplace/no-reply/our own notifications), then EXPANDS each matched thread via
+  (namejet/marketplace/no-reply/our own notifications) — `isNoise(from,subject,body)` checks
+  `NOISE_FROM`/`NOISE_SUBJECT`/**`NOISE_BODY`**; the body check (2026-07-30) drops **transactional
+  monitoring alerts** like DomainScout "<domain> has been updated. The EPP Status Codes have been
+  changed…" that show as `rob → rob` (so the sender filter alone misses them) — then EXPANDS each matched thread via
   `getThread` and stores **one row per MESSAGE** (`msg_id` = RFC Message-ID) so the full
   back-and-forth shows like Pipedrive — not just the latest per thread; `replaceDealEmails`
   prunes stale on re-pull. **Migration:** `deal_emails.msg_id` + drop the old (deal_id,thread_id)
