@@ -170,9 +170,15 @@ export default function EmailHealthClient() {
                   })}
                 </div>
               </div>
+            ) : r.failing.length > 0 ? (
+              // Failing checks but no computed actions = a report cached before the analysis
+              // shipped (or before a re-scan). Never claim "healthy" here.
+              <div style={{ borderTop: "1px solid var(--line,#eee)", padding: "10px 16px", fontSize: 12.5, color: "#9a6a00" }}>
+                ↻ Stale — hit Refresh to compute action items for the current state.
+              </div>
             ) : (
               <div style={{ borderTop: "1px solid var(--line,#eee)", padding: "10px 16px", fontSize: 12.5, color: "#1f7a5a" }}>
-                ✓ No action items — authentication is healthy and DMARC is enforcing.
+                ✓ No action items — authentication is healthy{r.dmarc_policy === "reject" || r.dmarc_policy === "quarantine" ? " and DMARC is enforcing" : ""}.
               </div>
             )}
           </section>
