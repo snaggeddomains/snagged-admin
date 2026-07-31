@@ -1,14 +1,10 @@
 [
   {
+    "domain": "sharptor.com",
+    "price": 199.0
+  },
+  {
     "domain": "senzee.com",
     "price": 5695.0
-  },
-  {
-    "domain": "restack.net",
-    "price": 4899.0
-  },
-  {
-    "domain": "reaming.net",
-    "price": 299.0
   }
 ]
