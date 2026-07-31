@@ -9,6 +9,8 @@
 /* Tab nav — replaces the inline-styled bar in nav.tsx */
 .tab-nav {
   display: flex;
+  flex-wrap: wrap;
+  row-gap: 2px;
   gap: 4px;
   border-bottom: 1px solid var(--line);
   margin-bottom: 28px;
@@ -21,6 +23,7 @@
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
   font-weight: 500;
+  white-space: nowrap;   /* keep each label on one line — no mid-label break */
 }
 .tab-nav a:hover {
   color: var(--navy);
