@@ -1,65 +1,20 @@
 [
   {
-    "bid_count": 10,
-    "domain": "tingx.com",
-    "end_time_utc": "2026-07-30T13:29:54+00:00",
+    "bid_count": 21,
+    "domain": "nhyl.com",
+    "end_time_utc": "2026-07-31T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41761296.html",
+    "link": "https://www.dynadot.com/market/auction/40770010.html",
     "platform": "Dynadot",
-    "price": 76.21
-  },
-  {
-    "bid_count": 41,
-    "domain": "strictly.org",
-    "end_time_utc": "2026-07-30T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40735487.html",
-    "platform": "Dynadot",
-    "price": 68.55
+    "price": 155.0
   },
   {
     "bid_count": 10,
-    "domain": "sexe.org",
-    "end_time_utc": "2026-07-30T16:37:40+00:00",
+    "domain": "zumda.com",
+    "end_time_utc": "2026-08-01T00:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41782707.html",
+    "link": "https://www.dynadot.com/market/auction/41816882.html",
     "platform": "Dynadot",
-    "price": 56.9
-  },
-  {
-    "bid_count": 31,
-    "domain": "aromma.com",
-    "end_time_utc": "2026-07-30T18:22:38+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41740101.html",
-    "platform": "Dynadot",
-    "price": 105.0
-  },
-  {
-    "bid_count": 29,
-    "domain": "givw.com",
-    "end_time_utc": "2026-07-30T18:42:53+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41740920.html",
-    "platform": "Dynadot",
-    "price": 115.06
-  },
-  {
-    "bid_count": 58,
-    "domain": "besl.com",
-    "end_time_utc": "2026-07-30T19:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41763384.html",
-    "platform": "Dynadot",
-    "price": 1325.0
-  },
-  {
-    "bid_count": 11,
-    "domain": "decaf.net",
-    "end_time_utc": "2026-07-30T19:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41763382.html",
-    "platform": "Dynadot",
-    "price": 23.76
+    "price": 305.0
   }
 ]

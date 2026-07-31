@@ -1,14 +1,17 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 6,
   "domains": [
-    "reduces.org",
-    "zigma.co",
-    "fsuz.com",
-    "pffs.com",
-    "vailo.com"
+    "pgap.com",
+    "kmove.com",
+    "adil.org",
+    "mayuri.com",
+    "lexikon.com",
+    "mpsn.com"
   ],
-  "generated_at": "2026-07-30T09:48:34.643798+00:00",
-  "mub": [],
+  "generated_at": "2026-07-31T09:47:48.107227+00:00",
+  "mub": [
+    "adil.org"
+  ],
   "source": "godaddy_auctions"
 }

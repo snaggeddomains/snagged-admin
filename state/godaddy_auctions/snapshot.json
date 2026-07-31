@@ -1,47 +1,56 @@
 [
   {
-    "bid_count": 0,
-    "domain": "reduces.org",
-    "end_time_utc": "2026-07-30T19:31:00+00:00",
+    "bid_count": 27,
+    "domain": "pgap.com",
+    "end_time_utc": "2026-07-31T17:36:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/reduces-org-715669463?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/pgap-com-717069304?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 1.0
+    "price": 409.0
   },
   {
-    "bid_count": 9,
-    "domain": "zigma.co",
-    "end_time_utc": "2026-07-30T19:47:00+00:00",
+    "bid_count": 8,
+    "domain": "kmove.com",
+    "end_time_utc": "2026-07-31T19:19:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/zigma-co-715815184?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/kmove-com-717002791?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 155.0
+    "price": 47.0
   },
   {
-    "bid_count": 5,
-    "domain": "fsuz.com",
-    "end_time_utc": "2026-07-30T20:36:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/fsuz-com-715798885?isc=json_ending_tomorrow",
+    "bid_count": 18,
+    "domain": "adil.org",
+    "end_time_utc": "2026-07-31T19:52:00+00:00",
+    "is_mub": true,
+    "link": "https://www.godaddy.com/domain-auctions/adil-org-715778822?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 65.0
+    "price": 101.0
   },
   {
-    "bid_count": 21,
-    "domain": "pffs.com",
-    "end_time_utc": "2026-07-30T20:53:00+00:00",
+    "bid_count": 51,
+    "domain": "mayuri.com",
+    "end_time_utc": "2026-07-31T20:05:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/pffs-com-715803757?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/mayuri-com-717066779?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 550.0
+    "price": 3555.0
   },
   {
-    "bid_count": 24,
-    "domain": "vailo.com",
-    "end_time_utc": "2026-07-30T21:00:00+00:00",
+    "bid_count": 36,
+    "domain": "lexikon.com",
+    "end_time_utc": "2026-07-31T20:20:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/vailo-com-715804934?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/lexikon-com-714140003?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 360.0
+    "price": 860.0
+  },
+  {
+    "bid_count": 25,
+    "domain": "mpsn.com",
+    "end_time_utc": "2026-07-31T20:52:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/mpsn-com-714877572?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 809.0
   }
 ]

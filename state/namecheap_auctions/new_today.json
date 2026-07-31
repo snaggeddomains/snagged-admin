@@ -1,27 +1,22 @@
 {
   "capped": false,
-  "count": 16,
+  "count": 13,
   "domains": [
-    "yearly.io",
-    "intractable.ai",
-    "tkn.ai",
-    "shopo.ai",
-    "puddles.ai",
-    "commenting.ai",
-    "lieutenants.ai",
-    "rac.ai",
-    "kayla.ai",
-    "brokr.ai",
-    "njt.ai",
-    "gels.ai",
-    "harassment.io",
-    "livermore.ai",
-    "rashid.co",
-    "midlife.co"
+    "dilute.ai",
+    "sociopath.ai",
+    "uneasy.ai",
+    "beverley.org",
+    "varies.co",
+    "unrest.co",
+    "appreciates.org",
+    "burials.ai",
+    "coffins.ai",
+    "arion.ai",
+    "lire.ai",
+    "preventable.ai",
+    "taser.ai"
   ],
-  "generated_at": "2026-07-30T09:46:51.638481+00:00",
-  "mub": [
-    "shopo.ai"
-  ],
+  "generated_at": "2026-07-31T09:46:25.904037+00:00",
+  "mub": [],
   "source": "namecheap_auctions"
 }

@@ -1,8 +1,11 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-30T09:04:04.351231+00:00",
+  "count": 2,
+  "domains": [
+    "lesbians.ai",
+    "threesome.ai"
+  ],
+  "generated_at": "2026-07-31T09:03:39.325014+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

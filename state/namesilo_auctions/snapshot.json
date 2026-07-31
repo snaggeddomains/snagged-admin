@@ -1,20 +1,20 @@
 [
   {
-    "bid_count": 41,
-    "domain": "strictly.org",
-    "end_time_utc": "2026-07-30T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/strictly.org",
-    "platform": "NameSilo",
-    "price": 68.55
-  },
-  {
-    "bid_count": 18,
+    "bid_count": 21,
     "domain": "nhyl.com",
     "end_time_utc": "2026-07-31T15:00:00+00:00",
     "is_mub": false,
     "link": "https://www.namesilo.com/auctions/nhyl.com",
     "platform": "NameSilo",
-    "price": 106.0
+    "price": 155.0
+  },
+  {
+    "bid_count": 12,
+    "domain": "bunkered.com",
+    "end_time_utc": "2026-08-01T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namesilo.com/auctions/bunkered.com",
+    "platform": "NameSilo",
+    "price": 718.0
   }
 ]
