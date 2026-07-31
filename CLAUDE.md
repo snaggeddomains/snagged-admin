@@ -726,6 +726,35 @@ inverted from a permissive scan to require an explicit signal:
   for-sale/selling/BIN/asking) — so "is auction the best way? what's it worth" stays out, while
   "selling X $5k, thoughts?" stays in. Tests: `tests/test_reddit_domains.py` (incl. the two flagged posts).
 
+# Email Health — MXToolbox deliverability report (2026-07-31)
+
+Reports → Email Health (`/reports/email-health`, gated `reports.email_health`) monitors our SENDING
+domains' deliverability via the MXToolbox API: **MX / SPF / DKIM / DMARC / blacklist / DNS** per domain,
+each distilled to pass/warn/fail + the record value + the specific issues (with MXToolbox deep-links),
+and an A/B/F domain grade.
+- **Client** `lib/email-health/mxtoolbox.ts` — dependency-free, `{ok,status,data,error}`, fail-open. Base
+  `https://api.mxtoolbox.com/api/v1`; auth = `MXTOOLBOX_API_KEY` (plain UUID) as the **`Authorization`
+  header, NO "Bearer"**. `Lookup/{command}/?argument=` (DKIM arg = `domain:selector`); `/Usage` for quota.
+  **DNS commands use DnsRequests; network (blacklist) uses NetworkRequests — the FREE plan has 0 network,
+  so blacklist needs a paid key** (a 429/quota there → the check reads "unavailable", never an error).
+  429 retried once. Verified response shape live (no-key test `…/lookup/dns/example.com`): Passed/Failed/
+  Warnings/Timeouts arrays, each item `{ID,Name,Info,Url}`.
+- **Report + cache** `lib/email-health/report.ts` — `checkDomain` (DKIM tries each selector, keeps the
+  best pass), `refreshHealth` (sequential, respects DNS quota), cached in **`email_health_checks`** (main
+  project; `scripts/email_health.sql`). GET reads cache (no quota); a Refresh button + daily cron re-run.
+  Domains via `EMAIL_HEALTH_DOMAINS` (default `snagged.com,snagged.co`), selectors via
+  `EMAIL_HEALTH_DKIM_SELECTORS` (default `google,resend`).
+- **API** `app/api/admin/email-health/route.ts` (GET cached report + quota / POST `{action:'refresh',domain?}`).
+  **Cron** `app/api/cron/email-health` (vercel.json `30 12 * * *`, CRON_SECRET) re-runs + **alerts on NEWLY-
+  failing checks only** (diff vs stored `failing`) via bell + email (`reports.email_health` users) + Slack
+  (`SLACK_CHANNEL_EMAIL_HEALTH`). `?dry=1` to preview. Heartbeat `email-health`.
+- **UI** `app/reports/email-health/{page,email-health-client}.tsx` — per-domain card (grade chip + per-check
+  status pills + record value + failures/warnings with deep-links + quota indicator + per-domain/all Refresh).
+- **Permission** `reports.email_health` (ACTIONS + REPORTS_TABS + CATALOG group Reports); admins auto-pass.
+- **Setup:** run `scripts/email_health.sql` on the main project; set `MXTOOLBOX_API_KEY` (done). Degrades
+  gracefully pre-SQL (a live Refresh still returns results; only caching needs the table). Blacklist needs a
+  paid MXToolbox plan (free = 0 network requests).
+
 # NamePros SNAP — require a real for-sale/auction POST (2026-07-24)
 
 The `namepros_marketplace` source was flagging names that were merely mentioned/"listed" on the
