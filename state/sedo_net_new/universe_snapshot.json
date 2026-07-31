@@ -1,15 +1,7 @@
 [
   {
-    "domain": "drivers.com",
-    "price": null
-  },
-  {
-    "domain": "senken.com",
-    "price": 9979.0
-  },
-  {
-    "domain": "compounce.com",
-    "price": 6408.0
+    "domain": "senzee.com",
+    "price": 5695.0
   },
   {
     "domain": "restack.net",
@@ -18,17 +10,5 @@
   {
     "domain": "reaming.net",
     "price": 299.0
-  },
-  {
-    "domain": "yancheng.net",
-    "price": 1783.0
-  },
-  {
-    "domain": "lianda.net",
-    "price": 4358.0
-  },
-  {
-    "domain": "ran.net",
-    "price": 19237.0
   }
 ]
