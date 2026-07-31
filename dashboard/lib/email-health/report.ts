@@ -10,13 +10,40 @@ const T = "email_health_checks";
 
 // Configured sending domains + DKIM selectors (env-overridable).
 export function healthDomains(): string[] {
-  const raw = (process.env.EMAIL_HEALTH_DOMAINS || "snagged.com,snagged.co").split(/[,\s]+/);
+  const raw = (process.env.EMAIL_HEALTH_DOMAINS || "snagged.com,snagged.co,email.snagged.com").split(/[,\s]+/);
   return [...new Set(raw.map((d) => d.trim().toLowerCase()).filter(Boolean))];
 }
+// Global fallback selector list for any domain not in the per-domain map below.
 export function dkimSelectors(): string[] {
-  // Google Workspace signs with the `google` selector; Resend with `resend`. Add more via env.
   const raw = (process.env.EMAIL_HEALTH_DKIM_SELECTORS || "google,resend").split(/[,\s]+/);
   return [...new Set(raw.map((s) => s.trim()).filter(Boolean))];
+}
+
+// Per-domain DKIM selectors — each sending domain signs with a DIFFERENT set, so a single
+// global list would false-flag "missing DKIM" on every domain. Verified live 2026-07-31:
+//   snagged.com       → google (Google Workspace) + k2/k3 (Mailchimp)
+//   snagged.co        → google (Google Workspace only; other selectors hit a Porkbun wildcard, no key)
+//   email.snagged.com → k2/k3 (Mailchimp marketing subdomain)
+// Override/extend via EMAIL_HEALTH_DKIM_MAP="domain:sel/sel, domain2:sel" (slash-separated selectors).
+const DEFAULT_DKIM_SELECTORS: Record<string, string[]> = {
+  "snagged.com": ["google", "k2", "k3"],
+  "snagged.co": ["google"],
+  "email.snagged.com": ["k2", "k3"],
+};
+function dkimMap(): Record<string, string[]> {
+  const map: Record<string, string[]> = { ...DEFAULT_DKIM_SELECTORS };
+  for (const entry of (process.env.EMAIL_HEALTH_DKIM_MAP || "").split(",")) {
+    const [dom, sels] = entry.split(":");
+    if (!dom || !sels) continue;
+    const list = sels.split(/[/\s]+/).map((s) => s.trim()).filter(Boolean);
+    if (list.length) map[dom.trim().toLowerCase()] = list;
+  }
+  return map;
+}
+export function selectorsForDomain(domain: string): string[] {
+  const d = domain.trim().toLowerCase();
+  const m = dkimMap();
+  return m[d]?.length ? m[d] : dkimSelectors();
 }
 
 export type CheckStatus = "pass" | "warn" | "fail" | "unavailable";
@@ -121,7 +148,7 @@ function buildActions(h: {
 
 // Build a live report for one domain (spends quota). DKIM tries EVERY selector (all statuses kept
 // for the analysis); the row shows the best. Blacklist is best-effort (network quota).
-export async function checkDomain(domain: string, selectors = dkimSelectors()): Promise<DomainHealth> {
+export async function checkDomain(domain: string, selectors = selectorsForDomain(domain)): Promise<DomainHealth> {
   const [mx, spf, dmarc, dns, blacklist] = await Promise.all([
     mxLookup.mx(domain), mxLookup.spf(domain), mxLookup.dmarc(domain), mxLookup.dns(domain), mxLookup.blacklist(domain),
   ]);

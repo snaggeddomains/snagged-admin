@@ -752,8 +752,15 @@ and an A/B/F domain grade.
 - **Report + cache** `lib/email-health/report.ts` — `checkDomain`, `refreshHealth` (sequential, respects
   DNS quota), cached in **`email_health_checks`** (main project; `scripts/email_health.sql`; the action
   items ride the `report` jsonb — no schema change). GET reads cache (no quota); a Refresh button + daily cron re-run.
-  Domains via `EMAIL_HEALTH_DOMAINS` (default `snagged.com,snagged.co`), selectors via
-  `EMAIL_HEALTH_DKIM_SELECTORS` (default `google,resend`).
+  Domains via `EMAIL_HEALTH_DOMAINS` (default `snagged.com,snagged.co,email.snagged.com`).
+- **Per-domain DKIM selectors (2026-07-31).** Each sending domain signs with a DIFFERENT selector set,
+  so a single global list false-flagged "missing DKIM" everywhere. `selectorsForDomain(domain)` +
+  `DEFAULT_DKIM_SELECTORS` map (verified live): `snagged.com` → google + k2/k3 (Mailchimp is authed on
+  root too); `snagged.co` → google only (its resend/k2/k3/s1/s2 all hit a Porkbun wildcard CNAME with
+  NO key — not real selectors); `email.snagged.com` → k2/k3 (the Mailchimp marketing subdomain, added
+  this session for reputation isolation of the weekly newsletter). Override/extend via
+  `EMAIL_HEALTH_DKIM_MAP="domain:sel/sel, domain2:sel"`. `dkimSelectors()` (`EMAIL_HEALTH_DKIM_SELECTORS`,
+  default `google,resend`) is now just the fallback for an unmapped domain.
 - **API** `app/api/admin/email-health/route.ts` (GET cached report + quota / POST `{action:'refresh',domain?}`).
   **Cron** `app/api/cron/email-health` (vercel.json `30 12 * * *`, CRON_SECRET) re-runs + **alerts on NEWLY-
   failing checks only** (diff vs stored `failing`) via bell + email (`reports.email_health` users) + Slack
