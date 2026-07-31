@@ -29,11 +29,17 @@ export type Check = {
   failed: MxItem[];
   warnings: MxItem[];
 };
+export type SelectorStatus = { selector: string; status: CheckStatus };
+export type ActionItem = { severity: "high" | "medium" | "low"; title: string; detail: string };
 export type DomainHealth = {
   domain: string;
   grade: "A" | "B" | "F" | "?";
   checks: Check[];
   failing: string[];    // check keys currently failing — the alert set
+  dmarc_policy: "none" | "quarantine" | "reject" | null;
+  dmarc_reporting: boolean;      // rua= aggregate reporting present
+  dkim_selectors: SelectorStatus[];
+  actions: ActionItem[];         // Analysis → Action Items, computed each run
   checked_at: string;
 };
 
@@ -62,21 +68,69 @@ function gradeFor(checks: Check[]): DomainHealth["grade"] {
   return "A";
 }
 
-// Build a live report for one domain (spends quota). DKIM tries each selector and keeps the
-// best-passing one. Blacklist is best-effort (network quota; free plan → "unavailable").
+// The DMARC policy (p=) + whether aggregate reporting (rua=) is on, pulled from the raw record.
+function parseDmarc(data: MxLookup | null): { policy: DomainHealth["dmarc_policy"]; reporting: boolean } {
+  const raw = data ? JSON.stringify(data) : "";
+  const m = /[;\s]p\s*=\s*(none|quarantine|reject)/i.exec(raw);
+  return { policy: m ? (m[1].toLowerCase() as DomainHealth["dmarc_policy"]) : null, reporting: /rua\s*=\s*mailto:/i.test(raw) };
+}
+
+// Analysis → Action Items, derived from the checks each run (prioritized, self-clearing as fixed).
+function buildActions(h: {
+  domain: string; checks: Check[]; dmarcPolicy: DomainHealth["dmarc_policy"]; dmarcReporting: boolean;
+  dkimSelectors: SelectorStatus[]; selectors: string[];
+}): ActionItem[] {
+  const A: ActionItem[] = [];
+  const get = (k: string) => h.checks.find((c) => c.key === k);
+  const dkimPass = h.dkimSelectors.filter((s) => s.status === "pass").map((s) => s.selector);
+  const dkimMissing = h.dkimSelectors.filter((s) => s.status !== "pass").map((s) => s.selector);
+
+  if (!dkimPass.length) {
+    A.push({ severity: "high", title: `Publish a DKIM record for ${h.domain}`,
+      detail: `No DKIM found on ${h.selectors.join(" / ")}. If ${h.domain} sends via Google Workspace, generate the key in Admin → Apps → Gmail → Authenticate email and publish the TXT at google._domainkey.${h.domain}, then Start authentication. If it sends via Resend, add the resend._domainkey record from the Resend dashboard. If it should NOT send, lock it: null MX + SPF "v=spf1 -all" + DMARC p=reject.` });
+  } else if (dkimMissing.length) {
+    A.push({ severity: "medium", title: `Add DKIM for ${dkimMissing.join(", ")} on ${h.domain}`,
+      detail: `Only ${dkimPass.join(", ")} is signing. If you also send via ${dkimMissing.join("/")} (e.g. Resend), publish its DKIM so that mail is authenticated too — unsigned mail from a second ESP lands in spam.` });
+  }
+
+  const dmarc = get("dmarc");
+  if (dmarc?.status === "fail" || !h.dmarcPolicy) {
+    A.push({ severity: "high", title: `Add a DMARC record for ${h.domain}`,
+      detail: `No enforceable DMARC policy. Start with p=none + rua reporting to monitor, then tighten to quarantine → reject.` });
+  } else if (h.dmarcPolicy === "none") {
+    A.push({ severity: "medium", title: `Tighten DMARC on ${h.domain} (p=none → quarantine → reject)`,
+      detail: `DMARC is monitor-only, so spoofing isn't blocked and you miss the inbox-trust benefit. After confirming your senders (Google, Resend) pass in aggregate reports, move to quarantine, then reject.` });
+  }
+  if (h.dmarcPolicy && !h.dmarcReporting) {
+    A.push({ severity: "low", title: `Turn on DMARC aggregate reporting for ${h.domain}`,
+      detail: `Add rua=mailto:… (or a DMARC monitor like dmarcian / Postmark) so you can see every source sending as you before enforcing.` });
+  }
+
+  const bl = get("blacklist");
+  if (bl?.status === "fail") {
+    A.push({ severity: "high", title: `Delist ${h.domain} from blacklists`,
+      detail: `Listed on: ${bl.failed.map((f) => f.Name || f.Info).filter(Boolean).join(", ")}. Request removal at each listing — a live blacklist tanks deliverability.` });
+  }
+  for (const k of ["spf", "mx"] as const) {
+    const c = get(k);
+    if (c?.status === "fail") A.push({ severity: "high", title: `Fix ${c.label} for ${h.domain}`, detail: c.failed.map((f) => f.Name || f.Info).filter(Boolean).join("; ") || `${c.label} check failed.` });
+  }
+  const order = { high: 0, medium: 1, low: 2 };
+  return A.sort((a, b) => order[a.severity] - order[b.severity]);
+}
+
+// Build a live report for one domain (spends quota). DKIM tries EVERY selector (all statuses kept
+// for the analysis); the row shows the best. Blacklist is best-effort (network quota).
 export async function checkDomain(domain: string, selectors = dkimSelectors()): Promise<DomainHealth> {
   const [mx, spf, dmarc, dns, blacklist] = await Promise.all([
     mxLookup.mx(domain), mxLookup.spf(domain), mxLookup.dmarc(domain), mxLookup.dns(domain), mxLookup.blacklist(domain),
   ]);
-  // DKIM: try each selector, prefer a pass, else a warn, else the first result.
-  const dkimResults = await Promise.all(selectors.map(async (sel) => ({ sel, r: await mxLookup.dkim(domain, sel) })));
-  let dkimCheck: Check | null = null;
-  for (const { sel, r } of dkimResults) {
-    const c = toCheck("dkim", "DKIM", r, `selector: ${sel}`);
-    if (!dkimCheck || (c.status === "pass") || (c.status === "warn" && dkimCheck.status !== "pass")) dkimCheck = c;
-    if (c.status === "pass") break;
-  }
-  if (!dkimCheck) dkimCheck = { key: "dkim", label: "DKIM", status: "unavailable", value: null, detail: "no selector matched", failed: [], warnings: [] };
+  const dkimResults = await Promise.all(selectors.map(async (sel) => ({ sel, c: toCheck("dkim", "DKIM", await mxLookup.dkim(domain, sel), `selector: ${sel}`) })));
+  const dkimSelectors: SelectorStatus[] = dkimResults.map(({ sel, c }) => ({ selector: sel, status: c.status }));
+  // The DKIM row = the best selector (a pass beats a warn beats a fail/unavailable).
+  const rank: Record<CheckStatus, number> = { pass: 0, warn: 1, fail: 2, unavailable: 3 };
+  const best = dkimResults.slice().sort((a, b) => rank[a.c.status] - rank[b.c.status])[0];
+  const dkimCheck: Check = best?.c || { key: "dkim", label: "DKIM", status: "unavailable", value: null, detail: "no selector matched", failed: [], warnings: [] };
 
   const checks: Check[] = [
     toCheck("mx", "MX", mx),
@@ -86,8 +140,14 @@ export async function checkDomain(domain: string, selectors = dkimSelectors()): 
     toCheck("blacklist", "Blacklist", blacklist),
     toCheck("dns", "DNS health", dns),
   ];
+  const { policy: dmarc_policy, reporting: dmarc_reporting } = parseDmarc(dmarc.ok ? dmarc.data : null);
   const failing = checks.filter((c) => c.status === "fail").map((c) => c.key);
-  return { domain, grade: gradeFor(checks), checks, failing, checked_at: new Date().toISOString() };
+  const actions = buildActions({ domain, checks, dmarcPolicy: dmarc_policy, dmarcReporting: dmarc_reporting, dkimSelectors, selectors });
+  // Grade: a records-valid domain that isn't ENFORCING DMARC (p=none) is a B, not an A —
+  // it's spoofable and misses the deliverability benefit.
+  let grade = gradeFor(checks);
+  if (grade === "A" && dmarc_policy === "none") grade = "B";
+  return { domain, grade, checks, failing, dmarc_policy, dmarc_reporting, dkim_selectors: dkimSelectors, actions, checked_at: new Date().toISOString() };
 }
 
 // Refresh the configured domains (or a single one), persist, and return the reports + quota usage.

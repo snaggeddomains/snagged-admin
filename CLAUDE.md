@@ -739,9 +739,19 @@ and an A/B/F domain grade.
   so blacklist needs a paid key** (a 429/quota there → the check reads "unavailable", never an error).
   429 retried once. Verified response shape live (no-key test `…/lookup/dns/example.com`): Passed/Failed/
   Warnings/Timeouts arrays, each item `{ID,Name,Info,Url}`.
-- **Report + cache** `lib/email-health/report.ts` — `checkDomain` (DKIM tries each selector, keeps the
-  best pass), `refreshHealth` (sequential, respects DNS quota), cached in **`email_health_checks`** (main
-  project; `scripts/email_health.sql`). GET reads cache (no quota); a Refresh button + daily cron re-run.
+- **Analysis · Action Items (computed every run).** `checkDomain` also parses the **DMARC policy** (`p=`
+  none/quarantine/reject) + whether aggregate reporting (`rua=`) is on, tests **every** DKIM selector
+  (not just the best — so a missing Resend key can't hide behind a passing Google key), and
+  `buildActions()` derives prioritized (high/med/low) **action items** from the checks: publish/fix DKIM
+  (with the exact Google-Workspace `google._domainkey.<domain>` vs Resend `resend._domainkey` guidance),
+  add/tighten DMARC (`p=none → quarantine → reject`), turn on `rua` reporting, delist blacklists, fix
+  SPF/MX. A records-valid domain that ISN'T enforcing DMARC (`p=none`) grades **B, not A** (spoofable +
+  misses inbox trust). Stored on the report jsonb (`dmarc_policy/dmarc_reporting/dkim_selectors/actions`)
+  → the UI shows a DMARC-policy chip, per-selector DKIM ✓/✗, and an "Analysis · Action items" block per
+  domain; items self-clear as fixed. DNS-SOA warnings are deliberately NOT action items (cosmetic).
+- **Report + cache** `lib/email-health/report.ts` — `checkDomain`, `refreshHealth` (sequential, respects
+  DNS quota), cached in **`email_health_checks`** (main project; `scripts/email_health.sql`; the action
+  items ride the `report` jsonb — no schema change). GET reads cache (no quota); a Refresh button + daily cron re-run.
   Domains via `EMAIL_HEALTH_DOMAINS` (default `snagged.com,snagged.co`), selectors via
   `EMAIL_HEALTH_DKIM_SELECTORS` (default `google,resend`).
 - **API** `app/api/admin/email-health/route.ts` (GET cached report + quota / POST `{action:'refresh',domain?}`).

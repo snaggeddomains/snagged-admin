@@ -4,7 +4,9 @@ import { useCallback, useEffect, useState, type CSSProperties } from "react";
 
 type MxItem = { Name?: string; Info?: string; Url?: string };
 type Check = { key: string; label: string; status: "pass" | "warn" | "fail" | "unavailable"; value: string | null; detail: string | null; failed: MxItem[]; warnings: MxItem[] };
-type DomainHealth = { domain: string; grade: "A" | "B" | "F" | "?"; checks: Check[]; failing: string[]; checked_at: string };
+type SelectorStatus = { selector: string; status: Check["status"] };
+type ActionItem = { severity: "high" | "medium" | "low"; title: string; detail: string };
+type DomainHealth = { domain: string; grade: "A" | "B" | "F" | "?"; checks: Check[]; failing: string[]; dmarc_policy?: "none" | "quarantine" | "reject" | null; dmarc_reporting?: boolean; dkim_selectors?: SelectorStatus[]; actions?: ActionItem[]; checked_at: string };
 type Usage = { DnsRequests?: number; DnsMax?: number; NetworkRequests?: number; NetworkMax?: number };
 type Resp = { ok: boolean; configured: boolean; reports?: DomainHealth[]; domains?: string[]; selectors?: string[]; usage?: Usage | null; error?: string };
 
@@ -17,6 +19,18 @@ const STATUS: Record<Check["status"], { bg: string; fg: string; dot: string; lab
   unavailable: { bg: "#eef1f3", fg: "#6b7680", dot: "#b7bcc2", label: "n/a" },
 };
 const GRADE: Record<DomainHealth["grade"], string> = { A: "#1f7a5a", B: "#9a6a00", F: "#a3282b", "?": "#8a94a0" };
+const SEV: Record<ActionItem["severity"], { bg: string; fg: string; label: string }> = {
+  high: { bg: "#fde2e1", fg: "#a3282b", label: "High" },
+  medium: { bg: "#fef3c7", fg: "#9a6a00", label: "Medium" },
+  low: { bg: "#eef1f3", fg: "#5a6b75", label: "Low" },
+};
+// DMARC policy chip: enforcing = good, monitor-only (none) = amber.
+function dmarcChip(p?: string | null) {
+  if (!p) return null;
+  const enforcing = p === "reject" || p === "quarantine";
+  const c = enforcing ? { bg: "#e6f4ec", fg: "#166534" } : { bg: "#fef3c7", fg: "#9a6a00" };
+  return <span style={{ fontSize: 10.5, fontWeight: 700, color: c.fg, background: c.bg, padding: "1px 7px", borderRadius: 999, marginLeft: 8 }}>{`p=${p}`}{enforcing ? "" : " · monitor only"}</span>;
+}
 
 function ago(iso: string): string {
   const s = Math.round((Date.now() - Date.parse(iso)) / 1000);
@@ -111,6 +125,16 @@ export default function EmailHealthClient() {
                       <span style={{ display: "inline-block", fontSize: 10.5, fontWeight: 700, color: s.fg, background: s.bg, padding: "1px 7px", borderRadius: 999, marginRight: 8 }}>{s.label}</span>
                       {c.detail && <span className="muted" style={{ fontSize: 11.5, marginRight: 8 }}>{c.detail}</span>}
                       {c.value && <code style={{ fontSize: 11.5, color: "#4a5b66", wordBreak: "break-word" }}>{c.value}</code>}
+                      {c.key === "dmarc" && dmarcChip(r.dmarc_policy)}
+                      {c.key === "dkim" && (r.dkim_selectors || []).length > 1 && (
+                        <span style={{ marginLeft: 8, fontSize: 11 }}>
+                          {(r.dkim_selectors || []).map((sel) => (
+                            <span key={sel.selector} style={{ marginRight: 8, color: STATUS[sel.status].fg }}>
+                              {sel.status === "pass" ? "✓" : "✗"} {sel.selector}
+                            </span>
+                          ))}
+                        </span>
+                      )}
                       {(c.failed.length > 0 || c.warnings.length > 0) && (
                         <div style={{ marginTop: 4, display: "grid", gap: 2 }}>
                           {[...c.failed.map((i) => ({ i, kind: "fail" as const })), ...c.warnings.map((i) => ({ i, kind: "warn" as const }))].map(({ i, kind }, idx) => (
@@ -126,6 +150,31 @@ export default function EmailHealthClient() {
                 );
               })}
             </div>
+            {(r.actions || []).length > 0 ? (
+              <div style={{ borderTop: "1px solid var(--line,#eee)", padding: "12px 16px", background: "#fbf9f4" }}>
+                <div style={{ fontSize: 12, fontWeight: 800, color: NAVY, textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 8 }}>
+                  Analysis · Action items
+                </div>
+                <div style={{ display: "grid", gap: 8 }}>
+                  {(r.actions || []).map((a, i) => {
+                    const sv = SEV[a.severity];
+                    return (
+                      <div key={i} style={{ display: "grid", gridTemplateColumns: "64px 1fr", gap: 10, alignItems: "start" }}>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: sv.fg, background: sv.bg, padding: "2px 7px", borderRadius: 999, textAlign: "center" }}>{sv.label}</span>
+                        <span>
+                          <span style={{ fontWeight: 700, fontSize: 13, color: NAVY }}>{a.title}</span>
+                          <div className="muted" style={{ fontSize: 12, marginTop: 2, lineHeight: 1.45 }}>{a.detail}</div>
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div style={{ borderTop: "1px solid var(--line,#eee)", padding: "10px 16px", fontSize: 12.5, color: "#1f7a5a" }}>
+                ✓ No action items — authentication is healthy and DMARC is enforcing.
+              </div>
+            )}
           </section>
         ))}
       </div>
