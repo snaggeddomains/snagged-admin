@@ -1,23 +1,10 @@
 {
   "capped": false,
-  "count": 14,
+  "count": 1,
   "domains": [
-    "contradict.ai",
-    "decoupling.ai",
-    "fia.me",
-    "indicates.ai",
-    "interventions.ai",
-    "kkk.me",
-    "mesopotamia.ai",
-    "navi.me",
-    "pistols.ai",
-    "pliers.ai",
-    "refractor.ai",
-    "rifles.ai",
-    "sask.ai",
-    "shotguns.ai"
+    "flicks.xyz"
   ],
-  "generated_at": "2026-07-31T10:06:32.065275+00:00",
+  "generated_at": "2026-07-31T17:06:08.572730+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
