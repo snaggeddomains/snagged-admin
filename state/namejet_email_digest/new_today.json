@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-01T15:09:52.824479+00:00",
+  "count": 1,
+  "domains": [
+    "freezing.org"
+  ],
+  "generated_at": "2026-08-01T15:10:44.676326+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }

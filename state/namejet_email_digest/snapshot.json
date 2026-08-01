@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "domain": "freezing.org",
+    "end_time_utc": "2026-08-01T16:35:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namejet.com/domain/freezing.org.action",
+    "platform": "NameJet",
+    "price": 39.0
+  }
+]
