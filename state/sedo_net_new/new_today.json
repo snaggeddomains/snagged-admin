@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-01T17:00:48.021791+00:00",
+  "count": 1,
+  "domains": [
+    "example.co"
+  ],
+  "generated_at": "2026-08-01T23:00:52.369992+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }

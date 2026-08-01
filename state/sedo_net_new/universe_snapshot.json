@@ -1,14 +1,14 @@
 [
   {
-    "domain": "beacome.com",
-    "price": null
+    "domain": "bodfit.ai",
+    "price": 5000.0
   },
   {
-    "domain": "bengals.net",
-    "price": 4900.0
+    "domain": "bodfit.net",
+    "price": 5000.0
   },
   {
-    "domain": "supportlinks.net",
-    "price": 299.0
+    "domain": "example.co",
+    "price": 100000.0
   }
 ]
