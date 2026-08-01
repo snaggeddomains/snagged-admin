@@ -1,22 +1,27 @@
 {
   "capped": false,
-  "count": 13,
+  "count": 16,
   "domains": [
-    "dilute.ai",
-    "sociopath.ai",
-    "uneasy.ai",
-    "beverley.org",
-    "varies.co",
-    "unrest.co",
-    "appreciates.org",
-    "burials.ai",
-    "coffins.ai",
-    "arion.ai",
-    "lire.ai",
-    "preventable.ai",
-    "taser.ai"
+    "fosters.ai",
+    "unattractive.org",
+    "peterborough.ai",
+    "monologues.ai",
+    "bilingual.io",
+    "orthopedic.ai",
+    "boto.ai",
+    "spacer.org",
+    "cloves.org",
+    "primates.ai",
+    "bony.org",
+    "aches.org",
+    "willie.co",
+    "dressage.ai",
+    "aberration.co",
+    "aborigines.org"
   ],
-  "generated_at": "2026-07-31T09:46:25.904037+00:00",
-  "mub": [],
+  "generated_at": "2026-08-01T10:09:14.171468+00:00",
+  "mub": [
+    "boto.ai"
+  ],
   "source": "namecheap_auctions"
 }

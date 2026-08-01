@@ -1,74 +1,92 @@
 [
   {
-    "bid_count": 128,
-    "domain": "svai.com",
-    "end_time_utc": "2026-07-31T18:59:07.382494+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Svai.com",
-    "platform": "DropCatch",
-    "price": 2001.0
-  },
-  {
-    "bid_count": 35,
-    "domain": "makings.com",
-    "end_time_utc": "2026-07-31T18:59:07.382494+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Makings.com",
-    "platform": "DropCatch",
-    "price": 1655.0
-  },
-  {
-    "bid_count": 49,
-    "domain": "tgl.net",
-    "end_time_utc": "2026-07-31T18:59:07.382494+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Tgl.net",
-    "platform": "DropCatch",
-    "price": 370.0
-  },
-  {
-    "bid_count": 37,
-    "domain": "xilos.com",
-    "end_time_utc": "2026-07-31T18:59:07.382494+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Xilos.com",
-    "platform": "DropCatch",
-    "price": 260.0
-  },
-  {
     "bid_count": 36,
     "domain": "vpsa.com",
-    "end_time_utc": "2026-08-03T18:59:07.382494+00:00",
+    "end_time_utc": "2026-08-03T18:59:15.380195+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/vpsa.com",
     "platform": "DropCatch",
     "price": 465.0
   },
   {
-    "bid_count": 41,
+    "bid_count": 47,
     "domain": "wooow.com",
-    "end_time_utc": "2026-08-03T18:59:07.382494+00:00",
+    "end_time_utc": "2026-08-03T18:59:15.380195+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Wooow.com",
     "platform": "DropCatch",
-    "price": 170.0
+    "price": 260.0
   },
   {
-    "bid_count": 58,
+    "bid_count": 14,
+    "domain": "poxs.com",
+    "end_time_utc": "2026-08-03T18:59:15.380195+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/poxs.com",
+    "platform": "DropCatch",
+    "price": 134.0
+  },
+  {
+    "bid_count": 19,
+    "domain": "kwew.com",
+    "end_time_utc": "2026-08-03T18:59:15.380195+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/kwew.com",
+    "platform": "DropCatch",
+    "price": 130.0
+  },
+  {
+    "bid_count": 37,
+    "domain": "seaon.com",
+    "end_time_utc": "2026-08-03T18:59:15.380195+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Seaon.com",
+    "platform": "DropCatch",
+    "price": 100.0
+  },
+  {
+    "bid_count": 32,
+    "domain": "ubridge.com",
+    "end_time_utc": "2026-08-03T18:59:15.380195+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/UbRidge.com",
+    "platform": "DropCatch",
+    "price": 79.0
+  },
+  {
+    "bid_count": 8,
+    "domain": "partakers.com",
+    "end_time_utc": "2026-08-03T18:59:15.380195+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Partakers.com",
+    "platform": "DropCatch",
+    "price": 69.0
+  },
+  {
+    "bid_count": 5,
+    "domain": "athlon.net",
+    "end_time_utc": "2026-08-03T18:59:15.380195+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Athlon.net",
+    "platform": "DropCatch",
+    "price": 69.0
+  },
+  {
+    "bid_count": 76,
     "domain": "talar.com",
-    "end_time_utc": "2026-08-04T18:59:07.382494+00:00",
+    "end_time_utc": "2026-08-04T18:59:15.380195+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Talar.com",
     "platform": "DropCatch",
-    "price": 301.0
+    "price": 851.0
   },
   {
-    "bid_count": 31,
+    "bid_count": 33,
     "domain": "luxen.com",
-    "end_time_utc": "2026-08-05T18:59:07.382494+00:00",
+    "end_time_utc": "2026-08-05T18:59:15.380195+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Luxen.com",
     "platform": "DropCatch",
-    "price": 1100.0
+    "price": 1300.0
   }
 ]

@@ -1,20 +1,47 @@
 [
   {
-    "bid_count": 21,
-    "domain": "nhyl.com",
-    "end_time_utc": "2026-07-31T15:00:00+00:00",
+    "bid_count": 13,
+    "domain": "mzs.net",
+    "end_time_utc": "2026-08-01T13:29:54+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/40770010.html",
+    "link": "https://www.dynadot.com/market/auction/41864268.html",
     "platform": "Dynadot",
-    "price": 155.0
+    "price": 343.4
   },
   {
-    "bid_count": 10,
-    "domain": "zumda.com",
-    "end_time_utc": "2026-08-01T00:00:00+00:00",
+    "bid_count": 12,
+    "domain": "bunkered.com",
+    "end_time_utc": "2026-08-01T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41816882.html",
+    "link": "https://www.dynadot.com/market/auction/40806679.html",
     "platform": "Dynadot",
-    "price": 305.0
+    "price": 718.0
+  },
+  {
+    "bid_count": 31,
+    "domain": "toword.com",
+    "end_time_utc": "2026-08-01T18:32:40+00:00",
+    "is_mub": false,
+    "link": "https://www.dynadot.com/market/auction/41844639.html",
+    "platform": "Dynadot",
+    "price": 58.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "correctly.io",
+    "end_time_utc": "2026-08-01T19:48:22+00:00",
+    "is_mub": false,
+    "link": "https://www.dynadot.com/market/auction/41848163.html",
+    "platform": "Dynadot",
+    "price": 7.99
+  },
+  {
+    "bid_count": 5,
+    "domain": "plsnt.com",
+    "end_time_utc": "2026-08-01T20:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.dynadot.com/market/auction/41509752.html",
+    "platform": "Dynadot",
+    "price": 13.0
   }
 ]

@@ -1,56 +1,83 @@
 [
   {
-    "bid_count": 27,
-    "domain": "pgap.com",
-    "end_time_utc": "2026-07-31T17:36:00+00:00",
+    "bid_count": 36,
+    "domain": "aixel.com",
+    "end_time_utc": "2026-08-01T16:08:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/pgap-com-717069304?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/aixel-com-717383489?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 409.0
+    "price": 570.0
   },
   {
     "bid_count": 8,
-    "domain": "kmove.com",
-    "end_time_utc": "2026-07-31T19:19:00+00:00",
+    "domain": "dropout.net",
+    "end_time_utc": "2026-08-01T17:01:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/kmove-com-717002791?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/dropout-net-714933140?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 47.0
+    "price": 30.0
   },
   {
-    "bid_count": 18,
-    "domain": "adil.org",
-    "end_time_utc": "2026-07-31T19:52:00+00:00",
-    "is_mub": true,
-    "link": "https://www.godaddy.com/domain-auctions/adil-org-715778822?isc=json_ending_tomorrow",
+    "bid_count": 31,
+    "domain": "gutd.com",
+    "end_time_utc": "2026-08-01T17:10:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/gutd-com-717366680?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 101.0
+    "price": 388.0
   },
   {
-    "bid_count": 51,
-    "domain": "mayuri.com",
-    "end_time_utc": "2026-07-31T20:05:00+00:00",
+    "bid_count": 22,
+    "domain": "formulation.org",
+    "end_time_utc": "2026-08-01T18:27:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/mayuri-com-717066779?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/formulation-org-717140442?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 3555.0
+    "price": 384.0
   },
   {
-    "bid_count": 36,
-    "domain": "lexikon.com",
-    "end_time_utc": "2026-07-31T20:20:00+00:00",
+    "bid_count": 15,
+    "domain": "witj.com",
+    "end_time_utc": "2026-08-01T18:54:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/lexikon-com-714140003?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/witj-com-717368992?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 860.0
+    "price": 126.0
   },
   {
-    "bid_count": 25,
-    "domain": "mpsn.com",
-    "end_time_utc": "2026-07-31T20:52:00+00:00",
+    "bid_count": 29,
+    "domain": "eass.com",
+    "end_time_utc": "2026-08-01T20:22:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/mpsn-com-714877572?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/eass-com-715690704?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 809.0
+    "price": 405.0
+  },
+  {
+    "bid_count": 24,
+    "domain": "hadk.com",
+    "end_time_utc": "2026-08-01T20:39:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/hadk-com-717366768?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 225.0
+  },
+  {
+    "bid_count": 13,
+    "domain": "brooq.com",
+    "end_time_utc": "2026-08-01T20:50:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/brooq-com-717353406?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 60.0
+  },
+  {
+    "bid_count": 26,
+    "domain": "exhort.com",
+    "end_time_utc": "2026-08-01T21:04:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/exhort-com-717395339?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 1025.0
   }
 ]

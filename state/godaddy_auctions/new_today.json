@@ -1,17 +1,18 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 9,
   "domains": [
-    "pgap.com",
-    "kmove.com",
-    "adil.org",
-    "mayuri.com",
-    "lexikon.com",
-    "mpsn.com"
+    "aixel.com",
+    "dropout.net",
+    "gutd.com",
+    "formulation.org",
+    "witj.com",
+    "eass.com",
+    "hadk.com",
+    "brooq.com",
+    "exhort.com"
   ],
-  "generated_at": "2026-07-31T09:47:48.107227+00:00",
-  "mub": [
-    "adil.org"
-  ],
+  "generated_at": "2026-08-01T10:10:59.824853+00:00",
+  "mub": [],
   "source": "godaddy_auctions"
 }

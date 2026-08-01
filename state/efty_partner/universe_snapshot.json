@@ -1,5 +1,6333 @@
 [
   {
+    "domain": "zurcoin.org",
+    "price": 999.0
+  },
+  {
+    "domain": "zuluwinter.com",
+    "price": null
+  },
+  {
+    "domain": "zooweb.net",
+    "price": null
+  },
+  {
+    "domain": "zoomgamer.net",
+    "price": null
+  },
+  {
+    "domain": "zoolib.org",
+    "price": 500.0
+  },
+  {
+    "domain": "zoofilm.net",
+    "price": null
+  },
+  {
+    "domain": "zonecritique.org",
+    "price": null
+  },
+  {
+    "domain": "zonechelsea.org",
+    "price": null
+  },
+  {
+    "domain": "zombieyears.com",
+    "price": 499.0
+  },
+  {
+    "domain": "zombienirvana.com",
+    "price": 2994.0
+  },
+  {
+    "domain": "zombiemovies.org",
+    "price": 599.0
+  },
+  {
+    "domain": "zombiegirls.net",
+    "price": 15000.0
+  },
+  {
+    "domain": "zoerecords.net",
+    "price": null
+  },
+  {
+    "domain": "zoejenny.com",
+    "price": 599.0
+  },
+  {
+    "domain": "zoefood.com",
+    "price": null
+  },
+  {
+    "domain": "zoedolan.com",
+    "price": 599.0
+  },
+  {
+    "domain": "zlatanlegends.com",
+    "price": 1497.0
+  },
+  {
+    "domain": "zionharvest.org",
+    "price": null
+  },
+  {
+    "domain": "zimbabwewatch.org",
+    "price": 599.0
+  },
+  {
+    "domain": "zetabrewing.com",
+    "price": null
+  },
+  {
+    "domain": "zerotrash.org",
+    "price": 599.0
+  },
+  {
+    "domain": "zerosrealm.com",
+    "price": 999.0
+  },
+  {
+    "domain": "zerolives.org",
+    "price": 499.0
+  },
+  {
+    "domain": "zenpup.co",
+    "price": 1319.0
+  },
+  {
+    "domain": "zenpre.net",
+    "price": 1197.0
+  },
+  {
+    "domain": "zeallures.com",
+    "price": 999.0
+  },
+  {
+    "domain": "zanzibarblue.com",
+    "price": 599.0
+  },
+  {
+    "domain": "zambiareports.com",
+    "price": null
+  },
+  {
+    "domain": "zagrebconnect.com",
+    "price": 1799.0
+  },
+  {
+    "domain": "zacksoto.com",
+    "price": 599.0
+  },
+  {
+    "domain": "zackmcdermott.com",
+    "price": 999.0
+  },
+  {
+    "domain": "youton.org",
+    "price": 1599.0
+  },
+  {
+    "domain": "youthstudies.co",
+    "price": null
+  },
+  {
+    "domain": "youthjamaica.com",
+    "price": 519.0
+  },
+  {
+    "domain": "youstem.org",
+    "price": null
+  },
+  {
+    "domain": "yourthings.org",
+    "price": null
+  },
+  {
+    "domain": "yourboon.co",
+    "price": 599.0
+  },
+  {
+    "domain": "youngreporters.net",
+    "price": null
+  },
+  {
+    "domain": "youngherald.com",
+    "price": null
+  },
+  {
+    "domain": "youngacademies.org",
+    "price": null
+  },
+  {
+    "domain": "youlisten.co",
+    "price": 899.0
+  },
+  {
+    "domain": "youimages.org",
+    "price": 1197.0
+  },
+  {
+    "domain": "youcheck.co",
+    "price": 2999.0
+  },
+  {
+    "domain": "yorknostalgia.com",
+    "price": 1497.0
+  },
+  {
+    "domain": "yorkmedieval.com",
+    "price": 599.0
+  },
+  {
+    "domain": "yorkarts.org",
+    "price": null
+  },
+  {
+    "domain": "yoosourcing.com",
+    "price": 500.0
+  },
+  {
+    "domain": "yoochai.com",
+    "price": 999.0
+  },
+  {
+    "domain": "yoobay.net",
+    "price": 2460.0
+  },
+  {
+    "domain": "yolofamily.org",
+    "price": null
+  },
+  {
+    "domain": "yogarave.org",
+    "price": 2799.0
+  },
+  {
+    "domain": "yieldprotocol.org",
+    "price": null
+  },
+  {
+    "domain": "yewrestaurant.com",
+    "price": 1999.0
+  },
+  {
+    "domain": "yesvancouver.org",
+    "price": null
+  },
+  {
+    "domain": "yeslinux.org",
+    "price": 1499.0
+  },
+  {
+    "domain": "yesislanders.com",
+    "price": 1199.0
+  },
+  {
+    "domain": "yescollab.org",
+    "price": 499.0
+  },
+  {
+    "domain": "yellowblocks.org",
+    "price": 599.0
+  },
+  {
+    "domain": "yeatsday.com",
+    "price": 1239.0
+  },
+  {
+    "domain": "yankeeanalysts.com",
+    "price": null
+  },
+  {
+    "domain": "yakedi.com",
+    "price": 599.0
+  },
+  {
+    "domain": "yahstar.com",
+    "price": 1999.0
+  },
+  {
+    "domain": "yahgame.com",
+    "price": 1679.0
+  },
+  {
+    "domain": "xmltimes.com",
+    "price": 599.0
+  },
+  {
+    "domain": "xmlplease.com",
+    "price": null
+  },
+  {
+    "domain": "xmlperl.com",
+    "price": null
+  },
+  {
+    "domain": "xmlcheck.com",
+    "price": 500.0
+  },
+  {
+    "domain": "xmlbus.com",
+    "price": null
+  },
+  {
+    "domain": "xiaowang.net",
+    "price": null
+  },
+  {
+    "domain": "wwwmyspace.com",
+    "price": 999.0
+  },
+  {
+    "domain": "wwfthai.org",
+    "price": 539.0
+  },
+  {
+    "domain": "wtoseattle.org",
+    "price": null
+  },
+  {
+    "domain": "wsjhistory.com",
+    "price": null
+  },
+  {
+    "domain": "wrongdistance.com",
+    "price": 599.0
+  },
+  {
+    "domain": "writingrights.org",
+    "price": 1599.0
+  },
+  {
+    "domain": "writerseditor.org",
+    "price": 599.0
+  },
+  {
+    "domain": "wowwiki.org",
+    "price": 1599.0
+  },
+  {
+    "domain": "wowweather.com",
+    "price": null
+  },
+  {
+    "domain": "wowukraine.org",
+    "price": 599.0
+  },
+  {
+    "domain": "wowstatus.net",
+    "price": null
+  },
+  {
+    "domain": "wowlyrics.com",
+    "price": 499.0
+  },
+  {
+    "domain": "worshipworthy.com",
+    "price": 2000.0
+  },
+  {
+    "domain": "worldviewbank.com",
+    "price": 1499.0
+  },
+  {
+    "domain": "worldmoving.org",
+    "price": 999.0
+  },
+  {
+    "domain": "worlddialogue.org",
+    "price": 6999.0
+  },
+  {
+    "domain": "worldcultures.org",
+    "price": 599.0
+  },
+  {
+    "domain": "worldcruising.net",
+    "price": 997.0
+  },
+  {
+    "domain": "worldclip.net",
+    "price": null
+  },
+  {
+    "domain": "worldaxle.com",
+    "price": 1000.0
+  },
+  {
+    "domain": "workside.net",
+    "price": 999.0
+  },
+  {
+    "domain": "workinasia.net",
+    "price": 1999.0
+  },
+  {
+    "domain": "workguru.org",
+    "price": 997.0
+  },
+  {
+    "domain": "workflowers.net",
+    "price": null
+  },
+  {
+    "domain": "workflourish.com",
+    "price": 999.0
+  },
+  {
+    "domain": "workboxers.com",
+    "price": null
+  },
+  {
+    "domain": "workbloom.net",
+    "price": 599.0
+  },
+  {
+    "domain": "workableworld.org",
+    "price": 999.0
+  },
+  {
+    "domain": "wordshell.net",
+    "price": 750.0
+  },
+  {
+    "domain": "wordlegs.com",
+    "price": 599.0
+  },
+  {
+    "domain": "wordgeeks.co",
+    "price": null
+  },
+  {
+    "domain": "wordfast.org",
+    "price": 1999.0
+  },
+  {
+    "domain": "wordchuck.com",
+    "price": 1499.0
+  },
+  {
+    "domain": "woomoo.org",
+    "price": 599.0
+  },
+  {
+    "domain": "woofpaper.org",
+    "price": 1599.0
+  },
+  {
+    "domain": "woodwardmuseum.org",
+    "price": 499.0
+  },
+  {
+    "domain": "woodbat.org",
+    "price": null
+  },
+  {
+    "domain": "wonkabout.com",
+    "price": null
+  },
+  {
+    "domain": "wonderlance.com",
+    "price": 599.0
+  },
+  {
+    "domain": "wonderfulland.com",
+    "price": 11100.0
+  },
+  {
+    "domain": "wonderfactory.org",
+    "price": 599.0
+  },
+  {
+    "domain": "wondercomments.com",
+    "price": 1599.0
+  },
+  {
+    "domain": "womenphil.org",
+    "price": null
+  },
+  {
+    "domain": "womenled.com",
+    "price": 4500.0
+  },
+  {
+    "domain": "womeneagles.com",
+    "price": 599.0
+  },
+  {
+    "domain": "womencitizen.com",
+    "price": 599.0
+  },
+  {
+    "domain": "wombpoetry.com",
+    "price": 599.0
+  },
+  {
+    "domain": "wizardvpn.com",
+    "price": 12999.0
+  },
+  {
+    "domain": "wittybitches.com",
+    "price": 599.0
+  },
+  {
+    "domain": "witsinc.org",
+    "price": 500.0
+  },
+  {
+    "domain": "witnessstones.org",
+    "price": null
+  },
+  {
+    "domain": "withmagazine.net",
+    "price": null
+  },
+  {
+    "domain": "withapollo.com",
+    "price": 1599.0
+  },
+  {
+    "domain": "witchhunter.net",
+    "price": 3899.0
+  },
+  {
+    "domain": "witchbody.com",
+    "price": null
+  },
+  {
+    "domain": "wishsummit.com",
+    "price": 899.0
+  },
+  {
+    "domain": "wisetexas.org",
+    "price": 799.0
+  },
+  {
+    "domain": "wiserico.com",
+    "price": null
+  },
+  {
+    "domain": "wireservice.co",
+    "price": 639.0
+  },
+  {
+    "domain": "wiremuch.com",
+    "price": 519.0
+  },
+  {
+    "domain": "wirelessdays.org",
+    "price": 780.0
+  },
+  {
+    "domain": "wiredstore.net",
+    "price": 1599.0
+  },
+  {
+    "domain": "wiredchild.org",
+    "price": 800.0
+  },
+  {
+    "domain": "winworkshop.net",
+    "price": 1299.0
+  },
+  {
+    "domain": "wintervoices.com",
+    "price": 1999.0
+  },
+  {
+    "domain": "winmusic.co",
+    "price": null
+  },
+  {
+    "domain": "winmagazine.org",
+    "price": 599.0
+  },
+  {
+    "domain": "wingimp.org",
+    "price": 999.0
+  },
+  {
+    "domain": "winetwo.net",
+    "price": 499.0
+  },
+  {
+    "domain": "winerywise.org",
+    "price": null
+  },
+  {
+    "domain": "winelistening.com",
+    "price": 599.0
+  },
+  {
+    "domain": "winecamp.org",
+    "price": 1599.0
+  },
+  {
+    "domain": "windtoday.net",
+    "price": 599.0
+  },
+  {
+    "domain": "windchallenge.com",
+    "price": null
+  },
+  {
+    "domain": "winbassett.com",
+    "price": null
+  },
+  {
+    "domain": "wilsonsupport.org",
+    "price": 679.0
+  },
+  {
+    "domain": "wilsonjacket.com",
+    "price": 599.0
+  },
+  {
+    "domain": "wilsonbarn.com",
+    "price": null
+  },
+  {
+    "domain": "willrogers.org",
+    "price": null
+  },
+  {
+    "domain": "willisupdate.com",
+    "price": 1599.0
+  },
+  {
+    "domain": "williebain.com",
+    "price": 599.0
+  },
+  {
+    "domain": "williammaltese.com",
+    "price": 1199.0
+  },
+  {
+    "domain": "williamluce.com",
+    "price": 1299.0
+  },
+  {
+    "domain": "wilkinsfinance.com",
+    "price": 799.0
+  },
+  {
+    "domain": "wileyrobertson.com",
+    "price": 599.0
+  },
+  {
+    "domain": "wildwork.org",
+    "price": null
+  },
+  {
+    "domain": "wildweave.net",
+    "price": null
+  },
+  {
+    "domain": "wildmetro.org",
+    "price": 599.0
+  },
+  {
+    "domain": "wildgambler.org",
+    "price": 599.0
+  },
+  {
+    "domain": "wildfiredesign.net",
+    "price": null
+  },
+  {
+    "domain": "wildchess.org",
+    "price": null
+  },
+  {
+    "domain": "wildcatzoo.org",
+    "price": 499.0
+  },
+  {
+    "domain": "wildcatwildcat.com",
+    "price": 1997.0
+  },
+  {
+    "domain": "wildbee.org",
+    "price": 599.0
+  },
+  {
+    "domain": "wildaruba.org",
+    "price": 899.0
+  },
+  {
+    "domain": "wilbursecurity.com",
+    "price": 750.0
+  },
+  {
+    "domain": "wikiviz.org",
+    "price": 999.0
+  },
+  {
+    "domain": "wikivia.org",
+    "price": 2239.0
+  },
+  {
+    "domain": "wikistats.co",
+    "price": 499.0
+  },
+  {
+    "domain": "wikiplaza.org",
+    "price": 599.0
+  },
+  {
+    "domain": "wiiuse.net",
+    "price": 2599.0
+  },
+  {
+    "domain": "wiiprojects.org",
+    "price": null
+  },
+  {
+    "domain": "wiikitty.com",
+    "price": 539.0
+  },
+  {
+    "domain": "wiikey.com",
+    "price": null
+  },
+  {
+    "domain": "wiiflash.org",
+    "price": 599.0
+  },
+  {
+    "domain": "wifilib.com",
+    "price": 2199.0
+  },
+  {
+    "domain": "wificalling.net",
+    "price": 500.0
+  },
+  {
+    "domain": "widgetsailor.com",
+    "price": null
+  },
+  {
+    "domain": "widemile.com",
+    "price": null
+  },
+  {
+    "domain": "wicketmaiden.com",
+    "price": 4794.0
+  },
+  {
+    "domain": "wickedying.com",
+    "price": 799.0
+  },
+  {
+    "domain": "whyteboard.org",
+    "price": 939.0
+  },
+  {
+    "domain": "whymurder.org",
+    "price": 599.0
+  },
+  {
+    "domain": "whydye.org",
+    "price": null
+  },
+  {
+    "domain": "whybook.org",
+    "price": 2999.0
+  },
+  {
+    "domain": "wholeart.org",
+    "price": 599.0
+  },
+  {
+    "domain": "whoiran.org",
+    "price": 699.0
+  },
+  {
+    "domain": "whizrider.com",
+    "price": 719.0
+  },
+  {
+    "domain": "whitmanproject.org",
+    "price": 599.0
+  },
+  {
+    "domain": "whitewaterlabs.com",
+    "price": 500.0
+  },
+  {
+    "domain": "whitesettlers.com",
+    "price": 999.0
+  },
+  {
+    "domain": "whitehassle.com",
+    "price": 2999.0
+  },
+  {
+    "domain": "whiskeydurham.com",
+    "price": 499.0
+  },
+  {
+    "domain": "whiskchicago.com",
+    "price": null
+  },
+  {
+    "domain": "whinesisters.com",
+    "price": 639.0
+  },
+  {
+    "domain": "whence.co",
+    "price": null
+  },
+  {
+    "domain": "whatsprotocol.com",
+    "price": null
+  },
+  {
+    "domain": "whatser.com",
+    "price": 599.0
+  },
+  {
+    "domain": "whatprivilege.com",
+    "price": 999.0
+  },
+  {
+    "domain": "whalelab.org",
+    "price": 599.0
+  },
+  {
+    "domain": "whalefootage.org",
+    "price": 599.0
+  },
+  {
+    "domain": "wetlandsmovie.com",
+    "price": 599.0
+  },
+  {
+    "domain": "westsidefolk.org",
+    "price": 599.0
+  },
+  {
+    "domain": "wesgoodman.com",
+    "price": 599.0
+  },
+  {
+    "domain": "wendypepper.com",
+    "price": 799.0
+  },
+  {
+    "domain": "welshcricket.org",
+    "price": 999.0
+  },
+  {
+    "domain": "wellarts.org",
+    "price": null
+  },
+  {
+    "domain": "welcomedesk.org",
+    "price": 599.0
+  },
+  {
+    "domain": "welchbooks.com",
+    "price": 599.0
+  },
+  {
+    "domain": "weirdval.com",
+    "price": null
+  },
+  {
+    "domain": "weirdaustralia.com",
+    "price": 1999.0
+  },
+  {
+    "domain": "weewomen.org",
+    "price": 599.0
+  },
+  {
+    "domain": "weenudge.com",
+    "price": null
+  },
+  {
+    "domain": "weeklyjazz.com",
+    "price": 799.0
+  },
+  {
+    "domain": "wedgebuster.com",
+    "price": 999.0
+  },
+  {
+    "domain": "weddingcans.com",
+    "price": null
+  },
+  {
+    "domain": "webvista.net",
+    "price": 750.0
+  },
+  {
+    "domain": "websterworld.com",
+    "price": 699.0
+  },
+  {
+    "domain": "websternano.org",
+    "price": null
+  },
+  {
+    "domain": "websta.org",
+    "price": 999.0
+  },
+  {
+    "domain": "webshine.org",
+    "price": 799.0
+  },
+  {
+    "domain": "webring.org",
+    "price": 169999.0
+  },
+  {
+    "domain": "webpulp.org",
+    "price": 999.0
+  },
+  {
+    "domain": "webpublished.com",
+    "price": 3599.0
+  },
+  {
+    "domain": "webpoplar.com",
+    "price": 999.0
+  },
+  {
+    "domain": "webpatterns.org",
+    "price": 999.0
+  },
+  {
+    "domain": "webpath.net",
+    "price": 1597.0
+  },
+  {
+    "domain": "webmythology.com",
+    "price": 599.0
+  },
+  {
+    "domain": "webinter.net",
+    "price": 650.0
+  },
+  {
+    "domain": "webest.net",
+    "price": 1999.0
+  },
+  {
+    "domain": "webdetail.org",
+    "price": null
+  },
+  {
+    "domain": "webchoir.com",
+    "price": 799.0
+  },
+  {
+    "domain": "webbsociety.org",
+    "price": 599.0
+  },
+  {
+    "domain": "weaveblog.com",
+    "price": 759.0
+  },
+  {
+    "domain": "wearwoof.org",
+    "price": 499.0
+  },
+  {
+    "domain": "wearscript.com",
+    "price": 799.0
+  },
+  {
+    "domain": "wearpalettes.com",
+    "price": 999.0
+  },
+  {
+    "domain": "weardated.com",
+    "price": null
+  },
+  {
+    "domain": "waysuk.com",
+    "price": 899.0
+  },
+  {
+    "domain": "waynesutton.net",
+    "price": 599.0
+  },
+  {
+    "domain": "waynechamber.net",
+    "price": 599.0
+  },
+  {
+    "domain": "wayfar.net",
+    "price": null
+  },
+  {
+    "domain": "waveindia.org",
+    "price": 599.0
+  },
+  {
+    "domain": "wavebob.com",
+    "price": 499.0
+  },
+  {
+    "domain": "waveblade.co",
+    "price": null
+  },
+  {
+    "domain": "watthai.net",
+    "price": 499.0
+  },
+  {
+    "domain": "wattcp.com",
+    "price": 500.0
+  },
+  {
+    "domain": "watsky.net",
+    "price": 1999.0
+  },
+  {
+    "domain": "watsan.net",
+    "price": null
+  },
+  {
+    "domain": "watmiami.org",
+    "price": null
+  },
+  {
+    "domain": "watershedradio.org",
+    "price": null
+  },
+  {
+    "domain": "waterobserver.org",
+    "price": null
+  },
+  {
+    "domain": "waterlin.org",
+    "price": 500.0
+  },
+  {
+    "domain": "waterlanguage.org",
+    "price": 500.0
+  },
+  {
+    "domain": "waterlang.org",
+    "price": 500.0
+  },
+  {
+    "domain": "waterethics.org",
+    "price": null
+  },
+  {
+    "domain": "waterdialogues.org",
+    "price": 599.0
+  },
+  {
+    "domain": "waterbuffer.net",
+    "price": 499.0
+  },
+  {
+    "domain": "watchpub.org",
+    "price": 999.0
+  },
+  {
+    "domain": "watchinglost.com",
+    "price": 599.0
+  },
+  {
+    "domain": "washboard.co",
+    "price": 1199.0
+  },
+  {
+    "domain": "warscentral.com",
+    "price": 5199.0
+  },
+  {
+    "domain": "warsawmade.com",
+    "price": 319.0
+  },
+  {
+    "domain": "warriorscall.org",
+    "price": 599.0
+  },
+  {
+    "domain": "warriorfilm.com",
+    "price": null
+  },
+  {
+    "domain": "warrenunited.net",
+    "price": 799.0
+  },
+  {
+    "domain": "warnermuseum.org",
+    "price": null
+  },
+  {
+    "domain": "wareflo.com",
+    "price": 797.0
+  },
+  {
+    "domain": "warebrook.org",
+    "price": null
+  },
+  {
+    "domain": "wannaspell.com",
+    "price": 599.0
+  },
+  {
+    "domain": "wangnmr.com",
+    "price": 599.0
+  },
+  {
+    "domain": "waltonian.com",
+    "price": 1999.0
+  },
+  {
+    "domain": "walnuters.com",
+    "price": null
+  },
+  {
+    "domain": "wallsdown.org",
+    "price": null
+  },
+  {
+    "domain": "wallpho.com",
+    "price": 1999.0
+  },
+  {
+    "domain": "wallpeople.org",
+    "price": null
+  },
+  {
+    "domain": "wallpapermay.com",
+    "price": 1999.0
+  },
+  {
+    "domain": "wallpaperest.com",
+    "price": 1999.0
+  },
+  {
+    "domain": "walkingworking.com",
+    "price": 2999.0
+  },
+  {
+    "domain": "waldentheatre.org",
+    "price": null
+  },
+  {
+    "domain": "wakeacademy.org",
+    "price": null
+  },
+  {
+    "domain": "wahdat.net",
+    "price": 1299.0
+  },
+  {
+    "domain": "voxvictims.com",
+    "price": 1599.0
+  },
+  {
+    "domain": "voxphotographs.com",
+    "price": null
+  },
+  {
+    "domain": "voxconnector.org",
+    "price": 599.0
+  },
+  {
+    "domain": "votevogel.org",
+    "price": null
+  },
+  {
+    "domain": "votetorah.org",
+    "price": null
+  },
+  {
+    "domain": "voterwatch.org",
+    "price": 499.0
+  },
+  {
+    "domain": "votervox.org",
+    "price": null
+  },
+  {
+    "domain": "voterespect.org",
+    "price": 599.0
+  },
+  {
+    "domain": "votepair.org",
+    "price": 500.0
+  },
+  {
+    "domain": "votemimi.org",
+    "price": null
+  },
+  {
+    "domain": "votecosta.com",
+    "price": 599.0
+  },
+  {
+    "domain": "voteann.org",
+    "price": null
+  },
+  {
+    "domain": "voteagainst.org",
+    "price": 599.0
+  },
+  {
+    "domain": "voltairetwins.com",
+    "price": 599.0
+  },
+  {
+    "domain": "volalto.net",
+    "price": 3995.0
+  },
+  {
+    "domain": "vogelwakefield.com",
+    "price": null
+  },
+  {
+    "domain": "vivaboo.com",
+    "price": 1999.0
+  },
+  {
+    "domain": "visualland.net",
+    "price": null
+  },
+  {
+    "domain": "visresearch.org",
+    "price": null
+  },
+  {
+    "domain": "visola.net",
+    "price": null
+  },
+  {
+    "domain": "visitmyanmar.net",
+    "price": null
+  },
+  {
+    "domain": "visitbarbados.co",
+    "price": null
+  },
+  {
+    "domain": "visionwallet.com",
+    "price": 3599.0
+  },
+  {
+    "domain": "visionsonic.org",
+    "price": 900.0
+  },
+  {
+    "domain": "visbuzz.com",
+    "price": 750.0
+  },
+  {
+    "domain": "virtualskies.net",
+    "price": 599.0
+  },
+  {
+    "domain": "virtuallyjenna.com",
+    "price": null
+  },
+  {
+    "domain": "virtualeco.org",
+    "price": 539.0
+  },
+  {
+    "domain": "virtualdisk.net",
+    "price": 999.0
+  },
+  {
+    "domain": "virtualavalon.org",
+    "price": 1999.0
+  },
+  {
+    "domain": "virginiaexcels.org",
+    "price": 599.0
+  },
+  {
+    "domain": "virgilgoode.com",
+    "price": 599.0
+  },
+  {
+    "domain": "viralradio.net",
+    "price": 1497.0
+  },
+  {
+    "domain": "viperssc.com",
+    "price": 1995.0
+  },
+  {
+    "domain": "violetnet.org",
+    "price": null
+  },
+  {
+    "domain": "vinylrites.net",
+    "price": null
+  },
+  {
+    "domain": "vintagefolly.com",
+    "price": 599.0
+  },
+  {
+    "domain": "vinide.com",
+    "price": 1497.0
+  },
+  {
+    "domain": "vincentmalone.com",
+    "price": 2599.0
+  },
+  {
+    "domain": "vimeoinfo.com",
+    "price": 1199.0
+  },
+  {
+    "domain": "villagetart.com",
+    "price": null
+  },
+  {
+    "domain": "villagenda.com",
+    "price": 1299.0
+  },
+  {
+    "domain": "vikingbears.com",
+    "price": 599.0
+  },
+  {
+    "domain": "vigilancenow.org",
+    "price": 599.0
+  },
+  {
+    "domain": "vietnamvoices.org",
+    "price": null
+  },
+  {
+    "domain": "vietnamgateway.org",
+    "price": null
+  },
+  {
+    "domain": "vietnamfood.org",
+    "price": 599.0
+  },
+  {
+    "domain": "vietnamcolors.net",
+    "price": 1199.0
+  },
+  {
+    "domain": "vietclimb.com",
+    "price": 1599.0
+  },
+  {
+    "domain": "videren.net",
+    "price": null
+  },
+  {
+    "domain": "videorevival.org",
+    "price": 599.0
+  },
+  {
+    "domain": "videodiaries.org",
+    "price": null
+  },
+  {
+    "domain": "videaux.org",
+    "price": 1197.0
+  },
+  {
+    "domain": "victorosborne.com",
+    "price": null
+  },
+  {
+    "domain": "victoriahome.co",
+    "price": null
+  },
+  {
+    "domain": "victorage.com",
+    "price": null
+  },
+  {
+    "domain": "vicpeace.org",
+    "price": null
+  },
+  {
+    "domain": "vickyford.org",
+    "price": 1299.0
+  },
+  {
+    "domain": "vibewire.net",
+    "price": 2700.0
+  },
+  {
+    "domain": "vibecomputers.com",
+    "price": 599.0
+  },
+  {
+    "domain": "viatic.net",
+    "price": 999.0
+  },
+  {
+    "domain": "viaaudio.net",
+    "price": 999.0
+  },
+  {
+    "domain": "vetscommission.org",
+    "price": 1597.0
+  },
+  {
+    "domain": "vertigographic.com",
+    "price": 399.0
+  },
+  {
+    "domain": "verticalexpo.com",
+    "price": null
+  },
+  {
+    "domain": "vertexlist.net",
+    "price": 999.0
+  },
+  {
+    "domain": "vertexasylum.com",
+    "price": null
+  },
+  {
+    "domain": "versatileltd.com",
+    "price": 1599.0
+  },
+  {
+    "domain": "veripad.co",
+    "price": 959.0
+  },
+  {
+    "domain": "verifiedfacts.org",
+    "price": null
+  },
+  {
+    "domain": "verdesis.net",
+    "price": 1999.0
+  },
+  {
+    "domain": "verdecasa.net",
+    "price": 1599.0
+  },
+  {
+    "domain": "verdeboulder.com",
+    "price": null
+  },
+  {
+    "domain": "verastreet.com",
+    "price": 5599.0
+  },
+  {
+    "domain": "venusvalentine.com",
+    "price": 799.0
+  },
+  {
+    "domain": "venusdemo.com",
+    "price": null
+  },
+  {
+    "domain": "venturespur.com",
+    "price": null
+  },
+  {
+    "domain": "venturegeeks.org",
+    "price": 599.0
+  },
+  {
+    "domain": "venturedata.org",
+    "price": 999.0
+  },
+  {
+    "domain": "venturecup.org",
+    "price": 2550.0
+  },
+  {
+    "domain": "venturebreak.com",
+    "price": null
+  },
+  {
+    "domain": "veninfo.org",
+    "price": null
+  },
+  {
+    "domain": "veniceskills.org",
+    "price": 599.0
+  },
+  {
+    "domain": "vendorwatch.org",
+    "price": 500.0
+  },
+  {
+    "domain": "velvetdessert.com",
+    "price": null
+  },
+  {
+    "domain": "velocityworks.net",
+    "price": null
+  },
+  {
+    "domain": "vegdocs.com",
+    "price": 799.0
+  },
+  {
+    "domain": "vectorvalley.com",
+    "price": 1499.0
+  },
+  {
+    "domain": "vatlab.org",
+    "price": null
+  },
+  {
+    "domain": "vasculardomain.com",
+    "price": 1599.0
+  },
+  {
+    "domain": "varytale.com",
+    "price": null
+  },
+  {
+    "domain": "varten.net",
+    "price": null
+  },
+  {
+    "domain": "variablegen.org",
+    "price": 999.0
+  },
+  {
+    "domain": "varbuzz.com",
+    "price": null
+  },
+  {
+    "domain": "vaporcouture.com",
+    "price": 999.0
+  },
+  {
+    "domain": "vanstaiwan.com",
+    "price": null
+  },
+  {
+    "domain": "vanishedwood.org",
+    "price": null
+  },
+  {
+    "domain": "vanillapastry.com",
+    "price": null
+  },
+  {
+    "domain": "vanillacrypto.com",
+    "price": 4999.0
+  },
+  {
+    "domain": "vanessaruns.com",
+    "price": 1199.0
+  },
+  {
+    "domain": "vampirebabylon.com",
+    "price": 599.0
+  },
+  {
+    "domain": "valuesaction.org",
+    "price": 599.0
+  },
+  {
+    "domain": "valorexpo.com",
+    "price": 799.0
+  },
+  {
+    "domain": "valleylanes.net",
+    "price": null
+  },
+  {
+    "domain": "valleyflora.net",
+    "price": 499.0
+  },
+  {
+    "domain": "valerieburke.net",
+    "price": 599.0
+  },
+  {
+    "domain": "valerieaugust.com",
+    "price": null
+  },
+  {
+    "domain": "valdezscience.com",
+    "price": 799.0
+  },
+  {
+    "domain": "vaginachina.org",
+    "price": 599.0
+  },
+  {
+    "domain": "vaginaantics.com",
+    "price": null
+  },
+  {
+    "domain": "vaccinesvideo.com",
+    "price": null
+  },
+  {
+    "domain": "vaccinefairy.org",
+    "price": null
+  },
+  {
+    "domain": "utcaero.com",
+    "price": 599.0
+  },
+  {
+    "domain": "utahpop.org",
+    "price": null
+  },
+  {
+    "domain": "uspstudios.co",
+    "price": null
+  },
+  {
+    "domain": "uspref.org",
+    "price": 3999.0
+  },
+  {
+    "domain": "uspcontent.com",
+    "price": 599.0
+  },
+  {
+    "domain": "usinglinux.org",
+    "price": 620.0
+  },
+  {
+    "domain": "usetruth.com",
+    "price": 999.0
+  },
+  {
+    "domain": "usercreations.com",
+    "price": 599.0
+  },
+  {
+    "domain": "usercopy.com",
+    "price": 2400.0
+  },
+  {
+    "domain": "uselessmac.com",
+    "price": 550.0
+  },
+  {
+    "domain": "usbchainsaw.com",
+    "price": null
+  },
+  {
+    "domain": "usalone.net",
+    "price": null
+  },
+  {
+    "domain": "usaidami.org",
+    "price": 799.0
+  },
+  {
+    "domain": "urlworth.com",
+    "price": 9999.0
+  },
+  {
+    "domain": "urltea.com",
+    "price": null
+  },
+  {
+    "domain": "urlgator.com",
+    "price": null
+  },
+  {
+    "domain": "urikane.com",
+    "price": 999.0
+  },
+  {
+    "domain": "urbanwater.net",
+    "price": 999.0
+  },
+  {
+    "domain": "urbantribes.net",
+    "price": 1197.0
+  },
+  {
+    "domain": "urbanscarlet.com",
+    "price": 799.0
+  },
+  {
+    "domain": "urbanmonk.net",
+    "price": null
+  },
+  {
+    "domain": "urbanhunt.co",
+    "price": null
+  },
+  {
+    "domain": "urbanfood.org",
+    "price": 599.0
+  },
+  {
+    "domain": "urbanangel.org",
+    "price": 599.0
+  },
+  {
+    "domain": "upstatedesign.org",
+    "price": 599.0
+  },
+  {
+    "domain": "uprightsleeper.com",
+    "price": null
+  },
+  {
+    "domain": "uprightcabaret.com",
+    "price": null
+  },
+  {
+    "domain": "uppers.org",
+    "price": 499.0
+  },
+  {
+    "domain": "upperrogue.org",
+    "price": null
+  },
+  {
+    "domain": "upperpost.org",
+    "price": 999.0
+  },
+  {
+    "domain": "uploadnext.com",
+    "price": 599.0
+  },
+  {
+    "domain": "uploadjockey.com",
+    "price": 1899.0
+  },
+  {
+    "domain": "upliftfit.org",
+    "price": 619.0
+  },
+  {
+    "domain": "upgradeware.com",
+    "price": 1599.0
+  },
+  {
+    "domain": "unusualleading.com",
+    "price": 1199.0
+  },
+  {
+    "domain": "untitledhorror.com",
+    "price": null
+  },
+  {
+    "domain": "unrulyheir.com",
+    "price": 599.0
+  },
+  {
+    "domain": "unrealtower.org",
+    "price": 999.0
+  },
+  {
+    "domain": "unrealops.com",
+    "price": 4794.0
+  },
+  {
+    "domain": "unogoal.xyz",
+    "price": null
+  },
+  {
+    "domain": "unocafe.net",
+    "price": null
+  },
+  {
+    "domain": "unlockiran.org",
+    "price": 1999.0
+  },
+  {
+    "domain": "unleashlocal.org",
+    "price": 699.0
+  },
+  {
+    "domain": "unlawfulaccess.net",
+    "price": null
+  },
+  {
+    "domain": "unixforge.org",
+    "price": 599.0
+  },
+  {
+    "domain": "unixconsult.org",
+    "price": 599.0
+  },
+  {
+    "domain": "unixcode.org",
+    "price": 499.0
+  },
+  {
+    "domain": "universalpage.org",
+    "price": null
+  },
+  {
+    "domain": "unityproposals.com",
+    "price": 999.0
+  },
+  {
+    "domain": "unitymichigan.org",
+    "price": 999.0
+  },
+  {
+    "domain": "unitslice.org",
+    "price": null
+  },
+  {
+    "domain": "unitescotland.org",
+    "price": null
+  },
+  {
+    "domain": "uniten.net",
+    "price": 1999.0
+  },
+  {
+    "domain": "unitemag.com",
+    "price": null
+  },
+  {
+    "domain": "unitednorth.org",
+    "price": 1399.0
+  },
+  {
+    "domain": "unileaks.org",
+    "price": 1599.0
+  },
+  {
+    "domain": "uniformjustice.org",
+    "price": null
+  },
+  {
+    "domain": "unidesert.com",
+    "price": null
+  },
+  {
+    "domain": "unconsciouslab.com",
+    "price": 1599.0
+  },
+  {
+    "domain": "unautah.org",
+    "price": 799.0
+  },
+  {
+    "domain": "unacomics.com",
+    "price": 499.0
+  },
+  {
+    "domain": "ummcougars.org",
+    "price": 999.0
+  },
+  {
+    "domain": "umatoday.com",
+    "price": 499.0
+  },
+  {
+    "domain": "ultrapetrol.net",
+    "price": 999.0
+  },
+  {
+    "domain": "ulsterpage.com",
+    "price": 599.0
+  },
+  {
+    "domain": "ukrainewow.com",
+    "price": 850.0
+  },
+  {
+    "domain": "ukraineinfo.org",
+    "price": 499.0
+  },
+  {
+    "domain": "ukipwatch.org",
+    "price": 999.0
+  },
+  {
+    "domain": "ukipscot.org",
+    "price": null
+  },
+  {
+    "domain": "ukipbranch.org",
+    "price": 599.0
+  },
+  {
+    "domain": "uglyrumours.com",
+    "price": 599.0
+  },
+  {
+    "domain": "uglyjackass.com",
+    "price": null
+  },
+  {
+    "domain": "uaetorture.com",
+    "price": null
+  },
+  {
+    "domain": "typetalk.org",
+    "price": null
+  },
+  {
+    "domain": "typequest.org",
+    "price": null
+  },
+  {
+    "domain": "typecraft.co",
+    "price": 500.0
+  },
+  {
+    "domain": "txtresponsibly.org",
+    "price": 499.0
+  },
+  {
+    "domain": "txtbear.com",
+    "price": 999.0
+  },
+  {
+    "domain": "twowar.com",
+    "price": null
+  },
+  {
+    "domain": "twoson.co",
+    "price": null
+  },
+  {
+    "domain": "twistedburger.co",
+    "price": 999.0
+  },
+  {
+    "domain": "twinstarget.com",
+    "price": 2994.0
+  },
+  {
+    "domain": "twinbasin.org",
+    "price": 1199.0
+  },
+  {
+    "domain": "twentytrees.org",
+    "price": 599.0
+  },
+  {
+    "domain": "twelvebeverage.com",
+    "price": 599.0
+  },
+  {
+    "domain": "tweetnotebook.com",
+    "price": 500.0
+  },
+  {
+    "domain": "tweetgift.com",
+    "price": 599.0
+  },
+  {
+    "domain": "tweetfake.com",
+    "price": null
+  },
+  {
+    "domain": "tweetbubbles.net",
+    "price": 1599.0
+  },
+  {
+    "domain": "tweetbars.com",
+    "price": 599.0
+  },
+  {
+    "domain": "tweakbytes.com",
+    "price": null
+  },
+  {
+    "domain": "twaintimes.net",
+    "price": null
+  },
+  {
+    "domain": "tutcast.com",
+    "price": 599.0
+  },
+  {
+    "domain": "turningheads.org",
+    "price": null
+  },
+  {
+    "domain": "turkvista.com",
+    "price": null
+  },
+  {
+    "domain": "turkishpolicy.com",
+    "price": 63999.0
+  },
+  {
+    "domain": "turkdeaf.org",
+    "price": 4999.0
+  },
+  {
+    "domain": "turboserial.net",
+    "price": null
+  },
+  {
+    "domain": "turbinelegend.net",
+    "price": 1599.0
+  },
+  {
+    "domain": "turbinebonanza.com",
+    "price": 500.0
+  },
+  {
+    "domain": "tunaryu.net",
+    "price": 1599.0
+  },
+  {
+    "domain": "tunafacts.com",
+    "price": null
+  },
+  {
+    "domain": "tumblewalla.com",
+    "price": 599.0
+  },
+  {
+    "domain": "tumblecloud.com",
+    "price": null
+  },
+  {
+    "domain": "tubekit.org",
+    "price": 597.0
+  },
+  {
+    "domain": "tspark.net",
+    "price": null
+  },
+  {
+    "domain": "tserecords.com",
+    "price": 599.0
+  },
+  {
+    "domain": "tryrobin.co",
+    "price": 599.0
+  },
+  {
+    "domain": "tryimg.xyz",
+    "price": null
+  },
+  {
+    "domain": "trycircular.com",
+    "price": null
+  },
+  {
+    "domain": "truyen.co",
+    "price": null
+  },
+  {
+    "domain": "truwho.com",
+    "price": 1599.0
+  },
+  {
+    "domain": "truvodka.com",
+    "price": null
+  },
+  {
+    "domain": "superquest.net",
+    "price": 500.0
+  },
+  {
+    "domain": "superprototype.net",
+    "price": 1199.0
+  },
+  {
+    "domain": "supernovatube.com",
+    "price": 1999.0
+  },
+  {
+    "domain": "superhere.net",
+    "price": 799.0
+  },
+  {
+    "domain": "superbutt.net",
+    "price": null
+  },
+  {
+    "domain": "sunsettickets.com",
+    "price": null
+  },
+  {
+    "domain": "sunride.net",
+    "price": 1139.0
+  },
+  {
+    "domain": "sunimplant.com",
+    "price": 599.0
+  },
+  {
+    "domain": "sunganges.com",
+    "price": 599.0
+  },
+  {
+    "domain": "sunflowerrev.org",
+    "price": 599.0
+  },
+  {
+    "domain": "sunepi.org",
+    "price": 599.0
+  },
+  {
+    "domain": "sundayplanning.com",
+    "price": 3599.0
+  },
+  {
+    "domain": "suncore.net",
+    "price": 500.0
+  },
+  {
+    "domain": "sunaga.org",
+    "price": 1419.0
+  },
+  {
+    "domain": "sumwars.org",
+    "price": 999.0
+  },
+  {
+    "domain": "summernights.org",
+    "price": null
+  },
+  {
+    "domain": "sukria.net",
+    "price": 7499.0
+  },
+  {
+    "domain": "suitorlife.com",
+    "price": 999.0
+  },
+  {
+    "domain": "sugarcanecrops.com",
+    "price": 799.0
+  },
+  {
+    "domain": "suffolkcare.org",
+    "price": 599.0
+  },
+  {
+    "domain": "sudanjudiciary.org",
+    "price": 1597.0
+  },
+  {
+    "domain": "suckfish.org",
+    "price": null
+  },
+  {
+    "domain": "sucheta.net",
+    "price": 999.0
+  },
+  {
+    "domain": "subwaygrocery.com",
+    "price": null
+  },
+  {
+    "domain": "subtime.net",
+    "price": 2997.0
+  },
+  {
+    "domain": "subsitu.com",
+    "price": 599.0
+  },
+  {
+    "domain": "subpug.com",
+    "price": 999.0
+  },
+  {
+    "domain": "submitwolf.net",
+    "price": 999.0
+  },
+  {
+    "domain": "subaye.com",
+    "price": 599.0
+  },
+  {
+    "domain": "stylistking.com",
+    "price": 1999.0
+  },
+  {
+    "domain": "stylesheets.co",
+    "price": 499.0
+  },
+  {
+    "domain": "stylerecital.com",
+    "price": 1497.0
+  },
+  {
+    "domain": "stylepeterson.com",
+    "price": 499.0
+  },
+  {
+    "domain": "stylemilk.net",
+    "price": 999.0
+  },
+  {
+    "domain": "sturdyliving.com",
+    "price": 1599.0
+  },
+  {
+    "domain": "stuntpoland.com",
+    "price": 9599.0
+  },
+  {
+    "domain": "stunningnikon.com",
+    "price": null
+  },
+  {
+    "domain": "studiosalford.com",
+    "price": null
+  },
+  {
+    "domain": "studioracket.org",
+    "price": null
+  },
+  {
+    "domain": "studiomme.com",
+    "price": null
+  },
+  {
+    "domain": "studiometric.co",
+    "price": null
+  },
+  {
+    "domain": "studiomanifold.org",
+    "price": 739.0
+  },
+  {
+    "domain": "studioincite.com",
+    "price": 699.0
+  },
+  {
+    "domain": "studiodurham.com",
+    "price": 599.0
+  },
+  {
+    "domain": "studiodonovan.com",
+    "price": null
+  },
+  {
+    "domain": "stuartwarwick.com",
+    "price": 1200.0
+  },
+  {
+    "domain": "stsproject.net",
+    "price": 599.0
+  },
+  {
+    "domain": "structuralice.com",
+    "price": 999.0
+  },
+  {
+    "domain": "strongholdseo.com",
+    "price": null
+  },
+  {
+    "domain": "strmotorsports.com",
+    "price": 999.0
+  },
+  {
+    "domain": "strlen.net",
+    "price": 500.0
+  },
+  {
+    "domain": "stripedsail.com",
+    "price": 599.0
+  },
+  {
+    "domain": "stringsweb.net",
+    "price": 2799.0
+  },
+  {
+    "domain": "stringmasters.org",
+    "price": null
+  },
+  {
+    "domain": "strickencity.com",
+    "price": null
+  },
+  {
+    "domain": "streettech.org",
+    "price": null
+  },
+  {
+    "domain": "streetfeeders.com",
+    "price": null
+  },
+  {
+    "domain": "streeteditors.com",
+    "price": 599.0
+  },
+  {
+    "domain": "saharafragile.org",
+    "price": 499.0
+  },
+  {
+    "domain": "sagecrossroads.net",
+    "price": 1699.0
+  },
+  {
+    "domain": "safetyinformed.org",
+    "price": 599.0
+  },
+  {
+    "domain": "safeseminary.org",
+    "price": null
+  },
+  {
+    "domain": "saferproject.net",
+    "price": 559.0
+  },
+  {
+    "domain": "safermarkets.org",
+    "price": 999.0
+  },
+  {
+    "domain": "safermag.com",
+    "price": 599.0
+  },
+  {
+    "domain": "saferarizona.com",
+    "price": null
+  },
+  {
+    "domain": "safemoon.net",
+    "price": 24999.0
+  },
+  {
+    "domain": "safemilk.org",
+    "price": null
+  },
+  {
+    "domain": "safegardening.org",
+    "price": null
+  },
+  {
+    "domain": "safecrop.org",
+    "price": 599.0
+  },
+  {
+    "domain": "safearchive.org",
+    "price": 1599.0
+  },
+  {
+    "domain": "safeage.org",
+    "price": 719.0
+  },
+  {
+    "domain": "saeevents.org",
+    "price": 599.0
+  },
+  {
+    "domain": "sadreminders.com",
+    "price": null
+  },
+  {
+    "domain": "sacredseed.co",
+    "price": null
+  },
+  {
+    "domain": "sacredrun.org",
+    "price": 999.0
+  },
+  {
+    "domain": "sacredireland.org",
+    "price": 1199.0
+  },
+  {
+    "domain": "sacredhadith.com",
+    "price": 599.0
+  },
+  {
+    "domain": "sacredground.org",
+    "price": 1000.0
+  },
+  {
+    "domain": "sacharness.com",
+    "price": 1197.0
+  },
+  {
+    "domain": "sacgardens.org",
+    "price": null
+  },
+  {
+    "domain": "sacabc.org",
+    "price": 599.0
+  },
+  {
+    "domain": "sabledrake.com",
+    "price": 599.0
+  },
+  {
+    "domain": "sabatos.net",
+    "price": null
+  },
+  {
+    "domain": "sabahfest.com",
+    "price": 599.0
+  },
+  {
+    "domain": "saaschronicles.com",
+    "price": 750.0
+  },
+  {
+    "domain": "ryecoalition.com",
+    "price": 599.0
+  },
+  {
+    "domain": "ruthblog.org",
+    "price": 2199.0
+  },
+  {
+    "domain": "rustedmule.com",
+    "price": 999.0
+  },
+  {
+    "domain": "russiapost.net",
+    "price": 999.0
+  },
+  {
+    "domain": "russianeconomy.org",
+    "price": 1999.0
+  },
+  {
+    "domain": "russianbites.com",
+    "price": 599.0
+  },
+  {
+    "domain": "russianbilling.com",
+    "price": 2999.0
+  },
+  {
+    "domain": "russiakills.com",
+    "price": 1999.0
+  },
+  {
+    "domain": "russellshaw.net",
+    "price": 599.0
+  },
+  {
+    "domain": "rusnation.org",
+    "price": null
+  },
+  {
+    "domain": "rusmedic.org",
+    "price": 1599.0
+  },
+  {
+    "domain": "ruslib.net",
+    "price": 699.0
+  },
+  {
+    "domain": "rusharchive.com",
+    "price": 599.0
+  },
+  {
+    "domain": "rusegame.com",
+    "price": 9599.0
+  },
+  {
+    "domain": "ruschamber.net",
+    "price": null
+  },
+  {
+    "domain": "rusbridge.net",
+    "price": null
+  },
+  {
+    "domain": "rusartist.org",
+    "price": null
+  },
+  {
+    "domain": "ruralter.org",
+    "price": 999.0
+  },
+  {
+    "domain": "ruralbulgaria.com",
+    "price": 499.0
+  },
+  {
+    "domain": "runslinux.net",
+    "price": 500.0
+  },
+  {
+    "domain": "runran.net",
+    "price": 499.0
+  },
+  {
+    "domain": "tourclare.com",
+    "price": null
+  },
+  {
+    "domain": "totokorea.xyz",
+    "price": null
+  },
+  {
+    "domain": "totemrugs.com",
+    "price": 619.0
+  },
+  {
+    "domain": "totemapp.net",
+    "price": null
+  },
+  {
+    "domain": "totalobjection.com",
+    "price": 799.0
+  },
+  {
+    "domain": "totalapps.net",
+    "price": 999.0
+  },
+  {
+    "domain": "tossad.org",
+    "price": null
+  },
+  {
+    "domain": "tosbec.com",
+    "price": 1199.0
+  },
+  {
+    "domain": "toryrascal.com",
+    "price": 999.0
+  },
+  {
+    "domain": "torrentsgames.net",
+    "price": null
+  },
+  {
+    "domain": "torrentcouch.com",
+    "price": null
+  },
+  {
+    "domain": "torproxy.org",
+    "price": null
+  },
+  {
+    "domain": "torindo.org",
+    "price": 999.0
+  },
+  {
+    "domain": "torchsec.net",
+    "price": 500.0
+  },
+  {
+    "domain": "torbrandt.com",
+    "price": null
+  },
+  {
+    "domain": "torahdec.org",
+    "price": 999.0
+  },
+  {
+    "domain": "topreplays.com",
+    "price": 1197.0
+  },
+  {
+    "domain": "toppitch.co",
+    "price": null
+  },
+  {
+    "domain": "topmagic.org",
+    "price": 599.0
+  },
+  {
+    "domain": "tootapp.com",
+    "price": 599.0
+  },
+  {
+    "domain": "toopics.com",
+    "price": 7199.0
+  },
+  {
+    "domain": "toontalk.org",
+    "price": 3999.0
+  },
+  {
+    "domain": "toolboxbrewing.com",
+    "price": null
+  },
+  {
+    "domain": "tookbook.com",
+    "price": 4399.0
+  },
+  {
+    "domain": "toohuman.net",
+    "price": 1599.0
+  },
+  {
+    "domain": "tonyrecords.net",
+    "price": null
+  },
+  {
+    "domain": "tonicgen.com",
+    "price": 799.0
+  },
+  {
+    "domain": "tonguejournal.org",
+    "price": null
+  },
+  {
+    "domain": "tongmagazine.com",
+    "price": 599.0
+  },
+  {
+    "domain": "tongaholiday.com",
+    "price": 16999.0
+  },
+  {
+    "domain": "tongachamber.org",
+    "price": 2999.0
+  },
+  {
+    "domain": "tonetone.org",
+    "price": null
+  },
+  {
+    "domain": "tonecasualties.com",
+    "price": null
+  },
+  {
+    "domain": "tonalliance.org",
+    "price": null
+  },
+  {
+    "domain": "tomsci.com",
+    "price": 500.0
+  },
+  {
+    "domain": "tomrust.org",
+    "price": 1299.0
+  },
+  {
+    "domain": "techpledge.org",
+    "price": null
+  },
+  {
+    "domain": "techpint.org",
+    "price": 500.0
+  },
+  {
+    "domain": "technosexual.org",
+    "price": 599.0
+  },
+  {
+    "domain": "technologyhint.com",
+    "price": 599.0
+  },
+  {
+    "domain": "techironic.com",
+    "price": 4200.0
+  },
+  {
+    "domain": "techhunter.co",
+    "price": 500.0
+  },
+  {
+    "domain": "techendo.co",
+    "price": 500.0
+  },
+  {
+    "domain": "techdebt.org",
+    "price": 500.0
+  },
+  {
+    "domain": "techbuilder.org",
+    "price": 1299.0
+  },
+  {
+    "domain": "teamsteam.org",
+    "price": 879.0
+  },
+  {
+    "domain": "teamsleep.net",
+    "price": 599.0
+  },
+  {
+    "domain": "teammacho.com",
+    "price": null
+  },
+  {
+    "domain": "teamcrossfit.com",
+    "price": 997.0
+  },
+  {
+    "domain": "teamchile.org",
+    "price": null
+  },
+  {
+    "domain": "teacongress.org",
+    "price": null
+  },
+  {
+    "domain": "teaclimate.com",
+    "price": 499.0
+  },
+  {
+    "domain": "teachtsp.com",
+    "price": null
+  },
+  {
+    "domain": "teachingtree.co",
+    "price": 1119.0
+  },
+  {
+    "domain": "teachingalpha.org",
+    "price": 4794.0
+  },
+  {
+    "domain": "teacherpop.org",
+    "price": null
+  },
+  {
+    "domain": "teabiscuit.org",
+    "price": 1999.0
+  },
+  {
+    "domain": "tcpinnovations.com",
+    "price": 750.0
+  },
+  {
+    "domain": "taylorlawyers.com",
+    "price": 999.0
+  },
+  {
+    "domain": "taxiloc.com",
+    "price": 999.0
+  },
+  {
+    "domain": "tavernpointe.com",
+    "price": 599.0
+  },
+  {
+    "domain": "taurusstudio.net",
+    "price": 599.0
+  },
+  {
+    "domain": "tattooblog.org",
+    "price": 1999.0
+  },
+  {
+    "domain": "tastypursuits.com",
+    "price": 599.0
+  },
+  {
+    "domain": "tastheatre.com",
+    "price": 599.0
+  },
+  {
+    "domain": "tasterussian.com",
+    "price": 5000.0
+  },
+  {
+    "domain": "tastehistory.org",
+    "price": null
+  },
+  {
+    "domain": "tasteasia.org",
+    "price": 599.0
+  },
+  {
+    "domain": "tartanvideo.com",
+    "price": 999.0
+  },
+  {
+    "domain": "snapthirty.com",
+    "price": null
+  },
+  {
+    "domain": "snapstudy.org",
+    "price": 1999.0
+  },
+  {
+    "domain": "snapslip.net",
+    "price": 599.0
+  },
+  {
+    "domain": "snailtales.org",
+    "price": 599.0
+  },
+  {
+    "domain": "snackbot.org",
+    "price": 599.0
+  },
+  {
+    "domain": "smtdaily.com",
+    "price": 1599.0
+  },
+  {
+    "domain": "smileyvault.com",
+    "price": null
+  },
+  {
+    "domain": "smethai.net",
+    "price": 1599.0
+  },
+  {
+    "domain": "smearcasting.com",
+    "price": null
+  },
+  {
+    "domain": "smashpipe.com",
+    "price": 759.0
+  },
+  {
+    "domain": "smarttea.org",
+    "price": 1199.0
+  },
+  {
+    "domain": "smartsupplies.org",
+    "price": 599.0
+  },
+  {
+    "domain": "smartregions.net",
+    "price": 750.0
+  },
+  {
+    "domain": "smartprinting.co",
+    "price": 699.0
+  },
+  {
+    "domain": "smartpox.com",
+    "price": null
+  },
+  {
+    "domain": "smallscript.org",
+    "price": 499.0
+  },
+  {
+    "domain": "smallcave.net",
+    "price": 599.0
+  },
+  {
+    "domain": "smallbean.org",
+    "price": 599.0
+  },
+  {
+    "domain": "smackdowncorps.org",
+    "price": null
+  },
+  {
+    "domain": "slotreviews.com",
+    "price": 89999.0
+  },
+  {
+    "domain": "slotplaza.net",
+    "price": 1599.0
+  },
+  {
+    "domain": "runninghutch.com",
+    "price": 1599.0
+  },
+  {
+    "domain": "runningbun.com",
+    "price": 599.0
+  },
+  {
+    "domain": "runespell.com",
+    "price": 1999.0
+  },
+  {
+    "domain": "rundrenched.com",
+    "price": 2394.0
+  },
+  {
+    "domain": "runawaykiwi.com",
+    "price": 599.0
+  },
+  {
+    "domain": "runawayjane.com",
+    "price": null
+  },
+  {
+    "domain": "rumgallery.com",
+    "price": 499.0
+  },
+  {
+    "domain": "ruinstoronto.com",
+    "price": 599.0
+  },
+  {
+    "domain": "rugbypassion.net",
+    "price": 999.0
+  },
+  {
+    "domain": "rufusstarlight.com",
+    "price": 599.0
+  },
+  {
+    "domain": "ruffledlines.com",
+    "price": 1794.0
+  },
+  {
+    "domain": "rudolphina.org",
+    "price": 780.0
+  },
+  {
+    "domain": "rudeguerrilla.org",
+    "price": 599.0
+  },
+  {
+    "domain": "rubyidentity.org",
+    "price": 500.0
+  },
+  {
+    "domain": "rubydesires.com",
+    "price": 1197.0
+  },
+  {
+    "domain": "rubycables.com",
+    "price": 500.0
+  },
+  {
+    "domain": "rsspieces.com",
+    "price": null
+  },
+  {
+    "domain": "rssmore.com",
+    "price": 599.0
+  },
+  {
+    "domain": "rpggallery.com",
+    "price": 2994.0
+  },
+  {
+    "domain": "roymcgrath.com",
+    "price": 599.0
+  },
+  {
+    "domain": "royalenyc.com",
+    "price": 659.0
+  },
+  {
+    "domain": "royalefam.com",
+    "price": 599.0
+  },
+  {
+    "domain": "royalebrewing.com",
+    "price": null
+  },
+  {
+    "domain": "rovingsnails.com",
+    "price": 999.0
+  },
+  {
+    "domain": "roverlabs.co",
+    "price": null
+  },
+  {
+    "domain": "routeview.org",
+    "price": 500.0
+  },
+  {
+    "domain": "roundtableprod.com",
+    "price": 597.0
+  },
+  {
+    "domain": "roundbritain.org",
+    "price": 599.0
+  },
+  {
+    "domain": "roulettejack.com",
+    "price": 9500.0
+  },
+  {
+    "domain": "roulettehome.com",
+    "price": null
+  },
+  {
+    "domain": "rotcloud.com",
+    "price": 500.0
+  },
+  {
+    "domain": "rosypress.com",
+    "price": null
+  },
+  {
+    "domain": "rostoday.com",
+    "price": null
+  },
+  {
+    "domain": "rossscience.org",
+    "price": 3999.0
+  },
+  {
+    "domain": "rossnotes.com",
+    "price": 500.0
+  },
+  {
+    "domain": "rossisland.co",
+    "price": null
+  },
+  {
+    "domain": "rossiclarinet.com",
+    "price": 499.0
+  },
+  {
+    "domain": "rossanderson.org",
+    "price": null
+  },
+  {
+    "domain": "rosielowe.com",
+    "price": 1199.0
+  },
+  {
+    "domain": "rosenbergtrial.org",
+    "price": null
+  },
+  {
+    "domain": "rosemaryhall.com",
+    "price": 599.0
+  },
+  {
+    "domain": "rosechina.net",
+    "price": null
+  },
+  {
+    "domain": "rootswire.org",
+    "price": 997.0
+  },
+  {
+    "domain": "rootsmemphis.org",
+    "price": 1199.0
+  },
+  {
+    "domain": "rootmaster.co",
+    "price": 500.0
+  },
+  {
+    "domain": "rootmagazine.org",
+    "price": null
+  },
+  {
+    "domain": "roomscore.org",
+    "price": null
+  },
+  {
+    "domain": "roomapp.co",
+    "price": null
+  },
+  {
+    "domain": "ronshock.com",
+    "price": 1299.0
+  },
+  {
+    "domain": "ronreads.com",
+    "price": null
+  },
+  {
+    "domain": "ronniedobbs.com",
+    "price": null
+  },
+  {
+    "domain": "rondei.com",
+    "price": null
+  },
+  {
+    "domain": "ronaldholland.com",
+    "price": null
+  },
+  {
+    "domain": "romneyexposed.com",
+    "price": null
+  },
+  {
+    "domain": "romkitchen.org",
+    "price": 499.0
+  },
+  {
+    "domain": "romford.org",
+    "price": 899.0
+  },
+  {
+    "domain": "romfont.com",
+    "price": 599.0
+  },
+  {
+    "domain": "romfest.org",
+    "price": 1800.0
+  },
+  {
+    "domain": "rometools.org",
+    "price": 500.0
+  },
+  {
+    "domain": "romerun.com",
+    "price": null
+  },
+  {
+    "domain": "rombio.org",
+    "price": 1299.0
+  },
+  {
+    "domain": "romawoman.org",
+    "price": null
+  },
+  {
+    "domain": "romapavilion.org",
+    "price": null
+  },
+  {
+    "domain": "romanacademy.net",
+    "price": 999.0
+  },
+  {
+    "domain": "rogerspeaking.com",
+    "price": 599.0
+  },
+  {
+    "domain": "rodsracing.org",
+    "price": null
+  },
+  {
+    "domain": "rodneypike.com",
+    "price": 2999.0
+  },
+  {
+    "domain": "rodmanvodka.com",
+    "price": 599.0
+  },
+  {
+    "domain": "rodedog.com",
+    "price": null
+  },
+  {
+    "domain": "rocqld.org",
+    "price": null
+  },
+  {
+    "domain": "rockvillage.org",
+    "price": null
+  },
+  {
+    "domain": "rockventures.net",
+    "price": null
+  },
+  {
+    "domain": "rocktech.net",
+    "price": 900.0
+  },
+  {
+    "domain": "rocketjump.org",
+    "price": 1599.0
+  },
+  {
+    "domain": "rocketcheetah.com",
+    "price": null
+  },
+  {
+    "domain": "rocketcalc.com",
+    "price": 599.0
+  },
+  {
+    "domain": "rockchicago.net",
+    "price": 599.0
+  },
+  {
+    "domain": "rochelleranch.com",
+    "price": null
+  },
+  {
+    "domain": "rocare.org",
+    "price": 2999.0
+  },
+  {
+    "domain": "robynhasty.org",
+    "price": null
+  },
+  {
+    "domain": "robottuxedo.net",
+    "price": null
+  },
+  {
+    "domain": "robotgeek.org",
+    "price": 599.0
+  },
+  {
+    "domain": "robotbike.co",
+    "price": null
+  },
+  {
+    "domain": "robospock.org",
+    "price": 799.0
+  },
+  {
+    "domain": "robodex.org",
+    "price": 3199.0
+  },
+  {
+    "domain": "robfisher.net",
+    "price": 500.0
+  },
+  {
+    "domain": "robertsward.com",
+    "price": 1999.0
+  },
+  {
+    "domain": "robertsstreet.org",
+    "price": null
+  },
+  {
+    "domain": "robertohara.com",
+    "price": 599.0
+  },
+  {
+    "domain": "robertodonna.com",
+    "price": 599.0
+  },
+  {
+    "domain": "robertmatthews.org",
+    "price": 2499.0
+  },
+  {
+    "domain": "robertacaro.com",
+    "price": null
+  },
+  {
+    "domain": "roastbooks.org",
+    "price": 599.0
+  },
+  {
+    "domain": "roadtrees.com",
+    "price": 599.0
+  },
+  {
+    "domain": "roadtickle.com",
+    "price": 999.0
+  },
+  {
+    "domain": "rnabase.org",
+    "price": null
+  },
+  {
+    "domain": "rmspark.com",
+    "price": 999.0
+  },
+  {
+    "domain": "riverriver.org",
+    "price": null
+  },
+  {
+    "domain": "ritegroup.org",
+    "price": 599.0
+  },
+  {
+    "domain": "ritecms.com",
+    "price": 780.0
+  },
+  {
+    "domain": "ritalifestyle.com",
+    "price": 999.0
+  },
+  {
+    "domain": "risepipe.com",
+    "price": null
+  },
+  {
+    "domain": "ripplebuds.com",
+    "price": 1799.0
+  },
+  {
+    "domain": "ripcemetery.com",
+    "price": 500.0
+  },
+  {
+    "domain": "riotvan.net",
+    "price": 1799.0
+  },
+  {
+    "domain": "rightsalliance.org",
+    "price": 719.0
+  },
+  {
+    "domain": "rigatourism.com",
+    "price": null
+  },
+  {
+    "domain": "riffraf.net",
+    "price": 1999.0
+  },
+  {
+    "domain": "ridingacross.com",
+    "price": 1597.0
+  },
+  {
+    "domain": "rickylawson.com",
+    "price": null
+  },
+  {
+    "domain": "richmondraft.com",
+    "price": 997.0
+  },
+  {
+    "domain": "richmondozone.com",
+    "price": 599.0
+  },
+  {
+    "domain": "richardtee.com",
+    "price": 1299.0
+  },
+  {
+    "domain": "richardlog.com",
+    "price": 599.0
+  },
+  {
+    "domain": "richardbrice.net",
+    "price": 999.0
+  },
+  {
+    "domain": "richardbiggs.com",
+    "price": null
+  },
+  {
+    "domain": "ricegranola.com",
+    "price": null
+  },
+  {
+    "domain": "ribbonproject.net",
+    "price": 999.0
+  },
+  {
+    "domain": "riadis.net",
+    "price": 1599.0
+  },
+  {
+    "domain": "rhodecode.org",
+    "price": 1260.0
+  },
+  {
+    "domain": "rhinodoughnuts.com",
+    "price": 599.0
+  },
+  {
+    "domain": "rhetoricafrica.org",
+    "price": 2199.0
+  },
+  {
+    "domain": "revsoc.org",
+    "price": null
+  },
+  {
+    "domain": "revoltdaily.org",
+    "price": 599.0
+  },
+  {
+    "domain": "revivalmeats.com",
+    "price": 599.0
+  },
+  {
+    "domain": "revisionskis.com",
+    "price": 1999.0
+  },
+  {
+    "domain": "reviewposter.com",
+    "price": 2199.0
+  },
+  {
+    "domain": "revhost.net",
+    "price": 599.0
+  },
+  {
+    "domain": "revelparis.com",
+    "price": null
+  },
+  {
+    "domain": "revctrl.org",
+    "price": 500.0
+  },
+  {
+    "domain": "reunionmusic.org",
+    "price": 599.0
+  },
+  {
+    "domain": "retrospectmag.com",
+    "price": null
+  },
+  {
+    "domain": "retrocpu.com",
+    "price": 5994.0
+  },
+  {
+    "domain": "retnetwork.org",
+    "price": 999.0
+  },
+  {
+    "domain": "retirelife.net",
+    "price": 799.0
+  },
+  {
+    "domain": "retailstudio.org",
+    "price": 1999.0
+  },
+  {
+    "domain": "restoringeden.org",
+    "price": 1999.0
+  },
+  {
+    "domain": "restcarmen.com",
+    "price": 599.0
+  },
+  {
+    "domain": "restaurantfez.com",
+    "price": 599.0
+  },
+  {
+    "domain": "prichi.net",
+    "price": 599.0
+  },
+  {
+    "domain": "preventingharm.org",
+    "price": null
+  },
+  {
+    "domain": "prettystatus.com",
+    "price": null
+  },
+  {
+    "domain": "presspublisher.org",
+    "price": null
+  },
+  {
+    "domain": "presscute.com",
+    "price": 999.0
+  },
+  {
+    "domain": "pressaggregate.com",
+    "price": 599.0
+  },
+  {
+    "domain": "presentingperl.org",
+    "price": 599.0
+  },
+  {
+    "domain": "prepcom.net",
+    "price": 1050.0
+  },
+  {
+    "domain": "preone.org",
+    "price": 819.0
+  },
+  {
+    "domain": "prenavi.net",
+    "price": null
+  },
+  {
+    "domain": "premiumhoops.org",
+    "price": null
+  },
+  {
+    "domain": "prefixmag.com",
+    "price": 239999.0
+  },
+  {
+    "domain": "preferredcare.org",
+    "price": 1599.0
+  },
+  {
+    "domain": "preferling.com",
+    "price": 599.0
+  },
+  {
+    "domain": "prebacked.com",
+    "price": null
+  },
+  {
+    "domain": "prattstore.net",
+    "price": 599.0
+  },
+  {
+    "domain": "pratthobbies.com",
+    "price": 1599.0
+  },
+  {
+    "domain": "prairiefive.com",
+    "price": 599.0
+  },
+  {
+    "domain": "pppfocus.com",
+    "price": null
+  },
+  {
+    "domain": "pplace.org",
+    "price": null
+  },
+  {
+    "domain": "powertutor.org",
+    "price": 999.0
+  },
+  {
+    "domain": "powersmuseum.org",
+    "price": 599.0
+  },
+  {
+    "domain": "powerprog.net",
+    "price": null
+  },
+  {
+    "domain": "powerfutures.org",
+    "price": 599.0
+  },
+  {
+    "domain": "powellvalley.org",
+    "price": null
+  },
+  {
+    "domain": "powderwhore.com",
+    "price": 1999.0
+  },
+  {
+    "domain": "pourclement.org",
+    "price": 1599.0
+  },
+  {
+    "domain": "poundrecords.com",
+    "price": 999.0
+  },
+  {
+    "domain": "pouchcamp.org",
+    "price": 999.0
+  },
+  {
+    "domain": "potpaz.org",
+    "price": null
+  },
+  {
+    "domain": "potomacfusion.com",
+    "price": 599.0
+  },
+  {
+    "domain": "potatoday.org",
+    "price": null
+  },
+  {
+    "domain": "postwarwatch.com",
+    "price": null
+  },
+  {
+    "domain": "ooocon.org",
+    "price": 8994.0
+  },
+  {
+    "domain": "ontowiki.net",
+    "price": 700.0
+  },
+  {
+    "domain": "ontosearch.org",
+    "price": 750.0
+  },
+  {
+    "domain": "onlywonderful.com",
+    "price": null
+  },
+  {
+    "domain": "onlyrepublican.com",
+    "price": 599.0
+  },
+  {
+    "domain": "onlypunjab.com",
+    "price": 1999.0
+  },
+  {
+    "domain": "onlinegrades.org",
+    "price": 999.0
+  },
+  {
+    "domain": "onlinecinema.org",
+    "price": 599.0
+  },
+  {
+    "domain": "onlinebid.com",
+    "price": 4999.0
+  },
+  {
+    "domain": "oneset.co",
+    "price": 1599.0
+  },
+  {
+    "domain": "oneproverb.net",
+    "price": 599.0
+  },
+  {
+    "domain": "oneplusradar.com",
+    "price": 500.0
+  },
+  {
+    "domain": "oneload.xyz",
+    "price": null
+  },
+  {
+    "domain": "onelib.org",
+    "price": 1599.0
+  },
+  {
+    "domain": "onegreece.org",
+    "price": null
+  },
+  {
+    "domain": "oncesearch.com",
+    "price": null
+  },
+  {
+    "domain": "omnimeat.co",
+    "price": null
+  },
+  {
+    "domain": "nextstart.org",
+    "price": 599.0
+  },
+  {
+    "domain": "nextempire.co",
+    "price": null
+  },
+  {
+    "domain": "nextdrop.co",
+    "price": 1059.0
+  },
+  {
+    "domain": "nextblitz.com",
+    "price": 599.0
+  },
+  {
+    "domain": "nextaid.org",
+    "price": 1119.0
+  },
+  {
+    "domain": "newtownwriters.org",
+    "price": 999.0
+  },
+  {
+    "domain": "newswhat.com",
+    "price": null
+  },
+  {
+    "domain": "newswealth.com",
+    "price": null
+  },
+  {
+    "domain": "newstable.org",
+    "price": 599.0
+  },
+  {
+    "domain": "newssudden.com",
+    "price": 299.0
+  },
+  {
+    "domain": "newspushed.com",
+    "price": null
+  },
+  {
+    "domain": "newsprepare.com",
+    "price": 999.0
+  },
+  {
+    "domain": "newsnea.com",
+    "price": 810.0
+  },
+  {
+    "domain": "newsmachete.com",
+    "price": 599.0
+  },
+  {
+    "domain": "newslocale.org",
+    "price": 999.0
+  },
+  {
+    "domain": "newsforge.org",
+    "price": 500.0
+  },
+  {
+    "domain": "newsdiscover.net",
+    "price": 999.0
+  },
+  {
+    "domain": "newsdeck.net",
+    "price": 1199.0
+  },
+  {
+    "domain": "newsaxon.org",
+    "price": null
+  },
+  {
+    "domain": "newpathways.org",
+    "price": 599.0
+  },
+  {
+    "domain": "newmediator.org",
+    "price": 599.0
+  },
+  {
+    "domain": "newindie.org",
+    "price": 999.0
+  },
+  {
+    "domain": "newhyperbole.com",
+    "price": null
+  },
+  {
+    "domain": "newhack.org",
+    "price": 399.0
+  },
+  {
+    "domain": "newcommunities.com",
+    "price": 5000.0
+  },
+  {
+    "domain": "newcolumbia.org",
+    "price": 2199.0
+  },
+  {
+    "domain": "newcoalition.org",
+    "price": 599.0
+  },
+  {
+    "domain": "newburyopen.net",
+    "price": 599.0
+  },
+  {
+    "domain": "neward.net",
+    "price": 3699.0
+  },
+  {
+    "domain": "newabstraction.net",
+    "price": 599.0
+  },
+  {
+    "domain": "neverdeny.org",
+    "price": 2800.0
+  },
+  {
+    "domain": "nevadaobserver.com",
+    "price": 999.0
+  },
+  {
+    "domain": "nevadalife.org",
+    "price": 599.0
+  },
+  {
+    "domain": "neutralpath.net",
+    "price": 599.0
+  },
+  {
+    "domain": "neutralday.com",
+    "price": 1499.0
+  },
+  {
+    "domain": "neurospec.org",
+    "price": null
+  },
+  {
+    "domain": "neurosoup.org",
+    "price": null
+  },
+  {
+    "domain": "neurogrid.net",
+    "price": null
+  },
+  {
+    "domain": "neurocoin.org",
+    "price": 559.0
+  },
+  {
+    "domain": "neurocern.com",
+    "price": null
+  },
+  {
+    "domain": "neurobat.net",
+    "price": 2247.0
+  },
+  {
+    "domain": "neuroaspects.org",
+    "price": 1597.0
+  },
+  {
+    "domain": "netzoo.net",
+    "price": null
+  },
+  {
+    "domain": "netunion.co",
+    "price": 500.0
+  },
+  {
+    "domain": "netschools.net",
+    "price": 599.0
+  },
+  {
+    "domain": "netscanada.org",
+    "price": null
+  },
+  {
+    "domain": "netrunner.net",
+    "price": 5599.0
+  },
+  {
+    "domain": "netreg.org",
+    "price": null
+  },
+  {
+    "domain": "netrail.net",
+    "price": 500.0
+  },
+  {
+    "domain": "netmanor.com",
+    "price": null
+  },
+  {
+    "domain": "netliberty.net",
+    "price": 999.0
+  },
+  {
+    "domain": "nethazard.net",
+    "price": 500.0
+  },
+  {
+    "domain": "mewbot.xyz",
+    "price": null
+  },
+  {
+    "domain": "metrospain.com",
+    "price": 999.0
+  },
+  {
+    "domain": "metromsp.org",
+    "price": 1199.0
+  },
+  {
+    "domain": "metrojolt.com",
+    "price": 1200.0
+  },
+  {
+    "domain": "metrodex.org",
+    "price": 999.0
+  },
+  {
+    "domain": "methanolfuels.org",
+    "price": null
+  },
+  {
+    "domain": "meteorcandy.com",
+    "price": 999.0
+  },
+  {
+    "domain": "metamag.org",
+    "price": 1999.0
+  },
+  {
+    "domain": "metalgeek.com",
+    "price": 730.0
+  },
+  {
+    "domain": "metalarcade.net",
+    "price": 2999.0
+  },
+  {
+    "domain": "metaforma.org",
+    "price": 1599.0
+  },
+  {
+    "domain": "metaeye.org",
+    "price": null
+  },
+  {
+    "domain": "metadatagames.com",
+    "price": 1597.0
+  },
+  {
+    "domain": "metaconf.net",
+    "price": null
+  },
+  {
+    "domain": "metaburn.org",
+    "price": 500.0
+  },
+  {
+    "domain": "messmedia.org",
+    "price": 999.0
+  },
+  {
+    "domain": "mesreviews.com",
+    "price": 599.0
+  },
+  {
+    "domain": "mesmap.org",
+    "price": null
+  },
+  {
+    "domain": "meshagree.com",
+    "price": 999.0
+  },
+  {
+    "domain": "mesamlk.org",
+    "price": 499.0
+  },
+  {
+    "domain": "mermaidrentals.com",
+    "price": null
+  },
+  {
+    "domain": "meritcasino.net",
+    "price": 3999.0
+  },
+  {
+    "domain": "mercurybaroque.org",
+    "price": null
+  },
+  {
+    "domain": "mercenarylinux.com",
+    "price": 599.0
+  },
+  {
+    "domain": "meowcheese.com",
+    "price": null
+  },
+  {
+    "domain": "menusearch.net",
+    "price": null
+  },
+  {
+    "domain": "mentorware.net",
+    "price": 500.0
+  },
+  {
+    "domain": "mentaljokes.com",
+    "price": 690.0
+  },
+  {
+    "domain": "menknit.net",
+    "price": 1199.0
+  },
+  {
+    "domain": "mendezengland.com",
+    "price": 699.0
+  },
+  {
+    "domain": "menanet.net",
+    "price": 599.0
+  },
+  {
+    "domain": "menaconf.com",
+    "price": 799.0
+  },
+  {
+    "domain": "menace.net",
+    "price": 1800.0
+  },
+  {
+    "domain": "memplug.com",
+    "price": 599.0
+  },
+  {
+    "domain": "memphisjug.org",
+    "price": 500.0
+  },
+  {
+    "domain": "memoryboxes.org",
+    "price": null
+  },
+  {
+    "domain": "memoryball.org",
+    "price": 1599.0
+  },
+  {
+    "domain": "lovealicia.com",
+    "price": null
+  },
+  {
+    "domain": "lounovice.net",
+    "price": 997.0
+  },
+  {
+    "domain": "loudpig.co",
+    "price": null
+  },
+  {
+    "domain": "lotusgeek.com",
+    "price": 500.0
+  },
+  {
+    "domain": "lottorevenues.com",
+    "price": null
+  },
+  {
+    "domain": "lottonetwork.com",
+    "price": 6500.0
+  },
+  {
+    "domain": "lottoleader.com",
+    "price": 1599.0
+  },
+  {
+    "domain": "lottapictures.com",
+    "price": null
+  },
+  {
+    "domain": "lostsounds.net",
+    "price": null
+  },
+  {
+    "domain": "lordeinc.com",
+    "price": null
+  },
+  {
+    "domain": "loosedogs.net",
+    "price": 599.0
+  },
+  {
+    "domain": "looncommons.org",
+    "price": 599.0
+  },
+  {
+    "domain": "looktorrent.com",
+    "price": null
+  },
+  {
+    "domain": "lookinarchive.com",
+    "price": 1199.0
+  },
+  {
+    "domain": "lookbooker.co",
+    "price": null
+  },
+  {
+    "domain": "londonbloggers.net",
+    "price": 599.0
+  },
+  {
+    "domain": "lombardmaps.com",
+    "price": null
+  },
+  {
+    "domain": "lolboom.net",
+    "price": 999.0
+  },
+  {
+    "domain": "loismurphy.org",
+    "price": 599.0
+  },
+  {
+    "domain": "logonia.org",
+    "price": null
+  },
+  {
+    "domain": "logicexplorers.com",
+    "price": 599.0
+  },
+  {
+    "domain": "logicalfriday.com",
+    "price": 1197.0
+  },
+  {
+    "domain": "loghar.com",
+    "price": 2394.0
+  },
+  {
+    "domain": "loganshort.com",
+    "price": 499.0
+  },
+  {
+    "domain": "loftfellowship.org",
+    "price": 797.0
+  },
+  {
+    "domain": "locname.com",
+    "price": 500.0
+  },
+  {
+    "domain": "lockquest.com",
+    "price": 637.0
+  },
+  {
+    "domain": "lockestudies.org",
+    "price": null
+  },
+  {
+    "domain": "locationcon.org",
+    "price": 500.0
+  },
+  {
+    "domain": "localhuman.co",
+    "price": null
+  },
+  {
+    "domain": "localforums.org",
+    "price": 739.0
+  },
+  {
+    "domain": "lobstergame.com",
+    "price": 999.0
+  },
+  {
+    "domain": "loblee.com",
+    "price": 799.0
+  },
+  {
+    "domain": "latviaexpo.com",
+    "price": 739.0
+  },
+  {
+    "domain": "latteria.co",
+    "price": null
+  },
+  {
+    "domain": "latinwide.com",
+    "price": 1199.0
+  },
+  {
+    "domain": "latinmoney.net",
+    "price": null
+  },
+  {
+    "domain": "latinmarkets.org",
+    "price": 1597.0
+  },
+  {
+    "domain": "latincarbon.com",
+    "price": 2999.0
+  },
+  {
+    "domain": "latinbanking.com",
+    "price": null
+  },
+  {
+    "domain": "lastvideo.net",
+    "price": 1999.0
+  },
+  {
+    "domain": "lasttrain.com",
+    "price": 5300.0
+  },
+  {
+    "domain": "laststandard.com",
+    "price": 1597.0
+  },
+  {
+    "domain": "lastdrag.org",
+    "price": 799.0
+  },
+  {
+    "domain": "laslow.net",
+    "price": 1239.0
+  },
+  {
+    "domain": "largocanyon.org",
+    "price": 599.0
+  },
+  {
+    "domain": "larawilliams.org",
+    "price": 599.0
+  },
+  {
+    "domain": "laravisual.com",
+    "price": 599.0
+  },
+  {
+    "domain": "laravincent.com",
+    "price": 599.0
+  },
+  {
+    "domain": "laraspencer.net",
+    "price": null
+  },
+  {
+    "domain": "lapita.net",
+    "price": null
+  },
+  {
+    "domain": "lapira.org",
+    "price": null
+  },
+  {
+    "domain": "laoveterans.com",
+    "price": 599.0
+  },
+  {
+    "domain": "laoautism.org",
+    "price": 719.0
+  },
+  {
+    "domain": "langamp.com",
+    "price": null
+  },
+  {
+    "domain": "laneshare.org",
+    "price": 499.0
+  },
+  {
+    "domain": "landarte.net",
+    "price": 799.0
+  },
+  {
+    "domain": "lanaturner.org",
+    "price": 499.0
+  },
+  {
+    "domain": "lamparea.org",
+    "price": 500.0
+  },
+  {
+    "domain": "lamhong.org",
+    "price": null
+  },
+  {
+    "domain": "lalalay.com",
+    "price": null
+  },
+  {
+    "domain": "lakewoodbeacon.org",
+    "price": null
+  },
+  {
+    "domain": "lakersmag.com",
+    "price": null
+  },
+  {
+    "domain": "lakefield.com",
+    "price": 9999.0
+  },
+  {
+    "domain": "laitier.net",
+    "price": 999.0
+  },
+  {
+    "domain": "lairdinstitute.com",
+    "price": 799.0
+  },
+  {
+    "domain": "lairdil.org",
+    "price": 1399.0
+  },
+  {
+    "domain": "lagosrail.com",
+    "price": 599.0
+  },
+  {
+    "domain": "lagolit.com",
+    "price": 599.0
+  },
+  {
+    "domain": "laccir.org",
+    "price": 899.0
+  },
+  {
+    "domain": "lacbrewing.com",
+    "price": 599.0
+  },
+  {
+    "domain": "labvet.net",
+    "price": 799.0
+  },
+  {
+    "domain": "labtim.org",
+    "price": null
+  },
+  {
+    "domain": "labourunity.org",
+    "price": 1599.0
+  },
+  {
+    "domain": "labourleave.org",
+    "price": 5000.0
+  },
+  {
+    "domain": "laborproject.org",
+    "price": 999.0
+  },
+  {
+    "domain": "labelstate.com",
+    "price": 599.0
+  },
+  {
+    "domain": "kurtbills.com",
+    "price": 599.0
+  },
+  {
+    "domain": "kristies.org",
+    "price": 1999.0
+  },
+  {
+    "domain": "kristenramirez.com",
+    "price": null
+  },
+  {
+    "domain": "irishstu.com",
+    "price": null
+  },
+  {
+    "domain": "irishskipper.net",
+    "price": 459.0
+  },
+  {
+    "domain": "irishchurch.net",
+    "price": 599.0
+  },
+  {
+    "domain": "ireneirene.com",
+    "price": null
+  },
+  {
+    "domain": "ircaide.org",
+    "price": 999.0
+  },
+  {
+    "domain": "iraqstar.org",
+    "price": null
+  },
+  {
+    "domain": "iraqipapers.com",
+    "price": 599.0
+  },
+  {
+    "domain": "iraqdossier.com",
+    "price": 739.0
+  },
+  {
+    "domain": "iraqconflict.org",
+    "price": 599.0
+  },
+  {
+    "domain": "iransharks.com",
+    "price": null
+  },
+  {
+    "domain": "iranscan.net",
+    "price": 599.0
+  },
+  {
+    "domain": "iraniantruth.com",
+    "price": 599.0
+  },
+  {
+    "domain": "iranhrc.org",
+    "price": null
+  },
+  {
+    "domain": "irangenes.com",
+    "price": null
+  },
+  {
+    "domain": "iranfederal.org",
+    "price": 599.0
+  },
+  {
+    "domain": "iranbar.org",
+    "price": null
+  },
+  {
+    "domain": "iranbalkan.net",
+    "price": 799.0
+  },
+  {
+    "domain": "iranaccess.com",
+    "price": 999.0
+  },
+  {
+    "domain": "ipodding.com",
+    "price": 500.0
+  },
+  {
+    "domain": "ipccinfo.com",
+    "price": null
+  },
+  {
+    "domain": "iowahills.com",
+    "price": null
+  },
+  {
+    "domain": "iowahelpline.org",
+    "price": 699.0
+  },
+  {
+    "domain": "iotvietnam.net",
+    "price": 1750.0
+  },
+  {
+    "domain": "iosjournals.org",
+    "price": null
+  },
+  {
+    "domain": "iosetc.com",
+    "price": 500.0
+  },
+  {
+    "domain": "iosdoc.com",
+    "price": 750.0
+  },
+  {
+    "domain": "iosalerts.com",
+    "price": null
+  },
+  {
+    "domain": "ionpsych.com",
+    "price": null
+  },
+  {
+    "domain": "investorside.org",
+    "price": 1999.0
+  },
+  {
+    "domain": "investcrimea.org",
+    "price": 799.0
+  },
+  {
+    "domain": "inversereality.org",
+    "price": 1059.0
+  },
+  {
+    "domain": "inuitsoap.com",
+    "price": null
+  },
+  {
+    "domain": "introvertjapan.com",
+    "price": 999.0
+  },
+  {
+    "domain": "intpow.com",
+    "price": null
+  },
+  {
+    "domain": "interselection.net",
+    "price": 999.0
+  },
+  {
+    "domain": "groovymachine.com",
+    "price": 599.0
+  },
+  {
+    "domain": "gripsprogram.com",
+    "price": 1794.0
+  },
+  {
+    "domain": "grimvalue.com",
+    "price": 599.0
+  },
+  {
+    "domain": "grillbar.org",
+    "price": null
+  },
+  {
+    "domain": "griefanonymous.com",
+    "price": null
+  },
+  {
+    "domain": "gridjungle.com",
+    "price": 1197.0
+  },
+  {
+    "domain": "gridcoin.co",
+    "price": null
+  },
+  {
+    "domain": "greymatter.net",
+    "price": 1700.0
+  },
+  {
+    "domain": "greyglasses.com",
+    "price": null
+  },
+  {
+    "domain": "gretchenetc.com",
+    "price": 599.0
+  },
+  {
+    "domain": "gregweeks.net",
+    "price": 599.0
+  },
+  {
+    "domain": "gregorywitt.com",
+    "price": 599.0
+  },
+  {
+    "domain": "greggloomis.com",
+    "price": 599.0
+  },
+  {
+    "domain": "greggkids.com",
+    "price": 999.0
+  },
+  {
+    "domain": "gregburch.net",
+    "price": null
+  },
+  {
+    "domain": "greenwatershed.org",
+    "price": 599.0
+  },
+  {
+    "domain": "greenscissors.org",
+    "price": 799.0
+  },
+  {
+    "domain": "greenlagoon.net",
+    "price": 599.0
+  },
+  {
+    "domain": "greeninstitute.net",
+    "price": 599.0
+  },
+  {
+    "domain": "greengroove.org",
+    "price": 1199.0
+  },
+  {
+    "domain": "greenebaptist.org",
+    "price": null
+  },
+  {
+    "domain": "greenchicago.org",
+    "price": 599.0
+  },
+  {
+    "domain": "greenaviation.org",
+    "price": null
+  },
+  {
+    "domain": "greektexts.com",
+    "price": null
+  },
+  {
+    "domain": "greedyinvalid.com",
+    "price": 599.0
+  },
+  {
+    "domain": "greedyfinance.com",
+    "price": null
+  },
+  {
+    "domain": "greecehotspot.com",
+    "price": 499.0
+  },
+  {
+    "domain": "greatpro.org",
+    "price": null
+  },
+  {
+    "domain": "greatgorillas.org",
+    "price": null
+  },
+  {
+    "domain": "greatbelow.com",
+    "price": 9999.0
+  },
+  {
+    "domain": "gravityzoo.com",
+    "price": null
+  },
+  {
+    "domain": "gravityteen.com",
+    "price": 599.0
+  },
+  {
+    "domain": "gravitysoft.org",
+    "price": 599.0
+  },
+  {
+    "domain": "gravedancers.com",
+    "price": 599.0
+  },
+  {
+    "domain": "gratisdei.com",
+    "price": 599.0
+  },
+  {
+    "domain": "grassrootswell.com",
+    "price": 999.0
+  },
+  {
+    "domain": "grasdispensary.com",
+    "price": null
+  },
+  {
+    "domain": "graphicnothing.com",
+    "price": 599.0
+  },
+  {
+    "domain": "grantcottage.net",
+    "price": 599.0
+  },
+  {
+    "domain": "granderoses.com",
+    "price": 999.0
+  },
+  {
+    "domain": "grandec.org",
+    "price": null
+  },
+  {
+    "domain": "evasionspirit.com",
+    "price": 3599.0
+  },
+  {
+    "domain": "eurovisionchat.com",
+    "price": null
+  },
+  {
+    "domain": "eurotourism.net",
+    "price": 999.0
+  },
+  {
+    "domain": "europeprize.org",
+    "price": 599.0
+  },
+  {
+    "domain": "europeantrophy.com",
+    "price": 4719.0
+  },
+  {
+    "domain": "europamagna.org",
+    "price": 839.0
+  },
+  {
+    "domain": "europaludlow.com",
+    "price": 599.0
+  },
+  {
+    "domain": "eurongos.org",
+    "price": null
+  },
+  {
+    "domain": "eurogusto.org",
+    "price": 999.0
+  },
+  {
+    "domain": "eurekatheatre.org",
+    "price": 499.0
+  },
+  {
+    "domain": "eurekarichmond.com",
+    "price": 599.0
+  },
+  {
+    "domain": "eurasianweek.com",
+    "price": null
+  },
+  {
+    "domain": "eurasiacinema.org",
+    "price": null
+  },
+  {
+    "domain": "eurasap.org",
+    "price": null
+  },
+  {
+    "domain": "ethoseurope.org",
+    "price": 500.0
+  },
+  {
+    "domain": "ethicalapa.com",
+    "price": 1599.0
+  },
+  {
+    "domain": "etherzero.org",
+    "price": null
+  },
+  {
+    "domain": "ethervapor.com",
+    "price": 4794.0
+  },
+  {
+    "domain": "etherpaths.org",
+    "price": null
+  },
+  {
+    "domain": "etherfaucet.org",
+    "price": null
+  },
+  {
+    "domain": "etherdig.net",
+    "price": 699.0
+  },
+  {
+    "domain": "ethelgranger.com",
+    "price": null
+  },
+  {
+    "domain": "etceducation.org",
+    "price": null
+  },
+  {
+    "domain": "droplex.org",
+    "price": 599.0
+  },
+  {
+    "domain": "droneaddicts.net",
+    "price": 1999.0
+  },
+  {
+    "domain": "droidbin.com",
+    "price": 9799.0
+  },
+  {
+    "domain": "drmask.org",
+    "price": null
+  },
+  {
+    "domain": "drivesunshine.org",
+    "price": null
+  },
+  {
+    "domain": "driversupdate.org",
+    "price": 500.0
+  },
+  {
+    "domain": "driverphoto.net",
+    "price": 799.0
+  },
+  {
+    "domain": "drinktome.net",
+    "price": null
+  },
+  {
+    "domain": "drinksamericas.com",
+    "price": null
+  },
+  {
+    "domain": "drewgoddard.com",
+    "price": 1199.0
+  },
+  {
+    "domain": "dressarticles.com",
+    "price": null
+  },
+  {
+    "domain": "dreamshoot.net",
+    "price": 3999.0
+  },
+  {
+    "domain": "dreamerpledge.org",
+    "price": 639.0
+  },
+  {
+    "domain": "dreadfuldays.net",
+    "price": 599.0
+  },
+  {
+    "domain": "drawnsound.org",
+    "price": 1260.0
+  },
+  {
+    "domain": "dramastyle.com",
+    "price": 3999.0
+  },
+  {
+    "domain": "drakemuseum.com",
+    "price": 599.0
+  },
+  {
+    "domain": "dragonflymovie.com",
+    "price": null
+  },
+  {
+    "domain": "draftfranken.com",
+    "price": 999.0
+  },
+  {
+    "domain": "draftclark.com",
+    "price": 999.0
+  },
+  {
+    "domain": "draftcalc.com",
+    "price": null
+  },
+  {
+    "domain": "doylelawton.com",
+    "price": 599.0
+  },
+  {
+    "domain": "downwhere.com",
+    "price": 599.0
+  },
+  {
+    "domain": "downtownapp.co",
+    "price": null
+  },
+  {
+    "domain": "downstreet.net",
+    "price": 599.0
+  },
+  {
+    "domain": "downseeker.com",
+    "price": 599.0
+  },
+  {
+    "domain": "dovemovement.com",
+    "price": 999.0
+  },
+  {
+    "domain": "douglaskahn.com",
+    "price": null
+  },
+  {
+    "domain": "doublesranch.org",
+    "price": null
+  },
+  {
+    "domain": "doubledagger.co",
+    "price": 1139.0
+  },
+  {
+    "domain": "dottickets.org",
+    "price": 1999.0
+  },
+  {
+    "domain": "dotstudy.org",
+    "price": null
+  },
+  {
+    "domain": "dotcomma.org",
+    "price": 499.0
+  },
+  {
+    "domain": "dotavery.com",
+    "price": 1999.0
+  },
+  {
+    "domain": "dorisapp.com",
+    "price": null
+  },
+  {
+    "domain": "dooseries.org",
+    "price": 1999.0
+  },
+  {
+    "domain": "doombird.com",
+    "price": 599.0
+  },
+  {
+    "domain": "doolight.com",
+    "price": 1597.0
+  },
+  {
+    "domain": "doodlegrub.com",
+    "price": null
+  },
+  {
+    "domain": "dontdiy.org",
+    "price": 11999.0
+  },
+  {
+    "domain": "donorsresource.org",
+    "price": 500.0
+  },
+  {
+    "domain": "donegaldirect.com",
+    "price": 599.0
+  },
+  {
+    "domain": "donatomas.com",
+    "price": null
+  },
+  {
+    "domain": "dominicanu.com",
+    "price": 599.0
+  },
+  {
+    "domain": "dominantcasino.com",
+    "price": 1599.0
+  },
+  {
+    "domain": "domefest.org",
+    "price": 500.0
+  },
+  {
+    "domain": "doleland.com",
+    "price": 1799.0
+  },
+  {
+    "domain": "dojocon.org",
+    "price": 599.0
+  },
+  {
+    "domain": "dojgov.net",
+    "price": null
+  },
+  {
+    "domain": "doinlive.com",
+    "price": null
+  },
+  {
+    "domain": "doingzionism.org",
+    "price": 599.0
+  },
+  {
+    "domain": "doingdoing.org",
+    "price": 2019.0
+  },
+  {
+    "domain": "doingcrypto.org",
+    "price": 999.0
+  },
+  {
+    "domain": "dohertysoccer.com",
+    "price": 1597.0
+  },
+  {
+    "domain": "dograma.net",
+    "price": null
+  },
+  {
+    "domain": "dogarchaeology.org",
+    "price": 599.0
+  },
+  {
+    "domain": "dodgerscribe.com",
+    "price": 997.0
+  },
+  {
+    "domain": "doctormetrics.com",
+    "price": 1999.0
+  },
+  {
+    "domain": "doctorapp.org",
+    "price": null
+  },
+  {
+    "domain": "docsperfect.com",
+    "price": 1299.0
+  },
+  {
+    "domain": "doclib.org",
+    "price": 1599.0
+  },
+  {
+    "domain": "dochastings.com",
+    "price": 599.0
+  },
+  {
+    "domain": "docblog.org",
+    "price": 799.0
+  },
+  {
+    "domain": "dnaarrays.org",
+    "price": 997.0
+  },
+  {
+    "domain": "dmsair.com",
+    "price": 1199.0
+  },
+  {
+    "domain": "dizzygillespie.net",
+    "price": 599.0
+  },
+  {
+    "domain": "diynow.org",
+    "price": 1899.0
+  },
+  {
+    "domain": "diynetworking.net",
+    "price": 880.0
+  },
+  {
+    "domain": "diycitizenship.com",
+    "price": null
+  },
+  {
+    "domain": "dixiecounty.org",
+    "price": 599.0
+  },
+  {
+    "domain": "dixiecarter.com",
+    "price": null
+  },
+  {
+    "domain": "divinedestiny.org",
+    "price": 900.0
+  },
+  {
+    "domain": "diveco.net",
+    "price": 599.0
+  },
+  {
+    "domain": "divamall.com",
+    "price": 9999.0
+  },
+  {
+    "domain": "divagis.org",
+    "price": null
+  },
+  {
+    "domain": "districtflea.com",
+    "price": 539.0
+  },
+  {
+    "domain": "distressions.com",
+    "price": 1599.0
+  },
+  {
+    "domain": "dissidentvox.com",
+    "price": 599.0
+  },
+  {
+    "domain": "dissentnetwork.org",
+    "price": 999.0
+  },
+  {
+    "domain": "dissectjournal.com",
+    "price": 479.0
+  },
+  {
+    "domain": "disruptsurfing.com",
+    "price": null
+  },
+  {
+    "domain": "disfish.com",
+    "price": 599.0
+  },
+  {
+    "domain": "discomuseum.net",
+    "price": null
+  },
+  {
+    "domain": "discofingers.com",
+    "price": 499.0
+  },
+  {
+    "domain": "disastermesh.com",
+    "price": 499.0
+  },
+  {
+    "domain": "disasterlinks.net",
+    "price": 999.0
+  },
+  {
+    "domain": "disasterexpert.org",
+    "price": 599.0
+  },
+  {
+    "domain": "disablepoverty.org",
+    "price": null
+  },
+  {
+    "domain": "disabledwomen.net",
+    "price": 999.0
+  },
+  {
+    "domain": "dirtyphones.org",
+    "price": 500.0
+  },
+  {
+    "domain": "dirkhanson.org",
+    "price": null
+  },
+  {
+    "domain": "dirglobal.net",
+    "price": null
+  },
+  {
+    "domain": "directserver.org",
+    "price": 999.0
+  },
+  {
+    "domain": "dinosaurcity.org",
+    "price": null
+  },
+  {
+    "domain": "dinodigs.org",
+    "price": null
+  },
+  {
+    "domain": "dinnermint.org",
+    "price": null
+  },
+  {
+    "domain": "dimdoll.com",
+    "price": 999.0
+  },
+  {
+    "domain": "diltoo.com",
+    "price": 999.0
+  },
+  {
+    "domain": "dildodrone.com",
+    "price": null
+  },
+  {
+    "domain": "digtoilets.org",
+    "price": 599.0
+  },
+  {
+    "domain": "diglab.org",
+    "price": null
+  },
+  {
+    "domain": "digitseries.com",
+    "price": 500.0
+  },
+  {
+    "domain": "digitaltrunk.net",
+    "price": 699.0
+  },
+  {
+    "domain": "digitalthom.com",
+    "price": 599.0
+  },
+  {
+    "domain": "digitalsin.org",
+    "price": 500.0
+  },
+  {
+    "domain": "digitalphysics.org",
+    "price": 1599.0
+  },
+  {
+    "domain": "digitalpapers.org",
+    "price": 1597.0
+  },
+  {
+    "domain": "digitalopen.org",
+    "price": 599.0
+  },
+  {
+    "domain": "digitallon.com",
+    "price": 599.0
+  },
+  {
+    "domain": "digitalhole.co",
+    "price": 539.0
+  },
+  {
+    "domain": "digitalhermes.com",
+    "price": 599.0
+  },
+  {
+    "domain": "digitalfemme.com",
+    "price": null
+  },
+  {
+    "domain": "digitaldebates.org",
+    "price": 499.0
+  },
+  {
+    "domain": "digidol.net",
+    "price": 499.0
+  },
+  {
+    "domain": "diggerhamburg.com",
+    "price": 999.0
+  },
+  {
+    "domain": "digdowntown.com",
+    "price": 599.0
+  },
+  {
+    "domain": "dietbitcoin.org",
+    "price": null
+  },
+  {
+    "domain": "dieselforecast.com",
+    "price": 599.0
+  },
+  {
+    "domain": "diemannequin.net",
+    "price": 1497.0
+  },
+  {
+    "domain": "dieelectric.org",
+    "price": 5999.0
+  },
+  {
+    "domain": "didierquentin.com",
+    "price": 1995.0
+  },
+  {
+    "domain": "didierbravo.com",
+    "price": 2399.0
+  },
+  {
+    "domain": "diasporamag.com",
+    "price": 799.0
+  },
+  {
+    "domain": "diasporabrazil.org",
+    "price": 599.0
+  },
+  {
+    "domain": "dianafletcher.org",
+    "price": null
+  },
+  {
+    "domain": "diamondherbs.co",
+    "price": 3599.0
+  },
+  {
+    "domain": "diamondaviator.org",
+    "price": 2499.0
+  },
+  {
+    "domain": "dialkeys.com",
+    "price": 599.0
+  },
+  {
+    "domain": "dialedtone.com",
+    "price": 599.0
+  },
+  {
+    "domain": "diabolicalmind.com",
+    "price": 2599.0
+  },
+  {
+    "domain": "diabetesphil.org",
+    "price": 599.0
+  },
+  {
+    "domain": "dexhost.com",
+    "price": 2400.0
+  },
+  {
+    "domain": "deweykaye.com",
+    "price": 599.0
+  },
+  {
+    "domain": "devshaped.com",
+    "price": 499.0
+  },
+  {
+    "domain": "devreadiness.org",
+    "price": 500.0
+  },
+  {
+    "domain": "devrace.com",
+    "price": 750.0
+  },
+  {
+    "domain": "devphone.org",
+    "price": 500.0
+  },
+  {
+    "domain": "devoncoyote.com",
+    "price": null
+  },
+  {
+    "domain": "devmania.net",
+    "price": 2399.0
+  },
+  {
+    "domain": "devjargon.org",
+    "price": 599.0
+  },
+  {
+    "domain": "devinmusic.com",
+    "price": null
+  },
+  {
+    "domain": "devilsdare.com",
+    "price": 4799.0
+  },
+  {
+    "domain": "devilmusic.org",
+    "price": 499.0
+  },
+  {
+    "domain": "devilmaster.org",
+    "price": 499.0
+  },
+  {
+    "domain": "devfactor.net",
+    "price": 1299.0
+  },
+  {
+    "domain": "devcooperation.org",
+    "price": null
+  },
+  {
+    "domain": "devcentre.org",
+    "price": 500.0
+  },
+  {
+    "domain": "devastations.net",
+    "price": 599.0
+  },
+  {
+    "domain": "deusvolts.com",
+    "price": 1999.0
+  },
+  {
+    "domain": "detroitsynergy.org",
+    "price": null
+  },
+  {
+    "domain": "detroitsummer.org",
+    "price": null
+  },
+  {
+    "domain": "detroitfanfare.com",
+    "price": 1599.0
+  },
+  {
+    "domain": "detouch.org",
+    "price": null
+  },
+  {
+    "domain": "detectmalice.com",
+    "price": 599.0
+  },
+  {
+    "domain": "detectingbull.com",
+    "price": 599.0
+  },
+  {
+    "domain": "destroyzionism.com",
+    "price": null
+  },
+  {
+    "domain": "desmondtutu.org",
+    "price": null
+  },
+  {
+    "domain": "desktoppin.com",
+    "price": null
+  },
+  {
+    "domain": "desktopimages.org",
+    "price": null
+  },
+  {
+    "domain": "desirebetter.org",
+    "price": 1497.0
+  },
+  {
+    "domain": "designwar.net",
+    "price": 799.0
+  },
+  {
+    "domain": "designsgirl.com",
+    "price": 799.0
+  },
+  {
+    "domain": "designnerd.net",
+    "price": 599.0
+  },
+  {
+    "domain": "designmid.com",
+    "price": 1599.0
+  },
+  {
+    "domain": "designgarden.co",
+    "price": null
+  },
+  {
+    "domain": "designclue.co",
+    "price": null
+  },
+  {
+    "domain": "designassembly.org",
+    "price": null
+  },
+  {
+    "domain": "desigay.org",
+    "price": 599.0
+  },
+  {
+    "domain": "desertwizards.com",
+    "price": null
+  },
+  {
+    "domain": "desertvision.org",
+    "price": 799.0
+  },
+  {
+    "domain": "desertunit.org",
+    "price": null
+  },
+  {
+    "domain": "desertgreens.org",
+    "price": null
+  },
+  {
+    "domain": "desertenergy.org",
+    "price": 999.0
+  },
+  {
+    "domain": "descentro.org",
+    "price": 1799.0
+  },
+  {
+    "domain": "descentrecords.com",
+    "price": 599.0
+  },
+  {
+    "domain": "derbystation.com",
+    "price": null
+  },
+  {
+    "domain": "dangerouslyinc.com",
+    "price": 499.0
+  },
+  {
+    "domain": "dangerouslyfun.com",
+    "price": 1999.0
+  },
+  {
+    "domain": "dandonovan.org",
+    "price": null
+  },
+  {
+    "domain": "danceos.org",
+    "price": 580.0
+  },
+  {
+    "domain": "dancemanitoba.org",
+    "price": 1197.0
+  },
+  {
+    "domain": "dancehouse.org",
+    "price": 999.0
+  },
+  {
+    "domain": "damewellness.co",
+    "price": null
+  },
+  {
+    "domain": "daleogden.org",
+    "price": 499.0
+  },
+  {
+    "domain": "dalehead.org",
+    "price": 599.0
+  },
+  {
+    "domain": "dakotabradley.com",
+    "price": 599.0
+  },
+  {
+    "domain": "dakart.net",
+    "price": null
+  },
+  {
+    "domain": "dairypoop.com",
+    "price": 599.0
+  },
+  {
+    "domain": "dailycatch.org",
+    "price": 599.0
+  },
+  {
+    "domain": "dailybreakfast.net",
+    "price": 599.0
+  },
+  {
+    "domain": "dailyartisan.com",
+    "price": 759.0
+  },
+  {
+    "domain": "dadscanada.com",
+    "price": null
+  },
+  {
+    "domain": "dacode.org",
+    "price": 1730.0
+  },
+  {
+    "domain": "czechyearbook.org",
+    "price": null
+  },
+  {
+    "domain": "czechwalker.com",
+    "price": null
+  },
+  {
+    "domain": "czechembassy.org",
+    "price": 7499.0
+  },
+  {
+    "domain": "czechblues.com",
+    "price": 599.0
+  },
+  {
+    "domain": "cypruspictures.net",
+    "price": 599.0
+  },
+  {
+    "domain": "cyprusmuseum.org",
+    "price": 599.0
+  },
+  {
+    "domain": "cynicalsmirk.com",
+    "price": null
+  },
+  {
+    "domain": "cyclingwebsite.net",
+    "price": null
+  },
+  {
+    "domain": "cybertribunal.org",
+    "price": 599.0
+  },
+  {
+    "domain": "cyberthing.net",
+    "price": null
+  },
+  {
+    "domain": "cybertaiwan.com",
+    "price": null
+  },
+  {
+    "domain": "cybermeme.net",
+    "price": 499.0
+  },
+  {
+    "domain": "cyberfed.org",
+    "price": 500.0
+  },
+  {
+    "domain": "cyberdiva.org",
+    "price": 500.0
+  },
+  {
+    "domain": "cybercongress.ai",
+    "price": null
+  },
+  {
+    "domain": "cyberbrethren.com",
+    "price": 1359.0
+  },
+  {
+    "domain": "coldexperiment.com",
+    "price": 599.0
+  },
+  {
+    "domain": "coldchick.xyz",
+    "price": null
+  },
+  {
+    "domain": "colboard.com",
+    "price": 839.0
+  },
+  {
+    "domain": "cokebust.com",
+    "price": null
+  },
+  {
+    "domain": "coinstorm.net",
+    "price": 999.0
+  },
+  {
+    "domain": "coinjournal.co",
+    "price": null
+  },
+  {
+    "domain": "coffeescad.net",
+    "price": null
+  },
+  {
+    "domain": "codywillard.com",
+    "price": 999.0
+  },
+  {
+    "domain": "codnote.net",
+    "price": 550.0
+  },
+  {
+    "domain": "codingteam.org",
+    "price": 2395.0
+  },
+  {
+    "domain": "codingdrama.com",
+    "price": 500.0
+  },
+  {
+    "domain": "codexinferno.com",
+    "price": 599.0
+  },
+  {
+    "domain": "codeorchestra.com",
+    "price": 750.0
+  },
+  {
+    "domain": "codeignition.co",
+    "price": null
+  },
+  {
+    "domain": "codecoverage.org",
+    "price": 500.0
+  },
+  {
+    "domain": "codecompiling.net",
+    "price": 599.0
+  },
+  {
+    "domain": "codeblog.org",
+    "price": 1050.0
+  },
+  {
+    "domain": "cocoonshelter.org",
+    "price": 999.0
+  },
+  {
+    "domain": "cocoonhive.org",
+    "price": 499.0
+  },
+  {
+    "domain": "cocoonais.com",
+    "price": null
+  },
+  {
+    "domain": "cocomovement.org",
+    "price": 499.0
+  },
+  {
+    "domain": "cocobass.net",
+    "price": 599.0
+  },
+  {
+    "domain": "cocoasharp.org",
+    "price": 599.0
+  },
+  {
+    "domain": "coastkid.org",
+    "price": 599.0
+  },
+  {
+    "domain": "coachweston.com",
+    "price": null
+  },
+  {
+    "domain": "coachquebec.org",
+    "price": 1399.0
+  },
+  {
+    "domain": "cmedownload.com",
+    "price": null
+  },
+  {
+    "domain": "cmaville.org",
+    "price": 675.0
+  },
+  {
+    "domain": "campusheritage.org",
+    "price": 599.0
+  },
+  {
+    "domain": "campusbrasil.org",
+    "price": null
+  },
+  {
+    "domain": "campusadobe.com",
+    "price": null
+  },
+  {
+    "domain": "campsnowball.org",
+    "price": 599.0
+  },
+  {
+    "domain": "campsci.com",
+    "price": 599.0
+  },
+  {
+    "domain": "camperemu.com",
+    "price": 1999.0
+  },
+  {
+    "domain": "campbarefoot.org",
+    "price": 499.0
+  },
+  {
+    "domain": "camilleboyer.net",
+    "price": 599.0
+  },
+  {
+    "domain": "cameronfan.com",
+    "price": 999.0
+  },
+  {
+    "domain": "camdencreate.co",
+    "price": null
+  },
+  {
+    "domain": "calwhine.com",
+    "price": null
+  },
+  {
+    "domain": "calvertkids.org",
+    "price": 599.0
+  },
+  {
+    "domain": "calsky.org",
+    "price": 599.0
+  },
+  {
+    "domain": "calserves.org",
+    "price": null
+  },
+  {
+    "domain": "calindex.com",
+    "price": 1000.0
+  },
+  {
+    "domain": "calgarynext.com",
+    "price": 4559.0
+  },
+  {
+    "domain": "calcape.org",
+    "price": 599.0
+  },
+  {
+    "domain": "calaisaction.com",
+    "price": null
+  },
+  {
+    "domain": "cakesjun.net",
+    "price": 799.0
+  },
+  {
+    "domain": "cakesbaseball.com",
+    "price": 999.0
+  },
+  {
+    "domain": "cakeplacid.com",
+    "price": 699.0
+  },
+  {
+    "domain": "cakefinancial.com",
+    "price": 5599.0
+  },
+  {
+    "domain": "caisuk.com",
+    "price": 599.0
+  },
+  {
+    "domain": "cairnstimes.com",
+    "price": null
+  },
+  {
+    "domain": "cagefactor.com",
+    "price": 1999.0
+  },
+  {
+    "domain": "cafesip.org",
+    "price": 500.0
+  },
+  {
+    "domain": "cafepelican.com",
+    "price": 999.0
+  },
+  {
+    "domain": "cafemacquarie.com",
+    "price": null
+  },
+  {
+    "domain": "cafeconf.org",
+    "price": null
+  },
+  {
+    "domain": "biobasque.org",
+    "price": 997.0
+  },
+  {
+    "domain": "bindapple.com",
+    "price": 2999.0
+  },
+  {
+    "domain": "binaryinc.org",
+    "price": 500.0
+  },
+  {
+    "domain": "binartisan.com",
+    "price": 599.0
+  },
+  {
+    "domain": "billshare.org",
+    "price": null
+  },
+  {
+    "domain": "billperkins.org",
+    "price": 599.0
+  },
+  {
+    "domain": "billmae.com",
+    "price": null
+  },
+  {
+    "domain": "billionsweeps.com",
+    "price": 1599.0
+  },
+  {
+    "domain": "billiondinners.org",
+    "price": null
+  },
+  {
+    "domain": "billcos.com",
+    "price": 2994.0
+  },
+  {
+    "domain": "biketrain.org",
+    "price": 1597.0
+  },
+  {
+    "domain": "bikeminded.org",
+    "price": 779.0
+  },
+  {
+    "domain": "bikegotham.com",
+    "price": 1599.0
+  },
+  {
+    "domain": "bikeglam.com",
+    "price": 1499.0
+  },
+  {
+    "domain": "bikediva.net",
+    "price": null
+  },
+  {
+    "domain": "bigtweet.com",
+    "price": null
+  },
+  {
+    "domain": "bigspeed.net",
+    "price": null
+  },
+  {
+    "domain": "bigomaha.co",
+    "price": 2599.0
+  },
+  {
+    "domain": "bigmag.net",
+    "price": 599.0
+  },
+  {
+    "domain": "bighumanities.net",
+    "price": 1999.0
+  },
+  {
+    "domain": "bighits.net",
+    "price": 599.0
+  },
+  {
+    "domain": "bigbible.org",
+    "price": 919.0
+  },
+  {
+    "domain": "bigapricot.org",
+    "price": 599.0
+  },
+  {
+    "domain": "bidstalk.com",
+    "price": 599.0
+  },
+  {
+    "domain": "bibserver.org",
+    "price": 599.0
+  },
+  {
+    "domain": "biasboutique.com",
+    "price": 1099.0
+  },
+  {
+    "domain": "bhaidar.net",
+    "price": 750.0
+  },
+  {
+    "domain": "allergyacc.com",
+    "price": 999.0
+  },
+  {
+    "domain": "allencanning.com",
+    "price": 599.0
+  },
+  {
+    "domain": "allenbriggs.com",
+    "price": 599.0
+  },
+  {
+    "domain": "allegedpress.com",
+    "price": 599.0
+  },
+  {
+    "domain": "alldiseases.org",
+    "price": 599.0
+  },
+  {
+    "domain": "allcrusades.com",
+    "price": 999.0
+  },
+  {
+    "domain": "allcorrect.org",
+    "price": null
+  },
+  {
+    "domain": "allahpundit.com",
+    "price": null
+  },
+  {
+    "domain": "alivepdf.org",
+    "price": null
+  },
+  {
+    "domain": "alisonpace.com",
+    "price": null
+  },
+  {
+    "domain": "alisonleipzig.com",
+    "price": null
+  },
+  {
+    "domain": "alisep.org",
+    "price": 599.0
+  },
+  {
+    "domain": "alieneight.com",
+    "price": 599.0
+  },
+  {
+    "domain": "alienado.net",
+    "price": null
+  },
+  {
+    "domain": "aliceramos.com",
+    "price": 1599.0
+  },
+  {
+    "domain": "alibiclub.net",
+    "price": null
+  },
+  {
+    "domain": "aliaweb.org",
+    "price": 559.0
+  },
+  {
+    "domain": "aliass.org",
+    "price": 799.0
+  },
+  {
+    "domain": "aliasbooks.com",
+    "price": null
+  },
+  {
+    "domain": "alexzachary.com",
+    "price": 599.0
+  },
+  {
+    "domain": "alexatutorial.com",
+    "price": null
+  },
+  {
+    "domain": "alexamovies.com",
+    "price": 799.0
+  },
+  {
+    "domain": "alecnewman.net",
+    "price": 499.0
+  },
+  {
+    "domain": "aldrichastro.org",
+    "price": 999.0
+  },
+  {
+    "domain": "aldiwan.org",
+    "price": 599.0
+  },
+  {
+    "domain": "aldenchong.com",
+    "price": 675.0
+  },
+  {
+    "domain": "alcoholacademy.net",
+    "price": 599.0
+  },
+  {
+    "domain": "alchemytheatre.org",
+    "price": null
+  },
+  {
+    "domain": "alchemybistro.com",
+    "price": 599.0
+  },
+  {
+    "domain": "albertarose.org",
+    "price": 1999.0
+  },
+  {
+    "domain": "albatuna.com",
+    "price": 599.0
+  },
+  {
+    "domain": "albanybistro.net",
+    "price": 499.0
+  },
+  {
+    "domain": "albagals.com",
+    "price": 999.0
+  },
+  {
+    "domain": "alassis.com",
+    "price": 599.0
+  },
+  {
+    "domain": "alaskaone.org",
+    "price": 599.0
+  },
+  {
+    "domain": "alaskaice.org",
+    "price": null
+  },
+  {
+    "domain": "alarmsapp.com",
+    "price": 599.0
+  },
+  {
+    "domain": "alanwatson.org",
+    "price": 999.0
+  },
+  {
+    "domain": "alamodeus.net",
+    "price": 2199.0
+  },
+  {
+    "domain": "alablog.org",
+    "price": 599.0
+  },
+  {
+    "domain": "alabamaroads.org",
+    "price": null
+  },
+  {
+    "domain": "alabamagrit.org",
+    "price": null
+  },
+  {
+    "domain": "alabamaarts.org",
+    "price": null
+  },
+  {
+    "domain": "vivebien.com",
+    "price": null
+  },
+  {
+    "domain": "teenlesbians.com",
+    "price": null
+  },
+  {
+    "domain": "swingerschat.com",
+    "price": null
+  },
+  {
+    "domain": "pornarea.com",
+    "price": null
+  },
+  {
+    "domain": "olddelhi.com",
+    "price": null
+  },
+  {
+    "domain": "navigatecrypto.com",
+    "price": null
+  },
+  {
+    "domain": "moneygurus.com",
+    "price": null
+  },
+  {
+    "domain": "localpussy.com",
+    "price": null
+  },
+  {
+    "domain": "hotbooty.com",
+    "price": null
+  },
+  {
+    "domain": "hispanicvoters.com",
+    "price": null
+  },
+  {
+    "domain": "guestsuites.com",
+    "price": null
+  },
+  {
+    "domain": "chauffeuring.com",
+    "price": null
+  },
+  {
+    "domain": "trendinganime.com",
+    "price": null
+  },
+  {
+    "domain": "selflessaction.com",
+    "price": null
+  },
+  {
+    "domain": "richardhuang.com",
+    "price": null
+  },
+  {
+    "domain": "higherprofits.com",
+    "price": null
+  },
+  {
+    "domain": "divinebud.com",
+    "price": null
+  },
+  {
+    "domain": "covershoot.com",
+    "price": null
+  },
+  {
+    "domain": "collagenfiller.com",
+    "price": null
+  },
+  {
+    "domain": "alcoholsupport.com",
+    "price": null
+  },
+  {
+    "domain": "fullthc.com",
+    "price": null
+  },
+  {
+    "domain": "cbdgels.com",
+    "price": null
+  },
+  {
+    "domain": "cbdrelieve.com",
+    "price": null
+  },
+  {
+    "domain": "cbdmade.com",
+    "price": null
+  },
+  {
+    "domain": "elevatedcbd.com",
+    "price": null
+  },
+  {
+    "domain": "cbdstrips.com",
+    "price": null
+  },
+  {
+    "domain": "primaengine.com",
+    "price": null
+  },
+  {
+    "domain": "enterengine.com",
+    "price": null
+  },
+  {
+    "domain": "flowforce.ai",
+    "price": null
+  },
+  {
+    "domain": "sidequest.org",
+    "price": null
+  },
+  {
+    "domain": "undeniable.org",
+    "price": null
+  },
+  {
+    "domain": "visualtrack.com",
+    "price": null
+  },
+  {
+    "domain": "verbatim.co",
+    "price": null
+  },
+  {
+    "domain": "transformhome.com",
+    "price": null
+  },
+  {
+    "domain": "sigmasource.com",
+    "price": null
+  },
+  {
+    "domain": "serenitydental.com",
+    "price": null
+  },
+  {
+    "domain": "propgenius.com",
+    "price": null
+  },
+  {
+    "domain": "moderncommerce.com",
+    "price": null
+  },
+  {
+    "domain": "knowvia.com",
+    "price": null
+  },
+  {
+    "domain": "imgglobal.com",
+    "price": null
+  },
+  {
+    "domain": "homeplot.com",
+    "price": null
+  },
+  {
+    "domain": "healfirst.com",
+    "price": null
+  },
+  {
+    "domain": "hammerhome.com",
+    "price": null
+  },
+  {
+    "domain": "grindcapital.com",
+    "price": null
+  },
+  {
+    "domain": "getwizard.com",
+    "price": null
+  },
+  {
+    "domain": "getinstant.com",
+    "price": null
+  },
+  {
+    "domain": "getfact.com",
+    "price": null
+  },
+  {
+    "domain": "caringway.com",
+    "price": null
+  },
+  {
+    "domain": "carbonpositive.com",
+    "price": null
+  },
+  {
+    "domain": "aurarise.com",
+    "price": null
+  },
+  {
+    "domain": "arborist.org",
+    "price": null
+  },
+  {
+    "domain": "abidehealth.com",
+    "price": null
+  },
+  {
+    "domain": "poshpets.com",
+    "price": null
+  },
+  {
+    "domain": "airvia.com",
+    "price": null
+  },
+  {
+    "domain": "uniquefinance.com",
+    "price": null
+  },
+  {
+    "domain": "twoone.com",
+    "price": null
+  },
+  {
+    "domain": "tidal.co",
+    "price": null
+  },
+  {
+    "domain": "theway.co",
+    "price": null
+  },
+  {
+    "domain": "techsutra.com",
+    "price": null
+  },
+  {
+    "domain": "supervital.com",
+    "price": null
+  },
+  {
+    "domain": "leadflow.co",
+    "price": null
+  },
+  {
+    "domain": "homework.co",
+    "price": null
+  },
+  {
+    "domain": "getpaper.com",
+    "price": null
+  },
+  {
+    "domain": "getmesh.com",
+    "price": null
+  },
+  {
+    "domain": "changecare.com",
+    "price": null
+  },
+  {
+    "domain": "astrosolutions.com",
+    "price": null
+  },
+  {
+    "domain": "anchortrust.com",
+    "price": null
+  },
+  {
+    "domain": "vidamia.com",
+    "price": null
+  },
+  {
+    "domain": "zapbot.com",
+    "price": null
+  },
+  {
+    "domain": "aurasync.com",
+    "price": null
+  },
+  {
+    "domain": "zenithcore.com",
+    "price": null
+  },
+  {
+    "domain": "whitelabel.co",
+    "price": null
+  },
+  {
+    "domain": "silkpay.com",
+    "price": null
+  },
+  {
+    "domain": "epochlabs.com",
+    "price": null
+  },
+  {
+    "domain": "buildyourself.com",
+    "price": null
+  },
+  {
+    "domain": "beachvibes.com",
+    "price": null
+  },
+  {
+    "domain": "vouch.org",
+    "price": null
+  },
+  {
+    "domain": "slim.co",
+    "price": null
+  },
+  {
+    "domain": "panther.co",
+    "price": null
+  },
+  {
+    "domain": "innate.co",
+    "price": null
+  },
+  {
+    "domain": "ensemble.org",
+    "price": null
+  },
+  {
+    "domain": "eliteconnect.com",
+    "price": null
+  },
+  {
+    "domain": "dynamo.co",
+    "price": null
+  },
+  {
+    "domain": "edition.org",
+    "price": null
+  },
+  {
+    "domain": "immersivetech.com",
+    "price": null
+  },
+  {
+    "domain": "fortem.com",
+    "price": null
+  },
+  {
     "domain": "wealthiest.net",
     "price": 4995.0
   },
@@ -95701,7 +102029,7 @@
   },
   {
     "domain": "blvdbox.com",
-    "price": 1977.0
+    "price": 9888.0
   },
   {
     "domain": "weavetrading.com",
@@ -96897,7 +103225,7 @@
   },
   {
     "domain": "personalintel.com",
-    "price": 9888.0
+    "price": 24500.0
   },
   {
     "domain": "systemsintel.com",
@@ -101325,7 +107653,7 @@
   },
   {
     "domain": "viscountbox.com",
-    "price": 500.0
+    "price": 499.0
   },
   {
     "domain": "prodiscussion.net",
@@ -101333,7 +107661,7 @@
   },
   {
     "domain": "iranianacm.com",
-    "price": 500.0
+    "price": 199.0
   },
   {
     "domain": "poetichealing.com",
@@ -101441,7 +107769,7 @@
   },
   {
     "domain": "kuwaitbusiness.net",
-    "price": 500.0
+    "price": 599.0
   },
   {
     "domain": "jockmooney.com",
@@ -101457,7 +107785,7 @@
   },
   {
     "domain": "etctherapy.org",
-    "price": 500.0
+    "price": 499.0
   },
   {
     "domain": "googletorrents.com",
@@ -101485,7 +107813,7 @@
   },
   {
     "domain": "zanzibarmadrid.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "deanquarry.com",
@@ -101717,7 +108045,7 @@
   },
   {
     "domain": "damnedtower.com",
-    "price": 500.0
+    "price": 599.0
   },
   {
     "domain": "dubstepped.net",
@@ -101725,7 +108053,7 @@
   },
   {
     "domain": "websiteallies.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "rawsocket.org",
@@ -101761,7 +108089,7 @@
   },
   {
     "domain": "laicart.org",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "imagecpr.com",
@@ -101777,7 +108105,7 @@
   },
   {
     "domain": "iraqmortality.org",
-    "price": 500.0
+    "price": 1199.0
   },
   {
     "domain": "startinggrid.org",
@@ -101901,7 +108229,7 @@
   },
   {
     "domain": "biographywiki.org",
-    "price": 500.0
+    "price": 599.0
   },
   {
     "domain": "asdes.org",
@@ -101945,7 +108273,7 @@
   },
   {
     "domain": "weaponshouse.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "sahararights.net",
@@ -102037,7 +108365,7 @@
   },
   {
     "domain": "dalecramer.com",
-    "price": 500.0
+    "price": 599.0
   },
   {
     "domain": "schooljournals.net",
@@ -102069,7 +108397,7 @@
   },
   {
     "domain": "wordrio.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "paulams.com",
@@ -102081,7 +108409,7 @@
   },
   {
     "domain": "larkingrimm.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "leighfallon.com",
@@ -102109,7 +108437,7 @@
   },
   {
     "domain": "tomhewitt.org",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "arcadedarwin.com",
@@ -102117,7 +108445,7 @@
   },
   {
     "domain": "xavierpop.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "laseried.com",
@@ -102145,7 +108473,7 @@
   },
   {
     "domain": "teaconference.org",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "usersboard.net",
@@ -102173,7 +108501,7 @@
   },
   {
     "domain": "vortexdna.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "arlingtonfive.com",
@@ -102189,7 +108517,7 @@
   },
   {
     "domain": "womanaaa.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "cannoncat.com",
@@ -102197,7 +108525,7 @@
   },
   {
     "domain": "smashingreader.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "lavarow.com",
@@ -102221,7 +108549,7 @@
   },
   {
     "domain": "viciouscyclone.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "redxmas.com",
@@ -102229,7 +108557,7 @@
   },
   {
     "domain": "wallpapersbot.net",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "lingvin.com",
@@ -102237,7 +108565,7 @@
   },
   {
     "domain": "dailyiso.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "freepollard.org",
@@ -102293,7 +108621,7 @@
   },
   {
     "domain": "metrorock.net",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "irishrochester.org",
@@ -102369,7 +108697,7 @@
   },
   {
     "domain": "drmstream.com",
-    "price": 500.0
+    "price": 599.0
   },
   {
     "domain": "breadworks.org",
@@ -102385,11 +108713,11 @@
   },
   {
     "domain": "lanceryan.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "warmen.org",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "papadoc.net",
@@ -102405,7 +108733,7 @@
   },
   {
     "domain": "doteverything.co",
-    "price": 500.0
+    "price": null
   },
   {
     "domain": "icsplat.org",
@@ -102417,7 +108745,7 @@
   },
   {
     "domain": "labelstables.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "garyreed.net",
@@ -102529,7 +108857,7 @@
   },
   {
     "domain": "slyvisions.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "allalias.com",
@@ -102541,7 +108869,7 @@
   },
   {
     "domain": "mermonte.com",
-    "price": 500.0
+    "price": 690.0
   },
   {
     "domain": "msawest.net",
@@ -102609,11 +108937,11 @@
   },
   {
     "domain": "torrentsmovies.net",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "wildthrone.com",
-    "price": 500.0
+    "price": 2895.0
   },
   {
     "domain": "coolchickens.com",
@@ -102633,7 +108961,7 @@
   },
   {
     "domain": "zipperfish.net",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "dreadedned.com",
@@ -102681,7 +109009,7 @@
   },
   {
     "domain": "slowdancer.net",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "obamagetaway.com",
@@ -102721,11 +109049,11 @@
   },
   {
     "domain": "lonelydinosaur.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "lolitabar.net",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "quickbulletin.com",
@@ -102809,7 +109137,7 @@
   },
   {
     "domain": "toshibalife.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "chelas.org",
@@ -102845,7 +109173,7 @@
   },
   {
     "domain": "wangtam.com",
-    "price": 500.0
+    "price": null
   },
   {
     "domain": "legaltorrents.net",
@@ -102897,7 +109225,7 @@
   },
   {
     "domain": "lanspirit.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "computingplugs.com",
@@ -102961,7 +109289,7 @@
   },
   {
     "domain": "teamgoo.net",
-    "price": 500.0
+    "price": 479.0
   },
   {
     "domain": "subexpo.com",
@@ -103177,11 +109505,11 @@
   },
   {
     "domain": "robbomb.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "locolol.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "haloheadphones.com",
@@ -103261,7 +109589,7 @@
   },
   {
     "domain": "onesolstice.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "unitedsorry.com",
@@ -103269,7 +109597,7 @@
   },
   {
     "domain": "whiningdog.net",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "skitsystem.net",
@@ -103281,7 +109609,7 @@
   },
   {
     "domain": "rethinkalberta.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "surrealsushi.com",
@@ -103289,7 +109617,7 @@
   },
   {
     "domain": "wyomingauthors.org",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "orchestranova.org",
@@ -103301,7 +109629,7 @@
   },
   {
     "domain": "yourspotify.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "leonardclark.com",
@@ -103313,7 +109641,7 @@
   },
   {
     "domain": "preservemusic.org",
-    "price": 500.0
+    "price": 2250.0
   },
   {
     "domain": "stellaralchemy.com",
@@ -103381,7 +109709,7 @@
   },
   {
     "domain": "rickchu.net",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "gradesofficial.com",
@@ -103425,7 +109753,7 @@
   },
   {
     "domain": "writertown.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "adamyoung.net",
@@ -103445,7 +109773,7 @@
   },
   {
     "domain": "waterwebster.org",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "henriettaswift.com",
@@ -103569,7 +109897,7 @@
   },
   {
     "domain": "rooseveltmyth.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "dorsetrising.com",
@@ -103613,7 +109941,7 @@
   },
   {
     "domain": "womensdebate.org",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "stevelawler.com",
@@ -103661,7 +109989,7 @@
   },
   {
     "domain": "lastvoyage.co",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "answeringbell.com",
@@ -103713,7 +110041,7 @@
   },
   {
     "domain": "zonerank.com",
-    "price": 500.0
+    "price": 780.0
   },
   {
     "domain": "bisexualbooks.com",
@@ -103733,7 +110061,7 @@
   },
   {
     "domain": "vicemerchants.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "robellis.net",
@@ -103777,7 +110105,7 @@
   },
   {
     "domain": "droprecord.com",
-    "price": 500.0
+    "price": 599.0
   },
   {
     "domain": "maidblog.net",
@@ -103833,7 +110161,7 @@
   },
   {
     "domain": "windowsusers.org",
-    "price": 500.0
+    "price": 780.0
   },
   {
     "domain": "ominousweather.com",
@@ -103937,7 +110265,7 @@
   },
   {
     "domain": "wtocaravan.org",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "siloarts.net",
@@ -103949,7 +110277,7 @@
   },
   {
     "domain": "whitegod.net",
-    "price": 500.0
+    "price": 810.0
   },
   {
     "domain": "poseidonlinux.org",
@@ -103977,7 +110305,7 @@
   },
   {
     "domain": "yettrue.com",
-    "price": 500.0
+    "price": 810.0
   },
   {
     "domain": "climberpouch.com",
@@ -103997,7 +110325,7 @@
   },
   {
     "domain": "romguide.net",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "lunaticjoker.com",
@@ -104057,7 +110385,7 @@
   },
   {
     "domain": "eurasiacritic.com",
-    "price": 500.0
+    "price": 810.0
   },
   {
     "domain": "scrapbird.com",
@@ -104065,7 +110393,7 @@
   },
   {
     "domain": "runchattanooga.org",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "spotifylist.com",
@@ -104185,7 +110513,7 @@
   },
   {
     "domain": "albumbarcelona.org",
-    "price": 500.0
+    "price": 599.0
   },
   {
     "domain": "earthyfamily.com",
@@ -104213,11 +110541,11 @@
   },
   {
     "domain": "withoutrees.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "webliterature.net",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "monumentcity.net",
@@ -104265,7 +110593,7 @@
   },
   {
     "domain": "lootlake.net",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "gunthergifts.com",
@@ -104297,7 +110625,7 @@
   },
   {
     "domain": "wildnative.co",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "perfectrun.net",
@@ -104333,11 +110661,11 @@
   },
   {
     "domain": "virginiaallies.org",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "zapark.org",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "spdunion.org",
@@ -104353,7 +110681,7 @@
   },
   {
     "domain": "videosoccer.net",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "csramericas.org",
@@ -104361,7 +110689,7 @@
   },
   {
     "domain": "womandot.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "savedomino.org",
@@ -104425,7 +110753,7 @@
   },
   {
     "domain": "worldsdawn.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "webasa.org",
@@ -104453,7 +110781,7 @@
   },
   {
     "domain": "dognoses.com",
-    "price": 500.0
+    "price": 870.0
   },
   {
     "domain": "lilybin.com",
@@ -104485,7 +110813,7 @@
   },
   {
     "domain": "womenzone.org",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "eleanorbolton.com",
@@ -104537,7 +110865,7 @@
   },
   {
     "domain": "robertcraft.net",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "functionalfate.org",
@@ -104569,7 +110897,7 @@
   },
   {
     "domain": "newtools.org",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "nerdpuddle.com",
@@ -104577,7 +110905,7 @@
   },
   {
     "domain": "rhinoshorror.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "rockinrobins.net",
@@ -104585,7 +110913,7 @@
   },
   {
     "domain": "newvectors.net",
-    "price": 500.0
+    "price": 599.0
   },
   {
     "domain": "heraldplanet.com",
@@ -104617,11 +110945,11 @@
   },
   {
     "domain": "lorenpoker.com",
-    "price": 500.0
+    "price": 900.0
   },
   {
     "domain": "bikesutra.com",
-    "price": 500.0
+    "price": 900.0
   },
   {
     "domain": "fiercelight.org",
@@ -104637,7 +110965,7 @@
   },
   {
     "domain": "slowdesign.org",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "furychallenge.com",
@@ -104669,11 +110997,11 @@
   },
   {
     "domain": "neurowork.net",
-    "price": 500.0
+    "price": 900.0
   },
   {
     "domain": "womencentral.net",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "givesblood.org",
@@ -104725,7 +111053,7 @@
   },
   {
     "domain": "mexicoindie.net",
-    "price": 500.0
+    "price": 900.0
   },
   {
     "domain": "freakdom.org",
@@ -104757,7 +111085,7 @@
   },
   {
     "domain": "watsan.org",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "hoocap.com",
@@ -104841,7 +111169,7 @@
   },
   {
     "domain": "nextbench.net",
-    "price": 500.0
+    "price": 900.0
   },
   {
     "domain": "oopslist.com",
@@ -104893,11 +111221,11 @@
   },
   {
     "domain": "losersbracket.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "wikigrain.org",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "frogsmoke.com",
@@ -104921,7 +111249,7 @@
   },
   {
     "domain": "worriednoodles.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "taniacarver.com",
@@ -104937,11 +111265,11 @@
   },
   {
     "domain": "teamfremont.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "wedchild.org",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "btcalot.com",
@@ -104989,7 +111317,7 @@
   },
   {
     "domain": "diddyblog.com",
-    "price": 500.0
+    "price": null
   },
   {
     "domain": "lilithrock.com",
@@ -105045,7 +111373,7 @@
   },
   {
     "domain": "ringreef.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "airpoo.com",
@@ -105085,7 +111413,7 @@
   },
   {
     "domain": "mercedesslips.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "jaguarsector.com",
@@ -105213,7 +111541,7 @@
   },
   {
     "domain": "vincentcable.com",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "hearthcoach.net",
@@ -105233,7 +111561,7 @@
   },
   {
     "domain": "topword.net",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "resourcedat.com",
@@ -105265,7 +111593,7 @@
   },
   {
     "domain": "latautonomy.org",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "nerdsattack.net",
@@ -105281,7 +111609,7 @@
   },
   {
     "domain": "worldblogger.net",
-    "price": 500.0
+    "price": 600.0
   },
   {
     "domain": "monafest.com",
@@ -105329,7 +111657,7 @@
   },
   {
     "domain": "xmasbox.net",
-    "price": 510.0
+    "price": 600.0
   },
   {
     "domain": "sonartickets.com",
@@ -105337,11 +111665,11 @@
   },
   {
     "domain": "yukison.com",
-    "price": 510.0
+    "price": 600.0
   },
   {
     "domain": "yellowvelvet.com",
-    "price": 510.0
+    "price": 600.0
   },
   {
     "domain": "weicrowd.com",
@@ -105365,7 +111693,7 @@
   },
   {
     "domain": "viadigital.net",
-    "price": 510.0
+    "price": 600.0
   },
   {
     "domain": "gameshard.net",
@@ -105413,7 +111741,7 @@
   },
   {
     "domain": "dalrichards.com",
-    "price": 510.0
+    "price": 1020.0
   },
   {
     "domain": "multipics.net",
@@ -105441,11 +111769,11 @@
   },
   {
     "domain": "aliciacowan.com",
-    "price": 525.0
+    "price": 1800.0
   },
   {
     "domain": "louisexpress.com",
-    "price": 525.0
+    "price": 600.0
   },
   {
     "domain": "kyotofan.net",
@@ -105469,11 +111797,11 @@
   },
   {
     "domain": "larryrunner.com",
-    "price": 525.0
+    "price": 600.0
   },
   {
     "domain": "metrochange.org",
-    "price": 525.0
+    "price": 600.0
   },
   {
     "domain": "diamondhours.com",
@@ -105481,7 +111809,7 @@
   },
   {
     "domain": "lapink.net",
-    "price": 525.0
+    "price": 600.0
   },
   {
     "domain": "situado.net",
@@ -105525,7 +111853,7 @@
   },
   {
     "domain": "victorygame.org",
-    "price": 525.0
+    "price": 600.0
   },
   {
     "domain": "animehot.net",
@@ -105549,7 +111877,7 @@
   },
   {
     "domain": "westdollar.com",
-    "price": 525.0
+    "price": 600.0
   },
   {
     "domain": "cpcchina.org",
@@ -105565,7 +111893,7 @@
   },
   {
     "domain": "roadstation.net",
-    "price": 525.0
+    "price": 699.0
   },
   {
     "domain": "aimfight.com",
@@ -105633,11 +111961,11 @@
   },
   {
     "domain": "draftbrowns.com",
-    "price": 525.0
+    "price": 2799.0
   },
   {
     "domain": "ircconferences.com",
-    "price": 525.0
+    "price": 1050.0
   },
   {
     "domain": "musicbasin.com",
@@ -105645,7 +111973,7 @@
   },
   {
     "domain": "bibisage.com",
-    "price": 525.0
+    "price": 1050.0
   },
   {
     "domain": "lilaluz.net",
@@ -105689,7 +112017,7 @@
   },
   {
     "domain": "yokohamamary.com",
-    "price": 525.0
+    "price": 1050.0
   },
   {
     "domain": "plancoin.co",
@@ -105769,7 +112097,7 @@
   },
   {
     "domain": "totemtourism.com",
-    "price": 525.0
+    "price": null
   },
   {
     "domain": "unitpost.com",
@@ -105777,7 +112105,7 @@
   },
   {
     "domain": "nextindex.net",
-    "price": 525.0
+    "price": 600.0
   },
   {
     "domain": "rabidsquirrel.net",
@@ -105785,7 +112113,7 @@
   },
   {
     "domain": "poweringnow.com",
-    "price": 525.0
+    "price": 600.0
   },
   {
     "domain": "mapmontreal.org",
@@ -105889,11 +112217,11 @@
   },
   {
     "domain": "rpgwatcher.com",
-    "price": 555.0
+    "price": 600.0
   },
   {
     "domain": "rockstarspy.com",
-    "price": 555.0
+    "price": 600.0
   },
   {
     "domain": "onionnote.com",
@@ -106021,7 +112349,7 @@
   },
   {
     "domain": "woundedknife.com",
-    "price": 570.0
+    "price": 600.0
   },
   {
     "domain": "tispain.com",
@@ -106049,7 +112377,7 @@
   },
   {
     "domain": "lanapac.org",
-    "price": 585.0
+    "price": 600.0
   },
   {
     "domain": "bitelectronics.net",
@@ -106077,7 +112405,7 @@
   },
   {
     "domain": "wowfaucet.com",
-    "price": 585.0
+    "price": 1170.0
   },
   {
     "domain": "africastories.org",
@@ -106205,7 +112533,7 @@
   },
   {
     "domain": "richardnylon.com",
-    "price": 600.0
+    "price": null
   },
   {
     "domain": "olympuspacific.com",
@@ -106313,7 +112641,7 @@
   },
   {
     "domain": "torifuji.net",
-    "price": 600.0
+    "price": 799.0
   },
   {
     "domain": "valvert.org",
@@ -106321,7 +112649,7 @@
   },
   {
     "domain": "videolotion.com",
-    "price": 600.0
+    "price": 799.0
   },
   {
     "domain": "fuelfrog.com",
@@ -106413,15 +112741,15 @@
   },
   {
     "domain": "walkstreets.org",
-    "price": 660.0
+    "price": 600.0
   },
   {
     "domain": "londonreuse.org",
-    "price": 660.0
+    "price": 1759.0
   },
   {
     "domain": "rpgcountdown.com",
-    "price": 675.0
+    "price": 600.0
   },
   {
     "domain": "sepbulgaria.com",
@@ -106429,7 +112757,7 @@
   },
   {
     "domain": "eternaltango.net",
-    "price": 675.0
+    "price": 1799.0
   },
   {
     "domain": "specialworld.net",
@@ -106437,7 +112765,7 @@
   },
   {
     "domain": "laidea.co",
-    "price": 675.0
+    "price": 600.0
   },
   {
     "domain": "jonathankelsey.com",
@@ -106477,7 +112805,7 @@
   },
   {
     "domain": "royalhospitals.org",
-    "price": 675.0
+    "price": 600.0
   },
   {
     "domain": "cityglance.co",
@@ -106509,11 +112837,11 @@
   },
   {
     "domain": "wrencertified.org",
-    "price": 675.0
+    "price": 600.0
   },
   {
     "domain": "ionconference.com",
-    "price": 675.0
+    "price": 1350.0
   },
   {
     "domain": "codwatch.com",
@@ -106525,7 +112853,7 @@
   },
   {
     "domain": "loudblast.org",
-    "price": 675.0
+    "price": 1799.0
   },
   {
     "domain": "seeres.com",
@@ -106573,7 +112901,7 @@
   },
   {
     "domain": "weeddaily.net",
-    "price": 675.0
+    "price": 600.0
   },
   {
     "domain": "ozonemama.com",
@@ -106601,7 +112929,7 @@
   },
   {
     "domain": "teamtrucker.org",
-    "price": 675.0
+    "price": 600.0
   },
   {
     "domain": "monkeypotion.com",
@@ -106633,7 +112961,7 @@
   },
   {
     "domain": "digitalprice.org",
-    "price": 675.0
+    "price": 1425.0
   },
   {
     "domain": "skapara.net",
@@ -106697,7 +113025,7 @@
   },
   {
     "domain": "tooncrisis.com",
-    "price": 750.0
+    "price": 1500.0
   },
   {
     "domain": "goodanime.net",
@@ -106733,7 +113061,7 @@
   },
   {
     "domain": "metaphorest.net",
-    "price": 750.0
+    "price": 600.0
   },
   {
     "domain": "eerievon.com",
@@ -106757,7 +113085,7 @@
   },
   {
     "domain": "slotsout.net",
-    "price": 750.0
+    "price": 600.0
   },
   {
     "domain": "heedlive.com",
@@ -106793,11 +113121,11 @@
   },
   {
     "domain": "lottoghana.net",
-    "price": 750.0
+    "price": 600.0
   },
   {
     "domain": "windclimber.net",
-    "price": 750.0
+    "price": 600.0
   },
   {
     "domain": "bralyn.net",
@@ -106869,7 +113197,7 @@
   },
   {
     "domain": "retroscoop.com",
-    "price": 780.0
+    "price": 600.0
   },
   {
     "domain": "cybermummy.com",
@@ -106901,7 +113229,7 @@
   },
   {
     "domain": "langre.com",
-    "price": 795.0
+    "price": 600.0
   },
   {
     "domain": "modmoscow.com",
@@ -106925,7 +113253,7 @@
   },
   {
     "domain": "wiitracker.com",
-    "price": 795.0
+    "price": 600.0
   },
   {
     "domain": "forreparations.org",
@@ -106957,7 +113285,7 @@
   },
   {
     "domain": "tomswallpapers.com",
-    "price": 855.0
+    "price": 600.0
   },
   {
     "domain": "freshdetect.com",
@@ -106973,7 +113301,7 @@
   },
   {
     "domain": "riderbook.com",
-    "price": 870.0
+    "price": 4639.0
   },
   {
     "domain": "epicthanks.org",
@@ -107029,7 +113357,7 @@
   },
   {
     "domain": "gridops.org",
-    "price": 900.0
+    "price": 1199.0
   },
   {
     "domain": "improperbutter.com",
@@ -107065,7 +113393,7 @@
   },
   {
     "domain": "techcostumes.com",
-    "price": 975.0
+    "price": 1300.0
   },
   {
     "domain": "savageleft.com",
@@ -107077,11 +113405,11 @@
   },
   {
     "domain": "xboxcircle.com",
-    "price": 975.0
+    "price": 5199.0
   },
   {
     "domain": "lootfantasy.com",
-    "price": 975.0
+    "price": 1950.0
   },
   {
     "domain": "steeleherald.com",
@@ -107137,7 +113465,7 @@
   },
   {
     "domain": "vietnamjournal.org",
-    "price": 1020.0
+    "price": 1360.0
   },
   {
     "domain": "wellsfox.com",
@@ -107273,11 +113601,11 @@
   },
   {
     "domain": "runmum.com",
-    "price": 1125.0
+    "price": 1500.0
   },
   {
     "domain": "rhinocoins.com",
-    "price": 1125.0
+    "price": 1500.0
   },
   {
     "domain": "brainready.com",
@@ -107289,7 +113617,7 @@
   },
   {
     "domain": "webexpat.com",
-    "price": 1125.0
+    "price": 1500.0
   },
   {
     "domain": "dampalestine.com",
@@ -107305,7 +113633,7 @@
   },
   {
     "domain": "robotchicken.org",
-    "price": 1125.0
+    "price": 1500.0
   },
   {
     "domain": "nicholsongold.com",
@@ -107337,7 +113665,7 @@
   },
   {
     "domain": "viralliberty.com",
-    "price": 1275.0
+    "price": 1700.0
   },
   {
     "domain": "sproutskincare.com",
@@ -107365,7 +113693,7 @@
   },
   {
     "domain": "slotsgame.net",
-    "price": 1275.0
+    "price": 1700.0
   },
   {
     "domain": "addresslibya.co",
@@ -107373,7 +113701,7 @@
   },
   {
     "domain": "slowtown.net",
-    "price": 1275.0
+    "price": 1700.0
   },
   {
     "domain": "instantkarma.org",
@@ -107393,7 +113721,7 @@
   },
   {
     "domain": "smartsdesigns.com",
-    "price": 1350.0
+    "price": 1800.0
   },
   {
     "domain": "shanghaidaily.org",
@@ -107465,7 +113793,7 @@
   },
   {
     "domain": "vincigames.com",
-    "price": 1425.0
+    "price": 2850.0
   },
   {
     "domain": "handisco.com",
@@ -107473,7 +113801,7 @@
   },
   {
     "domain": "newsluxe.com",
-    "price": 1425.0
+    "price": 1900.0
   },
   {
     "domain": "halaladvocates.net",
@@ -107509,7 +113837,7 @@
   },
   {
     "domain": "lambdaprobe.org",
-    "price": 1425.0
+    "price": 1900.0
   },
   {
     "domain": "indiancongress.org",
@@ -107533,7 +113861,7 @@
   },
   {
     "domain": "loveblair.com",
-    "price": 1425.0
+    "price": 1900.0
   },
   {
     "domain": "refinedinvest.com",
@@ -107569,7 +113897,7 @@
   },
   {
     "domain": "revsoft.org",
-    "price": 1425.0
+    "price": 1900.0
   },
   {
     "domain": "plateauculture.org",
@@ -107609,7 +113937,7 @@
   },
   {
     "domain": "websberry.com",
-    "price": 1500.0
+    "price": 2000.0
   },
   {
     "domain": "choiceireland.org",
@@ -107673,7 +114001,7 @@
   },
   {
     "domain": "wrongcops.com",
-    "price": 1800.0
+    "price": 4799.0
   },
   {
     "domain": "nazarethlegal.com",
@@ -107789,7 +114117,7 @@
   },
   {
     "domain": "youthproactive.com",
-    "price": 2025.0
+    "price": 2700.0
   },
   {
     "domain": "fetchmail.org",
@@ -107865,7 +114193,7 @@
   },
   {
     "domain": "torchantifa.org",
-    "price": 2250.0
+    "price": 3000.0
   },
   {
     "domain": "axefeather.com",
@@ -107913,7 +114241,7 @@
   },
   {
     "domain": "roguemoney.net",
-    "price": 2250.0
+    "price": 3000.0
   },
   {
     "domain": "kenzodiac.com",
@@ -107941,7 +114269,7 @@
   },
   {
     "domain": "waittimes.net",
-    "price": 2400.0
+    "price": 3200.0
   },
   {
     "domain": "youngfor.com",
@@ -113569,7 +119897,7 @@
   },
   {
     "domain": "greenwhite.org",
-    "price": 2813.0
+    "price": null
   },
   {
     "domain": "podmailing.com",
@@ -113689,7 +120017,7 @@
   },
   {
     "domain": "vitarank.com",
-    "price": 3500.0
+    "price": null
   },
   {
     "domain": "vipdrops.com",
@@ -113945,7 +120273,7 @@
   },
   {
     "domain": "aliveshare.com",
-    "price": 3500.0
+    "price": 4295.0
   },
   {
     "domain": "agasha.com",
@@ -113957,7 +120285,7 @@
   },
   {
     "domain": "rumplo.com",
-    "price": 3600.0
+    "price": 4800.0
   },
   {
     "domain": "kochcash.org",
@@ -113973,7 +120301,7 @@
   },
   {
     "domain": "webbtc.com",
-    "price": 3600.0
+    "price": 4800.0
   },
   {
     "domain": "ageops.net",
@@ -113981,7 +120309,7 @@
   },
   {
     "domain": "torrentbit.net",
-    "price": 3600.0
+    "price": 4800.0
   },
   {
     "domain": "doctorhorrible.net",
@@ -114017,7 +120345,7 @@
   },
   {
     "domain": "wagwire.com",
-    "price": 3750.0
+    "price": 5000.0
   },
   {
     "domain": "terrorfinance.org",
@@ -114025,11 +120353,11 @@
   },
   {
     "domain": "binimage.org",
-    "price": 3900.0
+    "price": 3500.0
   },
   {
     "domain": "lalarm.com",
-    "price": 3945.0
+    "price": 2630.0
   },
   {
     "domain": "samline.com",
@@ -114041,7 +120369,7 @@
   },
   {
     "domain": "roadstar.ai",
-    "price": 4050.0
+    "price": 5400.0
   },
   {
     "domain": "blogdei.com",
@@ -114065,7 +120393,7 @@
   },
   {
     "domain": "vipgourmet.com",
-    "price": 4200.0
+    "price": 5600.0
   },
   {
     "domain": "businesssheet.com",
@@ -114089,7 +120417,7 @@
   },
   {
     "domain": "nom.co",
-    "price": 4200.0
+    "price": 5600.0
   },
   {
     "domain": "cancercrc.com",
@@ -114113,7 +120441,7 @@
   },
   {
     "domain": "woodish.com",
-    "price": 4500.0
+    "price": 4895.0
   },
   {
     "domain": "totoslots.com",
@@ -114441,7 +120769,7 @@
   },
   {
     "domain": "whydev.org",
-    "price": 4800.0
+    "price": 6400.0
   },
   {
     "domain": "mcafeedex.com",
@@ -114453,7 +120781,7 @@
   },
   {
     "domain": "zimmertwins.com",
-    "price": 4800.0
+    "price": 6400.0
   },
   {
     "domain": "hyetis.com",
@@ -115005,11 +121333,11 @@
   },
   {
     "domain": "codeen.org",
-    "price": 5625.0
+    "price": 3200.0
   },
   {
     "domain": "lastdragon.org",
-    "price": 5625.0
+    "price": null
   },
   {
     "domain": "salamiran.org",
@@ -115017,7 +121345,7 @@
   },
   {
     "domain": "webnew.net",
-    "price": 5700.0
+    "price": 7600.0
   },
   {
     "domain": "windcoach.com",
@@ -115113,7 +121441,7 @@
   },
   {
     "domain": "topreplay.com",
-    "price": 6500.0
+    "price": null
   },
   {
     "domain": "sikhworld.com",
@@ -115217,7 +121545,7 @@
   },
   {
     "domain": "rootnode.net",
-    "price": 6750.0
+    "price": 9000.0
   },
   {
     "domain": "ideasproject.com",
@@ -115281,7 +121609,7 @@
   },
   {
     "domain": "teambondi.com",
-    "price": 7500.0
+    "price": 10000.0
   },
   {
     "domain": "ispacs.com",
@@ -115569,7 +121897,7 @@
   },
   {
     "domain": "toplove.com",
-    "price": 8500.0
+    "price": 12500.0
   },
   {
     "domain": "surale.com",
@@ -115665,7 +121993,7 @@
   },
   {
     "domain": "riverusers.com",
-    "price": 9000.0
+    "price": 12000.0
   },
   {
     "domain": "monstervpn.com",
@@ -115673,7 +122001,7 @@
   },
   {
     "domain": "rugmark.org",
-    "price": 9750.0
+    "price": 13000.0
   },
   {
     "domain": "newdoom.com",
@@ -115805,7 +122133,7 @@
   },
   {
     "domain": "toolscenter.org",
-    "price": 11250.0
+    "price": 15000.0
   },
   {
     "domain": "teencall.com",
@@ -115913,7 +122241,7 @@
   },
   {
     "domain": "wavelet.org",
-    "price": 14250.0
+    "price": 19000.0
   },
   {
     "domain": "infinityshoes.com",
@@ -115921,7 +122249,7 @@
   },
   {
     "domain": "eternalcrusade.com",
-    "price": 14250.0
+    "price": 22799.0
   },
   {
     "domain": "palinbingo.com",
@@ -116057,7 +122385,7 @@
   },
   {
     "domain": "lottonational.com",
-    "price": 30000.0
+    "price": null
   },
   {
     "domain": "auctionmonitor.com",
@@ -116073,7 +122401,7 @@
   },
   {
     "domain": "lottobonus.com",
-    "price": 60000.0
+    "price": 28999.0
   },
   {
     "domain": "hubdub.com",
@@ -116093,11 +122421,11 @@
   },
   {
     "domain": "coinpress.com",
-    "price": 99999.0
+    "price": 299999.0
   },
   {
     "domain": "coinpot.co",
-    "price": 300000.0
+    "price": 250000.0
   },
   {
     "domain": "casinoapp.org",
@@ -175429,10 +181757,6 @@
   },
   {
     "domain": "belarusbet.com",
-    "price": 9995.0
-  },
-  {
-    "domain": "antibooks.com",
     "price": 9995.0
   },
   {

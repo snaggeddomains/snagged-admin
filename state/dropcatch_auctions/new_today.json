@@ -1,17 +1,19 @@
 {
   "capped": false,
-  "count": 8,
+  "count": 10,
   "domains": [
-    "svai.com",
-    "makings.com",
-    "tgl.net",
-    "xilos.com",
     "vpsa.com",
     "wooow.com",
+    "poxs.com",
+    "kwew.com",
+    "seaon.com",
+    "ubridge.com",
+    "partakers.com",
+    "athlon.net",
     "talar.com",
     "luxen.com"
   ],
-  "generated_at": "2026-07-31T09:47:08.368920+00:00",
+  "generated_at": "2026-08-01T10:10:16.831894+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }
