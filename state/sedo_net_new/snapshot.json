@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "currency": "USD",
+    "domain": "factories.co",
+    "end_time_utc": "2026-08-01T02:15:32+00:00",
+    "is_mub": false,
+    "price": 1535.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=factories.co"
+  }
+]

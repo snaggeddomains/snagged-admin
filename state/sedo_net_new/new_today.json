@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-07-31T23:01:46.854357+00:00",
+  "count": 1,
+  "domains": [
+    "factories.co"
+  ],
+  "generated_at": "2026-08-01T10:01:50.976230+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }

@@ -1,10 +1,50 @@
 [
   {
-    "domain": "sharptor.com",
-    "price": 199.0
+    "domain": "beacome.com",
+    "price": null
   },
   {
-    "domain": "senzee.com",
-    "price": 5695.0
+    "domain": "begged.com",
+    "price": 9999.0
+  },
+  {
+    "domain": "scrapalot.com",
+    "price": 238526.0
+  },
+  {
+    "domain": "ashleytran.com",
+    "price": 944.0
+  },
+  {
+    "domain": "maryberger.com",
+    "price": 944.0
+  },
+  {
+    "domain": "qingyun.net",
+    "price": 70765.0
+  },
+  {
+    "domain": "bengals.net",
+    "price": 4900.0
+  },
+  {
+    "domain": "swears.net",
+    "price": 485002.0
+  },
+  {
+    "domain": "netwall.co",
+    "price": 353.0
+  },
+  {
+    "domain": "factories.co",
+    "price": 1535.0
+  },
+  {
+    "domain": "supportlinks.net",
+    "price": 299.0
+  },
+  {
+    "domain": "activeworlds.net",
+    "price": 1538.0
   }
 ]
