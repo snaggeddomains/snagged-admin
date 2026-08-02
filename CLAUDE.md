@@ -90,6 +90,12 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
     capturing it 2026-08-02), so it re-parses ~3 yrs of contact-form submissions via `leadsReport()`
     (`Lead.source` = the HDYHAU answer), maps buyer email → attribution, and writes `heard_about` where
     still null. One-time; run after the migration.
+  - **Reporting sort + group-by (2026-08-02):** `reports-client.tsx` — every results column is
+    click-to-sort (`COLS`/`sort` state, blanks last, numeric cols default desc, active header coral +
+    ▲/▼; CSV respects the sort). A **Group by** dropdown (Heard about / Budget / Source / Stage / Status
+    / Owner / Priority) renders a breakdown table (value · deals · % · total asking, count-desc) computed
+    CLIENT-SIDE over the already-filtered/date-ranged result set, with its own Export. So "in this date
+    range, break down by Heard About" is one dropdown, no new query.
 - **Nav/perms:** `deals` (MODULE) + `deals.all` + `deals.inbox` + `deals.assignable` +
   `deals.reports` (ACTIONS) + `DEALS_TABS` +
   `canEnterDeals` in `permissions.ts`; `'deals'` SectionKey + SECTIONS entry in `navigation.ts`

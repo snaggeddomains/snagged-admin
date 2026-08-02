@@ -15,18 +15,38 @@ type Resp = { ok: boolean; deals: Deal[]; aggregates: Agg; assignees: { email: s
 const usd = (n: number | null | undefined) => (n == null || n === 0 ? "—" : `$${Math.round(n).toLocaleString()}`);
 const input: CSSProperties = { padding: "6px 8px", borderRadius: 7, border: "1px solid var(--line,#e3ddcf)", fontSize: 13.5, boxSizing: "border-box", width: "100%" };
 const lbl: CSSProperties = { display: "block", fontSize: 11, fontWeight: 700, color: "var(--navy-2,#4a5b66)", margin: "0 0 3px", textTransform: "uppercase", letterSpacing: ".02em" };
-const th: CSSProperties = { textAlign: "left", padding: "0 12px 6px 0", fontSize: 11, textTransform: "uppercase", color: "var(--muted,#889)", whiteSpace: "nowrap" };
+const th: CSSProperties = { textAlign: "left", padding: "0 12px 6px 0", fontSize: 11, textTransform: "uppercase", color: "var(--muted,#889)", whiteSpace: "nowrap", cursor: "pointer", userSelect: "none" };
 const td: CSSProperties = { padding: "7px 12px 7px 0", fontSize: 13, borderTop: "1px solid var(--line,#eee)", whiteSpace: "nowrap" };
 const btn: CSSProperties = { padding: "7px 13px", borderRadius: 8, border: "1px solid var(--line,#e3ddcf)", background: "transparent", fontSize: 13, fontWeight: 600, cursor: "pointer" };
 const stat: CSSProperties = { border: "1px solid var(--line,#e3ddcf)", borderRadius: 10, padding: "10px 14px", minWidth: 120 };
 
 const EMPTY: Record<string, string> = { status: "", owner: "", stage: "", source: "", heardAbout: "", priority: "", budgetBand: "", minAsking: "", maxAsking: "", q: "", from: "", to: "" };
 
+const value = (d: Deal) => d.asking_price || d.appraisal_value || 0;
+
+// Sortable columns — each maps a header to a comparable value over a row.
+type SortKey = "domain" | "buyer" | "owner" | "stage" | "status" | "budget" | "asking" | "source" | "heard" | "created";
+const COLS: { key: SortKey; label: string; num?: boolean }[] = [
+  { key: "domain", label: "Domain" }, { key: "buyer", label: "Buyer" }, { key: "owner", label: "Owner" },
+  { key: "stage", label: "Stage" }, { key: "status", label: "Status" }, { key: "budget", label: "Budget" },
+  { key: "asking", label: "Asking", num: true }, { key: "source", label: "Source" },
+  { key: "heard", label: "Heard about" }, { key: "created", label: "Created", num: true },
+];
+
+// Group-by breakdown fields — value bucket per deal.
+const GROUP_FIELDS: { key: string; label: string }[] = [
+  { key: "", label: "— none —" }, { key: "heard_about", label: "Heard about" }, { key: "budget_range", label: "Budget" },
+  { key: "source", label: "Source" }, { key: "stage", label: "Stage" }, { key: "status", label: "Status" },
+  { key: "owner", label: "Owner" }, { key: "priority", label: "Priority" },
+];
+
 export default function ReportsClient() {
   const router = useRouter();
   const [f, setF] = useState({ ...EMPTY });
   const [data, setData] = useState<Resp | null>(null);
   const [loading, setLoading] = useState(false);
+  const [sort, setSort] = useState<{ col: SortKey; dir: 1 | -1 }>({ col: "created", dir: -1 });
+  const [groupBy, setGroupBy] = useState("");
   const set = (k: string, v: string) => setF((s) => ({ ...s, [k]: v }));
 
   const run = useCallback(async () => {
@@ -45,12 +65,70 @@ export default function ReportsClient() {
   const deals = data?.deals || [];
   const agg = data?.aggregates;
 
+  const cellVal = useCallback((d: Deal, key: SortKey): string | number => {
+    switch (key) {
+      case "domain": return d.domain || "";
+      case "buyer": return (d.buyer_name || d.buyer_email || "").toLowerCase();
+      case "owner": return nameFor(d.owner_email).toLowerCase();
+      case "stage": return d.stage || "";
+      case "status": return d.status || "";
+      case "budget": return d.budget_range || "";
+      case "asking": return value(d);
+      case "source": return d.source || "";
+      case "heard": return (d.heard_about || "").toLowerCase();
+      case "created": return d.created_at || "";
+    }
+  }, [nameFor]);
+
+  const sorted = useMemo(() => {
+    const rows = [...deals];
+    rows.sort((a, b) => {
+      const av = cellVal(a, sort.col), bv = cellVal(b, sort.col);
+      const ae = av === "" || av == null, be = bv === "" || bv == null;
+      if (ae && be) return 0; if (ae) return 1; if (be) return -1;   // blanks always last
+      if (typeof av === "number" && typeof bv === "number") return (av - bv) * sort.dir;
+      return String(av).localeCompare(String(bv)) * sort.dir;
+    });
+    return rows;
+  }, [deals, sort, cellVal]);
+
+  const toggleSort = (col: SortKey) => setSort((s) =>
+    s.col === col ? { col, dir: (s.dir === 1 ? -1 : 1) } : { col, dir: COLS.find((c) => c.key === col)?.num ? -1 : 1 });
+  const arrow = (col: SortKey) => sort.col === col ? (sort.dir === 1 ? " ▲" : " ▼") : "";
+
+  // Group-by breakdown over the loaded (already-filtered) set.
+  const groupVal = useCallback((d: Deal): string => {
+    if (groupBy === "owner") return nameFor(d.owner_email);
+    if (groupBy === "status") return statusLabel(d.status);
+    const v = (d as unknown as Record<string, unknown>)[groupBy];
+    return (v == null || v === "") ? "—" : String(v);
+  }, [groupBy, nameFor]);
+
+  const breakdown = useMemo(() => {
+    if (!groupBy) return [];
+    const m = new Map<string, { count: number; asking: number }>();
+    for (const d of deals) {
+      const k = groupVal(d);
+      const cur = m.get(k) || { count: 0, asking: 0 };
+      cur.count += 1; cur.asking += value(d);
+      m.set(k, cur);
+    }
+    return [...m.entries()].map(([k, v]) => ({ k, ...v })).sort((a, b) => b.count - a.count);
+  }, [deals, groupBy, groupVal]);
+
   const exportCsv = () => {
     const head = ["domain", "buyer", "email", "company", "owner", "stage", "status", "budget", "asking", "appraisal", "source", "heard_about", "priority", "created"];
     const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-    const rows = deals.map((d) => [d.domain, d.buyer_name, d.buyer_email, d.org_name, nameFor(d.owner_email), d.stage, d.status, d.budget_range, d.asking_price, d.appraisal_value, d.source, d.heard_about, d.priority, d.created_at?.slice(0, 10)].map(esc).join(","));
+    const rows = sorted.map((d) => [d.domain, d.buyer_name, d.buyer_email, d.org_name, nameFor(d.owner_email), d.stage, d.status, d.budget_range, d.asking_price, d.appraisal_value, d.source, d.heard_about, d.priority, d.created_at?.slice(0, 10)].map(esc).join(","));
     const blob = new Blob([[head.join(","), ...rows].join("\n")], { type: "text/csv" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "deals-report.csv"; a.click();
+  };
+  const exportGroupCsv = () => {
+    const label = GROUP_FIELDS.find((g) => g.key === groupBy)?.label || groupBy;
+    const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const rows = breakdown.map((b) => [b.k, b.count, `${deals.length ? Math.round((b.count / deals.length) * 100) : 0}%`, b.asking].map(esc).join(","));
+    const blob = new Blob([[[label, "deals", "% of deals", "total asking"].join(","), ...rows].join("\n")], { type: "text/csv" });
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `deals-by-${groupBy}.csv`; a.click();
   };
 
   return (
@@ -72,10 +150,16 @@ export default function ReportsClient() {
         <div><span style={lbl}>To</span><input style={input} type="date" value={f.to} onChange={(e) => set("to", e.target.value)} /></div>
         <div><span style={lbl}>Search</span><input style={input} value={f.q} onChange={(e) => set("q", e.target.value)} placeholder="domain / buyer" /></div>
       </div>
-      <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+      <div style={{ display: "flex", gap: 8, marginBottom: 14, alignItems: "flex-end", flexWrap: "wrap" }}>
         <button style={{ ...btn, background: "var(--coral,#e2674a)", color: "#fff", borderColor: "var(--coral,#e2674a)" }} onClick={run} disabled={loading}>{loading ? "Running…" : "Run report"}</button>
         <button style={btn} onClick={() => { setF({ ...EMPTY }); setTimeout(run, 0); }}>Clear</button>
         <button style={btn} onClick={exportCsv} disabled={!deals.length}>Export CSV</button>
+        <div style={{ marginLeft: "auto" }}>
+          <span style={lbl}>Group by</span>
+          <select style={{ ...input, width: "auto", minWidth: 150 }} value={groupBy} onChange={(e) => setGroupBy(e.target.value)}>
+            {GROUP_FIELDS.map((g) => <option key={g.key} value={g.key}>{g.label}</option>)}
+          </select>
+        </div>
       </div>
 
       {/* Aggregates */}
@@ -88,12 +172,44 @@ export default function ReportsClient() {
         </div>
       )}
 
+      {/* Group-by breakdown — over the currently-loaded (filtered/date-ranged) set. */}
+      {groupBy && breakdown.length > 0 && (
+        <div style={{ ...stat, minWidth: 320, maxWidth: 560, marginBottom: 16, padding: "12px 16px" }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 6 }}>
+            <div className="muted" style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".02em" }}>
+              By {GROUP_FIELDS.find((g) => g.key === groupBy)?.label} · {deals.length} deals
+            </div>
+            <button style={{ ...btn, padding: "3px 9px", fontSize: 12 }} onClick={exportGroupCsv}>Export</button>
+          </div>
+          <table style={{ borderCollapse: "collapse", width: "100%" }}>
+            <thead><tr>
+              <th style={{ ...th, cursor: "default" }}>{GROUP_FIELDS.find((g) => g.key === groupBy)?.label}</th>
+              <th style={{ ...th, cursor: "default", textAlign: "right" }}>Deals</th>
+              <th style={{ ...th, cursor: "default", textAlign: "right" }}>%</th>
+              <th style={{ ...th, cursor: "default", textAlign: "right" }}>Total asking</th>
+            </tr></thead>
+            <tbody>
+              {breakdown.map((b) => (
+                <tr key={b.k}>
+                  <td style={td}>{b.k}</td>
+                  <td style={{ ...td, textAlign: "right", fontWeight: 700 }}>{b.count}</td>
+                  <td style={{ ...td, textAlign: "right", color: "var(--muted,#889)" }}>{deals.length ? Math.round((b.count / deals.length) * 100) : 0}%</td>
+                  <td style={{ ...td, textAlign: "right" }}>{usd(b.asking)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
       {/* Results */}
       <div style={{ overflowX: "auto" }}>
         <table style={{ borderCollapse: "collapse", width: "100%" }}>
-          <thead><tr><th style={th}>Domain</th><th style={th}>Buyer</th><th style={th}>Owner</th><th style={th}>Stage</th><th style={th}>Status</th><th style={th}>Budget</th><th style={th}>Asking</th><th style={th}>Source</th><th style={th}>Heard about</th><th style={th}>Created</th></tr></thead>
+          <thead><tr>{COLS.map((c) => (
+            <th key={c.key} style={{ ...th, color: sort.col === c.key ? "var(--coral,#e2674a)" : th.color, textAlign: c.num ? "right" : "left" }} onClick={() => toggleSort(c.key)}>{c.label}{arrow(c.key)}</th>
+          ))}</tr></thead>
           <tbody>
-            {deals.map((d) => (
+            {sorted.map((d) => (
               <tr key={d.id} onClick={() => router.push(`/deals/${d.id}`)} style={{ cursor: "pointer" }}>
                 <td style={{ ...td, fontWeight: 700, color: "var(--navy,#254254)" }}>{d.domain}</td>
                 <td style={td}>{d.buyer_name || d.buyer_email || "—"}</td>
@@ -101,13 +217,13 @@ export default function ReportsClient() {
                 <td style={td}>{d.stage}</td>
                 <td style={{ ...td, fontWeight: 600, color: d.status === "won" ? "#1f7a5a" : d.status === "lost" ? "#a83265" : "inherit" }}>{d.status}</td>
                 <td style={td}>{d.budget_range || "—"}</td>
-                <td style={td}>{usd(d.asking_price || d.appraisal_value)}</td>
+                <td style={{ ...td, textAlign: "right" }}>{usd(d.asking_price || d.appraisal_value)}</td>
                 <td style={td}>{d.source || "—"}</td>
                 <td style={td}>{d.heard_about || "—"}</td>
-                <td style={{ ...td, color: "var(--muted,#889)" }}>{d.created_at?.slice(0, 10)}</td>
+                <td style={{ ...td, textAlign: "right", color: "var(--muted,#889)" }}>{d.created_at?.slice(0, 10)}</td>
               </tr>
             ))}
-            {!deals.length && !loading && <tr><td style={{ ...td, color: "var(--muted,#aab)" }} colSpan={10}>No deals match.</td></tr>}
+            {!deals.length && !loading && <tr><td style={{ ...td, color: "var(--muted,#aab)" }} colSpan={COLS.length}>No deals match.</td></tr>}
           </tbody>
         </table>
       </div>
