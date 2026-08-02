@@ -1,5 +1,9 @@
 [
   {
+    "domain": "larders.com",
+    "price": 39100.0
+  },
+  {
     "domain": "phiblue.com",
     "price": 1995.0
   },
@@ -8,19 +12,23 @@
     "price": 68223.0
   },
   {
-    "domain": "percent.ai",
-    "price": 1000000.0
+    "domain": "stowmarket.com",
+    "price": 3450.0
   },
   {
     "domain": "lowimpedance.com",
     "price": 895.0
   },
   {
+    "domain": "antibiotics.ai",
+    "price": 299000.0
+  },
+  {
     "domain": "echoing.net",
     "price": 2195.0
   },
   {
-    "domain": "assigned.net",
-    "price": 15195.0
+    "domain": "wils.net",
+    "price": null
   }
 ]
