@@ -1,13 +1,8 @@
 {
   "capped": false,
-  "count": 4,
-  "domains": [
-    "048.org",
-    "fol.net",
-    "hom.net",
-    "tah.net"
-  ],
-  "generated_at": "2026-08-02T17:05:40.288195+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-02T23:06:21.422662+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
