@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-02T15:06:23.898802+00:00",
+  "count": 1,
+  "domains": [
+    "spits.org"
+  ],
+  "generated_at": "2026-08-02T15:10:39.333231+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
