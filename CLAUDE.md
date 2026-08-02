@@ -96,6 +96,10 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
     / Owner / Priority) renders a breakdown table (value · deals · % · total asking, count-desc) computed
     CLIENT-SIDE over the already-filtered/date-ranged result set, with its own Export. So "in this date
     range, break down by Heard About" is one dropdown, no new query.
+  - **Date range = one preset dropdown (2026-08-02):** the two From/To date inputs were replaced by a
+    single **Date range** select (`DATE_PRESETS`/`presetRange`: All time / Last 7·30·90 days / This month /
+    Last month / YTD / Last 12 months / Custom…). A preset fills `f.from`/`f.to`; "Custom…" reveals the two
+    date inputs for exact picks. Clear resets it to All time.
 - **Nav/perms:** `deals` (MODULE) + `deals.all` + `deals.inbox` + `deals.assignable` +
   `deals.reports` (ACTIONS) + `DEALS_TABS` +
   `canEnterDeals` in `permissions.ts`; `'deals'` SectionKey + SECTIONS entry in `navigation.ts`

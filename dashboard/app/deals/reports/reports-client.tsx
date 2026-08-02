@@ -24,6 +24,28 @@ const EMPTY: Record<string, string> = { status: "", owner: "", stage: "", source
 
 const value = (d: Deal) => d.asking_price || d.appraisal_value || 0;
 
+// Date-range presets → {from,to} (local YYYY-MM-DD). "all" clears the range.
+const DATE_PRESETS: { key: string; label: string }[] = [
+  { key: "all", label: "All time" }, { key: "7d", label: "Last 7 days" }, { key: "30d", label: "Last 30 days" },
+  { key: "90d", label: "Last 90 days" }, { key: "mtd", label: "This month" }, { key: "lastmonth", label: "Last month" },
+  { key: "ytd", label: "Year to date" }, { key: "12m", label: "Last 12 months" }, { key: "custom", label: "Custom…" },
+];
+function presetRange(key: string): { from: string; to: string } {
+  const today = new Date();
+  const fmt = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const back = (days: number) => { const s = new Date(today); s.setDate(today.getDate() - days); return s; };
+  switch (key) {
+    case "7d": return { from: fmt(back(6)), to: fmt(today) };
+    case "30d": return { from: fmt(back(29)), to: fmt(today) };
+    case "90d": return { from: fmt(back(89)), to: fmt(today) };
+    case "mtd": return { from: fmt(new Date(today.getFullYear(), today.getMonth(), 1)), to: fmt(today) };
+    case "lastmonth": return { from: fmt(new Date(today.getFullYear(), today.getMonth() - 1, 1)), to: fmt(new Date(today.getFullYear(), today.getMonth(), 0)) };
+    case "ytd": return { from: `${today.getFullYear()}-01-01`, to: fmt(today) };
+    case "12m": { const s = new Date(today); s.setFullYear(today.getFullYear() - 1); return { from: fmt(s), to: fmt(today) }; }
+    default: return { from: "", to: "" };
+  }
+}
+
 // Sortable columns — each maps a header to a comparable value over a row.
 type SortKey = "domain" | "buyer" | "owner" | "stage" | "status" | "budget" | "asking" | "source" | "heard" | "created";
 const COLS: { key: SortKey; label: string; num?: boolean }[] = [
@@ -47,7 +69,16 @@ export default function ReportsClient() {
   const [loading, setLoading] = useState(false);
   const [sort, setSort] = useState<{ col: SortKey; dir: 1 | -1 }>({ col: "created", dir: -1 });
   const [groupBy, setGroupBy] = useState("");
+  const [preset, setPreset] = useState("all");
   const set = (k: string, v: string) => setF((s) => ({ ...s, [k]: v }));
+
+  // A single "Date range" control → fills from/to. "custom" reveals the two date inputs.
+  const onPreset = (key: string) => {
+    setPreset(key);
+    if (key === "custom") return;                       // keep current dates; reveal inputs
+    const { from, to } = presetRange(key);
+    setF((s) => ({ ...s, from, to }));
+  };
 
   const run = useCallback(async () => {
     setLoading(true);
@@ -146,13 +177,16 @@ export default function ReportsClient() {
         <div><span style={lbl}>Budget</span><select style={input} value={f.budgetBand} onChange={(e) => set("budgetBand", e.target.value)}><option value="">Any</option>{BUDGET_BANDS.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
         <div><span style={lbl}>Min asking $</span><input style={input} value={f.minAsking} onChange={(e) => set("minAsking", e.target.value)} placeholder="0" /></div>
         <div><span style={lbl}>Max asking $</span><input style={input} value={f.maxAsking} onChange={(e) => set("maxAsking", e.target.value)} placeholder="—" /></div>
-        <div><span style={lbl}>From</span><input style={input} type="date" value={f.from} onChange={(e) => set("from", e.target.value)} /></div>
-        <div><span style={lbl}>To</span><input style={input} type="date" value={f.to} onChange={(e) => set("to", e.target.value)} /></div>
+        <div><span style={lbl}>Date range</span><select style={input} value={preset} onChange={(e) => onPreset(e.target.value)}>{DATE_PRESETS.map((p) => <option key={p.key} value={p.key}>{p.label}</option>)}</select></div>
+        {preset === "custom" && <>
+          <div><span style={lbl}>From</span><input style={input} type="date" value={f.from} onChange={(e) => set("from", e.target.value)} /></div>
+          <div><span style={lbl}>To</span><input style={input} type="date" value={f.to} onChange={(e) => set("to", e.target.value)} /></div>
+        </>}
         <div><span style={lbl}>Search</span><input style={input} value={f.q} onChange={(e) => set("q", e.target.value)} placeholder="domain / buyer" /></div>
       </div>
       <div style={{ display: "flex", gap: 8, marginBottom: 14, alignItems: "flex-end", flexWrap: "wrap" }}>
         <button style={{ ...btn, background: "var(--coral,#e2674a)", color: "#fff", borderColor: "var(--coral,#e2674a)" }} onClick={run} disabled={loading}>{loading ? "Running…" : "Run report"}</button>
-        <button style={btn} onClick={() => { setF({ ...EMPTY }); setTimeout(run, 0); }}>Clear</button>
+        <button style={btn} onClick={() => { setF({ ...EMPTY }); setPreset("all"); setTimeout(run, 0); }}>Clear</button>
         <button style={btn} onClick={exportCsv} disabled={!deals.length}>Export CSV</button>
         <div style={{ marginLeft: "auto" }}>
           <span style={lbl}>Group by</span>
