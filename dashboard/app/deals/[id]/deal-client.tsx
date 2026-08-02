@@ -10,7 +10,7 @@ const NEGOTIATING = "Negotiating";
 type Deal = {
   id: string; domain: string; additional_domains: string | null; buyer_name: string | null; buyer_email: string | null;
   buyer_phone: string | null; org_name: string | null; budget_range: string | null; appraisal_value: number | null;
-  asking_price: number | null; upfront_fee: number | null; upfront_paid: boolean | null; source: string | null; priority: string | null; owner_email: string | null;
+  asking_price: number | null; upfront_fee: number | null; upfront_paid: boolean | null; source: string | null; heard_about: string | null; priority: string | null; owner_email: string | null;
   stage: string; status: string; lost_reason: string | null; report_link: string | null; likely_owner: string | null;
   owner_contact: string | null; reachability: string | null; notes: string | null; tags: string[] | null; created_at: string;
   lead_key: string | null; domain_owner_id: string | null;
@@ -141,7 +141,7 @@ export default function DealClient({ id }: { id: string }) {
       stage: f.stage, status: f.status, owner_email: f.owner_email || null, priority: f.priority || null, lost_reason: f.lost_reason,
       buyer_name: f.buyer_name, buyer_email: f.buyer_email, buyer_phone: f.buyer_phone, org_name: f.org_name,
       budget_range: f.budget_range || null, appraisal_value: money(f.appraisal_value), asking_price: money(f.asking_price), upfront_fee: money(f.upfront_fee),
-      source: f.source || null, additional_domains: f.additional_domains, report_link: f.report_link,
+      source: f.source || null, heard_about: f.heard_about || null, additional_domains: f.additional_domains, report_link: f.report_link,
       likely_owner: f.likely_owner, owner_contact: f.owner_contact, reachability: f.reachability,
       tags: typeof (f.tags as unknown) === "string" ? String(f.tags).split(",").map((t) => t.trim()).filter(Boolean) : f.tags,
     };
@@ -336,6 +336,7 @@ export default function DealClient({ id }: { id: string }) {
               </div>
             </div>
             <RVal l="Source" v={d.source} />
+            <RVal l="Heard about" v={d.heard_about} />
             {/* Each additional domain on its own line, with its own research report link. */}
             <div style={{ marginTop: 8 }}>
               <span style={lbl}>Additional domains</span>
@@ -390,6 +391,7 @@ export default function DealClient({ id }: { id: string }) {
             <span style={lbl}>Upfront fee $ <span style={{ fontWeight: 400, textTransform: "none", color: "var(--muted,#8a94a0)" }}>— what we charged the client to pursue it</span></span>
             <input style={inp} value={f.upfront_fee ?? ""} onChange={(e) => set("upfront_fee", e.target.value)} inputMode="decimal" placeholder="$" />
             <span style={lbl}>Source</span><select style={inp} value={f.source || ""} onChange={(e) => set("source", e.target.value)}><option value="">—</option>{SOURCES.map((s) => <option key={s} value={s}>{s}</option>)}</select>
+            <span style={lbl}>Heard about <span style={{ fontWeight: 400, textTransform: "none", color: "var(--muted,#8a94a0)" }}>— how did you hear about us?</span></span><input style={inp} value={f.heard_about || ""} onChange={(e) => set("heard_about", e.target.value)} placeholder="e.g. X / Twitter" />
             <span style={lbl}>Additional domains</span><input style={inp} value={f.additional_domains || ""} onChange={(e) => set("additional_domains", e.target.value)} />
             <span style={lbl}>Research report link</span><input style={inp} value={f.report_link || ""} onChange={(e) => set("report_link", e.target.value)} />
             <span style={lbl}>Likely owner</span><input style={inp} value={f.likely_owner || ""} onChange={(e) => set("likely_owner", e.target.value)} />

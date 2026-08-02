@@ -100,7 +100,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
 const EDITABLE = new Set([
   "domain", "additional_domains", "buyer_name", "buyer_email", "buyer_phone", "org_name",
-  "budget_range", "appraisal_value", "asking_price", "sale_price", "commission", "upfront_fee", "upfront_paid", "source", "priority", "owner_email",
+  "budget_range", "appraisal_value", "asking_price", "sale_price", "commission", "upfront_fee", "upfront_paid", "source", "heard_about", "priority", "owner_email",
   "stage", "status", "lost_reason", "report_link", "likely_owner", "owner_contact",
   "reachability", "notes", "tags", "position",
 ]);

@@ -13,6 +13,7 @@ type Inquiry = {
   intent: string | null;
   isBuySide: boolean;
   budget: string | null;
+  heardAbout: string | null;
   message: string | null;
   location: string | null;
   tier: string | null;
@@ -138,6 +139,7 @@ export default function InquiriesClient() {
                 <div style={{ fontSize: 13, marginTop: 6, color: "var(--navy-2, #4a5b66)" }}>
                   {i.intent && <span style={{ marginRight: 12 }}><strong>Intent:</strong> {i.intent}</span>}
                   {i.budget && <span style={{ marginRight: 12 }}><strong>Budget:</strong> {i.budget}</span>}
+                  {i.heardAbout && <span style={{ marginRight: 12 }}><strong>Heard about:</strong> {i.heardAbout}</span>}
                   {i.routeTo && <span><strong>Route:</strong> {i.routeTo}</span>}
                 </div>
                 {i.vip && (i.vip.band || i.vip.followers) && (
@@ -225,6 +227,7 @@ function ConvertModal({ inquiry, meta, onClose, onDone }: { inquiry: Inquiry; me
           buyerName: buyerName.trim() || undefined,
           buyerEmail: buyerEmail.trim() || undefined,
           budgetRange: budget || undefined,
+          heardAbout: inquiry.heardAbout || undefined,
           comment: comment.trim() || undefined,
           additionalDomains: inquiry.domains.slice(1).join(", ") || undefined,
           orgName: inquiry.company?.name || undefined,

@@ -68,6 +68,17 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
   the `deals` + `snap` sections too (`NavControls`), and **share on desktop copies the URL** (the
   native share sheet is used only on touch/mobile — was wrongly firing on desktop for Admin/Reports).
   The research SPA header gained a **Deals** link (`#topbar-deals`, gated by deals access).
+- **"How did you hear about us?" → `deals.heard_about` (2026-08-02).** The contact-form attribution
+  field (e.g. "X / Twitter") is now a first-class deal column, threaded end-to-end. Research
+  `api/lead-enrich.js` `readForm` captures `heard_about` (fallbacks incl. "How Did You Hear About Us?")
+  into the lead `form` jsonb → `inquiries.ts` `mapRow` reads `form.heard_about` onto the Inquiry (shown
+  in the triage row + passed by the convert modal) → `createDeal({heardAbout})` stores `deals.heard_about`.
+  Also accepted by the internal `pipedrive-deal` endpoint (research dossier convert) + on the deal-detail
+  EDITABLE whitelist (sidebar "Heard about" read/edit). **Reporting**: a "Heard about" filter (ilike,
+  partial match), table column, and CSV column; `reportDeals` also includes `heard_about` in the free-text
+  search `.or()`. Both `createDeal` (insert strip-retry over budget_max + heard_about) and `reportDeals`
+  (retry without the heard_about clauses) **degrade gracefully pre-migration**. **Migration:** `deals.sql`
+  `alter table deals add column if not exists heard_about text;` — until it runs, the field just reads "—".
 - **Nav/perms:** `deals` (MODULE) + `deals.all` + `deals.inbox` + `deals.assignable` +
   `deals.reports` (ACTIONS) + `DEALS_TABS` +
   `canEnterDeals` in `permissions.ts`; `'deals'` SectionKey + SECTIONS entry in `navigation.ts`

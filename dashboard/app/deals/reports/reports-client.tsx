@@ -7,7 +7,7 @@ import { STAGES, STATUSES, SOURCES, PRIORITIES, BUDGET_BANDS, statusLabel } from
 type Deal = {
   id: string; domain: string; buyer_name: string | null; buyer_email: string | null; org_name: string | null;
   budget_range: string | null; asking_price: number | null; appraisal_value: number | null;
-  source: string | null; priority: string | null; owner_email: string | null; stage: string; status: string; created_at: string;
+  source: string | null; heard_about: string | null; priority: string | null; owner_email: string | null; stage: string; status: string; created_at: string;
 };
 type Agg = { count: number; askingTotal: number; byStage: Record<string, number>; byOwner: Record<string, number>; byStatus: Record<string, number> };
 type Resp = { ok: boolean; deals: Deal[]; aggregates: Agg; assignees: { email: string; name: string }[]; error?: string };
@@ -20,7 +20,7 @@ const td: CSSProperties = { padding: "7px 12px 7px 0", fontSize: 13, borderTop: 
 const btn: CSSProperties = { padding: "7px 13px", borderRadius: 8, border: "1px solid var(--line,#e3ddcf)", background: "transparent", fontSize: 13, fontWeight: 600, cursor: "pointer" };
 const stat: CSSProperties = { border: "1px solid var(--line,#e3ddcf)", borderRadius: 10, padding: "10px 14px", minWidth: 120 };
 
-const EMPTY: Record<string, string> = { status: "", owner: "", stage: "", source: "", priority: "", budgetBand: "", minAsking: "", maxAsking: "", q: "", from: "", to: "" };
+const EMPTY: Record<string, string> = { status: "", owner: "", stage: "", source: "", heardAbout: "", priority: "", budgetBand: "", minAsking: "", maxAsking: "", q: "", from: "", to: "" };
 
 export default function ReportsClient() {
   const router = useRouter();
@@ -46,9 +46,9 @@ export default function ReportsClient() {
   const agg = data?.aggregates;
 
   const exportCsv = () => {
-    const head = ["domain", "buyer", "email", "company", "owner", "stage", "status", "budget", "asking", "appraisal", "source", "priority", "created"];
+    const head = ["domain", "buyer", "email", "company", "owner", "stage", "status", "budget", "asking", "appraisal", "source", "heard_about", "priority", "created"];
     const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-    const rows = deals.map((d) => [d.domain, d.buyer_name, d.buyer_email, d.org_name, nameFor(d.owner_email), d.stage, d.status, d.budget_range, d.asking_price, d.appraisal_value, d.source, d.priority, d.created_at?.slice(0, 10)].map(esc).join(","));
+    const rows = deals.map((d) => [d.domain, d.buyer_name, d.buyer_email, d.org_name, nameFor(d.owner_email), d.stage, d.status, d.budget_range, d.asking_price, d.appraisal_value, d.source, d.heard_about, d.priority, d.created_at?.slice(0, 10)].map(esc).join(","));
     const blob = new Blob([[head.join(","), ...rows].join("\n")], { type: "text/csv" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "deals-report.csv"; a.click();
   };
@@ -63,6 +63,7 @@ export default function ReportsClient() {
         <div><span style={lbl}>Owner</span><select style={input} value={f.owner} onChange={(e) => set("owner", e.target.value)}><option value="">Anyone</option><option value="__inbox__">Unassigned</option>{(data?.assignees || []).map((a) => <option key={a.email} value={a.email}>{a.name}</option>)}</select></div>
         <div><span style={lbl}>Stage</span><select style={input} value={f.stage} onChange={(e) => set("stage", e.target.value)}><option value="">Any</option>{STAGES.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
         <div><span style={lbl}>Source</span><select style={input} value={f.source} onChange={(e) => set("source", e.target.value)}><option value="">Any</option>{SOURCES.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
+        <div><span style={lbl}>Heard about</span><input style={input} value={f.heardAbout} onChange={(e) => set("heardAbout", e.target.value)} placeholder="e.g. X / Twitter" /></div>
         <div><span style={lbl}>Priority</span><select style={input} value={f.priority} onChange={(e) => set("priority", e.target.value)}><option value="">Any</option>{PRIORITIES.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
         <div><span style={lbl}>Budget</span><select style={input} value={f.budgetBand} onChange={(e) => set("budgetBand", e.target.value)}><option value="">Any</option>{BUDGET_BANDS.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
         <div><span style={lbl}>Min asking $</span><input style={input} value={f.minAsking} onChange={(e) => set("minAsking", e.target.value)} placeholder="0" /></div>
@@ -90,7 +91,7 @@ export default function ReportsClient() {
       {/* Results */}
       <div style={{ overflowX: "auto" }}>
         <table style={{ borderCollapse: "collapse", width: "100%" }}>
-          <thead><tr><th style={th}>Domain</th><th style={th}>Buyer</th><th style={th}>Owner</th><th style={th}>Stage</th><th style={th}>Status</th><th style={th}>Budget</th><th style={th}>Asking</th><th style={th}>Source</th><th style={th}>Created</th></tr></thead>
+          <thead><tr><th style={th}>Domain</th><th style={th}>Buyer</th><th style={th}>Owner</th><th style={th}>Stage</th><th style={th}>Status</th><th style={th}>Budget</th><th style={th}>Asking</th><th style={th}>Source</th><th style={th}>Heard about</th><th style={th}>Created</th></tr></thead>
           <tbody>
             {deals.map((d) => (
               <tr key={d.id} onClick={() => router.push(`/deals/${d.id}`)} style={{ cursor: "pointer" }}>
@@ -102,10 +103,11 @@ export default function ReportsClient() {
                 <td style={td}>{d.budget_range || "—"}</td>
                 <td style={td}>{usd(d.asking_price || d.appraisal_value)}</td>
                 <td style={td}>{d.source || "—"}</td>
+                <td style={td}>{d.heard_about || "—"}</td>
                 <td style={{ ...td, color: "var(--muted,#889)" }}>{d.created_at?.slice(0, 10)}</td>
               </tr>
             ))}
-            {!deals.length && !loading && <tr><td style={{ ...td, color: "var(--muted,#aab)" }} colSpan={9}>No deals match.</td></tr>}
+            {!deals.length && !loading && <tr><td style={{ ...td, color: "var(--muted,#aab)" }} colSpan={10}>No deals match.</td></tr>}
           </tbody>
         </table>
       </div>

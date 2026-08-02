@@ -23,6 +23,7 @@ export type Inquiry = {
   intent: string | null;
   isBuySide: boolean;          // intent looks like acquire/buy
   budget: string | null;
+  heardAbout: string | null;   // "How did you hear about us?" (form attribution, e.g. "X / Twitter")
   message: string | null;
   location: string | null;
   tier: string | null;         // vip | notable | standard (research triage)
@@ -98,6 +99,7 @@ function mapRow(r: LeadRow): Inquiry {
     intent: r.intent,
     isBuySide: looksBuySide(r.intent),
     budget: r.budget || null,
+    heardAbout: (form.heard_about as string) || (form["How Did You Hear About Us?"] as string) || (form.source as string) || null,
     message: (form.message as string) || (form.Message as string) || null,
     location: (form.location as string) || (form.Location as string) || null,
     tier,

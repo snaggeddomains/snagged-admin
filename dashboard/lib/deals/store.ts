@@ -25,6 +25,7 @@ export type Deal = {
   upfront_fee: number | null;   // what we charged the client up front to pursue the acquisition
   upfront_paid: boolean | null; // auto-true once the deal reaches Research & Outreach
   source: string | null;
+  heard_about: string | null;  // "How did you hear about us?" — marketing attribution off the inquiry form
   priority: string | null;
   budget_max: number | null;
   owner_email: string | null;
@@ -83,6 +84,7 @@ export type CreateDealInput = {
   appraisalValue?: number;
   askingPrice?: number;
   source?: string;
+  heardAbout?: string;
   priority?: string;
   ownerEmail?: string;      // assignee
   reportLink?: string;
@@ -131,6 +133,7 @@ export async function createDeal(input: CreateDealInput): Promise<{ deal: Deal; 
     appraisal_value: input.appraisalValue ?? null,
     asking_price: input.askingPrice ?? null,
     source: norm(input.source),
+    heard_about: norm(input.heardAbout),
     priority: norm(input.priority),
     budget_max: budgetMaxFor(input.budgetRange),
     owner_email: ownerEmail,
@@ -147,11 +150,16 @@ export async function createDeal(input: CreateDealInput): Promise<{ deal: Deal; 
     position: Date.now(), // newest sinks to the bottom of the column initially
   };
   let ins = await getDb().from(DEALS).insert(row).select("*").single();
-  // Degrade gracefully before the budget_max migration is applied: drop the column + retry.
-  if (ins.error && /budget_max/i.test(ins.error.message)) {
-    const { budget_max, ...rest } = row;
-    void budget_max;
-    ins = await getDb().from(DEALS).insert(rest).select("*").single();
+  // Degrade gracefully before optional-column migrations land (budget_max, heard_about). The DB
+  // reports one missing column at a time, so drop the named one and retry a few times.
+  const OPTIONAL = ["budget_max", "heard_about"];
+  const mut = row as Record<string, unknown>;
+  for (let i = 0; ins.error && i < OPTIONAL.length; i++) {
+    const msg = ins.error.message;
+    const miss = OPTIONAL.find((c) => new RegExp(c, "i").test(msg) && c in mut);
+    if (!miss) break;
+    delete mut[miss];
+    ins = await getDb().from(DEALS).insert(mut).select("*").single();
   }
   if (ins.error) {
     // A concurrent create raced us to the unique index — re-read and return it.
@@ -181,26 +189,36 @@ export async function listDeals(opts: { all: boolean; me: string; inbox?: boolea
 }
 
 export type ReportFilters = {
-  status?: string; owner?: string; stage?: string; source?: string; priority?: string;
+  status?: string; owner?: string; stage?: string; source?: string; heardAbout?: string; priority?: string;
   budgetBand?: string; minAsking?: number; maxAsking?: number; q?: string; from?: string; to?: string;
 };
 
 // Unscoped, filterable query across ALL deals — for the Reporting view (gated by
-// deals.reports). Every filter is optional; capped for safety.
+// deals.reports). Every filter is optional; capped for safety. `withHeard` includes the
+// heard_about clauses; on a pre-migration DB (no heard_about column) the query is retried
+// without them so the report still loads.
 export async function reportDeals(f: ReportFilters): Promise<Deal[]> {
-  let query = getDb().from(DEALS).select("*").order("created_at", { ascending: false }).limit(2000);
-  if (f.status) query = query.eq("status", f.status);
-  if (f.owner) query = f.owner === "__inbox__" ? query.is("owner_email", null) : query.eq("owner_email", f.owner.toLowerCase());
-  if (f.stage) query = query.eq("stage", f.stage);
-  if (f.source) query = query.eq("source", f.source);
-  if (f.priority) query = query.eq("priority", f.priority);
-  if (f.budgetBand) query = query.eq("budget_range", f.budgetBand);
-  if (f.minAsking != null) query = query.gte("asking_price", f.minAsking);
-  if (f.maxAsking != null) query = query.lte("asking_price", f.maxAsking);
-  if (f.q) query = query.or(`domain.ilike.%${f.q}%,buyer_name.ilike.%${f.q}%,buyer_email.ilike.%${f.q}%,org_name.ilike.%${f.q}%`);
-  if (f.from) query = query.gte("created_at", f.from);
-  if (f.to) query = query.lte("created_at", `${f.to}T23:59:59`);
-  const { data, error } = await query;
+  const build = (withHeard: boolean) => {
+    let query = getDb().from(DEALS).select("*").order("created_at", { ascending: false }).limit(2000);
+    if (f.status) query = query.eq("status", f.status);
+    if (f.owner) query = f.owner === "__inbox__" ? query.is("owner_email", null) : query.eq("owner_email", f.owner.toLowerCase());
+    if (f.stage) query = query.eq("stage", f.stage);
+    if (f.source) query = query.eq("source", f.source);
+    if (withHeard && f.heardAbout) query = query.ilike("heard_about", `%${f.heardAbout}%`);
+    if (f.priority) query = query.eq("priority", f.priority);
+    if (f.budgetBand) query = query.eq("budget_range", f.budgetBand);
+    if (f.minAsking != null) query = query.gte("asking_price", f.minAsking);
+    if (f.maxAsking != null) query = query.lte("asking_price", f.maxAsking);
+    if (f.q) {
+      const cols = ["domain", "buyer_name", "buyer_email", "org_name", ...(withHeard ? ["heard_about"] : [])];
+      query = query.or(cols.map((c) => `${c}.ilike.%${f.q}%`).join(","));
+    }
+    if (f.from) query = query.gte("created_at", f.from);
+    if (f.to) query = query.lte("created_at", `${f.to}T23:59:59`);
+    return query;
+  };
+  let { data, error } = await build(true);
+  if (error && /heard_about/i.test(error.message)) ({ data, error } = await build(false));
   if (error) throw new Error(`reportDeals: ${error.message}`);
   return (data as Deal[]) || [];
 }

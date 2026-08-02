@@ -18,6 +18,7 @@ create table if not exists deals (
   appraisal_value   numeric,
   asking_price      numeric,
   source            text,
+  heard_about       text,                              -- "How did you hear about us?" form attribution (e.g. "X / Twitter")
   priority          text,                              -- Top | High | Normal | Low
   budget_max        numeric,                           -- band ceiling for sort/search (5000/25000/50000/100000/100000000)
   owner_email       text,                              -- assignee (our user's email); null = Inbox
@@ -81,6 +82,7 @@ create unique index if not exists deal_emails_deal_msg on deal_emails (deal_id, 
 
 -- If `deals` already existed before budget_max was added, this backfills the column.
 alter table deals add column if not exists budget_max numeric;
+alter table deals add column if not exists heard_about text;
 
 -- Close-Won capture: final price paid + our commission.
 alter table deals add column if not exists sale_price numeric;

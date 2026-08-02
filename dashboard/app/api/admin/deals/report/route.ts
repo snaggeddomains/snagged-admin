@@ -23,6 +23,7 @@ export async function GET(req: NextRequest) {
     owner: s.get("owner") || undefined,
     stage: s.get("stage") || undefined,
     source: s.get("source") || undefined,
+    heardAbout: s.get("heardAbout") || undefined,
     priority: s.get("priority") || undefined,
     budgetBand: s.get("budgetBand") || undefined,
     minAsking: numOr(s.get("minAsking")),
