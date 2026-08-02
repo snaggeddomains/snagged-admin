@@ -2,9 +2,9 @@
   "capped": false,
   "count": 1,
   "domains": [
-    "531.org"
+    "green.sh"
   ],
-  "generated_at": "2026-08-01T23:06:08.108406+00:00",
+  "generated_at": "2026-08-02T10:07:42.205349+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
