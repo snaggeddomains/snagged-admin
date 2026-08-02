@@ -203,6 +203,30 @@ def test_backfill_does_not_bind_stray_domain_to_unrelated_thread():
     assert kept == {} and dropped == 1
 
 
+def test_backfill_does_not_bind_on_a_compound_word_slug_collision():
+    # green.sh must NOT bind to a sodio thread whose slug says "sodio-green" — the bare word
+    # "green" collides, but the domain's full label sequence (green + sh) isn't in the slug.
+    # (Real bug: green.sh $179 linked to sodio-ai-sodio-green-sodioai-com-… .)
+    slug_url = ("https://www.namepros.com/threads/"
+                "sodio-ai-sodio-green-sodioai-com-sodiocell-com-sodiogrid-com-qynflux-com-synqvex-com.1385093")
+    assert src._url_names_domain(slug_url, "green.sh") is False
+    assert src._url_names_domain(slug_url, "sodioai.com") is True   # its own name IS in the slug
+    # The full backfill drops green.sh rather than mis-binding it.
+    html = (
+        f'<a data-preview-url="/threads/'
+        f'sodio-ai-sodio-green-sodioai-com-sodiocell-com-sodiogrid-com-qynflux-com-synqvex-com.1385093/preview">'
+        f'Sodio.ai bundle</a>'
+        '<ul class="info"><li>green.sh</li><li>Buy Now $179</li></ul>'
+    )
+    links = {}
+    src.backfill_links(html, {"green.sh": 179}, links)
+    assert "green.sh" not in links
+    kept, dropped = src.require_post_url({"green.sh": 179}, links)
+    assert kept == {} and dropped == 1
+    # But a legit widget-only .sh still binds when its own name is the thread slug.
+    assert src._url_names_domain("https://www.namepros.com/threads/green-sh.777", "green.sh") is True
+
+
 def test_require_post_url_drops_domains_without_a_thread_url():
     # Only names tied to a captured NamePros listing-thread URL qualify — a name with no thread
     # URL (would fall back to a "find on NamePros" search) is not a specific for-sale/auction post.

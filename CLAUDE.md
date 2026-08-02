@@ -825,6 +825,15 @@ SLD is a token in `/threads/<slug>`). A stray domain under an unrelated thread i
 `require_post_url` drops it. Keeps the legit widget-only case (lourdes.net → `/threads/lourdes-net.222`,
 whose slug names it). Regression test `test_backfill_does_not_bind_stray_domain_to_unrelated_thread`.
 
+**Mis-binding pt.2 — compound-word SLD collision (2026-08-02).** `_url_names_domain` matched the bare
+**SLD token**, so a common word buried in a compound false-matched: **green.sh $179 bound to a sodio
+thread** whose slug was `sodio-ai-sodio-green-sodioai-com-…` ("green" is a token inside "sodio-green",
+a product name — green.sh isn't in the thread at all). Fix: require the domain's WHOLE label sequence
+(sld + tld) to appear in the slug as a contiguous token run (`green-sh`) or joined (`greensh`), not the
+lone SLD. NamePros renders a listed domain with its extension (lourdes.net → `lourdes-net`, sodioai.com
+→ `…-sodioai-com-…`), so legit binds keep working while the compound collisions drop. Regression test
+`test_backfill_does_not_bind_on_a_compound_word_slug_collision`.
+
 ---
 
 # Atom feed — ignore pending-verification (fake) listings (2026-07-24)

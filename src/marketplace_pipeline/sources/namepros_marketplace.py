@@ -247,17 +247,27 @@ def extract_links(html: str) -> dict[str, str]:
 
 
 def _url_names_domain(url: str, host: str) -> bool:
-    """True if a thread URL actually NAMES this domain — the domain's SLD appears as a
-    slug token (e.g. /threads/lourdes-net.222 names lourdes.net). This is what separates
-    a real widget-only listing sitting under its OWN thread row (lourdes.net →
-    lourdes-net.222) from a stray domain that merely appears elsewhere on the page — in a
-    'similar threads' box, a signature, or another seller's widget — which must NOT be
-    bound to the nearest unrelated thread (aftershock.org ↛ the xfun.xyz thread)."""
-    sld = str(host or "").split(".")[0].lower()
-    if not sld:
+    """True if a thread URL actually NAMES this domain — the domain's WHOLE label sequence
+    (sld + tld) appears in the slug as a contiguous run of tokens (green-sh) or joined into
+    one token (greensh). NamePros renders a listed domain with its extension, so lourdes.net
+    → /threads/lourdes-net.222 and sodioai.com → …-sodioai-com-…. Requiring the SLD **and**
+    its TLD together is what separates a real widget-only listing sitting under its OWN
+    thread row from a stray domain whose SLD merely appears as part of another word — e.g.
+    green.sh must NOT bind to a thread whose slug says 'sodio-green' (a product name), and
+    aftershock.org ↛ the xfun.xyz thread. The bare-SLD match was too loose (a common word
+    like 'green' collides with any compound that contains it)."""
+    labels = [p for p in str(host or "").lower().split(".") if p]
+    if not labels:
         return False
     slug = str(url or "").lower().rsplit("/threads/", 1)[-1]
-    return sld in re.split(r"[^a-z0-9]+", slug)
+    tokens = [t for t in re.split(r"[^a-z0-9]+", slug) if t]
+    if len(labels) == 1:                    # no TLD on a bare host → fall back to the SLD token
+        return labels[0] in tokens
+    # contiguous "green","sh" run …
+    for i in range(len(tokens) - len(labels) + 1):
+        if tokens[i:i + len(labels)] == labels:
+            return True
+    return "".join(labels) in tokens        # … or the joined "greensh" token
 
 
 def backfill_links(html: str, domains, links: dict[str, str]) -> None:
