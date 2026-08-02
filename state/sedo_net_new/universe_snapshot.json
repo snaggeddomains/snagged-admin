@@ -1,14 +1,26 @@
 [
   {
-    "domain": "bodfit.ai",
-    "price": 5000.0
+    "domain": "phiblue.com",
+    "price": 1995.0
   },
   {
-    "domain": "bodfit.net",
-    "price": 5000.0
+    "domain": "uscenter.com",
+    "price": 68223.0
   },
   {
-    "domain": "example.co",
-    "price": 100000.0
+    "domain": "percent.ai",
+    "price": 1000000.0
+  },
+  {
+    "domain": "lowimpedance.com",
+    "price": 895.0
+  },
+  {
+    "domain": "echoing.net",
+    "price": 2195.0
+  },
+  {
+    "domain": "assigned.net",
+    "price": 15195.0
   }
 ]

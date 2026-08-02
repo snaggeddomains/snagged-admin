@@ -2,9 +2,9 @@
   "capped": false,
   "count": 1,
   "domains": [
-    "example.co"
+    "percent.ai"
   ],
-  "generated_at": "2026-08-01T23:00:52.369992+00:00",
+  "generated_at": "2026-08-02T10:00:43.923112+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
