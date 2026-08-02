@@ -1,27 +1,24 @@
 {
   "capped": false,
-  "count": 16,
+  "count": 15,
   "domains": [
-    "fosters.ai",
-    "unattractive.org",
-    "peterborough.ai",
-    "monologues.ai",
-    "bilingual.io",
-    "orthopedic.ai",
-    "boto.ai",
-    "spacer.org",
-    "cloves.org",
-    "primates.ai",
-    "bony.org",
-    "aches.org",
-    "willie.co",
-    "dressage.ai",
-    "aberration.co",
-    "aborigines.org"
+    "inflows.org",
+    "russians.io",
+    "beating.ai",
+    "desolate.ai",
+    "overwhelming.ai",
+    "scoomy.com",
+    "applies.io",
+    "sagenda.net",
+    "poxg.com",
+    "medusas.org",
+    "aap.ai",
+    "cough.io",
+    "galleries.ai",
+    "scattered.ai",
+    "deutschland.ai"
   ],
-  "generated_at": "2026-08-01T10:09:14.171468+00:00",
-  "mub": [
-    "boto.ai"
-  ],
+  "generated_at": "2026-08-02T09:45:19.586780+00:00",
+  "mub": [],
   "source": "namecheap_auctions"
 }

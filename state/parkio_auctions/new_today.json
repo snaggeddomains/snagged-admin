@@ -1,8 +1,11 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-01T10:04:29.543688+00:00",
+  "count": 2,
+  "domains": [
+    "vkq.com",
+    "crfc.org"
+  ],
+  "generated_at": "2026-08-02T09:42:17.769143+00:00",
   "mub": [],
   "source": "parkio_auctions"
 }

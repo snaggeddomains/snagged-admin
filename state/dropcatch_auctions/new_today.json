@@ -1,19 +1,17 @@
 {
   "capped": false,
-  "count": 10,
+  "count": 8,
   "domains": [
     "vpsa.com",
     "wooow.com",
     "poxs.com",
     "kwew.com",
     "seaon.com",
-    "ubridge.com",
-    "partakers.com",
-    "athlon.net",
     "talar.com",
-    "luxen.com"
+    "luxen.com",
+    "nightfly.com"
   ],
-  "generated_at": "2026-08-01T10:10:16.831894+00:00",
+  "generated_at": "2026-08-02T09:46:09.880550+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }

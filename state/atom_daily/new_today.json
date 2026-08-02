@@ -1,33 +1,19 @@
 {
   "capped": false,
-  "count": 24,
+  "count": 8,
   "domains": [
-    "only.ai",
-    "unfortunately.ai",
-    "dedicated.ai",
-    "complicated.ai",
-    "mood.ai",
-    "achieving.ai",
-    "alumni.ai",
-    "numbered.ai",
-    "gems.ai",
-    "theresa.ai",
-    "signaling.ai",
-    "mono.ai",
-    "discard.ai",
-    "touched.co",
-    "jumpers.ai",
-    "mislead.ai",
-    "pathologist.ai",
-    "mixtures.ai",
-    "weller.ai",
-    "marginal.co",
-    "jolla.ai",
-    "racial.org",
-    "fond.org",
-    "brahms.co"
+    "adrian.ai",
+    "seaman.com",
+    "tortillas.com",
+    "dressing.co",
+    "slaps.ai",
+    "pricing.co",
+    "sorcery.ai",
+    "briton.ai"
   ],
-  "generated_at": "2026-08-01T09:40:00.832627+00:00",
-  "mub": [],
+  "generated_at": "2026-08-02T09:25:15.400384+00:00",
+  "mub": [
+    "adrian.ai"
+  ],
   "source": "atom_daily"
 }
