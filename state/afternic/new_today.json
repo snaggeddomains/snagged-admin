@@ -1,14 +1,19 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 10,
   "domains": [
-    "applies.org",
-    "worcestershire.co",
-    "busty.co",
-    "rabbits.co",
-    "mixed.com"
+    "crenshaw.co",
+    "tubs.co",
+    "egalitarian.co",
+    "whittier.co",
+    "excites.co",
+    "shoddy.co",
+    "dumbledore.co",
+    "rheumatoid.co",
+    "friendlies.co",
+    "only.ai"
   ],
-  "generated_at": "2026-07-31T08:17:38.227095+00:00",
+  "generated_at": "2026-08-02T08:19:08.514449+00:00",
   "mub": [],
   "source": "afternic"
 }
