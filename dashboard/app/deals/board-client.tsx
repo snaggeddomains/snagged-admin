@@ -445,7 +445,7 @@ function PrefsModal({ onClose }: { onClose: () => void }) {
 }
 
 function NewDealModal({ assignees, onClose, onCreated }: { assignees: Assignee[]; onClose: () => void; onCreated: (id: string) => void }) {
-  const [f, setF] = useState({ domain: "", buyerName: "", buyerEmail: "", orgName: "", budgetRange: "", source: SOURCES[0] as string, priority: "", ownerEmail: "" });
+  const [f, setF] = useState({ domain: "", buyerName: "", buyerEmail: "", orgName: "", budgetRange: "", source: SOURCES[0] as string, heardAbout: "", priority: "", ownerEmail: "" });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const set = (k: string, v: string) => setF((s) => ({ ...s, [k]: v }));
@@ -518,6 +518,8 @@ function NewDealModal({ assignees, onClose, onCreated }: { assignees: Assignee[]
         </select>
         <label style={fieldLabel}>Source</label>
         <select style={input} value={f.source} onChange={(e) => set("source", e.target.value)}>{SOURCES.map((s) => <option key={s} value={s}>{s}</option>)}</select>
+        <label style={fieldLabel}>Heard about (optional)</label>
+        <input style={input} value={f.heardAbout} onChange={(e) => set("heardAbout", e.target.value)} placeholder="e.g. X / Twitter, Referral" />
         <label style={fieldLabel}>Priority</label>
         <select style={input} value={f.priority} onChange={(e) => set("priority", e.target.value)}><option value="">—</option>{PRIORITIES.map((p) => <option key={p} value={p}>{p}</option>)}</select>
         <label style={fieldLabel}>Assign to</label>

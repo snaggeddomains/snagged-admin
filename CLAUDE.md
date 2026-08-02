@@ -79,6 +79,17 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
   search `.or()`. Both `createDeal` (insert strip-retry over budget_max + heard_about) and `reportDeals`
   (retry without the heard_about clauses) **degrade gracefully pre-migration**. **Migration:** `deals.sql`
   `alter table deals add column if not exists heard_about text;` — until it runs, the field just reads "—".
+  - **Where HDYHAU is set (2026-08-02):** AUTO-populated on converts (no re-typing), a small OPTIONAL
+    field only where there's no inquiry behind it. Inquiry triage convert (`inquiries-client`) + research
+    lead-dossier "Add to Deal" drawer (research `pipedriveCtxFromLead`→`submitPipedrive` passes
+    `heardAbout`; `api/pipedrive.js` forwards it; report-surface converts send `''`→null) carry it
+    silently; the manual **New deal** board modal (`board-client` NewDealModal) has an optional "Heard
+    about" input. Deal detail sidebar shows + edits it.
+  - **Backfill (2026-08-02):** `app/api/admin/deals/backfill-heard-about/route.ts` (admin-only; GET =
+    dry-run, `?apply=1` writes). Old deals/leads never stored the attribution (readForm only began
+    capturing it 2026-08-02), so it re-parses ~3 yrs of contact-form submissions via `leadsReport()`
+    (`Lead.source` = the HDYHAU answer), maps buyer email → attribution, and writes `heard_about` where
+    still null. One-time; run after the migration.
 - **Nav/perms:** `deals` (MODULE) + `deals.all` + `deals.inbox` + `deals.assignable` +
   `deals.reports` (ACTIONS) + `DEALS_TABS` +
   `canEnterDeals` in `permissions.ts`; `'deals'` SectionKey + SECTIONS entry in `navigation.ts`
