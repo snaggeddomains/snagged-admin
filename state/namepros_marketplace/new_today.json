@@ -1,10 +1,13 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 4,
   "domains": [
-    "green.sh"
+    "048.org",
+    "fol.net",
+    "hom.net",
+    "tah.net"
   ],
-  "generated_at": "2026-08-02T10:07:42.205349+00:00",
+  "generated_at": "2026-08-02T17:05:40.288195+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
