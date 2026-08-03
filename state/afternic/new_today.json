@@ -1,19 +1,8 @@
 {
   "capped": false,
-  "count": 10,
-  "domains": [
-    "crenshaw.co",
-    "tubs.co",
-    "egalitarian.co",
-    "whittier.co",
-    "excites.co",
-    "shoddy.co",
-    "dumbledore.co",
-    "rheumatoid.co",
-    "friendlies.co",
-    "only.ai"
-  ],
-  "generated_at": "2026-08-02T08:19:08.514449+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-03T08:19:31.053950+00:00",
   "mub": [],
   "source": "afternic"
 }
