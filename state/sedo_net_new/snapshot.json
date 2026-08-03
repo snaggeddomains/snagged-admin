@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "currency": "USD",
+    "domain": "managerial.ai",
+    "end_time_utc": "2026-08-03T23:15:20+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=managerial.ai"
+  }
+]
