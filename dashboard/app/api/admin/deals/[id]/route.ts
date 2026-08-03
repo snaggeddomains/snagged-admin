@@ -6,7 +6,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { userCan, userCanAction, type AppUser } from "@/lib/permissions";
 import { getDeal, updateDeal, addActivity, listActivity, listDealEmails, type Deal } from "@/lib/deals/store";
-import { notifyAssignment, notifyStageChange, notifyMention, notifyShare } from "@/lib/deals/notify";
+import { notifyAssignment, notifyStageChange, notifyMention, notifyComment, notifyShare } from "@/lib/deals/notify";
 import { ingestDealEmails } from "@/lib/deals/emails";
 import { researchReportLink, kickResearchRun, researchReportSummary } from "@/lib/deals/research-link";
 import { isStage } from "@/lib/deals/stages";
@@ -188,12 +188,25 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       if (mentions.length) meta.mentions = mentions;
       if (cleanAttachments.length) meta.attachments = cleanAttachments;
       const act = await addActivity(deal.id, { user_email: me!.email, kind: body.action, body: text, meta: Object.keys(meta).length ? meta : null });
+      const mentionSet = new Set(mentions.map((e) => e.toLowerCase()));
       if (mentions.length) {
         // @mentioning someone SHARES the deal with them (view + comment access), then notifies.
         const targets = mentions.filter((e) => e.toLowerCase() !== String(deal.owner_email || "").toLowerCase());
         await shareDeal(deal.id, targets, me!.email);
         await notifyMention(deal, mentions, me!.email, text || "(image)");
       }
+      // Keep every PARTICIPANT in the loop on this comment (both directions): owner + everyone
+      // shared/tagged on the deal + anyone who's commented before. Exclude the author and anyone
+      // @mentioned in THIS comment (they already got the "mentioned you" notification). Best-effort.
+      try {
+        const [shares, activity] = await Promise.all([listSharesForDeal(deal.id), listActivity(deal.id)]);
+        const participants = new Set<string>();
+        if (deal.owner_email) participants.add(deal.owner_email.toLowerCase());
+        for (const s of shares) participants.add(s.toLowerCase());
+        for (const a of activity) if ((a.kind === "comment" || a.kind === "note") && a.user_email) participants.add(a.user_email.toLowerCase());
+        const recipients = [...participants].filter((e) => e !== me!.email.toLowerCase() && !mentionSet.has(e));
+        if (recipients.length) await notifyComment(deal, recipients, me!.email, text || "(image)");
+      } catch { /* notifications are best-effort — never fail the comment */ }
       return NextResponse.json({ ok: true, activity: act });
     }
     case "share": {

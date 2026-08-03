@@ -125,6 +125,15 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
   Users set their own prefs via the **🔔** modal on the board (`/api/deals/notif-prefs` GET/POST).
   Assignment email subject = clean `📥 Deal assigned: <domain>`; the body doesn't repeat the emoji
   (so the inbox preview isn't a double emoji).
+- **Participant notifications on every comment (2026-08-03).** Once you're involved in a deal you
+  stay in the loop on ALL future comments, both directions — not just when re-@mentioned. On a comment
+  POST (`app/api/admin/deals/[id]/route.ts`) the handler builds the PARTICIPANT set = deal owner +
+  everyone shared/tagged (`listSharesForDeal`, which includes every past @mention since a mention
+  auto-shares) + every past comment/note author (`listActivity`), then `notifyComment` (`notify.ts`)
+  pings them on their enabled channels (bell/email/Slack, per `notif_prefs`), EXCLUDING the author and
+  anyone @mentioned in THIS comment (they get the stronger "💬 mentioned you" ping via `notifyMention`).
+  So Sam @rob once → both are participants → every later comment from either notifies the other.
+  Best-effort (wrapped in try/catch — never fails the comment). No new table/env.
 - **One-time setup:** run `scripts/deals.sql` on the main project (creates the 3 deal tables +
   `deals.budget_max` + `domain_research_users.notif_prefs`). Reuses the Gmail layer +
   `RESEARCH_INTERNAL_SECRET` + `SLACK_BOT_TOKEN` (for DMs). Grant `deals` per-user, `deals.assignable`

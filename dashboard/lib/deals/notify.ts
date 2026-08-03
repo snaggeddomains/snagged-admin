@@ -76,6 +76,19 @@ export async function notifyMention(deal: Deal, mentioned: string[], byEmail: st
   return deliver(targets, `💬 ${by} mentioned you on ${deal.domain}`, [comment.slice(0, 300)], deal.id, "#comments");
 }
 
+// A new comment on a deal → keep every PARTICIPANT in the loop (both directions). Recipients
+// are the deal's participants (owner + shared/tagged users + past commenters) already de-duped
+// and stripped of the author + this comment's @mentions by the caller (they get the stronger
+// "mentioned you" ping instead). So once you're tagged, shared, or you've commented, every
+// future comment on that deal notifies you on your enabled channels.
+export async function notifyComment(deal: Deal, recipients: string[], byEmail: string | null, comment: string): Promise<boolean> {
+  const author = (byEmail || "").toLowerCase();
+  const targets = [...new Set(recipients.map((e) => (e || "").toLowerCase()))].filter((e) => e && e !== author);
+  if (!targets.length) return false;
+  const by = byEmail ? await displayName(byEmail) : "Someone";
+  return deliver(targets, `💬 ${by} commented on ${deal.domain}`, [comment.slice(0, 300)], deal.id, "#comments");
+}
+
 // A deal was explicitly SHARED with someone (Share button, no comment) — tell them they now
 // have access. (An @mention auto-share is announced by notifyMention instead, so this is only
 // used for the button path with the NEWLY-added collaborators.)
