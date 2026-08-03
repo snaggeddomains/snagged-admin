@@ -1,8 +1,14 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-03T10:06:50.208373+00:00",
+  "count": 5,
+  "domains": [
+    "employer.app",
+    "giovanni.ai",
+    "knell.xyz",
+    "miracles.dev",
+    "poor.ai"
+  ],
+  "generated_at": "2026-08-03T17:05:53.274861+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
