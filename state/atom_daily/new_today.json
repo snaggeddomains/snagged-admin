@@ -1,19 +1,15 @@
 {
   "capped": false,
-  "count": 8,
+  "count": 6,
   "domains": [
-    "adrian.ai",
-    "seaman.com",
-    "tortillas.com",
-    "dressing.co",
-    "slaps.ai",
-    "pricing.co",
-    "sorcery.ai",
-    "briton.ai"
+    "firing.ai",
+    "memberships.com",
+    "crisps.ai",
+    "staying.org",
+    "doreen.ai",
+    "unison.org"
   ],
-  "generated_at": "2026-08-02T09:25:15.400384+00:00",
-  "mub": [
-    "adrian.ai"
-  ],
+  "generated_at": "2026-08-03T09:26:09.383641+00:00",
+  "mub": [],
   "source": "atom_daily"
 }

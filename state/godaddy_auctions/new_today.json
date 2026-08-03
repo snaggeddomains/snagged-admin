@@ -1,27 +1,17 @@
 {
   "capped": false,
-  "count": 16,
+  "count": 8,
   "domains": [
-    "dexcode.com",
-    "zlas.com",
-    "seiza.co",
-    "zyep.com",
-    "mlum.com",
-    "pupr.com",
-    "ezara.com",
-    "cern.co",
-    "filled.co",
-    "platter.org",
-    "janey.com",
-    "subsystems.org",
-    "undertaken.org",
-    "rodj.com",
-    "hfur.com",
-    "broadly.io"
+    "corks.com",
+    "taue.com",
+    "dehydrogenase.org",
+    "wlum.com",
+    "splitters.com",
+    "mainp.com",
+    "iaen.org",
+    "ifdc.com"
   ],
-  "generated_at": "2026-08-02T09:46:38.936410+00:00",
-  "mub": [
-    "ezara.com"
-  ],
+  "generated_at": "2026-08-03T09:49:14.962829+00:00",
+  "mub": [],
   "source": "godaddy_auctions"
 }

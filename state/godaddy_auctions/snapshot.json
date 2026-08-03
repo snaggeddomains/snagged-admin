@@ -1,146 +1,74 @@
 [
   {
-    "bid_count": 14,
-    "domain": "dexcode.com",
-    "end_time_utc": "2026-08-02T16:31:00+00:00",
+    "bid_count": 50,
+    "domain": "corks.com",
+    "end_time_utc": "2026-08-03T19:05:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/dexcode-com-717492798?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/corks-com-717657710?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 115.0
+    "price": 20025.0
   },
   {
-    "bid_count": 16,
-    "domain": "zlas.com",
-    "end_time_utc": "2026-08-02T16:41:00+00:00",
+    "bid_count": 24,
+    "domain": "taue.com",
+    "end_time_utc": "2026-08-03T19:15:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/zlas-com-717492497?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/taue-com-717643504?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 151.0
+    "price": 464.0
   },
   {
-    "bid_count": 5,
-    "domain": "seiza.co",
-    "end_time_utc": "2026-08-02T17:00:00+00:00",
+    "bid_count": 0,
+    "domain": "dehydrogenase.org",
+    "end_time_utc": "2026-08-03T19:18:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/seiza-co-717515611?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/dehydrogenase-org-715695709?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 1.0
+  },
+  {
+    "bid_count": 7,
+    "domain": "wlum.com",
+    "end_time_utc": "2026-08-03T19:29:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/wlum-com-717657743?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
     "price": 205.0
   },
   {
-    "bid_count": 11,
-    "domain": "zyep.com",
-    "end_time_utc": "2026-08-02T17:04:00+00:00",
+    "bid_count": 29,
+    "domain": "splitters.com",
+    "end_time_utc": "2026-08-03T20:02:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/zyep-com-717492670?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/splitters-com-717642573?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 150.0
+    "price": 1125.0
   },
   {
-    "bid_count": 19,
-    "domain": "mlum.com",
-    "end_time_utc": "2026-08-02T17:13:00+00:00",
+    "bid_count": 10,
+    "domain": "mainp.com",
+    "end_time_utc": "2026-08-03T20:16:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/mlum-com-717523775?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/mainp-com-717639114?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 298.0
+    "price": 41.0
   },
   {
-    "bid_count": 47,
-    "domain": "pupr.com",
-    "end_time_utc": "2026-08-02T17:21:00+00:00",
+    "bid_count": 5,
+    "domain": "iaen.org",
+    "end_time_utc": "2026-08-03T21:12:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/pupr-com-717492456?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/iaen-org-717194755?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 631.0
+    "price": 116.0
   },
   {
-    "bid_count": 15,
-    "domain": "ezara.com",
-    "end_time_utc": "2026-08-02T17:39:00+00:00",
-    "is_mub": true,
-    "link": "https://www.godaddy.com/domain-auctions/ezara-com-717518755?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 132.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "cern.co",
-    "end_time_utc": "2026-08-02T17:50:00+00:00",
+    "bid_count": 36,
+    "domain": "ifdc.com",
+    "end_time_utc": "2026-08-03T21:27:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/cern-co-717525413?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/ifdc-com-717630467?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 1.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "filled.co",
-    "end_time_utc": "2026-08-02T18:50:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/filled-co-717524783?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1.0
-  },
-  {
-    "bid_count": 7,
-    "domain": "platter.org",
-    "end_time_utc": "2026-08-02T19:12:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/platter-org-717367597?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 30.0
-  },
-  {
-    "bid_count": 51,
-    "domain": "janey.com",
-    "end_time_utc": "2026-08-02T19:38:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/janey-com-715833945?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 6750.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "subsystems.org",
-    "end_time_utc": "2026-08-02T19:41:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/subsystems-org-717388747?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "undertaken.org",
-    "end_time_utc": "2026-08-02T19:53:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/undertaken-org-714759275?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1.0
-  },
-  {
-    "bid_count": 20,
-    "domain": "rodj.com",
-    "end_time_utc": "2026-08-02T20:20:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/rodj-com-717492638?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 176.0
-  },
-  {
-    "bid_count": 7,
-    "domain": "hfur.com",
-    "end_time_utc": "2026-08-02T20:31:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/hfur-com-717492272?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 166.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "broadly.io",
-    "end_time_utc": "2026-08-02T21:07:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/broadly-io-717513799?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1.0
+    "price": 860.0
   }
 ]

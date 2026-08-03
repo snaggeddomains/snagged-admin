@@ -1,20 +1,11 @@
 [
   {
     "bid_count": 15,
-    "domain": "silla.org",
-    "end_time_utc": "2026-08-02T18:56:42+00:00",
+    "domain": "cyid.com",
+    "end_time_utc": "2026-08-03T13:59:56+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41891536.html",
+    "link": "https://www.dynadot.com/market/auction/41952087.html",
     "platform": "Dynadot",
-    "price": 21.99
-  },
-  {
-    "bid_count": 20,
-    "domain": "aftershock.org",
-    "end_time_utc": "2026-08-02T20:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41541753.html",
-    "platform": "Dynadot",
-    "price": 260.0
+    "price": 279.29
   }
 ]

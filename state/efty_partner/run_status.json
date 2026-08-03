@@ -1,11 +1,11 @@
 {
   "dropped_count": 0,
-  "generated_at": "2026-08-02T09:42:12.024509+00:00",
+  "generated_at": "2026-08-03T09:43:30.623016+00:00",
   "label": "Efty",
   "new_count": 0,
   "price_change_count": 0,
-  "qualified_count": 3194,
-  "scored_count": 596757,
+  "qualified_count": 3195,
+  "scored_count": 596813,
   "slack_posted": true,
   "source": "efty_partner",
   "status": "ok"
