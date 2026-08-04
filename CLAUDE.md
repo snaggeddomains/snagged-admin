@@ -135,7 +135,10 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
   **@mentions get the full flow** (bell+email+Slack, per prefs), same as assignment + stage-change.
   Users set their own prefs via the **🔔** modal on the board (`/api/deals/notif-prefs` GET/POST).
   Assignment email subject = clean `📥 Deal assigned: <domain>`; the body doesn't repeat the emoji
-  (so the inbox preview isn't a double emoji).
+  (so the inbox preview isn't a double emoji). **All deal notification emails send FROM
+  `Snagged Deals <deals@snagged.com>`** (2026-08-04; `DEALS_FROM` in `notify.ts`, env `DEALS_EMAIL_FROM`)
+  — snagged.com is already Resend-verified (domain-level) so no extra setup; covers assignment /
+  stage-change / @mention / comment / share since they all route through `deliver()`.
 - **Participant notifications on every comment (2026-08-03).** Once you're involved in a deal you
   stay in the loop on ALL future comments, both directions — not just when re-@mentioned. On a comment
   POST (`app/api/admin/deals/[id]/route.ts`) the handler builds the PARTICIPANT set = deal owner +

@@ -11,6 +11,9 @@ import { slackDm } from "./slack-dm";
 import type { Deal } from "./store";
 
 const APP_BASE = (process.env.DASHBOARD_BASE || "https://app.snagged.com").replace(/\/+$/, "");
+// Deal notification emails send FROM this address (env-overridable). snagged.com is already
+// verified in Resend (domain-level), so deals@snagged.com sends with no extra setup.
+const DEALS_FROM = process.env.DEALS_EMAIL_FROM || "Snagged Deals <deals@snagged.com>";
 export function dealUrl(id: string): string {
   return `${APP_BASE}/deals/${id}`;
 }
@@ -39,7 +42,7 @@ async function deliver(emails: string[], title: string, bodyLines: string[], id:
       // NB: the subject carries the headline (with its one emoji); the body doesn't repeat
       // it, so the inbox preview doesn't show the same emoji twice.
       if (ch.email && emailConfigured()) {
-        await sendEmail({ to, subject: title, html: `${body ? `<p>${body.replace(/\n/g, "<br>")}</p>` : ""}<p><a href="${url}">Open the deal →</a></p>` });
+        await sendEmail({ to, subject: title, from: DEALS_FROM, html: `${body ? `<p>${body.replace(/\n/g, "<br>")}</p>` : ""}<p><a href="${url}">Open the deal →</a></p>` });
       }
       if (ch.slack) await slackDm(to, `${title}\n${body}\n${url}`);
     }
