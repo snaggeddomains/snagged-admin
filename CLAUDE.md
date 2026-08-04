@@ -85,6 +85,15 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
     `heardAbout`; `api/pipedrive.js` forwards it; report-surface converts send `''`→null) carry it
     silently; the manual **New deal** board modal (`board-client` NewDealModal) has an optional "Heard
     about" input. Deal detail sidebar shows + edits it.
+  - **Inquiry message → deal Notes (2026-08-04):** the buyer's own inquiry MESSAGE (the richest context —
+    why they want it, their situation) was making it onto the deal only buried in the ingested email
+    preview. Now on convert the buyer's `message` (+ `location`) is carried into the deal's **Notes** so the
+    assignee sees it in Details. Both convert paths: triage (`inquiries-client` assembles `📩 Buyer's
+    inquiry:\n<message>` → `notes`, route passes it to `createDeal`) and the research lead-dossier drawer
+    (`pipedriveCtxFromLead` carries `message`/`location`, `submitPipedrive` → `notes`, `api/pipedrive.js`
+    forwards, internal `pipedrive-deal` route passes to `createDeal`). `createDeal` already had `notes`;
+    RVal renders it `pre-wrap`. Report-surface converts (no lead) send empty → notes stays blank. Existing
+    pre-2026-08-04 deals aren't backfilled (the raw email is still in the deal's Emails section).
   - **Backfill (2026-08-02):** `app/api/admin/deals/backfill-heard-about/route.ts` (admin-only; GET =
     dry-run, `?apply=1` writes). Old deals/leads never stored the attribution (readForm only began
     capturing it 2026-08-02), so it re-parses ~3 yrs of contact-form submissions via `leadsReport()`

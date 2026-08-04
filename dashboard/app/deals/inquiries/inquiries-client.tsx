@@ -215,6 +215,13 @@ function ConvertModal({ inquiry, meta, onClose, onDone }: { inquiry: Inquiry; me
     if (!source) { setError("Pick a source."); return; }
     setBusy(true);
     setError(null);
+    // Carry the buyer's own inquiry context onto the deal so the assignee has the full picture
+    // (the message is the richest signal — why they want it, their situation) — not just the
+    // structured fields. Lands in the deal's Notes.
+    const inquiryNotes = [
+      inquiry.message ? `📩 Buyer's inquiry:\n${inquiry.message.trim()}` : "",
+      inquiry.location ? `Location: ${inquiry.location}` : "",
+    ].filter(Boolean).join("\n\n") || undefined;
     try {
       const res = await fetch("/api/admin/inquiries", {
         method: "POST",
@@ -228,6 +235,7 @@ function ConvertModal({ inquiry, meta, onClose, onDone }: { inquiry: Inquiry; me
           buyerEmail: buyerEmail.trim() || undefined,
           budgetRange: budget || undefined,
           heardAbout: inquiry.heardAbout || undefined,
+          notes: inquiryNotes,
           comment: comment.trim() || undefined,
           additionalDomains: inquiry.domains.slice(1).join(", ") || undefined,
           orgName: inquiry.company?.name || undefined,

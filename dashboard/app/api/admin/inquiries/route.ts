@@ -65,6 +65,7 @@ export async function POST(req: NextRequest) {
     ownerEmail: b.assigneeEmail ? String(b.assigneeEmail) : undefined,
     budgetRange: b.budgetRange ? String(b.budgetRange) : undefined,
     heardAbout: b.heardAbout ? String(b.heardAbout) : undefined,
+    notes: b.notes ? String(b.notes) : undefined,
     priority: b.priority ? String(b.priority) : undefined,
     additionalDomains: b.additionalDomains ? String(b.additionalDomains) : undefined,
     reportLink: b.reportLink ? String(b.reportLink) : undefined,

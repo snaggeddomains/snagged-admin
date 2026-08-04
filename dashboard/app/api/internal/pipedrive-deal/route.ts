@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
     ownerEmail: b.assigneeEmail ? String(b.assigneeEmail) : undefined,
     budgetRange: b.budgetRange ? String(b.budgetRange) : undefined,
     heardAbout: b.heardAbout ? String(b.heardAbout) : undefined,
+    notes: b.notes ? String(b.notes) : undefined,
     appraisalValue: b.appraisalValue != null && b.appraisalValue !== "" ? Number(b.appraisalValue) : undefined,
     askingPrice: b.askingPrice != null && b.askingPrice !== "" ? Number(b.askingPrice) : undefined,
     priority: b.priority ? String(b.priority) : undefined,
