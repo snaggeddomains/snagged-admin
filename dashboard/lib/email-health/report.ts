@@ -187,6 +187,11 @@ export async function checkDomain(domain: string, selectors = selectorsForDomain
     }
   }
   const { policy: dmarc_policy, reporting: dmarc_reporting } = parseDmarc(dmarc.ok ? dmarc.data : null);
+  // A DMARC record that EXISTS but is monitor-only (p=none) is a WARN, not a hard fail — it's a
+  // valid, authenticated setup that just isn't enforcing yet (the correct state during a warm-up).
+  // Only a MISSING/broken policy is a real fail. This keeps a p=none domain at grade B, not F.
+  const dmc = checks.find((c) => c.key === "dmarc");
+  if (dmc && dmc.status === "fail" && dmarc_policy) dmc.status = "warn";
   const failing = checks.filter((c) => c.status === "fail").map((c) => c.key);
   const actions = buildActions({ domain, checks, dmarcPolicy: dmarc_policy, dmarcReporting: dmarc_reporting, dkimSelectors, selectors });
   // Grade: a records-valid domain that isn't ENFORCING DMARC (p=none) is a B, not an A —
