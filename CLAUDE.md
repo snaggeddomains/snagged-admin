@@ -92,8 +92,10 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
     inquiry:\n<message>` → `notes`, route passes it to `createDeal`) and the research lead-dossier drawer
     (`pipedriveCtxFromLead` carries `message`/`location`, `submitPipedrive` → `notes`, `api/pipedrive.js`
     forwards, internal `pipedrive-deal` route passes to `createDeal`). `createDeal` already had `notes`;
-    RVal renders it `pre-wrap`. Report-surface converts (no lead) send empty → notes stays blank. Existing
-    pre-2026-08-04 deals aren't backfilled (the raw email is still in the deal's Emails section).
+    RVal renders it `pre-wrap`. Report-surface converts (no lead) send empty → notes stays blank.
+    **Backfill:** `app/api/admin/deals/backfill-inquiry-notes/route.ts` (admin-only; GET dry-run, `?apply=1`)
+    fills blank Notes on existing inquiry deals — matches each deal to its lead by `lead_key` (fallback
+    buyer email) → `domain_research_leads.form.message` (+ location), writes only where notes is empty.
   - **Backfill (2026-08-02):** `app/api/admin/deals/backfill-heard-about/route.ts` (admin-only; GET =
     dry-run, `?apply=1` writes). Old deals/leads never stored the attribution (readForm only began
     capturing it 2026-08-02), so it re-parses ~3 yrs of contact-form submissions via `leadsReport()`
