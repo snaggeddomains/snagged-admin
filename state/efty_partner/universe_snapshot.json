@@ -1,5 +1,2465 @@
 [
   {
+    "domain": "usezodiac.com",
+    "price": null
+  },
+  {
+    "domain": "usezig.com",
+    "price": null
+  },
+  {
+    "domain": "usezeus.com",
+    "price": null
+  },
+  {
+    "domain": "useyard.com",
+    "price": null
+  },
+  {
+    "domain": "usexenon.com",
+    "price": null
+  },
+  {
+    "domain": "usewrench.com",
+    "price": null
+  },
+  {
+    "domain": "useworldwide.com",
+    "price": null
+  },
+  {
+    "domain": "useworksheet.com",
+    "price": null
+  },
+  {
+    "domain": "usewool.com",
+    "price": null
+  },
+  {
+    "domain": "usewolf.com",
+    "price": null
+  },
+  {
+    "domain": "usewindow.com",
+    "price": null
+  },
+  {
+    "domain": "usewhistle.com",
+    "price": null
+  },
+  {
+    "domain": "usewheat.com",
+    "price": null
+  },
+  {
+    "domain": "usewatermelon.com",
+    "price": null
+  },
+  {
+    "domain": "usewarrior.com",
+    "price": null
+  },
+  {
+    "domain": "usewander.com",
+    "price": null
+  },
+  {
+    "domain": "usewagon.com",
+    "price": null
+  },
+  {
+    "domain": "usewage.com",
+    "price": null
+  },
+  {
+    "domain": "useviva.com",
+    "price": null
+  },
+  {
+    "domain": "usevitamin.com",
+    "price": null
+  },
+  {
+    "domain": "usevisionary.com",
+    "price": null
+  },
+  {
+    "domain": "usevirtue.com",
+    "price": null
+  },
+  {
+    "domain": "useviolet.com",
+    "price": null
+  },
+  {
+    "domain": "useviewpoint.com",
+    "price": null
+  },
+  {
+    "domain": "usevictor.com",
+    "price": null
+  },
+  {
+    "domain": "usevert.com",
+    "price": null
+  },
+  {
+    "domain": "usevendor.com",
+    "price": null
+  },
+  {
+    "domain": "usevanilla.com",
+    "price": null
+  },
+  {
+    "domain": "usevalve.com",
+    "price": null
+  },
+  {
+    "domain": "usevalidate.com",
+    "price": null
+  },
+  {
+    "domain": "useuno.com",
+    "price": null
+  },
+  {
+    "domain": "useuniverse.com",
+    "price": null
+  },
+  {
+    "domain": "useuniversal.com",
+    "price": null
+  },
+  {
+    "domain": "usetwister.com",
+    "price": null
+  },
+  {
+    "domain": "useturquoise.com",
+    "price": null
+  },
+  {
+    "domain": "useturn.com",
+    "price": null
+  },
+  {
+    "domain": "usetrumpet.com",
+    "price": null
+  },
+  {
+    "domain": "usetrial.com",
+    "price": null
+  },
+  {
+    "domain": "usetransmit.com",
+    "price": null
+  },
+  {
+    "domain": "usetranslate.com",
+    "price": null
+  },
+  {
+    "domain": "usetrainer.com",
+    "price": null
+  },
+  {
+    "domain": "usetradition.com",
+    "price": null
+  },
+  {
+    "domain": "usetractor.com",
+    "price": null
+  },
+  {
+    "domain": "usetown.com",
+    "price": null
+  },
+  {
+    "domain": "usetorrent.com",
+    "price": null
+  },
+  {
+    "domain": "usetimeless.com",
+    "price": null
+  },
+  {
+    "domain": "useticket.com",
+    "price": null
+  },
+  {
+    "domain": "usethistle.com",
+    "price": null
+  },
+  {
+    "domain": "usethinker.com",
+    "price": null
+  },
+  {
+    "domain": "usetent.com",
+    "price": null
+  },
+  {
+    "domain": "usetension.com",
+    "price": null
+  },
+  {
+    "domain": "useteamwork.com",
+    "price": null
+  },
+  {
+    "domain": "useteacher.com",
+    "price": null
+  },
+  {
+    "domain": "usetaurus.com",
+    "price": null
+  },
+  {
+    "domain": "usetangerine.com",
+    "price": null
+  },
+  {
+    "domain": "usetake.com",
+    "price": null
+  },
+  {
+    "domain": "usesycamore.com",
+    "price": null
+  },
+  {
+    "domain": "usesword.com",
+    "price": null
+  },
+  {
+    "domain": "useswitch.com",
+    "price": null
+  },
+  {
+    "domain": "usesupreme.com",
+    "price": null
+  },
+  {
+    "domain": "usesunrise.com",
+    "price": null
+  },
+  {
+    "domain": "usesundown.com",
+    "price": null
+  },
+  {
+    "domain": "usestriker.com",
+    "price": null
+  },
+  {
+    "domain": "usestrength.com",
+    "price": null
+  },
+  {
+    "domain": "usestraw.com",
+    "price": null
+  },
+  {
+    "domain": "usestrap.com",
+    "price": null
+  },
+  {
+    "domain": "usestrand.com",
+    "price": null
+  },
+  {
+    "domain": "usestingray.com",
+    "price": null
+  },
+  {
+    "domain": "usestem.com",
+    "price": null
+  },
+  {
+    "domain": "usesteam.com",
+    "price": null
+  },
+  {
+    "domain": "usestealth.com",
+    "price": null
+  },
+  {
+    "domain": "usestatic.com",
+    "price": null
+  },
+  {
+    "domain": "usestart.com",
+    "price": null
+  },
+  {
+    "domain": "usestardust.com",
+    "price": null
+  },
+  {
+    "domain": "usestand.com",
+    "price": null
+  },
+  {
+    "domain": "usestance.com",
+    "price": null
+  },
+  {
+    "domain": "usestallion.com",
+    "price": null
+  },
+  {
+    "domain": "usestage.com",
+    "price": null
+  },
+  {
+    "domain": "usestability.com",
+    "price": null
+  },
+  {
+    "domain": "usesquare.com",
+    "price": null
+  },
+  {
+    "domain": "usesprint.com",
+    "price": null
+  },
+  {
+    "domain": "usesprinkler.com",
+    "price": null
+  },
+  {
+    "domain": "usespoke.com",
+    "price": null
+  },
+  {
+    "domain": "usesplendor.com",
+    "price": null
+  },
+  {
+    "domain": "usespirit.com",
+    "price": null
+  },
+  {
+    "domain": "usespecial.com",
+    "price": null
+  },
+  {
+    "domain": "usespeaker.com",
+    "price": null
+  },
+  {
+    "domain": "usespatial.com",
+    "price": null
+  },
+  {
+    "domain": "usespade.com",
+    "price": null
+  },
+  {
+    "domain": "usesolid.com",
+    "price": null
+  },
+  {
+    "domain": "usesoil.com",
+    "price": null
+  },
+  {
+    "domain": "usesodium.com",
+    "price": null
+  },
+  {
+    "domain": "usesoar.com",
+    "price": null
+  },
+  {
+    "domain": "usesnapshot.com",
+    "price": null
+  },
+  {
+    "domain": "usesnack.com",
+    "price": null
+  },
+  {
+    "domain": "usesmoke.com",
+    "price": null
+  },
+  {
+    "domain": "usesmith.com",
+    "price": null
+  },
+  {
+    "domain": "usesinger.com",
+    "price": null
+  },
+  {
+    "domain": "usesimulate.com",
+    "price": null
+  },
+  {
+    "domain": "usesimply.com",
+    "price": null
+  },
+  {
+    "domain": "usesimplicity.com",
+    "price": null
+  },
+  {
+    "domain": "usesilk.com",
+    "price": null
+  },
+  {
+    "domain": "usesilicon.com",
+    "price": null
+  },
+  {
+    "domain": "useshutter.com",
+    "price": null
+  },
+  {
+    "domain": "useshorts.com",
+    "price": null
+  },
+  {
+    "domain": "useshore.com",
+    "price": null
+  },
+  {
+    "domain": "useshimmer.com",
+    "price": null
+  },
+  {
+    "domain": "useshell.com",
+    "price": null
+  },
+  {
+    "domain": "usesharper.com",
+    "price": null
+  },
+  {
+    "domain": "usesesame.com",
+    "price": null
+  },
+  {
+    "domain": "useserpent.com",
+    "price": null
+  },
+  {
+    "domain": "useseries.com",
+    "price": null
+  },
+  {
+    "domain": "usesentence.com",
+    "price": null
+  },
+  {
+    "domain": "useselect.com",
+    "price": null
+  },
+  {
+    "domain": "usesegment.com",
+    "price": null
+  },
+  {
+    "domain": "usesector.com",
+    "price": null
+  },
+  {
+    "domain": "usescrewdriver.com",
+    "price": null
+  },
+  {
+    "domain": "usescore.com",
+    "price": null
+  },
+  {
+    "domain": "useschema.com",
+    "price": null
+  },
+  {
+    "domain": "usescanner.com",
+    "price": null
+  },
+  {
+    "domain": "usesatisfy.com",
+    "price": null
+  },
+  {
+    "domain": "usesatellite.com",
+    "price": null
+  },
+  {
+    "domain": "usesample.com",
+    "price": null
+  },
+  {
+    "domain": "usesale.com",
+    "price": null
+  },
+  {
+    "domain": "usesailor.com",
+    "price": null
+  },
+  {
+    "domain": "usesaddle.com",
+    "price": null
+  },
+  {
+    "domain": "userubber.com",
+    "price": null
+  },
+  {
+    "domain": "useround.com",
+    "price": null
+  },
+  {
+    "domain": "userosemary.com",
+    "price": null
+  },
+  {
+    "domain": "userope.com",
+    "price": null
+  },
+  {
+    "domain": "useromeo.com",
+    "price": null
+  },
+  {
+    "domain": "useroller.com",
+    "price": null
+  },
+  {
+    "domain": "userod.com",
+    "price": null
+  },
+  {
+    "domain": "userevolt.com",
+    "price": null
+  },
+  {
+    "domain": "usereverb.com",
+    "price": null
+  },
+  {
+    "domain": "useretreat.com",
+    "price": null
+  },
+  {
+    "domain": "useresult.com",
+    "price": null
+  },
+  {
+    "domain": "usereplace.com",
+    "price": null
+  },
+  {
+    "domain": "userenovate.com",
+    "price": null
+  },
+  {
+    "domain": "userenegade.com",
+    "price": null
+  },
+  {
+    "domain": "usereliant.com",
+    "price": null
+  },
+  {
+    "domain": "useregulate.com",
+    "price": null
+  },
+  {
+    "domain": "useregal.com",
+    "price": null
+  },
+  {
+    "domain": "usereef.com",
+    "price": null
+  },
+  {
+    "domain": "useredwood.com",
+    "price": null
+  },
+  {
+    "domain": "usereceipt.com",
+    "price": null
+  },
+  {
+    "domain": "usereader.com",
+    "price": null
+  },
+  {
+    "domain": "userational.com",
+    "price": null
+  },
+  {
+    "domain": "useradius.com",
+    "price": null
+  },
+  {
+    "domain": "useradical.com",
+    "price": null
+  },
+  {
+    "domain": "useradiate.com",
+    "price": null
+  },
+  {
+    "domain": "useracer.com",
+    "price": null
+  },
+  {
+    "domain": "usequote.com",
+    "price": null
+  },
+  {
+    "domain": "usequick.com",
+    "price": null
+  },
+  {
+    "domain": "usequeen.com",
+    "price": null
+  },
+  {
+    "domain": "usequake.com",
+    "price": null
+  },
+  {
+    "domain": "usequad.com",
+    "price": null
+  },
+  {
+    "domain": "usepurple.com",
+    "price": null
+  },
+  {
+    "domain": "usepurchase.com",
+    "price": null
+  },
+  {
+    "domain": "usepumpkin.com",
+    "price": null
+  },
+  {
+    "domain": "useprovide.com",
+    "price": null
+  },
+  {
+    "domain": "useprotector.com",
+    "price": null
+  },
+  {
+    "domain": "useprocess.com",
+    "price": null
+  },
+  {
+    "domain": "useproceed.com",
+    "price": null
+  },
+  {
+    "domain": "useprize.com",
+    "price": null
+  },
+  {
+    "domain": "usepressure.com",
+    "price": null
+  },
+  {
+    "domain": "useprepare.com",
+    "price": null
+  },
+  {
+    "domain": "useprefer.com",
+    "price": null
+  },
+  {
+    "domain": "usepractical.com",
+    "price": null
+  },
+  {
+    "domain": "usepound.com",
+    "price": null
+  },
+  {
+    "domain": "usepositive.com",
+    "price": null
+  },
+  {
+    "domain": "useportion.com",
+    "price": null
+  },
+  {
+    "domain": "usepopular.com",
+    "price": null
+  },
+  {
+    "domain": "usepool.com",
+    "price": null
+  },
+  {
+    "domain": "useplunge.com",
+    "price": null
+  },
+  {
+    "domain": "useplatter.com",
+    "price": null
+  },
+  {
+    "domain": "useplank.com",
+    "price": null
+  },
+  {
+    "domain": "useplaid.com",
+    "price": null
+  },
+  {
+    "domain": "usepitcher.com",
+    "price": null
+  },
+  {
+    "domain": "usepisces.com",
+    "price": null
+  },
+  {
+    "domain": "usepinnacle.com",
+    "price": null
+  },
+  {
+    "domain": "usephrase.com",
+    "price": null
+  },
+  {
+    "domain": "usephoto.com",
+    "price": null
+  },
+  {
+    "domain": "useperk.com",
+    "price": null
+  },
+  {
+    "domain": "useperfection.com",
+    "price": null
+  },
+  {
+    "domain": "usepecan.com",
+    "price": null
+  },
+  {
+    "domain": "usepeacock.com",
+    "price": null
+  },
+  {
+    "domain": "usepeach.com",
+    "price": null
+  },
+  {
+    "domain": "usepatrol.com",
+    "price": null
+  },
+  {
+    "domain": "usepatriot.com",
+    "price": null
+  },
+  {
+    "domain": "usepassport.com",
+    "price": null
+  },
+  {
+    "domain": "useparty.com",
+    "price": null
+  },
+  {
+    "domain": "useparent.com",
+    "price": null
+  },
+  {
+    "domain": "usepanther.com",
+    "price": null
+  },
+  {
+    "domain": "usepacket.com",
+    "price": null
+  },
+  {
+    "domain": "useoverdrive.com",
+    "price": null
+  },
+  {
+    "domain": "useoutlet.com",
+    "price": null
+  },
+  {
+    "domain": "useoption.com",
+    "price": null
+  },
+  {
+    "domain": "useoperate.com",
+    "price": null
+  },
+  {
+    "domain": "useopera.com",
+    "price": null
+  },
+  {
+    "domain": "useofficial.com",
+    "price": null
+  },
+  {
+    "domain": "useobjective.com",
+    "price": null
+  },
+  {
+    "domain": "usenut.com",
+    "price": null
+  },
+  {
+    "domain": "usenpc.com",
+    "price": null
+  },
+  {
+    "domain": "usenovel.com",
+    "price": null
+  },
+  {
+    "domain": "usenotice.com",
+    "price": null
+  },
+  {
+    "domain": "usenotebook.com",
+    "price": null
+  },
+  {
+    "domain": "usenoodle.com",
+    "price": null
+  },
+  {
+    "domain": "usenitrogen.com",
+    "price": null
+  },
+  {
+    "domain": "usenine.com",
+    "price": null
+  },
+  {
+    "domain": "usenewspaper.com",
+    "price": null
+  },
+  {
+    "domain": "useneighbor.com",
+    "price": null
+  },
+  {
+    "domain": "usenavy.com",
+    "price": null
+  },
+  {
+    "domain": "usemulberry.com",
+    "price": null
+  },
+  {
+    "domain": "usemountain.com",
+    "price": null
+  },
+  {
+    "domain": "usemotivate.com",
+    "price": null
+  },
+  {
+    "domain": "usemorning.com",
+    "price": null
+  },
+  {
+    "domain": "usemonster.com",
+    "price": null
+  },
+  {
+    "domain": "usemonkey.com",
+    "price": null
+  },
+  {
+    "domain": "usemonitor.com",
+    "price": null
+  },
+  {
+    "domain": "usemolecule.com",
+    "price": null
+  },
+  {
+    "domain": "usemodest.com",
+    "price": null
+  },
+  {
+    "domain": "usemirage.com",
+    "price": null
+  },
+  {
+    "domain": "usemiracle.com",
+    "price": null
+  },
+  {
+    "domain": "usemingle.com",
+    "price": null
+  },
+  {
+    "domain": "usemill.com",
+    "price": null
+  },
+  {
+    "domain": "usemidnight.com",
+    "price": null
+  },
+  {
+    "domain": "usemerit.com",
+    "price": null
+  },
+  {
+    "domain": "usemeeting.com",
+    "price": null
+  },
+  {
+    "domain": "usemaximize.com",
+    "price": null
+  },
+  {
+    "domain": "usematrix.com",
+    "price": null
+  },
+  {
+    "domain": "usematerial.com",
+    "price": null
+  },
+  {
+    "domain": "usemarvel.com",
+    "price": null
+  },
+  {
+    "domain": "usemarsh.com",
+    "price": null
+  },
+  {
+    "domain": "usemajestic.com",
+    "price": null
+  },
+  {
+    "domain": "usemaintain.com",
+    "price": null
+  },
+  {
+    "domain": "usemahogany.com",
+    "price": null
+  },
+  {
+    "domain": "usemagnolia.com",
+    "price": null
+  },
+  {
+    "domain": "usemagnet.com",
+    "price": null
+  },
+  {
+    "domain": "usemagenta.com",
+    "price": null
+  },
+  {
+    "domain": "useluster.com",
+    "price": null
+  },
+  {
+    "domain": "uselunch.com",
+    "price": null
+  },
+  {
+    "domain": "uselobster.com",
+    "price": null
+  },
+  {
+    "domain": "uselinen.com",
+    "price": null
+  },
+  {
+    "domain": "uselimitless.com",
+    "price": null
+  },
+  {
+    "domain": "uselighting.com",
+    "price": null
+  },
+  {
+    "domain": "uselever.com",
+    "price": null
+  },
+  {
+    "domain": "useledge.com",
+    "price": null
+  },
+  {
+    "domain": "useleader.com",
+    "price": null
+  },
+  {
+    "domain": "uselandscape.com",
+    "price": null
+  },
+  {
+    "domain": "uselace.com",
+    "price": null
+  },
+  {
+    "domain": "useknot.com",
+    "price": null
+  },
+  {
+    "domain": "useknob.com",
+    "price": null
+  },
+  {
+    "domain": "usekiss.com",
+    "price": null
+  },
+  {
+    "domain": "usekingdom.com",
+    "price": null
+  },
+  {
+    "domain": "usekeynote.com",
+    "price": null
+  },
+  {
+    "domain": "usekappa.com",
+    "price": null
+  },
+  {
+    "domain": "usejudge.com",
+    "price": null
+  },
+  {
+    "domain": "usejoker.com",
+    "price": null
+  },
+  {
+    "domain": "usejoint.com",
+    "price": null
+  },
+  {
+    "domain": "usejockey.com",
+    "price": null
+  },
+  {
+    "domain": "usejellyfish.com",
+    "price": null
+  },
+  {
+    "domain": "usejazz.com",
+    "price": null
+  },
+  {
+    "domain": "usejaguar.com",
+    "price": null
+  },
+  {
+    "domain": "usejacket.com",
+    "price": null
+  },
+  {
+    "domain": "useivory.com",
+    "price": null
+  },
+  {
+    "domain": "useissue.com",
+    "price": null
+  },
+  {
+    "domain": "useisland.com",
+    "price": null
+  },
+  {
+    "domain": "useintuitive.com",
+    "price": null
+  },
+  {
+    "domain": "useinterest.com",
+    "price": null
+  },
+  {
+    "domain": "useinnovate.com",
+    "price": null
+  },
+  {
+    "domain": "useinferno.com",
+    "price": null
+  },
+  {
+    "domain": "useinfer.com",
+    "price": null
+  },
+  {
+    "domain": "useimpress.com",
+    "price": null
+  },
+  {
+    "domain": "useimmunity.com",
+    "price": null
+  },
+  {
+    "domain": "useideal.com",
+    "price": null
+  },
+  {
+    "domain": "useicon.com",
+    "price": null
+  },
+  {
+    "domain": "usehurricane.com",
+    "price": null
+  },
+  {
+    "domain": "usehose.com",
+    "price": null
+  },
+  {
+    "domain": "usehorn.com",
+    "price": null
+  },
+  {
+    "domain": "usehonor.com",
+    "price": null
+  },
+  {
+    "domain": "usehonesty.com",
+    "price": null
+  },
+  {
+    "domain": "usehonest.com",
+    "price": null
+  },
+  {
+    "domain": "useholder.com",
+    "price": null
+  },
+  {
+    "domain": "usehobby.com",
+    "price": null
+  },
+  {
+    "domain": "usehinge.com",
+    "price": null
+  },
+  {
+    "domain": "useheroic.com",
+    "price": null
+  },
+  {
+    "domain": "useheart.com",
+    "price": null
+  },
+  {
+    "domain": "usehawk.com",
+    "price": null
+  },
+  {
+    "domain": "usehaul.com",
+    "price": null
+  },
+  {
+    "domain": "useharness.com",
+    "price": null
+  },
+  {
+    "domain": "usehammer.com",
+    "price": null
+  },
+  {
+    "domain": "usegust.com",
+    "price": null
+  },
+  {
+    "domain": "usegulf.com",
+    "price": null
+  },
+  {
+    "domain": "useguardian.com",
+    "price": null
+  },
+  {
+    "domain": "usegravel.com",
+    "price": null
+  },
+  {
+    "domain": "usegrass.com",
+    "price": null
+  },
+  {
+    "domain": "usegrant.com",
+    "price": null
+  },
+  {
+    "domain": "usegranite.com",
+    "price": null
+  },
+  {
+    "domain": "usegondola.com",
+    "price": null
+  },
+  {
+    "domain": "usegoliath.com",
+    "price": null
+  },
+  {
+    "domain": "useglimmer.com",
+    "price": null
+  },
+  {
+    "domain": "useglacier.com",
+    "price": null
+  },
+  {
+    "domain": "usegiant.com",
+    "price": null
+  },
+  {
+    "domain": "usegeometry.com",
+    "price": null
+  },
+  {
+    "domain": "usegenerate.com",
+    "price": null
+  },
+  {
+    "domain": "usegeneral.com",
+    "price": null
+  },
+  {
+    "domain": "usegemstone.com",
+    "price": null
+  },
+  {
+    "domain": "usegator.com",
+    "price": null
+  },
+  {
+    "domain": "usegap.com",
+    "price": null
+  },
+  {
+    "domain": "usegain.com",
+    "price": null
+  },
+  {
+    "domain": "usegadget.com",
+    "price": null
+  },
+  {
+    "domain": "usefringe.com",
+    "price": null
+  },
+  {
+    "domain": "usefragment.com",
+    "price": null
+  },
+  {
+    "domain": "usefraction.com",
+    "price": null
+  },
+  {
+    "domain": "usefractal.com",
+    "price": null
+  },
+  {
+    "domain": "usefork.com",
+    "price": null
+  },
+  {
+    "domain": "usefolder.com",
+    "price": null
+  },
+  {
+    "domain": "useflurry.com",
+    "price": null
+  },
+  {
+    "domain": "useflood.com",
+    "price": null
+  },
+  {
+    "domain": "useflicker.com",
+    "price": null
+  },
+  {
+    "domain": "useflexible.com",
+    "price": null
+  },
+  {
+    "domain": "useflask.com",
+    "price": null
+  },
+  {
+    "domain": "useflashlight.com",
+    "price": null
+  },
+  {
+    "domain": "useflannel.com",
+    "price": null
+  },
+  {
+    "domain": "useflamingo.com",
+    "price": null
+  },
+  {
+    "domain": "useflake.com",
+    "price": null
+  },
+  {
+    "domain": "useflagship.com",
+    "price": null
+  },
+  {
+    "domain": "useflag.com",
+    "price": null
+  },
+  {
+    "domain": "usefirm.com",
+    "price": null
+  },
+  {
+    "domain": "usefinish.com",
+    "price": null
+  },
+  {
+    "domain": "usefine.com",
+    "price": null
+  },
+  {
+    "domain": "usefiddle.com",
+    "price": null
+  },
+  {
+    "domain": "usefestival.com",
+    "price": null
+  },
+  {
+    "domain": "usefavorite.com",
+    "price": null
+  },
+  {
+    "domain": "usefarmhouse.com",
+    "price": null
+  },
+  {
+    "domain": "usefantasy.com",
+    "price": null
+  },
+  {
+    "domain": "usefantastic.com",
+    "price": null
+  },
+  {
+    "domain": "usefame.com",
+    "price": null
+  },
+  {
+    "domain": "usefabulous.com",
+    "price": null
+  },
+  {
+    "domain": "useextra.com",
+    "price": null
+  },
+  {
+    "domain": "useextend.com",
+    "price": null
+  },
+  {
+    "domain": "useexpense.com",
+    "price": null
+  },
+  {
+    "domain": "useexact.com",
+    "price": null
+  },
+  {
+    "domain": "useevaluate.com",
+    "price": null
+  },
+  {
+    "domain": "useether.com",
+    "price": null
+  },
+  {
+    "domain": "useestimate.com",
+    "price": null
+  },
+  {
+    "domain": "useescape.com",
+    "price": null
+  },
+  {
+    "domain": "useera.com",
+    "price": null
+  },
+  {
+    "domain": "useequinox.com",
+    "price": null
+  },
+  {
+    "domain": "useequate.com",
+    "price": null
+  },
+  {
+    "domain": "useequal.com",
+    "price": null
+  },
+  {
+    "domain": "useenzyme.com",
+    "price": null
+  },
+  {
+    "domain": "useenter.com",
+    "price": null
+  },
+  {
+    "domain": "useensure.com",
+    "price": null
+  },
+  {
+    "domain": "useenhance.com",
+    "price": null
+  },
+  {
+    "domain": "useengine.com",
+    "price": null
+  },
+  {
+    "domain": "useenact.com",
+    "price": null
+  },
+  {
+    "domain": "useelephant.com",
+    "price": null
+  },
+  {
+    "domain": "useelastic.com",
+    "price": null
+  },
+  {
+    "domain": "useegg.com",
+    "price": null
+  },
+  {
+    "domain": "useeffort.com",
+    "price": null
+  },
+  {
+    "domain": "useedit.com",
+    "price": null
+  },
+  {
+    "domain": "useeast.com",
+    "price": null
+  },
+  {
+    "domain": "useduty.com",
+    "price": null
+  },
+  {
+    "domain": "usedusk.com",
+    "price": null
+  },
+  {
+    "domain": "usedurable.com",
+    "price": null
+  },
+  {
+    "domain": "usedune.com",
+    "price": null
+  },
+  {
+    "domain": "usedrum.com",
+    "price": null
+  },
+  {
+    "domain": "usedriver.com",
+    "price": null
+  },
+  {
+    "domain": "usedreamer.com",
+    "price": null
+  },
+  {
+    "domain": "usedream.com",
+    "price": null
+  },
+  {
+    "domain": "usedove.com",
+    "price": null
+  },
+  {
+    "domain": "usedogma.com",
+    "price": null
+  },
+  {
+    "domain": "usedivide.com",
+    "price": null
+  },
+  {
+    "domain": "usediscover.com",
+    "price": null
+  },
+  {
+    "domain": "usedirector.com",
+    "price": null
+  },
+  {
+    "domain": "usedinner.com",
+    "price": null
+  },
+  {
+    "domain": "usedialog.com",
+    "price": null
+  },
+  {
+    "domain": "usediagram.com",
+    "price": null
+  },
+  {
+    "domain": "usedevelop.com",
+    "price": null
+  },
+  {
+    "domain": "usedeposit.com",
+    "price": null
+  },
+  {
+    "domain": "usedensity.com",
+    "price": null
+  },
+  {
+    "domain": "usedeluxe.com",
+    "price": null
+  },
+  {
+    "domain": "usedeliver.com",
+    "price": null
+  },
+  {
+    "domain": "usedefense.com",
+    "price": null
+  },
+  {
+    "domain": "usedefend.com",
+    "price": null
+  },
+  {
+    "domain": "usedeer.com",
+    "price": null
+  },
+  {
+    "domain": "usedeclare.com",
+    "price": null
+  },
+  {
+    "domain": "usedecide.com",
+    "price": null
+  },
+  {
+    "domain": "usedecade.com",
+    "price": null
+  },
+  {
+    "domain": "usedebut.com",
+    "price": null
+  },
+  {
+    "domain": "usedealer.com",
+    "price": null
+  },
+  {
+    "domain": "usedatv.com",
+    "price": null
+  },
+  {
+    "domain": "usedandelion.com",
+    "price": null
+  },
+  {
+    "domain": "usedagain.com",
+    "price": null
+  },
+  {
+    "domain": "usecylinder.com",
+    "price": null
+  },
+  {
+    "domain": "usecyclone.com",
+    "price": null
+  },
+  {
+    "domain": "usecustomer.com",
+    "price": null
+  },
+  {
+    "domain": "usecurtain.com",
+    "price": null
+  },
+  {
+    "domain": "usecurry.com",
+    "price": null
+  },
+  {
+    "domain": "usecurator.com",
+    "price": null
+  },
+  {
+    "domain": "usecupid.com",
+    "price": null
+  },
+  {
+    "domain": "usecupcake.com",
+    "price": null
+  },
+  {
+    "domain": "usecrucial.com",
+    "price": null
+  },
+  {
+    "domain": "usecritical.com",
+    "price": null
+  },
+  {
+    "domain": "usecrash.com",
+    "price": null
+  },
+  {
+    "domain": "usecranberry.com",
+    "price": null
+  },
+  {
+    "domain": "usecourtyard.com",
+    "price": null
+  },
+  {
+    "domain": "usecourage.com",
+    "price": null
+  },
+  {
+    "domain": "usecountdown.com",
+    "price": null
+  },
+  {
+    "domain": "usecougar.com",
+    "price": null
+  },
+  {
+    "domain": "usecorrect.com",
+    "price": null
+  },
+  {
+    "domain": "usecooperate.com",
+    "price": null
+  },
+  {
+    "domain": "usecooler.com",
+    "price": null
+  },
+  {
+    "domain": "usecontainer.com",
+    "price": null
+  },
+  {
+    "domain": "usecontain.com",
+    "price": null
+  },
+  {
+    "domain": "useconfirm.com",
+    "price": null
+  },
+  {
+    "domain": "useconfigure.com",
+    "price": null
+  },
+  {
+    "domain": "useconfident.com",
+    "price": null
+  },
+  {
+    "domain": "useconcert.com",
+    "price": null
+  },
+  {
+    "domain": "usecomplete.com",
+    "price": null
+  },
+  {
+    "domain": "usecompile.com",
+    "price": null
+  },
+  {
+    "domain": "usecompete.com",
+    "price": null
+  },
+  {
+    "domain": "usecompact.com",
+    "price": null
+  },
+  {
+    "domain": "usecombine.com",
+    "price": null
+  },
+  {
+    "domain": "usecolony.com",
+    "price": null
+  },
+  {
+    "domain": "usecollar.com",
+    "price": null
+  },
+  {
+    "domain": "usecoast.com",
+    "price": null
+  },
+  {
+    "domain": "useclose.com",
+    "price": null
+  },
+  {
+    "domain": "usecliff.com",
+    "price": null
+  },
+  {
+    "domain": "useclassic.com",
+    "price": null
+  },
+  {
+    "domain": "useclass.com",
+    "price": null
+  },
+  {
+    "domain": "useclasp.com",
+    "price": null
+  },
+  {
+    "domain": "useclash.com",
+    "price": null
+  },
+  {
+    "domain": "usecivil.com",
+    "price": null
+  },
+  {
+    "domain": "usecivic.com",
+    "price": null
+  },
+  {
+    "domain": "usechocolate.com",
+    "price": null
+  },
+  {
+    "domain": "usechestnut.com",
+    "price": null
+  },
+  {
+    "domain": "usecharisma.com",
+    "price": null
+  },
+  {
+    "domain": "usechains.com",
+    "price": null
+  },
+  {
+    "domain": "usecertain.com",
+    "price": null
+  },
+  {
+    "domain": "usecave.com",
+    "price": null
+  },
+  {
+    "domain": "usecause.com",
+    "price": null
+  },
+  {
+    "domain": "usecatapult.com",
+    "price": null
+  },
+  {
+    "domain": "usecarve.com",
+    "price": null
+  },
+  {
+    "domain": "usecarry.com",
+    "price": null
+  },
+  {
+    "domain": "usecarrier.com",
+    "price": null
+  },
+  {
+    "domain": "usecarpet.com",
+    "price": null
+  },
+  {
+    "domain": "usecarpenter.com",
+    "price": null
+  },
+  {
+    "domain": "usecaption.com",
+    "price": null
+  },
+  {
+    "domain": "usecapricorn.com",
+    "price": null
+  },
+  {
+    "domain": "usecanoe.com",
+    "price": null
+  },
+  {
+    "domain": "usecandy.com",
+    "price": null
+  },
+  {
+    "domain": "usecalcium.com",
+    "price": null
+  },
+  {
+    "domain": "usecabinet.com",
+    "price": null
+  },
+  {
+    "domain": "usecabin.com",
+    "price": null
+  },
+  {
+    "domain": "usebuyer.com",
+    "price": null
+  },
+  {
+    "domain": "usebundle.com",
+    "price": null
+  },
+  {
+    "domain": "usebull.com",
+    "price": null
+  },
+  {
+    "domain": "usebulb.com",
+    "price": null
+  },
+  {
+    "domain": "usebuffer.com",
+    "price": null
+  },
+  {
+    "domain": "usebuckle.com",
+    "price": null
+  },
+  {
+    "domain": "usebrown.com",
+    "price": null
+  },
+  {
+    "domain": "usebrook.com",
+    "price": null
+  },
+  {
+    "domain": "usebronze.com",
+    "price": null
+  },
+  {
+    "domain": "usebroadway.com",
+    "price": null
+  },
+  {
+    "domain": "usebroad.com",
+    "price": null
+  },
+  {
+    "domain": "usebowl.com",
+    "price": null
+  },
+  {
+    "domain": "usebounty.com",
+    "price": null
+  },
+  {
+    "domain": "useboulder.com",
+    "price": null
+  },
+  {
+    "domain": "usebottle.com",
+    "price": null
+  },
+  {
+    "domain": "useborder.com",
+    "price": null
+  },
+  {
+    "domain": "usebop.com",
+    "price": null
+  },
+  {
+    "domain": "useboot.com",
+    "price": null
+  },
+  {
+    "domain": "useblizzard.com",
+    "price": null
+  },
+  {
+    "domain": "useblender.com",
+    "price": null
+  },
+  {
+    "domain": "useblanket.com",
+    "price": null
+  },
+  {
+    "domain": "useblade.com",
+    "price": null
+  },
+  {
+    "domain": "useblackberry.com",
+    "price": null
+  },
+  {
+    "domain": "usebirch.com",
+    "price": null
+  },
+  {
+    "domain": "usebell.com",
+    "price": null
+  },
+  {
+    "domain": "usebear.com",
+    "price": null
+  },
+  {
+    "domain": "usebeach.com",
+    "price": null
+  },
+  {
+    "domain": "usebargain.com",
+    "price": null
+  },
+  {
+    "domain": "usebalcony.com",
+    "price": null
+  },
+  {
+    "domain": "usebackup.com",
+    "price": null
+  },
+  {
+    "domain": "useaxial.com",
+    "price": null
+  },
+  {
+    "domain": "useauthorize.com",
+    "price": null
+  },
+  {
+    "domain": "useaudit.com",
+    "price": null
+  },
+  {
+    "domain": "useaudience.com",
+    "price": null
+  },
+  {
+    "domain": "useatmosphere.com",
+    "price": null
+  },
+  {
+    "domain": "useasteroid.com",
+    "price": null
+  },
+  {
+    "domain": "useassure.com",
+    "price": null
+  },
+  {
+    "domain": "useaspire.com",
+    "price": null
+  },
+  {
+    "domain": "useartist.com",
+    "price": null
+  },
+  {
+    "domain": "usearoma.com",
+    "price": null
+  },
+  {
+    "domain": "usearmada.com",
+    "price": null
+  },
+  {
+    "domain": "usearies.com",
+    "price": null
+  },
+  {
+    "domain": "useaquarius.com",
+    "price": null
+  },
+  {
+    "domain": "useappeal.com",
+    "price": null
+  },
+  {
+    "domain": "useanthem.com",
+    "price": null
+  },
+  {
+    "domain": "useannounce.com",
+    "price": null
+  },
+  {
+    "domain": "useample.com",
+    "price": null
+  },
+  {
+    "domain": "useamethyst.com",
+    "price": null
+  },
+  {
+    "domain": "usealphabet.com",
+    "price": null
+  },
+  {
+    "domain": "useallow.com",
+    "price": null
+  },
+  {
+    "domain": "usealliance.com",
+    "price": null
+  },
+  {
+    "domain": "usealbum.com",
+    "price": null
+  },
+  {
+    "domain": "useaffirm.com",
+    "price": null
+  },
+  {
+    "domain": "useadvice.com",
+    "price": null
+  },
+  {
+    "domain": "useadvantage.com",
+    "price": null
+  },
+  {
+    "domain": "useadvance.com",
+    "price": null
+  },
+  {
+    "domain": "useadmit.com",
+    "price": null
+  },
+  {
+    "domain": "useacorn.com",
+    "price": null
+  },
+  {
+    "domain": "useachieve.com",
+    "price": null
+  },
+  {
+    "domain": "useaccurate.com",
+    "price": null
+  },
+  {
+    "domain": "useaccomplish.com",
+    "price": null
+  },
+  {
+    "domain": "useaccept.com",
+    "price": null
+  },
+  {
+    "domain": "useacacia.com",
+    "price": null
+  },
+  {
+    "domain": "writerstrike.com",
+    "price": null
+  },
+  {
+    "domain": "waterwaywars.com",
+    "price": null
+  },
+  {
+    "domain": "waterwaywar.com",
+    "price": null
+  },
+  {
+    "domain": "unofficialacts.com",
+    "price": null
+  },
+  {
+    "domain": "unofficialact.com",
+    "price": null
+  },
+  {
+    "domain": "unityagendas.com",
+    "price": null
+  },
+  {
+    "domain": "tornadorisks.com",
+    "price": null
+  },
+  {
+    "domain": "tornadorisk.com",
+    "price": null
+  },
+  {
+    "domain": "thirtieslife.com",
+    "price": null
+  },
+  {
+    "domain": "tedfled.com",
+    "price": null
+  },
+  {
+    "domain": "targetedtariff.com",
+    "price": null
+  },
+  {
+    "domain": "suburbvotes.com",
+    "price": null
+  },
+  {
+    "domain": "suburbvoters.com",
+    "price": null
+  },
+  {
+    "domain": "suburbvoter.com",
+    "price": null
+  },
+  {
+    "domain": "suburbvote.com",
+    "price": null
+  },
+  {
+    "domain": "suburbsvotes.com",
+    "price": null
+  },
+  {
+    "domain": "suburbsvoters.com",
+    "price": null
+  },
+  {
+    "domain": "suburbsvoter.com",
+    "price": null
+  },
+  {
+    "domain": "suburbsvote.com",
+    "price": null
+  },
+  {
+    "domain": "suburbanvotes.com",
+    "price": null
+  },
+  {
+    "domain": "suburbanvoter.com",
+    "price": null
+  },
+  {
+    "domain": "suburbanvote.com",
+    "price": null
+  },
+  {
+    "domain": "statecollapse.com",
+    "price": null
+  },
+  {
+    "domain": "soupgate.com",
+    "price": null
+  },
+  {
+    "domain": "sleepydon.com",
+    "price": null
+  },
+  {
+    "domain": "signalscandal.com",
+    "price": null
+  },
+  {
+    "domain": "shrimpgate.com",
+    "price": null
+  },
+  {
+    "domain": "savenato.com",
+    "price": null
+  },
+  {
+    "domain": "samespeech.com",
+    "price": null
+  },
+  {
+    "domain": "roeoverturned.com",
+    "price": null
+  },
+  {
+    "domain": "riskygambling.com",
+    "price": null
+  },
+  {
+    "domain": "riskygamble.com",
+    "price": null
+  },
+  {
+    "domain": "riskprojection.com",
+    "price": null
+  },
+  {
+    "domain": "riskestimation.com",
+    "price": null
+  },
+  {
+    "domain": "riskestimates.com",
+    "price": null
+  },
+  {
+    "domain": "resignron.com",
+    "price": null
+  },
+  {
+    "domain": "reflectingpoll.com",
+    "price": null
+  },
+  {
+    "domain": "recessionday.com",
+    "price": null
+  },
+  {
+    "domain": "privateconduct.com",
+    "price": null
+  },
+  {
+    "domain": "nuclearhonesty.com",
+    "price": null
+  },
+  {
+    "domain": "navalblockade.com",
+    "price": null
+  },
+  {
+    "domain": "nastyperson.com",
+    "price": null
+  },
+  {
+    "domain": "moralperson.com",
+    "price": null
+  },
+  {
+    "domain": "mistertariff.com",
+    "price": null
+  },
+  {
+    "domain": "martinact.com",
+    "price": null
+  },
+  {
+    "domain": "mainedecisions.com",
+    "price": null
+  },
+  {
+    "domain": "mainedecision.com",
+    "price": null
+  },
+  {
+    "domain": "lunaticleft.com",
+    "price": null
+  },
+  {
+    "domain": "liessocial.com",
+    "price": null
+  },
+  {
+    "domain": "liesocial.com",
+    "price": null
+  },
+  {
+    "domain": "illegaltariffs.com",
+    "price": null
+  },
+  {
+    "domain": "illegaltariff.com",
+    "price": null
+  },
+  {
+    "domain": "hurricanerisks.com",
+    "price": null
+  },
+  {
+    "domain": "hurricanerisk.com",
+    "price": null
+  },
+  {
+    "domain": "humanscum.com",
+    "price": null
+  },
+  {
+    "domain": "hatchact.com",
+    "price": null
+  },
+  {
+    "domain": "haltact.com",
+    "price": null
+  },
+  {
+    "domain": "greenmatches.com",
+    "price": null
+  },
+  {
+    "domain": "greenlandact.com",
+    "price": null
+  },
+  {
+    "domain": "governorwho.com",
+    "price": null
+  },
+  {
+    "domain": "foreignrelief.com",
+    "price": null
+  },
+  {
+    "domain": "fakeinflation.com",
+    "price": null
+  },
+  {
+    "domain": "expertssuggest.com",
+    "price": null
+  },
+  {
+    "domain": "dropoutdon.com",
+    "price": null
+  },
+  {
+    "domain": "domesticvodka.com",
+    "price": null
+  },
+  {
+    "domain": "dirtyspeech.com",
+    "price": null
+  },
+  {
+    "domain": "demonsperm.com",
+    "price": null
+  },
+  {
+    "domain": "democratstates.com",
+    "price": null
+  },
+  {
+    "domain": "decisionmaine.com",
+    "price": null
+  },
+  {
+    "domain": "crowdestimates.com",
+    "price": null
+  },
+  {
+    "domain": "crowdestimate.com",
+    "price": null
+  },
+  {
+    "domain": "crazycommunist.com",
+    "price": null
+  },
+  {
+    "domain": "congratsworld.com",
+    "price": null
+  },
+  {
+    "domain": "congratsusa.com",
+    "price": null
+  },
+  {
+    "domain": "competesact.com",
+    "price": null
+  },
+  {
+    "domain": "communistcrazy.com",
+    "price": null
+  },
+  {
+    "domain": "chickentax.com",
+    "price": null
+  },
+  {
+    "domain": "championeagles.com",
+    "price": null
+  },
+  {
+    "domain": "championeagle.com",
+    "price": null
+  },
+  {
+    "domain": "cancercrabs.com",
+    "price": null
+  },
+  {
+    "domain": "cancercrab.com",
+    "price": null
+  },
+  {
+    "domain": "brexitnovels.com",
+    "price": null
+  },
+  {
+    "domain": "brexitnovel.com",
+    "price": null
+  },
+  {
+    "domain": "brexitmovies.com",
+    "price": null
+  },
+  {
+    "domain": "brexitmovie.com",
+    "price": null
+  },
+  {
+    "domain": "brexitlit.com",
+    "price": null
+  },
+  {
+    "domain": "brexitfilms.com",
+    "price": null
+  },
+  {
+    "domain": "brexitfilm.com",
+    "price": null
+  },
+  {
+    "domain": "brexitfiction.com",
+    "price": null
+  },
+  {
+    "domain": "brexitfact.com",
+    "price": null
+  },
+  {
+    "domain": "brexitbooks.com",
+    "price": null
+  },
+  {
+    "domain": "brexitbook.com",
+    "price": null
+  },
+  {
+    "domain": "aidbills.com",
+    "price": null
+  },
+  {
+    "domain": "actorstrike.com",
+    "price": null
+  },
+  {
+    "domain": "actorsstrike.com",
+    "price": null
+  },
+  {
     "domain": "rusticate.com",
     "price": null
   },
@@ -27528,6 +29988,10 @@
     "price": 300.0
   },
   {
+    "domain": "titanplumber.com",
+    "price": 350.0
+  },
+  {
     "domain": "threeproduct.com",
     "price": 250.0
   },
@@ -27610,6 +30074,10 @@
   {
     "domain": "supercages.com",
     "price": 300.0
+  },
+  {
+    "domain": "sunsetmoney.com",
+    "price": 250.0
   },
   {
     "domain": "streetcove.com",
@@ -28346,6 +30814,10 @@
   {
     "domain": "hotelmountain.com",
     "price": 300.0
+  },
+  {
+    "domain": "hopeground.com",
+    "price": 150.0
   },
   {
     "domain": "hookdash.com",
@@ -135528,15 +138000,7 @@
     "price": null
   },
   {
-    "domain": "navigator.ai",
-    "price": null
-  },
-  {
     "domain": "healthypods.com",
-    "price": null
-  },
-  {
-    "domain": "abbott.ai",
     "price": null
   },
   {
@@ -143565,10 +146029,6 @@
   },
   {
     "domain": "permissible.com",
-    "price": null
-  },
-  {
-    "domain": "honeydew.com",
     "price": null
   },
   {
@@ -158444,10 +160904,6 @@
     "price": 9888.0
   },
   {
-    "domain": "sunsetmoney.com",
-    "price": 1888.0
-  },
-  {
     "domain": "prestigebook.com",
     "price": 1888.0
   },
@@ -164284,10 +166740,6 @@
     "price": null
   },
   {
-    "domain": "getattend.com",
-    "price": null
-  },
-  {
     "domain": "wilsonbooks.com",
     "price": 4995.0
   },
@@ -166304,10 +168756,6 @@
     "price": 4995.0
   },
   {
-    "domain": "eventplanner.com",
-    "price": null
-  },
-  {
     "domain": "oahushops.com",
     "price": null
   },
@@ -167001,10 +169449,6 @@
   },
   {
     "domain": "verifiedfan.com",
-    "price": null
-  },
-  {
-    "domain": "clutchmax.com",
     "price": null
   },
   {
@@ -170088,10 +172532,6 @@
     "price": null
   },
   {
-    "domain": "ticklab.com",
-    "price": null
-  },
-  {
     "domain": "dreamroot.com",
     "price": null
   },
@@ -171068,10 +173508,6 @@
     "price": null
   },
   {
-    "domain": "visasystem.com",
-    "price": null
-  },
-  {
     "domain": "realitydesktop.com",
     "price": 11000.0
   },
@@ -171085,10 +173521,6 @@
   },
   {
     "domain": "oahubakery.com",
-    "price": null
-  },
-  {
-    "domain": "littlebluebird.com",
     "price": null
   },
   {
@@ -171154,14 +173586,6 @@
   {
     "domain": "sharkdubai.com",
     "price": 9800.0
-  },
-  {
-    "domain": "dogpark.com",
-    "price": null
-  },
-  {
-    "domain": "dogwalker.com",
-    "price": null
   },
   {
     "domain": "winwyoming.com",
@@ -171290,10 +173714,6 @@
   {
     "domain": "thinkaurora.com",
     "price": 9888.0
-  },
-  {
-    "domain": "inspiredfaith.com",
-    "price": null
   },
   {
     "domain": "facebliss.com",
@@ -172392,95 +174812,7 @@
     "price": 9995.0
   },
   {
-    "domain": "getfall.com",
-    "price": null
-  },
-  {
-    "domain": "happiesthours.com",
-    "price": null
-  },
-  {
-    "domain": "getcheckpoint.com",
-    "price": null
-  },
-  {
-    "domain": "steminitiative.com",
-    "price": null
-  },
-  {
-    "domain": "disasterbag.com",
-    "price": null
-  },
-  {
-    "domain": "flavorbursts.com",
-    "price": null
-  },
-  {
-    "domain": "infiniteswitch.com",
-    "price": null
-  },
-  {
-    "domain": "sharpershots.com",
-    "price": null
-  },
-  {
-    "domain": "discoverytool.com",
-    "price": null
-  },
-  {
-    "domain": "cuddlecloth.com",
-    "price": null
-  },
-  {
-    "domain": "impactaward.com",
-    "price": null
-  },
-  {
-    "domain": "balldown.com",
-    "price": null
-  },
-  {
-    "domain": "suburbanshield.com",
-    "price": null
-  },
-  {
-    "domain": "rewardbooster.com",
-    "price": null
-  },
-  {
-    "domain": "wealthgrowers.com",
-    "price": null
-  },
-  {
-    "domain": "kitchentrucks.com",
-    "price": null
-  },
-  {
-    "domain": "switchpoints.com",
-    "price": null
-  },
-  {
-    "domain": "uncoverage.com",
-    "price": null
-  },
-  {
-    "domain": "getroo.com",
-    "price": null
-  },
-  {
-    "domain": "destinygym.com",
-    "price": null
-  },
-  {
     "domain": "usehotel.com",
-    "price": null
-  },
-  {
-    "domain": "viperpits.com",
-    "price": null
-  },
-  {
-    "domain": "lakeminded.com",
     "price": null
   },
   {
@@ -172488,679 +174820,7 @@
     "price": null
   },
   {
-    "domain": "rebellas.com",
-    "price": null
-  },
-  {
-    "domain": "householdwaste.com",
-    "price": null
-  },
-  {
-    "domain": "extensivemedia.com",
-    "price": null
-  },
-  {
-    "domain": "ultimatebanker.com",
-    "price": null
-  },
-  {
-    "domain": "americangloves.com",
-    "price": null
-  },
-  {
-    "domain": "inspirationapp.com",
-    "price": null
-  },
-  {
-    "domain": "helwing.com",
-    "price": null
-  },
-  {
-    "domain": "getprefer.com",
-    "price": null
-  },
-  {
-    "domain": "flappies.com",
-    "price": null
-  },
-  {
-    "domain": "penaltyshot.com",
-    "price": null
-  },
-  {
-    "domain": "economyfitness.com",
-    "price": null
-  },
-  {
-    "domain": "itscurrent.com",
-    "price": null
-  },
-  {
-    "domain": "sturdydesigns.com",
-    "price": null
-  },
-  {
-    "domain": "weddingscapes.com",
-    "price": null
-  },
-  {
-    "domain": "doubleyellow.com",
-    "price": null
-  },
-  {
-    "domain": "barksolutions.com",
-    "price": null
-  },
-  {
-    "domain": "alabamamade.com",
-    "price": null
-  },
-  {
-    "domain": "perfectyear.com",
-    "price": null
-  },
-  {
-    "domain": "belgiummade.com",
-    "price": null
-  },
-  {
-    "domain": "dogwow.com",
-    "price": null
-  },
-  {
-    "domain": "bestdashboard.com",
-    "price": null
-  },
-  {
-    "domain": "runnerssupply.com",
-    "price": null
-  },
-  {
-    "domain": "brassfinance.com",
-    "price": null
-  },
-  {
-    "domain": "oklahomamade.com",
-    "price": null
-  },
-  {
-    "domain": "europeventures.com",
-    "price": null
-  },
-  {
-    "domain": "grillmedics.com",
-    "price": null
-  },
-  {
-    "domain": "betterplanners.com",
-    "price": null
-  },
-  {
-    "domain": "visittoulouse.com",
-    "price": null
-  },
-  {
-    "domain": "surviveschool.com",
-    "price": null
-  },
-  {
-    "domain": "transitwise.com",
-    "price": null
-  },
-  {
-    "domain": "narcoticsabuse.com",
-    "price": null
-  },
-  {
-    "domain": "teamsmith.com",
-    "price": null
-  },
-  {
-    "domain": "freshinspired.com",
-    "price": null
-  },
-  {
-    "domain": "slipperyelm.com",
-    "price": null
-  },
-  {
-    "domain": "drainagesurvey.com",
-    "price": null
-  },
-  {
-    "domain": "budgetmakers.com",
-    "price": null
-  },
-  {
-    "domain": "consumerviews.com",
-    "price": null
-  },
-  {
-    "domain": "balancekitchen.com",
-    "price": null
-  },
-  {
-    "domain": "vermontorganic.com",
-    "price": null
-  },
-  {
     "domain": "usecrown.com",
-    "price": null
-  },
-  {
-    "domain": "getgarage.com",
-    "price": null
-  },
-  {
-    "domain": "vieluxe.com",
-    "price": null
-  },
-  {
-    "domain": "defensehawk.com",
-    "price": null
-  },
-  {
-    "domain": "beermaking.com",
-    "price": null
-  },
-  {
-    "domain": "campcertified.com",
-    "price": null
-  },
-  {
-    "domain": "integrativevet.com",
-    "price": null
-  },
-  {
-    "domain": "honoramerica.com",
-    "price": null
-  },
-  {
-    "domain": "maximumlength.com",
-    "price": null
-  },
-  {
-    "domain": "localunique.com",
-    "price": null
-  },
-  {
-    "domain": "simpledonate.com",
-    "price": null
-  },
-  {
-    "domain": "winefurniture.com",
-    "price": null
-  },
-  {
-    "domain": "selfcaring.com",
-    "price": null
-  },
-  {
-    "domain": "itsguaranteed.com",
-    "price": null
-  },
-  {
-    "domain": "ridingworld.com",
-    "price": null
-  },
-  {
-    "domain": "leaguepassport.com",
-    "price": null
-  },
-  {
-    "domain": "paraventures.com",
-    "price": null
-  },
-  {
-    "domain": "getemerald.com",
-    "price": null
-  },
-  {
-    "domain": "sugarleaves.com",
-    "price": null
-  },
-  {
-    "domain": "dotagent.com",
-    "price": null
-  },
-  {
-    "domain": "getpipes.com",
-    "price": null
-  },
-  {
-    "domain": "cardiacclinic.com",
-    "price": null
-  },
-  {
-    "domain": "getcirculate.com",
-    "price": null
-  },
-  {
-    "domain": "getissue.com",
-    "price": null
-  },
-  {
-    "domain": "binarystrategy.com",
-    "price": null
-  },
-  {
-    "domain": "bayvest.com",
-    "price": null
-  },
-  {
-    "domain": "unlimitedhome.com",
-    "price": null
-  },
-  {
-    "domain": "supervisions.com",
-    "price": null
-  },
-  {
-    "domain": "daowow.com",
-    "price": null
-  },
-  {
-    "domain": "getterminal.com",
-    "price": null
-  },
-  {
-    "domain": "camperapp.com",
-    "price": null
-  },
-  {
-    "domain": "beyondsafe.com",
-    "price": null
-  },
-  {
-    "domain": "getbroad.com",
-    "price": null
-  },
-  {
-    "domain": "getwatson.com",
-    "price": null
-  },
-  {
-    "domain": "getqueen.com",
-    "price": null
-  },
-  {
-    "domain": "roadmates.com",
-    "price": null
-  },
-  {
-    "domain": "parolereform.com",
-    "price": null
-  },
-  {
-    "domain": "premierresults.com",
-    "price": null
-  },
-  {
-    "domain": "getsprinkle.com",
-    "price": null
-  },
-  {
-    "domain": "getphoton.com",
-    "price": null
-  },
-  {
-    "domain": "salesawards.com",
-    "price": null
-  },
-  {
-    "domain": "getinitial.com",
-    "price": null
-  },
-  {
-    "domain": "getdecide.com",
-    "price": null
-  },
-  {
-    "domain": "salesventures.com",
-    "price": null
-  },
-  {
-    "domain": "getprimer.com",
-    "price": null
-  },
-  {
-    "domain": "tryspatial.com",
-    "price": null
-  },
-  {
-    "domain": "alreadyperfect.com",
-    "price": null
-  },
-  {
-    "domain": "vascularscore.com",
-    "price": null
-  },
-  {
-    "domain": "ultimateview.com",
-    "price": null
-  },
-  {
-    "domain": "rapidreact.com",
-    "price": null
-  },
-  {
-    "domain": "simplydonate.com",
-    "price": null
-  },
-  {
-    "domain": "exoticvault.com",
-    "price": null
-  },
-  {
-    "domain": "lazybastard.com",
-    "price": null
-  },
-  {
-    "domain": "everythingbet.com",
-    "price": null
-  },
-  {
-    "domain": "creditliberty.com",
-    "price": null
-  },
-  {
-    "domain": "virtuosomind.com",
-    "price": null
-  },
-  {
-    "domain": "oillawyer.com",
-    "price": null
-  },
-  {
-    "domain": "fasthands.com",
-    "price": null
-  },
-  {
-    "domain": "eliminatehate.com",
-    "price": null
-  },
-  {
-    "domain": "hubconnected.com",
-    "price": null
-  },
-  {
-    "domain": "drugadvocates.com",
-    "price": null
-  },
-  {
-    "domain": "visitsoho.com",
-    "price": null
-  },
-  {
-    "domain": "reliablemining.com",
-    "price": null
-  },
-  {
-    "domain": "datascaling.com",
-    "price": null
-  },
-  {
-    "domain": "sweetbit.com",
-    "price": null
-  },
-  {
-    "domain": "legalventures.com",
-    "price": null
-  },
-  {
-    "domain": "nativechoice.com",
-    "price": null
-  },
-  {
-    "domain": "linesman.com",
-    "price": null
-  },
-  {
-    "domain": "legendventures.com",
-    "price": null
-  },
-  {
-    "domain": "vitalcoverage.com",
-    "price": null
-  },
-  {
-    "domain": "unrealventures.com",
-    "price": null
-  },
-  {
-    "domain": "eventdecorator.com",
-    "price": null
-  },
-  {
-    "domain": "tradeagain.com",
-    "price": null
-  },
-  {
-    "domain": "squarekey.com",
-    "price": null
-  },
-  {
-    "domain": "indoorventures.com",
-    "price": null
-  },
-  {
-    "domain": "arizonastrong.com",
-    "price": null
-  },
-  {
-    "domain": "curefast.com",
-    "price": null
-  },
-  {
-    "domain": "heraldsquare.com",
-    "price": null
-  },
-  {
-    "domain": "silverfamily.com",
-    "price": null
-  },
-  {
-    "domain": "skihouses.com",
-    "price": null
-  },
-  {
-    "domain": "unknownthreat.com",
-    "price": null
-  },
-  {
-    "domain": "shalommedia.com",
-    "price": null
-  },
-  {
-    "domain": "simplychecking.com",
-    "price": null
-  },
-  {
-    "domain": "americaninvest.com",
-    "price": null
-  },
-  {
-    "domain": "neverown.com",
-    "price": null
-  },
-  {
-    "domain": "nicethreads.com",
-    "price": null
-  },
-  {
-    "domain": "gasventures.com",
-    "price": null
-  },
-  {
-    "domain": "watchauctions.com",
-    "price": null
-  },
-  {
-    "domain": "getcultivate.com",
-    "price": null
-  },
-  {
-    "domain": "useginger.com",
-    "price": null
-  },
-  {
-    "domain": "readytime.com",
-    "price": null
-  },
-  {
-    "domain": "leadertraining.com",
-    "price": null
-  },
-  {
-    "domain": "littlesilver.com",
-    "price": null
-  },
-  {
-    "domain": "bestresponse.com",
-    "price": null
-  },
-  {
-    "domain": "restarttoday.com",
-    "price": null
-  },
-  {
-    "domain": "sugarblossom.com",
-    "price": null
-  },
-  {
-    "domain": "gettradition.com",
-    "price": null
-  },
-  {
-    "domain": "deliveroil.com",
-    "price": null
-  },
-  {
-    "domain": "smartspread.com",
-    "price": null
-  },
-  {
-    "domain": "discoverisrael.com",
-    "price": null
-  },
-  {
-    "domain": "yousimply.com",
-    "price": null
-  },
-  {
-    "domain": "tropicalbirds.com",
-    "price": null
-  },
-  {
-    "domain": "gethomestead.com",
-    "price": null
-  },
-  {
-    "domain": "waterchoice.com",
-    "price": null
-  },
-  {
-    "domain": "getjump.com",
-    "price": null
-  },
-  {
-    "domain": "bealeader.com",
-    "price": null
-  },
-  {
-    "domain": "liveries.com",
-    "price": null
-  },
-  {
-    "domain": "pacificimports.com",
-    "price": null
-  },
-  {
-    "domain": "usedelta.com",
-    "price": null
-  },
-  {
-    "domain": "useproton.com",
-    "price": null
-  },
-  {
-    "domain": "agenthelpers.com",
-    "price": null
-  },
-  {
-    "domain": "pointware.com",
-    "price": null
-  },
-  {
-    "domain": "getmoderate.com",
-    "price": null
-  },
-  {
-    "domain": "booboos.com",
-    "price": null
-  },
-  {
-    "domain": "homefashions.com",
-    "price": null
-  },
-  {
-    "domain": "reactiveagents.com",
-    "price": null
-  },
-  {
-    "domain": "simplegov.com",
-    "price": null
-  },
-  {
-    "domain": "celldynamics.com",
-    "price": null
-  },
-  {
-    "domain": "holywow.com",
-    "price": null
-  },
-  {
-    "domain": "homerelated.com",
-    "price": null
-  },
-  {
-    "domain": "americandeal.com",
-    "price": null
-  },
-  {
-    "domain": "americanbeacon.com",
-    "price": null
-  },
-  {
-    "domain": "primade.com",
-    "price": null
-  },
-  {
-    "domain": "betprince.com",
-    "price": null
-  },
-  {
-    "domain": "upsides.com",
-    "price": null
-  },
-  {
-    "domain": "dealwell.com",
-    "price": null
-  },
-  {
-    "domain": "tradeverify.com",
-    "price": null
-  },
-  {
-    "domain": "supporters.com",
-    "price": null
-  },
-  {
-    "domain": "firstinning.com",
-    "price": null
-  },
-  {
-    "domain": "haps.com",
     "price": null
   },
   {
@@ -186120,10 +187780,6 @@
     "price": null
   },
   {
-    "domain": "hopeground.com",
-    "price": null
-  },
-  {
     "domain": "homesive.com",
     "price": null
   },
@@ -195481,10 +197137,6 @@
   },
   {
     "domain": "burrelectrical.com",
-    "price": null
-  },
-  {
-    "domain": "titanplumber.com",
     "price": null
   },
   {
@@ -325769,7 +327421,7 @@
   },
   {
     "domain": "browardrentals.com",
-    "price": 1495.0
+    "price": 2500.0
   },
   {
     "domain": "bookcondos.com",
@@ -325777,7 +327429,7 @@
   },
   {
     "domain": "beacharea.com",
-    "price": 2495.0
+    "price": 3500.0
   },
   {
     "domain": "annapolisdui.com",
@@ -325873,7 +327525,7 @@
   },
   {
     "domain": "homesboca.com",
-    "price": 3850.0
+    "price": 3500.0
   },
   {
     "domain": "hawaiimaui.com",
@@ -338545,10 +340197,6 @@
   },
   {
     "domain": "postfarms.com",
-    "price": null
-  },
-  {
-    "domain": "primalstone.com",
     "price": null
   },
   {
@@ -403545,10 +405193,6 @@
   },
   {
     "domain": "missionalaska.com",
-    "price": null
-  },
-  {
-    "domain": "minddrift.com",
     "price": null
   },
   {

@@ -1893,17 +1893,6 @@
   },
   {
     "deal_score": 44600.0,
-    "domain": "supporters.com",
-    "is_mub": false,
-    "link": "https://efty.com/d/327o8/supporters.com/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
-    "price": 1.0,
-    "quality_score": 4.46,
-    "sld": "supporters",
-    "tld": ".com",
-    "zipf_score": 4.46
-  },
-  {
-    "deal_score": 44600.0,
     "domain": "awful.com",
     "is_mub": false,
     "link": "https://efty.com/d/2wokh/awful.com/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
@@ -2746,6 +2735,17 @@
     "price": 1.0,
     "quality_score": 4.26,
     "sld": "breathe",
+    "tld": ".com",
+    "zipf_score": 4.26
+  },
+  {
+    "deal_score": 42600.0,
+    "domain": "removing.com",
+    "is_mub": false,
+    "link": "https://efty.com/d/2zh1o/removing.com/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
+    "price": 1.0,
+    "quality_score": 4.26,
+    "sld": "removing",
     "tld": ".com",
     "zipf_score": 4.26
   }

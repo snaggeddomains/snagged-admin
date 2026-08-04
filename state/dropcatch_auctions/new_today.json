@@ -1,16 +1,17 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 8,
   "domains": [
-    "vpsa.com",
-    "wooow.com",
-    "poxs.com",
     "talar.com",
     "icardio.com",
+    "grandx.org",
+    "msfa.net",
     "luxen.com",
-    "nightfly.com"
+    "nightfly.com",
+    "yerd.com",
+    "sidelink.com"
   ],
-  "generated_at": "2026-08-03T09:48:34.054378+00:00",
+  "generated_at": "2026-08-04T09:47:59.092523+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }

@@ -1,12 +1,11 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 2,
   "domains": [
-    "ababa.ai",
-    "others.ai",
-    "psd.ai"
+    "upcoming.ai",
+    "ultra.ai"
   ],
-  "generated_at": "2026-08-03T09:03:32.905232+00:00",
+  "generated_at": "2026-08-04T09:03:38.987441+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }
