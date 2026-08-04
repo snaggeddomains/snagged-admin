@@ -816,6 +816,14 @@ and an A/B/F domain grade.
   this session for reputation isolation of the weekly newsletter). Override/extend via
   `EMAIL_HEALTH_DKIM_MAP="domain:sel/sel, domain2:sel"`. `dkimSelectors()` (`EMAIL_HEALTH_DKIM_SELECTORS`,
   default `google,resend`) is now just the fallback for an unmapped domain.
+- **Send-only subdomains + DMARC action wording (2026-08-04).** `sendOnlyDomains()` (env
+  `EMAIL_HEALTH_SEND_ONLY`, default `email.snagged.com`) marks a marketing/transactional subdomain
+  (no inbox) so its **MX** and **DNS-health** "failures" (no MX, no own SOA — both expected) are set to
+  N/A (`unavailable`) instead of failing the grade or spawning "Fix MX" action items. Also fixed
+  `buildActions`: a DMARC record at **p=none EXISTS** → it's a "**tighten** (p=none→quarantine)" item,
+  not "**add** a DMARC record" (the DMARC check reads p=none as a fail, but `dmarc_policy` is present, so
+  the add branch now gates on `!dmarcPolicy` only). Keeps the marketing subdomain from showing false
+  red flags during Mailchimp warm-up (real gap there is just SPF: `email` TXT `v=spf1 include:servers.mcsv.net ~all`).
 - **API** `app/api/admin/email-health/route.ts` (GET cached report + quota / POST `{action:'refresh',domain?}`).
   **Cron** `app/api/cron/email-health` (vercel.json `30 12 * * *`, CRON_SECRET) re-runs + **alerts on NEWLY-
   failing checks only** (diff vs stored `failing`) via bell + email (`reports.email_health` users) + Slack

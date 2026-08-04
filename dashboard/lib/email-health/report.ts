@@ -46,6 +46,14 @@ export function selectorsForDomain(domain: string): string[] {
   return m[d]?.length ? m[d] : dkimSelectors();
 }
 
+// Send-only domains (marketing/transactional subdomains with no inbox, e.g. a Mailchimp
+// subdomain) legitimately have NO MX and often no own SOA — so MX / DNS-health "failures" are
+// false alarms there. Env-overridable. These checks are marked N/A for a send-only domain.
+export function sendOnlyDomains(): string[] {
+  const raw = (process.env.EMAIL_HEALTH_SEND_ONLY || "email.snagged.com").split(/[,\s]+/);
+  return [...new Set(raw.map((d) => d.trim().toLowerCase()).filter(Boolean))];
+}
+
 export type CheckStatus = "pass" | "warn" | "fail" | "unavailable";
 export type Check = {
   key: string;          // mx | spf | dkim | dmarc | blacklist | dns
@@ -121,9 +129,11 @@ function buildActions(h: {
   }
 
   const dmarc = get("dmarc");
-  if (dmarc?.status === "fail" || !h.dmarcPolicy) {
+  // "Add" only when there's genuinely NO policy. A record at p=none EXISTS — that's a "tighten",
+  // not an "add" (the DMARC check reads p=none as a fail, but the policy is present).
+  if (!h.dmarcPolicy) {
     A.push({ severity: "high", title: `Add a DMARC record for ${h.domain}`,
-      detail: `No enforceable DMARC policy. Start with p=none + rua reporting to monitor, then tighten to quarantine → reject.` });
+      detail: `No DMARC policy. Start with p=none + rua reporting to monitor, then tighten to quarantine → reject.` });
   } else if (h.dmarcPolicy === "none") {
     A.push({ severity: "medium", title: `Tighten DMARC on ${h.domain} (p=none → quarantine → reject)`,
       detail: `DMARC is monitor-only, so spoofing isn't blocked and you miss the inbox-trust benefit. After confirming your senders (Google, Resend) pass in aggregate reports, move to quarantine, then reject.` });
@@ -167,6 +177,15 @@ export async function checkDomain(domain: string, selectors = selectorsForDomain
     toCheck("blacklist", "Blacklist", blacklist),
     toCheck("dns", "DNS health", dns),
   ];
+  // Send-only subdomain (marketing/transactional, no inbox): MX absence + own-SOA "not found" are
+  // EXPECTED, not failures. Mark them N/A so they don't fail the grade or spawn action items.
+  if (sendOnlyDomains().includes(domain.toLowerCase())) {
+    for (const c of checks) {
+      if ((c.key === "mx" || c.key === "dns") && c.status !== "pass") {
+        c.status = "unavailable"; c.detail = "send-only subdomain — no inbound mail (MX/DNS not applicable)"; c.failed = []; c.warnings = [];
+      }
+    }
+  }
   const { policy: dmarc_policy, reporting: dmarc_reporting } = parseDmarc(dmarc.ok ? dmarc.data : null);
   const failing = checks.filter((c) => c.status === "fail").map((c) => c.key);
   const actions = buildActions({ domain, checks, dmarcPolicy: dmarc_policy, dmarcReporting: dmarc_reporting, dkimSelectors, selectors });
