@@ -1,11 +1,8 @@
 {
   "capped": false,
-  "count": 2,
-  "domains": [
-    "announcement.co",
-    "shutdown.co"
-  ],
-  "generated_at": "2026-08-04T10:01:57.679863+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-04T17:00:39.771422+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
