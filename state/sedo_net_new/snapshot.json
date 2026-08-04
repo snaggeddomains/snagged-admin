@@ -1,11 +1,20 @@
 [
   {
     "currency": "USD",
-    "domain": "managerial.ai",
-    "end_time_utc": "2026-08-03T23:15:20+00:00",
+    "domain": "shutdown.co",
+    "end_time_utc": "2026-08-04T10:12:42+00:00",
     "is_mub": false,
-    "price": null,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=managerial.ai"
+    "price": 82500.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=shutdown.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "announcement.co",
+    "end_time_utc": "2026-08-04T10:09:30+00:00",
+    "is_mub": false,
+    "price": 104500.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=announcement.co"
   }
 ]

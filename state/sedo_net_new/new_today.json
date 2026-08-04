@@ -1,10 +1,11 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 2,
   "domains": [
-    "managerial.ai"
+    "announcement.co",
+    "shutdown.co"
   ],
-  "generated_at": "2026-08-03T23:02:08.866643+00:00",
+  "generated_at": "2026-08-04T10:01:57.679863+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
