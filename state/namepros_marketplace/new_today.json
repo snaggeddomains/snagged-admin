@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-05T10:05:13.600967+00:00",
+  "count": 1,
+  "domains": [
+    "zqu.com"
+  ],
+  "generated_at": "2026-08-05T17:06:43.510449+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
