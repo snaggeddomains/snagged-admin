@@ -5,7 +5,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { userCan, userCanAction } from "@/lib/permissions";
-import { listDeals, getDealsByIds, createDeal, boardStats, searchBuyers, dealsConfigured, type CreateDealInput } from "@/lib/deals/store";
+import { listDeals, getDealsByIds, createDeal, addActivity, boardStats, searchBuyers, dealsConfigured, type CreateDealInput } from "@/lib/deals/store";
 import { sharedDealIdsFor } from "@/lib/deals/sharing";
 import { pendingReminders } from "@/lib/deals/reminders";
 import { notifyAssignment } from "@/lib/deals/notify";
@@ -66,10 +66,14 @@ export async function POST(req: NextRequest) {
   if (!me) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   if (!userCan(me, "deals") && !userCanAction(me, "deals.all")) return NextResponse.json({ error: "No access" }, { status: 403 });
 
-  const body = (await req.json().catch(() => ({}))) as CreateDealInput;
+  const body = (await req.json().catch(() => ({}))) as CreateDealInput & { comment?: string };
   if (!body.domain) return NextResponse.json({ error: "domain is required" }, { status: 400 });
+  const comment = body.comment ? String(body.comment).trim() : "";
   try {
     const { deal, created } = await createDeal({ ...body, createdBy: me.email });
+    // Optional free-text pretext → posted as the deal's first comment (timeline), attributed to
+    // the creator. Separate from Notes; best-effort so it never blocks deal creation.
+    if (comment) { try { await addActivity(deal.id, { user_email: me.email, kind: "comment", body: comment, meta: null }); } catch { /* non-fatal */ } }
     if (created && deal.owner_email) await notifyAssignment(deal);
     // A manually-added deal usually has no research report — kick a FREE pre-flight so it
     // auto-links (same rule as a report that already exists). Best-effort, non-blocking.

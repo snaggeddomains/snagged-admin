@@ -189,6 +189,15 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
     is exact). Two parallel `deals` queries (by lead_key, by buyer_email), fail-open. `countBuyInquiries`
     inherits it → the Inbox pointer stays accurate. Display-layer only (no DB write); works for existing
     rows regardless of how the deal was created.
+  - **Free-text Comment on ANY deal-create surface (2026-08-05).** Every place a deal is created now
+    takes an optional free-text **Comment** → posted as the deal's FIRST comment on the timeline
+    (`addActivity` kind=comment), separate from Notes, so pretext reaches whoever picks it up. Surfaces:
+    (1) board **New deal** modal (`board-client` NewDealModal `comment` field → `/api/admin/deals` POST,
+    which `addActivity`s it, authored by the creator); (2) **inquiry triage** convert modal (already had
+    it — `inquiries-client` → `/api/admin/inquiries`, meta `{via:'triage'}`); (3) the **research
+    Add-to-Deal drawer** (research `#pd-comment` → `api/pipedrive.js` sends `comment`+`actorEmail` →
+    internal `pipedrive-deal` route `addActivity`s it, authored by the research user). All best-effort
+    (a failed comment never blocks deal creation). No new table/env (reuses `deal_activity`).
   - **Buyer-name typeahead (returning clients).** New-deal modal buyer-name field type-aheads
     against prior deals: `GET /api/admin/deals?buyers=<q>` → `searchBuyers` (store.ts, distinct
     known buyers by name/email ilike) → pick fills buyer name/email/company. No new table/env.

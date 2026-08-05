@@ -6,7 +6,7 @@
 // middleware.ts excludes api/internal.
 
 import { NextResponse, type NextRequest } from "next/server";
-import { createDeal, findDealByDomain, type CreateDealInput } from "@/lib/deals/store";
+import { createDeal, findDealByDomain, addActivity, type CreateDealInput } from "@/lib/deals/store";
 import { setInquiryDismissed } from "@/lib/inquiries";
 import { notifyAssignment, dealUrl } from "@/lib/deals/notify";
 import { SOURCES } from "@/lib/deals/stages";
@@ -66,8 +66,17 @@ export async function POST(req: NextRequest) {
     leadKey: b.leadKey ? String(b.leadKey) : undefined,
   };
 
+  // Optional free-text pretext the research user typed in the Add-to-Deal drawer → posted as
+  // the deal's first COMMENT (timeline), separate from the auto-filled Notes. Attributed to the
+  // research user (actorEmail) when known.
+  const comment = b.comment ? String(b.comment).trim() : "";
+  const actorEmail = b.actorEmail ? String(b.actorEmail) : null;
+
   try {
     const { deal, created } = await createDeal(input);
+    if (comment) {
+      try { await addActivity(deal.id, { user_email: actorEmail, kind: "comment", body: comment, meta: null }); } catch { /* non-fatal */ }
+    }
     // Converting the inquiry into a deal (from the research lead dossier) resolves it — auto-dismiss
     // the source lead so it drops off the Buy-Side Inquiries queue + the Inbox pointer count, the
     // same as the in-app triage convert. Best-effort; keyed off the lead_key the dossier passes.

@@ -445,7 +445,7 @@ function PrefsModal({ onClose }: { onClose: () => void }) {
 }
 
 function NewDealModal({ assignees, onClose, onCreated }: { assignees: Assignee[]; onClose: () => void; onCreated: (id: string) => void }) {
-  const [f, setF] = useState({ domain: "", buyerName: "", buyerEmail: "", orgName: "", budgetRange: "", source: SOURCES[0] as string, heardAbout: "", priority: "", ownerEmail: "" });
+  const [f, setF] = useState({ domain: "", buyerName: "", buyerEmail: "", orgName: "", budgetRange: "", source: SOURCES[0] as string, heardAbout: "", priority: "", ownerEmail: "", comment: "" });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const set = (k: string, v: string) => setF((s) => ({ ...s, [k]: v }));
@@ -527,6 +527,9 @@ function NewDealModal({ assignees, onClose, onCreated }: { assignees: Assignee[]
           <option value="">Unassigned / Inbox</option>
           {assignees.map((a) => <option key={a.email} value={a.email}>{a.name}</option>)}
         </select>
+        <label style={fieldLabel}>Comment (optional — posted to the deal)</label>
+        <textarea style={{ ...input, minHeight: 64, resize: "vertical", fontFamily: "inherit" }} value={f.comment}
+          onChange={(e) => set("comment", e.target.value)} placeholder="Add context for whoever picks this up…" />
         {error && <div style={{ color: "#a83265", fontSize: 13, marginTop: 10 }}>{error}</div>}
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16 }}>
           <button style={btn} onClick={onClose} disabled={busy}>Cancel</button>
