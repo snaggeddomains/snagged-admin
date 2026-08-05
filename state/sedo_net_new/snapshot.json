@@ -1,29 +1,20 @@
 [
   {
     "currency": "USD",
-    "domain": "shoulda.co",
-    "end_time_utc": "2026-08-05T08:27:39+00:00",
+    "domain": "slurry.ai",
+    "end_time_utc": "2026-08-05T19:10:21+00:00",
     "is_mub": false,
-    "price": 1395.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=shoulda.co"
+    "price": 5000.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=slurry.ai"
   },
   {
     "currency": "USD",
-    "domain": "yorkers.co",
-    "end_time_utc": "2026-08-05T08:27:47+00:00",
+    "domain": "wagon.co",
+    "end_time_utc": "2026-08-05T20:47:45+00:00",
     "is_mub": false,
-    "price": 1395.0,
+    "price": 455000.0,
     "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=yorkers.co"
-  },
-  {
-    "currency": "USD",
-    "domain": "sittin.co",
-    "end_time_utc": "2026-08-05T08:27:01+00:00",
-    "is_mub": false,
-    "price": 1395.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=sittin.co"
+    "url": "https://sedo.com/search/details/?domain=wagon.co"
   }
 ]
