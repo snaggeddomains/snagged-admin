@@ -1,14 +1,542 @@
 [
   {
-    "domain": "bailie.com",
-    "price": 203320.0
+    "domain": "voxtraining.com",
+    "price": 2399.0
   },
   {
-    "domain": "qualifying.net",
-    "price": 199.0
+    "domain": "frisbees.net",
+    "price": 1600.0
   },
   {
-    "domain": "instability.net",
-    "price": 199.0
+    "domain": "bleached.net",
+    "price": 3500.0
+  },
+  {
+    "domain": "hugely.net",
+    "price": 2095.0
+  },
+  {
+    "domain": "tannous.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "bratter.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "melonie.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "morwell.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "stanyan.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "shanita.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "tarbert.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "chapins.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "harlows.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "rondell.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "daltrey.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "handlin.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "abshire.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "mitnick.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "selfoss.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "hungate.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "wakelin.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "cormany.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "cowgill.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "chadron.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "shoulda.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "yorkers.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "skipton.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "wandell.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "boranda.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "pompton.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "tincher.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "colborn.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "tashiro.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "propass.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "vulcans.co",
+    "price": 1488.0
+  },
+  {
+    "domain": "charcha.co",
+    "price": 1488.0
+  },
+  {
+    "domain": "hannahs.co",
+    "price": 1488.0
+  },
+  {
+    "domain": "dasmesh.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "pamelas.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "hoffart.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "dunwood.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "brynlee.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "dancorp.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "toritos.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "longton.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "wilfong.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "silvias.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "melcher.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "mashita.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "willapa.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "cashion.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "bainton.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "philena.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "bashira.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "simchas.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "rosendo.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "lampley.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "lilling.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "renaldi.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "tenfore.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "boening.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "gerties.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "bucklew.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "goodley.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "lynford.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "jabella.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "idealia.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "benzing.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "padstow.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "wilmoth.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "chipton.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "wilbury.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "kingham.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "lennies.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "tiptree.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "bennish.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "shepton.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "merlock.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "irvings.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "bennion.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "mottley.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "shermer.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "wickson.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "mcgills.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "tauheed.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "witters.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "entwood.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "marrion.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "hesters.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "howlite.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "shepley.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "granoff.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "sarinas.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "mascoma.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "cebuano.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "seamans.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "sharpes.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "slammin.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "woodlea.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "westcor.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "guerras.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "trudell.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "citimed.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "dameron.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "poopsie.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "tisbury.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "warford.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "kiloran.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "rawling.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "webling.co",
+    "price": 1488.0
+  },
+  {
+    "domain": "admine.co",
+    "price": 1488.0
+  },
+  {
+    "domain": "sittin.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "ethels.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "lewellen.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "amenia.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "jassie.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "bigley.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "denville.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "linscott.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "lannan.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "kirkwall.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "sansbury.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "mcgarr.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "tutton.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "kayvee.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "buteau.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "malins.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "casian.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "perivale.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "wellsley.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "delilahs.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "shelford.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "midville.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "freeberg.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "reeces.co",
+    "price": 1395.0
   }
 ]

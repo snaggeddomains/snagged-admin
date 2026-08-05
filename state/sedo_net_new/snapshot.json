@@ -1,1 +1,29 @@
-[]
+[
+  {
+    "currency": "USD",
+    "domain": "shoulda.co",
+    "end_time_utc": "2026-08-05T08:27:39+00:00",
+    "is_mub": false,
+    "price": 1395.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=shoulda.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "yorkers.co",
+    "end_time_utc": "2026-08-05T08:27:47+00:00",
+    "is_mub": false,
+    "price": 1395.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=yorkers.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "sittin.co",
+    "end_time_utc": "2026-08-05T08:27:01+00:00",
+    "is_mub": false,
+    "price": 1395.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=sittin.co"
+  }
+]
