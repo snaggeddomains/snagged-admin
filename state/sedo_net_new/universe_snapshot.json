@@ -4,16 +4,20 @@
     "price": 2399.0
   },
   {
-    "domain": "frisbees.net",
-    "price": 1600.0
-  },
-  {
-    "domain": "bleached.net",
-    "price": 3500.0
-  },
-  {
     "domain": "hugely.net",
     "price": 2095.0
+  },
+  {
+    "domain": "sicilian.net",
+    "price": 2420.0
+  },
+  {
+    "domain": "shuiping.net",
+    "price": 600.0
+  },
+  {
+    "domain": "propass.co",
+    "price": 1988.0
   },
   {
     "domain": "tannous.co",
@@ -130,22 +134,6 @@
   {
     "domain": "tashiro.co",
     "price": 1395.0
-  },
-  {
-    "domain": "propass.co",
-    "price": 1988.0
-  },
-  {
-    "domain": "vulcans.co",
-    "price": 1488.0
-  },
-  {
-    "domain": "charcha.co",
-    "price": 1488.0
-  },
-  {
-    "domain": "hannahs.co",
-    "price": 1488.0
   },
   {
     "domain": "dasmesh.co",
@@ -436,12 +424,12 @@
     "price": 1395.0
   },
   {
-    "domain": "webling.co",
-    "price": 1488.0
+    "domain": "prolocal.co",
+    "price": 1988.0
   },
   {
-    "domain": "admine.co",
-    "price": 1488.0
+    "domain": "karpet.co",
+    "price": 1988.0
   },
   {
     "domain": "sittin.co",
@@ -537,6 +525,42 @@
   },
   {
     "domain": "reeces.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "gettys.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "conkey.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "basrah.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "karnes.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "wagley.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "romich.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "stratham.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "dunman.co",
+    "price": 1395.0
+  },
+  {
+    "domain": "orrell.co",
     "price": 1395.0
   }
 ]
