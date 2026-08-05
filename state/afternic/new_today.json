@@ -1,11 +1,18 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 7,
   "domains": [
-    "urged.ai",
-    "toulon.org"
+    "msnbc.org",
+    "crenshaw.co",
+    "sensations.org",
+    "confront.org",
+    "hebron.co",
+    "overall.com",
+    "act.ai"
   ],
-  "generated_at": "2026-08-04T08:11:05.932047+00:00",
-  "mub": [],
+  "generated_at": "2026-08-05T08:16:57.387193+00:00",
+  "mub": [
+    "hebron.co"
+  ],
   "source": "afternic"
 }
