@@ -184,6 +184,85 @@ def _master_quality(domain: str, tld: str | None) -> float | None:
     return round(scoring.quality_score(qzipf, weight), 2)
 
 
+def _master_sld(domain: str, tld: str | None) -> str | None:
+    """Derive a clean single-label alphabetic SLD from a Master row (no `sld` column).
+    Multi-label hosts (a.b.com) / non-alpha SLDs → None. Mirrors _master_quality."""
+    domain = (domain or "").strip().lower()
+    tld_bare = (tld or "").strip().lower().lstrip(".")
+    if tld_bare and domain.endswith("." + tld_bare):
+        sld = domain[: -(len(tld_bare) + 1)]
+    else:
+        sld, _, _ = domain.partition(".")
+    if not sld or "." in sld or not sld.isalpha():
+        return None
+    return sld
+
+
+def _run_master_pos(args: argparse.Namespace) -> int:
+    """Backfill part_of_speech (WordNet) on SINGLE-WORD Master Domain List rows that
+    lack it, so Master-only dictionary names are Part-of-Speech-filterable in Domain
+    Name Search like the Universe. Only single words carry a POS (matches universe
+    pos_for_sld); WordNet self-gates function/non-dictionary words to []. Writing [] for
+    those marks them processed (idempotent — a re-run only picks up still-null rows).
+    Dry-run unless --commit.
+
+    Requires the column first (run in the masterlist project):
+        alter table "Master Domain List" add column if not exists part_of_speech text[];
+        create index if not exists idx_master_pos_gin
+          on "Master Domain List" using gin (part_of_speech);
+    """
+    from .enrich import _master_client
+
+    client = _master_client()
+    if client is None:
+        print("backfill-structural: MASTERLIST_SUPABASE_URL / MASTERLIST_SUPABASE_SECRET_KEY not set — skipping.")
+        return 0
+
+    last_domain = ""
+    total = tagged = empty = 0
+    while True:
+        if args.max_rows is not None and total >= args.max_rows:
+            break
+        limit = SELECT_BATCH
+        if args.max_rows is not None:
+            limit = min(SELECT_BATCH, args.max_rows - total)
+        resp = (
+            client.table("Master Domain List")
+            .select("domain, tld, is_single_word")
+            .is_("part_of_speech", "null")
+            .eq("is_single_word", "Y")
+            .gt("domain", last_domain)
+            .order("domain")
+            .limit(limit)
+            .execute()
+        )
+        rows = resp.data or []
+        if not rows:
+            break
+        payload = []
+        for r in rows:
+            sld = _master_sld(r.get("domain"), r.get("tld"))
+            pos = _pos.pos_for_sld(sld, 1) if sld else []
+            if pos:
+                tagged += 1
+            else:
+                empty += 1
+            payload.append({"domain": r["domain"], "part_of_speech": pos})
+        if args.commit:
+            client.table("Master Domain List").upsert(payload, on_conflict="domain").execute()
+        total += len(rows)
+        last_domain = rows[-1]["domain"]
+        verb = "wrote" if args.commit else "previewed"
+        print(f"  {verb} {total:,} (tagged {tagged:,}, empty {empty:,}; through {last_domain})", flush=True)
+
+    mode = "DONE" if args.commit else "DRY-RUN"
+    print(f"{mode} — processed {total:,} single-word rows; {tagged:,} got a POS, "
+          f"{empty:,} empty (function word / non-dictionary / non-alpha SLD).")
+    if not args.commit:
+        print("  (dry-run: no writes. Re-run with --commit to persist.)")
+    return 0
+
+
 def _run_master(args: argparse.Namespace) -> int:
     """Backfill ONLY quality_score on the Master Domain List (it's imported
     externally and never got the structural score). Leaves Master's curated
@@ -253,13 +332,16 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--commit", action="store_true",
                     help="master: actually write (default dry-run). universe always writes.")
     ap.add_argument("--max-rows", type=int, default=None, help="master: cap rows processed")
+    ap.add_argument("--pos", action="store_true",
+                    help="master: backfill part_of_speech (WordNet) on single-word rows "
+                         "instead of quality_score — makes Master POS-filterable in search")
     ap.add_argument("--rescore", action="store_true",
                     help="universe: recompute scores on EVERY row (not just missing) — "
                          "use after a scoring-formula change to refresh the stored corpus")
     args = ap.parse_args(argv)
 
     if args.target == "master":
-        return _run_master(args)
+        return _run_master_pos(args) if args.pos else _run_master(args)
     return _run_universe(rescore=args.rescore)
 
 

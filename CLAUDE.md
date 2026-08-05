@@ -1480,6 +1480,20 @@ the broader `snagged` set. One row per `domain` with a single `source` text +
 manual/curated owner attributions → Master. BrandBucket is a marketplace feed → it
 belongs in `name_universe` (don't enrich it in Master).
 
+**Part-of-speech on Master (2026-08-05).** Master carries the LLM-enrich fields already
+(category/connotation/emotions/keywords/industries — all filterable in Domain Name Search); the one
+gap was `part_of_speech` (Master had no such column, so a Master-only dictionary name couldn't be
+POS-filtered — the research search skipped Master when POS was active). Added a WordNet backfill:
+`backfill_structural.py` `_run_master_pos` (+ `_master_sld` to derive the SLD by stripping the TLD)
+computes `pos_for_sld(sld, 1)` for SINGLE-WORD Master rows (`is_single_word='Y'`), writing `[]` for
+function/non-dictionary words so they're not re-scanned. Wired through `cli.py` (`--pos` flag — the CLI
+builds its own argv, so it's added in BOTH the tool and cli.py) and the **backfill-quality-master.yml**
+workflow (new `pos` boolean input → `--pos`). Run: `pipeline backfill-structural --target master --pos
+--commit` (dry-run without `--commit`). **One-time SQL (masterlist project) FIRST:**
+`alter table "Master Domain List" add column if not exists part_of_speech text[];`
+`create index if not exists idx_master_pos_gin on "Master Domain List" using gin (part_of_speech);`
+Research-side search wiring (buildMaster POS filter + resilience) is in the domain-owner-research repo.
+
 **Search (research app):** Domain Name Search (`api/dbsearch.js`) queries both
 (`db=both|universe|master`); Domain DB Screen (`api/dbscreen.js`) is the
 single-domain lookup. Universe filters use `num_words`/`is_dictionary_word`; Master

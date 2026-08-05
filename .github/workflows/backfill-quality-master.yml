@@ -23,6 +23,10 @@ on:
       max_rows:
         description: Cap rows processed this run (blank = all)
         default: ""
+      pos:
+        description: Backfill part_of_speech (WordNet) on single-word rows instead of quality_score
+        type: boolean
+        default: false
       then_enrich:
         description: After backfill, submit a quality-banded enrich batch for the new names
         type: boolean
@@ -55,10 +59,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-      - name: Backfill quality_score (Master)
+      - name: Backfill quality_score / part_of_speech (Master)
         run: |
           pipeline backfill-structural \
             --target master \
+            ${{ github.event.inputs.pos == 'true' && '--pos' || '' }} \
             ${{ github.event.inputs.max_rows != '' && format('--max-rows {0}', github.event.inputs.max_rows) || '' }} \
             ${{ github.event.inputs.commit == 'true' && '--commit' || '' }}
 
