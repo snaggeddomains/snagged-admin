@@ -1,23 +1,15 @@
 {
   "capped": false,
-  "count": 12,
+  "count": 6,
   "domains": [
-    "bergamot.net",
-    "lqam.com",
-    "parisian.co",
-    "stroll.org",
-    "frms.com",
-    "dexed.com",
-    "golff.com",
-    "icda.com",
-    "lvb.org",
-    "uptime.net",
-    "4152.com",
-    "abortion.io"
+    "cellars.co",
+    "reals.com",
+    "siaam.com",
+    "steamboat.org",
+    "cege.com",
+    "proves.org"
   ],
-  "generated_at": "2026-08-04T09:48:33.951853+00:00",
-  "mub": [
-    "bergamot.net"
-  ],
+  "generated_at": "2026-08-05T09:49:56.748885+00:00",
+  "mub": [],
   "source": "godaddy_auctions"
 }

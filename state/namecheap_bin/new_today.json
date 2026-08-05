@@ -1,11 +1,13 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 4,
   "domains": [
-    "upcoming.ai",
-    "ultra.ai"
+    "piero.ai",
+    "ingredients.ai",
+    "intrepid.ai",
+    "hur.ai"
   ],
-  "generated_at": "2026-08-04T09:03:38.987441+00:00",
+  "generated_at": "2026-08-05T09:03:46.673090+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

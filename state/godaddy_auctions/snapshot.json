@@ -1,109 +1,55 @@
 [
   {
-    "bid_count": 13,
-    "domain": "bergamot.net",
-    "end_time_utc": "2026-08-04T16:15:00+00:00",
-    "is_mub": true,
-    "link": "https://www.godaddy.com/domain-auctions/bergamot-net-717792166?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 305.0
-  },
-  {
-    "bid_count": 7,
-    "domain": "lqam.com",
-    "end_time_utc": "2026-08-04T16:24:00+00:00",
+    "bid_count": 1,
+    "domain": "cellars.co",
+    "end_time_utc": "2026-08-05T18:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/lqam-com-717795124?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 73.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "parisian.co",
-    "end_time_utc": "2026-08-04T16:27:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/parisian-co-717796821?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/cellars-co-717909282?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
     "price": 1.0
   },
   {
-    "bid_count": 7,
-    "domain": "stroll.org",
-    "end_time_utc": "2026-08-04T16:46:00+00:00",
+    "bid_count": 71,
+    "domain": "reals.com",
+    "end_time_utc": "2026-08-05T18:12:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/stroll-org-717628162?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/reals-com-717943756?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 26.0
+    "price": 9189.0
   },
   {
-    "bid_count": 33,
-    "domain": "frms.com",
-    "end_time_utc": "2026-08-04T18:33:00+00:00",
+    "bid_count": 17,
+    "domain": "siaam.com",
+    "end_time_utc": "2026-08-05T18:44:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/frms-com-717767824?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/siaam-com-717593045?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 1136.0
+    "price": 77.0
   },
   {
-    "bid_count": 9,
-    "domain": "dexed.com",
-    "end_time_utc": "2026-08-04T18:34:00+00:00",
+    "bid_count": 17,
+    "domain": "steamboat.org",
+    "end_time_utc": "2026-08-05T18:54:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/dexed-com-717780789?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/steamboat-org-717930455?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 38.0
-  },
-  {
-    "bid_count": 25,
-    "domain": "golff.com",
-    "end_time_utc": "2026-08-04T19:11:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/golff-com-717780170?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 366.0
+    "price": 135.0
   },
   {
     "bid_count": 32,
-    "domain": "icda.com",
-    "end_time_utc": "2026-08-04T19:19:00+00:00",
+    "domain": "cege.com",
+    "end_time_utc": "2026-08-05T19:48:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/icda-com-717786361?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/cege-com-717968447?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 2025.0
-  },
-  {
-    "bid_count": 18,
-    "domain": "lvb.org",
-    "end_time_utc": "2026-08-04T19:29:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/lvb-org-715958366?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 338.0
-  },
-  {
-    "bid_count": 42,
-    "domain": "uptime.net",
-    "end_time_utc": "2026-08-04T20:14:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/uptime-net-717795611?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 676.0
-  },
-  {
-    "bid_count": 30,
-    "domain": "4152.com",
-    "end_time_utc": "2026-08-04T20:46:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/4152-com-717780457?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 4401.0
+    "price": 3350.0
   },
   {
     "bid_count": 0,
-    "domain": "abortion.io",
-    "end_time_utc": "2026-08-04T21:09:00+00:00",
+    "domain": "proves.org",
+    "end_time_utc": "2026-08-05T19:59:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/abortion-io-717775006?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/proves-org-717208284?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
     "price": 1.0
   }
