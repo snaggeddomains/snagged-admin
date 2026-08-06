@@ -1,13 +1,5 @@
 [
   {
-    "domain": "feud.org",
-    "end_time_utc": "2026-08-07T01:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namejet.com/domain/feud.org.action",
-    "platform": "NameJet",
-    "price": 69.0
-  },
-  {
     "domain": "marvelous.org",
     "end_time_utc": "2026-08-07T01:00:00+00:00",
     "is_mub": false,
@@ -16,11 +8,11 @@
     "price": 69.0
   },
   {
-    "domain": "freezing.org",
-    "end_time_utc": "2026-08-06T16:35:00+00:00",
+    "domain": "resemble.org",
+    "end_time_utc": "2026-08-07T01:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namejet.com/domain/freezing.org.action",
+    "link": "https://www.namejet.com/domain/resemble.org.action",
     "platform": "NameJet",
-    "price": 39.0
+    "price": 69.0
   }
 ]

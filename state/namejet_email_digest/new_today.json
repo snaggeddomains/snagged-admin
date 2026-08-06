@@ -1,12 +1,11 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 2,
   "domains": [
-    "feud.org",
     "marvelous.org",
-    "freezing.org"
+    "resemble.org"
   ],
-  "generated_at": "2026-08-06T15:08:52.833572+00:00",
+  "generated_at": "2026-08-06T15:12:49.248715+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
