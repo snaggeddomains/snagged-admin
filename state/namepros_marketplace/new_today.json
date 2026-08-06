@@ -1,11 +1,8 @@
 {
   "capped": false,
-  "count": 2,
-  "domains": [
-    "e.com",
-    "mass.org"
-  ],
-  "generated_at": "2026-08-05T23:06:19.302598+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-06T10:06:52.605128+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
