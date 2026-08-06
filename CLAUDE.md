@@ -1230,6 +1230,13 @@ module key (MODULES + CATALOG, group Reports) and put Corporate Portfolios
 also admits a portfolio-only (or opportunities-only) user since those pages live under
 the section but aren't `reports.*` keys. The research SPA mirrors this (see that repo).
 
+**Ahrefs Report → Reports (2026-08-06):** added `research.ahrefs` (module, group Reports,
+stored flat as `ahrefs`; MODULES + REPORTS_TABS + CATALOG) → a website deep-dive
+(traffic/DR/keywords/backlinks/competitors) at `/research/ahrefs`, a research-app page. Tool +
+Ahrefs API v3 client live in the **domain-owner-research** repo (see that repo's CLAUDE.md
+"Ahrefs Report"). Grant per-user; admins auto-pass. Key `AHREF_API_KEY` is in the research Vercel
+project (the report + the Sales-Hub prominence traffic/DR chip both read it there).
+
 # Internal transaction-comps endpoint for SNAP Eval (2026-06-28)
 
 `app/api/internal/sales-comps/route.ts` lets the research app's **SNAP Eval** pull

@@ -45,6 +45,7 @@ export const MODULES = [
   "research.bulk_eval", // Bulk Eval — rank a list/CSV of domains by investability (resale vs price)
   "research.expiring", // Expiring .ai — good one-word .ai names entering the redemption window (stored flat as `expiring`)
   "research.portfolio", // Corporate Portfolios — reverse-WHOIS a company → its premium domains (lives in Reports)
+  "research.ahrefs", // Ahrefs Report — website deep-dive (traffic/DR/keywords/backlinks); lives in Reports, stored flat as `ahrefs`
   "research.person", // Person — social-URL deep dive: identity, cross-platform VIP, contacts
   "research.leads", // Inbound-lead triage — the deep-linked dossier for a contact-form inquiry
   "research.pipedrive", // Add-to-Pipedrive — turn a research surface into a buy-side deal (stored flat as `pipedrive`)
@@ -136,6 +137,8 @@ export const REPORTS_TABS: { href: string; label: string; perm: ModuleKey | Acti
   // Corporate Portfolios lives in the research app (/research/portfolio) but
   // belongs to the Reports section. Nav renders /research/* as a full-nav anchor.
   { href: "/research/portfolio", label: "Corporate Portfolios", perm: "research.portfolio" },
+  // Ahrefs Report — a website deep-dive (traffic/DR/keywords/backlinks) in the research app.
+  { href: "/research/ahrefs", label: "Ahrefs Report", perm: "research.ahrefs" },
 ];
 
 // The Research section's hub/menu entries (the research app serves each page).
@@ -270,6 +273,7 @@ export const CATALOG: CatalogEntry[] = [
   { key: "research.beeper", label: "Beeper (drop watch)", group: "Research", kind: "module" },
   { key: "research.whois", label: "Whois (domain lookup)", group: "Research", kind: "module" },
   { key: "research.portfolio", label: "Corporate Portfolios", group: "Reports", kind: "module" },
+  { key: "research.ahrefs", label: "Ahrefs Report (website deep-dive)", group: "Reports", kind: "module" },
   { key: "deals", label: "Deals — buy-side CRM board (your own deals)", group: "Deals", kind: "module" },
   { key: "deals.all", label: "Deals — see everyone's deals", group: "Deals", kind: "action" },
   { key: "deals.inbox", label: "Deals — see the unassigned Inbox", group: "Deals", kind: "action" },
