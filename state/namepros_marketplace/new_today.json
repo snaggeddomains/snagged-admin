@@ -1,8 +1,12 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-06T10:06:52.605128+00:00",
+  "count": 3,
+  "domains": [
+    "setting.xyz",
+    "trash.co",
+    "watt.co"
+  ],
+  "generated_at": "2026-08-06T23:07:04.941037+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
