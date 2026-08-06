@@ -1,13 +1,10 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 1,
   "domains": [
-    "piero.ai",
-    "ingredients.ai",
-    "intrepid.ai",
-    "hur.ai"
+    "furnish.ai"
   ],
-  "generated_at": "2026-08-05T09:03:46.673090+00:00",
+  "generated_at": "2026-08-06T09:03:18.400897+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

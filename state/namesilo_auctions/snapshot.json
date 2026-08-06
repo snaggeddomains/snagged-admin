@@ -1,20 +1,29 @@
 [
   {
-    "bid_count": 61,
-    "domain": "diei.com",
-    "end_time_utc": "2026-08-05T15:00:00+00:00",
+    "bid_count": 36,
+    "domain": "lzly.com",
+    "end_time_utc": "2026-08-07T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/diei.com",
+    "link": "https://www.namesilo.com/auctions/lzly.com",
     "platform": "NameSilo",
-    "price": 690.0
+    "price": 215.0
   },
   {
-    "bid_count": 30,
-    "domain": "bilingual.io",
-    "end_time_utc": "2026-08-05T15:00:00+00:00",
+    "bid_count": 23,
+    "domain": "hbly.com",
+    "end_time_utc": "2026-08-07T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/bilingual.io",
+    "link": "https://www.namesilo.com/auctions/hbly.com",
     "platform": "NameSilo",
-    "price": 170.0
+    "price": 142.0
+  },
+  {
+    "bid_count": 78,
+    "domain": "nnly.com",
+    "end_time_utc": "2026-08-07T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namesilo.com/auctions/nnly.com",
+    "platform": "NameSilo",
+    "price": 255.0
   }
 ]

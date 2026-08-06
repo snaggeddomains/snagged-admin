@@ -1,47 +1,47 @@
 [
   {
-    "bid_count": 51,
-    "domain": "luxen.com",
-    "end_time_utc": "2026-08-05T18:59:04.325298+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Luxen.com",
-    "platform": "DropCatch",
-    "price": 3100.0
-  },
-  {
-    "bid_count": 48,
-    "domain": "nightfly.com",
-    "end_time_utc": "2026-08-05T18:59:04.325298+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/NightFly.com",
-    "platform": "DropCatch",
-    "price": 332.0
-  },
-  {
-    "bid_count": 29,
-    "domain": "modiz.com",
-    "end_time_utc": "2026-08-05T18:59:04.325298+00:00",
-    "is_mub": true,
-    "link": "https://www.dropcatch.com/domain/Modiz.com",
-    "platform": "DropCatch",
-    "price": 300.0
-  },
-  {
-    "bid_count": 103,
+    "bid_count": 106,
     "domain": "yerd.com",
-    "end_time_utc": "2026-08-06T18:59:04.325298+00:00",
+    "end_time_utc": "2026-08-06T18:59:37.500555+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Yerd.com",
     "platform": "DropCatch",
-    "price": 650.0
+    "price": 800.0
   },
   {
     "bid_count": 57,
     "domain": "sidelink.com",
-    "end_time_utc": "2026-08-07T18:59:04.325298+00:00",
+    "end_time_utc": "2026-08-07T18:59:37.500555+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/SideLink.com",
     "platform": "DropCatch",
     "price": 381.0
+  },
+  {
+    "bid_count": 87,
+    "domain": "mrsd.com",
+    "end_time_utc": "2026-08-10T18:59:37.500555+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Mrsd.com",
+    "platform": "DropCatch",
+    "price": 750.0
+  },
+  {
+    "bid_count": 32,
+    "domain": "cke.net",
+    "end_time_utc": "2026-08-10T18:59:37.500555+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Cke.net",
+    "platform": "DropCatch",
+    "price": 132.0
+  },
+  {
+    "bid_count": 42,
+    "domain": "mindor.com",
+    "end_time_utc": "2026-08-10T18:59:37.500555+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/MinDor.com",
+    "platform": "DropCatch",
+    "price": 104.0
   }
 ]

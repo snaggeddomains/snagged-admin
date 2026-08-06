@@ -1,56 +1,56 @@
 [
   {
-    "bid_count": 1,
-    "domain": "cellars.co",
-    "end_time_utc": "2026-08-05T18:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/cellars-co-717909282?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1.0
-  },
-  {
-    "bid_count": 71,
-    "domain": "reals.com",
-    "end_time_utc": "2026-08-05T18:12:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/reals-com-717943756?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 9189.0
-  },
-  {
-    "bid_count": 17,
-    "domain": "siaam.com",
-    "end_time_utc": "2026-08-05T18:44:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/siaam-com-717593045?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 77.0
-  },
-  {
-    "bid_count": 17,
-    "domain": "steamboat.org",
-    "end_time_utc": "2026-08-05T18:54:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/steamboat-org-717930455?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 135.0
-  },
-  {
     "bid_count": 32,
-    "domain": "cege.com",
-    "end_time_utc": "2026-08-05T19:48:00+00:00",
+    "domain": "dairo.com",
+    "end_time_utc": "2026-08-06T18:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/cege-com-717968447?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/dairo-com-718085479?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 3350.0
+    "price": 460.0
   },
   {
-    "bid_count": 0,
-    "domain": "proves.org",
-    "end_time_utc": "2026-08-05T19:59:00+00:00",
+    "bid_count": 29,
+    "domain": "feisty.co",
+    "end_time_utc": "2026-08-06T18:20:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/proves-org-717208284?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/feisty-co-718093578?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 1.0
+    "price": 610.0
+  },
+  {
+    "bid_count": 11,
+    "domain": "orgone.org",
+    "end_time_utc": "2026-08-06T18:28:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/orgone-org-715644739?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 711.0
+  },
+  {
+    "bid_count": 7,
+    "domain": "mdreams.com",
+    "end_time_utc": "2026-08-06T19:46:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/mdreams-com-718015497?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 50.0
+  },
+  {
+    "bid_count": 5,
+    "domain": "hkart.com",
+    "end_time_utc": "2026-08-06T21:14:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/hkart-com-718022582?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 21.0
+  },
+  {
+    "bid_count": 10,
+    "domain": "rhain.com",
+    "end_time_utc": "2026-08-06T21:29:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/rhain-com-718054417?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 43.0
   }
 ]
