@@ -1,7 +1,11 @@
 [
   {
-    "domain": "reforms.ai",
-    "price": null
+    "domain": "menacing.com",
+    "price": 150000.0
+  },
+  {
+    "domain": "reclean.ai",
+    "price": 29995.0
   },
   {
     "domain": "organisms.ai",
@@ -12,11 +16,15 @@
     "price": 9995.0
   },
   {
-    "domain": "lexcon.net",
-    "price": 199.0
+    "domain": "technicians.ai",
+    "price": 29995.0
   },
   {
-    "domain": "tuffstuff.net",
-    "price": null
+    "domain": "shisha.net",
+    "price": 60150.0
+  },
+  {
+    "domain": "collectives.co",
+    "price": 3500.0
   }
 ]

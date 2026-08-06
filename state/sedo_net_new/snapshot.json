@@ -1,15 +1,6 @@
 [
   {
     "currency": "USD",
-    "domain": "reforms.ai",
-    "end_time_utc": "2026-08-06T07:49:14+00:00",
-    "is_mub": false,
-    "price": null,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=reforms.ai"
-  },
-  {
-    "currency": "USD",
     "domain": "organisms.ai",
     "end_time_utc": "2026-08-06T18:02:58+00:00",
     "is_mub": false,
@@ -25,5 +16,14 @@
     "price": 9995.0,
     "tld": "ai",
     "url": "https://sedo.com/search/details/?domain=diaphragm.ai"
+  },
+  {
+    "currency": "EUR",
+    "domain": "technicians.ai",
+    "end_time_utc": "2026-08-06T20:39:17+00:00",
+    "is_mub": false,
+    "price": 29995.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=technicians.ai"
   }
 ]
