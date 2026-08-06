@@ -52,15 +52,27 @@ async function deliver(emails: string[], title: string, bodyLines: string[], id:
   }
 }
 
-// A deal was assigned to an owner (on create, or a re-assign).
-export async function notifyAssignment(deal: Deal): Promise<boolean> {
+const cap = (s: string, n: number): string => (s.length > n ? `${s.slice(0, n).trimEnd()}…` : s);
+
+// A deal was assigned to an owner (on create, or a re-assign). `comment` is the optional
+// free-text pretext added when the deal was created — surfaced here so the assignee gets the
+// full picture in the email, not just the bare fields (in addition to it landing as the deal's
+// first comment on the timeline). Notes carries the buyer's inquiry message + location.
+export async function notifyAssignment(deal: Deal, comment?: string): Promise<boolean> {
   if (!deal.owner_email) return false;
   const name = await displayName(deal.owner_email);
+  const ownerContact = (deal.owner_contact || deal.likely_owner || "").trim();
+  const notes = (deal.notes || "").trim();               // "📩 Buyer's inquiry: …" + location
+  const note = (comment || "").trim();
   const lines = [
     `Assigned to: ${name}`,
     deal.buyer_name || deal.buyer_email ? `Buyer: ${deal.buyer_name || ""} ${deal.buyer_email ? `<${deal.buyer_email}>` : ""}`.trim() : "",
     deal.budget_range ? `Budget: ${deal.budget_range}` : "",
     deal.source ? `Source: ${deal.source}` : "",
+    ownerContact ? `Owner contact: ${cap(ownerContact, 300)}` : "",
+    // Blank-line separator before the longer free-text blocks (deliver() joins on \n).
+    notes ? `\n${cap(notes, 1500)}` : "",
+    note ? `\n💬 Comment: ${cap(note, 600)}` : "",
   ];
   return deliver([deal.owner_email], `📥 Deal assigned: ${deal.domain}`, lines, deal.id);
 }

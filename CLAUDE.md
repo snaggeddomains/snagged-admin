@@ -148,6 +148,17 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
   anyone @mentioned in THIS comment (they get the stronger "💬 mentioned you" ping via `notifyMention`).
   So Sam @rob once → both are participants → every later comment from either notifies the other.
   Best-effort (wrapped in try/catch — never fails the comment). No new table/env.
+- **Assignment email carries the full deal context + the create-comment (2026-08-06).** The
+  `deals@snagged.com` "📥 Deal assigned" email used to show only Assigned-to / Buyer / Budget / Source.
+  `notifyAssignment(deal, comment?)` (`notify.ts`) now also includes **Owner contact** (`owner_contact`
+  ‖ `likely_owner`, capped 300), the deal **Notes** (the buyer's inquiry message + location — capped
+  1500), and the **free-text comment added at deal creation** (`💬 Comment: …`, capped 600) — so the
+  assignee gets the whole picture in the email, not just after opening the deal. The comment is threaded
+  from all three convert surfaces that already collect it: board New-deal (`deals/route.ts`), inquiry
+  triage (`inquiries/route.ts`), and the research Add-to-Deal drawer (`internal/pipedrive-deal/route.ts`)
+  — each passes its in-scope `comment` to `notifyAssignment`. The re-assign PATCH path passes none (no
+  comment there). The comment still lands as the deal's first timeline comment too (unchanged). No new
+  table/env.
 - **One-time setup:** run `scripts/deals.sql` on the main project (creates the 3 deal tables +
   `deals.budget_max` + `domain_research_users.notif_prefs`). Reuses the Gmail layer +
   `RESEARCH_INTERNAL_SECRET` + `SLACK_BOT_TOKEN` (for DMs). Grant `deals` per-user, `deals.assignable`

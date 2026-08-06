@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
     // Optional free-text pretext → posted as the deal's first comment (timeline), attributed to
     // the creator. Separate from Notes; best-effort so it never blocks deal creation.
     if (comment) { try { await addActivity(deal.id, { user_email: me.email, kind: "comment", body: comment, meta: null }); } catch { /* non-fatal */ } }
-    if (created && deal.owner_email) await notifyAssignment(deal);
+    if (created && deal.owner_email) await notifyAssignment(deal, comment);
     // A manually-added deal usually has no research report — kick a FREE pre-flight so it
     // auto-links (same rule as a report that already exists). Best-effort, non-blocking.
     if (created && !deal.report_link) { try { await kickResearchRun(deal.domain); } catch { /* non-fatal */ } }

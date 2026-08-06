@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
     if (input.leadKey) {
       try { await setInquiryDismissed(input.leadKey, true, deal.owner_email || "research-dossier"); } catch { /* non-fatal */ }
     }
-    const notified = created && deal.owner_email ? await notifyAssignment(deal) : false;
+    const notified = created && deal.owner_email ? await notifyAssignment(deal, comment) : false;
     return NextResponse.json({ ok: true, dealId: deal.id, created, url: dealUrl(deal.id), notified });
   } catch (e) {
     return NextResponse.json({ ok: false, error: String((e as Error)?.message || e) }, { status: 502 });

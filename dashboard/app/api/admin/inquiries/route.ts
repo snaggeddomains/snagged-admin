@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
     // Converting an inquiry into a deal resolves it — auto-dismiss so it drops off the
     // active triage queue (still visible under "Show dismissed"). Best-effort.
     if (b.leadKey) { try { await setInquiryDismissed(String(b.leadKey), true, me.email); } catch { /* non-fatal */ } }
-    const notified = created && deal.owner_email ? await notifyAssignment(deal) : false;
+    const notified = created && deal.owner_email ? await notifyAssignment(deal, comment) : false;
     return NextResponse.json({ ok: true, dealId: deal.id, created, url: dealUrl(deal.id), notified, dismissed: !!b.leadKey });
   } catch (e) {
     return NextResponse.json({ ok: false, error: String((e as Error)?.message || e) }, { status: 502 });
