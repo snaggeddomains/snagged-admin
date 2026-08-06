@@ -1,18 +1,22 @@
 [
   {
+    "domain": "reforms.ai",
+    "price": null
+  },
+  {
+    "domain": "organisms.ai",
+    "price": 24995.0
+  },
+  {
+    "domain": "diaphragm.ai",
+    "price": 9995.0
+  },
+  {
     "domain": "lexcon.net",
     "price": 199.0
   },
   {
-    "domain": "demi.net",
-    "price": 19888.0
-  },
-  {
-    "domain": "decisively.net",
-    "price": 4300.0
-  },
-  {
-    "domain": "discouraged.net",
-    "price": 11495.0
+    "domain": "tuffstuff.net",
+    "price": null
   }
 ]
