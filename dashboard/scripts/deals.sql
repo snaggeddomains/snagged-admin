@@ -16,7 +16,8 @@ create table if not exists deals (
   org_name          text,
   budget_range      text,
   appraisal_value   numeric,
-  asking_price      numeric,
+  asking_price      numeric,                             -- latest OWNER asking price
+  current_offer     numeric,                             -- latest CLIENT offer (shown side-by-side with asking for at-a-glance gap)
   source            text,
   heard_about       text,                              -- "How did you hear about us?" form attribution (e.g. "X / Twitter")
   priority          text,                              -- Top | High | Normal | Low
@@ -87,6 +88,10 @@ alter table deals add column if not exists heard_about text;
 -- Close-Won capture: final price paid + our commission.
 alter table deals add column if not exists sale_price numeric;
 alter table deals add column if not exists commission numeric;
+
+-- Latest client offer — shown side-by-side with the owner's asking price on the deal page so the
+-- price gap ("where we're at") reads at a glance.
+alter table deals add column if not exists current_offer numeric;
 
 -- Upfront fee we charged the client to pursue the acquisition; upfront_paid auto-flips true
 -- once the deal reaches the "Research & Outreach" stage.

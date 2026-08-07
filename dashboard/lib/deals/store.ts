@@ -19,7 +19,8 @@ export type Deal = {
   org_name: string | null;
   budget_range: string | null;
   appraisal_value: number | null;
-  asking_price: number | null;
+  asking_price: number | null;      // latest owner asking price
+  current_offer: number | null;     // latest client offer (paired with asking for the at-a-glance gap)
   sale_price: number | null;    // final price paid (captured at Close Won)
   commission: number | null;    // our commission on the close
   upfront_fee: number | null;   // what we charged the client up front to pursue the acquisition

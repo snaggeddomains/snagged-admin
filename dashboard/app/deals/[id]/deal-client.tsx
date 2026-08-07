@@ -10,7 +10,7 @@ const NEGOTIATING = "Negotiating";
 type Deal = {
   id: string; domain: string; additional_domains: string | null; buyer_name: string | null; buyer_email: string | null;
   buyer_phone: string | null; org_name: string | null; budget_range: string | null; appraisal_value: number | null;
-  asking_price: number | null; upfront_fee: number | null; upfront_paid: boolean | null; source: string | null; heard_about: string | null; priority: string | null; owner_email: string | null;
+  asking_price: number | null; current_offer: number | null; upfront_fee: number | null; upfront_paid: boolean | null; source: string | null; heard_about: string | null; priority: string | null; owner_email: string | null;
   stage: string; status: string; lost_reason: string | null; report_link: string | null; likely_owner: string | null;
   owner_contact: string | null; reachability: string | null; notes: string | null; tags: string[] | null; created_at: string;
   lead_key: string | null; domain_owner_id: string | null;
@@ -140,7 +140,7 @@ export default function DealClient({ id }: { id: string }) {
       domain: (f.domain || "").trim().toLowerCase(),
       stage: f.stage, status: f.status, owner_email: f.owner_email || null, priority: f.priority || null, lost_reason: f.lost_reason,
       buyer_name: f.buyer_name, buyer_email: f.buyer_email, buyer_phone: f.buyer_phone, org_name: f.org_name,
-      budget_range: f.budget_range || null, appraisal_value: money(f.appraisal_value), asking_price: money(f.asking_price), upfront_fee: money(f.upfront_fee),
+      budget_range: f.budget_range || null, appraisal_value: money(f.appraisal_value), asking_price: money(f.asking_price), current_offer: money(f.current_offer), upfront_fee: money(f.upfront_fee),
       source: f.source || null, heard_about: f.heard_about || null, additional_domains: f.additional_domains, report_link: f.report_link,
       likely_owner: f.likely_owner, owner_contact: f.owner_contact, reachability: f.reachability,
       tags: typeof (f.tags as unknown) === "string" ? String(f.tags).split(",").map((t) => t.trim()).filter(Boolean) : f.tags,
@@ -324,7 +324,15 @@ export default function DealClient({ id }: { id: string }) {
             <RVal l="Buyer phone" v={d.buyer_phone} />
             <RVal l="Company" v={d.org_name} />
             <RVal l="Budget range" v={d.budget_range} />
-            <div style={{ display: "flex", gap: 24 }}><RVal l="Appraisal $" v={d.appraisal_value != null ? usd(d.appraisal_value) : null} /><RVal l="Asking $" v={d.asking_price != null ? usd(d.asking_price) : null} /></div>
+            {/* At-a-glance price gap — latest client OFFER vs latest owner ASKING, side by side (Sam, 2026-08-07). */}
+            <div style={{ display: "flex", gap: 24, alignItems: "flex-end" }}>
+              <RVal l="Current offer $" v={d.current_offer != null ? usd(d.current_offer) : null} />
+              <RVal l="Asking $" v={d.asking_price != null ? usd(d.asking_price) : null} />
+              {d.current_offer != null && d.asking_price != null && d.asking_price - d.current_offer > 0 && (
+                <span style={{ fontSize: 11, fontWeight: 700, color: "#946200", background: "#fdf0d2", padding: "2px 8px", borderRadius: 999, marginBottom: 2 }} title="Gap between the owner's asking price and our client's current offer">Δ {usd(d.asking_price - d.current_offer)}</span>
+              )}
+            </div>
+            <RVal l="Appraisal $" v={d.appraisal_value != null ? usd(d.appraisal_value) : null} />
             {/* Upfront fee we charged the client — "Paid" flips automatically at Research & Outreach. */}
             <div style={{ marginTop: 8 }}>
               <span style={lbl}>Upfront fee</span>
@@ -385,8 +393,11 @@ export default function DealClient({ id }: { id: string }) {
             <span style={lbl}>Company</span><input style={inp} value={f.org_name || ""} onChange={(e) => set("org_name", e.target.value)} />
             <span style={lbl}>Budget range</span><select style={inp} value={f.budget_range || ""} onChange={(e) => set("budget_range", e.target.value)}><option value="">—</option>{BUDGET_BANDS.map((b) => <option key={b} value={b}>{b}</option>)}</select>
             <div style={{ display: "flex", gap: 10 }}>
-              <div style={{ flex: 1 }}><span style={lbl}>Appraisal $</span><input style={inp} value={f.appraisal_value ?? ""} onChange={(e) => set("appraisal_value", e.target.value)} /></div>
-              <div style={{ flex: 1 }}><span style={lbl}>Asking $</span><input style={inp} value={f.asking_price ?? ""} onChange={(e) => set("asking_price", e.target.value)} /></div>
+              <div style={{ flex: 1 }}><span style={lbl}>Current offer $ <span style={{ fontWeight: 400, textTransform: "none", color: "var(--muted,#8a94a0)" }}>— latest client offer</span></span><input style={inp} value={f.current_offer ?? ""} onChange={(e) => set("current_offer", e.target.value)} inputMode="decimal" placeholder="$" /></div>
+              <div style={{ flex: 1 }}><span style={lbl}>Asking $ <span style={{ fontWeight: 400, textTransform: "none", color: "var(--muted,#8a94a0)" }}>— latest owner asking</span></span><input style={inp} value={f.asking_price ?? ""} onChange={(e) => set("asking_price", e.target.value)} inputMode="decimal" placeholder="$" /></div>
+            </div>
+            <div style={{ display: "flex", gap: 10 }}>
+              <div style={{ flex: 1 }}><span style={lbl}>Appraisal $</span><input style={inp} value={f.appraisal_value ?? ""} onChange={(e) => set("appraisal_value", e.target.value)} inputMode="decimal" placeholder="$" /></div>
             </div>
             <span style={lbl}>Upfront fee $ <span style={{ fontWeight: 400, textTransform: "none", color: "var(--muted,#8a94a0)" }}>— what we charged the client to pursue it</span></span>
             <input style={inp} value={f.upfront_fee ?? ""} onChange={(e) => set("upfront_fee", e.target.value)} inputMode="decimal" placeholder="$" />

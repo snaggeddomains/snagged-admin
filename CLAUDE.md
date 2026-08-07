@@ -244,6 +244,16 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
     for the OLD name — the PATCH **resets `report_link`/`likely_owner`/`owner_contact`/`appraisal_value`
     to null** so the next GET re-links + re-fills + kicks research for the new domain. Blank/unchanged
     domain is ignored.
+  - **Current offer vs asking, side by side (Sam, 2026-08-07).** The deal-detail Details card now
+    leads its price row with **Current offer $** (latest CLIENT offer) next to **Asking $** (latest
+    OWNER asking) so the negotiation gap reads at a glance — plus a small **Δ** chip = `asking −
+    offer` when both are set. Appraisal $ dropped out of that headline pair to its own line below.
+    New nullable `deals.current_offer numeric` (`scripts/deals.sql` create + `add column if not
+    exists`); on the EDITABLE whitelist + the edit form (its own input) + the save payload. Purely
+    MANUAL (never auto-synced from research, unlike appraisal_value). `updateDeal`'s generic
+    missing-column strip-retry degrades it gracefully pre-migration. **Setup: run the `current_offer`
+    line in `scripts/deals.sql` on the main project.** Not added to the New-deal/convert create
+    surfaces (deal-page field only, per the ask).
 - **"Didn't proceed" status + link cleanup (2026-07-22).** New terminal status `not_proceeded`
   (STATUSES in stages.ts) — the BUYER bailed before we engaged the owner (didn't pay to pursue),
   distinct from a negotiation Lost. Its own board **drop zone** ("🚫 Didn't proceed", like Mark
