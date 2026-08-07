@@ -1,47 +1,56 @@
 [
   {
-    "bid_count": 106,
-    "domain": "yerd.com",
-    "end_time_utc": "2026-08-06T18:59:37.500555+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Yerd.com",
-    "platform": "DropCatch",
-    "price": 800.0
-  },
-  {
     "bid_count": 57,
     "domain": "sidelink.com",
-    "end_time_utc": "2026-08-07T18:59:37.500555+00:00",
+    "end_time_utc": "2026-08-07T18:59:27.687644+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/SideLink.com",
     "platform": "DropCatch",
     "price": 381.0
   },
   {
-    "bid_count": 87,
+    "bid_count": 11,
+    "domain": "abundle.com",
+    "end_time_utc": "2026-08-07T18:59:27.687644+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/ABundle.com",
+    "platform": "DropCatch",
+    "price": 198.0
+  },
+  {
+    "bid_count": 93,
     "domain": "mrsd.com",
-    "end_time_utc": "2026-08-10T18:59:37.500555+00:00",
+    "end_time_utc": "2026-08-10T18:59:27.687644+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Mrsd.com",
     "platform": "DropCatch",
-    "price": 750.0
+    "price": 1103.0
   },
   {
-    "bid_count": 32,
+    "bid_count": 35,
     "domain": "cke.net",
-    "end_time_utc": "2026-08-10T18:59:37.500555+00:00",
+    "end_time_utc": "2026-08-10T18:59:27.687644+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Cke.net",
     "platform": "DropCatch",
-    "price": 132.0
+    "price": 160.0
   },
   {
-    "bid_count": 42,
+    "bid_count": 20,
+    "domain": "cohere.org",
+    "end_time_utc": "2026-08-10T18:59:27.687644+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Cohere.org",
+    "platform": "DropCatch",
+    "price": 151.0
+  },
+  {
+    "bid_count": 46,
     "domain": "mindor.com",
-    "end_time_utc": "2026-08-10T18:59:37.500555+00:00",
+    "end_time_utc": "2026-08-10T18:59:27.687644+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/MinDor.com",
     "platform": "DropCatch",
-    "price": 104.0
+    "price": 144.0
   }
 ]

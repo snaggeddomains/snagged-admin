@@ -1,15 +1,16 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 7,
   "domains": [
-    "dairo.com",
-    "feisty.co",
-    "orgone.org",
-    "mdreams.com",
-    "hkart.com",
-    "rhain.com"
+    "filora.com",
+    "dotk.com",
+    "commi.com",
+    "vsis.com",
+    "cgold.com",
+    "zyi.org",
+    "oshen.com"
   ],
-  "generated_at": "2026-08-06T09:49:22.832190+00:00",
+  "generated_at": "2026-08-07T09:51:09.788411+00:00",
   "mub": [],
   "source": "godaddy_auctions"
 }

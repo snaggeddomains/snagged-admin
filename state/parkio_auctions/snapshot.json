@@ -1,1 +1,74 @@
-[]
+[
+  {
+    "bid_count": 41,
+    "domain": "lzly.com",
+    "end_time_utc": "2026-08-07T15:00:00+00:00",
+    "is_mub": false,
+    "link": null,
+    "platform": "Park.io",
+    "price": 510.0
+  },
+  {
+    "bid_count": 81,
+    "domain": "nnly.com",
+    "end_time_utc": "2026-08-07T15:00:00+00:00",
+    "is_mub": false,
+    "link": null,
+    "platform": "Park.io",
+    "price": 480.0
+  },
+  {
+    "bid_count": 6,
+    "domain": "parlance.io",
+    "end_time_utc": "2026-08-07T16:41:01+00:00",
+    "is_mub": false,
+    "link": null,
+    "platform": "Park.io",
+    "price": 130.0
+  },
+  {
+    "bid_count": 36,
+    "domain": "crfc.org",
+    "end_time_utc": "2026-08-08T15:00:00+00:00",
+    "is_mub": false,
+    "link": null,
+    "platform": "Park.io",
+    "price": 510.0
+  },
+  {
+    "bid_count": 7,
+    "domain": "shinobi.io",
+    "end_time_utc": "2026-08-09T16:41:01+00:00",
+    "is_mub": false,
+    "link": null,
+    "platform": "Park.io",
+    "price": 122.0
+  },
+  {
+    "bid_count": 23,
+    "domain": "dennise.com",
+    "end_time_utc": "2026-08-11T15:00:00+00:00",
+    "is_mub": false,
+    "link": null,
+    "platform": "Park.io",
+    "price": 338.0
+  },
+  {
+    "bid_count": 73,
+    "domain": "obscurity.com",
+    "end_time_utc": "2026-08-12T15:00:00+00:00",
+    "is_mub": false,
+    "link": null,
+    "platform": "Park.io",
+    "price": 9211.0
+  },
+  {
+    "bid_count": 8,
+    "domain": "bees.io",
+    "end_time_utc": "2026-08-12T16:41:01+00:00",
+    "is_mub": false,
+    "link": null,
+    "platform": "Park.io",
+    "price": 350.0
+  }
+]
