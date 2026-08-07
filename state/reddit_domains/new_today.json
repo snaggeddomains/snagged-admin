@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-07T17:01:22.136469+00:00",
+  "count": 1,
+  "domains": [
+    "pitch.com"
+  ],
+  "generated_at": "2026-08-07T23:01:20.458974+00:00",
   "mub": [],
   "source": "reddit_domains"
 }

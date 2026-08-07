@@ -1,5 +1,5 @@
 {
-  "count": 39,
+  "count": 40,
   "domains": [
     "264.io",
     "88.to",
@@ -28,6 +28,7 @@
     "nbo.com",
     "one.com",
     "oy.com",
+    "pitch.com",
     "raspy.ai",
     "rebuke.io",
     "riggs.com",
@@ -42,5 +43,5 @@
     "wordpress.com"
   ],
   "source": "reddit_domains",
-  "updated_at": "2026-08-07T17:01:22.137111+00:00"
+  "updated_at": "2026-08-07T23:01:20.612274+00:00"
 }
