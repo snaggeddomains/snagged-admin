@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "technicians.ai"
-  ],
-  "generated_at": "2026-08-06T23:02:20.950527+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-07T10:01:18.257836+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
