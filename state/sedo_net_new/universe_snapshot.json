@@ -1,14 +1,30 @@
 [
   {
-    "domain": "nagaur.com",
-    "price": 2995.0
+    "domain": "colshaw.com",
+    "price": null
   },
   {
-    "domain": "ecogis.net",
-    "price": 458.0
+    "domain": "fabfob.com",
+    "price": 6195.0
   },
   {
-    "domain": "babbling.net",
-    "price": 99.0
+    "domain": "lubbocks.com",
+    "price": 175.0
+  },
+  {
+    "domain": "turning.net",
+    "price": 1700.0
+  },
+  {
+    "domain": "marshals.net",
+    "price": 1895.0
+  },
+  {
+    "domain": "echoed.co",
+    "price": 5060.0
+  },
+  {
+    "domain": "arcsin.co",
+    "price": 9905.0
   }
 ]
