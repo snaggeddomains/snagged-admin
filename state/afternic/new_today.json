@@ -1,14 +1,25 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 14,
   "domains": [
-    "northerly.org",
-    "nugent.ai",
-    "suggesting.org",
-    "stretcher.ai",
-    "geological.ai"
+    "whittier.co",
+    "hebron.co",
+    "excites.co",
+    "rheumatoid.co",
+    "shoddy.co",
+    "dumbledore.co",
+    "friendlies.co",
+    "urged.ai",
+    "played.ai",
+    "looking.ai",
+    "following.ai",
+    "gave.ai",
+    "goes.ai",
+    "worth.ai"
   ],
-  "generated_at": "2026-08-07T08:16:25.324647+00:00",
-  "mub": [],
+  "generated_at": "2026-08-08T08:16:48.650829+00:00",
+  "mub": [
+    "hebron.co"
+  ],
   "source": "afternic"
 }
