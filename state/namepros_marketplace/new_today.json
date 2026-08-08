@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-07T23:06:23.894884+00:00",
+  "count": 1,
+  "domains": [
+    "obsessions.io"
+  ],
+  "generated_at": "2026-08-08T10:05:41.928648+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
