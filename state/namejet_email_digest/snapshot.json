@@ -1,17 +1,9 @@
 [
   {
-    "domain": "feud.org",
-    "end_time_utc": "2026-08-07T01:00:00+00:00",
+    "domain": "pulmonary.org",
+    "end_time_utc": "2026-08-09T01:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namejet.com/domain/feud.org.action",
-    "platform": "NameJet",
-    "price": 69.0
-  },
-  {
-    "domain": "marvelous.org",
-    "end_time_utc": "2026-08-07T01:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namejet.com/domain/marvelous.org.action",
+    "link": "https://www.namejet.com/domain/pulmonary.org.action",
     "platform": "NameJet",
     "price": 69.0
   }
