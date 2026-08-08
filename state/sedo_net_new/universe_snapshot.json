@@ -1,22 +1,10 @@
 [
   {
-    "domain": "fabfob.com",
-    "price": 6195.0
-  },
-  {
     "domain": "retfin.com",
     "price": 1113.0
   },
   {
-    "domain": "turning.net",
-    "price": 1700.0
-  },
-  {
     "domain": "leiter.net",
     "price": null
-  },
-  {
-    "domain": "echoed.co",
-    "price": 5060.0
   }
 ]
