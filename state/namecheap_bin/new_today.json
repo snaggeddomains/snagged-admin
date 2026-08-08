@@ -1,14 +1,8 @@
 {
   "capped": false,
-  "count": 3,
-  "domains": [
-    "dressing.ai",
-    "chapters.ai",
-    "loki.ai"
-  ],
-  "generated_at": "2026-08-07T09:03:28.573405+00:00",
-  "mub": [
-    "chapters.ai"
-  ],
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-08T09:06:30.287459+00:00",
+  "mub": [],
   "source": "namecheap_bin"
 }

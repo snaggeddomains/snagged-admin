@@ -1,56 +1,56 @@
 [
   {
-    "bid_count": 57,
-    "domain": "sidelink.com",
-    "end_time_utc": "2026-08-07T18:59:27.687644+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/SideLink.com",
-    "platform": "DropCatch",
-    "price": 381.0
-  },
-  {
-    "bid_count": 11,
-    "domain": "abundle.com",
-    "end_time_utc": "2026-08-07T18:59:27.687644+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/ABundle.com",
-    "platform": "DropCatch",
-    "price": 198.0
-  },
-  {
-    "bid_count": 93,
+    "bid_count": 95,
     "domain": "mrsd.com",
-    "end_time_utc": "2026-08-10T18:59:27.687644+00:00",
+    "end_time_utc": "2026-08-10T18:59:41.237992+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Mrsd.com",
     "platform": "DropCatch",
-    "price": 1103.0
+    "price": 1303.0
   },
   {
     "bid_count": 35,
+    "domain": "vmk.net",
+    "end_time_utc": "2026-08-10T18:59:41.237992+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Vmk.net",
+    "platform": "DropCatch",
+    "price": 220.0
+  },
+  {
+    "bid_count": 38,
     "domain": "cke.net",
-    "end_time_utc": "2026-08-10T18:59:27.687644+00:00",
+    "end_time_utc": "2026-08-10T18:59:41.237992+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Cke.net",
     "platform": "DropCatch",
-    "price": 160.0
+    "price": 190.0
+  },
+  {
+    "bid_count": 48,
+    "domain": "mindor.com",
+    "end_time_utc": "2026-08-10T18:59:41.237992+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/MinDor.com",
+    "platform": "DropCatch",
+    "price": 164.0
   },
   {
     "bid_count": 20,
     "domain": "cohere.org",
-    "end_time_utc": "2026-08-10T18:59:27.687644+00:00",
+    "end_time_utc": "2026-08-10T18:59:41.237992+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Cohere.org",
     "platform": "DropCatch",
     "price": 151.0
   },
   {
-    "bid_count": 46,
-    "domain": "mindor.com",
-    "end_time_utc": "2026-08-10T18:59:27.687644+00:00",
+    "bid_count": 12,
+    "domain": "sevenk.com",
+    "end_time_utc": "2026-08-10T18:59:41.237992+00:00",
     "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/MinDor.com",
+    "link": "https://www.dropcatch.com/domain/SevenK.com",
     "platform": "DropCatch",
-    "price": 144.0
+    "price": 69.0
   }
 ]

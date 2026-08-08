@@ -1,23 +1,15 @@
 {
   "capped": false,
-  "count": 14,
+  "count": 6,
   "domains": [
-    "believem.com",
-    "quorums.com",
-    "annals.co",
-    "antisemitism.co",
-    "awaits.co",
-    "borno.co",
-    "crushes.co",
-    "gettin.co",
-    "interpretations.co",
-    "oswego.co",
-    "paralympics.co",
-    "polyethylene.co",
-    "sleazy.co",
-    "spongebob.co"
+    "cfangs.com",
+    "asiany.com",
+    "neytflix.com",
+    "mayweather.co",
+    "navigable.co",
+    "witherspoon.co"
   ],
-  "generated_at": "2026-08-07T09:50:19.313186+00:00",
+  "generated_at": "2026-08-08T09:52:35.180589+00:00",
   "mub": [],
   "source": "dynadot_auctions"
 }

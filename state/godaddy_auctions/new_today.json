@@ -1,16 +1,15 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 6,
   "domains": [
-    "filora.com",
-    "dotk.com",
-    "commi.com",
-    "vsis.com",
-    "cgold.com",
-    "zyi.org",
-    "oshen.com"
+    "kush.net",
+    "walkin.co",
+    "insolve.com",
+    "woso.com",
+    "talenty.com",
+    "animism.com"
   ],
-  "generated_at": "2026-08-07T09:51:09.788411+00:00",
+  "generated_at": "2026-08-08T09:53:20.222663+00:00",
   "mub": [],
   "source": "godaddy_auctions"
 }

@@ -1,56 +1,20 @@
 [
   {
-    "bid_count": 41,
-    "domain": "lzly.com",
-    "end_time_utc": "2026-08-07T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/lzly.com",
-    "platform": "NameSilo",
-    "price": 510.0
-  },
-  {
-    "bid_count": 34,
-    "domain": "hbly.com",
-    "end_time_utc": "2026-08-07T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/hbly.com",
-    "platform": "NameSilo",
-    "price": 245.0
-  },
-  {
-    "bid_count": 81,
-    "domain": "nnly.com",
-    "end_time_utc": "2026-08-07T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/nnly.com",
-    "platform": "NameSilo",
-    "price": 480.0
-  },
-  {
-    "bid_count": 14,
-    "domain": "hheld.com",
-    "end_time_utc": "2026-08-07T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/hheld.com",
-    "platform": "NameSilo",
-    "price": 58.0
-  },
-  {
-    "bid_count": 36,
+    "bid_count": 39,
     "domain": "crfc.org",
     "end_time_utc": "2026-08-08T15:00:00+00:00",
     "is_mub": false,
     "link": "https://www.namesilo.com/auctions/crfc.org",
     "platform": "NameSilo",
-    "price": 510.0
+    "price": 1009.0
   },
   {
-    "bid_count": 10,
+    "bid_count": 19,
     "domain": "xidel.com",
     "end_time_utc": "2026-08-08T15:00:00+00:00",
     "is_mub": false,
     "link": "https://www.namesilo.com/auctions/xidel.com",
     "platform": "NameSilo",
-    "price": 9.0
+    "price": 115.0
   }
 ]
