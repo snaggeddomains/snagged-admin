@@ -1354,6 +1354,37 @@ For everything else — Sheets reads, Spaceship/Atom/Namecheap APIs,
 Supabase queries, Drive ops, pipeline CLI commands — execute it here and
 report the result. No round-trip, no dispatch link, no copy/paste.
 
+## Google Docs / Sheets: build them DIRECTLY via the service account (default, 2026-08-08)
+
+Rob's standing instruction: **any time he asks for a Google Doc or Google Sheet, build it
+DIRECTLY through the `marketplace-pipeline` service account + Drive/Docs/Sheets REST APIs.
+Never Zapier, never a per-session consent prompt.** (Slides/presentations are out of scope —
+ignore.) The sandbox already has `GOOGLE_SA_KEY` (raw SA JSON), and the Docs/Drive/Sheets
+APIs are enabled on the GCP project — no setup needed to run it here.
+
+- **Reusable CLI: `scripts/gdrive.mjs`** (dependency-free, Node built-ins only). Mints an
+  RS256 JWT from `GOOGLE_SA_KEY` → access token → Drive/Docs/Sheets REST. Subcommands:
+  - `node scripts/gdrive.mjs doc "<title>" [--text-file f.md | --text "…"]` (or pipe text on STDIN)
+  - `node scripts/gdrive.mjs sheet "<title>" [--tsv f.tsv | --json rows.json]` (or pipe TSV on STDIN — one row/line, tab-separated)
+  - `node scripts/gdrive.mjs share <fileId> <email> [--role writer|reader|commenter]`
+  - Flags: `--drive <id>` (default the shared drive below), `--share <email>` (default
+    `rob@snagged.com`), `--no-share`. Prints the file URL.
+- **⚠️ HARD CONSTRAINT — must create in a Shared Drive.** The SA has NO personal Drive
+  (`storageQuota.limit = 0`), so a `files.create` in "My Drive" fails. Everything is created
+  inside the **"Snagged Pipeline" Shared Drive** (`0ACKJ-QAwIhwLUk9PVA`) via
+  `parents:[driveId]` + `supportsAllDrives=true`, then shared to rob@ (writer,
+  `sendNotificationEmail=false`).
+- **Delete gotcha:** the SA is a writer/content-manager, NOT an organizer, so a permanent
+  `files.delete` in the shared drive **404s**. To remove a file, **trash it** instead:
+  `PATCH /drive/v3/files/{id}?supportsAllDrives=true {trashed:true}` (returns 200).
+- **App integration (if we ever want it in-product):** Admin already has
+  `dashboard/lib/google-auth.ts` `googleAccessToken(scope)` (the same JWT mint) — a
+  `createDoc/createSheet` helper would be ~30 lines and reuse it. Research has no Google
+  creds; give it Docs/Sheets by either adding `GOOGLE_SA_KEY` to its Vercel env, or (better,
+  matches the email-threads/sales-comps/valuate pattern) an admin internal endpoint gated by
+  `x-internal-secret == RESEARCH_INTERNAL_SECRET` that research calls. Not built yet — the
+  CLI above covers ad-hoc "build me a doc/sheet" asks today.
+
 # Reports → Site Analytics: multi-platform Ads (X + Reddit) (2026-07-22)
 
 The Ads tranche is now **platform-delineated** — a platform switcher (X · Reddit · Meta·soon
