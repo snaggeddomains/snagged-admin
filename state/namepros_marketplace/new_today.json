@@ -1,11 +1,8 @@
 {
   "capped": false,
-  "count": 2,
-  "domains": [
-    "baca.com",
-    "model.com"
-  ],
-  "generated_at": "2026-08-09T10:05:27.674556+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-09T17:06:53.817809+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
