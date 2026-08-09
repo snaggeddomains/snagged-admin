@@ -1275,15 +1275,25 @@ budget, Superhuman (and everything else) gets 429'd.
   like HubSpot) does NOT appear in a user's Google "apps with access to Gmail" page** — only in
   the **Admin Console audit logs** (Reporting → Audit → Gmail, filter by user, group by app). That
   page showing "only Superhuman" does NOT mean Superhuman is the consumer.
-- Our own Gmail consumers are all **symmetric (rob@+brian@)** or **rob@-only** (pitch-scan uses
-  `PITCH_SCAN_MAILBOX`, default rob@), so they can't throttle ONLY Brian — the Brian-specific
-  driver is his outbound path (HubSpot sequences/logging through brian@). Confirm with the audit
-  log, not guesswork.
-- **Hardening (2026-08-09):** `gget()` now backs off + retries on 429 / 5xx (honors `Retry-After`,
-  exp backoff, 4 attempts) so we don't hammer the per-second limit. The bigger lever if we're ever
-  the culprit is VOLUME: the `deal-emails` cron (`15 * * * *`) re-pulls every open deal's full
-  threads from all 4 mailboxes hourly with NO incremental sync — trim frequency + activity-gate it
-  (only re-sync recently-changed deals) before adding more Gmail load.
+- **Audit-log findings (Brian, 7-day export, 2026-08-09):**
+  - **Gmail log events** (mailbox actions): **Superhuman's own OAuth client `649336022844-…` was
+    the dominant actor — 10,472 events (65% of all; 88% of API events)**, almost all `Draft`
+    (5,076) / `Archive` / `Move to Inbox`. That's Superhuman's per-keystroke draft **autosave**:
+    ~50 real drafts/day inflated to ~725 `drafts.update` API calls/day (~14× per message). Confirmed
+    via apptotal.io that the client ID is Superhuman.
+  - **OAuth token log** (authorizations): **our SA (`104413441059090976334`) was the top authorizer
+    — 373 grants/7d (~53/day)**, i.e. our crons minting a delegated token for brian@ ~53×/day (the
+    hourly `deal-emails` re-pull was the bulk). Auth events carry no byte size, so this doesn't
+    quantify our data volume, but it proved we were a frequent, reducible reader.
+  - **HubSpot is CLEARED** — absent from both logs; it doesn't touch Brian's Gmail via API (sends
+    via its own path, not the Gmail API).
+- **Hardening (2026-08-09):** `gget()` backs off + retries on 429 / 5xx (honors `Retry-After`, exp
+  backoff, 4 attempts). AND the `deal-emails` cron was trimmed from **hourly → every 4h**
+  (`15 */4 * * *`) + **activity-gated**: ACTIVE deals (updated ≤ ACTIVE_DAYS=21) sync every run;
+  IDLE deals rotate over the 6 daily runs (stable `bucketOf(id)` % 6) so each still refreshes
+  ~1×/day. `?full=1` overrides (manual backfill). The manual "Pull emails" button + on-open ingest
+  cover urgency. This removed ~80–90% of our authorizations on brian@ — the lever WE control, to
+  isolate whether Superhuman's autosave alone still throttles him.
 
 # Internal Gmail endpoint for research chat (2026-06-20)
 
