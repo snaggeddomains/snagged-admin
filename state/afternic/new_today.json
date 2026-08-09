@@ -1,25 +1,11 @@
 {
   "capped": false,
-  "count": 14,
+  "count": 2,
   "domains": [
-    "whittier.co",
-    "hebron.co",
-    "excites.co",
-    "rheumatoid.co",
-    "shoddy.co",
-    "dumbledore.co",
-    "friendlies.co",
-    "urged.ai",
-    "played.ai",
-    "looking.ai",
-    "following.ai",
-    "gave.ai",
-    "goes.ai",
-    "worth.ai"
+    "toulon.org",
+    "elects.co"
   ],
-  "generated_at": "2026-08-08T08:16:48.650829+00:00",
-  "mub": [
-    "hebron.co"
-  ],
+  "generated_at": "2026-08-09T08:19:51.285485+00:00",
+  "mub": [],
   "source": "afternic"
 }
