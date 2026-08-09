@@ -1,5 +1,29 @@
 [
   {
+    "domain": "bandung.com",
+    "price": 88888.0
+  },
+  {
+    "domain": "desember.com",
+    "price": 3699.0
+  },
+  {
+    "domain": "padang.com",
+    "price": 27000.0
+  },
+  {
+    "domain": "balang.com",
+    "price": 1688.0
+  },
+  {
+    "domain": "malang.com",
+    "price": 77777.0
+  },
+  {
+    "domain": "steall.com",
+    "price": 999.0
+  },
+  {
     "domain": "solocyber.com",
     "price": 11295.0
   },
@@ -8,7 +32,15 @@
     "price": 200.0
   },
   {
-    "domain": "harnessed.net",
-    "price": 450.0
+    "domain": "bethani.net",
+    "price": 1688.0
+  },
+  {
+    "domain": "marshals.net",
+    "price": 1895.0
+  },
+  {
+    "domain": "wisata.net",
+    "price": 1688.0
   }
 ]
