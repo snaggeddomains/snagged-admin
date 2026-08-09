@@ -1,16 +1,11 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 2,
   "domains": [
-    "coffins.ai",
-    "commenting.ai",
-    "exclamation.ai",
-    "flue.ai",
-    "jokey.io",
-    "proffer.ai",
-    "puddles.ai"
+    "baca.com",
+    "model.com"
   ],
-  "generated_at": "2026-08-08T23:05:52.438499+00:00",
+  "generated_at": "2026-08-09T10:05:27.674556+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
