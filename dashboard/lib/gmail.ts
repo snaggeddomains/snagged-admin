@@ -38,11 +38,30 @@ export type GmailMessage = {
   bulk: boolean; // looks like a mass/marketing send (HubSpot etc.), not a 1:1 email
 };
 
+// Gmail enforces a PER-USER quota (a rolling per-second limit AND a per-user daily
+// allocation shared across every app on that mailbox — including the user's own
+// Superhuman/Gmail client). To avoid starving that shared budget we (a) back off and
+// retry on 429 / 5xx instead of hammering, honoring Retry-After, and (b) callers
+// keep total volume down (see the deal-emails cron's activity gating). Read-only.
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 async function gget(subject: string, path: string): Promise<any> {
   const token = await googleAccessToken(SCOPE, subject);
-  const res = await fetch(`${API}/${path}`, { headers: { Authorization: `Bearer ${token}` } });
-  if (!res.ok) throw new Error(`gmail ${path.split("?")[0]}: ${res.status} ${(await res.text()).slice(0, 200)}`);
-  return res.json();
+  let lastErr: Error | null = null;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const res = await fetch(`${API}/${path}`, { headers: { Authorization: `Bearer ${token}` } });
+    if (res.ok) return res.json();
+    const bodyText = (await res.text()).slice(0, 200);
+    // 429 (rate/quota) and 5xx are transient — back off and retry a few times.
+    if (res.status === 429 || res.status >= 500) {
+      const ra = Number(res.headers.get("retry-after"));
+      const wait = Number.isFinite(ra) && ra > 0 ? ra * 1000 : Math.min(8000, 500 * 2 ** attempt);
+      lastErr = new Error(`gmail ${path.split("?")[0]}: ${res.status} ${bodyText}`);
+      await sleep(wait);
+      continue;
+    }
+    throw new Error(`gmail ${path.split("?")[0]}: ${res.status} ${bodyText}`);
+  }
+  throw lastErr || new Error(`gmail ${path.split("?")[0]}: retries exhausted`);
 }
 
 // Confirm a mailbox is reachable (delegation + Gmail API check).

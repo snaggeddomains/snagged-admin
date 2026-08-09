@@ -1263,6 +1263,28 @@ cached in-memory 5 min (a 25-name batch doesn't re-read the sheet 25×). Reuses 
 existing Google SA (must be shared on the sheet — it already is, for the revenue
 report). Research side: `domain-owner-research` `lib/evaluate/trackerComps.js`.
 
+# Gmail per-user quota is SHARED across all apps — throttle hygiene (2026-08-09)
+
+`lib/gmail.ts` reads the deal mailboxes via the `marketplace-pipeline` service account with
+**domain-wide delegation** (impersonates a user per request). Key operational fact learned when
+**Brian's Superhuman kept showing "Throttled: offline until Gmail responds"**: Gmail enforces a
+**PER-USER daily data allocation that is SHARED by every app on that mailbox** (Superhuman + our
+SA + HubSpot + anything else), and it is **not raisable**. If one heavy consumer burns Brian's
+budget, Superhuman (and everything else) gets 429'd.
+- **A domain-wide-delegated consumer (our SA, and an admin-installed Workspace-Marketplace app
+  like HubSpot) does NOT appear in a user's Google "apps with access to Gmail" page** — only in
+  the **Admin Console audit logs** (Reporting → Audit → Gmail, filter by user, group by app). That
+  page showing "only Superhuman" does NOT mean Superhuman is the consumer.
+- Our own Gmail consumers are all **symmetric (rob@+brian@)** or **rob@-only** (pitch-scan uses
+  `PITCH_SCAN_MAILBOX`, default rob@), so they can't throttle ONLY Brian — the Brian-specific
+  driver is his outbound path (HubSpot sequences/logging through brian@). Confirm with the audit
+  log, not guesswork.
+- **Hardening (2026-08-09):** `gget()` now backs off + retries on 429 / 5xx (honors `Retry-After`,
+  exp backoff, 4 attempts) so we don't hammer the per-second limit. The bigger lever if we're ever
+  the culprit is VOLUME: the `deal-emails` cron (`15 * * * *`) re-pulls every open deal's full
+  threads from all 4 mailboxes hourly with NO incremental sync — trim frequency + activity-gate it
+  (only re-sync recently-changed deals) before adding more Gmail load.
+
 # Internal Gmail endpoint for research chat (2026-06-20)
 
 `app/api/internal/email-threads/route.ts` lets the **research app's** Domain Owner
