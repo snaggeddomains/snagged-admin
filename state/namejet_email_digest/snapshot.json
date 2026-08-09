@@ -1,18 +1,1 @@
-[
-  {
-    "domain": "feud.org",
-    "end_time_utc": "2036-08-06T10:05:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namejet.com/domain/feud.org.action",
-    "platform": "NameJet",
-    "price": 3854.0
-  },
-  {
-    "domain": "marvelous.org",
-    "end_time_utc": "2036-08-06T10:05:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namejet.com/domain/marvelous.org.action",
-    "platform": "NameJet",
-    "price": 7166.0
-  }
-]
+[]
