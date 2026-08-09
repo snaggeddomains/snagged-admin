@@ -1530,6 +1530,17 @@
   },
   {
     "deal_score": 45600.0,
+    "domain": "depending.com",
+    "is_mub": false,
+    "link": "https://efty.com/d/3imlq/depending.com/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
+    "price": 1.0,
+    "quality_score": 4.56,
+    "sld": "depending",
+    "tld": ".com",
+    "zipf_score": 4.56
+  },
+  {
+    "deal_score": 45600.0,
     "domain": "pregnant.com",
     "is_mub": false,
     "link": "https://efty.com/d/36hc5/pregnant.com/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
@@ -2735,17 +2746,6 @@
     "price": 1.0,
     "quality_score": 4.26,
     "sld": "breathe",
-    "tld": ".com",
-    "zipf_score": 4.26
-  },
-  {
-    "deal_score": 42600.0,
-    "domain": "removing.com",
-    "is_mub": false,
-    "link": "https://efty.com/d/2zh1o/removing.com/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
-    "price": 1.0,
-    "quality_score": 4.26,
-    "sld": "removing",
     "tld": ".com",
     "zipf_score": 4.26
   }

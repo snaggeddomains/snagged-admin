@@ -1,73 +1,37 @@
 [
   {
-    "bid_count": 11,
-    "domain": "cfangs.com",
-    "end_time_utc": "2026-08-08T13:44:54+00:00",
+    "bid_count": 14,
+    "domain": "xued.com",
+    "end_time_utc": "2026-08-09T13:29:53+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/42189875.html",
+    "link": "https://www.dynadot.com/market/auction/42290665.html",
     "platform": "Dynadot",
-    "price": 60.07
+    "price": 228.81
   },
   {
-    "bid_count": 39,
-    "domain": "crfc.org",
-    "end_time_utc": "2026-08-08T15:00:00+00:00",
+    "bid_count": 5,
+    "domain": "oltdoor.com",
+    "end_time_utc": "2026-08-09T13:59:57+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41104426.html",
+    "link": "https://www.dynadot.com/market/auction/42244084.html",
     "platform": "Dynadot",
-    "price": 1009.0
+    "price": 51.07
   },
   {
-    "bid_count": 19,
-    "domain": "xidel.com",
-    "end_time_utc": "2026-08-08T15:00:00+00:00",
+    "bid_count": 21,
+    "domain": "lawsc.net",
+    "end_time_utc": "2026-08-09T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/41104499.html",
+    "link": "https://www.dynadot.com/market/auction/41155499.html",
     "platform": "Dynadot",
-    "price": 115.0
-  },
-  {
-    "bid_count": 6,
-    "domain": "asiany.com",
-    "end_time_utc": "2026-08-08T18:05:33+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/42166346.html",
-    "platform": "Dynadot",
-    "price": 14.0
-  },
-  {
-    "bid_count": 6,
-    "domain": "neytflix.com",
-    "end_time_utc": "2026-08-08T18:44:48+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/42168192.html",
-    "platform": "Dynadot",
-    "price": 14.0
+    "price": 53.0
   },
   {
     "bid_count": 0,
-    "domain": "mayweather.co",
-    "end_time_utc": "2026-08-08T19:29:59+00:00",
+    "domain": "argumentative.co",
+    "end_time_utc": "2026-08-09T20:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/42176333.html",
-    "platform": "Dynadot",
-    "price": 7.99
-  },
-  {
-    "bid_count": 0,
-    "domain": "navigable.co",
-    "end_time_utc": "2026-08-08T19:29:59+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/42181961.html",
-    "platform": "Dynadot",
-    "price": 7.99
-  },
-  {
-    "bid_count": 0,
-    "domain": "witherspoon.co",
-    "end_time_utc": "2026-08-08T19:29:59+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/42177523.html",
+    "link": "https://www.dynadot.com/market/auction/41895106.html",
     "platform": "Dynadot",
     "price": 7.99
   }

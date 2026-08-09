@@ -1,15 +1,18 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 9,
   "domains": [
-    "kush.net",
-    "walkin.co",
-    "insolve.com",
-    "woso.com",
-    "talenty.com",
-    "animism.com"
+    "107.net",
+    "lavay.com",
+    "ivodka.com",
+    "109.net",
+    "xinjiang.co",
+    "troyal.com",
+    "108.net",
+    "frisk.net",
+    "aibas.com"
   ],
-  "generated_at": "2026-08-08T09:53:20.222663+00:00",
+  "generated_at": "2026-08-09T09:53:15.810050+00:00",
   "mub": [],
   "source": "godaddy_auctions"
 }

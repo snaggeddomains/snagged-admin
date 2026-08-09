@@ -1,13 +1,25 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 14,
   "domains": [
-    "punish.io",
-    "enables.io",
-    "wagon.co",
-    "organise.co"
+    "suck.ai",
+    "firing.ai",
+    "enabling.ai",
+    "archbishop.ai",
+    "discard.ai",
+    "rushes.ai",
+    "viewers.io",
+    "tumbling.ai",
+    "threaten.io",
+    "volleyball.io",
+    "mailer.co",
+    "particulars.org",
+    "burkina.org",
+    "pathogenesis.org"
   ],
-  "generated_at": "2026-08-08T09:29:42.399641+00:00",
-  "mub": [],
+  "generated_at": "2026-08-09T09:27:49.299996+00:00",
+  "mub": [
+    "enabling.ai"
+  ],
   "source": "atom_daily"
 }

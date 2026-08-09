@@ -1,20 +1,20 @@
 [
   {
-    "bid_count": 39,
-    "domain": "crfc.org",
-    "end_time_utc": "2026-08-08T15:00:00+00:00",
+    "bid_count": 21,
+    "domain": "lawsc.net",
+    "end_time_utc": "2026-08-09T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/crfc.org",
+    "link": "https://www.namesilo.com/auctions/lawsc.net",
     "platform": "NameSilo",
-    "price": 1009.0
+    "price": 53.0
   },
   {
-    "bid_count": 19,
-    "domain": "xidel.com",
-    "end_time_utc": "2026-08-08T15:00:00+00:00",
+    "bid_count": 42,
+    "domain": "hhzs.com",
+    "end_time_utc": "2026-08-10T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/xidel.com",
+    "link": "https://www.namesilo.com/auctions/hhzs.com",
     "platform": "NameSilo",
-    "price": 115.0
+    "price": 180.0
   }
 ]

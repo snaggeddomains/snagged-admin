@@ -2,55 +2,55 @@
   {
     "bid_count": 95,
     "domain": "mrsd.com",
-    "end_time_utc": "2026-08-10T18:59:41.237992+00:00",
+    "end_time_utc": "2026-08-10T18:59:33.697744+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Mrsd.com",
     "platform": "DropCatch",
     "price": 1303.0
   },
   {
-    "bid_count": 35,
+    "bid_count": 42,
+    "domain": "cke.net",
+    "end_time_utc": "2026-08-10T18:59:33.697744+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Cke.net",
+    "platform": "DropCatch",
+    "price": 260.0
+  },
+  {
+    "bid_count": 54,
+    "domain": "mindor.com",
+    "end_time_utc": "2026-08-10T18:59:33.697744+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/MinDor.com",
+    "platform": "DropCatch",
+    "price": 240.0
+  },
+  {
+    "bid_count": 36,
     "domain": "vmk.net",
-    "end_time_utc": "2026-08-10T18:59:41.237992+00:00",
+    "end_time_utc": "2026-08-10T18:59:33.697744+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Vmk.net",
+    "platform": "DropCatch",
+    "price": 240.0
+  },
+  {
+    "bid_count": 22,
+    "domain": "cohere.org",
+    "end_time_utc": "2026-08-10T18:59:33.697744+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Cohere.org",
     "platform": "DropCatch",
     "price": 220.0
   },
   {
-    "bid_count": 38,
-    "domain": "cke.net",
-    "end_time_utc": "2026-08-10T18:59:41.237992+00:00",
+    "bid_count": 19,
+    "domain": "grandx.org",
+    "end_time_utc": "2026-08-10T18:59:33.697744+00:00",
     "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Cke.net",
+    "link": "https://www.dropcatch.com/domain/grandx.org",
     "platform": "DropCatch",
-    "price": 190.0
-  },
-  {
-    "bid_count": 48,
-    "domain": "mindor.com",
-    "end_time_utc": "2026-08-10T18:59:41.237992+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/MinDor.com",
-    "platform": "DropCatch",
-    "price": 164.0
-  },
-  {
-    "bid_count": 20,
-    "domain": "cohere.org",
-    "end_time_utc": "2026-08-10T18:59:41.237992+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Cohere.org",
-    "platform": "DropCatch",
-    "price": 151.0
-  },
-  {
-    "bid_count": 12,
-    "domain": "sevenk.com",
-    "end_time_utc": "2026-08-10T18:59:41.237992+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/SevenK.com",
-    "platform": "DropCatch",
-    "price": 69.0
+    "price": 141.0
   }
 ]

@@ -1,9 +1,9 @@
 {
   "deduped_against_existing": 0,
-  "generated_at": "2026-08-08T09:52:42.544322+00:00",
+  "generated_at": "2026-08-09T09:52:35.213354+00:00",
   "label": "DropCatch",
   "new_count": 6,
-  "sheet_total_after": 1892,
+  "sheet_total_after": 1961,
   "slack_posted": false,
   "source": "dropcatch_auctions",
   "status": "ok"

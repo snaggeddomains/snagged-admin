@@ -1,15 +1,13 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 4,
   "domains": [
-    "cfangs.com",
-    "asiany.com",
-    "neytflix.com",
-    "mayweather.co",
-    "navigable.co",
-    "witherspoon.co"
+    "xued.com",
+    "oltdoor.com",
+    "lawsc.net",
+    "argumentative.co"
   ],
-  "generated_at": "2026-08-08T09:52:35.180589+00:00",
+  "generated_at": "2026-08-09T09:52:25.303408+00:00",
   "mub": [],
   "source": "dynadot_auctions"
 }
