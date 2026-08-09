@@ -1,8 +1,14 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-09T17:01:11.316641+00:00",
+  "count": 5,
+  "domains": [
+    "senatorial.com",
+    "ricans.com",
+    "ordinances.com",
+    "frigates.com",
+    "embraces.com"
+  ],
+  "generated_at": "2026-08-09T23:01:26.049924+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }

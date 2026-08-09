@@ -1,15 +1,255 @@
 [
   {
+    "domain": "usablog.com",
+    "price": 1288.0
+  },
+  {
+    "domain": "waregem.com",
+    "price": null
+  },
+  {
+    "domain": "servane.com",
+    "price": null
+  },
+  {
+    "domain": "bechers.com",
+    "price": null
+  },
+  {
+    "domain": "nicolee.com",
+    "price": null
+  },
+  {
+    "domain": "melland.com",
+    "price": null
+  },
+  {
     "domain": "bandung.com",
     "price": 88888.0
+  },
+  {
+    "domain": "finweek.com",
+    "price": null
+  },
+  {
+    "domain": "rainham.com",
+    "price": null
+  },
+  {
+    "domain": "earlham.com",
+    "price": null
+  },
+  {
+    "domain": "wathens.com",
+    "price": null
+  },
+  {
+    "domain": "beetham.com",
+    "price": null
+  },
+  {
+    "domain": "gravies.com",
+    "price": null
+  },
+  {
+    "domain": "josiahs.com",
+    "price": null
+  },
+  {
+    "domain": "lessees.com",
+    "price": null
+  },
+  {
+    "domain": "scarles.com",
+    "price": null
+  },
+  {
+    "domain": "mickley.com",
+    "price": null
+  },
+  {
+    "domain": "helimax.com",
+    "price": null
+  },
+  {
+    "domain": "amsberry.com",
+    "price": 988.0
+  },
+  {
+    "domain": "thornham.com",
+    "price": null
+  },
+  {
+    "domain": "grethe.com",
+    "price": null
+  },
+  {
+    "domain": "leiste.com",
+    "price": null
+  },
+  {
+    "domain": "persse.com",
+    "price": null
+  },
+  {
+    "domain": "framus.com",
+    "price": null
+  },
+  {
+    "domain": "chelseas.com",
+    "price": null
+  },
+  {
+    "domain": "eurell.com",
+    "price": null
+  },
+  {
+    "domain": "laurah.com",
+    "price": null
+  },
+  {
+    "domain": "meppen.com",
+    "price": null
+  },
+  {
+    "domain": "frigates.com",
+    "price": null
+  },
+  {
+    "domain": "uscode.com",
+    "price": null
+  },
+  {
+    "domain": "naiche.com",
+    "price": null
+  },
+  {
+    "domain": "ricans.com",
+    "price": null
+  },
+  {
+    "domain": "callands.com",
+    "price": null
+  },
+  {
+    "domain": "deanie.com",
+    "price": null
+  },
+  {
+    "domain": "brauning.com",
+    "price": null
   },
   {
     "domain": "desember.com",
     "price": 3699.0
   },
   {
+    "domain": "whitelaw.com",
+    "price": null
+  },
+  {
+    "domain": "crispian.com",
+    "price": null
+  },
+  {
+    "domain": "jamaicas.com",
+    "price": null
+  },
+  {
+    "domain": "draftpro.com",
+    "price": null
+  },
+  {
     "domain": "padang.com",
     "price": 27000.0
+  },
+  {
+    "domain": "leahurst.com",
+    "price": null
+  },
+  {
+    "domain": "bolbec.com",
+    "price": null
+  },
+  {
+    "domain": "codlea.com",
+    "price": null
+  },
+  {
+    "domain": "midhurst.com",
+    "price": null
+  },
+  {
+    "domain": "jaxons.com",
+    "price": null
+  },
+  {
+    "domain": "rushmere.com",
+    "price": null
+  },
+  {
+    "domain": "embraces.com",
+    "price": null
+  },
+  {
+    "domain": "steall.com",
+    "price": 999.0
+  },
+  {
+    "domain": "ronans.com",
+    "price": null
+  },
+  {
+    "domain": "brockham.com",
+    "price": null
+  },
+  {
+    "domain": "hepburns.com",
+    "price": null
+  },
+  {
+    "domain": "baylea.com",
+    "price": null
+  },
+  {
+    "domain": "petaling.com",
+    "price": null
+  },
+  {
+    "domain": "whitpain.com",
+    "price": null
+  },
+  {
+    "domain": "oxenhope.com",
+    "price": null
+  },
+  {
+    "domain": "reinbeck.com",
+    "price": null
+  },
+  {
+    "domain": "limmen.com",
+    "price": null
+  },
+  {
+    "domain": "matemo.com",
+    "price": null
+  },
+  {
+    "domain": "dioceses.com",
+    "price": 2488.0
+  },
+  {
+    "domain": "fasham.com",
+    "price": null
+  },
+  {
+    "domain": "earlwood.com",
+    "price": null
+  },
+  {
+    "domain": "charlean.com",
+    "price": null
   },
   {
     "domain": "balang.com",
@@ -20,27 +260,159 @@
     "price": 77777.0
   },
   {
-    "domain": "steall.com",
-    "price": 999.0
+    "domain": "sunbae.com",
+    "price": null
   },
   {
-    "domain": "solocyber.com",
-    "price": 11295.0
+    "domain": "needville.com",
+    "price": null
   },
   {
-    "domain": "vinaya.ai",
-    "price": 200.0
+    "domain": "troutdale.com",
+    "price": null
   },
   {
-    "domain": "bethani.net",
-    "price": 1688.0
+    "domain": "ostbayern.com",
+    "price": null
   },
   {
-    "domain": "marshals.net",
-    "price": 1895.0
+    "domain": "nanotubes.com",
+    "price": null
   },
   {
-    "domain": "wisata.net",
-    "price": 1688.0
+    "domain": "buckleigh.com",
+    "price": null
+  },
+  {
+    "domain": "rockyford.com",
+    "price": null
+  },
+  {
+    "domain": "daleville.com",
+    "price": null
+  },
+  {
+    "domain": "marchmont.com",
+    "price": null
+  },
+  {
+    "domain": "spindroid.com",
+    "price": null
+  },
+  {
+    "domain": "mackworth.com",
+    "price": null
+  },
+  {
+    "domain": "fifes.com",
+    "price": null
+  },
+  {
+    "domain": "coralwood.com",
+    "price": null
+  },
+  {
+    "domain": "painswick.com",
+    "price": null
+  },
+  {
+    "domain": "riverdell.com",
+    "price": null
+  },
+  {
+    "domain": "ruleville.com",
+    "price": null
+  },
+  {
+    "domain": "marketply.com",
+    "price": null
+  },
+  {
+    "domain": "saskatoons.com",
+    "price": 1488.0
+  },
+  {
+    "domain": "thornapple.com",
+    "price": null
+  },
+  {
+    "domain": "rolesville.com",
+    "price": null
+  },
+  {
+    "domain": "sherbourne.com",
+    "price": null
+  },
+  {
+    "domain": "charterers.com",
+    "price": null
+  },
+  {
+    "domain": "brownville.com",
+    "price": null
+  },
+  {
+    "domain": "lincolnton.com",
+    "price": null
+  },
+  {
+    "domain": "melbournes.com",
+    "price": 788.0
+  },
+  {
+    "domain": "subtleties.com",
+    "price": null
+  },
+  {
+    "domain": "propmakers.com",
+    "price": null
+  },
+  {
+    "domain": "shorthairs.com",
+    "price": null
+  },
+  {
+    "domain": "ordinances.com",
+    "price": null
+  },
+  {
+    "domain": "minigrants.com",
+    "price": null
+  },
+  {
+    "domain": "terryville.com",
+    "price": null
+  },
+  {
+    "domain": "lewisberry.com",
+    "price": null
+  },
+  {
+    "domain": "marieville.com",
+    "price": null
+  },
+  {
+    "domain": "senatorial.com",
+    "price": null
+  },
+  {
+    "domain": "riversdale.com",
+    "price": null
+  },
+  {
+    "domain": "galleryblog.com",
+    "price": 1288.0
+  },
+  {
+    "domain": "printmakers.com",
+    "price": null
+  },
+  {
+    "domain": "bishopsgate.com",
+    "price": null
+  },
+  {
+    "domain": "bromborough.com",
+    "price": null
   }
 ]
