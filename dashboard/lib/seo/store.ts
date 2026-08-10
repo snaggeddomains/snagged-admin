@@ -85,8 +85,8 @@ export async function listActions(includeDone = true): Promise<SeoAction[]> {
   } catch { return []; }
 }
 
-export async function upsertAction(a: Partial<SeoAction> & { title?: string }, actor?: string): Promise<void> {
-  if (!isDbConfigured()) return;
+export async function upsertAction(a: Partial<SeoAction> & { title?: string }, actor?: string): Promise<SeoAction | null> {
+  if (!isDbConfigured()) return null;
   const now = new Date().toISOString();
   if (a.id) {
     const row: Record<string, unknown> = { updated_at: now };
@@ -94,13 +94,14 @@ export async function upsertAction(a: Partial<SeoAction> & { title?: string }, a
     if (a.status === "done") row.done_at = now;
     if (a.status && a.status !== "done") row.done_at = null;
     try { await getDb().from("seo_actions").update(row).eq("id", a.id); } catch { /* noop */ }
-    return;
+    return null;
   }
   try {
-    await getDb().from("seo_actions").insert({
+    const { data } = await getDb().from("seo_actions").insert({
       title: a.title || "Untitled", detail: a.detail ?? null, keyword: a.keyword ?? null, target_url: a.target_url ?? null,
       status: a.status || "todo", priority: a.priority ?? 2, owner_email: a.owner_email ?? null, created_by: actor ?? null,
       created_at: now, updated_at: now,
-    });
-  } catch { /* noop */ }
+    }).select("*").single();
+    return (data as SeoAction) || null;
+  } catch { return null; }
 }

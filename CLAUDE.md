@@ -894,7 +894,9 @@ position, incl. terms GSC has no impressions for + the DR/traffic head-to-head).
 - **UI** `app/reports/seo/{page,seo-client}.tsx`: head-to-head tiles (DR/traffic/value/keywords us vs
   MediaOptions), the **money-terms table** (keyword · page · position · WoW ▲/▼ distance · status pill ·
   impr/clicks/CTR · volume · competitor position), biggest-movers (gaining/losing, all queries), money-page
-  GA performance, and the **action loop** (add + click-to-cycle todo→doing→done). Wide-page layout.
+  GA performance, and the **action loop** (add + a **checkbox**: checked = Done section, unchecked =
+  To-do; OPTIMISTIC — patches local state + background POST, never rebuilds the ~25s report).
+  Wide-page layout.
 - **Action drill-downs / build kits (2026-08-10).** Each seeded action expands (▸ click) to a full
   **build kit** — slug, title tag, meta, H1, complete page copy, FAQ, JSON-LD schema, internal links —
   rendered from a `seo_actions.playbook` markdown column via a tiny inline safe MD renderer in

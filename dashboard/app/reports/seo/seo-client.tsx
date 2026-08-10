@@ -97,8 +97,49 @@ export default function SeoClient() {
       await load();
     } catch (e) { setErr(String((e as Error).message)); } finally { setBusy(""); }
   };
-  const cycle = (a: Action) => post({ action: "update_action", item: { id: a.id, status: a.status === "todo" ? "doing" : a.status === "doing" ? "done" : "todo" } }, "action:" + a.id);
-  const addAction = () => { if (!newAction.title.trim()) return; post({ action: "add_action", item: { title: newAction.title, keyword: newAction.keyword || null } }, "add"); setNewAction({ title: "", keyword: "" }); };
+  // Action mutations are OPTIMISTIC and never rebuild the (slow, ~25s) report — they
+  // just patch local state + POST in the background, so checking a box is instant.
+  const patchActions = (fn: (arr: Action[]) => Action[]) => setRep((prev) => (prev ? { ...prev, actions: fn(prev.actions) } : prev));
+  const toggleDone = async (a: Action) => {
+    const status = a.status === "done" ? "todo" : "done";
+    patchActions((arr) => arr.map((x) => (x.id === a.id ? { ...x, status } : x)));
+    try {
+      const r = await fetch("/api/admin/seo", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "update_action", item: { id: a.id, status } }) });
+      if (!r.ok) throw new Error();
+    } catch { patchActions((arr) => arr.map((x) => (x.id === a.id ? { ...x, status: a.status } : x))); setErr("Couldn't save that change — try again."); }
+  };
+  const addAction = async () => {
+    const title = newAction.title.trim(); if (!title) return;
+    const keyword = newAction.keyword.trim() || null;
+    setNewAction({ title: "", keyword: "" });
+    try {
+      const r = await fetch("/api/admin/seo", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "add_action", item: { title, keyword } }) });
+      const d = await r.json(); if (!r.ok) throw new Error(d.error || "Failed");
+      if (d.item) patchActions((arr) => [...arr, d.item]); else load();
+    } catch (e) { setErr(String((e as Error).message)); }
+  };
+
+  const actionRow = (a: Action) => {
+    const isOpen = open.has(a.id);
+    const hasKit = !!(a.playbook && a.playbook.trim());
+    const done = a.status === "done";
+    return (
+      <li key={a.id} style={{ padding: "8px 0", borderBottom: "1px solid #f4f4f4", opacity: done ? 0.55 : 1 }}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+          <input type="checkbox" checked={done} onChange={() => toggleDone(a)} title={done ? "Mark as to-do" : "Mark done"} style={{ marginTop: 3, width: 18, height: 18, cursor: "pointer", flex: "0 0 auto" }} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div onClick={hasKit ? () => toggle(a.id) : undefined} style={{ cursor: hasKit ? "pointer" : "default", fontWeight: 600, textDecoration: done ? "line-through" : "none" }}>
+              {hasKit ? <span style={{ color: "#0d9488" }}>{isOpen ? "▾" : "▸"} </span> : null}{a.title}
+              {a.keyword ? <span className="muted" style={{ fontWeight: 400 }}> · {a.keyword}</span> : null}
+              {hasKit ? <span className="muted" style={{ fontWeight: 400, fontSize: 12 }}> · {isOpen ? "hide" : "build kit"}</span> : null}
+            </div>
+            {a.detail ? <div className="muted" style={{ fontSize: 12 }}>{a.detail}</div> : null}
+            {hasKit && isOpen ? <div style={{ marginTop: 8, padding: "12px 16px", background: "#fff", border: "1px solid var(--line,#e5e7eb)", borderRadius: 8, fontSize: 14, lineHeight: 1.5, overflowX: "auto" }} dangerouslySetInnerHTML={{ __html: renderMd(a.playbook || "") }} /> : null}
+          </div>
+        </div>
+      </li>
+    );
+  };
 
   const h2h = rep?.headToHead;
   const openActions = (rep?.actions || []).filter((a) => a.status !== "done");
@@ -208,35 +249,9 @@ export default function SeoClient() {
             <button onClick={addAction} disabled={busy === "add" || !newAction.title.trim()}>＋ Add</button>
           </div>
           <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-            {openActions.map((a) => {
-              const isOpen = open.has(a.id);
-              const hasKit = !!(a.playbook && a.playbook.trim());
-              return (
-                <li key={a.id} style={{ padding: "8px 0", borderBottom: "1px solid #f4f4f4" }}>
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                    <button onClick={() => cycle(a)} disabled={busy === "action:" + a.id} title="Cycle todo → doing → done" style={{ minWidth: 68 }}>
-                      {a.status === "doing" ? "◐ Doing" : "○ To-do"}
-                    </button>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div onClick={hasKit ? () => toggle(a.id) : undefined} style={{ cursor: hasKit ? "pointer" : "default", fontWeight: 600 }}>
-                        {hasKit ? <span style={{ color: "#0d9488" }}>{isOpen ? "▾" : "▸"} </span> : null}{a.title}
-                        {a.keyword ? <span className="muted" style={{ fontWeight: 400 }}> · {a.keyword}</span> : null}
-                        {hasKit ? <span className="muted" style={{ fontWeight: 400, fontSize: 12 }}> · {isOpen ? "hide" : "build kit"}</span> : null}
-                      </div>
-                      {a.detail ? <div className="muted" style={{ fontSize: 12 }}>{a.detail}</div> : null}
-                      {hasKit && isOpen ? <div style={{ marginTop: 8, padding: "12px 16px", background: "#fff", border: "1px solid var(--line,#e5e7eb)", borderRadius: 8, fontSize: 14, lineHeight: 1.5, overflowX: "auto" }} dangerouslySetInnerHTML={{ __html: renderMd(a.playbook || "") }} /> : null}
-                    </div>
-                  </div>
-                </li>
-              );
-            })}
-            {doneActions.length > 0 && <li style={{ marginTop: 10 }} className="muted">✓ Done ({doneActions.length})</li>}
-            {doneActions.map((a) => (
-              <li key={a.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "4px 0", opacity: 0.6 }}>
-                <button onClick={() => cycle(a)} disabled={busy === "action:" + a.id} style={{ minWidth: 68 }}>✓ Done</button>
-                <span style={{ textDecoration: "line-through" }}>{a.title}</span>
-              </li>
-            ))}
+            {openActions.map((a) => actionRow(a))}
+            {doneActions.length > 0 && <li style={{ margin: "12px 0 2px" }} className="muted">Completed ({doneActions.length})</li>}
+            {doneActions.map((a) => actionRow(a))}
           </ul>
         </>
       )}

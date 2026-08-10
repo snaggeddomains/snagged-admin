@@ -28,7 +28,10 @@ export async function POST(req: NextRequest) {
   const actor = String(user.email || "").toLowerCase();
   try {
     switch (body.action) {
-      case "add_action":
+      case "add_action": {
+        const item = await upsertAction(body.item || {}, actor);
+        return NextResponse.json({ ok: true, item });
+      }
       case "update_action":
         await upsertAction(body.item || {}, actor);
         return NextResponse.json({ ok: true });
