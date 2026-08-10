@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "domain": "teleport.org",
+    "end_time_utc": "2026-08-11T01:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namejet.com/domain/teleport.org.action",
+    "platform": "NameJet",
+    "price": 69.0
+  },
+  {
+    "domain": "fedora.org",
+    "end_time_utc": "2026-08-10T09:15:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namejet.com/domain/fedora.org.action",
+    "platform": "NameJet",
+    "price": 79.0
+  }
+]

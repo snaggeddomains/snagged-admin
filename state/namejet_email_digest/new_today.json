@@ -1,8 +1,11 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-10T15:11:40.908601+00:00",
+  "count": 2,
+  "domains": [
+    "teleport.org",
+    "fedora.org"
+  ],
+  "generated_at": "2026-08-10T15:14:10.037602+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
