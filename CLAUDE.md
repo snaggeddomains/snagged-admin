@@ -865,6 +865,46 @@ and an A/B/F domain grade.
   gracefully pre-SQL (a live Refresh still returns results; only caching needs the table). Blacklist needs a
   paid MXToolbox plan (free = 0 network requests).
 
+# SEO report — high-intent keyword rank tracking + weekly action loop (2026-08-10)
+
+Reports → SEO (`/reports/seo`, gated `reports.seo`) — a weekly-cadence report that actively tracks where
+we rank for the non-brand MONEY terms (domain broker / domain acquisition / domain appraisal / sell a
+domain …), which are gaining/losing distance week-over-week, and the action list to close the gap vs
+**MediaOptions** (the two SEO strategy docs Rob shared drove the target list). Combines THREE data sources,
+all already wired: **GSC** (`lib/gsc.ts` — SA has `siteFullUser` on snagged.com; real position/impr/clicks/CTR
+per term + top movers), **GA4** (`lib/ga.ts` — organic sessions + conversions on the money pages), and
+**Ahrefs** (new `lib/ahrefs.ts`, ported from the research Ahrefs client — search VOLUME + our vs competitor
+position, incl. terms GSC has no impressions for + the DR/traffic head-to-head).
+
+- **Data model** (`scripts/seo.sql`, MAIN project, run once): `seo_target_keywords` (the curated money-term
+  list — seeded from the plan), `seo_keyword_snapshots` (weekly per-keyword GSC/Ahrefs metrics; `scope='target'`
+  = the list for WoW deltas, `scope='query'` = the week's top queries for the movers view; unique per
+  week+scope+keyword), `seo_actions` (the to-do loop, status todo|doing|done, seeded with the plan's top
+  actions). RLS enabled. All reads fail-open pre-migration so the report renders empty until the SQL runs.
+- **Libs** `lib/seo/`: `store.ts` (CRUD + `weekStart` Monday-anchored + snapshot read/write), `report.ts`
+  (`buildSeoReport` — per-term GSC via an `includingRegex` query filter → impression-weighted position;
+  Ahrefs volume/competitor via `ahrefsKeywordMap`; GA money-page organic sessions/keyEvents; WoW delta +
+  status = gaining/losing/holding/new/not_ranking vs the prior stored week; top movers across all queries;
+  and `snapshotWeek()` persisting the trailing-7-day week), `digest.ts` (weekly Slack + email digest).
+- **API** `app/api/admin/seo/route.ts` (gated `reports.seo`): GET the live report; POST `add_action`/
+  `update_action` (status cycle), `add_target`/`remove_target`, `snapshot`.
+- **Cron** `app/api/cron/seo-weekly` (vercel.json **`0 14 * * 1`** = Mondays, CRON_SECRET): `snapshotWeek()`
+  then the digest → bell + email (`reports.seo` users + always `rob@`, env `SEO_DIGEST_EXTRA_EMAILS`) + Slack
+  (`SLACK_CHANNEL_SEO`, falls back to default). `?dry=1` preview, `?nosnap=1` skip the snapshot. Heartbeat `seo-weekly`.
+- **UI** `app/reports/seo/{page,seo-client}.tsx`: head-to-head tiles (DR/traffic/value/keywords us vs
+  MediaOptions), the **money-terms table** (keyword · page · position · WoW ▲/▼ distance · status pill ·
+  impr/clicks/CTR · volume · competitor position), biggest-movers (gaining/losing, all queries), money-page
+  GA performance, and the **action loop** (add + click-to-cycle todo→doing→done). Wide-page layout.
+- **Permission** `reports.seo` (ACTIONS + REPORTS_TABS + CATALOG group Reports) — nav/hub/sub-nav derive
+  automatically from REPORTS_TABS via `navigation.ts`. Grant per-user; admins auto-pass.
+- **⚠️ Setup (one-time):** (1) run `scripts/seo.sql` on the MAIN project; (2) **set `AHREF_API_KEY` in the
+  ADMIN Vercel project** (it currently lives only in research — without it volume/competitor columns are blank,
+  everything else works); (3) grant `reports.seo`; (4) optional `SLACK_CHANNEL_SEO`. GSC + GA already configured
+  (SA `siteFullUser` on snagged.com, `GA4_PROPERTY_ID` set). WoW deltas start after the first weekly snapshot
+  (click "Snapshot week" or wait for the Monday cron). **Verify Ahrefs `organic-keywords` field shapes on the
+  first live run** (ported from the research client, probed against v3 docs but not run from the admin env).
+  Optional env: `SEO_COMPETITOR_DOMAIN` (default mediaoptions.com), `SEO_SITE_DOMAIN` (default snagged.com).
+
 # NamePros SNAP — require a real for-sale/auction POST (2026-07-24)
 
 The `namepros_marketplace` source was flagging names that were merely mentioned/"listed" on the

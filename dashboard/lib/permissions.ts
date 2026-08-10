@@ -72,6 +72,7 @@ export const ACTIONS = [
   "reports.social_sweep", // view the Social Sweep report (Reddit/X domain-opportunity posts)
   "reports.content", // view the Content report (Webflow CMS blog posts)
   "reports.email_health", // view the Email Health report (MXToolbox deliverability checks)
+  "reports.seo", // view the SEO report (high-intent keyword rank tracking + weekly loop)
   "deals.all", // see + manage EVERYONE's deals (else a user sees strictly their own)
   "deals.inbox", // additionally see the unassigned Inbox (claim new/unassigned deals)
   "deals.assignable", // "can receive deals" — appears in the assignee dropdowns
@@ -134,6 +135,7 @@ export const REPORTS_TABS: { href: string; label: string; perm: ModuleKey | Acti
   // Content — blog posts pulled from the Webflow CMS (read-only).
   { href: "/reports/content", label: "Content", perm: "reports.content" },
   { href: "/reports/email-health", label: "Email Health", perm: "reports.email_health" },
+  { href: "/reports/seo", label: "SEO", perm: "reports.seo" },
   // Corporate Portfolios lives in the research app (/research/portfolio) but
   // belongs to the Reports section. Nav renders /research/* as a full-nav anchor.
   { href: "/research/portfolio", label: "Corporate Portfolios", perm: "research.portfolio" },
@@ -257,6 +259,7 @@ export const CATALOG: CatalogEntry[] = [
   { key: "reports.social_sweep", label: "Reports — Social Sweep (Reddit/X domain-opportunity posts)", group: "Reports", kind: "action" },
   { key: "reports.content", label: "Reports — Content (blog posts from Webflow CMS)", group: "Reports", kind: "action" },
   { key: "reports.email_health", label: "Reports — Email Health (MXToolbox deliverability)", group: "Reports", kind: "action" },
+  { key: "reports.seo", label: "Reports — SEO (keyword rank tracking + weekly action loop)", group: "Reports", kind: "action" },
   { key: "research.domain_owner", label: "Domain Owner research", group: "Research", kind: "module" },
   { key: "research.outreach", label: "Owner Outreach — email drafting", group: "Research", kind: "action" },
   { key: "research.trademark", label: "Trademark", group: "Research", kind: "module" },

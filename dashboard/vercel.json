@@ -11,6 +11,7 @@
     { "path": "/api/cron/x-ads-sync", "schedule": "0 6,14,22 * * *" },
     { "path": "/api/cron/deal-emails", "schedule": "15 */4 * * *" },
     { "path": "/api/cron/email-health", "schedule": "30 12 * * *" },
+    { "path": "/api/cron/seo-weekly", "schedule": "0 14 * * 1" },
     { "path": "/api/cron/newsletter-sync", "schedule": "0 12 * * 1" },
     { "path": "/api/cron/pitch-scan", "schedule": "0 13 * * 1" },
     { "path": "/api/cron/client-corpus", "schedule": "0 11 * * *" },
