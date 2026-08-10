@@ -1,8 +1,12 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-10T10:06:47.426790+00:00",
+  "count": 3,
+  "domains": [
+    "agents.com",
+    "sale.com",
+    "vkq.com"
+  ],
+  "generated_at": "2026-08-10T17:07:22.801101+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
