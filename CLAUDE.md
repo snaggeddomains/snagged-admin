@@ -881,6 +881,14 @@ position, incl. terms GSC has no impressions for + the DR/traffic head-to-head).
   = the list for WoW deltas, `scope='query'` = the week's top queries for the movers view; unique per
   week+scope+keyword), `seo_actions` (the to-do loop, status todo|doing|done, seeded with the plan's top
   actions). RLS enabled. All reads fail-open pre-migration so the report renders empty until the SQL runs.
+- **Volume = the keyword's OWN search volume, source-independent (2026-08-10).** The Volume column was
+  blank for terms we don't rank for because it read only OUR org-keyword volume. Now it resolves in order:
+  **Ahrefs Keywords Explorer** (`ahrefsKeywordVolumes` — authoritative volume+difficulty for ANY keyword,
+  the keyword-planner source, metered separately, fail-open, ⚠️ verify endpoint shape on first run) →
+  our org-keyword volume → the **competitor's** org-keyword volume (MediaOptions ranks for the money
+  terms, so their data carries each term's volume) → the stored `t.volume`. Guaranteed to populate for
+  the money terms via the competitor fallback even if KE's shape needs tweaking. Applied in both
+  `buildSeoReport` + `snapshotWeek`.
 - **Libs** `lib/seo/`: `store.ts` (CRUD + `weekStart` Monday-anchored + snapshot read/write), `report.ts`
   (`buildSeoReport` — per-term GSC via an `includingRegex` query filter → impression-weighted position;
   Ahrefs volume/competitor via `ahrefsKeywordMap`; GA money-page organic sessions/keyEvents; WoW delta +

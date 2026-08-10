@@ -57,6 +57,26 @@ export async function ahrefsOrganicKeywords(domain: string, country = "us", limi
     .filter((r) => r.keyword);
 }
 
+export type KwVolume = { keyword: string; volume: number; difficulty: number | null };
+// Ahrefs Keywords Explorer — authoritative search VOLUME (+ difficulty) for ANY
+// keyword, whether or not anyone ranks for it. This is the keyword-planner source.
+// Metered separately from Site Explorer; fail-open (caller falls back to org-keyword
+// volume). ⚠️ Verify the endpoint/field shapes on the first live run.
+export async function ahrefsKeywordVolumes(keywords: string[], country = "us"): Promise<Map<string, KwVolume>> {
+  const map = new Map<string, KwVolume>();
+  const list = [...new Set(keywords.map((k) => k.toLowerCase().trim()).filter(Boolean))];
+  if (!ahrefsConfigured() || !list.length) return map;
+  try {
+    const data = await ah("keywords-explorer/overview", { country, keywords: list.join(","), select: "keyword,volume,difficulty" });
+    const rows = ((data.keywords || data.metrics || data.data || []) as Record<string, unknown>[]);
+    for (const r of rows) {
+      const kw = String(r.keyword || "").toLowerCase().trim();
+      if (kw) map.set(kw, { keyword: kw, volume: num(r.volume), difficulty: r.difficulty != null ? num(r.difficulty) : null });
+    }
+  } catch { /* fail-open — caller uses organic-keyword volume instead */ }
+  return map;
+}
+
 // Build a keyword → {position, volume, url} map for quick lookups (fail-open to empty).
 export async function ahrefsKeywordMap(domain: string, country = "us"): Promise<Map<string, AhrefsKw>> {
   const map = new Map<string, AhrefsKw>();

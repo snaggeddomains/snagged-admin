@@ -5,7 +5,7 @@
 // plus week-over-week position deltas ("gaining/losing distance") from stored snapshots.
 import { googleAccessToken } from "../google-auth";
 import { runReport, gaConfigured } from "../ga";
-import { ahrefsConfigured, ahrefsMetrics, ahrefsKeywordMap, type AhrefsMetrics } from "../ahrefs";
+import { ahrefsConfigured, ahrefsMetrics, ahrefsKeywordMap, ahrefsKeywordVolumes, type AhrefsMetrics } from "../ahrefs";
 import {
   listTargets, listActions, snapshotsForWeek, snapshotWeeks, writeSnapshots, weekStart,
   type TargetKeyword, type Snapshot, type SeoAction,
@@ -103,8 +103,10 @@ export async function buildSeoReport(): Promise<SeoReport> {
   const prevMoverSnaps = prevWeek ? await snapshotsForWeek(prevWeek, "query") : [];
   const prevMoverByKw = new Map(prevMoverSnaps.map((s) => [s.keyword.toLowerCase(), s]));
 
-  // Ahrefs volume + our/competitor positions (fail-open to empty maps).
-  const [ourKw, compKw, ourMetrics, compMetrics] = await Promise.all([
+  // Ahrefs: authoritative search VOLUME (Keywords Explorer) for every target term +
+  // our/competitor keyword maps (positions, and org-keyword volume as a fallback).
+  const [keVol, ourKw, compKw, ourMetrics, compMetrics] = await Promise.all([
+    ahrefsConfigured() ? ahrefsKeywordVolumes(targets.map((t) => t.keyword)) : Promise.resolve(new Map()),
     ahrefsConfigured() ? ahrefsKeywordMap(OUR_DOMAIN) : Promise.resolve(new Map()),
     ahrefsConfigured() ? ahrefsKeywordMap(COMPETITOR) : Promise.resolve(new Map()),
     ahrefsConfigured() ? ahrefsMetrics(OUR_DOMAIN).catch(() => null) : Promise.resolve(null),
@@ -119,7 +121,9 @@ export async function buildSeoReport(): Promise<SeoReport> {
     try { g = await gscTerm(t.keyword, from, to); } catch { /* fail-open */ }
     const ah = ourKw.get(kw);
     const comp = compKw.get(kw);
-    const volume = ah?.volume ?? t.volume ?? null;
+    // Volume = the keyword's own search volume (source-independent): Keywords Explorer
+    // first, then whichever org-keyword set has it (ours or the competitor's), then cache.
+    const volume = keVol.get(kw)?.volume ?? ah?.volume ?? comp?.volume ?? t.volume ?? null;
     const position = g.position != null ? g.position : (ah ? ah.position : null);
     const prev = prevByKw.get(kw)?.position ?? null;
     targetRows.push({
@@ -168,6 +172,7 @@ export async function snapshotWeek(): Promise<{ week: string; targets: number; q
   const week = weekStart();
   const to = daysAgo(2), from = daysAgo(9); // the trailing 7 complete days
   const targets = await listTargets();
+  const keVol = ahrefsConfigured() ? await ahrefsKeywordVolumes(targets.map((t) => t.keyword)) : new Map();
   const ourKw = ahrefsConfigured() ? await ahrefsKeywordMap(OUR_DOMAIN) : new Map();
   const compKw = ahrefsConfigured() ? await ahrefsKeywordMap(COMPETITOR) : new Map();
   const tRows: Omit<Snapshot, "week_start" | "scope">[] = [];
@@ -175,7 +180,7 @@ export async function snapshotWeek(): Promise<{ week: string; targets: number; q
     let g: TermGsc = { position: null, impressions: 0, clicks: 0, ctr: null, top_variant: "", top_url: "" };
     try { g = await gscTerm(t.keyword, from, to); } catch { /* noop */ }
     const kw = t.keyword.toLowerCase(); const ah = ourKw.get(kw); const comp = compKw.get(kw);
-    tRows.push({ keyword: t.keyword, position: g.position != null ? g.position : (ah ? ah.position : null), impressions: g.impressions, clicks: g.clicks, ctr: g.ctr, volume: ah?.volume ?? t.volume ?? null, ahrefs_position: ah ? ah.position : null, competitor_position: comp ? comp.position : null, top_url: g.top_url });
+    tRows.push({ keyword: t.keyword, position: g.position != null ? g.position : (ah ? ah.position : null), impressions: g.impressions, clicks: g.clicks, ctr: g.ctr, volume: keVol.get(kw)?.volume ?? ah?.volume ?? comp?.volume ?? t.volume ?? null, ahrefs_position: ah ? ah.position : null, competitor_position: comp ? comp.position : null, top_url: g.top_url });
   }
   const nTargets = await writeSnapshots(week, "target", tRows);
 
