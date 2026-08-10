@@ -1,1 +1,83 @@
-[]
+[
+  {
+    "currency": "USD",
+    "domain": "livery.com",
+    "end_time_utc": "2026-08-10T16:11:39+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=livery.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "panda.com",
+    "end_time_utc": "2026-08-10T16:11:44+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=panda.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "roughness.com",
+    "end_time_utc": "2026-08-10T15:46:42+00:00",
+    "is_mub": false,
+    "price": 16995.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=roughness.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "maine.com",
+    "end_time_utc": "2026-08-10T16:10:30+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=maine.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "unknowingly.com",
+    "end_time_utc": "2026-08-10T15:46:37+00:00",
+    "is_mub": false,
+    "price": 5095.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=unknowingly.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "separatists.com",
+    "end_time_utc": "2026-08-10T16:11:02+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=separatists.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "obstructive.com",
+    "end_time_utc": "2026-08-10T15:46:46+00:00",
+    "is_mub": false,
+    "price": 8995.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=obstructive.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "goa.ai",
+    "end_time_utc": "2026-08-10T16:11:39+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=goa.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "cohorts.co",
+    "end_time_utc": "2026-08-10T16:11:19+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=cohorts.co"
+  }
+]
