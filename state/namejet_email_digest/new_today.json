@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-09T15:42:31.800435+00:00",
+  "count": 1,
+  "domains": [
+    "fedora.org"
+  ],
+  "generated_at": "2026-08-10T15:09:24.889071+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
