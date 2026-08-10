@@ -1,18 +1,19 @@
 {
   "capped": false,
-  "count": 9,
+  "count": 10,
   "domains": [
-    "107.net",
-    "lavay.com",
-    "ivodka.com",
-    "109.net",
-    "xinjiang.co",
-    "troyal.com",
-    "108.net",
-    "frisk.net",
-    "aibas.com"
+    "tanoma.com",
+    "ericka.com",
+    "bcafe.com",
+    "parenting.io",
+    "apu.org",
+    "pccp.com",
+    "hemster.co",
+    "vpure.com",
+    "tozzi.com",
+    "giantx.com"
   ],
-  "generated_at": "2026-08-09T09:53:15.810050+00:00",
+  "generated_at": "2026-08-10T09:49:57.857472+00:00",
   "mub": [],
   "source": "godaddy_auctions"
 }

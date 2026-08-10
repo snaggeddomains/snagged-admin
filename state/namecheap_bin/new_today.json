@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-09T09:03:54.081557+00:00",
+  "count": 1,
+  "domains": [
+    "dil.ai"
+  ],
+  "generated_at": "2026-08-10T09:04:02.726164+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

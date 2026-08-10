@@ -1,20 +1,29 @@
 [
   {
-    "bid_count": 21,
-    "domain": "lawsc.net",
-    "end_time_utc": "2026-08-09T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/lawsc.net",
-    "platform": "NameSilo",
-    "price": 53.0
-  },
-  {
-    "bid_count": 42,
+    "bid_count": 43,
     "domain": "hhzs.com",
     "end_time_utc": "2026-08-10T15:00:00+00:00",
     "is_mub": false,
     "link": "https://www.namesilo.com/auctions/hhzs.com",
     "platform": "NameSilo",
-    "price": 180.0
+    "price": 185.0
+  },
+  {
+    "bid_count": 1,
+    "domain": "hottest.org",
+    "end_time_utc": "2026-08-11T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namesilo.com/auctions/hottest.org",
+    "platform": "NameSilo",
+    "price": 1.0
+  },
+  {
+    "bid_count": 27,
+    "domain": "dennise.com",
+    "end_time_utc": "2026-08-11T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namesilo.com/auctions/dennise.com",
+    "platform": "NameSilo",
+    "price": 449.0
   }
 ]

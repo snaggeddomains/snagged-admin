@@ -1,25 +1,14 @@
 {
   "capped": false,
-  "count": 14,
+  "count": 5,
   "domains": [
-    "suck.ai",
-    "firing.ai",
-    "enabling.ai",
-    "archbishop.ai",
-    "discard.ai",
-    "rushes.ai",
-    "viewers.io",
-    "tumbling.ai",
-    "threaten.io",
-    "volleyball.io",
-    "mailer.co",
-    "particulars.org",
-    "burkina.org",
-    "pathogenesis.org"
+    "sponsor.ai",
+    "becomes.io",
+    "overtook.com",
+    "backwater.ai",
+    "antiseptic.ai"
   ],
-  "generated_at": "2026-08-09T09:27:49.299996+00:00",
-  "mub": [
-    "enabling.ai"
-  ],
+  "generated_at": "2026-08-10T09:27:05.411219+00:00",
+  "mub": [],
   "source": "atom_daily"
 }

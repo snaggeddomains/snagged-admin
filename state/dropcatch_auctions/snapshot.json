@@ -2,16 +2,25 @@
   {
     "bid_count": 95,
     "domain": "mrsd.com",
-    "end_time_utc": "2026-08-10T18:59:33.697744+00:00",
+    "end_time_utc": "2026-08-10T18:59:18.736368+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Mrsd.com",
     "platform": "DropCatch",
     "price": 1303.0
   },
   {
+    "bid_count": 30,
+    "domain": "cohere.org",
+    "end_time_utc": "2026-08-10T18:59:18.736368+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Cohere.org",
+    "platform": "DropCatch",
+    "price": 380.0
+  },
+  {
     "bid_count": 42,
     "domain": "cke.net",
-    "end_time_utc": "2026-08-10T18:59:33.697744+00:00",
+    "end_time_utc": "2026-08-10T18:59:18.736368+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Cke.net",
     "platform": "DropCatch",
@@ -20,7 +29,7 @@
   {
     "bid_count": 54,
     "domain": "mindor.com",
-    "end_time_utc": "2026-08-10T18:59:33.697744+00:00",
+    "end_time_utc": "2026-08-10T18:59:18.736368+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/MinDor.com",
     "platform": "DropCatch",
@@ -29,25 +38,16 @@
   {
     "bid_count": 36,
     "domain": "vmk.net",
-    "end_time_utc": "2026-08-10T18:59:33.697744+00:00",
+    "end_time_utc": "2026-08-10T18:59:18.736368+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Vmk.net",
     "platform": "DropCatch",
     "price": 240.0
   },
   {
-    "bid_count": 22,
-    "domain": "cohere.org",
-    "end_time_utc": "2026-08-10T18:59:33.697744+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Cohere.org",
-    "platform": "DropCatch",
-    "price": 220.0
-  },
-  {
     "bid_count": 19,
     "domain": "grandx.org",
-    "end_time_utc": "2026-08-10T18:59:33.697744+00:00",
+    "end_time_utc": "2026-08-10T18:59:18.736368+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/grandx.org",
     "platform": "DropCatch",

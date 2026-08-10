@@ -1,13 +1,11 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 2,
   "domains": [
-    "xued.com",
-    "oltdoor.com",
-    "lawsc.net",
-    "argumentative.co"
+    "aigoo.net",
+    "zanila.com"
   ],
-  "generated_at": "2026-08-09T09:52:25.303408+00:00",
+  "generated_at": "2026-08-10T09:49:12.173714+00:00",
   "mub": [],
   "source": "dynadot_auctions"
 }
