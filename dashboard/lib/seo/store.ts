@@ -13,7 +13,7 @@ export type Snapshot = {
   ahrefs_position: number | null; competitor_position: number | null; top_url: string | null;
 };
 export type SeoAction = {
-  id: string; title: string; detail: string | null; keyword: string | null; target_url: string | null;
+  id: string; title: string; detail: string | null; playbook: string | null; keyword: string | null; target_url: string | null;
   status: string; priority: number; owner_email: string | null; created_by: string | null;
   created_at: string; updated_at: string; done_at: string | null;
 };
@@ -90,7 +90,7 @@ export async function upsertAction(a: Partial<SeoAction> & { title?: string }, a
   const now = new Date().toISOString();
   if (a.id) {
     const row: Record<string, unknown> = { updated_at: now };
-    for (const k of ["title", "detail", "keyword", "target_url", "status", "priority", "owner_email"] as const) if (a[k] !== undefined) row[k] = a[k];
+    for (const k of ["title", "detail", "playbook", "keyword", "target_url", "status", "priority", "owner_email"] as const) if (a[k] !== undefined) row[k] = a[k];
     if (a.status === "done") row.done_at = now;
     if (a.status && a.status !== "done") row.done_at = null;
     try { await getDb().from("seo_actions").update(row).eq("id", a.id); } catch { /* noop */ }

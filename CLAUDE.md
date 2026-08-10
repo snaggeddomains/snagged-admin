@@ -895,6 +895,15 @@ position, incl. terms GSC has no impressions for + the DR/traffic head-to-head).
   MediaOptions), the **money-terms table** (keyword · page · position · WoW ▲/▼ distance · status pill ·
   impr/clicks/CTR · volume · competitor position), biggest-movers (gaining/losing, all queries), money-page
   GA performance, and the **action loop** (add + click-to-cycle todo→doing→done). Wide-page layout.
+- **Action drill-downs / build kits (2026-08-10).** Each seeded action expands (▸ click) to a full
+  **build kit** — slug, title tag, meta, H1, complete page copy, FAQ, JSON-LD schema, internal links —
+  rendered from a `seo_actions.playbook` markdown column via a tiny inline safe MD renderer in
+  `seo-client.tsx` (headings/bold/code/fenced-code/links/lists). Playbooks live in
+  **`scripts/seo_playbooks.sql`** (run AFTER seo.sql; idempotent UPDATE-by-title). The /domain-broker
+  kit is verbatim from Rob's Build Kit doc; sell/buy/appraisal/brokered-hub are authored to the same
+  template. The **internal-linking action does NOT duplicate a manual playbook — it points to the
+  existing Crosslinking engine** (Reports → Content → Crosslinking tab, `lib/content/crosslinks.ts`,
+  which already finds + inserts the links). `playbook` is on the `upsertAction` editable whitelist.
 - **Permission** `reports.seo` (ACTIONS + REPORTS_TABS + CATALOG group Reports) — nav/hub/sub-nav derive
   automatically from REPORTS_TABS via `navigation.ts`. Grant per-user; admins auto-pass.
 - **⚠️ Setup (one-time):** (1) run `scripts/seo.sql` on the MAIN project; (2) **set `AHREF_API_KEY` in the

@@ -40,7 +40,8 @@ create index if not exists idx_seo_snap_week on seo_keyword_snapshots (scope, we
 create table if not exists seo_actions (
   id uuid primary key default gen_random_uuid(),
   title text not null,
-  detail text,
+  detail text,                          -- one-line subtitle
+  playbook text,                        -- long-form drill-down (markdown); see scripts/seo_playbooks.sql
   keyword text,
   target_url text,
   status text not null default 'todo',  -- todo | doing | done

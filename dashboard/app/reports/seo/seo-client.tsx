@@ -10,7 +10,7 @@ type TargetRow = {
 type MoverRow = { keyword: string; position: number | null; prev_position: number | null; delta: number; impressions: number; clicks: number };
 type MoneyPage = { path: string; sessions: number; conversions: number };
 type Metrics = { domain: string; dr: number | null; org_traffic: number; org_keywords: number; org_value_usd: number };
-type Action = { id: string; title: string; detail: string | null; keyword: string | null; status: string; priority: number; owner_email: string | null };
+type Action = { id: string; title: string; detail: string | null; playbook: string | null; keyword: string | null; status: string; priority: number; owner_email: string | null };
 type Report = {
   window: { from: string; to: string };
   headToHead: { ours: Metrics | null; competitor: Metrics | null };
@@ -36,12 +36,47 @@ function Delta({ d }: { d: number | null }) {
   return <span style={{ color: up ? "#166534" : "#991b1b", fontWeight: 700 }}>{up ? "▲" : "▼"}{Math.abs(d).toFixed(1)}</span>;
 }
 
+// Minimal, safe markdown → HTML for the action drill-downs (headings, bold, inline
+// code, fenced code blocks, links, lists). Content is escaped before formatting.
+function esc(s: string) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+function inlineMd(s: string) {
+  return esc(s)
+    .replace(/`([^`]+)`/g, '<code style="background:#eee;padding:1px 4px;border-radius:4px">$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
+}
+function renderMd(md: string): string {
+  const lines = (md || "").replace(/\r/g, "").split("\n");
+  const out: string[] = []; let i = 0; let list: null | "ul" | "ol" = null;
+  const closeList = () => { if (list) { out.push(`</${list}>`); list = null; } };
+  while (i < lines.length) {
+    const line = lines[i];
+    if (/^```/.test(line)) {
+      closeList(); const body: string[] = []; i++;
+      while (i < lines.length && !/^```/.test(lines[i])) { body.push(lines[i]); i++; }
+      i++;
+      out.push(`<pre style="background:#0f172a;color:#e2e8f0;padding:12px;border-radius:8px;overflow-x:auto;font-size:12px;line-height:1.4"><code>${esc(body.join("\n"))}</code></pre>`);
+      continue;
+    }
+    const h = line.match(/^(#{1,4})\s+(.*)$/);
+    if (h) { closeList(); const lvl = Math.min(h[1].length + 2, 6); out.push(`<h${lvl} style="margin:14px 0 4px;font-size:${lvl === 3 ? 15 : 14}px">${inlineMd(h[2])}</h${lvl}>`); i++; continue; }
+    const ol = line.match(/^\s*\d+\.\s+(.*)$/); const ul = line.match(/^\s*[-*]\s+(.*)$/);
+    if (ol) { if (list !== "ol") { closeList(); list = "ol"; out.push('<ol style="margin:4px 0 6px 20px">'); } out.push(`<li>${inlineMd(ol[1])}</li>`); i++; continue; }
+    if (ul) { if (list !== "ul") { closeList(); list = "ul"; out.push('<ul style="margin:4px 0 6px 20px">'); } out.push(`<li>${inlineMd(ul[1])}</li>`); i++; continue; }
+    if (!line.trim()) { closeList(); i++; continue; }
+    closeList(); out.push(`<p style="margin:6px 0">${inlineMd(line)}</p>`); i++;
+  }
+  closeList(); return out.join("");
+}
+
 export default function SeoClient() {
   const [rep, setRep] = useState<Report | null>(null);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState("");
   const [newAction, setNewAction] = useState({ title: "", keyword: "" });
+  const [open, setOpen] = useState<Set<string>>(new Set());
+  const toggle = (id: string) => setOpen((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
 
   const load = useCallback(async () => {
     setLoading(true); setErr("");
@@ -173,14 +208,28 @@ export default function SeoClient() {
             <button onClick={addAction} disabled={busy === "add" || !newAction.title.trim()}>＋ Add</button>
           </div>
           <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-            {openActions.map((a) => (
-              <li key={a.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 0", borderBottom: "1px solid #f4f4f4" }}>
-                <button onClick={() => cycle(a)} disabled={busy === "action:" + a.id} title="Cycle todo → doing → done" style={{ minWidth: 68 }}>
-                  {a.status === "doing" ? "◐ Doing" : "○ To-do"}
-                </button>
-                <span style={{ flex: 1 }}>{a.title}{a.keyword ? <span className="muted"> · {a.keyword}</span> : null}{a.detail ? <div className="muted" style={{ fontSize: 12 }}>{a.detail}</div> : null}</span>
-              </li>
-            ))}
+            {openActions.map((a) => {
+              const isOpen = open.has(a.id);
+              const hasKit = !!(a.playbook && a.playbook.trim());
+              return (
+                <li key={a.id} style={{ padding: "8px 0", borderBottom: "1px solid #f4f4f4" }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                    <button onClick={() => cycle(a)} disabled={busy === "action:" + a.id} title="Cycle todo → doing → done" style={{ minWidth: 68 }}>
+                      {a.status === "doing" ? "◐ Doing" : "○ To-do"}
+                    </button>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div onClick={hasKit ? () => toggle(a.id) : undefined} style={{ cursor: hasKit ? "pointer" : "default", fontWeight: 600 }}>
+                        {hasKit ? <span style={{ color: "#0d9488" }}>{isOpen ? "▾" : "▸"} </span> : null}{a.title}
+                        {a.keyword ? <span className="muted" style={{ fontWeight: 400 }}> · {a.keyword}</span> : null}
+                        {hasKit ? <span className="muted" style={{ fontWeight: 400, fontSize: 12 }}> · {isOpen ? "hide" : "build kit"}</span> : null}
+                      </div>
+                      {a.detail ? <div className="muted" style={{ fontSize: 12 }}>{a.detail}</div> : null}
+                      {hasKit && isOpen ? <div style={{ marginTop: 8, padding: "12px 16px", background: "#fff", border: "1px solid var(--line,#e5e7eb)", borderRadius: 8, fontSize: 14, lineHeight: 1.5, overflowX: "auto" }} dangerouslySetInnerHTML={{ __html: renderMd(a.playbook || "") }} /> : null}
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
             {doneActions.length > 0 && <li style={{ marginTop: 10 }} className="muted">✓ Done ({doneActions.length})</li>}
             {doneActions.map((a) => (
               <li key={a.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "4px 0", opacity: 0.6 }}>
