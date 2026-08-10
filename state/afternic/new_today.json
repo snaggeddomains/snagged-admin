@@ -1,11 +1,8 @@
 {
   "capped": false,
-  "count": 2,
-  "domains": [
-    "toulon.org",
-    "elects.co"
-  ],
-  "generated_at": "2026-08-09T08:19:51.285485+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-10T08:19:07.613313+00:00",
   "mub": [],
   "source": "afternic"
 }
