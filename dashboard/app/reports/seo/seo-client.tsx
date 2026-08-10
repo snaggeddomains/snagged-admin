@@ -29,6 +29,20 @@ const STATUS: Record<string, { label: string; bg: string; fg: string }> = {
   not_ranking: { label: "Not ranking", bg: "#f3f4f6", fg: "#6b7280" },
 };
 
+// Money-terms columns — every one is click-to-sort (numeric cols default high-first).
+const COLS: { key: string; label: string; num: boolean }[] = [
+  { key: "keyword", label: "Keyword", num: false },
+  { key: "target_url", label: "Page", num: false },
+  { key: "position", label: "Position", num: true },
+  { key: "delta", label: "WoW", num: true },
+  { key: "status", label: "Status", num: false },
+  { key: "impressions", label: "Impr", num: true },
+  { key: "clicks", label: "Clicks", num: true },
+  { key: "ctr", label: "CTR", num: true },
+  { key: "volume", label: "Volume", num: true },
+  { key: "competitor_position", label: "Competitor", num: true },
+];
+
 function Delta({ d }: { d: number | null }) {
   if (d == null) return <span className="muted">—</span>;
   if (d === 0) return <span className="muted">•</span>;
@@ -77,6 +91,8 @@ export default function SeoClient() {
   const [newAction, setNewAction] = useState({ title: "", keyword: "" });
   const [open, setOpen] = useState<Set<string>>(new Set());
   const toggle = (id: string) => setOpen((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  const [sort, setSort] = useState<{ col: string; dir: 1 | -1 }>({ col: "", dir: 1 });
+  const toggleSort = (key: string, num: boolean) => setSort((s) => (s.col === key ? { col: key, dir: (s.dir === 1 ? -1 : 1) as 1 | -1 } : { col: key, dir: num ? -1 : 1 }));
 
   const load = useCallback(async () => {
     setLoading(true); setErr("");
@@ -141,6 +157,18 @@ export default function SeoClient() {
     );
   };
 
+  const sortedTargets = (() => {
+    const rows = rep?.targets ? [...rep.targets] : [];
+    if (!sort.col) return rows;
+    const num = COLS.find((c) => c.key === sort.col)?.num;
+    return rows.sort((a, b) => {
+      const av = (a as Record<string, unknown>)[sort.col], bv = (b as Record<string, unknown>)[sort.col];
+      const an = av == null || av === "", bn = bv == null || bv === "";
+      if (an && bn) return 0; if (an) return 1; if (bn) return -1; // blanks always last
+      return (num ? Number(av) - Number(bv) : String(av).localeCompare(String(bv))) * sort.dir;
+    });
+  })();
+
   const h2h = rep?.headToHead;
   const openActions = (rep?.actions || []).filter((a) => a.status !== "done");
   const doneActions = (rep?.actions || []).filter((a) => a.status === "done");
@@ -181,12 +209,17 @@ export default function SeoClient() {
           <div style={{ overflowX: "auto" }}>
             <table style={{ borderCollapse: "collapse", width: "100%", fontSize: 14 }}>
               <thead><tr style={{ textAlign: "left", color: "#777", borderBottom: "1px solid var(--line,#e5e7eb)" }}>
-                {["Keyword", "Page", "Position", "WoW", "Status", "Impr", "Clicks", "CTR", "Volume", "Competitor"].map((h, i) => (
-                  <th key={h} style={{ padding: "6px 10px", textAlign: i >= 2 ? "right" : "left" }}>{h}</th>
-                ))}
+                {COLS.map((c, i) => {
+                  const active = sort.col === c.key;
+                  return (
+                    <th key={c.key} onClick={() => toggleSort(c.key, c.num)} title="Click to sort" style={{ padding: "6px 10px", textAlign: i >= 2 ? "right" : "left", cursor: "pointer", whiteSpace: "nowrap", userSelect: "none", color: active ? "#c0392b" : undefined }}>
+                      {c.label}{active ? (sort.dir === 1 ? " ▲" : " ▼") : ""}
+                    </th>
+                  );
+                })}
               </tr></thead>
               <tbody>
-                {rep.targets.map((t) => {
+                {sortedTargets.map((t) => {
                   const s = STATUS[t.status] || STATUS.holding;
                   return (
                     <tr key={t.keyword} style={{ borderBottom: "1px solid #f1f1f1" }}>

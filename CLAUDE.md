@@ -1423,6 +1423,17 @@ slack.py`) got two changes for urgency + completeness:
 
 # Working agreements
 
+## Data tables are SORTABLE by default — don't wait to be asked (2026-08-10)
+
+Rob's standing instruction: **every data table we build has click-to-sort column headers by
+default.** Don't ship a static table and wait for someone to request sorting. The house pattern
+(see `app/reports/seo/seo-client.tsx` `COLS`/`sort`/`toggleSort`/`sortedTargets`, and the
+expiring-.ai / deals-reporting tables): a `COLS` metadata array (`{key,label,num}`), a
+`{col,dir}` sort state, clickable `<th>` headers (cursor pointer, active header coral + ▲/▼),
+**numeric columns default to descending (high-first)** on first click / string columns ascending,
+and **blanks always sort last**. Client-side sort over the loaded rows; the CSV export (when
+present) respects the active sort. Applies to new tables in BOTH repos.
+
 ## Probes and one-shot scripts: run locally by default
 
 When a task is a pure-compute probe or one-shot diagnostic that could be
