@@ -16,7 +16,11 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # atom_daily upserts ~260K universe rows sequentially after the feed fetch,
+    # which takes ~25 min (more with transient-retry backoffs) — 15 min cancelled
+    # it mid-upsert. The orchestrator (120 min) already accommodates this; give the
+    # standalone manual re-run the same headroom.
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
