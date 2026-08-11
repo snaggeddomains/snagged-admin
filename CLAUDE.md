@@ -967,6 +967,18 @@ everywhere. Backward-safe: a row/feed with NO `verified` column is treated as ve
 `domain`-column feeds + tests never get dropped). Live feed 2026-07-24: 18,730 verified · ~89 pending.
 Tests in `tests/test_atom_daily.py`.
 
+**Cloudflare challenge → scrape.do fallback (2026-08-11).** The daily orchestrator run "failed"
+because `atom.com/public/feeds/partner.csv` started returning **403** (`cf-mitigated: challenge`,
+`server: cloudflare` — atom.com put the feed behind a Cloudflare challenge). The fetch was a bare
+`requests.get(...).raise_for_status()` with no UA → it threw hard, and since atom_daily is the only
+non-fail-open source in the orchestrator it flipped the whole run to "failure" (SNAP watchdog +
+auto-fix fired). Fix in `atom_daily.py`: `_fetch_feed(url)` tries a direct fetch (browser UA) first,
+and on a 403 / Cloudflare-challenge shell falls back to `_fetch_via_scrape_do` (scrape.do super proxy,
+no-render, returns raw CSV bytes — same proven pattern as `markmonitor.py`; 3 retries; meters
+`scrape_do.request`). Needs **`SCRAPE_DO_TOKEN`** (already in `snap-orchestrator.yml`; **added to the
+standalone `source-atom-daily.yml`** in the same commit). Direct path stays the default (no scrape.do
+credit unless Cloudflare blocks). Tests still pass (18).
+
 ---
 
 # NameClub — one-time dictionary-gated .com pull into Universe (2026-07-20)
