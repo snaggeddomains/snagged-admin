@@ -121,15 +121,56 @@ def _fetch_via_scrape_do(url: str) -> bytes:
     raise RuntimeError(f"scrape.do exhausted all attempts ({last_err})")
 
 
+def _fetch_via_curl_cffi(url: str) -> bytes | None:
+    """Fetch the feed with a real browser TLS/JA3 fingerprint (curl_cffi
+    `impersonate`), which passes Cloudflare's Bot Management managed challenge
+    that flags plain `requests`. This is the primary path: it gets past the 403
+    challenge AND downloads the full ~127 MB directly (no proxy 502). Returns
+    the body, or None if curl_cffi isn't installed / every attempt is blocked."""
+    try:
+        from curl_cffi import requests as creq  # lazy — optional dep
+    except Exception as e:  # noqa: BLE001
+        print(f"      curl_cffi unavailable ({e}); skipping to plain direct")
+        return None
+    attempts = 3
+    last = ""
+    for attempt in range(attempts):
+        try:
+            resp = creq.get(url, impersonate="chrome", timeout=180, allow_redirects=True)
+            body = resp.content
+            if resp.status_code == 200 and _is_valid_feed(body):
+                print(f"      curl_cffi ok ({len(body):,} bytes)")
+                return body
+            last = (
+                f"HTTP {resp.status_code}"
+                f"{'/undersized-or-challenge' if resp.status_code == 200 else ''}"
+                f" ({len(body):,} bytes)"
+            )
+        except Exception as e:  # noqa: BLE001
+            last = str(e)
+        print(f"      curl_cffi attempt {attempt + 1}/{attempts}: {last}")
+        if attempt < attempts - 1:
+            time.sleep(2 * (2 ** attempt))  # 2s, 4s
+    print(f"      curl_cffi blocked ({last})")
+    return None
+
+
 def _fetch_feed(url: str) -> bytes:
     """Download the Atom partner feed, transparently routing around Cloudflare.
 
-    Cloudflare challenges the runner IP only INTERMITTENTLY — a plain direct
-    fetch frequently succeeds outright, and it pulls the ~127 MB feed far more
-    reliably than any proxy — so try direct a few times over a persistent
-    session first (the `__cf_bm` bot-management cookie set on a challenged
-    response can let a follow-up request through), then fall back to scrape.do
-    only if every direct attempt is blocked."""
+    Order of preference:
+      1. curl_cffi with a real Chrome TLS fingerprint — passes Cloudflare Bot
+         Management (which flags plain `requests`) and downloads the full 127 MB
+         directly. This is the reliable primary path.
+      2. Plain `requests` direct over a persistent session — Cloudflare only
+         challenges the runner IP intermittently, so this often works too (and
+         the `__cf_bm` cookie from a challenged response can let a retry through).
+      3. scrape.do — last resort; note it 502s on this large a download, so it
+         rarely helps here, but keep it for completeness / smaller feeds."""
+    body = _fetch_via_curl_cffi(url)
+    if body is not None:
+        return body
+
     sess = requests.Session()
     sess.headers.update(_BROWSER_HEADERS)
     direct_attempts = 3
