@@ -31,11 +31,85 @@ from ..filters import standard as flt
 from ..filters import universe as univ
 from ..publishers import sheets, slack
 from ..publishers.sheets import OwnershipMode
+from ..usage_log import record_usage
 
 SOURCE_ID = "atom_daily"
 SOURCE_LABEL = "Atom"
 
 UNIVERSE_SNAPSHOT_FILE = "universe_snapshot.json"
+
+# Browser-ish headers so the direct fetch isn't trivially bot-blocked.
+_BROWSER_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+    ),
+    "Accept": "text/csv,text/plain,application/octet-stream,*/*",
+}
+
+SCRAPE_DO_BASE = "https://api.scrape.do/"
+# Cloudflare challenge shell markers — if the direct fetch returns one of these
+# (200 body OR 403 page), treat it as blocked and fall back to scrape.do.
+_CF_CHALLENGE_MARKERS = (
+    b"just a moment",
+    b"cf-browser-verification",
+    b"challenge-platform",
+    b"cf-mitigated",
+    b"attention required",
+)
+
+
+def _looks_like_challenge(body: bytes) -> bool:
+    head = body[:2000].lower()
+    return any(m in head for m in _CF_CHALLENGE_MARKERS)
+
+
+def _fetch_via_scrape_do(url: str) -> bytes:
+    """Fetch a Cloudflare-protected URL through scrape.do's super proxy.
+
+    Atom put the partner feed behind a Cloudflare challenge (cf-mitigated:
+    challenge → 403 to a plain requests.get). scrape.do's residential super
+    proxy solves the challenge and returns the raw CSV. The feed is a static
+    CSV (not JS-hydrated), so the fast no-render path is enough; retry a couple
+    times for transient 5xx."""
+    token = os.environ.get("SCRAPE_DO_TOKEN") or os.environ.get("SCRAPE_DO_API_KEY")
+    if not token:
+        raise RuntimeError("SCRAPE_DO_TOKEN must be set to fetch the Cloudflare-protected Atom feed")
+    params = {"token": token, "url": url, "super": "true", "geoCode": "us"}
+    last_err: Any = None
+    for attempt in range(3):
+        try:
+            resp = requests.get(SCRAPE_DO_BASE, params=params, timeout=180)
+            resp.raise_for_status()
+            record_usage("scrape_do.request", 1, "snap")
+            body = resp.content
+            if body and not _looks_like_challenge(body):
+                print(f"      scrape.do ok ({len(body):,} bytes)")
+                return body
+            last_err = "challenge/empty response"
+        except Exception as e:  # noqa: BLE001
+            last_err = str(e)
+            print(f"      scrape.do attempt {attempt + 1} failed: {e}")
+    raise RuntimeError(f"scrape.do exhausted all attempts ({last_err})")
+
+
+def _fetch_feed(url: str) -> bytes:
+    """Download the Atom partner feed, transparently routing around Cloudflare.
+
+    Try a direct fetch first (cheap, no scrape.do credit); if Cloudflare blocks
+    it (403 or a challenge shell), fall back to scrape.do."""
+    try:
+        resp = requests.get(url, timeout=180, headers=_BROWSER_HEADERS)
+        if resp.status_code == 200 and not _looks_like_challenge(resp.content):
+            return resp.content
+        print(
+            f"      direct fetch blocked (HTTP {resp.status_code}"
+            f"{'/challenge' if _looks_like_challenge(resp.content) else ''}); "
+            "falling back to scrape.do"
+        )
+    except requests.RequestException as e:
+        print(f"      direct fetch errored ({e}); falling back to scrape.do")
+    return _fetch_via_scrape_do(url)
 
 
 def _is_verified(row: dict[str, str]) -> bool:
@@ -270,9 +344,7 @@ def run() -> int:
     today = datetime.now(timezone.utc).date().isoformat()
 
     print(f"[1/9] Downloading {fetch_url}")
-    resp = requests.get(fetch_url, timeout=180)
-    resp.raise_for_status()
-    raw = resp.content
+    raw = _fetch_feed(fetch_url)
     print(f"      fetched {len(raw):,} bytes")
 
     print("[2/9] Caching raw to Drive (Tier 2)")
