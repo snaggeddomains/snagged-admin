@@ -59,10 +59,26 @@ _CF_CHALLENGE_MARKERS = (
     b"attention required",
 )
 
+# The partner feed is ~127 MB / ~515K rows. A response materially smaller than
+# this is NOT the real feed — a truncated download, a Cloudflare interstitial that
+# happens not to match the markers above, or a proxy error body. Treating such a
+# response as a valid (empty) feed once wiped the saved snapshot, so reject any
+# body under this floor (retry / fall back / ultimately fail loudly, never
+# overwrite good state with garbage). Env-overridable.
+MIN_FEED_BYTES = int(os.environ.get("ATOM_MIN_FEED_BYTES") or 5_000_000)
+# Belt-and-suspenders row floor applied AFTER parse, guarding every fetch path.
+MIN_FEED_ROWS = int(os.environ.get("ATOM_MIN_FEED_ROWS") or 1_000)
+
 
 def _looks_like_challenge(body: bytes) -> bool:
     head = body[:2000].lower()
     return any(m in head for m in _CF_CHALLENGE_MARKERS)
+
+
+def _is_valid_feed(body: bytes) -> bool:
+    """A plausibly-complete feed: non-empty, not a challenge shell, and at least
+    MIN_FEED_BYTES (the real feed is ~127 MB, so this only rejects garbage)."""
+    return bool(body) and len(body) >= MIN_FEED_BYTES and not _looks_like_challenge(body)
 
 
 def _fetch_via_scrape_do(url: str) -> bytes:
@@ -86,10 +102,11 @@ def _fetch_via_scrape_do(url: str) -> bytes:
             resp.raise_for_status()
             record_usage("scrape_do.request", 1, "snap")
             body = resp.content
-            if body and not _looks_like_challenge(body):
+            if _is_valid_feed(body):
                 print(f"      scrape.do ok ({len(body):,} bytes)")
                 return body
-            last_err = "challenge/empty response"
+            last_err = f"challenge/undersized response ({len(body):,} bytes)"
+            print(f"      scrape.do attempt {attempt + 1}/{attempts}: {last_err}")
         except Exception as e:  # noqa: BLE001 — retry transient 5xx/timeouts
             last_err = str(e)
             print(f"      scrape.do attempt {attempt + 1}/{attempts} failed: {e}")
@@ -114,11 +131,14 @@ def _fetch_feed(url: str) -> bytes:
     for attempt in range(direct_attempts):
         try:
             resp = sess.get(url, timeout=180)
-            if resp.status_code == 200 and not _looks_like_challenge(resp.content):
+            if resp.status_code == 200 and _is_valid_feed(resp.content):
                 if attempt:
                     print(f"      direct fetch ok on retry {attempt + 1}")
                 return resp.content
-            last = f"HTTP {resp.status_code}{'/challenge' if _looks_like_challenge(resp.content) else ''}"
+            if resp.status_code == 200 and not _is_valid_feed(resp.content):
+                last = f"HTTP 200 but undersized/challenge ({len(resp.content):,} bytes)"
+            else:
+                last = f"HTTP {resp.status_code}{'/challenge' if _looks_like_challenge(resp.content) else ''}"
         except requests.RequestException as e:
             last = str(e)
         if attempt < direct_attempts - 1:
@@ -375,6 +395,16 @@ def run() -> int:
     print("[3/9] Parsing CSV")
     rows = parse_csv_rows(raw)
     print(f"      raw rows: {len(rows):,}")
+    # Guard: a plausibly-complete feed has ~515K rows. If we somehow parsed far
+    # fewer (a truncated/garbage body that slipped past the byte floor), ABORT
+    # before overwriting the saved snapshot — an empty snapshot corrupts the diff
+    # baseline and makes the next real run flag everything as new. Fail loudly.
+    if len(rows) < MIN_FEED_ROWS:
+        raise RuntimeError(
+            f"Atom feed parsed only {len(rows):,} rows (< {MIN_FEED_ROWS:,}); "
+            f"refusing to overwrite the snapshot with a partial/garbage feed "
+            f"({len(raw):,} bytes fetched)."
+        )
 
     print("[3b/9] Writing universe snapshot (broader filter for naming universe)")
     universe_entries = _universe_entries_from_rows(rows)

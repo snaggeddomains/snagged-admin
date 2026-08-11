@@ -989,6 +989,18 @@ standalone manual re-run mid-upsert; the orchestrator's 120-min budget already a
   challenged response can let a follow-up through) before falling back, and `_fetch_via_scrape_do`
   retries **5× with exponential backoff (2/4/8/16s)** on transient 5xx/timeouts. Direct-first keeps
   the big download off the flaky proxy whenever the runner isn't challenged.
+- **⚠️ Undersized-response guard — a truncated fetch once WIPED the snapshot (2026-08-11).** A manual
+  run got a **10,917-byte** body from scrape.do (425 rows) that passed the challenge-marker check but
+  was NOT the real ~127 MB feed. The pipeline treated it as a valid *empty* feed and SAVED an empty
+  snapshot, deleting ~263K `universe_snapshot.json` entries + ~2,971 `snapshot.json` diff rows on
+  `main` (commit `175690d`) — which would make the next real run flag everything as new. Restored the
+  four `state/atom_daily/*.json` files (commit after `175690d`). **Fix so it can't recur:**
+  `_is_valid_feed(body)` requires the body be non-empty, not a challenge shell, AND **≥ `MIN_FEED_BYTES`
+  (5 MB, env `ATOM_MIN_FEED_BYTES`)** — both fetch paths now reject an undersized body (retry → fall
+  back → fail loudly, never return garbage). Belt-and-suspenders: `run()` **raises before writing the
+  snapshot** if the parse yields < `MIN_FEED_ROWS` (1,000, env `ATOM_MIN_FEED_ROWS`) rows. So a
+  partial/garbage feed now fails the run (visible, recoverable) instead of silently corrupting state.
+  Tests: `_is_valid_feed` + direct-undersized-fallback (20 total).
 
 ---
 

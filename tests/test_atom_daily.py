@@ -116,3 +116,38 @@ def test_build_slack_message_includes_top_entries():
     assert "Atom diff for 2026-05-28" in msg
     assert "table.com" in msg
     assert "https://sheet" in msg
+
+
+def test_is_valid_feed_rejects_undersized_and_challenge(monkeypatch):
+    # The real feed is ~127 MB; a tiny/garbage body must be rejected so it never
+    # overwrites the saved snapshot (regression for the 10,917-byte scrape.do body).
+    monkeypatch.setattr(src, "MIN_FEED_BYTES", 1_000)
+    assert src._is_valid_feed(b"d,p\n" + b"x.com,5\n" * 500)  # ~4 KB > 1 KB floor
+    assert not src._is_valid_feed(b"")
+    assert not src._is_valid_feed(b"domain,price\ntable.com,500\n")  # under floor
+    # A challenge shell at/above the byte floor is still rejected.
+    assert not src._is_valid_feed(b"Just a moment..." + b"\x00" * 2_000)
+
+
+def test_fetch_feed_falls_back_when_direct_returns_undersized(monkeypatch):
+    # A 200 response that's too small (truncated / interstitial) must NOT be
+    # returned as the feed — fall through to scrape.do instead.
+    monkeypatch.setattr(src, "MIN_FEED_BYTES", 1_000)
+    monkeypatch.setattr(src.time, "sleep", lambda _s: None)
+
+    class _Resp:
+        status_code = 200
+        content = b"domain,price\ntable.com,500\n"  # tiny
+
+    monkeypatch.setattr(src.requests, "Session", lambda: _FakeSession(_Resp()))
+    monkeypatch.setattr(src, "_fetch_via_scrape_do", lambda _url: b"BIG" * 1_000)
+    assert src._fetch_feed("http://atom.example/feed.csv") == b"BIG" * 1_000
+
+
+class _FakeSession:
+    def __init__(self, resp):
+        self._resp = resp
+        self.headers = {}
+
+    def get(self, *_a, **_k):
+        return self._resp
