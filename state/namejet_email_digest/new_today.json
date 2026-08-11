@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "resemble.org"
-  ],
-  "generated_at": "2026-08-11T15:08:35.179153+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-11T15:10:02.251242+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
