@@ -1003,6 +1003,20 @@ standalone manual re-run mid-upsert; the orchestrator's 120-min budget already a
   **curl_cffi → plain requests direct → scrape.do**. curl_cffi is imported lazily (tests + module import
   don't need it) and returns None on failure so the fallback chain still runs. This is the reliable path;
   the earlier direct/scrape.do work stays as fallbacks.
+- **Headless-Chromium LAST-RESORT backup (2026-08-11).** When Cloudflare serves a hard **JS managed
+  challenge** (a 403 challenge page — verified live: even curl_cffi's real-Chrome TLS fingerprint got a
+  5.9 KB 403, because TLS impersonation doesn't SOLVE a JS challenge), the fetch now has a final fallback:
+  `_fetch_via_playwright` drives a real headless Chromium (which auto-clears the managed challenge),
+  lifts the **`cf_clearance` cookie + the browser UA**, then downloads the 127 MB CSV over plain HTTP with
+  those (a browser handles a 127 MB download poorly; the cookie handoff is the reliable part). cf_clearance
+  is IP+UA-bound, so it reuses the browser's exact UA + the same runner egress IP. `_fetch_feed` order is
+  now **curl_cffi → direct → scrape.do → Playwright**, then raises (safely — the snapshot guards mean a
+  total failure never corrupts state). Only engages as a BACKUP when the normal chain is blocked (Rob's
+  call). **Needs Chromium in the workflow** — `snap-orchestrator.yml` already installs it; added the same
+  `playwright install --with-deps chromium chromium-headless-shell` step to the standalone
+  `source-atom-daily.yml`. Playwright is imported lazily + returns None if Chromium is absent, so it
+  degrades gracefully. ⚠️ Whether a headless browser clears atom's specific challenge is best-effort —
+  verify on the first run that engages it.
 - **⚠️ Undersized-response guard — a truncated fetch once WIPED the snapshot (2026-08-11).** A manual
   run got a **10,917-byte** body from scrape.do (425 rows) that passed the challenge-marker check but
   was NOT the real ~127 MB feed. The pipeline treated it as a valid *empty* feed and SAVED an empty
