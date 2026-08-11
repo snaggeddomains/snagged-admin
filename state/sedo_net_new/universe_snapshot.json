@@ -1,22 +1,38 @@
 [
   {
-    "domain": "ankles.net",
-    "price": 7000.0
+    "domain": "school.ai",
+    "price": 3000000.0
   },
   {
-    "domain": "peruse.net",
-    "price": 18795.0
+    "domain": "quorums.com",
+    "price": null
+  },
+  {
+    "domain": "senzee.com",
+    "price": 5695.0
+  },
+  {
+    "domain": "faked.com",
+    "price": 30000.0
+  },
+  {
+    "domain": "novolex.net",
+    "price": null
+  },
+  {
+    "domain": "mignon.net",
+    "price": 800.0
   },
   {
     "domain": "bezos.net",
     "price": 299.0
   },
   {
-    "domain": "willie.co",
-    "price": 3888.0
+    "domain": "chomsky.co",
+    "price": 1988.0
   },
   {
-    "domain": "headhunters.co",
-    "price": 19995.0
+    "domain": "vernia.co",
+    "price": 1988.0
   }
 ]
