@@ -1,7 +1,12 @@
 {
-  "error": "scrape.do exhausted all attempts (502 Server Error: Bad Gateway for url: https://api.scrape.do/?token=***REDACTED***&url=http%3A%2F%2Fatom.com%2Fpublic%2Ffeeds%2Fpartner.csv&super=true&geoCode=us)",
-  "generated_at": "2026-08-11T12:15:27.717826+00:00",
+  "dropped_count": 2971,
+  "fresh_added": 0,
+  "generated_at": "2026-08-11T12:24:32.732162+00:00",
   "label": "Atom",
+  "new_count": 0,
+  "price_change_count": 0,
+  "running_appended": 0,
+  "slack_posted": false,
   "source": "atom_daily",
-  "status": "failed"
+  "status": "ok"
 }
