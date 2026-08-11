@@ -26,6 +26,12 @@ jobs:
 
       - uses: ./.github/actions/setup
 
+      # Chromium for the last-resort headless-browser fetch fallback (used only
+      # when curl_cffi/direct/scrape.do are all blocked by a Cloudflare JS
+      # challenge). The orchestrator workflow already installs this.
+      - name: Install Chromium for the browser fallback
+        run: python -m playwright install --with-deps chromium chromium-headless-shell
+
       - name: Run atom_daily
         env:
           SLACK_BOT_TOKEN:             ${{ secrets.SLACK_BOT_TOKEN }}

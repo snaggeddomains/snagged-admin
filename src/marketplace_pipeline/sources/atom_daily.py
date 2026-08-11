@@ -155,18 +155,82 @@ def _fetch_via_curl_cffi(url: str) -> bytes | None:
     return None
 
 
+def _fetch_via_playwright(url: str) -> bytes | None:
+    """LAST-RESORT fallback: when curl_cffi/direct/scrape.do are all blocked by a
+    Cloudflare JS challenge (a 403 challenge page that TLS impersonation can't
+    solve), drive a REAL headless Chromium — which auto-clears the managed
+    challenge — lift the `cf_clearance` cookie + the browser's User-Agent, then
+    download the 127 MB CSV over plain HTTP with those. (A browser handles a
+    127 MB download poorly; the cookie handoff is the reliable part.) cf_clearance
+    is bound to IP+UA, so we reuse the browser's exact UA and the same runner
+    egress IP. Returns the body, or None if Chromium isn't installed / the
+    challenge doesn't clear / the download isn't a valid feed."""
+    try:
+        from playwright.sync_api import sync_playwright
+    except Exception as e:  # noqa: BLE001 — optional in some envs
+        print(f"      playwright unavailable ({e}); cannot use browser fallback")
+        return None
+    from urllib.parse import urlsplit
+    target = url.replace("http://", "https://", 1) if url.startswith("http://") else url
+    parts = urlsplit(target)
+    origin = f"{parts.scheme}://{parts.netloc}/"
+    for attempt in range(2):
+        ua = None
+        jar: dict[str, str] = {}
+        try:
+            with sync_playwright() as p:
+                browser = p.chromium.launch(headless=True)
+                try:
+                    page = browser.new_page()
+                    page.set_default_timeout(60_000)
+                    page.goto(origin, wait_until="domcontentloaded", timeout=60_000)
+                    # Give Cloudflare's managed challenge time to auto-solve and
+                    # set cf_clearance (a real browser clears it in a few seconds).
+                    for _ in range(20):
+                        if any(c.get("name") == "cf_clearance" for c in page.context.cookies()):
+                            break
+                        page.wait_for_timeout(1_000)
+                    ua = page.evaluate("() => navigator.userAgent")
+                    jar = {c["name"]: c["value"] for c in page.context.cookies()}
+                finally:
+                    browser.close()
+        except Exception as e:  # noqa: BLE001 — nav/timeout; retry
+            print(f"      playwright attempt {attempt + 1}/2 failed: {e}")
+            continue
+        if "cf_clearance" not in jar:
+            print(f"      playwright attempt {attempt + 1}/2: challenge did not clear (no cf_clearance)")
+            continue
+        # Download the big file with the cleared cookie + the SAME UA the browser used.
+        try:
+            headers = dict(_BROWSER_HEADERS)
+            if ua:
+                headers["User-Agent"] = ua
+            resp = requests.get(target, headers=headers, cookies=jar, timeout=180)
+            body = resp.content
+            if resp.status_code == 200 and _is_valid_feed(body):
+                print(f"      playwright+cookie ok ({len(body):,} bytes)")
+                return body
+            print(f"      playwright download attempt {attempt + 1}/2: HTTP {resp.status_code} ({len(body):,} bytes)")
+        except requests.RequestException as e:
+            print(f"      playwright download attempt {attempt + 1}/2 failed: {e}")
+    return None
+
+
 def _fetch_feed(url: str) -> bytes:
     """Download the Atom partner feed, transparently routing around Cloudflare.
 
     Order of preference:
       1. curl_cffi with a real Chrome TLS fingerprint — passes Cloudflare Bot
          Management (which flags plain `requests`) and downloads the full 127 MB
-         directly. This is the reliable primary path.
+         directly. Reliable primary path when Cloudflare isn't JS-challenging.
       2. Plain `requests` direct over a persistent session — Cloudflare only
-         challenges the runner IP intermittently, so this often works too (and
-         the `__cf_bm` cookie from a challenged response can let a retry through).
-      3. scrape.do — last resort; note it 502s on this large a download, so it
-         rarely helps here, but keep it for completeness / smaller feeds."""
+         challenges the runner IP intermittently, so this often works too.
+      3. scrape.do — 502s on this large a download, so it rarely helps here, but
+         kept for completeness / smaller feeds.
+      4. Headless Chromium (Playwright) — LAST-RESORT backup for when a hard
+         Cloudflare JS challenge blocks 1–3: solve it in a real browser, then
+         download with the cf_clearance cookie. Needs Chromium installed in the
+         workflow (`playwright install chromium`)."""
     body = _fetch_via_curl_cffi(url)
     if body is not None:
         return body
@@ -191,7 +255,20 @@ def _fetch_feed(url: str) -> bytes:
         if attempt < direct_attempts - 1:
             time.sleep(2 * (2 ** attempt))  # 2s, 4s
     print(f"      direct fetch blocked ({last}); falling back to scrape.do")
-    return _fetch_via_scrape_do(url)
+
+    # scrape.do may raise when its 5 attempts 502 out — catch it so the
+    # headless-browser backup still gets a turn before we give up.
+    try:
+        return _fetch_via_scrape_do(url)
+    except Exception as e:  # noqa: BLE001
+        print(f"      scrape.do failed ({e}); trying headless-browser backup")
+
+    body = _fetch_via_playwright(url)
+    if body is not None:
+        return body
+    raise RuntimeError(
+        "atom feed fetch failed: curl_cffi, direct, scrape.do, and Playwright all blocked"
+    )
 
 
 def _is_verified(row: dict[str, str]) -> bool:
