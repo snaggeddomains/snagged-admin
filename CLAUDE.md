@@ -987,8 +987,13 @@ standalone manual re-run mid-upsert; the orchestrator's 120-min budget already a
   (its residential super proxy 502s on the ~127 MB download). So `_fetch_feed` now **retries the
   direct fetch 3× over a persistent `requests.Session`** (the `__cf_bm` bot-management cookie set on a
   challenged response can let a follow-up through) before falling back, and `_fetch_via_scrape_do`
-  retries **5× with exponential backoff (2/4/8/16s)** on transient 5xx/timeouts. Direct-first keeps
-  the big download off the flaky proxy whenever the runner isn't challenged.
+  retries **5× with exponential backoff** on transient 5xx/timeouts. Direct-first keeps the big
+  download off the flaky proxy whenever the runner isn't challenged. **scrape.do 502s CONSISTENTLY on
+  the residential `super` proxy** for the 127 MB file (it can't stream it), so `_fetch_via_scrape_do`
+  now tries the **DATACENTER proxy first** (super off — handles the big download; scrape.do still
+  bypasses Cloudflare on it), then `super`, against the **https** URL directly. NB the fetch is still
+  fundamentally at the mercy of Cloudflare + scrape.do infra — when the runner IP is challenged AND
+  scrape.do 502s, the run now FAILS SAFELY (no snapshot write) rather than corrupting state.
 - **⚠️ Undersized-response guard — a truncated fetch once WIPED the snapshot (2026-08-11).** A manual
   run got a **10,917-byte** body from scrape.do (425 rows) that passed the challenge-marker check but
   was NOT the real ~127 MB feed. The pipeline treated it as a valid *empty* feed and SAVED an empty
