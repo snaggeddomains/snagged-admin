@@ -82,36 +82,42 @@ def _is_valid_feed(body: bytes) -> bool:
 
 
 def _fetch_via_scrape_do(url: str) -> bytes:
-    """Fetch a Cloudflare-protected URL through scrape.do's super proxy.
+    """Fetch a Cloudflare-protected URL through scrape.do, robust to the large file.
 
     Atom put the partner feed behind a Cloudflare challenge (cf-mitigated:
-    challenge → 403 to a plain requests.get). scrape.do's residential super
-    proxy solves the challenge and returns the raw CSV. The feed is a static
-    CSV (not JS-hydrated), so the fast no-render path is enough — but the
-    ~127 MB download 502s intermittently through the proxy, so retry transient
-    failures with exponential backoff."""
+    challenge → 403 to a plain requests.get). scrape.do solves the challenge and
+    returns the raw CSV — but the ~127 MB download **502s consistently through
+    the residential `super` proxy** (it can't stream a file that large). The
+    DATACENTER proxy (super off) handles the big download far better and scrape.do
+    still bypasses Cloudflare on it, so try datacenter first, then super as a
+    fallback for a tougher challenge. Retry transient failures with backoff, and
+    hit the https URL directly to skip an http→https redirect hop."""
     token = os.environ.get("SCRAPE_DO_TOKEN") or os.environ.get("SCRAPE_DO_API_KEY")
     if not token:
         raise RuntimeError("SCRAPE_DO_TOKEN must be set to fetch the Cloudflare-protected Atom feed")
-    params = {"token": token, "url": url, "super": "true", "geoCode": "us"}
-    attempts = 5
+    target = url.replace("http://", "https://", 1) if url.startswith("http://") else url
+    # (super?, label) per attempt — datacenter first (big-file friendly), then super.
+    modes = [(False, "datacenter"), (False, "datacenter"), (True, "super"), (True, "super"), (True, "super")]
     last_err: Any = None
-    for attempt in range(attempts):
+    for attempt, (use_super, label) in enumerate(modes):
+        params = {"token": token, "url": target}
+        if use_super:
+            params.update({"super": "true", "geoCode": "us"})
         try:
             resp = requests.get(SCRAPE_DO_BASE, params=params, timeout=180)
             resp.raise_for_status()
             record_usage("scrape_do.request", 1, "snap")
             body = resp.content
             if _is_valid_feed(body):
-                print(f"      scrape.do ok ({len(body):,} bytes)")
+                print(f"      scrape.do ok via {label} ({len(body):,} bytes)")
                 return body
-            last_err = f"challenge/undersized response ({len(body):,} bytes)"
-            print(f"      scrape.do attempt {attempt + 1}/{attempts}: {last_err}")
+            last_err = f"{label}: challenge/undersized ({len(body):,} bytes)"
+            print(f"      scrape.do attempt {attempt + 1}/{len(modes)} — {last_err}")
         except Exception as e:  # noqa: BLE001 — retry transient 5xx/timeouts
-            last_err = str(e)
-            print(f"      scrape.do attempt {attempt + 1}/{attempts} failed: {e}")
-        if attempt < attempts - 1:
-            time.sleep(2 * (2 ** attempt))  # 2s, 4s, 8s, 16s
+            last_err = f"{label}: {e}"
+            print(f"      scrape.do attempt {attempt + 1}/{len(modes)} failed — {last_err}")
+        if attempt < len(modes) - 1:
+            time.sleep(2 * (2 ** min(attempt, 3)))  # 2s, 4s, 8s, 8s
     raise RuntimeError(f"scrape.do exhausted all attempts ({last_err})")
 
 
