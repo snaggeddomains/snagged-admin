@@ -994,6 +994,15 @@ standalone manual re-run mid-upsert; the orchestrator's 120-min budget already a
   bypasses Cloudflare on it), then `super`, against the **https** URL directly. NB the fetch is still
   fundamentally at the mercy of Cloudflare + scrape.do infra — when the runner IP is challenged AND
   scrape.do 502s, the run now FAILS SAFELY (no snapshot write) rather than corrupting state.
+- **curl_cffi (TLS impersonation) is the PRIMARY fetch (2026-08-11).** Live testing showed scrape.do
+  **502s on the 127 MB download in BOTH datacenter and super modes** (it can't stream a file that
+  large), and the plain-`requests` direct fetch gets Cloudflare-challenged (403) because its TLS/JA3
+  fingerprint is flagged by Cloudflare Bot Management. Fix: `_fetch_via_curl_cffi` (new dep `curl_cffi`,
+  in `pyproject.toml`) fetches with `impersonate="chrome"` — a REAL Chrome TLS fingerprint that passes
+  the managed challenge AND pulls the full 127 MB directly (no proxy). `_fetch_feed` order is now
+  **curl_cffi → plain requests direct → scrape.do**. curl_cffi is imported lazily (tests + module import
+  don't need it) and returns None on failure so the fallback chain still runs. This is the reliable path;
+  the earlier direct/scrape.do work stays as fallbacks.
 - **⚠️ Undersized-response guard — a truncated fetch once WIPED the snapshot (2026-08-11).** A manual
   run got a **10,917-byte** body from scrape.do (425 rows) that passed the challenge-marker check but
   was NOT the real ~127 MB feed. The pipeline treated it as a valid *empty* feed and SAVED an empty

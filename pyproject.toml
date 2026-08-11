@@ -11,6 +11,11 @@ dependencies = [
     "pydantic>=2.5",
     "pyyaml>=6.0",
     "requests>=2.31",
+    # TLS/JA3-impersonating HTTP client — passes Cloudflare Bot Management
+    # (managed challenge) that flags plain `requests`, so the Atom feed fetch
+    # can pull the 127 MB CSV directly instead of via scrape.do (which 502s on
+    # a download that large). See sources/atom_daily.py `_fetch_via_curl_cffi`.
+    "curl_cffi>=0.7",
     "slack-sdk>=3.26",
     "google-api-python-client>=2.100",
     "google-auth>=2.23",
