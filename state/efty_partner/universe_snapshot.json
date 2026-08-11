@@ -1,5 +1,29 @@
 [
   {
+    "domain": "geopark.com",
+    "price": null
+  },
+  {
+    "domain": "alcoholsupport.com",
+    "price": null
+  },
+  {
+    "domain": "olddelhi.com",
+    "price": null
+  },
+  {
+    "domain": "yendesigns.com",
+    "price": null
+  },
+  {
+    "domain": "royaltydays.com",
+    "price": null
+  },
+  {
+    "domain": "nanoliving.com",
+    "price": null
+  },
+  {
     "domain": "toddlerturtle.com",
     "price": null
   },
@@ -67804,10 +67828,6 @@
     "price": 19795.0
   },
   {
-    "domain": "arbiter.xyz",
-    "price": 19795.0
-  },
-  {
     "domain": "landmarks.xyz",
     "price": 19795.0
   },
@@ -101681,7 +101701,7 @@
   },
   {
     "domain": "gamingorg.com",
-    "price": 358.0
+    "price": 10000.0
   },
   {
     "domain": "interpretcode.com",
@@ -101985,7 +102005,7 @@
   },
   {
     "domain": "animephoto.com",
-    "price": 9000.0
+    "price": 20000.0
   },
   {
     "domain": "androidwallet.net",
@@ -106172,30 +106192,6 @@
     "price": 1999.0
   },
   {
-    "domain": "fitnessbands.com",
-    "price": null
-  },
-  {
-    "domain": "strengthbands.com",
-    "price": null
-  },
-  {
-    "domain": "exercisetubes.com",
-    "price": null
-  },
-  {
-    "domain": "exercisebands.com",
-    "price": null
-  },
-  {
-    "domain": "exercisetubing.com",
-    "price": null
-  },
-  {
-    "domain": "fitnesstubes.com",
-    "price": null
-  },
-  {
     "domain": "tradee.xyz",
     "price": 9888.0
   },
@@ -108757,7 +108753,7 @@
   },
   {
     "domain": "dessia.com",
-    "price": 124888.0
+    "price": 126000.0
   },
   {
     "domain": "intocosmetics.com",
@@ -190808,10 +190804,6 @@
     "price": null
   },
   {
-    "domain": "interestdubai.com",
-    "price": 7000.0
-  },
-  {
     "domain": "bitkid.xyz",
     "price": 9888.0
   },
@@ -258809,7 +258801,7 @@
   },
   {
     "domain": "rentmaryland.com",
-    "price": null
+    "price": 5000.0
   },
   {
     "domain": "divorcesonline.com",
@@ -328117,7 +328109,7 @@
   },
   {
     "domain": "yachtadvice.com",
-    "price": 3850.0
+    "price": 3500.0
   },
   {
     "domain": "weddingstexas.com",
@@ -328249,7 +328241,7 @@
   },
   {
     "domain": "hotelscapri.com",
-    "price": null
+    "price": 1500.0
   },
   {
     "domain": "homestennessee.com",
@@ -374897,7 +374889,7 @@
   },
   {
     "domain": "surfspecial.com",
-    "price": null
+    "price": 2499.0
   },
   {
     "domain": "surfschedule.com",

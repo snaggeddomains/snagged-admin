@@ -1,11 +1,15 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 6,
   "domains": [
-    "aigoo.net",
-    "zanila.com"
+    "sqshi.com",
+    "1880.net",
+    "shellx.org",
+    "bharatiya.co",
+    "romney.co",
+    "scorers.co"
   ],
-  "generated_at": "2026-08-10T09:49:12.173714+00:00",
+  "generated_at": "2026-08-11T09:26:43.898772+00:00",
   "mub": [],
   "source": "dynadot_auctions"
 }

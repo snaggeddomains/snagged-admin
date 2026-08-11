@@ -1,92 +1,74 @@
 [
   {
-    "bid_count": 8,
-    "domain": "tanoma.com",
-    "end_time_utc": "2026-08-10T16:31:00+00:00",
+    "bid_count": 0,
+    "domain": "dowager.co",
+    "end_time_utc": "2026-08-11T16:02:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/tanoma-com-718579011?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/dowager-co-718731389?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 240.0
+    "price": 1.0
   },
   {
-    "bid_count": 32,
-    "domain": "ericka.com",
-    "end_time_utc": "2026-08-10T16:47:00+00:00",
+    "bid_count": 5,
+    "domain": "0168.net",
+    "end_time_utc": "2026-08-11T16:58:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/ericka-com-718598956?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/0168-net-718733199?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 1225.0
+    "price": 13.0
   },
   {
-    "bid_count": 43,
-    "domain": "bcafe.com",
-    "end_time_utc": "2026-08-10T17:25:00+00:00",
+    "bid_count": 11,
+    "domain": "btravels.com",
+    "end_time_utc": "2026-08-11T17:09:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/bcafe-com-717455999?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/btravels-com-717590745?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 395.0
+    "price": 305.0
   },
   {
-    "bid_count": 14,
-    "domain": "parenting.io",
-    "end_time_utc": "2026-08-10T17:41:00+00:00",
+    "bid_count": 9,
+    "domain": "jyah.com",
+    "end_time_utc": "2026-08-11T18:36:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/parenting-io-718555105?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/jyah-com-718231671?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 338.0
+    "price": 78.0
   },
   {
-    "bid_count": 29,
-    "domain": "apu.org",
-    "end_time_utc": "2026-08-10T19:14:00+00:00",
+    "bid_count": 27,
+    "domain": "daloy.com",
+    "end_time_utc": "2026-08-11T19:04:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/apu-org-718431123?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/daloy-com-718742146?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 660.0
+    "price": 120.0
   },
   {
-    "bid_count": 35,
-    "domain": "pccp.com",
-    "end_time_utc": "2026-08-10T20:04:00+00:00",
+    "bid_count": 7,
+    "domain": "angie.co",
+    "end_time_utc": "2026-08-11T19:11:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/pccp-com-718598954?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/angie-co-718763917?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 1333.0
+    "price": 93.0
   },
   {
-    "bid_count": 22,
-    "domain": "hemster.co",
-    "end_time_utc": "2026-08-10T20:18:00+00:00",
+    "bid_count": 0,
+    "domain": "marcy.co",
+    "end_time_utc": "2026-08-11T20:17:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/hemster-co-718601770?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/marcy-co-718752022?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 600.0
+    "price": 1.0
   },
   {
-    "bid_count": 23,
-    "domain": "vpure.com",
-    "end_time_utc": "2026-08-10T20:30:00+00:00",
+    "bid_count": 11,
+    "domain": "aubyn.com",
+    "end_time_utc": "2026-08-11T21:12:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/vpure-com-718598519?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/aubyn-com-718756778?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 126.0
-  },
-  {
-    "bid_count": 48,
-    "domain": "tozzi.com",
-    "end_time_utc": "2026-08-10T20:34:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/tozzi-com-718094727?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1075.0
-  },
-  {
-    "bid_count": 25,
-    "domain": "giantx.com",
-    "end_time_utc": "2026-08-10T20:39:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/giantx-com-718252817?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 765.0
+    "price": 41.0
   }
 ]
