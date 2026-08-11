@@ -20,6 +20,7 @@ from __future__ import annotations
 import csv
 import io
 import os
+import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
@@ -70,14 +71,16 @@ def _fetch_via_scrape_do(url: str) -> bytes:
     Atom put the partner feed behind a Cloudflare challenge (cf-mitigated:
     challenge → 403 to a plain requests.get). scrape.do's residential super
     proxy solves the challenge and returns the raw CSV. The feed is a static
-    CSV (not JS-hydrated), so the fast no-render path is enough; retry a couple
-    times for transient 5xx."""
+    CSV (not JS-hydrated), so the fast no-render path is enough — but the
+    ~127 MB download 502s intermittently through the proxy, so retry transient
+    failures with exponential backoff."""
     token = os.environ.get("SCRAPE_DO_TOKEN") or os.environ.get("SCRAPE_DO_API_KEY")
     if not token:
         raise RuntimeError("SCRAPE_DO_TOKEN must be set to fetch the Cloudflare-protected Atom feed")
     params = {"token": token, "url": url, "super": "true", "geoCode": "us"}
+    attempts = 5
     last_err: Any = None
-    for attempt in range(3):
+    for attempt in range(attempts):
         try:
             resp = requests.get(SCRAPE_DO_BASE, params=params, timeout=180)
             resp.raise_for_status()
@@ -87,28 +90,40 @@ def _fetch_via_scrape_do(url: str) -> bytes:
                 print(f"      scrape.do ok ({len(body):,} bytes)")
                 return body
             last_err = "challenge/empty response"
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:  # noqa: BLE001 — retry transient 5xx/timeouts
             last_err = str(e)
-            print(f"      scrape.do attempt {attempt + 1} failed: {e}")
+            print(f"      scrape.do attempt {attempt + 1}/{attempts} failed: {e}")
+        if attempt < attempts - 1:
+            time.sleep(2 * (2 ** attempt))  # 2s, 4s, 8s, 16s
     raise RuntimeError(f"scrape.do exhausted all attempts ({last_err})")
 
 
 def _fetch_feed(url: str) -> bytes:
     """Download the Atom partner feed, transparently routing around Cloudflare.
 
-    Try a direct fetch first (cheap, no scrape.do credit); if Cloudflare blocks
-    it (403 or a challenge shell), fall back to scrape.do."""
-    try:
-        resp = requests.get(url, timeout=180, headers=_BROWSER_HEADERS)
-        if resp.status_code == 200 and not _looks_like_challenge(resp.content):
-            return resp.content
-        print(
-            f"      direct fetch blocked (HTTP {resp.status_code}"
-            f"{'/challenge' if _looks_like_challenge(resp.content) else ''}); "
-            "falling back to scrape.do"
-        )
-    except requests.RequestException as e:
-        print(f"      direct fetch errored ({e}); falling back to scrape.do")
+    Cloudflare challenges the runner IP only INTERMITTENTLY — a plain direct
+    fetch frequently succeeds outright, and it pulls the ~127 MB feed far more
+    reliably than any proxy — so try direct a few times over a persistent
+    session first (the `__cf_bm` bot-management cookie set on a challenged
+    response can let a follow-up request through), then fall back to scrape.do
+    only if every direct attempt is blocked."""
+    sess = requests.Session()
+    sess.headers.update(_BROWSER_HEADERS)
+    direct_attempts = 3
+    last = ""
+    for attempt in range(direct_attempts):
+        try:
+            resp = sess.get(url, timeout=180)
+            if resp.status_code == 200 and not _looks_like_challenge(resp.content):
+                if attempt:
+                    print(f"      direct fetch ok on retry {attempt + 1}")
+                return resp.content
+            last = f"HTTP {resp.status_code}{'/challenge' if _looks_like_challenge(resp.content) else ''}"
+        except requests.RequestException as e:
+            last = str(e)
+        if attempt < direct_attempts - 1:
+            time.sleep(2 * (2 ** attempt))  # 2s, 4s
+    print(f"      direct fetch blocked ({last}); falling back to scrape.do")
     return _fetch_via_scrape_do(url)
 
 

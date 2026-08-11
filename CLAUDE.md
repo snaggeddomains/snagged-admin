@@ -982,6 +982,13 @@ credit unless Cloudflare blocks). Tests still pass (18). **Verified live 2026-08
 — the 403 is gone. Also **bumped `source-atom-daily.yml` `timeout-minutes` 15→45**: atom_daily upserts
 ~260K universe rows sequentially (~25 min with transient-retry backoffs), so 15 min cancelled the
 standalone manual re-run mid-upsert; the orchestrator's 120-min budget already accommodated it.
+- **Retry hardening (2026-08-11).** Cloudflare challenges the runner IP only INTERMITTENTLY — one
+  dispatch fetched 127 MB directly (no challenge), the next got a 403 challenge AND scrape.do 502'd
+  (its residential super proxy 502s on the ~127 MB download). So `_fetch_feed` now **retries the
+  direct fetch 3× over a persistent `requests.Session`** (the `__cf_bm` bot-management cookie set on a
+  challenged response can let a follow-up through) before falling back, and `_fetch_via_scrape_do`
+  retries **5× with exponential backoff (2/4/8/16s)** on transient 5xx/timeouts. Direct-first keeps
+  the big download off the flaky proxy whenever the runner isn't challenged.
 
 ---
 
