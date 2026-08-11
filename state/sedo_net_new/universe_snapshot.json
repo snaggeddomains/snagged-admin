@@ -1,19 +1,35 @@
 [
   {
-    "domain": "school.ai",
-    "price": 3000000.0
-  },
-  {
     "domain": "quorums.com",
-    "price": null
-  },
-  {
-    "domain": "senzee.com",
-    "price": 5695.0
+    "price": 9995.0
   },
   {
     "domain": "faked.com",
     "price": 30000.0
+  },
+  {
+    "domain": "truman.ai",
+    "price": 37500.0
+  },
+  {
+    "domain": "humara.ai",
+    "price": 37995.0
+  },
+  {
+    "domain": "sweats.ai",
+    "price": 15998.0
+  },
+  {
+    "domain": "slyder.ai",
+    "price": 19995.0
+  },
+  {
+    "domain": "stags.ai",
+    "price": 16000000.0
+  },
+  {
+    "domain": "culmination.ai",
+    "price": 27500.0
   },
   {
     "domain": "novolex.net",
@@ -22,10 +38,6 @@
   {
     "domain": "mignon.net",
     "price": 800.0
-  },
-  {
-    "domain": "bezos.net",
-    "price": 299.0
   },
   {
     "domain": "chomsky.co",
