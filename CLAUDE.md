@@ -977,7 +977,11 @@ and on a 403 / Cloudflare-challenge shell falls back to `_fetch_via_scrape_do` (
 no-render, returns raw CSV bytes — same proven pattern as `markmonitor.py`; 3 retries; meters
 `scrape_do.request`). Needs **`SCRAPE_DO_TOKEN`** (already in `snap-orchestrator.yml`; **added to the
 standalone `source-atom-daily.yml`** in the same commit). Direct path stays the default (no scrape.do
-credit unless Cloudflare blocks). Tests still pass (18).
+credit unless Cloudflare blocks). Tests still pass (18). **Verified live 2026-08-11** (manual
+`source-atom-daily.yml` dispatch): feed fetched **127 MB / 515,769 rows / 263,384 universe entries**
+— the 403 is gone. Also **bumped `source-atom-daily.yml` `timeout-minutes` 15→45**: atom_daily upserts
+~260K universe rows sequentially (~25 min with transient-retry backoffs), so 15 min cancelled the
+standalone manual re-run mid-upsert; the orchestrator's 120-min budget already accommodated it.
 
 ---
 
