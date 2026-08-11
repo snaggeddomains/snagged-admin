@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-10T23:02:14.306737+00:00",
+  "count": 1,
+  "domains": [
+    "willie.co"
+  ],
+  "generated_at": "2026-08-11T10:01:21.795124+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
