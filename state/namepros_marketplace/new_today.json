@@ -2,10 +2,10 @@
   "capped": false,
   "count": 2,
   "domains": [
-    "fake.com",
-    "v.com"
+    "archive.org",
+    "q.com"
   ],
-  "generated_at": "2026-08-10T23:07:02.285594+00:00",
+  "generated_at": "2026-08-11T10:06:12.917425+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
