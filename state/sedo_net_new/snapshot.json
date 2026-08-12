@@ -1,38 +1,29 @@
 [
   {
     "currency": "USD",
-    "domain": "truman.ai",
-    "end_time_utc": "2026-08-11T20:21:15+00:00",
+    "domain": "robustness.com",
+    "end_time_utc": "2026-08-12T05:36:43+00:00",
     "is_mub": false,
-    "price": 37500.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=truman.ai"
+    "price": 14995.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=robustness.com"
   },
   {
     "currency": "USD",
-    "domain": "sweats.ai",
-    "end_time_utc": "2026-08-11T23:41:22+00:00",
+    "domain": "localities.com",
+    "end_time_utc": "2026-08-12T05:36:13+00:00",
     "is_mub": false,
-    "price": 15998.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=sweats.ai"
+    "price": 9995.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=localities.com"
   },
   {
     "currency": "USD",
-    "domain": "culmination.ai",
-    "end_time_utc": "2026-08-11T20:21:09+00:00",
+    "domain": "fla.ai",
+    "end_time_utc": "2026-08-12T03:38:13+00:00",
     "is_mub": false,
-    "price": 27500.0,
+    "price": 59950.0,
     "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=culmination.ai"
-  },
-  {
-    "currency": "USD",
-    "domain": "chomsky.co",
-    "end_time_utc": "2026-08-11T13:19:16+00:00",
-    "is_mub": false,
-    "price": 1988.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=chomsky.co"
+    "url": "https://sedo.com/search/details/?domain=fla.ai"
   }
 ]

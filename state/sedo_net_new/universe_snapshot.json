@@ -1,50 +1,30 @@
 [
   {
-    "domain": "quorums.com",
+    "domain": "nampower.com",
+    "price": 7895.0
+  },
+  {
+    "domain": "partys.com",
+    "price": 374888.0
+  },
+  {
+    "domain": "robustness.com",
+    "price": 14995.0
+  },
+  {
+    "domain": "localities.com",
     "price": 9995.0
   },
   {
-    "domain": "faked.com",
-    "price": 30000.0
+    "domain": "fla.ai",
+    "price": 59950.0
   },
   {
-    "domain": "truman.ai",
-    "price": 37500.0
+    "domain": "closeness.net",
+    "price": 2695.0
   },
   {
-    "domain": "humara.ai",
-    "price": 37995.0
-  },
-  {
-    "domain": "sweats.ai",
-    "price": 15998.0
-  },
-  {
-    "domain": "slyder.ai",
-    "price": 19995.0
-  },
-  {
-    "domain": "stags.ai",
-    "price": 16000000.0
-  },
-  {
-    "domain": "culmination.ai",
-    "price": 27500.0
-  },
-  {
-    "domain": "novolex.net",
-    "price": null
-  },
-  {
-    "domain": "mignon.net",
-    "price": 800.0
-  },
-  {
-    "domain": "chomsky.co",
-    "price": 1988.0
-  },
-  {
-    "domain": "vernia.co",
-    "price": 1988.0
+    "domain": "openvpn.co",
+    "price": 48750.0
   }
 ]

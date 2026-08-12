@@ -2,11 +2,11 @@
   "capped": false,
   "count": 3,
   "domains": [
-    "truman.ai",
-    "culmination.ai",
-    "sweats.ai"
+    "fla.ai",
+    "robustness.com",
+    "localities.com"
   ],
-  "generated_at": "2026-08-11T23:01:13.930413+00:00",
+  "generated_at": "2026-08-12T10:02:21.963903+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
