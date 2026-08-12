@@ -1,11 +1,10 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 1,
   "domains": [
-    "classical.now",
-    "telemedicine.now"
+    "91529.com"
   ],
-  "generated_at": "2026-08-12T10:06:22.914027+00:00",
+  "generated_at": "2026-08-12T17:05:42.445785+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
