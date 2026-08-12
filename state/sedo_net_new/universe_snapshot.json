@@ -1,30 +1,34 @@
 [
   {
+    "domain": "cactuses.com",
+    "price": 18000.0
+  },
+  {
     "domain": "nampower.com",
     "price": 7895.0
   },
   {
-    "domain": "partys.com",
-    "price": 374888.0
-  },
-  {
-    "domain": "robustness.com",
-    "price": 14995.0
-  },
-  {
-    "domain": "localities.com",
-    "price": 9995.0
-  },
-  {
-    "domain": "fla.ai",
-    "price": 59950.0
+    "domain": "sentients.net",
+    "price": 4888.0
   },
   {
     "domain": "closeness.net",
     "price": 2695.0
   },
   {
-    "domain": "openvpn.co",
-    "price": 48750.0
+    "domain": "yawn.net",
+    "price": 3500.0
+  },
+  {
+    "domain": "arcsin.co",
+    "price": null
+  },
+  {
+    "domain": "marnel.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "johnlewis.co",
+    "price": 2888.0
   }
 ]
