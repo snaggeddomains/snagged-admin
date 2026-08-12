@@ -40,6 +40,8 @@ jobs:
           SUPABASE_NAMING_URL:         ${{ secrets.SUPABASE_NAMING_URL }}
           SUPABASE_NAMING_SERVICE_KEY: ${{ secrets.SUPABASE_NAMING_SERVICE_KEY }}
           SCRAPE_DO_TOKEN:             ${{ secrets.SCRAPE_DO_TOKEN }}
+          ATOM_PARTNERSHIP_KEY:        ${{ secrets.ATOM_PARTNERSHIP_KEY }}  # direct API (bypasses Cloudflare CSV)
+          ATOM_USER_ID:                ${{ secrets.ATOM_USER_ID }}
 
         run: pipeline run atom_daily
 

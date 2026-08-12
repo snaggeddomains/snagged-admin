@@ -1029,6 +1029,32 @@ standalone manual re-run mid-upsert; the orchestrator's 120-min budget already a
   snapshot** if the parse yields < `MIN_FEED_ROWS` (1,000, env `ATOM_MIN_FEED_ROWS`) rows. So a
   partial/garbage feed now fails the run (visible, recoverable) instead of silently corrupting state.
   Tests: `_is_valid_feed` + direct-undersized-fallback (20 total).
+- **✅ Partnership API is now the PRIMARY source — the Cloudflare CSV fight is over (2026-08-12).** After
+  Cloudflare hardened atom.com to where the runner IP got a 403 JS-challenge that curl_cffi (real-Chrome
+  TLS), direct, scrape.do (502s on the 134 MB download), AND headless Playwright ("challenge did not
+  clear / no cf_clearance") ALL failed on — reddening the whole orchestrator (atom_daily is the only
+  non-fail-open source) — we switched to Atom's authenticated **Partnership API**, which lives on the
+  `/api/` path and is NOT behind the bot-challenge. `GET https://www.atom.com/api/marketplace/partnership-search?api_token=&user_id=&page=&page_size=`
+  returns the FULL live marketplace as JSON (`{success, total_records ~277K, total_pages, data:[{domain_name,
+  status:"Approved", full_price, selling_price, primary_category, discount, description, purchase_url, …}]}`)
+  — richer than the CSV and no 134 MB parse. `_fetch_via_partnership_api()` pages through everything
+  (`page_size` 600, ~460 requests, 0.25s pacing) and maps each record onto the CSV row shape
+  (`title`←domain_name, `verified`←status=="Approved", `price`←selling_price, `link`←purchase_url — which
+  carries our `/rm/<user_id>` partner-referral marker) so ALL downstream parse/filter/score/diff/universe
+  code is unchanged. **Completeness guard:** a truncated pull (mid-crawl rate-limit) RAISES rather than
+  writing a short snapshot (which would flag thousands as "dropped"). `run()` uses the API as PRIMARY when
+  `_partnership_configured()` (both env vars set), **falling back to the old CSV/curl_cffi/scrape.do/Playwright
+  chain** on any API error or when unconfigured — so the fetch saga above is still there as a backstop.
+  **Auth:** `api_token` = the account's **general/Partnership API key** (NOT the appraisal key — that's
+  appraisal-scoped and 403s here), `user_id` = the Atom account id (2660072). **Setup:** secrets
+  **`ATOM_PARTNERSHIP_KEY` + `ATOM_USER_ID`** in snagged-admin GitHub Actions (added to `snap-orchestrator.yml`
+  + `source-atom-daily.yml` env; done 2026-08-12). Rate limit: `partnership-search` showed no cap in testing
+  (the hard 10/day limit is on the separate AI `semantic-search` endpoint); if a full daily crawl ever trips
+  one, juan@atom.com (our partnership contact, who already raised the appraisal limit to 100/day) can lift it.
+  Optional env `ATOM_API_PAGE_SIZE` (600) / `ATOM_API_DELAY_S` (0.25). API key ≠ appraisal key ≠ homes:
+  appraisal key lives in **research Vercel** (appraisal tool); partnership key lives in **admin GH Actions**
+  (feed). Verified: mapping + parse + score run clean on a real 600-record sample. Docs:
+  https://apidocs.atom.com/api-reference/parnership_apis/partnership_search.
 
 ---
 

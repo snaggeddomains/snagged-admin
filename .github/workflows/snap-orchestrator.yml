@@ -69,6 +69,8 @@ jobs:
           SUPABASE_NAMING_URL:         ${{ secrets.SUPABASE_NAMING_URL }}
           SUPABASE_NAMING_SERVICE_KEY: ${{ secrets.SUPABASE_NAMING_SERVICE_KEY }}
           SCRAPE_DO_TOKEN:             ${{ secrets.SCRAPE_DO_TOKEN }}
+          ATOM_PARTNERSHIP_KEY:        ${{ secrets.ATOM_PARTNERSHIP_KEY }}  # atom_daily direct API (bypasses Cloudflare CSV)
+          ATOM_USER_ID:                ${{ secrets.ATOM_USER_ID }}
           ANTHROPIC_API_KEY:           ${{ secrets.ANTHROPIC_API_KEY }}  # markmonitor auto-enrich
           EFTY_PARTNER_TOKEN:          ${{ secrets.EFTY_PARTNER_TOKEN }}
           SPACESHIP_API_KEY:           ${{ secrets.SPACESHIP_API_KEY }}

@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import csv
 import io
+import json
 import os
 import time
 from dataclasses import dataclass
@@ -271,6 +272,107 @@ def _fetch_feed(url: str) -> bytes:
     )
 
 
+# ---------- Partnership API (primary source; bypasses the Cloudflare-walled CSV) ----------
+
+# GET /api/marketplace/partnership-search returns the FULL live marketplace as
+# JSON. It's on the /api/ path, which is NOT behind the Cloudflare bot-challenge
+# that blocks the 134 MB public CSV on CI-runner IPs — so it's the reliable
+# primary source. Auth: api_token (partnership API key) + user_id (Atom account).
+PARTNERSHIP_API_URL = "https://www.atom.com/api/marketplace/partnership-search"
+# page_size ~600 is honored (verified live); the loop tolerates any actual page
+# size, so a server cap just changes the request count.
+PARTNERSHIP_PAGE_SIZE = int(os.environ.get("ATOM_API_PAGE_SIZE") or 600)
+PARTNERSHIP_DELAY_S = float(os.environ.get("ATOM_API_DELAY_S") or 0.25)
+
+
+def _partnership_api_key() -> str | None:
+    return os.environ.get("ATOM_PARTNERSHIP_KEY") or os.environ.get("ATOM_API_KEY") or None
+
+
+def _partnership_configured() -> bool:
+    return bool(_partnership_api_key() and os.environ.get("ATOM_USER_ID"))
+
+
+def _api_record_to_row(rec: dict[str, Any]) -> dict[str, str]:
+    """Map a partnership-search JSON record onto the CSV row shape the rest of the
+    pipeline expects (title / verified / price / link), so downstream parsing,
+    filtering, scoring, and diffing are unchanged."""
+    price = rec.get("selling_price") or rec.get("full_price") or ""
+    # partnership-search returns live marketplace inventory; Atom marks these
+    # "Approved" (== ownership-verified). Anything else -> treat as not verified.
+    verified = "1" if str(rec.get("status") or "").strip().lower() == "approved" else "0"
+    return {
+        "title": str(rec.get("domain_name") or "").strip(),
+        "verified": verified,
+        "price": str(price),
+        "link": str(rec.get("purchase_url") or "").strip(),
+    }
+
+
+def _fetch_via_partnership_api() -> list[dict[str, str]]:
+    """Pull the FULL Atom marketplace inventory via the authenticated Partnership
+    API, paging through every result and returning CSV-shaped rows.
+
+    Fails LOUDLY on a truncated pull (e.g. a mid-crawl rate-limit) rather than
+    returning a partial set, so the caller never overwrites the diff snapshot
+    with incomplete inventory (which would flag thousands of names as dropped)."""
+    key = _partnership_api_key()
+    user_id = os.environ.get("ATOM_USER_ID", "")
+    sess = requests.Session()
+    sess.headers.update(
+        {"User-Agent": _BROWSER_HEADERS["User-Agent"], "Accept": "application/json"}
+    )
+
+    rows: list[dict[str, str]] = []
+    total_records: int | None = None
+    page = 1
+    while True:
+        params = {
+            "api_token": key,
+            "user_id": user_id,
+            "page": page,
+            "page_size": PARTNERSHIP_PAGE_SIZE,
+        }
+        data: Any = None
+        for attempt in range(3):
+            try:
+                resp = sess.get(PARTNERSHIP_API_URL, params=params, timeout=90)
+                data = resp.json()
+                break
+            except (requests.RequestException, ValueError) as e:
+                if attempt == 2:
+                    raise RuntimeError(f"partnership API request failed on page {page}: {e}")
+                time.sleep(2 * (2 ** attempt))  # 2s, 4s
+        if not isinstance(data, dict) or not data.get("success"):
+            msg = data.get("message") if isinstance(data, dict) else str(data)[:200]
+            raise RuntimeError(f"partnership API error on page {page}: {msg}")
+        if total_records is None:
+            total_records = int(data.get("total_records") or 0)
+            print(f"      partnership API: {total_records:,} total records reported")
+        batch = data.get("data") or []
+        if not batch:
+            break
+        rows.extend(_api_record_to_row(r) for r in batch)
+        if page == 1 or page % 50 == 0:
+            print(f"      page {page}: +{len(batch)} (running total {len(rows):,})")
+        if total_records and len(rows) >= total_records:
+            break
+        page += 1
+        time.sleep(PARTNERSHIP_DELAY_S)
+
+    record_usage("atom.partnership_search", page, "snap")
+    # Completeness guard: a truncated pull would silently shrink the inventory and
+    # make the diff flag the missing names as "dropped". Require essentially the
+    # full set (allow one short final page of slack).
+    if total_records and len(rows) < total_records - PARTNERSHIP_PAGE_SIZE:
+        raise RuntimeError(
+            f"partnership API returned only {len(rows):,} of {total_records:,} records "
+            f"(truncated pull — refusing to overwrite snapshot)"
+        )
+    print(f"      partnership API: fetched {len(rows):,} records across {page} page(s)")
+    return rows
+
+
 def _is_verified(row: dict[str, str]) -> bool:
     """Atom's partner feed marks ownership-verified listings with verified=1.
     A submitter can list a name that shows as "Pending Verification" (verified=0
@@ -502,23 +604,35 @@ def run() -> int:
     fetch_url = src_cfg["fetch"]["url"]
     today = datetime.now(timezone.utc).date().isoformat()
 
-    print(f"[1/9] Downloading {fetch_url}")
-    raw = _fetch_feed(fetch_url)
-    print(f"      fetched {len(raw):,} bytes")
+    print("[1/9] Loading Atom inventory")
+    raw_filename = RAW_FILENAME
+    if _partnership_configured():
+        try:
+            print("      primary: Partnership API (partnership-search)")
+            rows = _fetch_via_partnership_api()
+            raw = json.dumps(rows).encode("utf-8")
+            raw_filename = "partner.json"
+        except Exception as e:  # noqa: BLE001
+            print(f"      partnership API failed ({e}); falling back to public CSV feed")
+            raw = _fetch_feed(fetch_url)
+            rows = parse_csv_rows(raw)
+    else:
+        print(f"      primary: public CSV feed {fetch_url}")
+        raw = _fetch_feed(fetch_url)
+        rows = parse_csv_rows(raw)
+    print(f"      loaded {len(rows):,} rows ({len(raw):,} raw bytes)")
 
     print("[2/9] Caching raw to Drive (Tier 2)")
     try:
         file_id = drive_cache.cache_raw(
             source=SOURCE_ID, report_date=today,
-            filename=RAW_FILENAME, content=raw,
+            filename=raw_filename, content=raw,
         )
         print(f"      drive file id: {file_id}")
     except Exception as e:
         print(f"      WARN raw cache write failed (non-fatal): {e}")
 
-    print("[3/9] Parsing CSV")
-    rows = parse_csv_rows(raw)
-    print(f"      raw rows: {len(rows):,}")
+    print("[3/9] Validating row count")
     # Guard: a plausibly-complete feed has ~515K rows. If we somehow parsed far
     # fewer (a truncated/garbage body that slipped past the byte floor), ABORT
     # before overwriting the saved snapshot — an empty snapshot corrupts the diff
