@@ -1,8 +1,11 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-12T17:01:22.374572+00:00",
+  "count": 2,
+  "domains": [
+    "slept.com",
+    "connection.co"
+  ],
+  "generated_at": "2026-08-12T23:02:12.208093+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }

@@ -1,1 +1,20 @@
-[]
+[
+  {
+    "currency": "USD",
+    "domain": "slept.com",
+    "end_time_utc": "2026-08-12T22:14:19+00:00",
+    "is_mub": false,
+    "price": 550000.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=slept.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "connection.co",
+    "end_time_utc": "2026-08-12T22:23:49+00:00",
+    "is_mub": false,
+    "price": 269999.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=connection.co"
+  }
+]

@@ -4,16 +4,16 @@
     "price": 18000.0
   },
   {
-    "domain": "nampower.com",
-    "price": 7895.0
+    "domain": "slept.com",
+    "price": 550000.0
+  },
+  {
+    "domain": "storeroom.ai",
+    "price": 225000.0
   },
   {
     "domain": "sentients.net",
     "price": 4888.0
-  },
-  {
-    "domain": "closeness.net",
-    "price": 2695.0
   },
   {
     "domain": "yawn.net",
@@ -24,11 +24,7 @@
     "price": null
   },
   {
-    "domain": "marnel.co",
-    "price": 1988.0
-  },
-  {
-    "domain": "johnlewis.co",
-    "price": 2888.0
+    "domain": "connection.co",
+    "price": 269999.0
   }
 ]
