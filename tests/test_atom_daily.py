@@ -151,3 +151,61 @@ class _FakeSession:
 
     def get(self, *_a, **_k):
         return self._resp
+
+
+# ---------- Partnership API mapping + fail-open ----------
+
+import pytest  # noqa: E402
+
+
+def test_api_record_to_row_maps_fields():
+    row = src._api_record_to_row({
+        "domain_name": "Table.com", "status": "Approved",
+        "selling_price": 500, "full_price": 800,
+        "purchase_url": "https://www.atom.com/name/Table/rm/1",
+    })
+    assert row == {
+        "title": "Table.com", "verified": "1", "price": "500",
+        "link": "https://www.atom.com/name/Table/rm/1",
+    }
+
+
+def test_api_record_unapproved_is_unverified():
+    row = src._api_record_to_row({"domain_name": "x.com", "status": "Pending", "selling_price": 100})
+    assert row["verified"] == "0"
+
+
+def test_api_record_falls_back_to_full_price():
+    row = src._api_record_to_row({"domain_name": "x.com", "status": "Approved", "full_price": 900})
+    assert row["price"] == "900"
+
+
+def test_partnership_configured(monkeypatch):
+    for v in ("ATOM_PARTNERSHIP_KEY", "ATOM_API_KEY", "ATOM_USER_ID"):
+        monkeypatch.delenv(v, raising=False)
+    assert src._partnership_configured() is False
+    monkeypatch.setenv("ATOM_PARTNERSHIP_KEY", "k")
+    monkeypatch.setenv("ATOM_USER_ID", "2660072")
+    assert src._partnership_configured() is True
+
+
+def test_load_inventory_rejects_tiny_feed(monkeypatch):
+    for v in ("ATOM_PARTNERSHIP_KEY", "ATOM_API_KEY", "ATOM_USER_ID"):
+        monkeypatch.delenv(v, raising=False)
+    monkeypatch.setattr(src, "_fetch_feed", lambda _url: b"title,price\na.com,500\n")
+    with pytest.raises(RuntimeError):
+        src._load_inventory("http://x")
+
+
+def test_skip_fail_open_returns_zero_and_alerts(monkeypatch):
+    posted = {}
+    written = {}
+    monkeypatch.setattr(src.slack, "post", lambda **kw: posted.update(kw) or True)
+    monkeypatch.setattr(src.slack, "make_fingerprint", lambda _x: "fp")
+    monkeypatch.setattr(src.state, "write_json",
+                        lambda source, name, data: written.update({name: data}))
+    rc = src._skip_fail_open(RuntimeError("Cloudflare blocked"), "C123")
+    assert rc == 0
+    assert "Atom feed skipped" in posted["text"]
+    assert written["run_status.json"]["status"] == "skipped"
+    assert written["run_status.json"]["reason"] == "feed_unavailable"

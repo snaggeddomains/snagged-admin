@@ -1055,6 +1055,23 @@ standalone manual re-run mid-upsert; the orchestrator's 120-min budget already a
   appraisal key lives in **research Vercel** (appraisal tool); partnership key lives in **admin GH Actions**
   (feed). Verified: mapping + parse + score run clean on a real 600-record sample. Docs:
   https://apidocs.atom.com/api-reference/parnership_apis/partnership_search.
+  - **⚠️ Partnership API pagination CAPS at ~10K records (2026-08-13).** Live CI run confirmed: auth works
+    and `total_records` reports the full ~277K, but paging stops after **~9,700 records** (empty `data`
+    beyond ~16 pages) — a deep-pagination cap, and the only filter param is `query` so there's no clean way
+    to partition around it. So the API **cannot export the full catalog as-is**. The completeness guard
+    caught the truncation and fell back to the CSV chain (which succeeded that run — the runner IP wasn't
+    challenged). **Emailed juan@atom.com (2026-08-13) to lift the cap / provide a bulk export** — wire the
+    full API pull once granted. Until then the API attempt just fails fast → CSV fallback.
+  - **atom_daily is now FAIL-OPEN (2026-08-13).** Since the feed is only intermittently reachable (CSV
+    Cloudflare block is per-IP; API caps at 10K), a fetch failure no longer reds the whole SNAP
+    orchestrator. `run()` wraps fetch+parse+rowcount in `_load_inventory()`; on ANY failure it calls
+    `_skip_fail_open()` → posts a Slack "⚠️ Atom feed skipped" alert, writes `run_status.json`
+    status=`skipped`, and **returns 0 WITHOUT touching the snapshot** (prior baseline preserved, so the
+    next good run diffs correctly). `pipeline run atom_daily` exit code = `run()`'s return (`cli.py`
+    `return mod.run()`), so returning 0 keeps the orchestrator green. Set **`ATOM_FAIL_OPEN=0`** to restore
+    the old hard-fail (raise) behavior. The corruption guards still raise inside `_load_inventory` (caught
+    by fail-open → skip, never a partial write). Tests: mapping + `_partnership_configured` + tiny-feed
+    reject + skip-returns-0 (26 total).
 
 ---
 

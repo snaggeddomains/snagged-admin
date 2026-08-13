@@ -592,19 +592,15 @@ def build_slack_message(
     return "\n".join(lines)
 
 
-# ---------- main entrypoint ----------
+# ---------- inventory load + fail-open ----------
 
-def run() -> int:
-    reg = config.load_registry()
-    src_cfg = config.get_source(SOURCE_ID)
-    snap_cfg = reg["products"]["snap"]
-    sheet_id = snap_cfg["sheet_id"]
-    slack_channel = os.environ.get(snap_cfg["slack_channel_env"], "C09B1P21YQ0")
-    sheet_url = SHEET_URL_TEMPLATE.format(sheet_id=sheet_id)
-    fetch_url = src_cfg["fetch"]["url"]
-    today = datetime.now(timezone.utc).date().isoformat()
+def _load_inventory(fetch_url: str) -> tuple[list[dict[str, str]], bytes, str]:
+    """Fetch + parse the Atom inventory. Partnership API primary (when
+    configured), the CSV/curl_cffi/scrape.do/Playwright chain as fallback.
 
-    print("[1/9] Loading Atom inventory")
+    Raises on total fetch failure OR an implausibly small feed — either way
+    BEFORE any state is written, so the caller can skip without corrupting the
+    snapshot. Returns (rows, raw_bytes, raw_filename)."""
     raw_filename = RAW_FILENAME
     if _partnership_configured():
         try:
@@ -620,6 +616,78 @@ def run() -> int:
         print(f"      primary: public CSV feed {fetch_url}")
         raw = _fetch_feed(fetch_url)
         rows = parse_csv_rows(raw)
+
+    # Guard: a plausibly-complete feed has hundreds of thousands of rows. If we
+    # parsed far fewer (a truncated/garbage body that slipped past the byte
+    # floor), ABORT before overwriting the snapshot — an empty snapshot corrupts
+    # the diff baseline and makes the next real run flag everything as new.
+    if len(rows) < MIN_FEED_ROWS:
+        raise RuntimeError(
+            f"Atom feed parsed only {len(rows):,} rows (< {MIN_FEED_ROWS:,}); "
+            f"refusing to overwrite the snapshot with a partial/garbage feed "
+            f"({len(raw):,} bytes fetched)."
+        )
+    return rows, raw, raw_filename
+
+
+def _skip_fail_open(err: Exception, slack_channel: str) -> int:
+    """The Atom feed is externally unavailable (Cloudflare block + ~10K API cap).
+    Skip this run WITHOUT touching the snapshot (diff baseline preserved) and
+    WITHOUT failing the SNAP orchestrator over one blocked source. Alert so it's
+    visible, then exit clean (return 0)."""
+    print(f"      ⚠️  Atom feed unavailable — skipping (fail-open): {err}")
+    msg = (
+        ":warning: *Atom feed skipped* — the partner feed was unreachable today "
+        "(Cloudflare-blocked / API cap), so atom_daily was skipped. The prior "
+        f"snapshot was kept; no SNAP data was lost. Details: {str(err)[:280]}"
+    )
+    try:
+        slack.post(
+            channel=slack_channel,
+            text=msg,
+            dedupe_key=slack.make_fingerprint(f"atom_daily_skip:{str(err)[:120]}"),
+            source=SOURCE_ID,
+        )
+    except Exception as e:  # noqa: BLE001
+        print(f"      (skip alert failed, non-fatal: {e})")
+    try:
+        state.write_json(SOURCE_ID, "run_status.json", {
+            "source": SOURCE_ID,
+            "label": SOURCE_LABEL,
+            "status": "skipped",
+            "reason": "feed_unavailable",
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "error": str(err)[:500],
+        })
+    except Exception as e:  # noqa: BLE001
+        print(f"      (run_status write failed, non-fatal: {e})")
+    return 0
+
+
+# ---------- main entrypoint ----------
+
+def run() -> int:
+    reg = config.load_registry()
+    src_cfg = config.get_source(SOURCE_ID)
+    snap_cfg = reg["products"]["snap"]
+    sheet_id = snap_cfg["sheet_id"]
+    slack_channel = os.environ.get(snap_cfg["slack_channel_env"], "C09B1P21YQ0")
+    sheet_url = SHEET_URL_TEMPLATE.format(sheet_id=sheet_id)
+    fetch_url = src_cfg["fetch"]["url"]
+    today = datetime.now(timezone.utc).date().isoformat()
+
+    print("[1/9] Loading Atom inventory")
+    # Fetch + parse + validate. If the feed is externally unavailable (Cloudflare
+    # block + API cap) or implausibly small, _load_inventory raises BEFORE any
+    # state is written. FAIL-OPEN by default: skip the run (keep the prior
+    # snapshot, alert) instead of reddening the whole SNAP orchestrator over one
+    # blocked source. Set ATOM_FAIL_OPEN=0 to restore the old hard-fail behavior.
+    try:
+        rows, raw, raw_filename = _load_inventory(fetch_url)
+    except Exception as e:  # noqa: BLE001
+        if os.environ.get("ATOM_FAIL_OPEN", "1") == "0":
+            raise
+        return _skip_fail_open(e, slack_channel)
     print(f"      loaded {len(rows):,} rows ({len(raw):,} raw bytes)")
 
     print("[2/9] Caching raw to Drive (Tier 2)")
@@ -631,18 +699,6 @@ def run() -> int:
         print(f"      drive file id: {file_id}")
     except Exception as e:
         print(f"      WARN raw cache write failed (non-fatal): {e}")
-
-    print("[3/9] Validating row count")
-    # Guard: a plausibly-complete feed has ~515K rows. If we somehow parsed far
-    # fewer (a truncated/garbage body that slipped past the byte floor), ABORT
-    # before overwriting the saved snapshot — an empty snapshot corrupts the diff
-    # baseline and makes the next real run flag everything as new. Fail loudly.
-    if len(rows) < MIN_FEED_ROWS:
-        raise RuntimeError(
-            f"Atom feed parsed only {len(rows):,} rows (< {MIN_FEED_ROWS:,}); "
-            f"refusing to overwrite the snapshot with a partial/garbage feed "
-            f"({len(raw):,} bytes fetched)."
-        )
 
     print("[3b/9] Writing universe snapshot (broader filter for naming universe)")
     universe_entries = _universe_entries_from_rows(rows)
