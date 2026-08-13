@@ -1,23 +1,7 @@
 [
   {
-    "domain": "bizmash.com",
-    "price": 199.0
-  },
-  {
-    "domain": "alspaw.com",
-    "price": 2395.0
-  },
-  {
-    "domain": "netbanana.com",
-    "price": 2488.0
-  },
-  {
-    "domain": "japaneses.com",
-    "price": 595.0
-  },
-  {
-    "domain": "generatea.com",
-    "price": 4995.0
+    "domain": "flymage.net",
+    "price": 350.0
   },
   {
     "domain": "knocked.net",
@@ -28,23 +12,11 @@
     "price": 3888.0
   },
   {
-    "domain": "allege.net",
-    "price": 2595.0
-  },
-  {
-    "domain": "skins.net",
-    "price": 189800.0
-  },
-  {
-    "domain": "soldes.co",
-    "price": 1988.0
-  },
-  {
     "domain": "offshore.co",
     "price": 36599.0
   },
   {
-    "domain": "lagrange.co",
-    "price": 2988.0
+    "domain": "hometeam.co",
+    "price": null
   }
 ]
