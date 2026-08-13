@@ -1,30 +1,34 @@
 [
   {
-    "domain": "cactuses.com",
-    "price": 18000.0
+    "domain": "bizmash.com",
+    "price": 199.0
   },
   {
-    "domain": "slept.com",
-    "price": 550000.0
+    "domain": "alspaw.com",
+    "price": 2395.0
   },
   {
-    "domain": "storeroom.ai",
-    "price": 225000.0
+    "domain": "netbanana.com",
+    "price": 2488.0
   },
   {
-    "domain": "sentients.net",
-    "price": 4888.0
+    "domain": "japaneses.com",
+    "price": 595.0
   },
   {
-    "domain": "yawn.net",
-    "price": 3500.0
+    "domain": "conver.net",
+    "price": 1999.0
   },
   {
-    "domain": "arcsin.co",
-    "price": null
+    "domain": "allege.net",
+    "price": 2595.0
   },
   {
-    "domain": "connection.co",
-    "price": 269999.0
+    "domain": "soldes.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "lagrange.co",
+    "price": 2988.0
   }
 ]
