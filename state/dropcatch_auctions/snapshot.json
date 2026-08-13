@@ -1,38 +1,29 @@
 [
   {
-    "bid_count": 22,
-    "domain": "conception.net",
-    "end_time_utc": "2026-08-12T18:59:30.203217+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Conception.net",
-    "platform": "DropCatch",
-    "price": 250.0
-  },
-  {
     "bid_count": 11,
     "domain": "sitehs.com",
-    "end_time_utc": "2026-08-13T18:59:30.203217+00:00",
+    "end_time_utc": "2026-08-13T18:59:12.245265+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/SiteHs.com",
     "platform": "DropCatch",
     "price": 105.0
   },
   {
-    "bid_count": 32,
+    "bid_count": 42,
     "domain": "expy.com",
-    "end_time_utc": "2026-08-14T18:59:30.203217+00:00",
+    "end_time_utc": "2026-08-14T18:59:12.245265+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/EXPY.COM",
     "platform": "DropCatch",
-    "price": 373.0
+    "price": 663.0
   },
   {
-    "bid_count": 36,
+    "bid_count": 43,
     "domain": "fedora.org",
-    "end_time_utc": "2026-08-14T18:59:30.203217+00:00",
+    "end_time_utc": "2026-08-14T18:59:12.245265+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Fedora.org",
     "platform": "DropCatch",
-    "price": 359.0
+    "price": 550.0
   }
 ]
