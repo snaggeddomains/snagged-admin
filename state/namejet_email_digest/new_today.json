@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-12T15:10:08.856066+00:00",
+  "count": 1,
+  "domains": [
+    "pulmonary.org"
+  ],
+  "generated_at": "2026-08-13T15:07:32.154740+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
