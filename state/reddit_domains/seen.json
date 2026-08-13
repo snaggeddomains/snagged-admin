@@ -1,5 +1,5 @@
 {
-  "count": 40,
+  "count": 41,
   "domains": [
     "264.io",
     "88.to",
@@ -14,6 +14,7 @@
     "dot.com",
     "eliminated.io",
     "enjoyed.io",
+    "etx.com",
     "exempt.io",
     "finals.io",
     "futa.co",
@@ -43,5 +44,5 @@
     "wordpress.com"
   ],
   "source": "reddit_domains",
-  "updated_at": "2026-08-12T23:01:01.284243+00:00"
+  "updated_at": "2026-08-13T10:01:18.226538+00:00"
 }

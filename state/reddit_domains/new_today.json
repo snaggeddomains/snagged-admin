@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-12T23:01:01.282385+00:00",
+  "count": 1,
+  "domains": [
+    "etx.com"
+  ],
+  "generated_at": "2026-08-13T10:01:18.052774+00:00",
   "mub": [],
   "source": "reddit_domains"
 }
