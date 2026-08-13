@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "currency": "GBP",
+    "domain": "offshore.co",
+    "end_time_utc": "2026-08-13T13:53:13+00:00",
+    "is_mub": false,
+    "price": 36599.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=offshore.co"
+  }
+]

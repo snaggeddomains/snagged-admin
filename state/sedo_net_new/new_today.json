@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-13T10:02:14.010631+00:00",
+  "count": 1,
+  "domains": [
+    "offshore.co"
+  ],
+  "generated_at": "2026-08-13T17:01:27.977539+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
