@@ -1,11 +1,20 @@
 [
   {
-    "currency": "GBP",
-    "domain": "offshore.co",
-    "end_time_utc": "2026-08-13T13:53:13+00:00",
+    "currency": "USD",
+    "domain": "mjx.com",
+    "end_time_utc": "2026-08-14T02:15:23+00:00",
     "is_mub": false,
-    "price": 36599.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=offshore.co"
+    "price": 512912.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=mjx.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "dwj.com",
+    "end_time_utc": "2026-08-14T01:56:41+00:00",
+    "is_mub": false,
+    "price": 379957.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=dwj.com"
   }
 ]
