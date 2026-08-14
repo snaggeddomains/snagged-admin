@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-14T17:05:43.110639+00:00",
+  "count": 1,
+  "domains": [
+    "depot.org"
+  ],
+  "generated_at": "2026-08-14T23:05:17.510613+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
