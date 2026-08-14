@@ -4,20 +4,12 @@
     "price": 250.0
   },
   {
-    "domain": "bahari.com",
-    "price": 58521.0
-  },
-  {
-    "domain": "hons.com",
-    "price": 337270.0
+    "domain": "handypete.com",
+    "price": 1913.0
   },
   {
     "domain": "witamy.net",
     "price": 199.0
-  },
-  {
-    "domain": "linhai.net",
-    "price": 119747.0
   },
   {
     "domain": "conceive.net",
@@ -28,12 +20,12 @@
     "price": 4995.0
   },
   {
-    "domain": "slipstream.net",
-    "price": 5356.0
-  },
-  {
     "domain": "latenite.co",
     "price": 250.0
+  },
+  {
+    "domain": "meins.co",
+    "price": null
   },
   {
     "domain": "lifehealth.co",
