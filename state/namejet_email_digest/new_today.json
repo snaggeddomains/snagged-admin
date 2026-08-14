@@ -1,12 +1,8 @@
 {
   "capped": false,
-  "count": 3,
-  "domains": [
-    "abortion.org",
-    "abortions.org",
-    "teleport.org"
-  ],
-  "generated_at": "2026-08-14T15:07:07.913754+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-14T15:07:45.017873+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
