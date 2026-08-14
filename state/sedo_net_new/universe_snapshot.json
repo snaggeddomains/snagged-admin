@@ -1,34 +1,22 @@
 [
   {
-    "domain": "reamall.com",
-    "price": 250.0
+    "domain": "coverers.com",
+    "price": 1895.0
+  },
+  {
+    "domain": "ataste.com",
+    "price": 248070.0
+  },
+  {
+    "domain": "kasich.com",
+    "price": null
   },
   {
     "domain": "handypete.com",
     "price": 1913.0
   },
   {
-    "domain": "witamy.net",
-    "price": 199.0
-  },
-  {
-    "domain": "conceive.net",
-    "price": 3995.0
-  },
-  {
-    "domain": "conception.net",
-    "price": 4995.0
-  },
-  {
-    "domain": "latenite.co",
-    "price": 250.0
-  },
-  {
     "domain": "meins.co",
     "price": null
-  },
-  {
-    "domain": "lifehealth.co",
-    "price": 2888.0
   }
 ]
