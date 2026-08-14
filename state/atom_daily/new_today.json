@@ -1,24 +1,11 @@
 {
   "capped": false,
-  "count": 15,
+  "count": 2,
   "domains": [
-    "goods.com",
-    "entered.ai",
-    "reception.com",
-    "troy.com",
-    "ranger.com",
-    "prompted.com",
-    "enables.ai",
-    "velocity.ai",
-    "reproductive.ai",
-    "goodies.com",
-    "elm.com",
-    "intellectuals.ai",
-    "swingers.ai",
-    "breast.org",
-    "lenox.ai"
+    "deaths.io",
+    "depot.org"
   ],
-  "generated_at": "2026-08-13T09:29:23.316613+00:00",
+  "generated_at": "2026-08-14T09:28:40.963983+00:00",
   "mub": [],
   "source": "atom_daily"
 }

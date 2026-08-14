@@ -1,25 +1,32 @@
 {
   "capped": false,
-  "count": 16,
+  "count": 21,
   "domains": [
-    "busier.org",
+    "robu.ai",
     "emv.ai",
+    "dcx.ai",
+    "reaf.ai",
+    "liege.co",
+    "poetics.ai",
     "shrewsbury.co",
     "presidents.co",
-    "formalities.org",
-    "voltages.org",
-    "legislature.io",
-    "livermore.ai",
-    "enforcement.ai",
-    "evening.ai",
-    "crises.co",
-    "fatter.co",
-    "referees.ai",
-    "reflecting.ai",
-    "flagrant.ai",
-    "forts.ai"
+    "additional.co",
+    "preventable.ai",
+    "contributing.org",
+    "anon.ai",
+    "yume.ai",
+    "copium.com",
+    "pud.ai",
+    "massey.ai",
+    "trashy.ai",
+    "rhythms.co",
+    "entanglement.co",
+    "torture.io",
+    "psychopathic.org"
   ],
-  "generated_at": "2026-08-13T09:51:52.777373+00:00",
-  "mub": [],
+  "generated_at": "2026-08-14T09:50:48.389576+00:00",
+  "mub": [
+    "robu.ai"
+  ],
   "source": "namecheap_auctions"
 }

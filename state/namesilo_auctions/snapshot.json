@@ -1,20 +1,20 @@
 [
   {
-    "bid_count": 60,
-    "domain": "uhhx.com",
-    "end_time_utc": "2026-08-13T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/uhhx.com",
-    "platform": "NameSilo",
-    "price": 140.0
-  },
-  {
-    "bid_count": 5,
+    "bid_count": 15,
     "domain": "reclamation.org",
     "end_time_utc": "2026-08-14T15:00:00+00:00",
     "is_mub": false,
     "link": "https://www.namesilo.com/auctions/reclamation.org",
     "platform": "NameSilo",
-    "price": 11.0
+    "price": 31.0
+  },
+  {
+    "bid_count": 16,
+    "domain": "ngateway.com",
+    "end_time_utc": "2026-08-15T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namesilo.com/auctions/ngateway.com",
+    "platform": "NameSilo",
+    "price": 31.0
   }
 ]
