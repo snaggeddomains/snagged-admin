@@ -1,13 +1,10 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 1,
   "domains": [
-    "chews.co",
-    "fools.co",
-    "kilns.xyz",
-    "millet.co"
+    "rentals.com"
   ],
-  "generated_at": "2026-08-15T17:07:06.696647+00:00",
+  "generated_at": "2026-08-15T23:06:26.706958+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
