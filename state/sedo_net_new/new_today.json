@@ -2,9 +2,9 @@
   "capped": false,
   "count": 1,
   "domains": [
-    "worshippers.com"
+    "noun.com"
   ],
-  "generated_at": "2026-08-15T10:01:15.042435+00:00",
+  "generated_at": "2026-08-15T17:01:25.408655+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
