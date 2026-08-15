@@ -1,32 +1,21 @@
 {
   "capped": false,
-  "count": 21,
+  "count": 12,
   "domains": [
-    "robu.ai",
-    "emv.ai",
-    "dcx.ai",
-    "reaf.ai",
-    "liege.co",
-    "poetics.ai",
-    "shrewsbury.co",
-    "presidents.co",
-    "additional.co",
-    "preventable.ai",
-    "contributing.org",
-    "anon.ai",
-    "yume.ai",
-    "copium.com",
-    "pud.ai",
-    "massey.ai",
-    "trashy.ai",
-    "rhythms.co",
-    "entanglement.co",
-    "torture.io",
-    "psychopathic.org"
+    "bashar.ai",
+    "takin.org",
+    "pliers.ai",
+    "spurs.io",
+    "stressors.org",
+    "weirdly.org",
+    "buy.io",
+    "acquiring.ai",
+    "shenandoah.ai",
+    "unraveling.co",
+    "inherited.org",
+    "impatience.org"
   ],
-  "generated_at": "2026-08-14T09:50:48.389576+00:00",
-  "mub": [
-    "robu.ai"
-  ],
+  "generated_at": "2026-08-15T09:55:36.387886+00:00",
+  "mub": [],
   "source": "namecheap_auctions"
 }

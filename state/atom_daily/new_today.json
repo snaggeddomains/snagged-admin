@@ -1,11 +1,17 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 6,
   "domains": [
-    "deaths.io",
-    "depot.org"
+    "lebron.com",
+    "firing.ai",
+    "reds.ai",
+    "summon.ai",
+    "messed.org",
+    "automobiles.org"
   ],
-  "generated_at": "2026-08-14T09:28:40.963983+00:00",
-  "mub": [],
+  "generated_at": "2026-08-15T09:32:44.173022+00:00",
+  "mub": [
+    "lebron.com"
+  ],
   "source": "atom_daily"
 }

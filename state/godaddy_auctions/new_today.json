@@ -1,15 +1,16 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 7,
   "domains": [
-    "mcha.com",
-    "jgck.com",
-    "hsq.net",
-    "baseless.co",
-    "plhy.com",
-    "kyper.com"
+    "cadets.org",
+    "exceo.com",
+    "swiftly.org",
+    "vetted.co",
+    "jhoc.com",
+    "iait.co",
+    "ayble.com"
   ],
-  "generated_at": "2026-08-14T09:52:48.212329+00:00",
+  "generated_at": "2026-08-15T09:57:21.181099+00:00",
   "mub": [],
   "source": "godaddy_auctions"
 }

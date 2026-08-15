@@ -2,14 +2,12 @@
   "capped": false,
   "count": 4,
   "domains": [
-    "dmaking.com",
-    "manages.org",
-    "pradesh.co",
-    "similarly.co"
+    "cuzg.com",
+    "bumbling.co",
+    "mrai.org",
+    "ilago.com"
   ],
-  "generated_at": "2026-08-14T09:51:58.868072+00:00",
-  "mub": [
-    "pradesh.co"
-  ],
+  "generated_at": "2026-08-15T09:56:38.139524+00:00",
+  "mub": [],
   "source": "dynadot_auctions"
 }

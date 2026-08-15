@@ -1,29 +1,47 @@
 [
   {
-    "bid_count": 92,
-    "domain": "expy.com",
-    "end_time_utc": "2026-08-14T18:59:05.683389+00:00",
+    "bid_count": 15,
+    "domain": "lamartine.com",
+    "end_time_utc": "2026-08-17T18:59:44.544292+00:00",
     "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/EXPY.COM",
+    "link": "https://www.dropcatch.com/domain/Lamartine.com",
     "platform": "DropCatch",
-    "price": 5500.0
-  },
-  {
-    "bid_count": 54,
-    "domain": "fedora.org",
-    "end_time_utc": "2026-08-14T18:59:05.683389+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Fedora.org",
-    "platform": "DropCatch",
-    "price": 1200.0
+    "price": 64.0
   },
   {
     "bid_count": 33,
     "domain": "systemik.com",
-    "end_time_utc": "2026-08-18T18:59:05.683389+00:00",
+    "end_time_utc": "2026-08-18T18:59:44.544292+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/SystemIk.com",
     "platform": "DropCatch",
     "price": 130.0
+  },
+  {
+    "bid_count": 7,
+    "domain": "qherb.com",
+    "end_time_utc": "2026-08-19T18:59:44.544292+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Qherb.com",
+    "platform": "DropCatch",
+    "price": 64.0
+  },
+  {
+    "bid_count": 20,
+    "domain": "bvrg.com",
+    "end_time_utc": "2026-08-20T18:59:44.544292+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Bvrg.com",
+    "platform": "DropCatch",
+    "price": 103.0
+  },
+  {
+    "bid_count": 12,
+    "domain": "grnp.com",
+    "end_time_utc": "2026-08-21T18:59:44.544292+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/GRNP.com",
+    "platform": "DropCatch",
+    "price": 124.0
   }
 ]
