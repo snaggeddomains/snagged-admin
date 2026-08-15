@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "noun.com"
-  ],
-  "generated_at": "2026-08-15T17:01:25.408655+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-15T23:01:30.227450+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
