@@ -1,10 +1,26 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 15,
   "domains": [
-    "depot.org"
+    "cheetahs.ai",
+    "code.com",
+    "crum.ai",
+    "gen.com",
+    "gorse.ai",
+    "grendel.ai",
+    "insolvent.ai",
+    "insolvent.io",
+    "jacks.me",
+    "kimchi.me",
+    "nandi.ai",
+    "narrates.ai",
+    "ola.com",
+    "sell.com",
+    "share.com"
   ],
-  "generated_at": "2026-08-14T23:05:17.510613+00:00",
-  "mub": [],
+  "generated_at": "2026-08-15T10:05:56.517934+00:00",
+  "mub": [
+    "grendel.ai"
+  ],
   "source": "namepros_marketplace"
 }
