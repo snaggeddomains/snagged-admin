@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "85629.com"
-  ],
-  "generated_at": "2026-08-16T17:06:56.227066+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-16T23:06:05.077205+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
