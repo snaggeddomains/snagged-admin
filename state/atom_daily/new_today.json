@@ -1,17 +1,25 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 16,
   "domains": [
-    "lebron.com",
-    "firing.ai",
-    "reds.ai",
-    "summon.ai",
-    "messed.org",
-    "automobiles.org"
+    "often.co",
+    "alumni.ai",
+    "diet.co",
+    "discard.ai",
+    "hardwood.ai",
+    "hosts.co",
+    "publisher.co",
+    "pyjamas.ai",
+    "pretzels.ai",
+    "kitchener.ai",
+    "consortium.co",
+    "ajax.co",
+    "consultancy.co",
+    "ceramics.co",
+    "oem.co",
+    "cyberspace.co"
   ],
-  "generated_at": "2026-08-15T09:32:44.173022+00:00",
-  "mub": [
-    "lebron.com"
-  ],
+  "generated_at": "2026-08-16T09:28:41.977112+00:00",
+  "mub": [],
   "source": "atom_daily"
 }

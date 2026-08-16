@@ -2,46 +2,64 @@
   {
     "bid_count": 15,
     "domain": "lamartine.com",
-    "end_time_utc": "2026-08-17T18:59:44.544292+00:00",
+    "end_time_utc": "2026-08-17T18:59:10.275239+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Lamartine.com",
     "platform": "DropCatch",
     "price": 64.0
   },
   {
-    "bid_count": 33,
-    "domain": "systemik.com",
-    "end_time_utc": "2026-08-18T18:59:44.544292+00:00",
+    "bid_count": 12,
+    "domain": "fodder.net",
+    "end_time_utc": "2026-08-17T18:59:10.275239+00:00",
     "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/SystemIk.com",
-    "platform": "DropCatch",
-    "price": 130.0
-  },
-  {
-    "bid_count": 7,
-    "domain": "qherb.com",
-    "end_time_utc": "2026-08-19T18:59:44.544292+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Qherb.com",
+    "link": "https://www.dropcatch.com/domain/Fodder.net",
     "platform": "DropCatch",
     "price": 64.0
   },
   {
-    "bid_count": 20,
+    "bid_count": 35,
+    "domain": "systemik.com",
+    "end_time_utc": "2026-08-18T18:59:10.275239+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/SystemIk.com",
+    "platform": "DropCatch",
+    "price": 150.0
+  },
+  {
+    "bid_count": 17,
+    "domain": "abortion.net",
+    "end_time_utc": "2026-08-19T18:59:10.275239+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Abortion.net",
+    "platform": "DropCatch",
+    "price": 75.0
+  },
+  {
+    "bid_count": 8,
+    "domain": "qherb.com",
+    "end_time_utc": "2026-08-19T18:59:10.275239+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Qherb.com",
+    "platform": "DropCatch",
+    "price": 69.0
+  },
+  {
+    "bid_count": 23,
     "domain": "bvrg.com",
-    "end_time_utc": "2026-08-20T18:59:44.544292+00:00",
+    "end_time_utc": "2026-08-20T18:59:10.275239+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Bvrg.com",
     "platform": "DropCatch",
-    "price": 103.0
+    "price": 133.0
   },
   {
-    "bid_count": 12,
+    "bid_count": 14,
     "domain": "grnp.com",
-    "end_time_utc": "2026-08-21T18:59:44.544292+00:00",
+    "end_time_utc": "2026-08-21T18:59:10.275239+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/GRNP.com",
     "platform": "DropCatch",
-    "price": 124.0
+    "price": 160.0
   }
 ]

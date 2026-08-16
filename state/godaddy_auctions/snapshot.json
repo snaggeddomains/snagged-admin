@@ -1,65 +1,47 @@
 [
   {
-    "bid_count": 5,
-    "domain": "cadets.org",
-    "end_time_utc": "2026-08-15T17:41:00+00:00",
+    "bid_count": 0,
+    "domain": "districts.co",
+    "end_time_utc": "2026-08-16T16:19:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/cadets-org-719246892?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/districts-co-719390610?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 20.0
+    "price": 1.0
   },
   {
-    "bid_count": 15,
-    "domain": "exceo.com",
-    "end_time_utc": "2026-08-15T18:02:00+00:00",
+    "bid_count": 9,
+    "domain": "mxy.org",
+    "end_time_utc": "2026-08-16T17:44:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/exceo-com-719266627?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/mxy-org-719254328?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 89.0
+    "price": 165.0
   },
   {
-    "bid_count": 5,
-    "domain": "swiftly.org",
-    "end_time_utc": "2026-08-15T18:38:00+00:00",
+    "bid_count": 73,
+    "domain": "8124.com",
+    "end_time_utc": "2026-08-16T18:55:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/swiftly-org-718767370?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/8124-com-719372326?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 16.0
+    "price": 3383.0
   },
   {
-    "bid_count": 8,
-    "domain": "vetted.co",
-    "end_time_utc": "2026-08-15T19:46:00+00:00",
+    "bid_count": 17,
+    "domain": "iadk.com",
+    "end_time_utc": "2026-08-16T19:41:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/vetted-co-719246998?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/iadk-com-718283645?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 103.0
+    "price": 193.0
   },
   {
-    "bid_count": 8,
-    "domain": "jhoc.com",
-    "end_time_utc": "2026-08-15T21:10:00+00:00",
+    "bid_count": 28,
+    "domain": "wth.net",
+    "end_time_utc": "2026-08-16T20:20:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/jhoc-com-719228433?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/wth-net-719443741?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 130.0
-  },
-  {
-    "bid_count": 7,
-    "domain": "iait.co",
-    "end_time_utc": "2026-08-15T21:15:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/iait-co-719276703?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 31.0
-  },
-  {
-    "bid_count": 14,
-    "domain": "ayble.com",
-    "end_time_utc": "2026-08-15T21:20:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/ayble-com-718140726?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 102.0
+    "price": 281.0
   }
 ]

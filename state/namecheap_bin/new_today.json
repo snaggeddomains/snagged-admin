@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "anthology.ai"
-  ],
-  "generated_at": "2026-08-15T09:04:13.086753+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-16T09:02:52.777482+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

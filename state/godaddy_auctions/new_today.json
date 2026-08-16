@@ -1,16 +1,14 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 5,
   "domains": [
-    "cadets.org",
-    "exceo.com",
-    "swiftly.org",
-    "vetted.co",
-    "jhoc.com",
-    "iait.co",
-    "ayble.com"
+    "districts.co",
+    "mxy.org",
+    "8124.com",
+    "iadk.com",
+    "wth.net"
   ],
-  "generated_at": "2026-08-15T09:57:21.181099+00:00",
+  "generated_at": "2026-08-16T09:52:51.294001+00:00",
   "mub": [],
   "source": "godaddy_auctions"
 }
