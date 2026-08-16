@@ -1,1 +1,56 @@
-[]
+[
+  {
+    "currency": "EUR",
+    "domain": "passers.com",
+    "end_time_utc": "2026-08-16T17:38:11+00:00",
+    "is_mub": false,
+    "price": 15888.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=passers.com"
+  },
+  {
+    "currency": "EUR",
+    "domain": "aditya.com",
+    "end_time_utc": "2026-08-16T17:36:10+00:00",
+    "is_mub": false,
+    "price": 500000.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=aditya.com"
+  },
+  {
+    "currency": "EUR",
+    "domain": "pulled.com",
+    "end_time_utc": "2026-08-16T17:37:35+00:00",
+    "is_mub": false,
+    "price": 100000.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=pulled.com"
+  },
+  {
+    "currency": "EUR",
+    "domain": "sarkar.com",
+    "end_time_utc": "2026-08-16T17:37:19+00:00",
+    "is_mub": false,
+    "price": 100000.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=sarkar.com"
+  },
+  {
+    "currency": "EUR",
+    "domain": "delicate.ai",
+    "end_time_utc": "2026-08-16T17:36:52+00:00",
+    "is_mub": false,
+    "price": 149999.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=delicate.ai"
+  },
+  {
+    "currency": "EUR",
+    "domain": "mae.com",
+    "end_time_utc": "2026-08-16T17:37:01+00:00",
+    "is_mub": false,
+    "price": 3500000.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=mae.com"
+  }
+]

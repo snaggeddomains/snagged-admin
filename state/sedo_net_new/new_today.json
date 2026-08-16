@@ -1,8 +1,15 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-16T10:02:19.182892+00:00",
+  "count": 6,
+  "domains": [
+    "mae.com",
+    "aditya.com",
+    "delicate.ai",
+    "sarkar.com",
+    "pulled.com",
+    "passers.com"
+  ],
+  "generated_at": "2026-08-16T17:01:06.713132+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
