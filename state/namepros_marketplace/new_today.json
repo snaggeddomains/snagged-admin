@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "rentals.com"
-  ],
-  "generated_at": "2026-08-15T23:06:26.706958+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-16T10:06:42.460582+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
