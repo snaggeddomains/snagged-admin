@@ -1,43 +1,27 @@
 [
   {
-    "domain": "bandung.com",
-    "price": 99999.0
+    "domain": "heysham.com",
+    "price": 4988.0
   },
   {
     "domain": "charpay.com",
     "price": 3488.0
   },
   {
-    "domain": "heysham.com",
-    "price": 4988.0
-  },
-  {
-    "domain": "shahana.com",
-    "price": 9988.0
+    "domain": "bandung.com",
+    "price": 99999.0
   },
   {
     "domain": "gridley.com",
     "price": 75888.0
   },
   {
+    "domain": "shahana.com",
+    "price": 9988.0
+  },
+  {
     "domain": "passers.com",
     "price": 15888.0
-  },
-  {
-    "domain": "dalians.com",
-    "price": 3695.0
-  },
-  {
-    "domain": "desember.com",
-    "price": 3690.0
-  },
-  {
-    "domain": "askari.com",
-    "price": 550000.0
-  },
-  {
-    "domain": "aditya.com",
-    "price": 500000.0
   },
   {
     "domain": "sharaf.com",
@@ -52,8 +36,12 @@
     "price": 3488.0
   },
   {
-    "domain": "padang.com",
-    "price": 36900.0
+    "domain": "aditya.com",
+    "price": 500000.0
+  },
+  {
+    "domain": "askari.com",
+    "price": 550000.0
   },
   {
     "domain": "pasand.com",
@@ -72,20 +60,20 @@
     "price": 100000.0
   },
   {
-    "domain": "steall.com",
-    "price": 1680.0
-  },
-  {
-    "domain": "baraga.com",
-    "price": 9988.0
-  },
-  {
     "domain": "balang.com",
     "price": 1680.0
   },
   {
     "domain": "malang.com",
     "price": 168000.0
+  },
+  {
+    "domain": "steall.com",
+    "price": 1680.0
+  },
+  {
+    "domain": "sarkar.com",
+    "price": 100000.0
   },
   {
     "domain": "kalidevi.com",
@@ -96,8 +84,8 @@
     "price": 330000.0
   },
   {
-    "domain": "sarkar.com",
-    "price": 100000.0
+    "domain": "baraga.com",
+    "price": 9988.0
   },
   {
     "domain": "furnishers.com",
@@ -112,14 +100,6 @@
     "price": 3500000.0
   },
   {
-    "domain": "bethani.net",
-    "price": 1680.0
-  },
-  {
-    "domain": "turning.net",
-    "price": 1680.0
-  },
-  {
     "domain": "platoon.net",
     "price": 4988.0
   },
@@ -128,8 +108,8 @@
     "price": 1680.0
   },
   {
-    "domain": "alderwood.net",
-    "price": 199.0
+    "domain": "matted.net",
+    "price": 1795.0
   },
   {
     "domain": "editorials.net",
