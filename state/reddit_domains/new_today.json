@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-16T23:01:55.262099+00:00",
+  "count": 1,
+  "domains": [
+    "kasich.com"
+  ],
+  "generated_at": "2026-08-17T10:01:41.823151+00:00",
   "mub": [],
   "source": "reddit_domains"
 }
