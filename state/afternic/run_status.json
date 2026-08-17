@@ -1,7 +1,12 @@
 {
-  "error": "PostgREST 500: {\"code\":\"57014\",\"details\":null,\"hint\":null,\"message\":\"canceling statement due to statement timeout\"}",
-  "generated_at": "2026-08-16T08:12:29.580047+00:00",
+  "dropped_count": 3,
+  "fresh_added": 3,
+  "generated_at": "2026-08-17T08:15:43.104787+00:00",
   "label": "Afternic",
+  "new_count": 3,
+  "price_change_count": 0,
+  "running_total_after": 4309,
+  "slack_posted": true,
   "source": "afternic",
-  "status": "failed"
+  "status": "ok"
 }

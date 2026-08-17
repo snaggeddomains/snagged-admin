@@ -1,24 +1,12 @@
 {
   "capped": false,
-  "count": 15,
+  "count": 3,
   "domains": [
-    "traditionally.org",
-    "retrieved.org",
-    "detachment.org",
-    "oldest.io",
-    "derogatory.org",
-    "attributed.org",
-    "hordes.org",
-    "withdrawn.org",
-    "tingling.org",
-    "prerogative.org",
-    "defenses.org",
-    "parodies.org",
-    "liabilities.org",
-    "but.net",
-    "claimed.com"
+    "immediately.io",
+    "suggesting.org",
+    "dickinson.ai"
   ],
-  "generated_at": "2026-08-15T08:20:35.230784+00:00",
+  "generated_at": "2026-08-17T08:15:43.105097+00:00",
   "mub": [],
   "source": "afternic"
 }
