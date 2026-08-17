@@ -1,8 +1,14 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-16T09:02:52.777482+00:00",
+  "count": 5,
+  "domains": [
+    "underside.org",
+    "valentin.co",
+    "nappy.org",
+    "facto.ai",
+    "pilates.co"
+  ],
+  "generated_at": "2026-08-17T09:03:08.010607+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

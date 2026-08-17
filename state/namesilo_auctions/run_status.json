@@ -1,9 +1,9 @@
 {
-  "deduped_against_existing": 5,
-  "generated_at": "2026-08-16T09:53:25.659813+00:00",
+  "deduped_against_existing": 3,
+  "generated_at": "2026-08-17T09:51:33.540057+00:00",
   "label": "NameSilo",
   "new_count": 0,
-  "sheet_total_after": 2382,
+  "sheet_total_after": 2418,
   "slack_posted": false,
   "source": "namesilo_auctions",
   "status": "ok"

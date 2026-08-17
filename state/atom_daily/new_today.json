@@ -1,25 +1,11 @@
 {
   "capped": false,
-  "count": 16,
+  "count": 2,
   "domains": [
-    "often.co",
-    "alumni.ai",
-    "diet.co",
-    "discard.ai",
-    "hardwood.ai",
-    "hosts.co",
-    "publisher.co",
-    "pyjamas.ai",
-    "pretzels.ai",
-    "kitchener.ai",
-    "consortium.co",
-    "ajax.co",
-    "consultancy.co",
-    "ceramics.co",
-    "oem.co",
-    "cyberspace.co"
+    "natures.ai",
+    "exl.com"
   ],
-  "generated_at": "2026-08-16T09:28:41.977112+00:00",
+  "generated_at": "2026-08-17T09:27:43.979113+00:00",
   "mub": [],
   "source": "atom_daily"
 }

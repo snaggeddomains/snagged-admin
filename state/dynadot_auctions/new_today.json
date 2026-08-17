@@ -1,17 +1,12 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 3,
   "domains": [
-    "bqe.net",
-    "activates.co",
-    "fertilization.co",
-    "limiting.co",
-    "predominant.co",
-    "hospitalization.org"
+    "thrilling.co",
+    "wrecks.co",
+    "metastasis.co"
   ],
-  "generated_at": "2026-08-16T09:52:04.222453+00:00",
-  "mub": [
-    "limiting.co"
-  ],
+  "generated_at": "2026-08-17T09:50:10.139245+00:00",
+  "mub": [],
   "source": "dynadot_auctions"
 }
