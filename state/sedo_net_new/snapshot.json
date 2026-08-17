@@ -1,20 +1,11 @@
 [
   {
     "currency": "USD",
-    "domain": "ecu.co",
-    "end_time_utc": "2026-08-17T03:03:52+00:00",
+    "domain": "tbd.com",
+    "end_time_utc": "2026-08-17T17:47:19+00:00",
     "is_mub": false,
-    "price": 19995.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=ecu.co"
-  },
-  {
-    "currency": "USD",
-    "domain": "daw.co",
-    "end_time_utc": "2026-08-17T03:04:19+00:00",
-    "is_mub": false,
-    "price": 19995.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=daw.co"
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=tbd.com"
   }
 ]

@@ -1,22 +1,74 @@
 [
   {
-    "domain": "lgbtowned.com",
-    "price": 3000.0
+    "domain": "telric.com",
+    "price": 9999.0
+  },
+  {
+    "domain": "colindale.com",
+    "price": 24888.0
+  },
+  {
+    "domain": "fortifying.com",
+    "price": null
   },
   {
     "domain": "plos.com",
     "price": 12900.0
   },
   {
-    "domain": "adoring.net",
-    "price": 3899.0
+    "domain": "nessie.ai",
+    "price": 125000.0
   },
   {
-    "domain": "ecu.co",
-    "price": 19995.0
+    "domain": "mangin.co",
+    "price": 799.0
   },
   {
-    "domain": "daw.co",
-    "price": 19995.0
+    "domain": "jamberry.co",
+    "price": 799.0
+  },
+  {
+    "domain": "finnic.co",
+    "price": 799.0
+  },
+  {
+    "domain": "chasma.co",
+    "price": 799.0
+  },
+  {
+    "domain": "tongan.co",
+    "price": 799.0
+  },
+  {
+    "domain": "spicewood.co",
+    "price": 799.0
+  },
+  {
+    "domain": "interpole.co",
+    "price": 799.0
+  },
+  {
+    "domain": "aquabelle.co",
+    "price": 799.0
+  },
+  {
+    "domain": "anglosaxon.co",
+    "price": 799.0
+  },
+  {
+    "domain": "showground.co",
+    "price": 799.0
+  },
+  {
+    "domain": "mondegreen.co",
+    "price": 799.0
+  },
+  {
+    "domain": "autoloader.co",
+    "price": 799.0
+  },
+  {
+    "domain": "hyperfiction.co",
+    "price": 799.0
   }
 ]
