@@ -1,78 +1,46 @@
 [
   {
-    "domain": "matplus.com",
-    "price": 11395.0
+    "domain": "artecat.com",
+    "price": 5499.0
   },
   {
-    "domain": "telric.com",
-    "price": 9999.0
+    "domain": "neocreed.com",
+    "price": 8995.0
   },
   {
-    "domain": "colindale.com",
-    "price": 24888.0
+    "domain": "mailng.com",
+    "price": 3195.0
   },
   {
-    "domain": "fortifying.com",
+    "domain": "pooches.net",
     "price": null
   },
   {
-    "domain": "nessie.ai",
-    "price": 125000.0
+    "domain": "assigned.net",
+    "price": 15195.0
   },
   {
-    "domain": "mangin.co",
-    "price": 799.0
+    "domain": "verbally.net",
+    "price": 2495.0
   },
   {
-    "domain": "jamberry.co",
-    "price": 799.0
+    "domain": "crises.co",
+    "price": 250.0
   },
   {
-    "domain": "finnic.co",
-    "price": 799.0
+    "domain": "fasted.co",
+    "price": 8800.0
   },
   {
-    "domain": "chasma.co",
-    "price": 799.0
+    "domain": "teamgreen.co",
+    "price": 1988.0
   },
   {
-    "domain": "tongan.co",
-    "price": 799.0
+    "domain": "wheathill.co",
+    "price": 250.0
   },
   {
-    "domain": "spicewood.co",
-    "price": 799.0
-  },
-  {
-    "domain": "interpole.co",
-    "price": 799.0
-  },
-  {
-    "domain": "aquabelle.co",
-    "price": 799.0
-  },
-  {
-    "domain": "anglosaxon.co",
-    "price": 799.0
-  },
-  {
-    "domain": "showground.co",
-    "price": 799.0
-  },
-  {
-    "domain": "mondegreen.co",
-    "price": 799.0
-  },
-  {
-    "domain": "autoloader.co",
-    "price": 799.0
-  },
-  {
-    "domain": "recommending.net",
-    "price": 5999.0
-  },
-  {
-    "domain": "hyperfiction.co",
-    "price": 799.0
+    "domain": "papercraft.co",
+    "price": 250.0
   }
 ]
