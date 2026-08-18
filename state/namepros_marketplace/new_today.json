@@ -1,10 +1,11 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 2,
   "domains": [
-    "bournemouth.io"
+    "alejandra.io",
+    "parson.io"
   ],
-  "generated_at": "2026-08-17T23:07:00.704076+00:00",
+  "generated_at": "2026-08-18T10:05:26.723334+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
