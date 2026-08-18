@@ -1,12 +1,8 @@
 {
   "capped": false,
-  "count": 3,
-  "domains": [
-    "thrilling.co",
-    "wrecks.co",
-    "metastasis.co"
-  ],
-  "generated_at": "2026-08-17T09:50:10.139245+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-18T09:50:48.012604+00:00",
   "mub": [],
   "source": "dynadot_auctions"
 }

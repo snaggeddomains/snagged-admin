@@ -1,56 +1,92 @@
 [
   {
-    "bid_count": 45,
+    "bid_count": 47,
     "domain": "systemik.com",
-    "end_time_utc": "2026-08-18T18:59:16.798379+00:00",
+    "end_time_utc": "2026-08-18T18:59:54.452099+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/SystemIk.com",
     "platform": "DropCatch",
-    "price": 379.0
+    "price": 420.0
   },
   {
-    "bid_count": 43,
-    "domain": "abortion.net",
-    "end_time_utc": "2026-08-19T18:59:16.798379+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Abortion.net",
-    "platform": "DropCatch",
-    "price": 440.0
-  },
-  {
-    "bid_count": 48,
+    "bid_count": 56,
     "domain": "xroute.com",
-    "end_time_utc": "2026-08-19T18:59:16.798379+00:00",
+    "end_time_utc": "2026-08-19T18:59:54.452099+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/XRoute.com",
     "platform": "DropCatch",
-    "price": 402.0
+    "price": 602.0
+  },
+  {
+    "bid_count": 48,
+    "domain": "abortion.net",
+    "end_time_utc": "2026-08-19T18:59:54.452099+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Abortion.net",
+    "platform": "DropCatch",
+    "price": 550.0
+  },
+  {
+    "bid_count": 13,
+    "domain": "qherb.com",
+    "end_time_utc": "2026-08-19T18:59:54.452099+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Qherb.com",
+    "platform": "DropCatch",
+    "price": 130.0
   },
   {
     "bid_count": 33,
     "domain": "bvrg.com",
-    "end_time_utc": "2026-08-20T18:59:16.798379+00:00",
+    "end_time_utc": "2026-08-20T18:59:54.452099+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Bvrg.com",
     "platform": "DropCatch",
     "price": 380.0
   },
   {
-    "bid_count": 68,
+    "bid_count": 80,
     "domain": "abortions.com",
-    "end_time_utc": "2026-08-21T18:59:16.798379+00:00",
+    "end_time_utc": "2026-08-21T18:59:54.452099+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Abortions.com",
     "platform": "DropCatch",
-    "price": 1228.0
+    "price": 5099.0
+  },
+  {
+    "bid_count": 76,
+    "domain": "samx.com",
+    "end_time_utc": "2026-08-21T18:59:54.452099+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Samx.com",
+    "platform": "DropCatch",
+    "price": 440.0
   },
   {
     "bid_count": 20,
     "domain": "grnp.com",
-    "end_time_utc": "2026-08-21T18:59:16.798379+00:00",
+    "end_time_utc": "2026-08-21T18:59:54.452099+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/GRNP.com",
     "platform": "DropCatch",
     "price": 322.0
+  },
+  {
+    "bid_count": 40,
+    "domain": "abortion.org",
+    "end_time_utc": "2026-08-21T18:59:54.452099+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Abortion.org",
+    "platform": "DropCatch",
+    "price": 104.0
+  },
+  {
+    "bid_count": 19,
+    "domain": "ztap.com",
+    "end_time_utc": "2026-08-24T18:59:54.452099+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/ztap.com",
+    "platform": "DropCatch",
+    "price": 423.0
   }
 ]
