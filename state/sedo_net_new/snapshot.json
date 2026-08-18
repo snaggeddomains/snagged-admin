@@ -162,6 +162,15 @@
     "url": "https://sedo.com/search/details/?domain=compartment.ai"
   },
   {
+    "currency": "EUR",
+    "domain": "fer.ai",
+    "end_time_utc": "2026-08-19T00:23:04+00:00",
+    "is_mub": false,
+    "price": 69000.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=fer.ai"
+  },
+  {
     "currency": "USD",
     "domain": "bachelorette.ai",
     "end_time_utc": "2026-08-18T15:18:09+00:00",
@@ -169,14 +178,5 @@
     "price": 10999.0,
     "tld": "ai",
     "url": "https://sedo.com/search/details/?domain=bachelorette.ai"
-  },
-  {
-    "currency": "USD",
-    "domain": "crises.co",
-    "end_time_utc": "2026-08-18T09:39:29+00:00",
-    "is_mub": false,
-    "price": 250.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=crises.co"
   }
 ]

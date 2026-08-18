@@ -1,11 +1,7 @@
 [
   {
-    "domain": "neocreed.com",
-    "price": 8995.0
-  },
-  {
-    "domain": "mailng.com",
-    "price": 3195.0
+    "domain": "pribook.com",
+    "price": 1288.0
   },
   {
     "domain": "blasts.com",
@@ -38,6 +34,10 @@
   {
     "domain": "divest.ai",
     "price": 27499.0
+  },
+  {
+    "domain": "brooms.ai",
+    "price": 3997.0
   },
   {
     "domain": "scarf.ai",
@@ -100,39 +100,27 @@
     "price": 14999.0
   },
   {
-    "domain": "bachelorette.ai",
-    "price": 10999.0
+    "domain": "fer.ai",
+    "price": 69000.0
   },
   {
-    "domain": "assigned.net",
-    "price": 15195.0
+    "domain": "bachelorette.ai",
+    "price": 10999.0
   },
   {
     "domain": "corbel.net",
     "price": null
   },
   {
-    "domain": "verbally.net",
-    "price": 2495.0
-  },
-  {
     "domain": "flues.net",
     "price": null
   },
   {
-    "domain": "crises.co",
-    "price": 250.0
+    "domain": "prettiest.net",
+    "price": 20000.0
   },
   {
-    "domain": "teamgreen.co",
-    "price": 1988.0
-  },
-  {
-    "domain": "wheathill.co",
-    "price": 250.0
-  },
-  {
-    "domain": "papercraft.co",
-    "price": 250.0
+    "domain": "nilson.co",
+    "price": 2995.0
   }
 ]
