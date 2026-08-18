@@ -1,10 +1,28 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 19,
   "domains": [
-    "crises.co"
+    "temporary.ai",
+    "tyres.ai",
+    "venues.ai",
+    "strengthen.ai",
+    "seventeen.ai",
+    "scarf.ai",
+    "mercantile.ai",
+    "expeditions.ai",
+    "divest.ai",
+    "coolest.ai",
+    "blasts.com",
+    "adjustable.ai",
+    "tablets.ai",
+    "compartment.ai",
+    "deodorant.ai",
+    "bachelorette.ai",
+    "nomination.ai",
+    "baptist.ai",
+    "addresses.ai"
   ],
-  "generated_at": "2026-08-18T10:01:44.705662+00:00",
+  "generated_at": "2026-08-18T17:00:38.827107+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
