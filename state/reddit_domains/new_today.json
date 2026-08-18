@@ -1,12 +1,8 @@
 {
   "capped": false,
-  "count": 3,
-  "domains": [
-    "educate.now",
-    "install.now",
-    "load.now"
-  ],
-  "generated_at": "2026-08-18T10:01:38.090361+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-18T17:01:29.573714+00:00",
   "mub": [],
   "source": "reddit_domains"
 }
