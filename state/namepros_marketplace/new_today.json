@@ -1,11 +1,8 @@
 {
   "capped": false,
-  "count": 2,
-  "domains": [
-    "alejandra.io",
-    "parson.io"
-  ],
-  "generated_at": "2026-08-18T10:05:26.723334+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-18T17:05:55.361257+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
