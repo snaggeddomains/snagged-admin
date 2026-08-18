@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-18T17:05:55.361257+00:00",
+  "count": 1,
+  "domains": [
+    "armada.co"
+  ],
+  "generated_at": "2026-08-18T23:06:03.187399+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
