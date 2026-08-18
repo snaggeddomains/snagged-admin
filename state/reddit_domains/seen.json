@@ -1,5 +1,5 @@
 {
-  "count": 42,
+  "count": 45,
   "domains": [
     "264.io",
     "88.to",
@@ -12,6 +12,7 @@
     "dilute.org",
     "dominion.com",
     "dot.com",
+    "educate.now",
     "eliminated.io",
     "enjoyed.io",
     "etx.com",
@@ -21,8 +22,10 @@
     "gulls.net",
     "hauled.net",
     "india.com",
+    "install.now",
     "kasich.com",
     "keanu.com",
+    "load.now",
     "lye.ai",
     "mazes.io",
     "multiple.app",
@@ -45,5 +48,5 @@
     "wordpress.com"
   ],
   "source": "reddit_domains",
-  "updated_at": "2026-08-17T23:01:35.872391+00:00"
+  "updated_at": "2026-08-18T10:01:38.376170+00:00"
 }
