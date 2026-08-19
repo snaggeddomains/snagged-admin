@@ -1,29 +1,11 @@
 [
   {
-    "bid_count": 13,
-    "domain": "kencing.com",
-    "end_time_utc": "2026-08-18T15:00:00+00:00",
+    "bid_count": 10,
+    "domain": "buddhism.io",
+    "end_time_utc": "2026-08-19T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/kencing.com",
+    "link": "https://www.namesilo.com/auctions/buddhism.io",
     "platform": "NameSilo",
-    "price": 19.0
-  },
-  {
-    "bid_count": 35,
-    "domain": "conforto.com",
-    "end_time_utc": "2026-08-18T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/conforto.com",
-    "platform": "NameSilo",
-    "price": 910.0
-  },
-  {
-    "bid_count": 8,
-    "domain": "wedrings.com",
-    "end_time_utc": "2026-08-18T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/wedrings.com",
-    "platform": "NameSilo",
-    "price": 6.28
+    "price": 146.99
   }
 ]

@@ -2,10 +2,10 @@
   "capped": false,
   "count": 2,
   "domains": [
-    "finley.org",
-    "saved.org"
+    "analyzer.co",
+    "keats.ai"
   ],
-  "generated_at": "2026-08-18T09:02:30.638360+00:00",
+  "generated_at": "2026-08-19T09:06:07.325016+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

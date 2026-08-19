@@ -1,65 +1,47 @@
 [
   {
-    "bid_count": 53,
-    "domain": "cecily.com",
-    "end_time_utc": "2026-08-18T16:06:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/cecily-com-719773716?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 2750.0
-  },
-  {
-    "bid_count": 16,
-    "domain": "revise.org",
-    "end_time_utc": "2026-08-18T16:45:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/revise-org-719182381?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 201.0
-  },
-  {
-    "bid_count": 105,
-    "domain": "ayos.com",
-    "end_time_utc": "2026-08-18T17:34:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/ayos-com-719760629?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 2397.0
-  },
-  {
-    "bid_count": 20,
-    "domain": "equals.org",
-    "end_time_utc": "2026-08-18T17:54:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/equals-org-719109205?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 284.0
-  },
-  {
     "bid_count": 0,
-    "domain": "incision.co",
-    "end_time_utc": "2026-08-18T18:09:00+00:00",
+    "domain": "abnormally.org",
+    "end_time_utc": "2026-08-19T16:07:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/incision-co-719763271?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/abnormally-org-719213044?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
     "price": 1.0
   },
   {
-    "bid_count": 0,
-    "domain": "matchups.org",
-    "end_time_utc": "2026-08-18T19:53:00+00:00",
+    "bid_count": 68,
+    "domain": "nxme.com",
+    "end_time_utc": "2026-08-19T19:19:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/matchups-org-719578839?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/nxme-com-719913874?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 1.0
+    "price": 544.0
   },
   {
-    "bid_count": 16,
-    "domain": "paypar.com",
-    "end_time_utc": "2026-08-18T21:27:00+00:00",
+    "bid_count": 5,
+    "domain": "drnuts.com",
+    "end_time_utc": "2026-08-19T19:37:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/paypar-com-719755804?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/drnuts-com-719912758?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 338.0
+    "price": 21.0
+  },
+  {
+    "bid_count": 36,
+    "domain": "kpops.com",
+    "end_time_utc": "2026-08-19T20:35:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/kpops-com-719286359?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 255.0
+  },
+  {
+    "bid_count": 27,
+    "domain": "arwan.com",
+    "end_time_utc": "2026-08-19T21:26:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/arwan-com-718668043?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 260.0
   }
 ]

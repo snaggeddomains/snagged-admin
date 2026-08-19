@@ -1,19 +1,20 @@
 {
   "capped": false,
-  "count": 10,
+  "count": 11,
   "domains": [
-    "systemik.com",
     "xroute.com",
     "abortion.net",
     "qherb.com",
     "bvrg.com",
+    "transoms.com",
     "abortions.com",
     "samx.com",
-    "grnp.com",
+    "fltd.com",
     "abortion.org",
+    "grnp.com",
     "ztap.com"
   ],
-  "generated_at": "2026-08-18T09:50:55.851936+00:00",
+  "generated_at": "2026-08-19T09:56:26.986327+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }
