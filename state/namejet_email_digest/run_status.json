@@ -1,8 +1,11 @@
 {
-  "detail": "no un-processed inbound email",
-  "generated_at": "2026-08-18T15:11:42.760913+00:00",
+  "deduped_against_existing": 0,
+  "emails_processed": 1,
+  "generated_at": "2026-08-19T15:06:06.015728+00:00",
   "label": "NameJet Email",
   "new_count": 0,
+  "sheet_total_after": 2493,
+  "slack_posted": false,
   "source": "namejet_email_digest",
-  "status": "skipped"
+  "status": "ok"
 }
