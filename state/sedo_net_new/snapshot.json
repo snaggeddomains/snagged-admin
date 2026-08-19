@@ -1,6 +1,15 @@
 [
   {
     "currency": "USD",
+    "domain": "mommy.com",
+    "end_time_utc": "2026-08-19T16:36:10+00:00",
+    "is_mub": false,
+    "price": 995000.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=mommy.com"
+  },
+  {
+    "currency": "USD",
     "domain": "klo.com",
     "end_time_utc": "2026-08-19T15:25:16+00:00",
     "is_mub": false,
@@ -10,11 +19,11 @@
   },
   {
     "currency": "USD",
-    "domain": "connective.co",
-    "end_time_utc": "2026-08-19T12:35:34+00:00",
+    "domain": "cmc.co",
+    "end_time_utc": "2026-08-19T21:38:17+00:00",
     "is_mub": false,
-    "price": 49995.0,
+    "price": 11888.0,
     "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=connective.co"
+    "url": "https://sedo.com/search/details/?domain=cmc.co"
   }
 ]
