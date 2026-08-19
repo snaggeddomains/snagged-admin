@@ -1,5 +1,5 @@
 {
-  "count": 45,
+  "count": 46,
   "domains": [
     "264.io",
     "88.to",
@@ -9,6 +9,7 @@
     "bar.com",
     "beverley.co",
     "bur.ai",
+    "deployment.sh",
     "dilute.org",
     "dominion.com",
     "dot.com",
@@ -48,5 +49,5 @@
     "wordpress.com"
   ],
   "source": "reddit_domains",
-  "updated_at": "2026-08-18T23:01:22.299403+00:00"
+  "updated_at": "2026-08-19T10:02:14.299470+00:00"
 }

@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-18T23:01:22.298941+00:00",
+  "count": 1,
+  "domains": [
+    "deployment.sh"
+  ],
+  "generated_at": "2026-08-19T10:02:14.057474+00:00",
   "mub": [],
   "source": "reddit_domains"
 }
