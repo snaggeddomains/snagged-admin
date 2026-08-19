@@ -1,20 +1,20 @@
 [
   {
-    "currency": "EUR",
-    "domain": "fer.ai",
-    "end_time_utc": "2026-08-19T00:23:04+00:00",
+    "currency": "USD",
+    "domain": "klo.com",
+    "end_time_utc": "2026-08-19T15:25:16+00:00",
     "is_mub": false,
-    "price": 69000.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=fer.ai"
+    "price": 39500.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=klo.com"
   },
   {
     "currency": "USD",
-    "domain": "negotiator.co",
-    "end_time_utc": "2026-08-19T06:07:21+00:00",
+    "domain": "connective.co",
+    "end_time_utc": "2026-08-19T12:35:34+00:00",
     "is_mub": false,
-    "price": 4888.0,
+    "price": 49995.0,
     "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=negotiator.co"
+    "url": "https://sedo.com/search/details/?domain=connective.co"
   }
 ]
