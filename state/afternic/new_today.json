@@ -1,10 +1,13 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 4,
   "domains": [
-    "liabilities.org"
+    "winters.ai",
+    "operas.co",
+    "excites.co",
+    "web.com"
   ],
-  "generated_at": "2026-08-18T08:14:55.797437+00:00",
+  "generated_at": "2026-08-19T08:14:18.977236+00:00",
   "mub": [],
   "source": "afternic"
 }
