@@ -1,13 +1,11 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 2,
   "domains": [
-    "winters.ai",
-    "operas.co",
-    "excites.co",
-    "web.com"
+    "cleanest.ai",
+    "claimed.com"
   ],
-  "generated_at": "2026-08-19T08:14:18.977236+00:00",
+  "generated_at": "2026-08-20T08:10:53.788749+00:00",
   "mub": [],
   "source": "afternic"
 }
