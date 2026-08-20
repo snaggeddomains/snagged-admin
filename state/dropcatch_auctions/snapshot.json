@@ -1,101 +1,92 @@
 [
   {
-    "bid_count": 57,
-    "domain": "xroute.com",
-    "end_time_utc": "2026-08-19T18:59:25.794349+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/XRoute.com",
-    "platform": "DropCatch",
-    "price": 652.0
-  },
-  {
-    "bid_count": 49,
-    "domain": "abortion.net",
-    "end_time_utc": "2026-08-19T18:59:25.794349+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Abortion.net",
-    "platform": "DropCatch",
-    "price": 600.0
-  },
-  {
-    "bid_count": 21,
-    "domain": "qherb.com",
-    "end_time_utc": "2026-08-19T18:59:25.794349+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Qherb.com",
-    "platform": "DropCatch",
-    "price": 465.0
-  },
-  {
     "bid_count": 33,
     "domain": "bvrg.com",
-    "end_time_utc": "2026-08-20T18:59:25.794349+00:00",
+    "end_time_utc": "2026-08-20T19:00:02.576770+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Bvrg.com",
     "platform": "DropCatch",
     "price": 380.0
   },
   {
-    "bid_count": 6,
+    "bid_count": 9,
     "domain": "transoms.com",
-    "end_time_utc": "2026-08-20T18:59:25.794349+00:00",
+    "end_time_utc": "2026-08-20T19:00:02.576770+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Transoms.com",
     "platform": "DropCatch",
-    "price": 74.0
+    "price": 100.0
   },
   {
-    "bid_count": 82,
+    "bid_count": 84,
     "domain": "abortions.com",
-    "end_time_utc": "2026-08-21T18:59:25.794349+00:00",
+    "end_time_utc": "2026-08-21T19:00:02.576770+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Abortions.com",
     "platform": "DropCatch",
-    "price": 5600.0
+    "price": 7250.0
   },
   {
-    "bid_count": 77,
-    "domain": "samx.com",
-    "end_time_utc": "2026-08-21T18:59:25.794349+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Samx.com",
-    "platform": "DropCatch",
-    "price": 460.0
-  },
-  {
-    "bid_count": 75,
-    "domain": "fltd.com",
-    "end_time_utc": "2026-08-21T18:59:25.794349+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Fltd.com",
-    "platform": "DropCatch",
-    "price": 422.0
-  },
-  {
-    "bid_count": 61,
+    "bid_count": 76,
     "domain": "abortion.org",
-    "end_time_utc": "2026-08-21T18:59:25.794349+00:00",
+    "end_time_utc": "2026-08-21T19:00:02.576770+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Abortion.org",
     "platform": "DropCatch",
-    "price": 400.0
+    "price": 3100.0
+  },
+  {
+    "bid_count": 100,
+    "domain": "samx.com",
+    "end_time_utc": "2026-08-21T19:00:02.576770+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Samx.com",
+    "platform": "DropCatch",
+    "price": 2438.0
+  },
+  {
+    "bid_count": 77,
+    "domain": "fltd.com",
+    "end_time_utc": "2026-08-21T19:00:02.576770+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Fltd.com",
+    "platform": "DropCatch",
+    "price": 605.0
   },
   {
     "bid_count": 22,
     "domain": "grnp.com",
-    "end_time_utc": "2026-08-21T18:59:25.794349+00:00",
+    "end_time_utc": "2026-08-21T19:00:02.576770+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/GRNP.com",
     "platform": "DropCatch",
     "price": 350.0
   },
   {
-    "bid_count": 24,
+    "bid_count": 14,
+    "domain": "paulsohn.org",
+    "end_time_utc": "2026-08-21T19:00:02.576770+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/PaulSohn.org",
+    "platform": "DropCatch",
+    "price": 92.0
+  },
+  {
+    "bid_count": 31,
     "domain": "ztap.com",
-    "end_time_utc": "2026-08-24T18:59:25.794349+00:00",
+    "end_time_utc": "2026-08-24T19:00:02.576770+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/ztap.com",
     "platform": "DropCatch",
-    "price": 550.0
+    "price": 900.0
+  },
+  {
+    "bid_count": 60,
+    "domain": "jfor.com",
+    "end_time_utc": "2026-08-24T19:00:02.576770+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Jfor.com",
+    "platform": "DropCatch",
+    "price": 244.0
   }
 ]

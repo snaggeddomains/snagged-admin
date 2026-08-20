@@ -1,11 +1,8 @@
 {
-  "detail": "retried 1, 1 recovered, 0 still failed",
-  "generated_at": "2026-08-19T09:57:47.581714+00:00",
+  "detail": "no failed producers",
+  "generated_at": "2026-08-20T09:53:40.363670+00:00",
   "label": "Auctions watchdog",
-  "recovered": 1,
-  "reposted_slack": true,
-  "retried": 1,
+  "retried": 0,
   "source": "auctions_watchdog",
-  "status": "ok",
-  "still_failed": []
+  "status": "ok"
 }

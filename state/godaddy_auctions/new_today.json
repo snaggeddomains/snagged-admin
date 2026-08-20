@@ -1,14 +1,17 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 8,
   "domains": [
-    "abnormally.org",
-    "nxme.com",
-    "drnuts.com",
-    "kpops.com",
-    "arwan.com"
+    "tread.org",
+    "duchess.co",
+    "mikazuki.com",
+    "4500.net",
+    "spaceu.com",
+    "secluded.co",
+    "wmoon.com",
+    "olixir.com"
   ],
-  "generated_at": "2026-08-19T09:56:53.188234+00:00",
+  "generated_at": "2026-08-20T09:52:47.256123+00:00",
   "mub": [],
   "source": "godaddy_auctions"
 }
