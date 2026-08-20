@@ -1,13 +1,10 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 1,
   "domains": [
-    "netherlands.ai",
-    "oklahoma.ai",
-    "unbeatable.ai",
-    "sinks.ai"
+    "acr.com"
   ],
-  "generated_at": "2026-08-20T17:01:26.368239+00:00",
+  "generated_at": "2026-08-20T23:00:42.300433+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }

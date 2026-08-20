@@ -4,16 +4,16 @@
     "price": null
   },
   {
-    "domain": "usages.com",
-    "price": 37958.0
-  },
-  {
     "domain": "oklahoma.ai",
     "price": 50000.0
   },
   {
     "domain": "sinks.ai",
     "price": 20000.0
+  },
+  {
+    "domain": "silicabased.com",
+    "price": 7541.0
   },
   {
     "domain": "unbeatable.ai",
@@ -24,39 +24,7 @@
     "price": 85000.0
   },
   {
-    "domain": "arounds.net",
-    "price": 250.0
-  },
-  {
-    "domain": "corbeau.co",
-    "price": 1988.0
-  },
-  {
-    "domain": "romany.co",
-    "price": 1988.0
-  },
-  {
-    "domain": "tamina.co",
-    "price": 1988.0
-  },
-  {
-    "domain": "adpage.co",
-    "price": 1988.0
-  },
-  {
-    "domain": "zeebra.co",
-    "price": 1988.0
-  },
-  {
-    "domain": "sartre.co",
-    "price": 1988.0
-  },
-  {
-    "domain": "intercal.co",
-    "price": 1988.0
-  },
-  {
-    "domain": "willemsen.co",
-    "price": 1988.0
+    "domain": "affecting.net",
+    "price": 495.0
   }
 ]
