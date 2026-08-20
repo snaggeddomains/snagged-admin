@@ -1,12 +1,8 @@
 {
   "capped": false,
-  "count": 3,
-  "domains": [
-    "disown.ai",
-    "disown.me",
-    "gay.com"
-  ],
-  "generated_at": "2026-08-20T10:06:10.415862+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-20T17:06:51.627932+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
