@@ -1,6 +1,6 @@
 [
   {
-    "domain": "schmach.com",
+    "domain": "homeores.com",
     "price": null
   },
   {
@@ -8,7 +8,55 @@
     "price": 37958.0
   },
   {
+    "domain": "oklahoma.ai",
+    "price": 50000.0
+  },
+  {
+    "domain": "sinks.ai",
+    "price": 20000.0
+  },
+  {
+    "domain": "unbeatable.ai",
+    "price": 27499.0
+  },
+  {
+    "domain": "netherlands.ai",
+    "price": 85000.0
+  },
+  {
     "domain": "arounds.net",
     "price": 250.0
+  },
+  {
+    "domain": "corbeau.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "romany.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "tamina.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "adpage.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "zeebra.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "sartre.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "intercal.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "willemsen.co",
+    "price": 1988.0
   }
 ]
