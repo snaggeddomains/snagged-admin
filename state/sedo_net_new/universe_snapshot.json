@@ -1,38 +1,18 @@
 [
   {
+    "domain": "radtips.com",
+    "price": 249.0
+  },
+  {
+    "domain": "stirrin.com",
+    "price": null
+  },
+  {
+    "domain": "fetishbound.com",
+    "price": 995.0
+  },
+  {
     "domain": "anon.ai",
     "price": 349000.0
-  },
-  {
-    "domain": "bridge.net",
-    "price": 330000.0
-  },
-  {
-    "domain": "lowered.net",
-    "price": 3395.0
-  },
-  {
-    "domain": "centera.net",
-    "price": 173429.0
-  },
-  {
-    "domain": "maoist.net",
-    "price": 250.0
-  },
-  {
-    "domain": "shasha.net",
-    "price": 2200.0
-  },
-  {
-    "domain": "oxygenate.net",
-    "price": 1995.0
-  },
-  {
-    "domain": "calif.net",
-    "price": 3995.0
-  },
-  {
-    "domain": "oscillation.net",
-    "price": 10595.0
   }
 ]
