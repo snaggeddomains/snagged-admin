@@ -1,11 +1,10 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 1,
   "domains": [
-    "cleanest.ai",
-    "claimed.com"
+    "lost.com"
   ],
-  "generated_at": "2026-08-20T08:10:53.788749+00:00",
+  "generated_at": "2026-08-21T08:17:26.271252+00:00",
   "mub": [],
   "source": "afternic"
 }
