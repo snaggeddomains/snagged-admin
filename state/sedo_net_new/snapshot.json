@@ -1,47 +1,20 @@
 [
   {
     "currency": "USD",
-    "domain": "oklahoma.ai",
-    "end_time_utc": "2026-08-20T17:51:11+00:00",
+    "domain": "ayrshire.co",
+    "end_time_utc": "2026-08-21T06:32:44+00:00",
     "is_mub": false,
-    "price": 50000.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=oklahoma.ai"
+    "price": 1488.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=ayrshire.co"
   },
   {
     "currency": "USD",
-    "domain": "sinks.ai",
-    "end_time_utc": "2026-08-20T17:50:09+00:00",
+    "domain": "bali.co",
+    "end_time_utc": "2026-08-21T01:47:37+00:00",
     "is_mub": false,
-    "price": 20000.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=sinks.ai"
-  },
-  {
-    "currency": "USD",
-    "domain": "acr.com",
-    "end_time_utc": "2026-08-20T22:13:09+00:00",
-    "is_mub": false,
-    "price": 5000000.0,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=acr.com"
-  },
-  {
-    "currency": "USD",
-    "domain": "unbeatable.ai",
-    "end_time_utc": "2026-08-20T15:02:44+00:00",
-    "is_mub": false,
-    "price": 27499.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=unbeatable.ai"
-  },
-  {
-    "currency": "USD",
-    "domain": "netherlands.ai",
-    "end_time_utc": "2026-08-20T17:49:53+00:00",
-    "is_mub": false,
-    "price": 85000.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=netherlands.ai"
+    "price": 121109.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=bali.co"
   }
 ]
