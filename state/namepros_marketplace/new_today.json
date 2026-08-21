@@ -1,8 +1,16 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-21T17:05:28.784582+00:00",
+  "count": 7,
+  "domains": [
+    "aches.ai",
+    "applejack.ai",
+    "colds.ai",
+    "depleted.ai",
+    "finalists.ai",
+    "neigh.ai",
+    "odors.ai"
+  ],
+  "generated_at": "2026-08-21T23:06:45.315440+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
