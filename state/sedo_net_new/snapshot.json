@@ -1,20 +1,11 @@
 [
   {
     "currency": "USD",
-    "domain": "ayrshire.co",
-    "end_time_utc": "2026-08-21T06:32:44+00:00",
+    "domain": "anon.ai",
+    "end_time_utc": "2026-08-21T14:49:09+00:00",
     "is_mub": false,
-    "price": 1488.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=ayrshire.co"
-  },
-  {
-    "currency": "USD",
-    "domain": "bali.co",
-    "end_time_utc": "2026-08-21T01:47:37+00:00",
-    "is_mub": false,
-    "price": 121109.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=bali.co"
+    "price": 349000.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=anon.ai"
   }
 ]
