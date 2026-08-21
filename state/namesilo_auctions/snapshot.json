@@ -1,20 +1,29 @@
 [
   {
-    "bid_count": 7,
-    "domain": "shootgun.com",
-    "end_time_utc": "2026-08-20T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/shootgun.com",
-    "platform": "NameSilo",
-    "price": 13.0
-  },
-  {
-    "bid_count": 25,
+    "bid_count": 42,
     "domain": "copulation.com",
     "end_time_utc": "2026-08-21T15:00:00+00:00",
     "is_mub": false,
     "link": "https://www.namesilo.com/auctions/copulation.com",
     "platform": "NameSilo",
-    "price": 285.01
+    "price": 810.0
+  },
+  {
+    "bid_count": 14,
+    "domain": "retars.com",
+    "end_time_utc": "2026-08-21T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namesilo.com/auctions/retars.com",
+    "platform": "NameSilo",
+    "price": 14.0
+  },
+  {
+    "bid_count": 8,
+    "domain": "arrch.com",
+    "end_time_utc": "2026-08-21T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namesilo.com/auctions/arrch.com",
+    "platform": "NameSilo",
+    "price": 21.0
   }
 ]
