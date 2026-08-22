@@ -1,16 +1,15 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 6,
   "domains": [
-    "aches.ai",
-    "applejack.ai",
-    "colds.ai",
-    "depleted.ai",
-    "finalists.ai",
-    "neigh.ai",
-    "odors.ai"
+    "babysitters.ai",
+    "manse.ai",
+    "nyssa.ai",
+    "scattered.ai",
+    "sentries.ai",
+    "theatrical.ai"
   ],
-  "generated_at": "2026-08-21T23:06:45.315440+00:00",
+  "generated_at": "2026-08-22T10:05:46.140672+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
