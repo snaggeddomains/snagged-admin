@@ -1,101 +1,65 @@
 [
   {
-    "bid_count": 88,
-    "domain": "abortions.com",
-    "end_time_utc": "2026-08-21T18:59:26.036411+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Abortions.com",
-    "platform": "DropCatch",
-    "price": 11249.0
-  },
-  {
-    "bid_count": 78,
-    "domain": "abortion.org",
-    "end_time_utc": "2026-08-21T18:59:26.036411+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Abortion.org",
-    "platform": "DropCatch",
-    "price": 3206.0
-  },
-  {
-    "bid_count": 103,
-    "domain": "samx.com",
-    "end_time_utc": "2026-08-21T18:59:26.036411+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Samx.com",
-    "platform": "DropCatch",
-    "price": 2638.0
-  },
-  {
-    "bid_count": 77,
-    "domain": "fltd.com",
-    "end_time_utc": "2026-08-21T18:59:26.036411+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Fltd.com",
-    "platform": "DropCatch",
-    "price": 605.0
-  },
-  {
-    "bid_count": 22,
-    "domain": "grnp.com",
-    "end_time_utc": "2026-08-21T18:59:26.036411+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/GRNP.com",
-    "platform": "DropCatch",
-    "price": 350.0
-  },
-  {
-    "bid_count": 27,
-    "domain": "ebusiness.org",
-    "end_time_utc": "2026-08-21T18:59:26.036411+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/EBusiness.org",
-    "platform": "DropCatch",
-    "price": 186.0
-  },
-  {
-    "bid_count": 25,
-    "domain": "beqk.com",
-    "end_time_utc": "2026-08-21T18:59:26.036411+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Beqk.com",
-    "platform": "DropCatch",
-    "price": 101.0
-  },
-  {
-    "bid_count": 14,
-    "domain": "paulsohn.org",
-    "end_time_utc": "2026-08-21T18:59:26.036411+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/PaulSohn.org",
-    "platform": "DropCatch",
-    "price": 92.0
-  },
-  {
-    "bid_count": 31,
+    "bid_count": 33,
     "domain": "ztap.com",
-    "end_time_utc": "2026-08-24T18:59:26.036411+00:00",
+    "end_time_utc": "2026-08-24T18:59:54.972862+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/ztap.com",
     "platform": "DropCatch",
-    "price": 900.0
+    "price": 1100.0
   },
   {
-    "bid_count": 31,
+    "bid_count": 44,
     "domain": "trump.net",
-    "end_time_utc": "2026-08-24T18:59:26.036411+00:00",
+    "end_time_utc": "2026-08-24T18:59:54.972862+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Trump.net",
     "platform": "DropCatch",
-    "price": 300.0
+    "price": 1010.0
   },
   {
-    "bid_count": 62,
+    "bid_count": 64,
     "domain": "jfor.com",
-    "end_time_utc": "2026-08-24T18:59:26.036411+00:00",
+    "end_time_utc": "2026-08-24T18:59:54.972862+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Jfor.com",
     "platform": "DropCatch",
-    "price": 284.0
+    "price": 324.0
+  },
+  {
+    "bid_count": 27,
+    "domain": "bellax.com",
+    "end_time_utc": "2026-08-24T18:59:54.972862+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/BellaX.com",
+    "platform": "DropCatch",
+    "price": 99.0
+  },
+  {
+    "bid_count": 9,
+    "domain": "mailman.net",
+    "end_time_utc": "2026-08-24T18:59:54.972862+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Mailman.net",
+    "platform": "DropCatch",
+    "price": 84.0
+  },
+  {
+    "bid_count": 56,
+    "domain": "sggt.com",
+    "end_time_utc": "2026-08-26T18:59:54.972862+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Sggt.com",
+    "platform": "DropCatch",
+    "price": 180.0
+  },
+  {
+    "bid_count": 37,
+    "domain": "sheeple.com",
+    "end_time_utc": "2026-08-26T18:59:54.972862+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Sheeple.com",
+    "platform": "DropCatch",
+    "price": 84.0
   }
 ]

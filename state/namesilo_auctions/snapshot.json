@@ -1,29 +1,11 @@
 [
   {
-    "bid_count": 42,
-    "domain": "copulation.com",
-    "end_time_utc": "2026-08-21T15:00:00+00:00",
+    "bid_count": 26,
+    "domain": "jackport.com",
+    "end_time_utc": "2026-08-23T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/copulation.com",
+    "link": "https://www.namesilo.com/auctions/jackport.com",
     "platform": "NameSilo",
-    "price": 810.0
-  },
-  {
-    "bid_count": 14,
-    "domain": "retars.com",
-    "end_time_utc": "2026-08-21T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/retars.com",
-    "platform": "NameSilo",
-    "price": 14.0
-  },
-  {
-    "bid_count": 8,
-    "domain": "arrch.com",
-    "end_time_utc": "2026-08-21T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/arrch.com",
-    "platform": "NameSilo",
-    "price": 21.0
+    "price": 449.0
   }
 ]

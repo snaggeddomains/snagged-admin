@@ -1,31 +1,22 @@
 {
   "capped": false,
-  "count": 20,
+  "count": 11,
   "domains": [
-    "kbw.co",
-    "charley.co",
-    "mft.co",
-    "ajs.co",
-    "phoebe.co",
-    "amelia.co",
-    "justine.co",
-    "kart.co",
-    "3457.com",
-    "eems.com",
-    "tailors.co",
-    "auvra.com",
-    "thrivo.com",
-    "kwhw.com",
-    "saucy.co",
-    "callum.co",
-    "oqra.com",
-    "ora.co",
-    "hes.co",
-    "ables.org"
+    "marquez.org",
+    "stakeholder.co",
+    "histake.com",
+    "jukg.com",
+    "laek.com",
+    "onef.com",
+    "teach.co",
+    "ino.co",
+    "loacker.net",
+    "loaded.co",
+    "verilog.net"
   ],
-  "generated_at": "2026-08-21T09:52:09.731275+00:00",
+  "generated_at": "2026-08-22T09:51:36.881330+00:00",
   "mub": [
-    "justine.co"
+    "onef.com"
   ],
   "source": "godaddy_auctions"
 }
