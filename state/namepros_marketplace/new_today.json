@@ -1,15 +1,8 @@
 {
   "capped": false,
-  "count": 6,
-  "domains": [
-    "babysitters.ai",
-    "manse.ai",
-    "nyssa.ai",
-    "scattered.ai",
-    "sentries.ai",
-    "theatrical.ai"
-  ],
-  "generated_at": "2026-08-22T10:05:46.140672+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-22T17:05:47.892463+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
