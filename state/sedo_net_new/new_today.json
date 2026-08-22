@@ -2,10 +2,10 @@
   "capped": false,
   "count": 2,
   "domains": [
-    "euphoria.co",
-    "banda.com"
+    "wills.com",
+    "exuberant.com"
   ],
-  "generated_at": "2026-08-22T17:01:55.323180+00:00",
+  "generated_at": "2026-08-22T23:01:55.834754+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }

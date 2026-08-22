@@ -1,12 +1,30 @@
 [
   {
     "currency": "USD",
+    "domain": "wills.com",
+    "end_time_utc": "2026-08-22T19:04:12+00:00",
+    "is_mub": false,
+    "price": 400000.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=wills.com"
+  },
+  {
+    "currency": "USD",
     "domain": "banda.com",
     "end_time_utc": "2026-08-22T17:57:05+00:00",
     "is_mub": false,
     "price": null,
     "tld": "com",
     "url": "https://sedo.com/search/details/?domain=banda.com"
+  },
+  {
+    "currency": "GBP",
+    "domain": "exuberant.com",
+    "end_time_utc": "2026-08-22T21:02:19+00:00",
+    "is_mub": false,
+    "price": 50000.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=exuberant.com"
   },
   {
     "currency": "USD",
