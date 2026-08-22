@@ -1,1 +1,20 @@
-[]
+[
+  {
+    "currency": "USD",
+    "domain": "banda.com",
+    "end_time_utc": "2026-08-22T17:57:05+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=banda.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "euphoria.co",
+    "end_time_utc": "2026-08-22T17:57:29+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=euphoria.co"
+  }
+]

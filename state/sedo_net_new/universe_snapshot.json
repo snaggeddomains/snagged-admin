@@ -1,11 +1,31 @@
 [
   {
-    "domain": "radtips.com",
-    "price": 249.0
+    "domain": "circolo.com",
+    "price": null
   },
   {
-    "domain": "jacobsdal.com",
-    "price": 175.0
+    "domain": "emmalee.com",
+    "price": null
+  },
+  {
+    "domain": "nancydee.com",
+    "price": null
+  },
+  {
+    "domain": "banda.com",
+    "price": null
+  },
+  {
+    "domain": "biodiverse.com",
+    "price": null
+  },
+  {
+    "domain": "seanpatrick.com",
+    "price": null
+  },
+  {
+    "domain": "glossbrenner.com",
+    "price": 2399.0
   },
   {
     "domain": "slowing.net",
@@ -16,11 +36,27 @@
     "price": 3129.0
   },
   {
+    "domain": "dongying.net",
+    "price": 2990.0
+  },
+  {
+    "domain": "uranus.net",
+    "price": null
+  },
+  {
     "domain": "lianas.net",
     "price": 2795.0
   },
   {
+    "domain": "jiangyin.net",
+    "price": 2990.0
+  },
+  {
     "domain": "soyuz.net",
     "price": 299.0
+  },
+  {
+    "domain": "euphoria.co",
+    "price": null
   }
 ]

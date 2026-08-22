@@ -1,8 +1,11 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-22T10:01:38.835327+00:00",
+  "count": 2,
+  "domains": [
+    "euphoria.co",
+    "banda.com"
+  ],
+  "generated_at": "2026-08-22T17:01:55.323180+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
