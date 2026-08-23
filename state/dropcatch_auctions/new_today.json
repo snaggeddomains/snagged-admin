@@ -1,15 +1,18 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 9,
   "domains": [
+    "ztap.com",
     "trump.net",
-    "jfor.com",
     "bellax.com",
+    "jfor.com",
     "mailman.net",
-    "sggt.com",
-    "sheeple.com"
+    "jsap.com",
+    "denoising.com",
+    "sheeple.com",
+    "sggt.com"
   ],
-  "generated_at": "2026-08-22T09:50:56.255006+00:00",
+  "generated_at": "2026-08-23T09:52:58.961696+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }

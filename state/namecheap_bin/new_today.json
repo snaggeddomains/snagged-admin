@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "coldest.ai"
-  ],
-  "generated_at": "2026-08-22T09:03:17.849668+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-23T09:03:44.951629+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

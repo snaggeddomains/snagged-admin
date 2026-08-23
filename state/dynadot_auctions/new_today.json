@@ -1,13 +1,10 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 1,
   "domains": [
-    "doufly.net",
-    "njow.com",
-    "milwaukee.io",
-    "hoover.co"
+    "destructive.co"
   ],
-  "generated_at": "2026-08-22T09:50:46.529591+00:00",
+  "generated_at": "2026-08-23T09:52:51.177077+00:00",
   "mub": [],
   "source": "dynadot_auctions"
 }
