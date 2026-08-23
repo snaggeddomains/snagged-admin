@@ -1,11 +1,8 @@
 {
   "capped": false,
-  "count": 2,
-  "domains": [
-    "indigo.com",
-    "promotion.org"
-  ],
-  "generated_at": "2026-08-23T10:05:43.721026+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-23T17:05:51.104625+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
