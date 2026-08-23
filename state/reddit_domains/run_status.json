@@ -1,11 +1,11 @@
 {
   "candidates_on_page": 6,
-  "generated_at": "2026-08-22T23:01:12.100266+00:00",
+  "generated_at": "2026-08-23T10:03:31.350760+00:00",
   "label": "Reddit r/Domains",
-  "new_count": 1,
-  "priced_count": 1,
+  "new_count": 0,
+  "priced_count": 0,
   "seen_total": 48,
-  "slack_posted": true,
+  "slack_posted": false,
   "source": "reddit_domains",
   "status": "ok"
 }

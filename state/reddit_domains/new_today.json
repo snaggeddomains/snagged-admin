@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "podiums.com"
-  ],
-  "generated_at": "2026-08-22T23:01:11.959597+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-23T10:03:31.349696+00:00",
   "mub": [],
   "source": "reddit_domains"
 }
