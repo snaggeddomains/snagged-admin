@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-23T17:05:51.104625+00:00",
+  "count": 1,
+  "domains": [
+    "prs.xyz"
+  ],
+  "generated_at": "2026-08-23T23:07:30.899467+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
