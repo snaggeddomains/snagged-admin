@@ -1,10 +1,30 @@
 [
   {
+    "domain": "footfab.com",
+    "price": 2199.0
+  },
+  {
     "domain": "misike.com",
     "price": 3500.0
   },
   {
-    "domain": "waterbeds.net",
-    "price": 4399.0
+    "domain": "packaged.net",
+    "price": 4500.0
+  },
+  {
+    "domain": "redeemed.net",
+    "price": 4500.0
+  },
+  {
+    "domain": "arkwright.net",
+    "price": 4500.0
+  },
+  {
+    "domain": "accession.net",
+    "price": 4500.0
+  },
+  {
+    "domain": "stoned.co",
+    "price": null
   }
 ]
