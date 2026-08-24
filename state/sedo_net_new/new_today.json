@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-23T23:01:11.833621+00:00",
+  "count": 1,
+  "domains": [
+    "finlay.co"
+  ],
+  "generated_at": "2026-08-24T10:01:14.053430+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
