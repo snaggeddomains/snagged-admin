@@ -1,5 +1,9 @@
 [
   {
+    "domain": "saviour.com",
+    "price": 52500.0
+  },
+  {
     "domain": "bandung.com",
     "price": 88800.0
   },
@@ -8,16 +12,16 @@
     "price": 14695.0
   },
   {
-    "domain": "serive.com",
-    "price": 199.0
-  },
-  {
     "domain": "desember.com",
     "price": 1680.0
   },
   {
     "domain": "padang.com",
     "price": 27500.0
+  },
+  {
+    "domain": "ontarios.com",
+    "price": 1895.0
   },
   {
     "domain": "steall.com",
@@ -40,27 +44,15 @@
     "price": 999.0
   },
   {
-    "domain": "montand.net",
-    "price": 299.0
-  },
-  {
     "domain": "turning.net",
     "price": 900.0
-  },
-  {
-    "domain": "castaway.net",
-    "price": 10995.0
   },
   {
     "domain": "wisata.net",
     "price": 1680.0
   },
   {
-    "domain": "couplings.net",
+    "domain": "handed.net",
     "price": 3495.0
-  },
-  {
-    "domain": "finlay.co",
-    "price": null
   }
 ]
