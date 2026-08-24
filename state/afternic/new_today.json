@@ -1,12 +1,10 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 1,
   "domains": [
-    "immediately.io",
-    "liabilities.org",
-    "been.ai"
+    "excites.co"
   ],
-  "generated_at": "2026-08-23T08:12:35.559153+00:00",
+  "generated_at": "2026-08-24T08:13:57.047974+00:00",
   "mub": [],
   "source": "afternic"
 }
