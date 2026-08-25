@@ -1,38 +1,42 @@
 [
   {
-    "domain": "dinebuy.com",
-    "price": 5995.0
-  },
-  {
-    "domain": "shashe.com",
-    "price": 8970.0
-  },
-  {
-    "domain": "dishonors.com",
-    "price": 4395.0
-  },
-  {
-    "domain": "bassist.net",
-    "price": 3395.0
+    "domain": "theologys.com",
+    "price": 2888.0
   },
   {
     "domain": "mediaweb.net",
     "price": 6599.0
   },
   {
-    "domain": "deformed.net",
-    "price": 1995.0
+    "domain": "woodecor.net",
+    "price": 2888.0
+  },
+  {
+    "domain": "esalen.net",
+    "price": 2888.0
   },
   {
     "domain": "mioara.net",
     "price": null
   },
   {
-    "domain": "polkit.net",
-    "price": 250.0
+    "domain": "cooler.net",
+    "price": 21999.0
   },
   {
-    "domain": "harnessed.net",
-    "price": 199.0
+    "domain": "promoters.net",
+    "price": 6599.0
+  },
+  {
+    "domain": "gulls.net",
+    "price": 59.0
+  },
+  {
+    "domain": "wakeboards.net",
+    "price": 6599.0
+  },
+  {
+    "domain": "togetherness.net",
+    "price": 6599.0
   }
 ]
