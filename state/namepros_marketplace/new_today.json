@@ -2,9 +2,11 @@
   "capped": false,
   "count": 1,
   "domains": [
-    "k.com"
+    "benzema.com"
   ],
-  "generated_at": "2026-08-25T17:09:05.636710+00:00",
-  "mub": [],
+  "generated_at": "2026-08-25T23:09:04.045942+00:00",
+  "mub": [
+    "benzema.com"
+  ],
   "source": "namepros_marketplace"
 }
