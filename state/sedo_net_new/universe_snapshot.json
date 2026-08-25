@@ -4,6 +4,10 @@
     "price": 5995.0
   },
   {
+    "domain": "shashe.com",
+    "price": 8970.0
+  },
+  {
     "domain": "dishonors.com",
     "price": 4395.0
   },
@@ -12,8 +16,16 @@
     "price": 3395.0
   },
   {
+    "domain": "mediaweb.net",
+    "price": 6599.0
+  },
+  {
     "domain": "deformed.net",
     "price": 1995.0
+  },
+  {
+    "domain": "mioara.net",
+    "price": null
   },
   {
     "domain": "polkit.net",
