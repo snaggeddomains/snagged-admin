@@ -1,29 +1,21 @@
 {
   "capped": false,
-  "count": 18,
+  "count": 12,
   "domains": [
-    "rogan.ai",
-    "trickery.ai",
-    "dosages.org",
-    "completing.org",
-    "considerable.io",
-    "holla.co",
-    "swa.co",
-    "bau.ai",
-    "jares.com",
-    "raca.ai",
-    "loyalti.com",
-    "riv.co",
-    "pliers.ai",
-    "mcleod.co",
-    "cravings.co",
-    "altruism.co",
-    "pilgrims.ai",
-    "hypothetically.co"
+    "rousseau.ai",
+    "climbs.co",
+    "lined.ai",
+    "unpopular.ai",
+    "complication.ai",
+    "actrees.org",
+    "rica.ai",
+    "microsystems.ai",
+    "ales.co",
+    "cumberbatch.co",
+    "physically.ai",
+    "sheikh.ai"
   ],
-  "generated_at": "2026-08-24T09:54:20.592600+00:00",
-  "mub": [
-    "rogan.ai"
-  ],
+  "generated_at": "2026-08-25T09:53:25.356928+00:00",
+  "mub": [],
   "source": "namecheap_auctions"
 }

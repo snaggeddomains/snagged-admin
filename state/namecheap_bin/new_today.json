@@ -2,11 +2,11 @@
   "capped": false,
   "count": 3,
   "domains": [
-    "tenure.org",
-    "yasmin.ai",
-    "hottest.org"
+    "variability.ai",
+    "grail.co",
+    "rusher.ai"
   ],
-  "generated_at": "2026-08-24T09:03:51.862675+00:00",
+  "generated_at": "2026-08-25T09:03:51.848981+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

@@ -1386,6 +1386,17 @@
     "zipf_score": 4.66
   },
   {
+    "deal_score": 46440.0,
+    "domain": "worth.ai",
+    "is_mub": false,
+    "link": "https://efty.com/d/3ejtq/worth.ai/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
+    "price": 1.0,
+    "quality_score": 4.644,
+    "sld": "worth",
+    "tld": ".ai",
+    "zipf_score": 5.16
+  },
+  {
     "deal_score": 46400.0,
     "domain": "truck.com",
     "is_mub": false,
@@ -1395,6 +1406,17 @@
     "sld": "truck",
     "tld": ".com",
     "zipf_score": 4.64
+  },
+  {
+    "deal_score": 46350.0,
+    "domain": "ground.ai",
+    "is_mub": false,
+    "link": "https://efty.com/d/3ejto/ground.ai/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
+    "price": 1.0,
+    "quality_score": 4.635,
+    "sld": "ground",
+    "tld": ".ai",
+    "zipf_score": 5.15
   },
   {
     "deal_score": 46350.0,
@@ -2134,6 +2156,17 @@
     "zipf_score": 4.91
   },
   {
+    "deal_score": 44010.0,
+    "domain": "associated.ai",
+    "is_mub": false,
+    "link": "https://efty.com/d/3ejts/associated.ai/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
+    "price": 1.0,
+    "quality_score": 4.401,
+    "sld": "associated",
+    "tld": ".ai",
+    "zipf_score": 4.89
+  },
+  {
     "deal_score": 44000.0,
     "domain": "spiritual.com",
     "is_mub": false,
@@ -2715,38 +2748,5 @@
     "sld": "editing",
     "tld": ".com",
     "zipf_score": 4.27
-  },
-  {
-    "deal_score": 42700.0,
-    "domain": "acceptable.com",
-    "is_mub": false,
-    "link": "https://efty.com/d/2r14z/acceptable.com/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
-    "price": 1.0,
-    "quality_score": 4.27,
-    "sld": "acceptable",
-    "tld": ".com",
-    "zipf_score": 4.27
-  },
-  {
-    "deal_score": 42700.0,
-    "domain": "sized.com",
-    "is_mub": false,
-    "link": "https://efty.com/d/1wz6j/sized.com/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
-    "price": 1.0,
-    "quality_score": 4.27,
-    "sld": "sized",
-    "tld": ".com",
-    "zipf_score": 4.27
-  },
-  {
-    "deal_score": 42660.0,
-    "domain": "appreciate.ai",
-    "is_mub": false,
-    "link": "https://efty.com/d/1qmlw/appreciate.ai/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
-    "price": 1.0,
-    "quality_score": 4.266,
-    "sld": "appreciate",
-    "tld": ".ai",
-    "zipf_score": 4.74
   }
 ]
