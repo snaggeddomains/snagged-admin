@@ -1,13 +1,5 @@
 [
   {
-    "domain": "minipcs.com",
-    "price": 4500.0
-  },
-  {
-    "domain": "kneeling.com",
-    "price": 15000.0
-  },
-  {
     "domain": "buntut.com",
     "price": 199.0
   },
@@ -16,8 +8,8 @@
     "price": null
   },
   {
-    "domain": "blinked.ai",
-    "price": 25000.0
+    "domain": "rotorcraft.ai",
+    "price": null
   },
   {
     "domain": "bumping.net",
@@ -28,7 +20,23 @@
     "price": null
   },
   {
+    "domain": "smschat.co",
+    "price": 6995.0
+  },
+  {
+    "domain": "gartech.co",
+    "price": 6995.0
+  },
+  {
+    "domain": "forder.co",
+    "price": 8995.0
+  },
+  {
     "domain": "extrac.co",
     "price": 2888.0
+  },
+  {
+    "domain": "asiashop.co",
+    "price": 9995.0
   }
 ]
