@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "a.com"
-  ],
-  "generated_at": "2026-08-26T17:05:47.407334+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-26T23:07:38.566373+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
