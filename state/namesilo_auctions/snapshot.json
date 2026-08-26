@@ -1,20 +1,11 @@
 [
   {
-    "bid_count": 29,
-    "domain": "operations.co",
-    "end_time_utc": "2026-08-25T15:00:00+00:00",
+    "bid_count": 32,
+    "domain": "hosts.io",
+    "end_time_utc": "2026-08-27T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/operations.co",
+    "link": "https://www.namesilo.com/auctions/hosts.io",
     "platform": "NameSilo",
-    "price": 1000.0
-  },
-  {
-    "bid_count": 20,
-    "domain": "voa.co",
-    "end_time_utc": "2026-08-25T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/voa.co",
-    "platform": "NameSilo",
-    "price": 21.0
+    "price": 510.0
   }
 ]

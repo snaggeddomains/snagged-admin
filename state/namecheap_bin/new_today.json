@@ -1,12 +1,8 @@
 {
   "capped": false,
-  "count": 3,
-  "domains": [
-    "variability.ai",
-    "grail.co",
-    "rusher.ai"
-  ],
-  "generated_at": "2026-08-25T09:03:51.848981+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-26T09:04:41.819805+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

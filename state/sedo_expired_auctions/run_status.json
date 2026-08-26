@@ -1,9 +1,9 @@
 {
   "deduped_against_existing": 0,
-  "generated_at": "2026-08-25T09:55:22.282566+00:00",
+  "generated_at": "2026-08-26T09:57:50.037420+00:00",
   "label": "Sedo Expired",
   "new_count": 0,
-  "sheet_total_after": 397,
+  "sheet_total_after": 445,
   "slack_posted": false,
   "source": "sedo_expired_auctions",
   "status": "ok"

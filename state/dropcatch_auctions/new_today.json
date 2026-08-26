@@ -2,13 +2,13 @@
   "capped": false,
   "count": 5,
   "domains": [
-    "autority.com",
     "sheeple.com",
     "sggt.com",
     "hff.org",
-    "aromatik.com"
+    "aromatik.com",
+    "sirrus.com"
   ],
-  "generated_at": "2026-08-25T09:54:00.176035+00:00",
+  "generated_at": "2026-08-26T09:56:25.147737+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }
