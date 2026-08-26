@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "subscribers.org"
-  ],
-  "generated_at": "2026-08-23T15:45:40.232878+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-26T17:10:14.483472+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
