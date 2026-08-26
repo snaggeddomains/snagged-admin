@@ -12,9 +12,60 @@ from __future__ import annotations
 
 import json
 import os
+import socket
+import ssl
+import time
 from typing import Any
 
 SCOPES_READONLY = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
+
+# Google's Sheets API occasionally times out or 5xx's mid-read. The read is
+# idempotent, so a transient failure should retry with backoff rather than kill
+# the whole source (a single timed-out .execute() on the 'SNAP Domains' tab has
+# reddened the SNAP orchestrator, since snagged_snap_sheet is a required source).
+# Mirrors the transient-retry the universe upserts and gmail gget() already do.
+_RETRYABLE = (
+    socket.timeout,
+    TimeoutError,
+    ConnectionError,
+    ssl.SSLError,
+    OSError,  # covers httplib2's socket-level read errors
+)
+_RETRY_HTTP_STATUS = {408, 429, 500, 502, 503, 504}
+
+
+def _is_transient(exc: Exception) -> bool:
+    from googleapiclient.errors import HttpError
+
+    if isinstance(exc, _RETRYABLE):
+        return True
+    if isinstance(exc, HttpError):
+        status = getattr(getattr(exc, "resp", None), "status", None)
+        try:
+            return int(status) in _RETRY_HTTP_STATUS
+        except (TypeError, ValueError):
+            return False
+    return False
+
+
+def _execute(request, what: str, attempts: int = 4):
+    """Run a googleapiclient request with exponential-backoff retry on transient
+    errors (timeouts / connection resets / 429 / 5xx). Non-transient errors
+    (e.g. a bad range, 403 auth) raise immediately so the caller can surface them.
+    """
+    delays = [2, 4, 8, 16]
+    for attempt in range(1, attempts + 1):
+        try:
+            return request.execute()
+        except Exception as exc:  # noqa: BLE001 — re-raised below unless transient
+            if attempt >= attempts or not _is_transient(exc):
+                raise
+            delay = delays[min(attempt - 1, len(delays) - 1)]
+            print(
+                f"      google sheets {what}: transient error "
+                f"(attempt {attempt}/{attempts}); backing off {delay}s — {exc}"
+            )
+            time.sleep(delay)
 
 
 def _credentials():
@@ -42,7 +93,7 @@ def list_tabs(spreadsheet_id: str) -> list[str]:
     """Return the visible tab titles in this workbook. Useful for diagnosing
     'tab not found' errors and for fuzzy lookups."""
     svc = _service()
-    meta = svc.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
+    meta = _execute(svc.spreadsheets().get(spreadsheetId=spreadsheet_id), "list_tabs")
     return [s["properties"]["title"] for s in meta.get("sheets", [])]
 
 
@@ -53,7 +104,7 @@ def tab_name_for_gid(spreadsheet_id: str, gid: int) -> str:
     renamed out from under us. Raises with the available tabs if none match.
     """
     svc = _service()
-    meta = svc.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
+    meta = _execute(svc.spreadsheets().get(spreadsheetId=spreadsheet_id), "tab_name_for_gid")
     for s in meta.get("sheets", []):
         if s.get("properties", {}).get("sheetId") == int(gid):
             return s["properties"]["title"]
@@ -124,11 +175,9 @@ def read_tab_as_dicts(spreadsheet_id: str, tab_name: str) -> list[dict[str, str]
 
     svc = _service()
     try:
-        res = (
-            svc.spreadsheets()
-            .values()
-            .get(spreadsheetId=spreadsheet_id, range=tab_name)
-            .execute()
+        res = _execute(
+            svc.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range=tab_name),
+            f"read_tab {tab_name!r}",
         )
     except HttpError as e:
         # Range-parse errors usually mean the tab doesn't exist (or has a

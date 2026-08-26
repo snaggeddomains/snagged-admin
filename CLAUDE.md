@@ -1075,6 +1075,24 @@ standalone manual re-run mid-upsert; the orchestrator's 120-min budget already a
 
 ---
 
+# Google Sheets reader — transient-timeout retry (2026-08-26)
+
+A single **`TimeoutError: The read operation timed out`** on `read_tab_as_dicts`'s `.execute()`
+(reading the *'SNAP Domains'* tab) reddened the whole **SNAP Orchestrator** run #90 — because
+`snagged_snap_sheet` is a REQUIRED orchestrator source (any required-source failure → `exit 1`),
+even though every OTHER source (incl. the other sheet reads) succeeded and state committed clean.
+Root cause: the Sheets reader was the one hot path with **no transient retry** (the universe
+upserts + gmail `gget()` already back off + retry). Fix in `src/marketplace_pipeline/google_sheets_reader.py`:
+a `_execute(request, what)` wrapper with **exponential-backoff retry (2/4/8/16s, 4 attempts)** on
+transient errors (`socket.timeout`/`TimeoutError`/`ConnectionError`/`ssl.SSLError`/`OSError` + HttpError
+408/429/5xx); a NON-transient error (bad range 400, 403 auth) still raises immediately so
+`read_tab_as_dicts`'s "available tabs" helper message is preserved. All three `.execute()` calls
+(`list_tabs`/`tab_name_for_gid`/`read_tab_as_dicts`) route through it. Read is idempotent, so retry is
+safe. No new dep/env. **The failed run itself was harmless** — a transient Google blip, safe to
+re-dispatch; this just stops one Sheets hiccup from failing the orchestrator again.
+
+---
+
 # NameClub — one-time dictionary-gated .com pull into Universe (2026-07-20)
 
 Evaluated NameClub (nameclub.com/marketplace) as a Universe feed. **Verdict: NOT a feed**
