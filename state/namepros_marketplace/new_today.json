@@ -1,12 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "benzema.com"
-  ],
-  "generated_at": "2026-08-25T23:09:04.045942+00:00",
-  "mub": [
-    "benzema.com"
-  ],
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-26T10:05:46.320216+00:00",
+  "mub": [],
   "source": "namepros_marketplace"
 }
