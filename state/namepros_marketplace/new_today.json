@@ -1,16 +1,8 @@
 {
   "capped": false,
-  "count": 7,
-  "domains": [
-    "carling.me",
-    "comfortable.me",
-    "eep.me",
-    "examples.me",
-    "helicopters.me",
-    "indianapolis.me",
-    "insolvency.me"
-  ],
-  "generated_at": "2026-08-27T10:07:14.256252+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-27T17:07:17.144498+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
