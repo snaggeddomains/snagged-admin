@@ -1,10 +1,14 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 5,
   "domains": [
-    "edv.com"
+    "zbz.com",
+    "ysw.com",
+    "zgn.com",
+    "xgm.com",
+    "whn.com"
   ],
-  "generated_at": "2026-08-26T23:01:58.842120+00:00",
+  "generated_at": "2026-08-27T10:02:11.482215+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
