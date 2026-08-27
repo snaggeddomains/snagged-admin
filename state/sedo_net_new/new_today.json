@@ -1,14 +1,11 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 2,
   "domains": [
-    "zbz.com",
-    "ysw.com",
-    "zgn.com",
-    "xgm.com",
-    "whn.com"
+    "evening.ai",
+    "hzw.com"
   ],
-  "generated_at": "2026-08-27T10:02:11.482215+00:00",
+  "generated_at": "2026-08-27T17:01:13.524017+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }

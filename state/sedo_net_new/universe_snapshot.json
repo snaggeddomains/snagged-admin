@@ -1,5 +1,9 @@
 [
   {
+    "domain": "bandung.com",
+    "price": 99900.0
+  },
+  {
     "domain": "windgoo.com",
     "price": 14950.0
   },
@@ -16,6 +20,26 @@
     "price": 36900.0
   },
   {
+    "domain": "balang.com",
+    "price": 1680.0
+  },
+  {
+    "domain": "malang.com",
+    "price": 99900.0
+  },
+  {
+    "domain": "tranform.com",
+    "price": 8999.0
+  },
+  {
+    "domain": "steall.com",
+    "price": 3690.0
+  },
+  {
+    "domain": "evening.ai",
+    "price": 500000.0
+  },
+  {
     "domain": "nonelectric.com",
     "price": 7895.0
   },
@@ -28,27 +52,39 @@
     "price": 4485.0
   },
   {
+    "domain": "deserts.net",
+    "price": 1495.0
+  },
+  {
     "domain": "turning.net",
     "price": 999.0
   },
   {
-    "domain": "shuiping.net",
-    "price": 252.0
+    "domain": "wisata.net",
+    "price": 1680.0
   },
   {
-    "domain": "matted.net",
-    "price": 1795.0
-  },
-  {
-    "domain": "yaming.net",
-    "price": 1000.0
+    "domain": "milian.net",
+    "price": 29900.0
   },
   {
     "domain": "wentai.net",
     "price": 8970.0
   },
   {
+    "domain": "yaming.net",
+    "price": 1000.0
+  },
+  {
+    "domain": "jingling.net",
+    "price": 3588.0
+  },
+  {
     "domain": "saddlebags.net",
     "price": 299.0
+  },
+  {
+    "domain": "imogene.co",
+    "price": 2888.0
   }
 ]
