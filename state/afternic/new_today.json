@@ -2,13 +2,15 @@
   "capped": false,
   "count": 5,
   "domains": [
-    "immediately.io",
-    "stretcher.ai",
-    "suggesting.org",
-    "spasm.ai",
-    "but.net"
+    "whittier.co",
+    "hebron.co",
+    "liabilities.org",
+    "excites.co",
+    "worth.ai"
   ],
-  "generated_at": "2026-08-26T08:18:43.281652+00:00",
-  "mub": [],
+  "generated_at": "2026-08-27T08:16:08.891816+00:00",
+  "mub": [
+    "hebron.co"
+  ],
   "source": "afternic"
 }
