@@ -1,25 +1,15 @@
 {
   "capped": false,
-  "count": 16,
+  "count": 6,
   "domains": [
-    "holler.co",
-    "wearc.com",
-    "clubhouse.co",
-    "batting.co",
-    "filterx.com",
-    "studiod.com",
-    "gwent.co",
-    "pontra.com",
-    "oen.co",
-    "sblock.com",
-    "drank.org",
-    "hitting.co",
-    "kickers.co",
-    "xemplar.com",
-    "throwing.co",
-    "amiss.org"
+    "traces.io",
+    "cradio.com",
+    "gleam.co",
+    "oitu.com",
+    "trica.co",
+    "tdomain.com"
   ],
-  "generated_at": "2026-08-26T09:57:09.565254+00:00",
+  "generated_at": "2026-08-27T09:54:29.414748+00:00",
   "mub": [],
   "source": "godaddy_auctions"
 }

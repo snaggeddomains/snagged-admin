@@ -1,5 +1,3233 @@
 [
   {
+    "domain": "waterslots.com",
+    "price": null
+  },
+  {
+    "domain": "usatogether.org",
+    "price": null
+  },
+  {
+    "domain": "ukraineconnect.com",
+    "price": null
+  },
+  {
+    "domain": "truebrands.org",
+    "price": null
+  },
+  {
+    "domain": "truebrand.co",
+    "price": null
+  },
+  {
+    "domain": "tradewinds.co",
+    "price": null
+  },
+  {
+    "domain": "tigergaming.org",
+    "price": null
+  },
+  {
+    "domain": "templehall.com",
+    "price": null
+  },
+  {
+    "domain": "technoslots.com",
+    "price": null
+  },
+  {
+    "domain": "techjoy.co",
+    "price": null
+  },
+  {
+    "domain": "spinsigns.com",
+    "price": null
+  },
+  {
+    "domain": "snackcafe.com",
+    "price": null
+  },
+  {
+    "domain": "smartministry.com",
+    "price": null
+  },
+  {
+    "domain": "smartcloud.co",
+    "price": null
+  },
+  {
+    "domain": "slotsporn.com",
+    "price": null
+  },
+  {
+    "domain": "projectvault.org",
+    "price": null
+  },
+  {
+    "domain": "minoragent.com",
+    "price": null
+  },
+  {
+    "domain": "contractbets.com",
+    "price": null
+  },
+  {
+    "domain": "appleglobal.com",
+    "price": null
+  },
+  {
+    "domain": "engineearn.com",
+    "price": null
+  },
+  {
+    "domain": "chartcure.com",
+    "price": null
+  },
+  {
+    "domain": "wordslots.com",
+    "price": null
+  },
+  {
+    "domain": "wetagent.com",
+    "price": null
+  },
+  {
+    "domain": "visualslots.com",
+    "price": null
+  },
+  {
+    "domain": "prolabs.co",
+    "price": null
+  },
+  {
+    "domain": "nextproject.org",
+    "price": null
+  },
+  {
+    "domain": "neurobingo.com",
+    "price": null
+  },
+  {
+    "domain": "monclaude.com",
+    "price": null
+  },
+  {
+    "domain": "matchems.com",
+    "price": null
+  },
+  {
+    "domain": "luckydog.co",
+    "price": null
+  },
+  {
+    "domain": "identitybet.com",
+    "price": null
+  },
+  {
+    "domain": "hybridbingo.com",
+    "price": null
+  },
+  {
+    "domain": "gulfbar.com",
+    "price": null
+  },
+  {
+    "domain": "goldpay.org",
+    "price": null
+  },
+  {
+    "domain": "goldeconomics.com",
+    "price": null
+  },
+  {
+    "domain": "getstargate.com",
+    "price": null
+  },
+  {
+    "domain": "gamezone.co",
+    "price": null
+  },
+  {
+    "domain": "gamegovernance.com",
+    "price": null
+  },
+  {
+    "domain": "deepbingo.com",
+    "price": null
+  },
+  {
+    "domain": "connectpeople.org",
+    "price": null
+  },
+  {
+    "domain": "cleanpro.co",
+    "price": null
+  },
+  {
+    "domain": "brandpro.co",
+    "price": null
+  },
+  {
+    "domain": "botjoy.org",
+    "price": null
+  },
+  {
+    "domain": "bionichumans.com",
+    "price": null
+  },
+  {
+    "domain": "bingospark.com",
+    "price": null
+  },
+  {
+    "domain": "bingoocean.com",
+    "price": null
+  },
+  {
+    "domain": "bingohippo.com",
+    "price": null
+  },
+  {
+    "domain": "bingobreeze.com",
+    "price": null
+  },
+  {
+    "domain": "autoderivative.com",
+    "price": null
+  },
+  {
+    "domain": "atlassurfing.com",
+    "price": null
+  },
+  {
+    "domain": "atlasnavigate.com",
+    "price": null
+  },
+  {
+    "domain": "atlasbrowse.com",
+    "price": null
+  },
+  {
+    "domain": "agentbingo.com",
+    "price": null
+  },
+  {
+    "domain": "texashub.com",
+    "price": null
+  },
+  {
+    "domain": "superintellect.xyz",
+    "price": null
+  },
+  {
+    "domain": "stakeusa.com",
+    "price": null
+  },
+  {
+    "domain": "specialjackpot.com",
+    "price": null
+  },
+  {
+    "domain": "smartexecution.com",
+    "price": null
+  },
+  {
+    "domain": "smartcylinder.com",
+    "price": null
+  },
+  {
+    "domain": "puzzlegaming.com",
+    "price": null
+  },
+  {
+    "domain": "pitergo.com",
+    "price": null
+  },
+  {
+    "domain": "petroleumlabs.com",
+    "price": null
+  },
+  {
+    "domain": "paydaywin.com",
+    "price": null
+  },
+  {
+    "domain": "neurolen.com",
+    "price": null
+  },
+  {
+    "domain": "museoptimal.com",
+    "price": null
+  },
+  {
+    "domain": "magicballs.com",
+    "price": null
+  },
+  {
+    "domain": "gulfservice.com",
+    "price": null
+  },
+  {
+    "domain": "ethpartners.com",
+    "price": null
+  },
+  {
+    "domain": "cognitivestake.com",
+    "price": null
+  },
+  {
+    "domain": "autolesson.com",
+    "price": null
+  },
+  {
+    "domain": "austinbet.com",
+    "price": null
+  },
+  {
+    "domain": "aseanenergy.com",
+    "price": null
+  },
+  {
+    "domain": "anglomedia.com",
+    "price": null
+  },
+  {
+    "domain": "yielding.xyz",
+    "price": null
+  },
+  {
+    "domain": "wellsfinancial.com",
+    "price": null
+  },
+  {
+    "domain": "vistatools.com",
+    "price": null
+  },
+  {
+    "domain": "vergebet.com",
+    "price": null
+  },
+  {
+    "domain": "truebot.co",
+    "price": null
+  },
+  {
+    "domain": "transleasing.com",
+    "price": null
+  },
+  {
+    "domain": "sweetballs.com",
+    "price": null
+  },
+  {
+    "domain": "superintellect.net",
+    "price": null
+  },
+  {
+    "domain": "strongslots.com",
+    "price": null
+  },
+  {
+    "domain": "squarelease.com",
+    "price": null
+  },
+  {
+    "domain": "smartreceiver.com",
+    "price": null
+  },
+  {
+    "domain": "smartproximity.com",
+    "price": null
+  },
+  {
+    "domain": "smartapprovals.com",
+    "price": null
+  },
+  {
+    "domain": "slotscube.com",
+    "price": null
+  },
+  {
+    "domain": "skytech.co",
+    "price": null
+  },
+  {
+    "domain": "siammedia.com",
+    "price": null
+  },
+  {
+    "domain": "selectgames.com",
+    "price": null
+  },
+  {
+    "domain": "safetech.co",
+    "price": null
+  },
+  {
+    "domain": "ruscapital.com",
+    "price": null
+  },
+  {
+    "domain": "podshuffle.com",
+    "price": null
+  },
+  {
+    "domain": "planetspatial.com",
+    "price": null
+  },
+  {
+    "domain": "payworks.co",
+    "price": null
+  },
+  {
+    "domain": "paywork.org",
+    "price": null
+  },
+  {
+    "domain": "paywork.co",
+    "price": null
+  },
+  {
+    "domain": "palston.com",
+    "price": null
+  },
+  {
+    "domain": "optimumstake.com",
+    "price": null
+  },
+  {
+    "domain": "oceanjackpot.com",
+    "price": null
+  },
+  {
+    "domain": "monkeyjackpot.com",
+    "price": null
+  },
+  {
+    "domain": "memeinvest.com",
+    "price": null
+  },
+  {
+    "domain": "megagulf.com",
+    "price": null
+  },
+  {
+    "domain": "localsolutions.org",
+    "price": null
+  },
+  {
+    "domain": "localfinancial.com",
+    "price": null
+  },
+  {
+    "domain": "liveband.ai",
+    "price": null
+  },
+  {
+    "domain": "libertyjackpot.com",
+    "price": null
+  },
+  {
+    "domain": "israelrelief.org",
+    "price": null
+  },
+  {
+    "domain": "hybridclub.com",
+    "price": null
+  },
+  {
+    "domain": "hazelhub.com",
+    "price": null
+  },
+  {
+    "domain": "halfagent.com",
+    "price": null
+  },
+  {
+    "domain": "gamepipeline.com",
+    "price": null
+  },
+  {
+    "domain": "experiencezone.com",
+    "price": null
+  },
+  {
+    "domain": "edobet.com",
+    "price": null
+  },
+  {
+    "domain": "eclipsemesh.com",
+    "price": null
+  },
+  {
+    "domain": "deepjackpot.com",
+    "price": null
+  },
+  {
+    "domain": "davenport.ai",
+    "price": null
+  },
+  {
+    "domain": "cleanupservice.com",
+    "price": null
+  },
+  {
+    "domain": "chainlab.org",
+    "price": null
+  },
+  {
+    "domain": "cbddata.com",
+    "price": null
+  },
+  {
+    "domain": "botjoy.co",
+    "price": null
+  },
+  {
+    "domain": "blocksmine.com",
+    "price": null
+  },
+  {
+    "domain": "blackballer.com",
+    "price": null
+  },
+  {
+    "domain": "autoinference.com",
+    "price": null
+  },
+  {
+    "domain": "alphabetpay.com",
+    "price": null
+  },
+  {
+    "domain": "advisorstore.com",
+    "price": null
+  },
+  {
+    "domain": "tokyomedia.com",
+    "price": null
+  },
+  {
+    "domain": "titansolutions.ai",
+    "price": null
+  },
+  {
+    "domain": "streamkings.com",
+    "price": null
+  },
+  {
+    "domain": "stakegenius.com",
+    "price": null
+  },
+  {
+    "domain": "slotsmob.com",
+    "price": null
+  },
+  {
+    "domain": "robostake.ai",
+    "price": null
+  },
+  {
+    "domain": "rib.xyz",
+    "price": null
+  },
+  {
+    "domain": "projectjackpot.com",
+    "price": null
+  },
+  {
+    "domain": "owners.net",
+    "price": null
+  },
+  {
+    "domain": "orestech.com",
+    "price": null
+  },
+  {
+    "domain": "oculusbet.com",
+    "price": null
+  },
+  {
+    "domain": "localyou.com",
+    "price": null
+  },
+  {
+    "domain": "leakdetection.org",
+    "price": null
+  },
+  {
+    "domain": "jackpotproject.com",
+    "price": null
+  },
+  {
+    "domain": "gameboosts.com",
+    "price": null
+  },
+  {
+    "domain": "filamore.com",
+    "price": null
+  },
+  {
+    "domain": "cryptodriven.com",
+    "price": null
+  },
+  {
+    "domain": "cruiseslots.com",
+    "price": null
+  },
+  {
+    "domain": "conclusion.co",
+    "price": null
+  },
+  {
+    "domain": "bitamor.com",
+    "price": null
+  },
+  {
+    "domain": "autoextension.com",
+    "price": null
+  },
+  {
+    "domain": "alphajackpot.com",
+    "price": null
+  },
+  {
+    "domain": "yieldsite.com",
+    "price": null
+  },
+  {
+    "domain": "wetman.com",
+    "price": null
+  },
+  {
+    "domain": "voltale.com",
+    "price": null
+  },
+  {
+    "domain": "ultraverify.com",
+    "price": null
+  },
+  {
+    "domain": "triosport.com",
+    "price": null
+  },
+  {
+    "domain": "trimtool.com",
+    "price": null
+  },
+  {
+    "domain": "trendshop.ai",
+    "price": null
+  },
+  {
+    "domain": "toolview.com",
+    "price": null
+  },
+  {
+    "domain": "superprogram.ai",
+    "price": null
+  },
+  {
+    "domain": "superbiz.ai",
+    "price": null
+  },
+  {
+    "domain": "streambetting.com",
+    "price": null
+  },
+  {
+    "domain": "stakenetworks.com",
+    "price": null
+  },
+  {
+    "domain": "sportstrades.com",
+    "price": null
+  },
+  {
+    "domain": "smartwebinar.com",
+    "price": null
+  },
+  {
+    "domain": "smartupstream.com",
+    "price": null
+  },
+  {
+    "domain": "smartposts.com",
+    "price": null
+  },
+  {
+    "domain": "seniorgold.com",
+    "price": null
+  },
+  {
+    "domain": "riderconnect.com",
+    "price": null
+  },
+  {
+    "domain": "qinput.com",
+    "price": null
+  },
+  {
+    "domain": "protocollabs.ai",
+    "price": null
+  },
+  {
+    "domain": "problemagent.com",
+    "price": null
+  },
+  {
+    "domain": "philos.co",
+    "price": null
+  },
+  {
+    "domain": "petgold.com",
+    "price": null
+  },
+  {
+    "domain": "paydayjackpot.com",
+    "price": null
+  },
+  {
+    "domain": "paragonconnect.com",
+    "price": null
+  },
+  {
+    "domain": "oxfordtech.com",
+    "price": null
+  },
+  {
+    "domain": "ownersreserve.com",
+    "price": null
+  },
+  {
+    "domain": "optimumgold.com",
+    "price": null
+  },
+  {
+    "domain": "opentrade.co",
+    "price": null
+  },
+  {
+    "domain": "northcrest.org",
+    "price": null
+  },
+  {
+    "domain": "nextchurch.org",
+    "price": null
+  },
+  {
+    "domain": "newabnormal.com",
+    "price": null
+  },
+  {
+    "domain": "multilab.org",
+    "price": null
+  },
+  {
+    "domain": "megaluxury.com",
+    "price": null
+  },
+  {
+    "domain": "livingconnect.com",
+    "price": null
+  },
+  {
+    "domain": "lifeanalysis.com",
+    "price": null
+  },
+  {
+    "domain": "leasebeam.com",
+    "price": null
+  },
+  {
+    "domain": "healthios.com",
+    "price": null
+  },
+  {
+    "domain": "gulfship.com",
+    "price": null
+  },
+  {
+    "domain": "gulfinsight.com",
+    "price": null
+  },
+  {
+    "domain": "gulfchain.org",
+    "price": null
+  },
+  {
+    "domain": "gulfcentre.com",
+    "price": null
+  },
+  {
+    "domain": "goldcommerce.com",
+    "price": null
+  },
+  {
+    "domain": "forecaster.xyz",
+    "price": null
+  },
+  {
+    "domain": "foodshopper.com",
+    "price": null
+  },
+  {
+    "domain": "fincollect.com",
+    "price": null
+  },
+  {
+    "domain": "eggbet.com",
+    "price": null
+  },
+  {
+    "domain": "dorian.co",
+    "price": null
+  },
+  {
+    "domain": "dogplus.com",
+    "price": null
+  },
+  {
+    "domain": "cybergulf.com",
+    "price": null
+  },
+  {
+    "domain": "crowdfin.com",
+    "price": null
+  },
+  {
+    "domain": "confliction.com",
+    "price": null
+  },
+  {
+    "domain": "chelseacapital.com",
+    "price": null
+  },
+  {
+    "domain": "blockwriter.com",
+    "price": null
+  },
+  {
+    "domain": "blockchainfuel.com",
+    "price": null
+  },
+  {
+    "domain": "beveragepro.com",
+    "price": null
+  },
+  {
+    "domain": "autonomypro.com",
+    "price": null
+  },
+  {
+    "domain": "attractive.net",
+    "price": null
+  },
+  {
+    "domain": "applerentals.com",
+    "price": null
+  },
+  {
+    "domain": "alphawallet.ai",
+    "price": null
+  },
+  {
+    "domain": "alphasolutions.ai",
+    "price": null
+  },
+  {
+    "domain": "abcstream.com",
+    "price": null
+  },
+  {
+    "domain": "yieldnetworks.com",
+    "price": null
+  },
+  {
+    "domain": "yesslots.com",
+    "price": null
+  },
+  {
+    "domain": "volton.co",
+    "price": null
+  },
+  {
+    "domain": "vividpoker.com",
+    "price": null
+  },
+  {
+    "domain": "vivagroup.co",
+    "price": null
+  },
+  {
+    "domain": "tributecapital.com",
+    "price": null
+  },
+  {
+    "domain": "thinktech.org",
+    "price": null
+  },
+  {
+    "domain": "texascouncil.com",
+    "price": null
+  },
+  {
+    "domain": "texancapital.com",
+    "price": null
+  },
+  {
+    "domain": "teamgulf.com",
+    "price": null
+  },
+  {
+    "domain": "superexchange.ai",
+    "price": null
+  },
+  {
+    "domain": "smartsegments.com",
+    "price": null
+  },
+  {
+    "domain": "smartchanger.com",
+    "price": null
+  },
+  {
+    "domain": "smartarea.com",
+    "price": null
+  },
+  {
+    "domain": "sitegold.com",
+    "price": null
+  },
+  {
+    "domain": "scorefinancial.com",
+    "price": null
+  },
+  {
+    "domain": "procurebot.com",
+    "price": null
+  },
+  {
+    "domain": "prepaidpro.com",
+    "price": null
+  },
+  {
+    "domain": "playward.com",
+    "price": null
+  },
+  {
+    "domain": "playerlounge.com",
+    "price": null
+  },
+  {
+    "domain": "petfinancial.com",
+    "price": null
+  },
+  {
+    "domain": "perceptive.net",
+    "price": null
+  },
+  {
+    "domain": "partnerwire.com",
+    "price": null
+  },
+  {
+    "domain": "oceanview.co",
+    "price": null
+  },
+  {
+    "domain": "neuroslots.com",
+    "price": null
+  },
+  {
+    "domain": "networkrobots.com",
+    "price": null
+  },
+  {
+    "domain": "neoaeronautics.com",
+    "price": null
+  },
+  {
+    "domain": "megaflip.com",
+    "price": null
+  },
+  {
+    "domain": "layers.org",
+    "price": null
+  },
+  {
+    "domain": "humangraph.xyz",
+    "price": null
+  },
+  {
+    "domain": "humangraph.org",
+    "price": null
+  },
+  {
+    "domain": "humangraph.net",
+    "price": null
+  },
+  {
+    "domain": "gulfresearch.com",
+    "price": null
+  },
+  {
+    "domain": "gulfgalaxy.com",
+    "price": null
+  },
+  {
+    "domain": "enhancedhumans.com",
+    "price": null
+  },
+  {
+    "domain": "eclipsecluster.com",
+    "price": null
+  },
+  {
+    "domain": "discjockey.ai",
+    "price": null
+  },
+  {
+    "domain": "daogovernance.org",
+    "price": null
+  },
+  {
+    "domain": "connectfin.com",
+    "price": null
+  },
+  {
+    "domain": "childverse.com",
+    "price": null
+  },
+  {
+    "domain": "chainbuddy.com",
+    "price": null
+  },
+  {
+    "domain": "cardioworks.com",
+    "price": null
+  },
+  {
+    "domain": "basictools.com",
+    "price": null
+  },
+  {
+    "domain": "zodiaccapital.com",
+    "price": null
+  },
+  {
+    "domain": "vivabet.org",
+    "price": null
+  },
+  {
+    "domain": "superanalytics.ai",
+    "price": null
+  },
+  {
+    "domain": "pushfinancial.com",
+    "price": null
+  },
+  {
+    "domain": "optimuspay.ai",
+    "price": null
+  },
+  {
+    "domain": "museclear.com",
+    "price": null
+  },
+  {
+    "domain": "fractionalbank.com",
+    "price": null
+  },
+  {
+    "domain": "dnascience.com",
+    "price": null
+  },
+  {
+    "domain": "debtinsider.com",
+    "price": null
+  },
+  {
+    "domain": "cloudtech.co",
+    "price": null
+  },
+  {
+    "domain": "walletlabs.ai",
+    "price": null
+  },
+  {
+    "domain": "vivabet.co",
+    "price": null
+  },
+  {
+    "domain": "thehandbag.com",
+    "price": null
+  },
+  {
+    "domain": "stargulf.com",
+    "price": null
+  },
+  {
+    "domain": "spicyslots.com",
+    "price": null
+  },
+  {
+    "domain": "smartpredict.ai",
+    "price": null
+  },
+  {
+    "domain": "smartclosing.com",
+    "price": null
+  },
+  {
+    "domain": "scorpiongaming.com",
+    "price": null
+  },
+  {
+    "domain": "procurenetwork.com",
+    "price": null
+  },
+  {
+    "domain": "piratejackpot.com",
+    "price": null
+  },
+  {
+    "domain": "ownercenter.com",
+    "price": null
+  },
+  {
+    "domain": "otchub.com",
+    "price": null
+  },
+  {
+    "domain": "openaction.org",
+    "price": null
+  },
+  {
+    "domain": "neofusion.ai",
+    "price": null
+  },
+  {
+    "domain": "momentcapital.com",
+    "price": null
+  },
+  {
+    "domain": "mercurygaming.com",
+    "price": null
+  },
+  {
+    "domain": "mangofinancial.com",
+    "price": null
+  },
+  {
+    "domain": "localsolutions.com",
+    "price": null
+  },
+  {
+    "domain": "loanbet.com",
+    "price": null
+  },
+  {
+    "domain": "ketamine.co",
+    "price": null
+  },
+  {
+    "domain": "homeward.co",
+    "price": null
+  },
+  {
+    "domain": "grandprix.co",
+    "price": null
+  },
+  {
+    "domain": "gamblenetwork.com",
+    "price": null
+  },
+  {
+    "domain": "freedomville.com",
+    "price": null
+  },
+  {
+    "domain": "fractiongroup.com",
+    "price": null
+  },
+  {
+    "domain": "fantools.com",
+    "price": null
+  },
+  {
+    "domain": "ethglobal.org",
+    "price": null
+  },
+  {
+    "domain": "deepadaptive.ai",
+    "price": null
+  },
+  {
+    "domain": "cutscene.ai",
+    "price": null
+  },
+  {
+    "domain": "cryptoanalyzer.com",
+    "price": null
+  },
+  {
+    "domain": "cheval.co",
+    "price": null
+  },
+  {
+    "domain": "chainbuilders.com",
+    "price": null
+  },
+  {
+    "domain": "chainability.com",
+    "price": null
+  },
+  {
+    "domain": "betweb.ai",
+    "price": null
+  },
+  {
+    "domain": "autoprojects.com",
+    "price": null
+  },
+  {
+    "domain": "autonomygroup.com",
+    "price": null
+  },
+  {
+    "domain": "autolayers.com",
+    "price": null
+  },
+  {
+    "domain": "autolace.com",
+    "price": null
+  },
+  {
+    "domain": "autoinput.com",
+    "price": null
+  },
+  {
+    "domain": "autobudgeting.com",
+    "price": null
+  },
+  {
+    "domain": "autoblaster.com",
+    "price": null
+  },
+  {
+    "domain": "atomslots.com",
+    "price": null
+  },
+  {
+    "domain": "adacapital.com",
+    "price": null
+  },
+  {
+    "domain": "viewlabs.ai",
+    "price": null
+  },
+  {
+    "domain": "tonelabs.ai",
+    "price": null
+  },
+  {
+    "domain": "theapp.ai",
+    "price": null
+  },
+  {
+    "domain": "texasgame.com",
+    "price": null
+  },
+  {
+    "domain": "superfast.co",
+    "price": null
+  },
+  {
+    "domain": "stakelabs.ai",
+    "price": null
+  },
+  {
+    "domain": "rooster.xyz",
+    "price": null
+  },
+  {
+    "domain": "rehablink.com",
+    "price": null
+  },
+  {
+    "domain": "procurepay.com",
+    "price": null
+  },
+  {
+    "domain": "privateoffers.com",
+    "price": null
+  },
+  {
+    "domain": "poultrytech.com",
+    "price": null
+  },
+  {
+    "domain": "photonrefinery.com",
+    "price": null
+  },
+  {
+    "domain": "petpro.ai",
+    "price": null
+  },
+  {
+    "domain": "opensolutions.ai",
+    "price": null
+  },
+  {
+    "domain": "museoptimum.com",
+    "price": null
+  },
+  {
+    "domain": "monarchfund.com",
+    "price": null
+  },
+  {
+    "domain": "megaprivate.com",
+    "price": null
+  },
+  {
+    "domain": "magabet.com",
+    "price": null
+  },
+  {
+    "domain": "lifeboat.net",
+    "price": null
+  },
+  {
+    "domain": "internetenergy.com",
+    "price": null
+  },
+  {
+    "domain": "goldspider.com",
+    "price": null
+  },
+  {
+    "domain": "eclipsefactory.com",
+    "price": null
+  },
+  {
+    "domain": "cyberpay.ai",
+    "price": null
+  },
+  {
+    "domain": "betnet.ai",
+    "price": null
+  },
+  {
+    "domain": "battleship.xyz",
+    "price": null
+  },
+  {
+    "domain": "autocorrection.com",
+    "price": null
+  },
+  {
+    "domain": "autoallocation.com",
+    "price": null
+  },
+  {
+    "domain": "atlaschat.ai",
+    "price": null
+  },
+  {
+    "domain": "apexsolutions.ai",
+    "price": null
+  },
+  {
+    "domain": "alphatrade.org",
+    "price": null
+  },
+  {
+    "domain": "acornadvance.com",
+    "price": null
+  },
+  {
+    "domain": "wisetask.com",
+    "price": null
+  },
+  {
+    "domain": "westpartners.com",
+    "price": null
+  },
+  {
+    "domain": "vivasignal.com",
+    "price": null
+  },
+  {
+    "domain": "texaspartners.com",
+    "price": null
+  },
+  {
+    "domain": "techchat.ai",
+    "price": null
+  },
+  {
+    "domain": "tartan.co",
+    "price": null
+  },
+  {
+    "domain": "supervault.ai",
+    "price": null
+  },
+  {
+    "domain": "southeast.ai",
+    "price": null
+  },
+  {
+    "domain": "socialfilter.com",
+    "price": null
+  },
+  {
+    "domain": "smartstreamer.com",
+    "price": null
+  },
+  {
+    "domain": "smartsky.ai",
+    "price": null
+  },
+  {
+    "domain": "smartshopper.ai",
+    "price": null
+  },
+  {
+    "domain": "smartlayers.com",
+    "price": null
+  },
+  {
+    "domain": "smartdiversity.com",
+    "price": null
+  },
+  {
+    "domain": "smartdiscovery.com",
+    "price": null
+  },
+  {
+    "domain": "slotsmax.com",
+    "price": null
+  },
+  {
+    "domain": "sinofinancial.com",
+    "price": null
+  },
+  {
+    "domain": "scion.co",
+    "price": null
+  },
+  {
+    "domain": "predictors.co",
+    "price": null
+  },
+  {
+    "domain": "predator.xyz",
+    "price": null
+  },
+  {
+    "domain": "optimuslabs.ai",
+    "price": null
+  },
+  {
+    "domain": "opinionhub.com",
+    "price": null
+  },
+  {
+    "domain": "octani.com",
+    "price": null
+  },
+  {
+    "domain": "nextfind.com",
+    "price": null
+  },
+  {
+    "domain": "netcentric.ai",
+    "price": null
+  },
+  {
+    "domain": "methodmatters.com",
+    "price": null
+  },
+  {
+    "domain": "maxlot.com",
+    "price": null
+  },
+  {
+    "domain": "gulffinancial.com",
+    "price": null
+  },
+  {
+    "domain": "goldhero.com",
+    "price": null
+  },
+  {
+    "domain": "futuretech.co",
+    "price": null
+  },
+  {
+    "domain": "friscocapital.com",
+    "price": null
+  },
+  {
+    "domain": "finwoven.com",
+    "price": null
+  },
+  {
+    "domain": "finsan.com",
+    "price": null
+  },
+  {
+    "domain": "farmfin.com",
+    "price": null
+  },
+  {
+    "domain": "fakes.org",
+    "price": null
+  },
+  {
+    "domain": "esportscity.com",
+    "price": null
+  },
+  {
+    "domain": "cyberlearning.ai",
+    "price": null
+  },
+  {
+    "domain": "cybergrid.co",
+    "price": null
+  },
+  {
+    "domain": "customerpoint.com",
+    "price": null
+  },
+  {
+    "domain": "chainprize.com",
+    "price": null
+  },
+  {
+    "domain": "cactusventures.com",
+    "price": null
+  },
+  {
+    "domain": "businessideas.ai",
+    "price": null
+  },
+  {
+    "domain": "biopolicy.com",
+    "price": null
+  },
+  {
+    "domain": "bestcard.ai",
+    "price": null
+  },
+  {
+    "domain": "autoearn.ai",
+    "price": null
+  },
+  {
+    "domain": "autocloser.com",
+    "price": null
+  },
+  {
+    "domain": "wordtools.com",
+    "price": null
+  },
+  {
+    "domain": "virtualflow.com",
+    "price": null
+  },
+  {
+    "domain": "telematic.ai",
+    "price": null
+  },
+  {
+    "domain": "smartshapes.com",
+    "price": null
+  },
+  {
+    "domain": "smartsecrets.com",
+    "price": null
+  },
+  {
+    "domain": "smartpath.ai",
+    "price": null
+  },
+  {
+    "domain": "smartbreak.com",
+    "price": null
+  },
+  {
+    "domain": "sexcams.ai",
+    "price": null
+  },
+  {
+    "domain": "semibot.com",
+    "price": null
+  },
+  {
+    "domain": "realvisual.com",
+    "price": null
+  },
+  {
+    "domain": "rationalcode.com",
+    "price": null
+  },
+  {
+    "domain": "powerlink.ai",
+    "price": null
+  },
+  {
+    "domain": "pornlab.ai",
+    "price": null
+  },
+  {
+    "domain": "polarisbot.com",
+    "price": null
+  },
+  {
+    "domain": "pearlcasino.com",
+    "price": null
+  },
+  {
+    "domain": "partnerpros.com",
+    "price": null
+  },
+  {
+    "domain": "otccapital.com",
+    "price": null
+  },
+  {
+    "domain": "neptunelabs.ai",
+    "price": null
+  },
+  {
+    "domain": "naturalfuels.com",
+    "price": null
+  },
+  {
+    "domain": "hardtrade.com",
+    "price": null
+  },
+  {
+    "domain": "gamerforum.com",
+    "price": null
+  },
+  {
+    "domain": "freemarket.ai",
+    "price": null
+  },
+  {
+    "domain": "crossfire.xyz",
+    "price": null
+  },
+  {
+    "domain": "cosmiccare.com",
+    "price": null
+  },
+  {
+    "domain": "chipnews.com",
+    "price": null
+  },
+  {
+    "domain": "bodyanalytics.com",
+    "price": null
+  },
+  {
+    "domain": "blocktrove.com",
+    "price": null
+  },
+  {
+    "domain": "bigwin.ai",
+    "price": null
+  },
+  {
+    "domain": "betopen.com",
+    "price": null
+  },
+  {
+    "domain": "betnia.com",
+    "price": null
+  },
+  {
+    "domain": "badgetech.com",
+    "price": null
+  },
+  {
+    "domain": "autodynamo.com",
+    "price": null
+  },
+  {
+    "domain": "auspicious.ai",
+    "price": null
+  },
+  {
+    "domain": "atlasstake.com",
+    "price": null
+  },
+  {
+    "domain": "allbenefits.com",
+    "price": null
+  },
+  {
+    "domain": "zipware.com",
+    "price": null
+  },
+  {
+    "domain": "zetapilot.com",
+    "price": null
+  },
+  {
+    "domain": "wiseberg.com",
+    "price": null
+  },
+  {
+    "domain": "wildalpha.com",
+    "price": null
+  },
+  {
+    "domain": "videocenter.com",
+    "price": null
+  },
+  {
+    "domain": "victoryshop.com",
+    "price": null
+  },
+  {
+    "domain": "venturebet.com",
+    "price": null
+  },
+  {
+    "domain": "ultralogic.ai",
+    "price": null
+  },
+  {
+    "domain": "treasurehunt.ai",
+    "price": null
+  },
+  {
+    "domain": "thevalve.com",
+    "price": null
+  },
+  {
+    "domain": "suninvestment.com",
+    "price": null
+  },
+  {
+    "domain": "summitlabs.ai",
+    "price": null
+  },
+  {
+    "domain": "stripped.ai",
+    "price": null
+  },
+  {
+    "domain": "softconnect.com",
+    "price": null
+  },
+  {
+    "domain": "smartzones.com",
+    "price": null
+  },
+  {
+    "domain": "smartpresence.com",
+    "price": null
+  },
+  {
+    "domain": "smartoutreach.com",
+    "price": null
+  },
+  {
+    "domain": "smartlaws.com",
+    "price": null
+  },
+  {
+    "domain": "smartchime.com",
+    "price": null
+  },
+  {
+    "domain": "skintech.ai",
+    "price": null
+  },
+  {
+    "domain": "sinocapital.com",
+    "price": null
+  },
+  {
+    "domain": "seedtec.com",
+    "price": null
+  },
+  {
+    "domain": "robofinancial.com",
+    "price": null
+  },
+  {
+    "domain": "redrocket.ai",
+    "price": null
+  },
+  {
+    "domain": "quicksilver.ai",
+    "price": null
+  },
+  {
+    "domain": "quantumgulf.com",
+    "price": null
+  },
+  {
+    "domain": "provida.ai",
+    "price": null
+  },
+  {
+    "domain": "prosperitylabs.ai",
+    "price": null
+  },
+  {
+    "domain": "playpoker.ai",
+    "price": null
+  },
+  {
+    "domain": "playermedia.com",
+    "price": null
+  },
+  {
+    "domain": "playerconnect.com",
+    "price": null
+  },
+  {
+    "domain": "petportal.com",
+    "price": null
+  },
+  {
+    "domain": "paymentsbank.com",
+    "price": null
+  },
+  {
+    "domain": "paxcapital.com",
+    "price": null
+  },
+  {
+    "domain": "pathmaker.ai",
+    "price": null
+  },
+  {
+    "domain": "optimallabs.ai",
+    "price": null
+  },
+  {
+    "domain": "optimalflow.ai",
+    "price": null
+  },
+  {
+    "domain": "opengulf.com",
+    "price": null
+  },
+  {
+    "domain": "oaktech.com",
+    "price": null
+  },
+  {
+    "domain": "niftychain.com",
+    "price": null
+  },
+  {
+    "domain": "neuronavigator.com",
+    "price": null
+  },
+  {
+    "domain": "neurograph.ai",
+    "price": null
+  },
+  {
+    "domain": "mindnode.ai",
+    "price": null
+  },
+  {
+    "domain": "mindalpha.ai",
+    "price": null
+  },
+  {
+    "domain": "mentalfitness.ai",
+    "price": null
+  },
+  {
+    "domain": "marshcapital.com",
+    "price": null
+  },
+  {
+    "domain": "locklabs.ai",
+    "price": null
+  },
+  {
+    "domain": "jackpotcloud.com",
+    "price": null
+  },
+  {
+    "domain": "investorwave.com",
+    "price": null
+  },
+  {
+    "domain": "interlabs.ai",
+    "price": null
+  },
+  {
+    "domain": "infominer.com",
+    "price": null
+  },
+  {
+    "domain": "imgcapital.com",
+    "price": null
+  },
+  {
+    "domain": "hypersonic.co",
+    "price": null
+  },
+  {
+    "domain": "homemade.ai",
+    "price": null
+  },
+  {
+    "domain": "highland.co",
+    "price": null
+  },
+  {
+    "domain": "healthservices.ai",
+    "price": null
+  },
+  {
+    "domain": "gulfworks.com",
+    "price": null
+  },
+  {
+    "domain": "gulfconnect.com",
+    "price": null
+  },
+  {
+    "domain": "greenhill.ai",
+    "price": null
+  },
+  {
+    "domain": "goldpride.com",
+    "price": null
+  },
+  {
+    "domain": "geniuspay.ai",
+    "price": null
+  },
+  {
+    "domain": "futuresight.ai",
+    "price": null
+  },
+  {
+    "domain": "futureinsight.ai",
+    "price": null
+  },
+  {
+    "domain": "frisk.ai",
+    "price": null
+  },
+  {
+    "domain": "fractionbank.com",
+    "price": null
+  },
+  {
+    "domain": "flexrides.com",
+    "price": null
+  },
+  {
+    "domain": "flexride.com",
+    "price": null
+  },
+  {
+    "domain": "financialchain.com",
+    "price": null
+  },
+  {
+    "domain": "fastverify.com",
+    "price": null
+  },
+  {
+    "domain": "fansplay.com",
+    "price": null
+  },
+  {
+    "domain": "fanlabs.ai",
+    "price": null
+  },
+  {
+    "domain": "elevatefund.com",
+    "price": null
+  },
+  {
+    "domain": "effectivelabs.com",
+    "price": null
+  },
+  {
+    "domain": "earagent.com",
+    "price": null
+  },
+  {
+    "domain": "drivesafe.ai",
+    "price": null
+  },
+  {
+    "domain": "dominionbet.com",
+    "price": null
+  },
+  {
+    "domain": "delrey.ai",
+    "price": null
+  },
+  {
+    "domain": "deficloud.com",
+    "price": null
+  },
+  {
+    "domain": "cybertools.ai",
+    "price": null
+  },
+  {
+    "domain": "cumulative.org",
+    "price": null
+  },
+  {
+    "domain": "cryptobots.ai",
+    "price": null
+  },
+  {
+    "domain": "codeserve.com",
+    "price": null
+  },
+  {
+    "domain": "cobaltfinance.com",
+    "price": null
+  },
+  {
+    "domain": "chainvoice.com",
+    "price": null
+  },
+  {
+    "domain": "cadenceconnect.com",
+    "price": null
+  },
+  {
+    "domain": "byteville.com",
+    "price": null
+  },
+  {
+    "domain": "btcbrain.com",
+    "price": null
+  },
+  {
+    "domain": "bodybeam.com",
+    "price": null
+  },
+  {
+    "domain": "blackbots.com",
+    "price": null
+  },
+  {
+    "domain": "bionichuman.com",
+    "price": null
+  },
+  {
+    "domain": "betwise.ai",
+    "price": null
+  },
+  {
+    "domain": "betpax.com",
+    "price": null
+  },
+  {
+    "domain": "betmaster.ai",
+    "price": null
+  },
+  {
+    "domain": "betgenius.ai",
+    "price": null
+  },
+  {
+    "domain": "betgear.com",
+    "price": null
+  },
+  {
+    "domain": "betblade.com",
+    "price": null
+  },
+  {
+    "domain": "autosimulation.com",
+    "price": null
+  },
+  {
+    "domain": "autoexecution.com",
+    "price": null
+  },
+  {
+    "domain": "autodiversify.com",
+    "price": null
+  },
+  {
+    "domain": "autoaware.com",
+    "price": null
+  },
+  {
+    "domain": "autoactivate.com",
+    "price": null
+  },
+  {
+    "domain": "alpharewards.com",
+    "price": null
+  },
+  {
+    "domain": "alphadev.ai",
+    "price": null
+  },
+  {
+    "domain": "alphadawn.com",
+    "price": null
+  },
+  {
+    "domain": "alphaboost.ai",
+    "price": null
+  },
+  {
+    "domain": "allycapital.com",
+    "price": null
+  },
+  {
+    "domain": "aerovision.ai",
+    "price": null
+  },
+  {
+    "domain": "acornpartners.com",
+    "price": null
+  },
+  {
+    "domain": "zipconnect.com",
+    "price": null
+  },
+  {
+    "domain": "wildwallet.com",
+    "price": null
+  },
+  {
+    "domain": "wayfin.com",
+    "price": null
+  },
+  {
+    "domain": "voxgold.com",
+    "price": null
+  },
+  {
+    "domain": "vivavoice.com",
+    "price": null
+  },
+  {
+    "domain": "varchain.com",
+    "price": null
+  },
+  {
+    "domain": "vantagetrust.com",
+    "price": null
+  },
+  {
+    "domain": "usavacations.com",
+    "price": null
+  },
+  {
+    "domain": "urbanloft.com",
+    "price": null
+  },
+  {
+    "domain": "trupod.com",
+    "price": null
+  },
+  {
+    "domain": "toropay.com",
+    "price": null
+  },
+  {
+    "domain": "tipwire.com",
+    "price": null
+  },
+  {
+    "domain": "spybit.com",
+    "price": null
+  },
+  {
+    "domain": "smartvac.com",
+    "price": null
+  },
+  {
+    "domain": "signlanguage.org",
+    "price": null
+  },
+  {
+    "domain": "seaconnect.com",
+    "price": null
+  },
+  {
+    "domain": "rightlock.com",
+    "price": null
+  },
+  {
+    "domain": "reinventlabs.com",
+    "price": null
+  },
+  {
+    "domain": "reelbase.com",
+    "price": null
+  },
+  {
+    "domain": "radicallabs.com",
+    "price": null
+  },
+  {
+    "domain": "pornslots.com",
+    "price": null
+  },
+  {
+    "domain": "payventure.com",
+    "price": null
+  },
+  {
+    "domain": "pairnet.com",
+    "price": null
+  },
+  {
+    "domain": "odysseylab.ai",
+    "price": null
+  },
+  {
+    "domain": "metasights.com",
+    "price": null
+  },
+  {
+    "domain": "infogold.com",
+    "price": null
+  },
+  {
+    "domain": "icefinancial.com",
+    "price": null
+  },
+  {
+    "domain": "hawkeye.co",
+    "price": null
+  },
+  {
+    "domain": "gulfchain.com",
+    "price": null
+  },
+  {
+    "domain": "goldzero.com",
+    "price": null
+  },
+  {
+    "domain": "goldenlantern.com",
+    "price": null
+  },
+  {
+    "domain": "gammabet.com",
+    "price": null
+  },
+  {
+    "domain": "freshsqueeze.com",
+    "price": null
+  },
+  {
+    "domain": "freebots.com",
+    "price": null
+  },
+  {
+    "domain": "fasttrace.com",
+    "price": null
+  },
+  {
+    "domain": "cryptohub.ai",
+    "price": null
+  },
+  {
+    "domain": "cruisebet.com",
+    "price": null
+  },
+  {
+    "domain": "casekey.com",
+    "price": null
+  },
+  {
+    "domain": "breedtech.com",
+    "price": null
+  },
+  {
+    "domain": "autogenesis.ai",
+    "price": null
+  },
+  {
+    "domain": "atlasyield.com",
+    "price": null
+  },
+  {
+    "domain": "arrowbet.com",
+    "price": null
+  },
+  {
+    "domain": "apeclub.com",
+    "price": null
+  },
+  {
+    "domain": "alphaluck.com",
+    "price": null
+  },
+  {
+    "domain": "zipchain.com",
+    "price": null
+  },
+  {
+    "domain": "winboost.com",
+    "price": null
+  },
+  {
+    "domain": "wanda.xyz",
+    "price": null
+  },
+  {
+    "domain": "vantagelabs.com",
+    "price": null
+  },
+  {
+    "domain": "truewealth.ai",
+    "price": null
+  },
+  {
+    "domain": "trainers.ai",
+    "price": null
+  },
+  {
+    "domain": "tigerpalace.com",
+    "price": null
+  },
+  {
+    "domain": "texasgaming.com",
+    "price": null
+  },
+  {
+    "domain": "smartcontracts.co",
+    "price": null
+  },
+  {
+    "domain": "privatevoice.com",
+    "price": null
+  },
+  {
+    "domain": "playtech.ai",
+    "price": null
+  },
+  {
+    "domain": "playable.co",
+    "price": null
+  },
+  {
+    "domain": "pathtrace.com",
+    "price": null
+  },
+  {
+    "domain": "openhelix.com",
+    "price": null
+  },
+  {
+    "domain": "multiplay.ai",
+    "price": null
+  },
+  {
+    "domain": "microtrade.ai",
+    "price": null
+  },
+  {
+    "domain": "memorial.ai",
+    "price": null
+  },
+  {
+    "domain": "mediacode.xyz",
+    "price": null
+  },
+  {
+    "domain": "mediacode.org",
+    "price": null
+  },
+  {
+    "domain": "livewear.org",
+    "price": null
+  },
+  {
+    "domain": "livewear.co",
+    "price": null
+  },
+  {
+    "domain": "larkspur.ai",
+    "price": null
+  },
+  {
+    "domain": "jupitertech.com",
+    "price": null
+  },
+  {
+    "domain": "jackster.com",
+    "price": null
+  },
+  {
+    "domain": "jackpotexpress.com",
+    "price": null
+  },
+  {
+    "domain": "healthyliving.ai",
+    "price": null
+  },
+  {
+    "domain": "goodgovernance.org",
+    "price": null
+  },
+  {
+    "domain": "goldunicorn.com",
+    "price": null
+  },
+  {
+    "domain": "getsmart.ai",
+    "price": null
+  },
+  {
+    "domain": "freedomwire.com",
+    "price": null
+  },
+  {
+    "domain": "freedomseafood.com",
+    "price": null
+  },
+  {
+    "domain": "fracture.xyz",
+    "price": null
+  },
+  {
+    "domain": "fincora.com",
+    "price": null
+  },
+  {
+    "domain": "evolvelabs.com",
+    "price": null
+  },
+  {
+    "domain": "evofinancial.com",
+    "price": null
+  },
+  {
+    "domain": "economictrends.com",
+    "price": null
+  },
+  {
+    "domain": "earnlabs.ai",
+    "price": null
+  },
+  {
+    "domain": "diamondbrokers.com",
+    "price": null
+  },
+  {
+    "domain": "dealdex.com",
+    "price": null
+  },
+  {
+    "domain": "corelane.com",
+    "price": null
+  },
+  {
+    "domain": "continuitylabs.com",
+    "price": null
+  },
+  {
+    "domain": "chipconnect.com",
+    "price": null
+  },
+  {
+    "domain": "bullbot.com",
+    "price": null
+  },
+  {
+    "domain": "astraenergy.com",
+    "price": null
+  },
+  {
+    "domain": "alienbet.com",
+    "price": null
+  },
+  {
+    "domain": "aimvest.com",
+    "price": null
+  },
+  {
+    "domain": "agentvita.ai",
+    "price": null
+  },
+  {
+    "domain": "agenthalo.ai",
+    "price": null
+  },
+  {
+    "domain": "aeroclinic.com",
+    "price": null
+  },
+  {
+    "domain": "academy.xyz",
+    "price": null
+  },
+  {
+    "domain": "yieldplus.com",
+    "price": null
+  },
+  {
+    "domain": "wordrush.com",
+    "price": null
+  },
+  {
+    "domain": "wellflex.com",
+    "price": null
+  },
+  {
+    "domain": "vergecapital.com",
+    "price": null
+  },
+  {
+    "domain": "ultrasphere.com",
+    "price": null
+  },
+  {
+    "domain": "tribalcapital.com",
+    "price": null
+  },
+  {
+    "domain": "tokenless.com",
+    "price": null
+  },
+  {
+    "domain": "titaniumtech.com",
+    "price": null
+  },
+  {
+    "domain": "starvine.com",
+    "price": null
+  },
+  {
+    "domain": "stakecapital.com",
+    "price": null
+  },
+  {
+    "domain": "stakebank.com",
+    "price": null
+  },
+  {
+    "domain": "smartmedics.com",
+    "price": null
+  },
+  {
+    "domain": "smartfirewall.com",
+    "price": null
+  },
+  {
+    "domain": "pushcapital.com",
+    "price": null
+  },
+  {
+    "domain": "pricezone.com",
+    "price": null
+  },
+  {
+    "domain": "payventures.com",
+    "price": null
+  },
+  {
+    "domain": "payscale.ai",
+    "price": null
+  },
+  {
+    "domain": "openlease.com",
+    "price": null
+  },
+  {
+    "domain": "oasispay.com",
+    "price": null
+  },
+  {
+    "domain": "moneyriver.com",
+    "price": null
+  },
+  {
+    "domain": "marketminer.com",
+    "price": null
+  },
+  {
+    "domain": "livecenter.ai",
+    "price": null
+  },
+  {
+    "domain": "livebet.ai",
+    "price": null
+  },
+  {
+    "domain": "hybridhub.com",
+    "price": null
+  },
+  {
+    "domain": "housewire.com",
+    "price": null
+  },
+  {
+    "domain": "hitcast.com",
+    "price": null
+  },
+  {
+    "domain": "goodscience.com",
+    "price": null
+  },
+  {
+    "domain": "gamepartners.com",
+    "price": null
+  },
+  {
+    "domain": "flipzone.com",
+    "price": null
+  },
+  {
+    "domain": "fitnessconnect.com",
+    "price": null
+  },
+  {
+    "domain": "dominionhealth.com",
+    "price": null
+  },
+  {
+    "domain": "devtrader.com",
+    "price": null
+  },
+  {
+    "domain": "cyberspark.com",
+    "price": null
+  },
+  {
+    "domain": "cyberquake.com",
+    "price": null
+  },
+  {
+    "domain": "cloudrepublic.com",
+    "price": null
+  },
+  {
+    "domain": "cardlabs.com",
+    "price": null
+  },
+  {
+    "domain": "bettingzoo.com",
+    "price": null
+  },
+  {
+    "domain": "autoprogress.com",
+    "price": null
+  },
+  {
+    "domain": "altfinancial.com",
+    "price": null
+  },
+  {
+    "domain": "acornbank.com",
+    "price": null
+  },
+  {
+    "domain": "ultrazero.com",
+    "price": null
+  },
+  {
+    "domain": "tribaltech.com",
+    "price": null
+  },
+  {
+    "domain": "tradewise.ai",
+    "price": null
+  },
+  {
+    "domain": "sportstrade.ai",
+    "price": null
+  },
+  {
+    "domain": "rightfood.com",
+    "price": null
+  },
+  {
+    "domain": "razorcapital.com",
+    "price": null
+  },
+  {
+    "domain": "humanchoice.com",
+    "price": null
+  },
+  {
+    "domain": "discus.ai",
+    "price": null
+  },
+  {
+    "domain": "blockgold.com",
+    "price": null
+  },
+  {
+    "domain": "taxzone.com",
+    "price": null
+  },
+  {
+    "domain": "stoicfund.com",
+    "price": null
+  },
+  {
+    "domain": "reflexbank.com",
+    "price": null
+  },
+  {
+    "domain": "oriontrust.com",
+    "price": null
+  },
+  {
+    "domain": "identitytrust.com",
+    "price": null
+  },
+  {
+    "domain": "virtualtrust.com",
+    "price": null
+  },
+  {
+    "domain": "tradegenius.ai",
+    "price": null
+  },
+  {
+    "domain": "topsail.ai",
+    "price": null
+  },
+  {
+    "domain": "thetis.ai",
+    "price": null
+  },
+  {
+    "domain": "superneural.ai",
+    "price": null
+  },
+  {
+    "domain": "sertis.ai",
+    "price": null
+  },
+  {
+    "domain": "sentive.ai",
+    "price": null
+  },
+  {
+    "domain": "ridewise.com",
+    "price": null
+  },
+  {
+    "domain": "prizebet.com",
+    "price": null
+  },
+  {
+    "domain": "pickpal.com",
+    "price": null
+  },
+  {
+    "domain": "optive.ai",
+    "price": null
+  },
+  {
+    "domain": "opendev.ai",
+    "price": null
+  },
+  {
+    "domain": "onegulf.com",
+    "price": null
+  },
+  {
+    "domain": "odysseycasino.com",
+    "price": null
+  },
+  {
+    "domain": "ninjatools.com",
+    "price": null
+  },
+  {
+    "domain": "neuroscope.com",
+    "price": null
+  },
+  {
+    "domain": "neomind.ai",
+    "price": null
+  },
+  {
+    "domain": "musedeep.com",
+    "price": null
+  },
+  {
+    "domain": "mindwork.ai",
+    "price": null
+  },
+  {
+    "domain": "mindsense.ai",
+    "price": null
+  },
+  {
+    "domain": "mindfind.com",
+    "price": null
+  },
+  {
+    "domain": "luckyswap.com",
+    "price": null
+  },
+  {
+    "domain": "livepin.ai",
+    "price": null
+  },
+  {
+    "domain": "investordata.com",
+    "price": null
+  },
+  {
+    "domain": "hyperscale.co",
+    "price": null
+  },
+  {
+    "domain": "hotplay.com",
+    "price": null
+  },
+  {
+    "domain": "goldbits.com",
+    "price": null
+  },
+  {
+    "domain": "geniusnetworks.com",
+    "price": null
+  },
+  {
+    "domain": "genios.ai",
+    "price": null
+  },
+  {
+    "domain": "genesisrobots.ai",
+    "price": null
+  },
+  {
+    "domain": "financekit.com",
+    "price": null
+  },
+  {
+    "domain": "elevatelabs.ai",
+    "price": null
+  },
+  {
+    "domain": "cyberbingo.com",
+    "price": null
+  },
+  {
+    "domain": "coinlabs.ai",
+    "price": null
+  },
+  {
+    "domain": "chinacenter.com",
+    "price": null
+  },
+  {
+    "domain": "botplatform.com",
+    "price": null
+  },
+  {
+    "domain": "betwallet.com",
+    "price": null
+  },
+  {
+    "domain": "autobalance.com",
+    "price": null
+  },
+  {
+    "domain": "agencylabs.ai",
+    "price": null
+  },
+  {
+    "domain": "aftermath.ai",
+    "price": null
+  },
+  {
+    "domain": "acton.ai",
+    "price": null
+  },
+  {
+    "domain": "tara.xyz",
+    "price": null
+  },
+  {
+    "domain": "superintellect.ai",
+    "price": null
+  },
+  {
+    "domain": "superhuman.co",
+    "price": null
+  },
+  {
+    "domain": "shoplab.ai",
+    "price": null
+  },
+  {
+    "domain": "scion.xyz",
+    "price": null
+  },
+  {
+    "domain": "mosaiccapital.com",
+    "price": null
+  },
+  {
+    "domain": "cityvision.com",
+    "price": null
+  },
+  {
+    "domain": "betstream.com",
+    "price": null
+  },
+  {
+    "domain": "smarttech.ai",
+    "price": null
+  },
+  {
+    "domain": "agreed.ai",
+    "price": null
+  },
+  {
+    "domain": "taxaccounting.com",
+    "price": null
+  },
+  {
+    "domain": "safelabs.ai",
+    "price": null
+  },
+  {
+    "domain": "powerwealth.com",
+    "price": null
+  },
+  {
+    "domain": "playvibe.com",
+    "price": null
+  },
+  {
+    "domain": "gainfin.com",
+    "price": null
+  },
+  {
+    "domain": "devcap.com",
+    "price": null
+  },
+  {
+    "domain": "darklabs.ai",
+    "price": null
+  },
+  {
+    "domain": "boostcapital.com",
+    "price": null
+  },
+  {
+    "domain": "warhead.ai",
+    "price": null
+  },
+  {
+    "domain": "smartcontracts.ai",
+    "price": null
+  },
+  {
+    "domain": "neorobotics.com",
+    "price": null
+  },
+  {
+    "domain": "karisma.ai",
+    "price": null
+  },
+  {
+    "domain": "healthvine.com",
+    "price": null
+  },
+  {
+    "domain": "finbot.ai",
+    "price": null
+  },
+  {
+    "domain": "collector.xyz",
+    "price": null
+  },
+  {
+    "domain": "boldbet.com",
+    "price": null
+  },
+  {
+    "domain": "americafirst.ai",
+    "price": null
+  },
+  {
+    "domain": "starlet.ai",
+    "price": null
+  },
+  {
+    "domain": "supersense.ai",
+    "price": null
+  },
+  {
+    "domain": "diamondback.ai",
+    "price": null
+  },
+  {
+    "domain": "deeplogic.ai",
+    "price": null
+  },
+  {
+    "domain": "cybergrid.com",
+    "price": null
+  },
+  {
+    "domain": "autofolio.com",
+    "price": null
+  },
+  {
+    "domain": "playkey.com",
+    "price": null
+  },
+  {
+    "domain": "playcloud.com",
+    "price": null
+  },
+  {
+    "domain": "chargeport.com",
+    "price": null
+  },
+  {
+    "domain": "univector.com",
+    "price": null
+  },
+  {
+    "domain": "smartsurgery.com",
+    "price": null
+  },
+  {
+    "domain": "smartcharging.com",
+    "price": null
+  },
+  {
+    "domain": "shark.xyz",
+    "price": null
+  },
+  {
+    "domain": "privatewealth.ai",
+    "price": null
+  },
+  {
+    "domain": "neurodrop.com",
+    "price": null
+  },
+  {
+    "domain": "legacycenter.com",
+    "price": null
+  },
+  {
+    "domain": "rushai.com",
+    "price": null
+  },
+  {
+    "domain": "lonestar.ai",
+    "price": null
+  },
+  {
+    "domain": "lifespan.ai",
+    "price": null
+  },
+  {
+    "domain": "parlay.org",
+    "price": null
+  },
+  {
+    "domain": "lifehealth.ai",
+    "price": null
+  },
+  {
+    "domain": "liveporn.ai",
+    "price": null
+  },
+  {
+    "domain": "botzero.com",
+    "price": null
+  },
+  {
+    "domain": "autoinvesting.com",
+    "price": null
+  },
+  {
+    "domain": "equate.ai",
+    "price": null
+  },
+  {
+    "domain": "sharkeye.com",
+    "price": null
+  },
+  {
+    "domain": "neoscan.ai",
+    "price": null
+  },
+  {
+    "domain": "streamer.ai",
+    "price": null
+  },
+  {
+    "domain": "toptrade.ai",
+    "price": null
+  },
+  {
+    "domain": "superwin.ai",
+    "price": null
+  },
+  {
+    "domain": "autosoft.ai",
+    "price": null
+  },
+  {
+    "domain": "fyi.xyz",
+    "price": null
+  },
+  {
+    "domain": "balance.xyz",
+    "price": null
+  },
+  {
+    "domain": "playmaster.com",
+    "price": null
+  },
+  {
+    "domain": "winbot.ai",
+    "price": null
+  },
+  {
+    "domain": "transitive.com",
+    "price": null
+  },
+  {
+    "domain": "healthnest.com",
+    "price": null
+  },
+  {
+    "domain": "alphatrader.ai",
+    "price": null
+  },
+  {
+    "domain": "alphatrade.ai",
+    "price": null
+  },
+  {
+    "domain": "smartvideo.com",
+    "price": null
+  },
+  {
+    "domain": "coyote.ai",
+    "price": null
+  },
+  {
+    "domain": "homegenie.com",
+    "price": null
+  },
+  {
+    "domain": "humangraph.com",
+    "price": null
+  },
+  {
+    "domain": "albion.ai",
+    "price": null
+  },
+  {
+    "domain": "cloudfinance.com",
+    "price": null
+  },
+  {
+    "domain": "integer.ai",
+    "price": null
+  },
+  {
+    "domain": "barn.ai",
+    "price": null
+  },
+  {
+    "domain": "accept.ai",
+    "price": null
+  },
+  {
+    "domain": "prowear.ai",
+    "price": null
+  },
+  {
+    "domain": "sino.ai",
+    "price": null
+  },
+  {
+    "domain": "designed.ai",
+    "price": null
+  },
+  {
+    "domain": "polaris.xyz",
+    "price": null
+  },
+  {
+    "domain": "slots.ai",
+    "price": null
+  },
+  {
+    "domain": "parlay.ai",
+    "price": null
+  },
+  {
+    "domain": "wiseware.com",
+    "price": null
+  },
+  {
+    "domain": "top.xyz",
+    "price": null
+  },
+  {
+    "domain": "jackpot.co",
+    "price": null
+  },
+  {
+    "domain": "temple.ai",
+    "price": null
+  },
+  {
+    "domain": "livewear.com",
+    "price": null
+  },
+  {
+    "domain": "livewear.ai",
+    "price": null
+  },
+  {
+    "domain": "excel.ai",
+    "price": null
+  },
+  {
+    "domain": "april.ai",
+    "price": null
+  },
+  {
+    "domain": "roi.ai",
+    "price": null
+  },
+  {
+    "domain": "wealth.ai",
+    "price": null
+  },
+  {
+    "domain": "canopus.com",
+    "price": null
+  },
+  {
     "domain": "pantherdigital.com",
     "price": null
   },
@@ -1785,7 +5013,7 @@
   },
   {
     "domain": "beachplum.com",
-    "price": null
+    "price": 14995.0
   },
   {
     "domain": "poetrycamp.com",
@@ -118297,11 +121525,11 @@
   },
   {
     "domain": "tripolizoo.org",
-    "price": null
+    "price": 4995.0
   },
   {
     "domain": "tripoligazette.com",
-    "price": null
+    "price": 4995.0
   },
   {
     "domain": "tricuts.com",
@@ -118333,11 +121561,11 @@
   },
   {
     "domain": "singleslibya.com",
-    "price": null
+    "price": 4995.0
   },
   {
     "domain": "shoesrings.com",
-    "price": null
+    "price": 9995.0
   },
   {
     "domain": "shamandomains.com",
@@ -118381,7 +121609,7 @@
   },
   {
     "domain": "qprsquirrel.com",
-    "price": null
+    "price": 3995.0
   },
   {
     "domain": "puddingbag.com",
@@ -118397,7 +121625,7 @@
   },
   {
     "domain": "plantspecimens.com",
-    "price": null
+    "price": 6995.0
   },
   {
     "domain": "picturelion.com",
@@ -118409,7 +121637,7 @@
   },
   {
     "domain": "paddlewars.com",
-    "price": 9995.0
+    "price": 8500.0
   },
   {
     "domain": "netrelics.net",
@@ -118421,7 +121649,7 @@
   },
   {
     "domain": "martyrlibya.com",
-    "price": null
+    "price": 4995.0
   },
   {
     "domain": "mapledew.com",
@@ -118441,7 +121669,7 @@
   },
   {
     "domain": "libyangazette.com",
-    "price": null
+    "price": 4995.0
   },
   {
     "domain": "lambcod.com",
@@ -118449,7 +121677,7 @@
   },
   {
     "domain": "kosmari.com",
-    "price": null
+    "price": 4995.0
   },
   {
     "domain": "journalarctic.net",
@@ -118557,7 +121785,7 @@
   },
   {
     "domain": "clicklibya.com",
-    "price": null
+    "price": 4995.0
   },
   {
     "domain": "chroniclehouse.com",
@@ -120717,7 +123945,7 @@
   },
   {
     "domain": "bolddubai.com",
-    "price": null
+    "price": 5000.0
   },
   {
     "domain": "forecaster.com",
@@ -166997,7 +170225,7 @@
   },
   {
     "domain": "prodigymart.com",
-    "price": 9888.0
+    "price": 1977.0
   },
   {
     "domain": "panthertrust.com",
@@ -167045,7 +170273,7 @@
   },
   {
     "domain": "extremedao.com",
-    "price": 24500.0
+    "price": 1977.0
   },
   {
     "domain": "centurydao.com",
@@ -167137,7 +170365,7 @@
   },
   {
     "domain": "cardinalhire.com",
-    "price": 9888.0
+    "price": 1977.0
   },
   {
     "domain": "cardinalstores.com",
@@ -167145,7 +170373,7 @@
   },
   {
     "domain": "reabio.com",
-    "price": 9888.0
+    "price": 24500.0
   },
   {
     "domain": "giantsecure.com",
@@ -167221,7 +170449,7 @@
   },
   {
     "domain": "shieldevents.com",
-    "price": 9888.0
+    "price": 1977.0
   },
   {
     "domain": "blinkfund.com",
@@ -167273,7 +170501,7 @@
   },
   {
     "domain": "treasureevents.com",
-    "price": 9888.0
+    "price": 1977.0
   },
   {
     "domain": "sigexchange.com",
@@ -167429,7 +170657,7 @@
   },
   {
     "domain": "hexalliance.com",
-    "price": 9888.0
+    "price": 1977.0
   },
   {
     "domain": "hexenterprise.com",
@@ -167833,7 +171061,7 @@
   },
   {
     "domain": "fireflyclinic.com",
-    "price": 9888.0
+    "price": 1977.0
   },
   {
     "domain": "fireflystores.com",
@@ -168689,7 +171917,7 @@
   },
   {
     "domain": "sensetransport.com",
-    "price": 9888.0
+    "price": 1977.0
   },
   {
     "domain": "anonporn.com",
@@ -169093,7 +172321,7 @@
   },
   {
     "domain": "vistadao.com",
-    "price": 24500.0
+    "price": 9888.0
   },
   {
     "domain": "roguetrust.com",
@@ -169133,7 +172361,7 @@
   },
   {
     "domain": "equinoxclinic.com",
-    "price": 9888.0
+    "price": 1977.0
   },
   {
     "domain": "voyagerdao.com",
@@ -169589,7 +172817,7 @@
   },
   {
     "domain": "atlanticdao.com",
-    "price": 24500.0
+    "price": 1977.0
   },
   {
     "domain": "equinoxhire.com",
@@ -169601,7 +172829,7 @@
   },
   {
     "domain": "atlanticsecure.com",
-    "price": 9888.0
+    "price": 1977.0
   },
   {
     "domain": "nebulaalliance.com",
@@ -169701,7 +172929,7 @@
   },
   {
     "domain": "neonfunds.com",
-    "price": 9888.0
+    "price": 1977.0
   },
   {
     "domain": "herculesshops.com",
@@ -170565,11 +173793,11 @@
   },
   {
     "domain": "sensealliance.com",
-    "price": 9888.0
+    "price": 1977.0
   },
   {
     "domain": "irisalliance.com",
-    "price": 9888.0
+    "price": 1977.0
   },
   {
     "domain": "oraclealliance.com",
@@ -170577,7 +173805,7 @@
   },
   {
     "domain": "blazealliance.com",
-    "price": 9888.0
+    "price": 1977.0
   },
   {
     "domain": "roveralliance.com",
@@ -170961,7 +174189,7 @@
   },
   {
     "domain": "neonshops.com",
-    "price": 9888.0
+    "price": 1977.0
   },
   {
     "domain": "vortexshops.com",
@@ -199192,63 +202420,7 @@
     "price": 19000.0
   },
   {
-    "domain": "soberspecial.com",
-    "price": 2495.0
-  },
-  {
-    "domain": "sobersmile.com",
-    "price": 2495.0
-  },
-  {
-    "domain": "soberstatus.com",
-    "price": 2495.0
-  },
-  {
-    "domain": "soberstage.com",
-    "price": 2495.0
-  },
-  {
     "domain": "sobersun.com",
-    "price": 2495.0
-  },
-  {
-    "domain": "soberrank.com",
-    "price": 2495.0
-  },
-  {
-    "domain": "soberrocket.com",
-    "price": 2495.0
-  },
-  {
-    "domain": "soberright.com",
-    "price": 2495.0
-  },
-  {
-    "domain": "sobersuite.com",
-    "price": 2495.0
-  },
-  {
-    "domain": "sobergeek.com",
-    "price": 2495.0
-  },
-  {
-    "domain": "soberedge.com",
-    "price": 2495.0
-  },
-  {
-    "domain": "sobermachine.com",
-    "price": 2495.0
-  },
-  {
-    "domain": "sobermanager.com",
-    "price": 2495.0
-  },
-  {
-    "domain": "soberstream.com",
-    "price": 2495.0
-  },
-  {
-    "domain": "soberengine.com",
     "price": 2495.0
   },
   {
@@ -251472,10 +254644,6 @@
     "price": 1988.0
   },
   {
-    "domain": "yielding.xyz",
-    "price": 26888.0
-  },
-  {
     "domain": "usergroup.xyz",
     "price": 26888.0
   },
@@ -272017,7 +275185,7 @@
   },
   {
     "domain": "storageoffer.com",
-    "price": 1495.0
+    "price": 1500.0
   },
   {
     "domain": "epoxyflooring.net",
@@ -323053,7 +326221,7 @@
   },
   {
     "domain": "sellproperties.com",
-    "price": 25000.0
+    "price": 15000.0
   },
   {
     "domain": "roomsonly.com",
@@ -369256,10 +372424,6 @@
     "price": null
   },
   {
-    "domain": "texascouncil.com",
-    "price": null
-  },
-  {
     "domain": "texasclouds.com",
     "price": null
   },
@@ -376253,10 +379417,6 @@
   },
   {
     "domain": "bakershelper.com",
-    "price": null
-  },
-  {
-    "domain": "bagsmart.com",
     "price": null
   },
   {
@@ -394065,10 +397225,6 @@
   },
   {
     "domain": "trademarkchain.com",
-    "price": null
-  },
-  {
-    "domain": "financialchain.com",
     "price": null
   },
   {

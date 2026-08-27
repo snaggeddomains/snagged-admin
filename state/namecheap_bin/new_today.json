@@ -1,8 +1,11 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-26T09:04:41.819805+00:00",
+  "count": 2,
+  "domains": [
+    "enhancement.ai",
+    "estimation.ai"
+  ],
+  "generated_at": "2026-08-27T09:03:19.254235+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

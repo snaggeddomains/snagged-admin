@@ -1,44 +1,17 @@
 [
   {
-    "bid_count": 59,
-    "domain": "sheeple.com",
-    "end_time_utc": "2026-08-26T18:59:24.211980+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Sheeple.com",
-    "platform": "DropCatch",
-    "price": 2199.0
-  },
-  {
-    "bid_count": 68,
-    "domain": "sggt.com",
-    "end_time_utc": "2026-08-26T18:59:24.211980+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Sggt.com",
-    "platform": "DropCatch",
-    "price": 601.0
-  },
-  {
-    "bid_count": 56,
-    "domain": "hff.org",
-    "end_time_utc": "2026-08-26T18:59:24.211980+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Hff.org",
-    "platform": "DropCatch",
-    "price": 249.0
-  },
-  {
-    "bid_count": 33,
+    "bid_count": 37,
     "domain": "aromatik.com",
-    "end_time_utc": "2026-08-27T18:59:24.211980+00:00",
+    "end_time_utc": "2026-08-27T18:59:38.129984+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Aromatik.com",
     "platform": "DropCatch",
-    "price": 86.0
+    "price": 111.0
   },
   {
     "bid_count": 50,
     "domain": "sirrus.com",
-    "end_time_utc": "2026-08-28T18:59:24.211980+00:00",
+    "end_time_utc": "2026-08-28T18:59:38.129984+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/SirRus.com",
     "platform": "DropCatch",

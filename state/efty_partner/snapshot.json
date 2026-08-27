@@ -1320,6 +1320,17 @@
     "zipf_score": 4.68
   },
   {
+    "deal_score": 46710.0,
+    "domain": "april.ai",
+    "is_mub": false,
+    "link": "https://efty.com/d/3itnf/april.ai/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
+    "price": 1.0,
+    "quality_score": 4.671,
+    "sld": "april",
+    "tld": ".ai",
+    "zipf_score": 5.19
+  },
+  {
     "deal_score": 46700.0,
     "domain": "walked.com",
     "is_mub": false,
@@ -1893,6 +1904,17 @@
   },
   {
     "deal_score": 44640.0,
+    "domain": "designed.ai",
+    "is_mub": false,
+    "link": "https://efty.com/d/3itnv/designed.ai/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
+    "price": 1.0,
+    "quality_score": 4.464,
+    "sld": "designed",
+    "tld": ".ai",
+    "zipf_score": 4.96
+  },
+  {
+    "deal_score": 44640.0,
     "domain": "costs.ai",
     "is_mub": false,
     "link": "https://efty.com/d/3bhk9/costs.ai/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
@@ -2376,6 +2398,17 @@
     "zipf_score": 4.37
   },
   {
+    "deal_score": 43650.0,
+    "domain": "accept.ai",
+    "is_mub": false,
+    "link": "https://efty.com/d/3itnz/accept.ai/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
+    "price": 1.0,
+    "quality_score": 4.365,
+    "sld": "accept",
+    "tld": ".ai",
+    "zipf_score": 4.85
+  },
+  {
     "deal_score": 43600.0,
     "domain": "reducing.com",
     "is_mub": false,
@@ -2418,6 +2451,17 @@
     "sld": "sections",
     "tld": ".com",
     "zipf_score": 4.36
+  },
+  {
+    "deal_score": 43560.0,
+    "domain": "agreed.ai",
+    "is_mub": false,
+    "link": "https://efty.com/d/3itt8/agreed.ai/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
+    "price": 1.0,
+    "quality_score": 4.356,
+    "sld": "agreed",
+    "tld": ".ai",
+    "zipf_score": 4.84
   },
   {
     "deal_score": 43560.0,
@@ -2495,6 +2539,17 @@
     "sld": "genetic",
     "tld": ".com",
     "zipf_score": 4.34
+  },
+  {
+    "deal_score": 43330.0,
+    "domain": "also.io",
+    "is_mub": false,
+    "link": "https://efty.com/d/3iuwx/also.io/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
+    "price": 1.0,
+    "quality_score": 4.333,
+    "sld": "also",
+    "tld": ".io",
+    "zipf_score": 6.19
   },
   {
     "deal_score": 43300.0,
@@ -2693,60 +2748,5 @@
     "sld": "disabled",
     "tld": ".com",
     "zipf_score": 4.29
-  },
-  {
-    "deal_score": 42900.0,
-    "domain": "succeed.com",
-    "is_mub": false,
-    "link": "https://efty.com/d/29n9h/succeed.com/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
-    "price": 1.0,
-    "quality_score": 4.29,
-    "sld": "succeed",
-    "tld": ".com",
-    "zipf_score": 4.29
-  },
-  {
-    "deal_score": 42900.0,
-    "domain": "estimate.com",
-    "is_mub": false,
-    "link": "https://efty.com/d/24xm0/estimate.com/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
-    "price": 1.0,
-    "quality_score": 4.29,
-    "sld": "estimate",
-    "tld": ".com",
-    "zipf_score": 4.29
-  },
-  {
-    "deal_score": 42900.0,
-    "domain": "educated.com",
-    "is_mub": false,
-    "link": "https://efty.com/d/1jkfu/educated.com/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
-    "price": 1.0,
-    "quality_score": 4.29,
-    "sld": "educated",
-    "tld": ".com",
-    "zipf_score": 4.29
-  },
-  {
-    "deal_score": 42770.0,
-    "domain": "him.io",
-    "is_mub": false,
-    "link": "https://efty.com/d/16u08/him.io/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
-    "price": 1.0,
-    "quality_score": 4.277,
-    "sld": "him",
-    "tld": ".io",
-    "zipf_score": 6.11
-  },
-  {
-    "deal_score": 42700.0,
-    "domain": "editing.com",
-    "is_mub": false,
-    "link": "https://efty.com/d/2xpms/editing.com/?pid=c37b7018-531d-4c9c-b49b-104be0fbd2a7",
-    "price": 1.0,
-    "quality_score": 4.27,
-    "sld": "editing",
-    "tld": ".com",
-    "zipf_score": 4.27
   }
 ]

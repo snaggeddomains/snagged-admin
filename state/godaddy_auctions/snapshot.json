@@ -1,146 +1,56 @@
 [
   {
-    "bid_count": 5,
-    "domain": "holler.co",
-    "end_time_utc": "2026-08-26T16:25:00+00:00",
+    "bid_count": 10,
+    "domain": "traces.io",
+    "end_time_utc": "2026-08-27T17:35:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/holler-co-719600063?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/traces-io-721644730?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 16.0
+    "price": 60.0
   },
   {
-    "bid_count": 17,
-    "domain": "wearc.com",
-    "end_time_utc": "2026-08-26T16:52:00+00:00",
+    "bid_count": 18,
+    "domain": "cradio.com",
+    "end_time_utc": "2026-08-27T17:39:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/wearc-com-721546832?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/cradio-com-721665239?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 138.0
+    "price": 348.0
   },
   {
-    "bid_count": 23,
-    "domain": "clubhouse.co",
-    "end_time_utc": "2026-08-26T17:20:00+00:00",
+    "bid_count": 12,
+    "domain": "gleam.co",
+    "end_time_utc": "2026-08-27T18:03:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/clubhouse-co-720692655?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/gleam-co-721667877?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 369.0
+    "price": 300.0
   },
   {
-    "bid_count": 0,
-    "domain": "batting.co",
-    "end_time_utc": "2026-08-26T17:25:00+00:00",
+    "bid_count": 16,
+    "domain": "oitu.com",
+    "end_time_utc": "2026-08-27T18:44:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/batting-co-721568362?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/oitu-com-721665407?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 1.0
+    "price": 276.0
   },
   {
-    "bid_count": 41,
-    "domain": "filterx.com",
-    "end_time_utc": "2026-08-26T17:48:00+00:00",
+    "bid_count": 11,
+    "domain": "trica.co",
+    "end_time_utc": "2026-08-27T19:15:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/filterx-com-721545067?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/trica-co-721653708?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 2075.0
+    "price": 105.0
   },
   {
-    "bid_count": 34,
-    "domain": "studiod.com",
-    "end_time_utc": "2026-08-26T18:07:00+00:00",
+    "bid_count": 16,
+    "domain": "tdomain.com",
+    "end_time_utc": "2026-08-27T19:46:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/studiod-com-719766289?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/tdomain-com-721665307?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 676.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "gwent.co",
-    "end_time_utc": "2026-08-26T18:43:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/gwent-co-721563138?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1.0
-  },
-  {
-    "bid_count": 5,
-    "domain": "pontra.com",
-    "end_time_utc": "2026-08-26T18:57:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/pontra-com-721561618?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 82.0
-  },
-  {
-    "bid_count": 7,
-    "domain": "oen.co",
-    "end_time_utc": "2026-08-26T19:03:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/oen-co-721567550?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 50.0
-  },
-  {
-    "bid_count": 29,
-    "domain": "sblock.com",
-    "end_time_utc": "2026-08-26T19:32:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/sblock-com-721545924?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1225.0
-  },
-  {
-    "bid_count": 1,
-    "domain": "drank.org",
-    "end_time_utc": "2026-08-26T19:39:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/drank-org-721388681?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "hitting.co",
-    "end_time_utc": "2026-08-26T20:12:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/hitting-co-721568360?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "kickers.co",
-    "end_time_utc": "2026-08-26T20:21:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/kickers-co-721569624?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1.0
-  },
-  {
-    "bid_count": 20,
-    "domain": "xemplar.com",
-    "end_time_utc": "2026-08-26T20:25:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/xemplar-com-721562191?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 103.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "throwing.co",
-    "end_time_utc": "2026-08-26T20:36:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/throwing-co-721569623?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "amiss.org",
-    "end_time_utc": "2026-08-26T21:04:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/amiss-org-721420366?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1.0
+    "price": 65.0
   }
 ]

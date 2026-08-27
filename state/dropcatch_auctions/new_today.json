@@ -1,14 +1,11 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 2,
   "domains": [
-    "sheeple.com",
-    "sggt.com",
-    "hff.org",
     "aromatik.com",
     "sirrus.com"
   ],
-  "generated_at": "2026-08-26T09:56:25.147737+00:00",
+  "generated_at": "2026-08-27T09:53:39.263731+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }
