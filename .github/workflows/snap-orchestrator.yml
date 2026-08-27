@@ -119,6 +119,29 @@ jobs:
         with:
           message: "snap-orchestrator: state $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
+      # Fire the "worth a look" valued picks RIGHT AFTER the full SNAP + auction lists are
+      # published and state is committed to main — so they land soon after the lists, not on
+      # a separate 9 AM ET cron. The picks endpoint reads the just-committed new_today/snapshot
+      # via the GitHub API, so this must run AFTER commit-state. Best-effort: a picks hiccup
+      # never fails the orchestrator. Needs the CRON_SECRET GitHub secret (same value as the
+      # Vercel CRON_SECRET the endpoint checks); if unset, the step no-ops.
+      - name: Post "worth a look" picks
+        if: ${{ always() && inputs.mode != 'ping' }}
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          PICKS_BASE: ${{ vars.DASHBOARD_BASE || 'https://app.snagged.com' }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "CRON_SECRET not set — skipping 'worth a look' picks (add it as a GitHub Actions secret to enable)."
+            exit 0
+          fi
+          code=$(curl -sS -m 150 -o /tmp/picks.json -w '%{http_code}' \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$PICKS_BASE/api/cron/opportunity-picks") || true
+          echo "worth-a-look picks: HTTP ${code:-error}"
+          cat /tmp/picks.json 2>/dev/null || true
+          echo   # never fail the run on a picks hiccup
+
       - name: Flag run failed if any source failed
         if: ${{ always() && inputs.mode != 'ping' }}
         run: |

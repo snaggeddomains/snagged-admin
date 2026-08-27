@@ -16,7 +16,6 @@
     { "path": "/api/cron/pitch-scan", "schedule": "0 13 * * 1" },
     { "path": "/api/cron/client-corpus", "schedule": "0 11 * * *" },
     { "path": "/api/cron/client-overlap", "schedule": "0 12 * * *" },
-    { "path": "/api/cron/opportunity-picks", "schedule": "0 13 * * *" },
     { "path": "/api/cron/reddit-sweep", "schedule": "0 13,18,23 * * *" },
     { "path": "/api/cron/x-sweep", "schedule": "0 13,18,23 * * *" }
   ]

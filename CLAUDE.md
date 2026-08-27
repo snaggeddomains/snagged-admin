@@ -742,9 +742,27 @@ Daily top picks, appraised and ranked, surfaced in Reports → SNAP Opportunitie
   cost isn't actionable (drops the unpriced Efty-partner feed rows). The Appraisal cell links to
   the research appraisal tool `/research/appraisal/<domain>` (opens/auto-runs the appraisal run
   for that name; cached run loads instantly).
-- **Daily Slack**: cron `app/api/cron/opportunity-picks` (`vercel.json` `0 13 * * *`) → posts the
-  two buckets to their channels + warms the research appraisal cache for the day. `?dry=1` builds
-  without posting.
+- **Daily Slack**: `app/api/cron/opportunity-picks` posts the two buckets to their channels + warms
+  the research appraisal cache for the day. `?dry=1` builds without posting.
+- **Fires RIGHT AFTER the full lists, not on a 9 AM cron (2026-08-27, Rob).** The picks used to run on
+  their own Vercel cron `0 13 * * *` (= 9 AM ET), hours after the SNAP + auction lists published.
+  Now the **SNAP Orchestrator triggers it as its FINAL step** — after `namecheap_bin`/`auctions_publish`
+  post the full lists AND after `commit-state` pushes (so the endpoint's `newOpportunities` →
+  `getFile` reads the just-committed `new_today`/`snapshot` from `@main` via the GitHub API). Wiring:
+  a "Post 'worth a look' picks" step in `snap-orchestrator.yml` curls `"$PICKS_BASE/api/cron/opportunity-picks"`
+  with `Authorization: Bearer $CRON_SECRET`, best-effort (never fails the orchestrator; no-ops if
+  `CRON_SECRET` is unset). The `0 13` cron was **removed** from `vercel.json` (would double-post).
+  **Setup: add `CRON_SECRET` as a GitHub Actions secret** on snagged-admin (same value as the Vercel
+  `CRON_SECRET` the endpoint already checks) — until then the step logs "skipping" and no picks post.
+  Optional repo var `DASHBOARD_BASE` (default `https://app.snagged.com`).
+- **Cream of the crop, not a fixed top-5 (2026-08-27, Rob).** `buildPicks` (`opportunities-picks.ts`)
+  no longer caps each bucket at 5. It now VALUES a wider **POOL** (default 25/bucket by quality, priced
+  only), then `creamOfCrop` keeps only the genuine bargains — **appraisal ÷ cost ≥ CREAM_RATIO** (default
+  3), best first, capped at **MAX_PICKS** (default 15) as a flood guard. If the research valuation service
+  didn't run (every ratio null) it falls back to the top **FALLBACK_N** (5) by quality so the digest isn't
+  silently empty; if it DID run but nothing clears the bar, that bucket is empty (no post that day — correct
+  for "cream only", not filler). Tune via env `OPPORTUNITY_PICKS_POOL`/`_RATIO`/`_MAX` (needs a redeploy).
+  **⚠️ CREAM_RATIO 3 is an un-calibrated first guess** — watch a few days of live picks and raise/lower it.
 - **Single-seller portfolio de-flood (2026-07-24).** One owner listing `<name>+word` permutations
   (e.g. julianadvice/julianpartners/juliancorp… from the Efty Partner feed, all unpriced) was
   flooding the SNAP list. `defloodSnap()` in `lib/opportunities.ts` clusters UNPRICED names within a
