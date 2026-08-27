@@ -1,3 +1,22 @@
+# Internal Google-Sheet builder for the research app (2026-08-27)
+
+`app/api/internal/naming-sheet/route.ts` — lets the **research** app (which holds NO Google
+creds) create a real Google Sheet via admin's service account. Auth = `x-internal-secret ==
+RESEARCH_INTERNAL_SECRET` (same pattern as email-threads/sales-comps; `middleware.ts` excludes
+`api/internal`). `POST {title, values:string[][], shareWith?:email}` → `{ok, url, warning?}`.
+- **Lib** `lib/gsheets.ts` `createSheetInSharedDrive({title, values, shareWith})` — raw-fetch +
+  `googleAccessToken` (no googleapis dep, mirrors `lib/sheets.ts`). ⚠️ The SA has **no personal
+  Drive** (quota 0), so the file is created via the **Drive API inside the "Snagged Pipeline"
+  shared drive** (`parents:[0ACKJ-QAwIhwLUk9PVA]` + `supportsAllDrives=true`) — a plain Sheets
+  `spreadsheets.create` / My-Drive create 403s. Then Sheets `values/A1?valueInputOption=RAW` writes
+  the rows (gid 0), a batchUpdate bolds the header (cosmetic), and a Drive `permissions.create`
+  shares to the requester as writer (best-effort → `warning`). Live-verified end-to-end against the
+  real API (create+write+share+trash all 200).
+- **Consumed by** research `api/naming.js` "Export to Google Sheet" (see that repo's CLAUDE.md).
+  No new env — reuses `RESEARCH_INTERNAL_SECRET` (both projects) + `GOOGLE_SA_KEY` (admin, already
+  set for GA/Sheets). This is the "app integration" the Google-Docs/Sheets working-agreement noted
+  as not-yet-built; now built (research→admin internal call, not creds-in-research).
+
 # Memory cadence (READ FIRST) — commit CLAUDE.md with the code
 
 When you ship a feature/fix, add/update its `CLAUDE.md` section **in the same commit as
