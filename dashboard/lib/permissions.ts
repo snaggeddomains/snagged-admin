@@ -44,6 +44,7 @@ export const MODULES = [
   "research.evaluate", // SNAP Eval — should-we-buy-it acquisition/resale scorecard
   "research.bulk_eval", // Bulk Eval — rank a list/CSV of domains by investability (resale vs price)
   "research.expiring", // Expiring .ai — good one-word .ai names entering the redemption window (stored flat as `expiring`)
+  "research.snap_research", // SNAP Research — dictionary .com abandonment finder (stored flat as `snap_research`)
   "research.portfolio", // Corporate Portfolios — reverse-WHOIS a company → its premium domains (lives in Reports)
   "research.ahrefs", // Ahrefs Report — website deep-dive (traffic/DR/keywords/backlinks); lives in Reports, stored flat as `ahrefs`
   "research.person", // Person — social-URL deep dive: identity, cross-platform VIP, contacts
@@ -253,6 +254,7 @@ export const CATALOG: CatalogEntry[] = [
   { key: "research.bulk_eval", label: "Bulk Eval (rank a list of domains by investability)", group: "SNAP", kind: "module" },
   { key: "research.expiring", label: "Expiring .ai (one-word .ai names entering redemption)", group: "SNAP", kind: "module" },
   { key: "snap.deals", label: "SNAP Deals board (view + edit — internal acquisition tracker)", group: "SNAP", kind: "module" },
+  { key: "research.snap_research", label: "SNAP Research (dictionary .com abandonment finder)", group: "SNAP", kind: "module" },
   { key: "reports.opportunities", label: "SNAP Opportunities (snap + auctions)", group: "SNAP", kind: "action" },
   { key: "reports.snap_names", label: "SNAP Names (purchased / for-sale inventory)", group: "SNAP", kind: "action" },
   { key: "reports.snap_names.write", label: "SNAP Names — push registrar/DNS updates (bulk)", group: "SNAP", kind: "action" },
