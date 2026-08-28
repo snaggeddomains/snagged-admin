@@ -318,6 +318,42 @@ def _download_with_retry(url: str, *, attempts: int = 4, timeout: int = 300) -> 
     raise RuntimeError("afternic download failed after retries")  # unreachable
 
 
+def _skip_fail_open(err: Exception, slack_channel: str) -> int:
+    """The Afternic partner feed is externally unavailable — the broker link
+    redirects to an S3 object that 403s (unsigned URL / file not regenerated yet).
+    Skip this run WITHOUT touching the snapshot (diff baseline preserved) and
+    WITHOUT reddening the run over one blocked source. Alert so it's visible, then
+    exit clean (return 0). Set AFTERNIC_FAIL_OPEN=0 to restore the old hard-fail."""
+    print(f"      ⚠️  Afternic feed unavailable — skipping (fail-open): {err}")
+    msg = (
+        ":warning: *Afternic feed skipped* — the partner download was unreachable "
+        "today (the broker link 403'd — S3 object not ready / unsigned), so afternic "
+        "was skipped. The prior snapshot was kept; no SNAP data was lost. "
+        f"Details: {str(err)[:280]}"
+    )
+    try:
+        slack.post(
+            channel=slack_channel,
+            text=msg,
+            dedupe_key=slack.make_fingerprint(f"afternic_skip:{str(err)[:120]}"),
+            source=SOURCE_ID,
+        )
+    except Exception as e:  # noqa: BLE001
+        print(f"      (skip alert failed, non-fatal: {e})")
+    try:
+        state.write_json(SOURCE_ID, "run_status.json", {
+            "source": SOURCE_ID,
+            "label": SOURCE_LABEL,
+            "status": "skipped",
+            "reason": "feed_unavailable",
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "error": str(err)[:500],
+        })
+    except Exception as e:  # noqa: BLE001
+        print(f"      (run_status write failed, non-fatal: {e})")
+    return 0
+
+
 # ---------- main entrypoint ----------
 
 def run() -> int:
@@ -331,7 +367,17 @@ def run() -> int:
     today = datetime.now(timezone.utc).date().isoformat()
 
     print(f"[1/10] Downloading {fetch_url}")
-    zip_bytes = _download_with_retry(fetch_url)
+    # FAIL-OPEN by default: a persistent 403 (the broker link redirects to an
+    # unsigned / not-yet-regenerated S3 object) raises after the retries exhaust,
+    # BEFORE any state is written. Skip the run (keep the prior snapshot, alert)
+    # instead of reddening the run over one blocked source. AFTERNIC_FAIL_OPEN=0
+    # restores the old hard-fail behavior.
+    try:
+        zip_bytes = _download_with_retry(fetch_url)
+    except Exception as e:  # noqa: BLE001
+        if os.environ.get("AFTERNIC_FAIL_OPEN", "1") == "0":
+            raise
+        return _skip_fail_open(e, slack_channel)
     print(f"       fetched {len(zip_bytes):,} bytes")
 
     print("[2/10] Caching raw zip to Drive (Tier 2)")

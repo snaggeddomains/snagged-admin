@@ -1152,8 +1152,19 @@ doesn't exist). The download was a bare `requests.get(...).raise_for_status()` w
 snapshot is intact; the UI just shows "new today —"). Fix in `sources/afternic.py`: `_download_with_retry(url)`
 — **exponential-backoff retry (30s/60s/120s, 4 attempts)** on transient failures (403 / 408 / 429 / 5xx /
 connection / timeout — 403 included because it means "file not ready yet"); a non-transient 4xx (401/404)
-is fatal immediately. After retries exhaust it still RAISES (visible failure, per Rob — not fail-open like
-atom_daily). `import time` added. Same class of fix as the Google Sheets reader retry above.
+is fatal immediately. `import time` added. Same class of fix as the Google Sheets reader retry above.
+- **Now FAIL-OPEN (2026-08-28, Rob).** Live diagnosis of the persistent failure: `broker/all?id=…`
+  302-redirects to a **bare, UNSIGNED S3 URL** (no `X-Amz-Signature` query string), so anonymous access
+  to the private partner bucket returns `403 AccessDenied` on every retry — an **Afternic-side signing
+  failure**, not transient, so retry can't recover it (the runner log showed all 3 backoffs firing then
+  a 403 traceback). Since the feed is only intermittently reachable, a fetch failure no longer hard-fails
+  the run: `run()` wraps `_download_with_retry` in a try/except → `_skip_fail_open(err, slack_channel)`
+  (mirrors atom_daily) which posts a Slack "⚠️ Afternic feed skipped" alert, writes `run_status.json`
+  status=`skipped`, and **returns 0 WITHOUT touching the snapshot** (prior baseline preserved → next good
+  run diffs correctly). The retry stays (it recovers the genuinely-transient mornings). Set
+  **`AFTERNIC_FAIL_OPEN=0`** to restore the old hard-fail. When the 403 persists across days it's an
+  Afternic partner-side issue (unsigned link / stale partner id `zt5nchodbseszkp`) — contact Afternic
+  support; nothing on our side fixes a missing S3 signature.
 
 ---
 
