@@ -315,6 +315,48 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
 - **NEXT (Ph3):** email sequences (outbound) + richer pipeline reporting. Existing Pipedrive
   test deals are NOT migrated (day-one) — start fresh natively.
 
+## SNAP Deals — lean internal acquisition tracker (2026-08-28)
+
+A SEPARATE, deliberately-lean board under the **SNAP** menu (submodule) for tracking names
+**we're trying to ACQUIRE** (Sam runs point). NOT the buy-side `deals` CRM — its own table, its
+own single permission, a **shared** board (everyone with the perm sees + edits the same deals; no
+owner-scoping / assignment / Inbox / notifications / email ingestion / reporting). Rob's spec:
+"basically view/edit a single checkbox," manual entry, Sam-internal.
+- **Permission:** ONE module key **`snap.deals`** (view+edit; stored flat as `snap.deals` since
+  `storageKey` only strips a `research.` prefix). In `dashboard/lib/permissions.ts` MODULES +
+  CATALOG (group SNAP) + **SNAP_TABS** (`{href:'/snap-deals', label:'SNAP Deals'}`). `canTab`
+  routes it through MODULE_SET→`userCan`; `canEnterSection('snap')` admits a snap.deals-only user
+  (sectionTabs>0). Admins auto-pass. Grant per-user in the Users editor.
+- **Stages** (`lib/snap-deals/stages.ts`): Qualifying → Research & Outreach → In Contact →
+  Negotiating → Transaction → **Closed - Won** (the one terminal COLUMN). No Inbox/Assigned. Statuses
+  `open|won|dropped`: dropping a card on the bottom **"🚫 Dropped"** zone (with a reason picker,
+  `DROP_REASONS`) sets status=dropped (keeps its working stage + a DROPPED badge); moving to the Won
+  column auto-sets status=won (moving back out reopens). Priorities Top/High/Normal/Low (sort within a
+  column).
+- **Fields per deal** (Rob picked): `domain`, **`owner_info`** (the name's owner / who we're
+  negotiating with — free text name+contact), `point_person` (who's running point), `asking_price`
+  (asking/target), `current_offer` (shows the gap vs asking), `priority`, `notes`. Plus a
+  **progress log** (`snap_deal_activity`) — timestamped manual notes + auto stage/status entries, so
+  Sam can see how each name moved over time.
+- **Data** (`dashboard/scripts/snap_deals.sql`, run once on the MAIN project): `snap_deals` +
+  `snap_deal_activity` (RLS enabled; service key bypasses). Store `lib/snap-deals/store.ts` is
+  fail-soft — a missing table (migration not run) returns `[]` / a "not set up" note instead of
+  erroring (42P01/PGRST205 guard).
+- **API** `app/api/admin/snap-deals/route.ts` (GET list+stats / POST create) + `[id]/route.ts` (GET
+  deal+activity / PATCH edit·move·mark / POST `action:'note'` / DELETE) — all gated by `userCan(me,
+  'snap.deals')`.
+- **UI** `app/snap-deals/`: `layout.tsx` (SectionChrome → resolves to SNAP section from the URL;
+  `data-deals-fullbleed` for full width), `page.tsx`+`board-client.tsx` (kanban, drag-drop between
+  stages, New-deal modal, Dropped drop-zone, search + status filter), `[id]/page.tsx`+`detail-client.tsx`
+  (read-first fields with an ✎ Edit toggle + the progress log + note composer + Delete). Inline styles,
+  same conventions as the deals board.
+- **One-time setup:** run `scripts/snap_deals.sql` on the main project; grant `snap.deals` to Sam (+
+  anyone else who should see it). No new env. **Minor known gap:** the SNAP section's top-level header
+  link still points at `/research/evaluate`, so a user with ONLY `snap.deals` (no SNAP Eval) clicking the
+  bare "SNAP" header lands on a denied page — they reach the board via the **SNAP Deals sub-tab / hub
+  card** instead. Fine for Sam (has other SNAP perms); revisit if a snap.deals-only user needs the header
+  link to land here.
+
 ## Owner intelligence directory + email-cron heartbeat (2026-07-23)
 
 Two additions to the Deals CRM.

@@ -50,6 +50,7 @@ export const MODULES = [
   "research.leads", // Inbound-lead triage — the deep-linked dossier for a contact-form inquiry
   "research.pipedrive", // Add-to-Pipedrive — turn a research surface into a buy-side deal (stored flat as `pipedrive`)
   "deals", // Deals — the native buy-side CRM board (see + own deals)
+  "snap.deals", // SNAP Deals — Sam's lean internal board for names we're trying to ACQUIRE (single view+edit perm)
 ] as const;
 export type ModuleKey = (typeof MODULES)[number];
 
@@ -184,6 +185,7 @@ export const SNAP_TABS: { href: string; label: string; perm: ModuleKey | ActionK
   { href: "/research/expiring", label: "Expiring .ai", perm: "research.expiring" },
   { href: "/reports/opportunities", label: "SNAP Opportunities", perm: "reports.opportunities" },
   { href: "/reports/snap-names", label: "SNAP Names", perm: "reports.snap_names" },
+  { href: "/snap-deals", label: "SNAP Deals", perm: "snap.deals" },
 ];
 
 // Can the user use this admin tab/key? is_admin and the `admin` umbrella both
@@ -250,6 +252,7 @@ export const CATALOG: CatalogEntry[] = [
   { key: "research.evaluate", label: "SNAP Eval (acquisition / resale scorecard)", group: "SNAP", kind: "module" },
   { key: "research.bulk_eval", label: "Bulk Eval (rank a list of domains by investability)", group: "SNAP", kind: "module" },
   { key: "research.expiring", label: "Expiring .ai (one-word .ai names entering redemption)", group: "SNAP", kind: "module" },
+  { key: "snap.deals", label: "SNAP Deals board (view + edit — internal acquisition tracker)", group: "SNAP", kind: "module" },
   { key: "reports.opportunities", label: "SNAP Opportunities (snap + auctions)", group: "SNAP", kind: "action" },
   { key: "reports.snap_names", label: "SNAP Names (purchased / for-sale inventory)", group: "SNAP", kind: "action" },
   { key: "reports.snap_names.write", label: "SNAP Names — push registrar/DNS updates (bulk)", group: "SNAP", kind: "action" },
