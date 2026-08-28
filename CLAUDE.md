@@ -1664,6 +1664,15 @@ slack.py`) got two changes for urgency + completeness:
 
 # Working agreements
 
+## ALWAYS deep-link SQL to run on GitHub (Rob, 2026-08-28)
+
+Whenever a change requires Rob (or an admin) to run SQL / a migration, **always give the GitHub
+deep-link to the file**, not just a path. Format:
+`https://github.com/snaggeddomains/snagged-admin/blob/main/<repo-relative-path>` (e.g.
+`https://github.com/snaggeddomains/snagged-admin/blob/main/dashboard/scripts/snap_deals.sql`). For
+the research repo use `https://github.com/snaggeddomains/domain-owner-research/blob/main/<path>`.
+Commit + push the SQL file FIRST so the `main` link resolves. Applies to both repos.
+
 ## Data tables are SORTABLE by default — don't wait to be asked (2026-08-10)
 
 Rob's standing instruction: **every data table we build has click-to-sort column headers by
