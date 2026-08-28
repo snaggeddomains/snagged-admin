@@ -68,7 +68,7 @@ export const SECTIONS: NavSection[] = [
   {
     key: "snap",
     label: "SNAP",
-    href: "/research/evaluate",
+    href: "/reports/opportunities", // SNAP header lands on Opportunities (the daily picks), not SNAP Eval (Rob 2026-08-28)
     blurb: "Should we buy it? Acquisition/resale scoring & the live opportunity feed.",
     tabs: SNAP_TABS,
   },
