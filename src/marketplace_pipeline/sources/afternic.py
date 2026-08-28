@@ -19,6 +19,7 @@ from __future__ import annotations
 import csv
 import io
 import os
+import time
 import zipfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -285,6 +286,38 @@ def build_slack_message(*, new_entries: list[Entry], sheet_url: str) -> str:
     return "\n".join(lines)
 
 
+# ---------- download ----------
+
+def _download_with_retry(url: str, *, attempts: int = 4, timeout: int = 300) -> bytes:
+    """GET the Afternic partner inventory with exponential-backoff retry.
+
+    `broker/all` 302-redirects to a time-limited pre-signed S3 URL. On some mornings
+    the daily inventory file isn't regenerated yet, so S3 returns 403 (or a transient
+    5xx / timeout) — a bare request then hard-fails the whole run (and trips the
+    watchdog). Retry a few times with backoff (30s / 60s / 120s) before giving up; a
+    non-transient 4xx (401/404) is fatal immediately.
+    """
+    delays = [30, 60, 120]
+    for attempt in range(1, attempts + 1):
+        try:
+            resp = requests.get(url, timeout=timeout)
+            resp.raise_for_status()
+            return resp.content
+        except requests.exceptions.RequestException as e:
+            status = getattr(getattr(e, "response", None), "status_code", None)
+            transient = (
+                isinstance(e, (requests.exceptions.ConnectionError, requests.exceptions.Timeout))
+                or status in (403, 408, 429)
+                or (status is not None and 500 <= status < 600)
+            )
+            if attempt >= attempts or not transient:
+                raise
+            delay = delays[min(attempt - 1, len(delays) - 1)]
+            print(f"       download attempt {attempt}/{attempts} failed ({status or e}); retrying in {delay}s")
+            time.sleep(delay)
+    raise RuntimeError("afternic download failed after retries")  # unreachable
+
+
 # ---------- main entrypoint ----------
 
 def run() -> int:
@@ -298,9 +331,7 @@ def run() -> int:
     today = datetime.now(timezone.utc).date().isoformat()
 
     print(f"[1/10] Downloading {fetch_url}")
-    resp = requests.get(fetch_url, timeout=300)
-    resp.raise_for_status()
-    zip_bytes = resp.content
+    zip_bytes = _download_with_retry(fetch_url)
     print(f"       fetched {len(zip_bytes):,} bytes")
 
     print("[2/10] Caching raw zip to Drive (Tier 2)")

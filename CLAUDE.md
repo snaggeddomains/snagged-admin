@@ -782,6 +782,20 @@ Daily top picks, appraised and ranked, surfaced in Reports → SNAP Opportunitie
   silently empty; if it DID run but nothing clears the bar, that bucket is empty (no post that day — correct
   for "cream only", not filler). Tune via env `OPPORTUNITY_PICKS_POOL`/`_RATIO`/`_MAX` (needs a redeploy).
   **⚠️ CREAM_RATIO 3 is an un-calibrated first guess** — watch a few days of live picks and raise/lower it.
+- **Looser bar + min-5 + never-silent + VISUAL standout (2026-08-28, Rob).** Two live-run findings drove
+  this: CREAM_RATIO 3 was too tight (one day = 2 snap picks, 0 auctions → the auctions bucket posted
+  NOTHING, and the plain-text post got lost in the busy channel). Fixes in `opportunities-picks.ts`:
+  (1) **CREAM_RATIO default 3→2** (looser — a 2× deal now qualifies). (2) `creamOfCrop(rows)` (dropped the
+  `valued` arg) now **always surfaces ≥ MIN_PICKS (default 5)** — keeps every bargain ≥ CREAM_RATIO but tops
+  up from the next-best so a thin day still shows the day's best 5 (never a silent/empty bucket unless there
+  are zero priced candidates), capped at MAX_PICKS 15. (3) A new **`GEM_RATIO` (default 3)** marks the
+  exceptional bargains with a **💎** in the line (plain `•` otherwise) so standouts pop within the list.
+  (4) **Visual standout:** `bucketSlackPayload(heading, rows, color)` posts each bucket as a **COLORED Slack
+  attachment** (green `#2eb67d` snap / amber `#e8912d` auctions) with a **header block** — the colored left
+  bar + big header make it scannable among the day's other messages. `slackPost` (`lib/orchestrator.ts`)
+  gained an optional `opts.{attachments,blocks}` arg (text still sent as the notification fallback); the
+  `opportunity-picks` route builds the payload per bucket. New env knobs `OPPORTUNITY_PICKS_MIN`/`_GEM`.
+  `formatBucketSlack` kept as the plain-text fallback.
 - **Single-seller portfolio de-flood (2026-07-24).** One owner listing `<name>+word` permutations
   (e.g. julianadvice/julianpartners/juliancorp… from the Efty Partner feed, all unpriced) was
   flooding the SNAP list. `defloodSnap()` in `lib/opportunities.ts` clusters UNPRICED names within a
@@ -1127,6 +1141,19 @@ transient errors (`socket.timeout`/`TimeoutError`/`ConnectionError`/`ssl.SSLErro
 (`list_tabs`/`tab_name_for_gid`/`read_tab_as_dicts`) route through it. Read is idempotent, so retry is
 safe. No new dep/env. **The failed run itself was harmless** — a transient Google blip, safe to
 re-dispatch; this just stops one Sheets hiccup from failing the orchestrator again.
+
+# Afternic download — transient-403 retry (2026-08-28)
+
+The `afternic` source (its own workflow `source-afternic.yml`, dispatched by `/api/cron/afternic`)
+hard-failed one morning: `broker/all?id=…` 302-redirects to a **time-limited pre-signed S3 URL**, and
+on mornings when Afternic hasn't regenerated the daily inventory file yet, S3 returns **403** (the key
+doesn't exist). The download was a bare `requests.get(...).raise_for_status()` with **no retry**, so one
+403 reddened the run (+ tripped the watchdog). No state corruption (it failed before parsing → the prior
+snapshot is intact; the UI just shows "new today —"). Fix in `sources/afternic.py`: `_download_with_retry(url)`
+— **exponential-backoff retry (30s/60s/120s, 4 attempts)** on transient failures (403 / 408 / 429 / 5xx /
+connection / timeout — 403 included because it means "file not ready yet"); a non-transient 4xx (401/404)
+is fatal immediately. After retries exhaust it still RAISES (visible failure, per Rob — not fail-open like
+atom_daily). `import time` added. Same class of fix as the Google Sheets reader retry above.
 
 ---
 

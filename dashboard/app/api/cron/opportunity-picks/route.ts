@@ -10,7 +10,12 @@
 
 import { NextResponse, type NextRequest } from "next/server";
 import { authorizedCron, slackPost } from "@/lib/orchestrator";
-import { buildPicks, formatBucketSlack } from "@/lib/opportunities-picks";
+import { buildPicks, bucketSlackPayload } from "@/lib/opportunities-picks";
+
+// Colored left-bar per bucket so the post pops in a busy channel: green for SNAP,
+// amber for auctions.
+const SNAP_COLOR = "#2eb67d";
+const AUCTION_COLOR = "#e8912d";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,14 +26,15 @@ export async function GET(req: NextRequest) {
   const dry = req.nextUrl.searchParams.get("dry") === "1";
   try {
     const picks = await buildPicks();
-    // Split by channel: top-5 auctions → the auction Slack, top-5 snap → the snap Slack.
-    const auctionText = formatBucketSlack("🔎 Worth a look — auctions expiring today", picks.auctions);
-    const snapText = formatBucketSlack("🔎 Worth a look — new SNAP", picks.snap);
+    // Split by channel: auctions → the auction Slack, snap → the snap Slack. Each posts as a
+    // COLORED attachment with a header block so it stands out among the day's other messages.
+    const auctionMsg = bucketSlackPayload("🔎 Worth a look — auctions expiring today", picks.auctions, AUCTION_COLOR);
+    const snapMsg = bucketSlackPayload("🔎 Worth a look — new SNAP", picks.snap, SNAP_COLOR);
     let auctions: { ok: boolean; error?: string } = { ok: false, error: "empty" };
     let snap: { ok: boolean; error?: string } = { ok: false, error: "empty" };
     if (!dry) {
-      if (auctionText) auctions = await slackPost(auctionText, process.env.SLACK_CHANNEL_AUCTIONS);
-      if (snapText) snap = await slackPost(snapText, process.env.SLACK_CHANNEL_SNAP);
+      if (auctionMsg) auctions = await slackPost(auctionMsg.text, process.env.SLACK_CHANNEL_AUCTIONS, { attachments: auctionMsg.attachments });
+      if (snapMsg) snap = await slackPost(snapMsg.text, process.env.SLACK_CHANNEL_SNAP, { attachments: snapMsg.attachments });
     }
     return NextResponse.json({
       ok: true,

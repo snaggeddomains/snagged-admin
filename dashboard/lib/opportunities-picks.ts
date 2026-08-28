@@ -29,24 +29,27 @@ export type PicksReport = {
   generatedAt: string;
 };
 
-// Selection knobs (tune here after watching a few days of live picks):
+// Selection knobs (tune here / via env after watching a few days of live picks):
 //   POOL        — how many candidates per bucket we VALUE (bounds appraisal cost).
 //   CREAM_RATIO — appraisal ÷ cost bar to count as a bargain worth surfacing.
+//   GEM_RATIO   — the higher bar that earns a 💎 (exceptional bargain) in the message.
+//   MIN_PICKS   — always show at least this many per bucket (never a near-empty post).
 //   MAX_PICKS   — hard cap per bucket so a bumper day can't flood the channel.
-//   FALLBACK_N  — when valuation is unavailable (no ratios), show this many by quality.
 const POOL = Number(process.env.OPPORTUNITY_PICKS_POOL) || 25;
-const CREAM_RATIO = Number(process.env.OPPORTUNITY_PICKS_RATIO) || 3;
+const CREAM_RATIO = Number(process.env.OPPORTUNITY_PICKS_RATIO) || 2;
+const GEM_RATIO = Number(process.env.OPPORTUNITY_PICKS_GEM) || 3;
+const MIN_PICKS = Number(process.env.OPPORTUNITY_PICKS_MIN) || 5;
 const MAX_PICKS = Number(process.env.OPPORTUNITY_PICKS_MAX) || 15;
-const FALLBACK_N = 5;
 
-// Cream of the crop: the genuine bargains (ratio ≥ CREAM_RATIO), best first, capped. When
-// the valuation service didn't run (every ratio null), fall back to the top few by quality
-// so the digest isn't silently empty; when it DID run but nothing clears the bar, return
-// none (an empty bucket is correct — no post that day rather than filler).
-function creamOfCrop(rows: Pick[], valued: boolean): Pick[] {
+// Pick the standouts: keep every genuine bargain (ratio ≥ CREAM_RATIO), but ALWAYS surface
+// at least MIN_PICKS — if fewer clear the bar, top up with the next-best by value/quality so
+// the bucket is never silent (and auctions still posts on a thin day). Capped at MAX_PICKS.
+// Rows are already sorted best-value-first, so slicing keeps the best.
+function creamOfCrop(rows: Pick[]): Pick[] {
+  if (!rows.length) return [];
   const strong = rows.filter((p) => p.ratio != null && p.ratio >= CREAM_RATIO);
-  if (strong.length) return strong.slice(0, MAX_PICKS);
-  return valued ? [] : rows.slice(0, FALLBACK_N);
+  const n = Math.min(Math.max(strong.length, MIN_PICKS), MAX_PICKS);
+  return rows.slice(0, n);
 }
 
 // Link to the actual marketplace LISTING, not the bare domain (Slack would auto-linkify a
@@ -128,24 +131,53 @@ export async function buildPicks(report?: OpportunitiesReport): Promise<PicksRep
     };
   }).sort(byRatioThenQuality);
 
-  // Keep only the cream (bargains ≥ CREAM_RATIO), no fixed top-N.
-  const snap = creamOfCrop(snapValued, valued);
-  const auctions = creamOfCrop(auctionsValued, valued);
+  // Standouts per bucket (bargains first, always ≥ MIN_PICKS, never silent).
+  const snap = creamOfCrop(snapValued);
+  const auctions = creamOfCrop(auctionsValued);
 
   return { snap, auctions, valued, generatedAt: new Date().toISOString() };
 }
 
-// Slack digest for ONE bucket → its own channel (auctions to the auction Slack, snap to
-// the snap Slack). null when the bucket is empty. Ranked best value/cost first.
+const money = (n: number | null) => (n && n > 0 ? "$" + Math.round(n).toLocaleString() : "—");
+// One pick as an mrkdwn line. A 💎 leads a GEM-tier bargain (ratio ≥ GEM_RATIO) so the true
+// standouts pop even within the list; everything else gets a plain bullet.
+function pickLine(p: Pick): string {
+  const gem = p.ratio != null && p.ratio >= GEM_RATIO;
+  const val = p.appraisalMid ? `appr ${money(p.appraisalMid)}` : "appr —";
+  const ratio = p.ratio != null ? ` · *${p.ratio >= 10 ? Math.round(p.ratio) : p.ratio.toFixed(1)}×* value/cost` : "";
+  const tld = p.tldCount != null ? ` · ${p.tldCount} TLDs` : "";
+  const nm = p.link ? `<${p.link}|${p.domain}>` : p.domain;
+  return `${gem ? "💎" : "•"} ${nm}${p.is_mub ? " ✨" : ""} — cost ${money(p.cost)} · ${val}${ratio}${tld} _(${p.source})_`;
+}
+
+// Plain-text digest for ONE bucket (kept for the fallback + tests). null when empty.
 export function formatBucketSlack(heading: string, rows: Pick[]): string | null {
   if (!rows.length) return null;
-  const money = (n: number | null) => (n && n > 0 ? "$" + Math.round(n).toLocaleString() : "—");
-  const line = (p: Pick) => {
-    const val = p.appraisalMid ? `appr ${money(p.appraisalMid)}` : "appr —";
-    const ratio = p.ratio != null ? ` · *${p.ratio >= 10 ? Math.round(p.ratio) : p.ratio.toFixed(1)}×* value/cost` : "";
-    const tld = p.tldCount != null ? ` · ${p.tldCount} TLDs` : "";
-    const nm = p.link ? `<${p.link}|${p.domain}>` : p.domain;
-    return `• ${nm}${p.is_mub ? " ✨" : ""} — cost ${money(p.cost)} · ${val}${ratio}${tld} _(${p.source})_`;
+  return [`*${heading}* (appraisal ÷ cost, best first)`, ...rows.map(pickLine)].join("\n");
+}
+
+// Rich Slack payload for ONE bucket — a COLORED attachment + a big header block so the
+// "worth a look" post stands out in a busy channel (the plain digest just scrolls by).
+// Returns { text, attachments } to hand straight to slackPost's opts; null when empty.
+export function bucketSlackPayload(
+  heading: string,
+  rows: Pick[],
+  color: string,
+): { text: string; attachments: unknown[] } | null {
+  if (!rows.length) return null;
+  const gems = rows.filter((p) => p.ratio != null && p.ratio >= GEM_RATIO).length;
+  const footer = `appraisal ÷ cost · best first${gems ? ` · 💎 = ≥${GEM_RATIO}× bargain` : ""}`;
+  return {
+    text: `${heading} — ${rows.length} picks`, // notification fallback
+    attachments: [
+      {
+        color,
+        blocks: [
+          { type: "header", text: { type: "plain_text", text: heading, emoji: true } },
+          { type: "section", text: { type: "mrkdwn", text: rows.map(pickLine).join("\n") } },
+          { type: "context", elements: [{ type: "mrkdwn", text: footer }] },
+        ],
+      },
+    ],
   };
-  return [`*${heading}* (appraisal ÷ cost, best first)`, ...rows.map(line)].join("\n");
 }

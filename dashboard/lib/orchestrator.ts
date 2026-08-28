@@ -98,8 +98,14 @@ export async function slackAlert(text: string, channel?: string): Promise<boolea
   return (await slackPost(text, channel)).ok;
 }
 
-/** Like slackAlert but returns the Slack error string too (for diagnostics). */
-export async function slackPost(text: string, channel?: string): Promise<{ ok: boolean; error?: string }> {
+/** Like slackAlert but returns the Slack error string too (for diagnostics).
+ *  `opts` can carry `attachments`/`blocks` for a rich message (a colored bar, header
+ *  block, …); `text` is still sent as the notification fallback. */
+export async function slackPost(
+  text: string,
+  channel?: string,
+  opts?: { attachments?: unknown[]; blocks?: unknown[] },
+): Promise<{ ok: boolean; error?: string }> {
   const token = process.env.SLACK_BOT_TOKEN;
   const ch = channel || process.env.SLACK_CHANNEL_SNAP || process.env.SLACK_CHANNEL_AUCTIONS;
   if (!token) return { ok: false, error: "no_token" };
@@ -108,7 +114,7 @@ export async function slackPost(text: string, channel?: string): Promise<{ ok: b
     const res = await fetch("https://slack.com/api/chat.postMessage", {
       method: "POST",
       headers: { "content-type": "application/json; charset=utf-8", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ channel: ch, text }),
+      body: JSON.stringify({ channel: ch, text, ...(opts?.attachments ? { attachments: opts.attachments } : {}), ...(opts?.blocks ? { blocks: opts.blocks } : {}) }),
       cache: "no-store",
     });
     return (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
