@@ -1,20 +1,47 @@
 [
   {
-    "bid_count": 37,
-    "domain": "aromatik.com",
-    "end_time_utc": "2026-08-27T18:59:38.129984+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Aromatik.com",
-    "platform": "DropCatch",
-    "price": 111.0
-  },
-  {
-    "bid_count": 50,
+    "bid_count": 54,
     "domain": "sirrus.com",
-    "end_time_utc": "2026-08-28T18:59:38.129984+00:00",
+    "end_time_utc": "2026-08-28T18:59:31.247882+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/SirRus.com",
     "platform": "DropCatch",
-    "price": 360.0
+    "price": 470.0
+  },
+  {
+    "bid_count": 16,
+    "domain": "trillon.com",
+    "end_time_utc": "2026-08-28T18:59:31.247882+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/TrillOn.com",
+    "platform": "DropCatch",
+    "price": 300.0
+  },
+  {
+    "bid_count": 42,
+    "domain": "wpage.com",
+    "end_time_utc": "2026-08-31T18:59:31.247882+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Wpage.com",
+    "platform": "DropCatch",
+    "price": 310.0
+  },
+  {
+    "bid_count": 38,
+    "domain": "rallie.com",
+    "end_time_utc": "2026-08-31T18:59:31.247882+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/RAllie.com",
+    "platform": "DropCatch",
+    "price": 227.0
+  },
+  {
+    "bid_count": 5,
+    "domain": "wjve.com",
+    "end_time_utc": "2026-08-31T18:59:31.247882+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/wjve.com",
+    "platform": "DropCatch",
+    "price": 110.0
   }
 ]

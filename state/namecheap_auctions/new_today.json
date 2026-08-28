@@ -1,33 +1,17 @@
 {
   "capped": false,
-  "count": 22,
+  "count": 8,
   "domains": [
-    "rancid.ai",
-    "outweigh.org",
-    "reorganisation.org",
-    "fjb.co",
-    "biochemistry.co",
-    "ulster.co",
-    "desperate.io",
-    "nowadays.io",
-    "ead.org",
-    "referees.ai",
-    "crushing.org",
-    "sombre.org",
-    "sysadmin.ai",
-    "earliest.ai",
-    "tons.ai",
-    "jsx.ai",
-    "repeated.ai",
-    "summaries.ai",
-    "irritate.ai",
-    "untill.co",
-    "rojas.co",
-    "asked.io"
+    "familyy.org",
+    "vilary.com",
+    "massey.ai",
+    "trashy.ai",
+    "gridlock.com",
+    "dcx.ai",
+    "issuers.ai",
+    "royalist.co"
   ],
-  "generated_at": "2026-08-27T09:52:39.113188+00:00",
-  "mub": [
-    "rojas.co"
-  ],
+  "generated_at": "2026-08-28T09:58:39.026168+00:00",
+  "mub": [],
   "source": "namecheap_auctions"
 }

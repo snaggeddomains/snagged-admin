@@ -1,56 +1,101 @@
 [
   {
-    "bid_count": 10,
-    "domain": "traces.io",
-    "end_time_utc": "2026-08-27T17:35:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/traces-io-721644730?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 60.0
-  },
-  {
-    "bid_count": 18,
-    "domain": "cradio.com",
-    "end_time_utc": "2026-08-27T17:39:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/cradio-com-721665239?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 348.0
-  },
-  {
-    "bid_count": 12,
-    "domain": "gleam.co",
-    "end_time_utc": "2026-08-27T18:03:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/gleam-co-721667877?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 300.0
-  },
-  {
     "bid_count": 16,
-    "domain": "oitu.com",
-    "end_time_utc": "2026-08-27T18:44:00+00:00",
+    "domain": "octo.co",
+    "end_time_utc": "2026-08-28T17:14:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/oitu-com-721665407?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/octo-co-721304006?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 276.0
+    "price": 256.0
   },
   {
-    "bid_count": 11,
-    "domain": "trica.co",
-    "end_time_utc": "2026-08-27T19:15:00+00:00",
+    "bid_count": 34,
+    "domain": "krilo.com",
+    "end_time_utc": "2026-08-28T17:34:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/trica-co-721653708?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/krilo-com-721435040?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 105.0
+    "price": 365.0
   },
   {
-    "bid_count": 16,
-    "domain": "tdomain.com",
-    "end_time_utc": "2026-08-27T19:46:00+00:00",
+    "bid_count": 7,
+    "domain": "aqi.co",
+    "end_time_utc": "2026-08-28T18:27:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/tdomain-com-721665307?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/aqi-co-721871997?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 65.0
+    "price": 30.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "alienation.co",
+    "end_time_utc": "2026-08-28T18:38:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/alienation-co-720190277?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 1.0
+  },
+  {
+    "bid_count": 13,
+    "domain": "juyp.com",
+    "end_time_utc": "2026-08-28T18:51:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/juyp-com-721859802?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 80.0
+  },
+  {
+    "bid_count": 64,
+    "domain": "bandito.com",
+    "end_time_utc": "2026-08-28T18:56:00+00:00",
+    "is_mub": true,
+    "link": "https://www.godaddy.com/domain-auctions/bandito-com-721817264?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 7877.0
+  },
+  {
+    "bid_count": 36,
+    "domain": "umwelt.com",
+    "end_time_utc": "2026-08-28T18:59:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/umwelt-com-721843732?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 798.0
+  },
+  {
+    "bid_count": 17,
+    "domain": "sandria.com",
+    "end_time_utc": "2026-08-28T19:14:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/sandria-com-721303652?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 142.0
+  },
+  {
+    "bid_count": 8,
+    "domain": "purson.com",
+    "end_time_utc": "2026-08-28T19:35:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/purson-com-721843405?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 110.0
+  },
+  {
+    "bid_count": 13,
+    "domain": "vhdd.com",
+    "end_time_utc": "2026-08-28T20:31:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/vhdd-com-719985821?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 126.0
+  },
+  {
+    "bid_count": 1,
+    "domain": "hatchet.co",
+    "end_time_utc": "2026-08-28T20:35:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/hatchet-co-721873488?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 1.0
   }
 ]

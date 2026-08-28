@@ -1,11 +1,13 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 4,
   "domains": [
-    "enhancement.ai",
-    "estimation.ai"
+    "waiting.co",
+    "allie.ai",
+    "presumably.ai",
+    "ironically.ai"
   ],
-  "generated_at": "2026-08-27T09:03:19.254235+00:00",
+  "generated_at": "2026-08-28T09:03:53.036005+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

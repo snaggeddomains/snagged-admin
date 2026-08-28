@@ -1,11 +1,14 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 5,
   "domains": [
-    "aromatik.com",
-    "sirrus.com"
+    "sirrus.com",
+    "trillon.com",
+    "wpage.com",
+    "rallie.com",
+    "wjve.com"
   ],
-  "generated_at": "2026-08-27T09:53:39.263731+00:00",
+  "generated_at": "2026-08-28T09:59:32.151349+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }

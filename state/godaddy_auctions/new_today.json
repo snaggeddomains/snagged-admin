@@ -1,15 +1,22 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 11,
   "domains": [
-    "traces.io",
-    "cradio.com",
-    "gleam.co",
-    "oitu.com",
-    "trica.co",
-    "tdomain.com"
+    "octo.co",
+    "krilo.com",
+    "aqi.co",
+    "alienation.co",
+    "juyp.com",
+    "bandito.com",
+    "umwelt.com",
+    "sandria.com",
+    "purson.com",
+    "vhdd.com",
+    "hatchet.co"
   ],
-  "generated_at": "2026-08-27T09:54:29.414748+00:00",
-  "mub": [],
+  "generated_at": "2026-08-28T10:00:02.800054+00:00",
+  "mub": [
+    "bandito.com"
+  ],
   "source": "godaddy_auctions"
 }

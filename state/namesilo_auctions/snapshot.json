@@ -1,11 +1,20 @@
 [
   {
-    "bid_count": 38,
-    "domain": "hosts.io",
-    "end_time_utc": "2026-08-27T15:00:00+00:00",
+    "bid_count": 54,
+    "domain": "kmmy.com",
+    "end_time_utc": "2026-08-29T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/hosts.io",
+    "link": "https://www.namesilo.com/auctions/kmmy.com",
     "platform": "NameSilo",
-    "price": 760.0
+    "price": 565.0
+  },
+  {
+    "bid_count": 5,
+    "domain": "vilary.com",
+    "end_time_utc": "2026-08-29T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namesilo.com/auctions/vilary.com",
+    "platform": "NameSilo",
+    "price": 8.0
   }
 ]
