@@ -10,20 +10,65 @@
   },
   {
     "currency": "USD",
-    "domain": "evening.ai",
-    "end_time_utc": "2026-08-27T16:27:09+00:00",
+    "domain": "lmd.com",
+    "end_time_utc": "2026-08-28T02:07:47+00:00",
     "is_mub": false,
-    "price": 500000.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=evening.ai"
+    "price": 143810.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=lmd.com"
   },
   {
     "currency": "USD",
-    "domain": "hzw.com",
-    "end_time_utc": "2026-08-27T15:42:06+00:00",
+    "domain": "vicious.co",
+    "end_time_utc": "2026-08-28T10:22:14+00:00",
     "is_mub": false,
-    "price": 299000.0,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=hzw.com"
+    "price": 34888.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=vicious.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "laughter.co",
+    "end_time_utc": "2026-08-28T10:22:09+00:00",
+    "is_mub": false,
+    "price": 29888.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=laughter.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "monarchs.co",
+    "end_time_utc": "2026-08-28T10:22:09+00:00",
+    "is_mub": true,
+    "price": 29888.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=monarchs.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "rashid.co",
+    "end_time_utc": "2026-08-28T10:22:09+00:00",
+    "is_mub": false,
+    "price": 29888.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=rashid.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "anglia.co",
+    "end_time_utc": "2026-08-28T10:22:09+00:00",
+    "is_mub": false,
+    "price": 34888.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=anglia.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "pore.co",
+    "end_time_utc": "2026-08-28T10:22:14+00:00",
+    "is_mub": false,
+    "price": 29888.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=pore.co"
   }
 ]

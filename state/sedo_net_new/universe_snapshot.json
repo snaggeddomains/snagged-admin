@@ -1,66 +1,70 @@
 [
   {
-    "domain": "bandung.com",
-    "price": 99900.0
+    "domain": "rayming.com",
+    "price": 10495.0
+  },
+  {
+    "domain": "artecat.com",
+    "price": 3500.0
   },
   {
     "domain": "evesham.com",
     "price": 29900.0
   },
   {
-    "domain": "miscarry.com",
-    "price": 9595.0
-  },
-  {
     "domain": "syringes.com",
     "price": null
-  },
-  {
-    "domain": "balang.com",
-    "price": 1680.0
-  },
-  {
-    "domain": "malang.com",
-    "price": 99900.0
-  },
-  {
-    "domain": "steall.com",
-    "price": 3690.0
   },
   {
     "domain": "inhalers.com",
     "price": null
   },
   {
-    "domain": "evening.ai",
-    "price": 500000.0
-  },
-  {
-    "domain": "deserts.net",
-    "price": 1495.0
-  },
-  {
-    "domain": "milian.net",
-    "price": 29900.0
-  },
-  {
-    "domain": "wisata.net",
-    "price": 1680.0
-  },
-  {
-    "domain": "jingling.net",
-    "price": 3588.0
+    "domain": "marshalls.ai",
+    "price": 24995.0
   },
   {
     "domain": "dengzhou.net",
     "price": 3916.0
   },
   {
-    "domain": "uniformed.net",
-    "price": 299.0
+    "domain": "preparing.net",
+    "price": 57964.0
   },
   {
-    "domain": "imogene.co",
-    "price": 2888.0
+    "domain": "vicious.co",
+    "price": 34888.0
+  },
+  {
+    "domain": "laughter.co",
+    "price": 29888.0
+  },
+  {
+    "domain": "monarchs.co",
+    "price": 29888.0
+  },
+  {
+    "domain": "rashid.co",
+    "price": 29888.0
+  },
+  {
+    "domain": "claymore.co",
+    "price": 34888.0
+  },
+  {
+    "domain": "anglia.co",
+    "price": 34888.0
+  },
+  {
+    "domain": "motorhome.co",
+    "price": 49888.0
+  },
+  {
+    "domain": "elmes.co",
+    "price": 1988.0
+  },
+  {
+    "domain": "pore.co",
+    "price": 29888.0
   }
 ]
