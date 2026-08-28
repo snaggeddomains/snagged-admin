@@ -1,19 +1,13 @@
 {
   "capped": false,
-  "count": 10,
+  "count": 4,
   "domains": [
-    "coaching.me",
-    "developer.me",
-    "minimally.ai",
-    "outfit.me",
-    "rationalist.ai",
-    "ribble.ai",
-    "rousseau.ai",
-    "semiotics.ai",
-    "soviet.ai",
-    "terrorist.ai"
+    "bangles.ai",
+    "cancers.ai",
+    "pneumonia.net",
+    "unstoppable.ai"
   ],
-  "generated_at": "2026-08-28T10:09:46.548059+00:00",
+  "generated_at": "2026-08-28T17:06:40.127835+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
