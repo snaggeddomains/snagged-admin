@@ -805,6 +805,16 @@ Daily top picks, appraised and ranked, surfaced in Reports → SNAP Opportunitie
   for that name; cached run loads instantly).
 - **Daily Slack**: `app/api/cron/opportunity-picks` posts the two buckets to their channels + warms
   the research appraisal cache for the day. `?dry=1` builds without posting.
+- **CACHED per ET day — instant load (2026-08-28, Rob).** SNAP Opportunities is now the default SNAP
+  landing, so re-valuing the shortlist (`buildPicks` → ~10 research appraisals, the slow/straining part)
+  on every click was wrong. `lib/picks-cache.ts` caches the built `PicksReport` per **America/New_York
+  day**, reusing the existing **`cron_heartbeats`** table (name `opportunity-picks-cache`, `last_result =
+  {day, picks}`) so **NO migration**. `getPicksCachedOrBuild(refresh)`: serve today's cache instantly,
+  else build once + cache. The **daily cron `setCachedPicks(picks)`** after building, so the first page
+  view of the day is instant + valued. The picks route reads `?refresh=1` (force rebuild); the client's
+  **Refresh button** now also refetches picks with `refresh=1` (re-values), and the Worth-a-look header
+  shows "valued <time>" so it's clear it's cached, not recomputed. Cache goes stale at ET midnight
+  (day-key mismatch) → next load rebuilds. No client cache-bust (Next app).
 - **Fires RIGHT AFTER the full lists, not on a 9 AM cron (2026-08-27, Rob).** The picks used to run on
   their own Vercel cron `0 13 * * *` (= 9 AM ET), hours after the SNAP + auction lists published.
   Now the **SNAP Orchestrator triggers it as its FINAL step** — after `namecheap_bin`/`auctions_publish`

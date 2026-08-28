@@ -261,7 +261,8 @@ function PicksSection({ picks, loading }: { picks: PicksReport | null; loading: 
     <div style={{ border: "1px solid var(--line, #e6e6e6)", borderRadius: 10, padding: "12px 16px", margin: "10px 0 18px", background: "var(--paper, #fff)" }}>
       <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
         <span style={{ fontSize: 15, fontWeight: 800 }}>🔎 Worth a look</span>
-        <span className="muted" style={{ fontSize: 12 }}>top 5 new-snap + top 5 auctions expiring today, appraised &amp; ranked by value ÷ cost</span>
+        <span className="muted" style={{ fontSize: 12 }}>cream of the crop — new-snap + auctions expiring today, appraised &amp; ranked by value ÷ cost</span>
+        {picks?.generatedAt ? <span className="muted" style={{ fontSize: 11.5, marginLeft: "auto" }}>valued {new Date(picks.generatedAt).toLocaleTimeString()}{loading ? " · refreshing…" : ""}</span> : null}
       </div>
       {loading && !picks ? <p className="muted" style={{ fontSize: 13, margin: "8px 0 0" }}>Valuing the shortlist…</p> : null}
       {picks && !picks.valued && has ? <p className="muted" style={{ fontSize: 12, margin: "6px 0 0" }}>Appraisals unavailable (research valuation not configured) — showing the quality shortlist.</p> : null}
@@ -319,16 +320,18 @@ export default function OpportunitiesClient() {
       setVals((v) => ({ ...v, [domain]: (j.valuation as Val) || { appraisalMid: null, appraisalLow: null, appraisalHigh: null, tldCount: null, tldBand: null } }));
     } catch { setVals((v) => ({ ...v, [domain]: "error" })); }
   }, []);
-  useEffect(() => {
-    let cancelled = false;
+  // Picks are served from the day's cache (instant) — populated by the daily cron; a forced
+  // refresh (?refresh=1) re-values the shortlist.
+  const loadPicks = useCallback(async (force = false) => {
     setPicksLoading(true);
-    fetch("/api/admin/opportunities/picks", { cache: "no-store" })
-      .then((r) => r.json())
-      .then((d) => { if (!cancelled && d && d.picks) setPicks(d.picks as PicksReport); })
-      .catch(() => {})
-      .finally(() => { if (!cancelled) setPicksLoading(false); });
-    return () => { cancelled = true; };
+    try {
+      const res = await fetch(`/api/admin/opportunities/picks${force ? "?refresh=1" : ""}`, { cache: "no-store" });
+      const d = await res.json();
+      if (d && d.picks) setPicks(d.picks as PicksReport);
+    } catch { /* ignore */ }
+    finally { setPicksLoading(false); }
   }, []);
+  useEffect(() => { loadPicks(false); }, [loadPicks]);
 
   const endingSoon = report ? report.auctions.filter((a) => { const c = countdown(a.endTimeUtc, now); return c.soon && !c.ended; }).length : 0;
   // Option lists for the filter dropdowns — union across both tables, sorted.
@@ -348,7 +351,7 @@ export default function OpportunitiesClient() {
       </p>
 
       <div style={{ display: "flex", gap: 12, alignItems: "center", margin: "14px 0", flexWrap: "wrap" }}>
-        <button onClick={load} disabled={loading} style={{ fontSize: 13 }}>{loading ? "Loading…" : "Refresh"}</button>
+        <button onClick={() => { load(); loadPicks(true); }} disabled={loading} style={{ fontSize: 13 }}>{loading ? "Loading…" : "Refresh"}</button>
         {report && <span className="muted" style={{ fontSize: 12 }}>updated {new Date(report.generatedAt).toLocaleTimeString()}</span>}
       </div>
       {msg && <p style={{ fontSize: 13, color: "var(--coral-deep, #c0492f)" }}>{msg}</p>}

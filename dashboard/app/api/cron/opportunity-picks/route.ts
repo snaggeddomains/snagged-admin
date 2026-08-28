@@ -11,6 +11,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { authorizedCron, slackPost } from "@/lib/orchestrator";
 import { buildPicks, bucketSlackPayload } from "@/lib/opportunities-picks";
+import { setCachedPicks } from "@/lib/picks-cache";
 
 // Colored left-bar per bucket so the post pops in a busy channel: green for SNAP,
 // amber for auctions.
@@ -26,6 +27,9 @@ export async function GET(req: NextRequest) {
   const dry = req.nextUrl.searchParams.get("dry") === "1";
   try {
     const picks = await buildPicks();
+    // Cache today's freshly-valued picks so the in-app report (default SNAP landing) serves
+    // them instantly for the rest of the day instead of re-valuing on every click.
+    await setCachedPicks(picks);
     // Split by channel: auctions → the auction Slack, snap → the snap Slack. Each posts as a
     // COLORED attachment with a header block so it stands out among the day's other messages.
     const auctionMsg = bucketSlackPayload("🔎 Worth a look — auctions expiring today", picks.auctions, AUCTION_COLOR);
