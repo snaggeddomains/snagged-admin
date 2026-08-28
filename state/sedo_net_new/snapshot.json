@@ -1,65 +1,11 @@
 [
   {
     "currency": "USD",
-    "domain": "vicious.co",
-    "end_time_utc": "2026-08-28T10:22:14+00:00",
-    "is_mub": false,
-    "price": 34888.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=vicious.co"
-  },
-  {
-    "currency": "USD",
-    "domain": "laughter.co",
-    "end_time_utc": "2026-08-28T10:22:09+00:00",
-    "is_mub": false,
-    "price": 29888.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=laughter.co"
-  },
-  {
-    "currency": "USD",
-    "domain": "monarchs.co",
-    "end_time_utc": "2026-08-28T10:22:09+00:00",
-    "is_mub": true,
-    "price": 29888.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=monarchs.co"
-  },
-  {
-    "currency": "USD",
-    "domain": "rashid.co",
-    "end_time_utc": "2026-08-28T10:22:09+00:00",
-    "is_mub": false,
-    "price": 29888.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=rashid.co"
-  },
-  {
-    "currency": "USD",
-    "domain": "anglia.co",
-    "end_time_utc": "2026-08-28T10:22:09+00:00",
-    "is_mub": false,
-    "price": 34888.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=anglia.co"
-  },
-  {
-    "currency": "USD",
     "domain": "berkshire.co",
     "end_time_utc": "2026-08-28T13:12:21+00:00",
     "is_mub": false,
     "price": 11995.0,
     "tld": "co",
     "url": "https://sedo.com/search/details/?domain=berkshire.co"
-  },
-  {
-    "currency": "USD",
-    "domain": "pore.co",
-    "end_time_utc": "2026-08-28T10:22:14+00:00",
-    "is_mub": false,
-    "price": 29888.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=pore.co"
   }
 ]

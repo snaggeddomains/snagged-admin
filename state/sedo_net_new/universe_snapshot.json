@@ -1,70 +1,30 @@
 [
   {
-    "domain": "rayming.com",
-    "price": 10495.0
-  },
-  {
     "domain": "hoffell.com",
     "price": 999.0
-  },
-  {
-    "domain": "marshalls.ai",
-    "price": 24995.0
   },
   {
     "domain": "depots.net",
     "price": 4500.0
   },
   {
-    "domain": "vicious.co",
-    "price": 34888.0
-  },
-  {
-    "domain": "laughter.co",
-    "price": 29888.0
-  },
-  {
-    "domain": "monarchs.co",
-    "price": 29888.0
-  },
-  {
-    "domain": "lilley.co",
-    "price": 1988.0
+    "domain": "skins.net",
+    "price": 100000.0
   },
   {
     "domain": "santon.co",
     "price": 1988.0
   },
   {
-    "domain": "rashid.co",
-    "price": 29888.0
-  },
-  {
-    "domain": "claymore.co",
-    "price": 34888.0
-  },
-  {
-    "domain": "anglia.co",
-    "price": 34888.0
-  },
-  {
-    "domain": "motorhome.co",
-    "price": 49888.0
+    "domain": "lilley.co",
+    "price": 1988.0
   },
   {
     "domain": "berkshire.co",
     "price": 11995.0
   },
   {
-    "domain": "elmes.co",
-    "price": 1988.0
-  },
-  {
     "domain": "anges.co",
     "price": 1988.0
-  },
-  {
-    "domain": "pore.co",
-    "price": 29888.0
   }
 ]
