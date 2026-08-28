@@ -186,6 +186,7 @@ export const SNAP_TABS: { href: string; label: string; perm: ModuleKey | ActionK
   { href: "/research/expiring", label: "Expiring .ai", perm: "research.expiring" },
   { href: "/reports/opportunities", label: "SNAP Opportunities", perm: "reports.opportunities" },
   { href: "/reports/snap-names", label: "SNAP Names", perm: "reports.snap_names" },
+  { href: "/research/snap-research", label: "SNAP Research", perm: "research.snap_research" },
   { href: "/snap-deals", label: "SNAP Deals", perm: "snap.deals" },
 ];
 

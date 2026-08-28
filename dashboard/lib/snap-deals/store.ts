@@ -69,6 +69,17 @@ export async function getSnapDeal(id: string): Promise<SnapDeal | null> {
   return (data as SnapDeal) || null;
 }
 
+// Find an existing SNAP deal for a domain (newest) — used to dedupe the research
+// one-click "Add to SNAP Deals" so a name isn't added twice.
+export async function findSnapDealByDomain(domain: string): Promise<SnapDeal | null> {
+  if (!isDbConfigured()) return null;
+  const d = String(domain || "").trim().toLowerCase();
+  if (!d) return null;
+  const { data, error } = await getDb().from(DEALS).select("*").eq("domain", d).order("created_at", { ascending: false }).limit(1).maybeSingle();
+  if (error) { if (missingTable(error)) return null; throw error; }
+  return (data as SnapDeal) || null;
+}
+
 export type CreateSnapDealInput = {
   domain: string;
   pointPerson?: string;
