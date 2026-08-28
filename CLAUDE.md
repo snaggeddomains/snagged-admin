@@ -1697,6 +1697,9 @@ Action**, always give the GitHub deep-link, not just a name/path.
   (e.g. `.../blob/main/dashboard/scripts/snap_deals.sql`).
 - **Action to dispatch:** `https://github.com/snaggeddomains/snagged-admin/actions/workflows/<file>.yml`
   (e.g. `.../actions/workflows/backfill-english-zipf.yml`) — links straight to the workflow's Run-workflow page.
+- **Any other repo file/artifact** Rob needs to open/run/review on GitHub (a script, a config, a
+  migration dir, a PR/commit): link it too — `.../blob/main/<path>`, `.../actions/workflows/<file>.yml`,
+  `.../commit/<sha>`, etc. Default to handing a clickable GitHub URL, never just a bare path or name.
 For the research repo swap the base to `https://github.com/snaggeddomains/domain-owner-research/…`.
 Commit + push the file FIRST so the `main` link resolves. Applies to both repos.
 
