@@ -1689,10 +1689,15 @@ future dictionary sweep can `order by zipf desc`.
 
 # Working agreements
 
-## ALWAYS deep-link SQL to run AND Actions to dispatch, on GitHub (Rob, 2026-08-28)
+## ALWAYS deep-link SQL to run AND Actions to dispatch, on GitHub — and NAME THE EXACT PROJECT (Rob, 2026-08-28)
 
 Whenever a change requires Rob (or an admin) to **run SQL / a migration** OR **dispatch a GitHub
-Action**, always give the GitHub deep-link, not just a name/path.
+Action**, always give the GitHub deep-link, not just a name/path. **For SQL, ALWAYS state the EXACT
+Supabase project to run it in** — there are FOUR separate projects (research/main `SUPABASE_URL`,
+naming `snagged-naming-universe`, master `Master Domain Name List`, zone `snagged-zone-index`) and
+it's easy to run in the wrong one (a 0022 migration got run in naming instead of research once — the
+tables existed in the wrong project and nothing populated). Name it explicitly, e.g. "run on the
+**research** project (the one holding the other `domain_research_*` tables — NOT snagged-naming-universe)".
 - **SQL file:** `https://github.com/snaggeddomains/snagged-admin/blob/main/<repo-relative-path>`
   (e.g. `.../blob/main/dashboard/scripts/snap_deals.sql`).
 - **Action to dispatch:** `https://github.com/snaggeddomains/snagged-admin/actions/workflows/<file>.yml`
