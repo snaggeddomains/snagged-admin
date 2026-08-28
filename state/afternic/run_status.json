@@ -1,6 +1,6 @@
 {
   "error": "403 Client Error: Forbidden for url: http://inventory-files-for-partners-gd-west.s3.amazonaws.com/3300cb019977ec5e42d26a27ace37cecce264e8d/zt5nchodbseszkp-inventory.csv.gz",
-  "generated_at": "2026-08-28T08:01:18.799298+00:00",
+  "generated_at": "2026-08-28T14:51:35.257199+00:00",
   "label": "Afternic",
   "source": "afternic",
   "status": "failed"
