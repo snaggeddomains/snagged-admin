@@ -1689,14 +1689,16 @@ future dictionary sweep can `order by zipf desc`.
 
 # Working agreements
 
-## ALWAYS deep-link SQL to run on GitHub (Rob, 2026-08-28)
+## ALWAYS deep-link SQL to run AND Actions to dispatch, on GitHub (Rob, 2026-08-28)
 
-Whenever a change requires Rob (or an admin) to run SQL / a migration, **always give the GitHub
-deep-link to the file**, not just a path. Format:
-`https://github.com/snaggeddomains/snagged-admin/blob/main/<repo-relative-path>` (e.g.
-`https://github.com/snaggeddomains/snagged-admin/blob/main/dashboard/scripts/snap_deals.sql`). For
-the research repo use `https://github.com/snaggeddomains/domain-owner-research/blob/main/<path>`.
-Commit + push the SQL file FIRST so the `main` link resolves. Applies to both repos.
+Whenever a change requires Rob (or an admin) to **run SQL / a migration** OR **dispatch a GitHub
+Action**, always give the GitHub deep-link, not just a name/path.
+- **SQL file:** `https://github.com/snaggeddomains/snagged-admin/blob/main/<repo-relative-path>`
+  (e.g. `.../blob/main/dashboard/scripts/snap_deals.sql`).
+- **Action to dispatch:** `https://github.com/snaggeddomains/snagged-admin/actions/workflows/<file>.yml`
+  (e.g. `.../actions/workflows/backfill-english-zipf.yml`) — links straight to the workflow's Run-workflow page.
+For the research repo swap the base to `https://github.com/snaggeddomains/domain-owner-research/…`.
+Commit + push the file FIRST so the `main` link resolves. Applies to both repos.
 
 ## Data tables are SORTABLE by default — don't wait to be asked (2026-08-10)
 
