@@ -12,7 +12,7 @@
 // Validated against live mail (person.com → 49 inbound; refresh.ai → 10 inbound
 // + a 46-msg Efty negotiation). Read-only; see lib/gmail.ts.
 
-import { dealMailboxes, getThread, searchThreadIds, type GmailMessage } from "./gmail";
+import { dealMailboxes, getThreadCapped, searchThreadIds, type GmailMessage } from "./gmail";
 import { findPitchExercises, type PitchExercise } from "./marketplace-pitch-sheets";
 import { classifyMessageIds, hubspotConfigured, normMid, recipientEngagementForDomain, type HubspotEmail, type RecipientEngagement } from "./hubspot";
 import type { QuoteKind } from "./marketplace-deal-recaps";
@@ -359,7 +359,7 @@ async function detectSale(domain: string): Promise<SaleStatus | null> {
     try { tids = await searchThreadIds(mailbox, `from:escrow.com "${domain}"`, 40); } catch { /* skip */ }
     for (const tid of tids) {
       let msgs: GmailMessage[];
-      try { msgs = await getThread(mailbox, tid); } catch { continue; }
+      try { msgs = await getThreadCapped(mailbox, tid); } catch { continue; }
       for (const m of msgs) {
         if (seen.has(m.mid) || !m.from.includes("escrow.com")) continue;
         seen.add(m.mid);
@@ -391,7 +391,7 @@ async function detectRepresentingSince(domain: string): Promise<string | null> {
     try { tids = await searchThreadIds(mailbox, `from:docusign "snagged" "${domain}"`, 10); } catch { /* skip */ }
     for (const tid of tids) {
       let msgs: GmailMessage[];
-      try { msgs = await getThread(mailbox, tid); } catch { continue; }
+      try { msgs = await getThreadCapped(mailbox, tid); } catch { continue; }
       for (const m of msgs) {
         if (!m.from.includes("docusign")) continue;
         if (!/snagged/i.test(m.subject) && !/snagged/i.test(m.body)) continue;
@@ -418,7 +418,7 @@ async function collect(domain: string): Promise<GmailMessage[]> {
     }
     for (const tid of tids) {
       let msgs: GmailMessage[];
-      try { msgs = await getThread(mailbox, tid); } catch { continue; }
+      try { msgs = await getThreadCapped(mailbox, tid); } catch { continue; }
       for (const m of msgs) {
         if (seen.has(m.mid)) continue;
         seen.add(m.mid);

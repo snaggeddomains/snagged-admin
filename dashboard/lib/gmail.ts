@@ -173,6 +173,30 @@ export async function getThread(subject: string, threadId: string): Promise<Gmai
   return (t.messages || []).map(parseMessage);
 }
 
+// Default cap for a single full-thread download (bodies + attachments). A handful of giant
+// negotiation threads (some >100 MB) re-downloaded repeatedly is what blows the shared per-user
+// Gmail data quota (Superhuman hit the same wall). Env DEAL_EMAIL_THREAD_MAX_BYTES tunes it.
+export const GMAIL_THREAD_SIZE_CAP = Number(process.env.DEAL_EMAIL_THREAD_MAX_BYTES) || 10 * 1024 * 1024;
+
+// getThread, but SKIP the heavy download when the thread exceeds `maxBytes` — a cheap metadata
+// pre-check decides. An oversized thread returns [] (the caller treats it as "no messages", which
+// for a deal report / chat attach just omits that one giant chain — low-priority content, never
+// worth throttling the mailbox for). If the metadata check itself fails we fall through to a normal
+// fetch so behavior degrades safely. Use this for any full-chain read that isn't latency-critical.
+export async function getThreadCapped(
+  subject: string,
+  threadId: string,
+  maxBytes = GMAIL_THREAD_SIZE_CAP,
+): Promise<GmailMessage[]> {
+  try {
+    const meta = await getThreadMeta(subject, threadId);
+    if (meta.sizeEstimate > maxBytes) return [];
+  } catch {
+    /* metadata unavailable — fall through and fetch normally */
+  }
+  return getThread(subject, threadId);
+}
+
 // Cheap thread metadata (headers + per-message sizeEstimate only — NO bodies/attachments), so a
 // caller can decide whether to skip the heavy full download. Even a 145 MB thread returns only
 // ~KB here. Used to avoid re-downloading giant / unchanged threads, which was blowing the shared

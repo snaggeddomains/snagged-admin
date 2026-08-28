@@ -11,7 +11,7 @@
 //   GET ?action=thread&mailbox=<m>&thread_id=  -> { thread:{mailbox,threadId,subject,count,text} }
 
 import { NextResponse, type NextRequest } from "next/server";
-import { dealMailboxes, gmailConfigured, searchMessages, getMessage, getThread } from "@/lib/gmail";
+import { dealMailboxes, gmailConfigured, searchMessages, getMessage, getThread, getThreadMeta, GMAIL_THREAD_SIZE_CAP } from "@/lib/gmail";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -53,6 +53,15 @@ export async function GET(req: NextRequest) {
       const threadId = (sp.get("thread_id") || "").trim();
       if (!mailbox || !threadId) return NextResponse.json({ error: "Missing mailbox/thread_id" }, { status: 400 });
       if (!mailboxes.includes(mailbox)) return NextResponse.json({ error: "Unknown mailbox" }, { status: 400 });
+      // Skip a giant chain — re-downloading full bodies of a huge thread burns the shared
+      // per-user Gmail data quota (which throttles the user's own Superhuman/Gmail). A
+      // low-priority attach is never worth that; the requester gets a clear message.
+      try {
+        const meta = await getThreadMeta(mailbox, threadId);
+        if (meta.sizeEstimate > GMAIL_THREAD_SIZE_CAP) {
+          return NextResponse.json({ error: `Thread too large to attach (${Math.round(meta.sizeEstimate / 1024 / 1024)} MB across ${meta.count} messages). Attach a more specific thread instead.` }, { status: 413 });
+        }
+      } catch { /* metadata unavailable — proceed with the normal fetch */ }
       const msgs = await getThread(mailbox, threadId);
       if (!msgs.length) return NextResponse.json({ error: "Thread not found" }, { status: 404 });
       const subject = msgs[0].subject || "(no subject)";

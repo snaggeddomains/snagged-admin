@@ -1615,6 +1615,21 @@ budget, Superhuman (and everything else) gets 429'd.
   Message-ID already stored). A brand-new thread is still ingested once. Skipped/failed threads
   **carry their existing rows forward** (`carryThread`) so `replaceDealEmails`' delete-and-replace doesn't
   drop them. Protects Brian's quota + our DB; env-tunable.
+  - **Extended to the OTHER full-chain readers (2026-08-28).** The deal-emails cron was the recurring one,
+    but two on-demand paths also re-download the SAME giant threads with a full-body `getThread`: the
+    **marketplace per-domain deal-report builder** (`lib/marketplace-deals.ts`, on viewing/regenerating a
+    domain report) and the **research chat email-attach endpoint** (`app/api/internal/email-threads`).
+    Added a shared **`getThreadCapped(subject, threadId, maxBytes=GMAIL_THREAD_SIZE_CAP)`** in `lib/gmail.ts`
+    (`GMAIL_THREAD_SIZE_CAP` = same `DEAL_EMAIL_THREAD_MAX_BYTES` 10 MB env): a cheap `getThreadMeta`
+    pre-check → returns `[]` (skips the heavy download) when the thread is oversized, falling through to a
+    normal fetch if the metadata check itself fails (degrades safely). marketplace-deals routes all 3
+    `getThread` calls through it (an oversized chain is just omitted from that report — low-priority
+    content, never worth throttling the mailbox). email-threads does an explicit meta pre-check and returns
+    a clear **413 "Thread too large to attach (N MB / M messages)"** instead of a silent empty (it's a
+    single deliberate attach, so the requester should know why). Pulling full chains is deliberately low
+    priority — the guard never affects normal functionality (small/normal threads pull exactly as before).
+    Per-MESSAGE readers (`leads.ts`, `domain-corpus/sources/gmail.ts`, `pitch-scan.ts` via `getMessage`)
+    are NOT capped — they pull individual messages, not whole chains, so they're not the byte bomb.
 
 # Internal Gmail endpoint for research chat (2026-06-20)
 
