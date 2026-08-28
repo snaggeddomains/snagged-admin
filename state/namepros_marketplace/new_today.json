@@ -1,13 +1,8 @@
 {
   "capped": false,
-  "count": 4,
-  "domains": [
-    "bangles.ai",
-    "cancers.ai",
-    "pneumonia.net",
-    "unstoppable.ai"
-  ],
-  "generated_at": "2026-08-28T17:06:40.127835+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-28T23:06:54.689055+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
