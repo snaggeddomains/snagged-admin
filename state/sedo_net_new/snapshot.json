@@ -1,24 +1,6 @@
 [
   {
     "currency": "USD",
-    "domain": "syringes.com",
-    "end_time_utc": "2026-08-28T00:34:11+00:00",
-    "is_mub": false,
-    "price": null,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=syringes.com"
-  },
-  {
-    "currency": "USD",
-    "domain": "lmd.com",
-    "end_time_utc": "2026-08-28T02:07:47+00:00",
-    "is_mub": false,
-    "price": 143810.0,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=lmd.com"
-  },
-  {
-    "currency": "USD",
     "domain": "vicious.co",
     "end_time_utc": "2026-08-28T10:22:14+00:00",
     "is_mub": false,
@@ -61,6 +43,15 @@
     "price": 34888.0,
     "tld": "co",
     "url": "https://sedo.com/search/details/?domain=anglia.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "berkshire.co",
+    "end_time_utc": "2026-08-28T13:12:21+00:00",
+    "is_mub": false,
+    "price": 11995.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=berkshire.co"
   },
   {
     "currency": "USD",

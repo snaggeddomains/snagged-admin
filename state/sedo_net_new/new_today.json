@@ -1,18 +1,10 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 1,
   "domains": [
-    "lmd.com",
-    "vicious.co",
-    "anglia.co",
-    "rashid.co",
-    "pore.co",
-    "monarchs.co",
-    "laughter.co"
+    "berkshire.co"
   ],
-  "generated_at": "2026-08-28T10:01:54.390445+00:00",
-  "mub": [
-    "monarchs.co"
-  ],
+  "generated_at": "2026-08-28T17:04:13.798097+00:00",
+  "mub": [],
   "source": "sedo_net_new"
 }
