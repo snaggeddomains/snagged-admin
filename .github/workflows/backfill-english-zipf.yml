@@ -1,0 +1,45 @@
+name: Backfill english_words.zipf (word frequency)
+
+# One-time (re-runnable) backfill of english_words.zipf via wordfreq, so SNAP Research
+# (research repo) can walk the dictionary "most-common first". Dry-run by DEFAULT — flip
+# `commit` to true to write. Idempotent + resumable (only zipf-NULL rows unless recompute).
+#
+# Prereq SQL (run ONCE on the NAMING project — scripts/english_words_zipf.sql):
+#   alter table english_words add column if not exists zipf real;
+#   create index if not exists idx_english_words_zipf on english_words (zipf desc nulls last);
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: Actually write zipf (otherwise dry-run preview)
+        type: boolean
+        default: false
+      recompute:
+        description: Re-score ALL rows (not just zipf IS NULL)
+        type: boolean
+        default: false
+      max_rows:
+        description: Cap rows processed this run (blank = all)
+        default: ""
+
+concurrency:
+  group: backfill-english-zipf
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      SUPABASE_NAMING_URL:         ${{ secrets.SUPABASE_NAMING_URL }}
+      SUPABASE_NAMING_SERVICE_KEY: ${{ secrets.SUPABASE_NAMING_SERVICE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Backfill english_words.zipf
+        run: |
+          python scripts/backfill_english_zipf.py \
+            ${{ github.event.inputs.recompute == 'true' && '--recompute' || '' }} \
+            ${{ github.event.inputs.max_rows != '' && format('--max-rows {0}', github.event.inputs.max_rows) || '' }} \
+            ${{ github.event.inputs.commit == 'true' && '--commit' || '' }}

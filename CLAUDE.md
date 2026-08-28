@@ -1672,6 +1672,21 @@ slack.py`) got two changes for urgency + completeness:
   The **MUB picks** post is unchanged (still a curated top-20). Tests:
   `tests/test_auctions_orchestrator.py` (+ slack).
 
+# english_words.zipf — word-frequency backfill (2026-08-28)
+
+`english_words` (NAMING project) had only `word/is_root/pos/definition` — no frequency — so a
+dictionary walk couldn't order "most-common first". Added a **`zipf`** column (wordfreq's
+`zipf_frequency`, 0.0=rare … ~7=commonest) so SNAP Research (research repo, being built) and any
+future dictionary sweep can `order by zipf desc`.
+- **Prereq SQL** (NAMING project, once): `scripts/english_words_zipf.sql` (`add column if not exists
+  zipf real` + `idx_english_words_zipf` on `zipf desc nulls last`).
+- **Backfill:** `scripts/backfill_english_zipf.py` (wordfreq + supabase `create_client` on
+  `SUPABASE_NAMING_*`, both pipeline deps) → keyset-pages english_words, upserts `{word, zipf}` on the
+  `word` PK (preserves other cols). Idempotent/resumable (only `zipf IS NULL` unless `--recompute`);
+  dry-run default. Run via the **`backfill-english-zipf.yml`** Action (dispatch `commit=true`). ~98k
+  root words (+ inflections), a few minutes.
+- **Re-run** if the dictionary grows (new rows are `zipf` NULL → picked up next run).
+
 # Working agreements
 
 ## ALWAYS deep-link SQL to run on GitHub (Rob, 2026-08-28)
