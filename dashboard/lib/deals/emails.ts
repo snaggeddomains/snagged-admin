@@ -4,8 +4,14 @@
 // Pipedrive — not just the latest per thread). Best-effort: no Gmail config / no matches
 // → 0, never throws to the caller.
 
-import { dealMailboxes, gmailConfigured, searchMessages, getThread } from "../gmail";
-import { replaceDealEmails, type Deal } from "./store";
+import { dealMailboxes, gmailConfigured, searchMessages, getThread, getThreadMeta } from "../gmail";
+import { replaceDealEmails, listDealEmails, type Deal, type DealEmail } from "./store";
+
+// Never RE-download a thread bigger than this (bodies + attachments) — a few giant negotiation
+// threads re-pulled every run were burning the shared per-user Gmail data quota (Superhuman was
+// hitting the same wall: one 145 MB thread re-downloaded 355×). We keep whatever we already have
+// for such a thread and skip the re-fetch. A brand-new thread is still ingested once. Env-tunable.
+const THREAD_SIZE_CAP = Number(process.env.DEAL_EMAIL_THREAD_MAX_BYTES) || 10 * 1024 * 1024;
 
 const MAX_PER_MAILBOX = 40; // matched stubs pulled per mailbox
 const MAX_THREADS = 25;     // threads expanded per deal
@@ -73,6 +79,22 @@ export async function ingestDealEmails(deal: Deal): Promise<number> {
   const byMsg = new Map<string, { mailbox: string; thread_id: string; msg_id: string; subject: string | null; snippet: string | null; body: string | null; from_addr: string | null; msg_date: string | null }>();
   const seenThreads = new Set<string>();
 
+  // What we already have (per thread) — so a skipped re-download carries its rows forward
+  // (replaceDealEmails deletes-and-replaces) and the "unchanged" check has a baseline.
+  const existing = await listDealEmails(deal.id).catch(() => [] as DealEmail[]);
+  const existingByThread = new Map<string, DealEmail[]>();
+  const storedMids = new Map<string, Set<string>>();
+  for (const e of existing) {
+    if (!e.thread_id || !e.msg_id) continue;
+    (existingByThread.get(e.thread_id) || existingByThread.set(e.thread_id, []).get(e.thread_id)!).push(e);
+    (storedMids.get(e.thread_id) || storedMids.set(e.thread_id, new Set()).get(e.thread_id)!).add(e.msg_id);
+  }
+  const carryThread = (threadId: string) => {
+    for (const e of existingByThread.get(threadId) || []) {
+      if (e.msg_id && !byMsg.has(e.msg_id)) byMsg.set(e.msg_id, { mailbox: e.mailbox || "", thread_id: e.thread_id, msg_id: e.msg_id, subject: e.subject, snippet: e.snippet, body: e.body, from_addr: e.from_addr, msg_date: e.msg_date });
+    }
+  };
+
   for (const mailbox of dealMailboxes()) {
     if (byMsg.size >= MAX_ROWS) break;
     let stubs: { id: string; threadId: string }[] = [];
@@ -85,8 +107,20 @@ export async function ingestDealEmails(deal: Deal): Promise<number> {
     }
     for (const threadId of threads.slice(0, MAX_THREADS)) {
       if (byMsg.size >= MAX_ROWS) break;
+      // Cheap metadata pre-check — avoid the heavy full download when we ALREADY have the thread
+      // and it's either oversized (never re-pull a giant thread) or unchanged (newest message
+      // already stored). A brand-new thread falls through and is ingested once.
+      const alreadyHave = (existingByThread.get(threadId)?.length || 0) > 0;
+      if (alreadyHave) {
+        let meta = null as Awaited<ReturnType<typeof getThreadMeta>> | null;
+        try { meta = await getThreadMeta(mailbox, threadId); } catch { meta = null; }
+        if (meta) {
+          if (meta.sizeEstimate > THREAD_SIZE_CAP) { carryThread(threadId); continue; }        // don't re-download a giant thread
+          if (meta.newestMid && storedMids.get(threadId)?.has(meta.newestMid)) { carryThread(threadId); continue; } // unchanged
+        }
+      }
       let msgs;
-      try { msgs = await getThread(mailbox, threadId); } catch { continue; }
+      try { msgs = await getThread(mailbox, threadId); } catch { carryThread(threadId); continue; }
       for (const msg of msgs) {
         // drop system/alert noise — check body/snippet too (DomainScout etc. can show as "rob → rob")
         if (isNoise(msg.from || null, msg.subject || null, `${msg.snippet || ""} ${msg.body || ""}`)) continue;

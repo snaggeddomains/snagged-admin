@@ -1604,6 +1604,17 @@ budget, Superhuman (and everything else) gets 429'd.
   ~1×/day. `?full=1` overrides (manual backfill). The manual "Pull emails" button + on-open ingest
   cover urgency. This removed ~80–90% of our authorizations on brian@ — the lever WE control, to
   isolate whether Superhuman's autosave alone still throttles him.
+- **Thread re-download guard (2026-08-28).** Superhuman support confirmed the throttle mechanism is
+  **byte-based**: a few GIANT negotiation threads re-downloaded hundreds of times (one 145 MB thread
+  355×) blow the shared per-user Gmail DATA quota. Our `ingestDealEmails` (`lib/deals/emails.ts`) did a
+  full-body `getThread` on every matched thread each run — so a deal linked to a giant thread had US
+  re-downloading it too. Fix: before the heavy `getThread`, when we ALREADY have the thread stored, do a
+  **cheap `getThreadMeta`** (new in `lib/gmail.ts`, `format=metadata&metadataHeaders=Message-ID` — headers
+  + summed `sizeEstimate` only, ~KB even for a 145 MB thread) and **skip the re-download** if it's
+  **oversized** (`sizeEstimate > DEAL_EMAIL_THREAD_MAX_BYTES`, default 10 MB) OR **unchanged** (newest
+  Message-ID already stored). A brand-new thread is still ingested once. Skipped/failed threads
+  **carry their existing rows forward** (`carryThread`) so `replaceDealEmails`' delete-and-replace doesn't
+  drop them. Protects Brian's quota + our DB; env-tunable.
 
 # Internal Gmail endpoint for research chat (2026-06-20)
 

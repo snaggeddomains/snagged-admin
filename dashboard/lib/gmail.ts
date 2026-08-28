@@ -172,3 +172,30 @@ export async function getThread(subject: string, threadId: string): Promise<Gmai
   const t = await gget(subject, `threads/${threadId}?format=full`);
   return (t.messages || []).map(parseMessage);
 }
+
+// Cheap thread metadata (headers + per-message sizeEstimate only — NO bodies/attachments), so a
+// caller can decide whether to skip the heavy full download. Even a 145 MB thread returns only
+// ~KB here. Used to avoid re-downloading giant / unchanged threads, which was blowing the shared
+// per-user Gmail data quota. Returns the message count, the summed size estimate, and the newest
+// message's RFC Message-ID.
+export async function getThreadMeta(
+  subject: string,
+  threadId: string,
+): Promise<{ count: number; sizeEstimate: number; newestMid: string | null }> {
+  const t = await gget(subject, `threads/${threadId}?format=metadata&metadataHeaders=Message-ID`);
+  const msgs: any[] = t.messages || [];
+  let size = 0;
+  let newestMid: string | null = null;
+  let newestMs = -1;
+  for (const m of msgs) {
+    size += Number(m.sizeEstimate) || 0;
+    const internal = Number(m.internalDate) || 0;
+    if (internal >= newestMs) {
+      newestMs = internal;
+      const headers: any[] = m.payload?.headers || [];
+      const mid = headers.find((h) => (h.name || "").toLowerCase() === "message-id")?.value;
+      if (mid) newestMid = mid;
+    }
+  }
+  return { count: msgs.length, sizeEstimate: size, newestMid };
+}
