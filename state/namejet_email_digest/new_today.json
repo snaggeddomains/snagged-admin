@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-28T15:12:36.877229+00:00",
+  "count": 1,
+  "domains": [
+    "undertake.org"
+  ],
+  "generated_at": "2026-08-29T15:05:27.779344+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
