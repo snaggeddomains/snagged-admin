@@ -1,8 +1,11 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-28T23:06:54.689055+00:00",
+  "count": 2,
+  "domains": [
+    "dealer.so",
+    "notion.so"
+  ],
+  "generated_at": "2026-08-29T10:07:14.265079+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }

@@ -1,5 +1,5 @@
 {
-  "count": 964,
+  "count": 966,
   "domains": [
     "02.to",
     "048.org",
@@ -250,6 +250,7 @@
     "d.com",
     "daisy.co",
     "dancin.ai",
+    "dealer.so",
     "decent.co",
     "decoupling.ai",
     "dedicate.co",
@@ -603,6 +604,7 @@
     "nix.com",
     "nondescript.ai",
     "notebook.so",
+    "notion.so",
     "nozzle.co",
     "nuance.co",
     "nyssa.ai",
@@ -967,5 +969,5 @@
     "zqu.com"
   ],
   "source": "namepros_marketplace",
-  "updated_at": "2026-08-28T23:06:54.690554+00:00"
+  "updated_at": "2026-08-29T10:07:14.616729+00:00"
 }
