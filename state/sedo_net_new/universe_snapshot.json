@@ -4,14 +4,6 @@
     "price": 1688.0
   },
   {
-    "domain": "democrats.ai",
-    "price": null
-  },
-  {
-    "domain": "republicans.ai",
-    "price": null
-  },
-  {
     "domain": "englands.net",
     "price": 250.0
   },
@@ -20,7 +12,7 @@
     "price": 3195.0
   },
   {
-    "domain": "zentri.co",
-    "price": 1999.0
+    "domain": "vetted.co",
+    "price": null
   }
 ]
