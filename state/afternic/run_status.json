@@ -1,7 +1,12 @@
 {
-  "error": "403 Client Error: Forbidden for url: http://inventory-files-for-partners-gd-west.s3.amazonaws.com/3300cb019977ec5e42d26a27ace37cecce264e8d/zt5nchodbseszkp-inventory.csv.gz",
-  "generated_at": "2026-08-28T14:51:35.257199+00:00",
+  "dropped_count": 3,
+  "fresh_added": 3,
+  "generated_at": "2026-08-29T08:23:06.718630+00:00",
   "label": "Afternic",
+  "new_count": 3,
+  "price_change_count": 5,
+  "running_total_after": 4562,
+  "slack_posted": true,
   "source": "afternic",
-  "status": "failed"
+  "status": "ok"
 }

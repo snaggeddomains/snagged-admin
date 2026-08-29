@@ -1,16 +1,12 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 3,
   "domains": [
-    "whittier.co",
-    "hebron.co",
-    "liabilities.org",
-    "excites.co",
-    "worth.ai"
+    "dumbledore.co",
+    "claimed.com",
+    "conflict.com"
   ],
-  "generated_at": "2026-08-27T08:16:08.891816+00:00",
-  "mub": [
-    "hebron.co"
-  ],
+  "generated_at": "2026-08-29T08:23:06.718851+00:00",
+  "mub": [],
   "source": "afternic"
 }
