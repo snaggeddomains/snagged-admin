@@ -1,11 +1,20 @@
 [
   {
     "currency": "USD",
-    "domain": "berkshire.co",
-    "end_time_utc": "2026-08-28T13:12:21+00:00",
+    "domain": "democrats.ai",
+    "end_time_utc": "2026-08-29T02:48:06+00:00",
     "is_mub": false,
-    "price": 11995.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=berkshire.co"
+    "price": null,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=democrats.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "republicans.ai",
+    "end_time_utc": "2026-08-29T02:48:07+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=republicans.ai"
   }
 ]
