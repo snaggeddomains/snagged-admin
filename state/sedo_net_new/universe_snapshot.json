@@ -1,18 +1,22 @@
 [
   {
-    "domain": "snappyink.com",
-    "price": 1688.0
+    "domain": "cancers.ai",
+    "price": null
   },
   {
-    "domain": "englands.net",
-    "price": 250.0
+    "domain": "pubs.ai",
+    "price": null
   },
   {
-    "domain": "penh.net",
-    "price": 3195.0
+    "domain": "popularity.ai",
+    "price": null
   },
   {
     "domain": "vetted.co",
     "price": null
+  },
+  {
+    "domain": "attend.co",
+    "price": 24995.0
   }
 ]

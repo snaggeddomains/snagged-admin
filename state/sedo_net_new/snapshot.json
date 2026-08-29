@@ -1,1 +1,38 @@
-[]
+[
+  {
+    "currency": "USD",
+    "domain": "cancers.ai",
+    "end_time_utc": "2026-08-29T19:51:22+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=cancers.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "pubs.ai",
+    "end_time_utc": "2026-08-29T19:40:27+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=pubs.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "popularity.ai",
+    "end_time_utc": "2026-08-29T19:51:22+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=popularity.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "attend.co",
+    "end_time_utc": "2026-08-29T20:38:19+00:00",
+    "is_mub": false,
+    "price": 24995.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=attend.co"
+  }
+]
