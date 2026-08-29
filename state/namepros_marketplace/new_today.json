@@ -1,11 +1,15 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 6,
   "domains": [
-    "dealer.so",
-    "notion.so"
+    "democrats.ai",
+    "expenditures.ai",
+    "popularity.ai",
+    "pubs.ai",
+    "republicans.ai",
+    "saps.ai"
   ],
-  "generated_at": "2026-08-29T10:07:14.265079+00:00",
+  "generated_at": "2026-08-29T17:06:52.565755+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
