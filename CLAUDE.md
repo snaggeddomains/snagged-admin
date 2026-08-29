@@ -1272,6 +1272,21 @@ marketplace deal-finder).
   ADMIN Vercel project (same place as the other Slack channel vars).
 - **⏰ Schedule (2026-07-18):** `reddit-sweep` + `x-sweep` now run **3×/day at 13/18/23 UTC**
   (`vercel.json`) — added after calibration sign-off (they'd been manual-only during tuning).
+- **TIGHTENED to buy-side leads ONLY — dropped the "worth engaging" bucket (Rob, 2026-08-29).** The
+  channel was flooding with low-intent noise (r/smallbusiness "Best Coffee Cart POS System?", r/webdev
+  storefront show-and-tell) because the **`maybe`** bucket surfaced ANY outsider (founder/VC sub) merely
+  discussing domains. Rob's call: surface a post ONLY when the author is very clearly seeking help to
+  **ACQUIRE** a domain — a **buy-side broker ask, first-person buy intent, or an unreachable owner**. Fix
+  in `score.ts`: removed the `else if (outsider && score >= MAYBE_MIN) bucket = "maybe"` branch (→ now
+  `ignore`), so `high-signal` (the `HIGH_INTENT` set — broker asks / "I/we want/need to buy" / "how do I
+  buy the .com" / owner-not-responding) is the ONLY surfacing bucket. Everything downstream that referenced
+  `maybe` (digest Slack + email sections, run/store counts) is guarded on `maybe.length`/`arr.length`, so
+  those sections just go empty — no other file needed changing (the `Bucket` type keeps `maybe` for
+  compatibility, it's simply never emitted). A quiet run now sends NO digest (newPosts empty → `buildDigest`
+  returns null) — far fewer messages, on purpose. Verified: coffee-cart/hot-dog → ignore; "looking for a
+  domain broker to help me acquire… owner isn't responding" + "how do I buy the .com for our startup" →
+  high-signal; a rebrand-discussion post (high score, no acquire intent) now → ignore (the deliberate cut).
+  To re-widen, restore the maybe branch. No new env/table/migration.
 
 ---
 

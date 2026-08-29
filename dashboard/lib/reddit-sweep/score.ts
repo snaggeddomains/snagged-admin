@@ -2,20 +2,20 @@
 // LLM/embeddings. Every signal is an integer-weighted term; a post's score, buy/sell
 // lean, domain context, and INSIDER-vs-OUTSIDER read determine its bucket. Pure, no I/O.
 //
-// PURPOSE (Rob, 2026-07-17): surface posts where Snagged can add EXPERT authority to
-// people OUTSIDE the domain industry — founders, startups, VCs, investors, operators —
-// who are talking about domain names / digital assets AT ALL (bought one, want help,
-// asking for a broker, discussing them). It is NOT limited to explicit buy intent.
-// The HARD filter is excluding the domainer echo chamber: brokers, domain investors,
-// sellers, "roast my portfolio", r/Domains shop-talk. Inclusion for the founder/VC
-// sphere is deliberately generous — we tighten on real dry-run output.
+// PURPOSE (Rob, 2026-08-29 — TIGHTENED to buy-side leads only): surface ONLY posts where
+// the author is very clearly seeking help to ACQUIRE a domain — a buy-side broker ask,
+// first-person buy intent ("I/we want/need to buy…", "how do I buy the .com"), or an owner
+// they can't reach. That is the lead Snagged converts. The old broad "add expert authority
+// to any outsider discussing domains" posture (the `maybe` / worth-engaging bucket) is
+// DROPPED — it flooded the channel with low-intent noise (POS-system questions, storefront
+// show-and-tell). This cuts total volume hard on purpose. The HARD filter still excludes the
+// domainer echo chamber (brokers, investors, sellers, "roast my portfolio", r/Domains).
 //
 // The tables ARE the tuning surface — change a weight/term, not an if/else.
 
 export type Bucket = "high-signal" | "maybe" | "ignore" | "feed-error";
 
-export const HIGH_QUALITY_SCORE_MIN = 6; // outsider-path high-signal floor (was buy-intent-only 14)
-const MAYBE_MIN = 3;
+export const HIGH_QUALITY_SCORE_MIN = 6;
 
 // Subreddits full of DOMAINERS (the echo chamber). A post here is probably an insider —
 // demote hard; only a clear outsider signal clears the floor.
@@ -210,12 +210,12 @@ export function scorePost(text: string, subreddit: string): Scored {
   const highIntent = hits(h, HIGH_INTENT).length > 0;
 
   let bucket: Bucket;
-  // Domainer/seller/noise never qualifies, regardless of intent wording.
+  // BUY-SIDE LEADS ONLY. Domainer/seller/no-domain-context never qualifies.
   if (insider || pureSeller || !hasContext) bucket = "ignore";
-  // 🎯 HIGH INTENT (lead): actively seeking a broker / to buy a specific domain.
+  // 🎯 HIGH INTENT (lead): the author is actively seeking to ACQUIRE a specific domain —
+  // a broker ask, first-person buy intent, or an owner they can't reach. Nothing else
+  // surfaces (the old outsider "worth engaging" conversation bucket was removed).
   else if (highIntent) bucket = "high-signal";
-  // 💬 WORTH ENGAGING (conversation): an outsider discussing domains we can weigh in on.
-  else if (outsider && score >= MAYBE_MIN) bucket = "maybe";
   else bucket = "ignore";
 
   return { score, bucket, buySide, sellSide, hasContext, insider, outsider, matched: [...new Set(matched)], sample: sampleResponse(h, buySide) };
