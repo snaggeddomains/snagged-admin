@@ -1,22 +1,18 @@
 {
   "capped": false,
-  "count": 11,
+  "count": 7,
   "domains": [
-    "octo.co",
-    "krilo.com",
-    "aqi.co",
-    "alienation.co",
-    "juyp.com",
-    "bandito.com",
-    "umwelt.com",
-    "sandria.com",
-    "purson.com",
-    "vhdd.com",
-    "hatchet.co"
+    "matisse.co",
+    "brbet.com",
+    "superfan.net",
+    "docen.com",
+    "ljs.co",
+    "vadem.com",
+    "brazen.co"
   ],
-  "generated_at": "2026-08-28T10:00:02.800054+00:00",
+  "generated_at": "2026-08-29T09:51:07.274591+00:00",
   "mub": [
-    "bandito.com"
+    "vadem.com"
   ],
   "source": "godaddy_auctions"
 }

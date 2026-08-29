@@ -1,17 +1,26 @@
 {
   "capped": false,
-  "count": 8,
+  "count": 17,
   "domains": [
-    "familyy.org",
-    "vilary.com",
-    "massey.ai",
-    "trashy.ai",
-    "gridlock.com",
-    "dcx.ai",
-    "issuers.ai",
-    "royalist.co"
+    "ribble.ai",
+    "altruism.co",
+    "hypothetically.co",
+    "pliers.ai",
+    "lele.co",
+    "shenandoah.ai",
+    "centrality.ai",
+    "kahx.com",
+    "znah.com",
+    "autistic.ai",
+    "stressful.io",
+    "aiken.ai",
+    "unaware.io",
+    "lyman.ai",
+    "apparent.io",
+    "particulate.ai",
+    "additionally.ai"
   ],
-  "generated_at": "2026-08-28T09:58:39.026168+00:00",
+  "generated_at": "2026-08-29T09:49:44.380679+00:00",
   "mub": [],
   "source": "namecheap_auctions"
 }

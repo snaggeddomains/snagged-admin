@@ -2,25 +2,23 @@
   "capped": false,
   "count": 15,
   "domains": [
-    "protecting.ai",
-    "seized.ai",
-    "praised.ai",
-    "leaving.io",
-    "dems.ai",
-    "located.co",
-    "noticeable.ai",
-    "lifespan.ai",
-    "categories.io",
-    "males.io",
-    "trident.ai",
-    "downplay.ai",
-    "tehran.co",
-    "langley.co",
-    "donnie.org"
+    "aesthetic.com",
+    "alumni.ai",
+    "supremacy.ai",
+    "crusher.com",
+    "dlc.ai",
+    "filling.io",
+    "inferior.io",
+    "hoover.co",
+    "guangzhou.co",
+    "straws.co",
+    "cern.co",
+    "dwellers.org",
+    "luton.org",
+    "clooney.org",
+    "alternator.org"
   ],
-  "generated_at": "2026-08-28T09:31:13.537906+00:00",
-  "mub": [
-    "tehran.co"
-  ],
+  "generated_at": "2026-08-29T09:30:02.247322+00:00",
+  "mub": [],
   "source": "atom_daily"
 }

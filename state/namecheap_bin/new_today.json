@@ -1,13 +1,8 @@
 {
   "capped": false,
-  "count": 4,
-  "domains": [
-    "waiting.co",
-    "allie.ai",
-    "presumably.ai",
-    "ironically.ai"
-  ],
-  "generated_at": "2026-08-28T09:03:53.036005+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-29T09:03:13.137339+00:00",
   "mub": [],
   "source": "namecheap_bin"
 }

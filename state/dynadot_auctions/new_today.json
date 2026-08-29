@@ -2,11 +2,11 @@
   "capped": false,
   "count": 3,
   "domains": [
-    "qagm.com",
-    "scammers.co",
-    "subsystem.org"
+    "beiv.com",
+    "leaks.co",
+    "proportion.io"
   ],
-  "generated_at": "2026-08-28T09:59:23.520069+00:00",
+  "generated_at": "2026-08-29T09:50:33.677385+00:00",
   "mub": [],
   "source": "dynadot_auctions"
 }

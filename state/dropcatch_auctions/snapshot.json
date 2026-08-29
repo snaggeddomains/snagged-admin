@@ -1,47 +1,56 @@
 [
   {
-    "bid_count": 54,
-    "domain": "sirrus.com",
-    "end_time_utc": "2026-08-28T18:59:31.247882+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/SirRus.com",
-    "platform": "DropCatch",
-    "price": 470.0
-  },
-  {
-    "bid_count": 16,
-    "domain": "trillon.com",
-    "end_time_utc": "2026-08-28T18:59:31.247882+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/TrillOn.com",
-    "platform": "DropCatch",
-    "price": 300.0
-  },
-  {
-    "bid_count": 42,
-    "domain": "wpage.com",
-    "end_time_utc": "2026-08-31T18:59:31.247882+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Wpage.com",
-    "platform": "DropCatch",
-    "price": 310.0
-  },
-  {
-    "bid_count": 38,
+    "bid_count": 44,
     "domain": "rallie.com",
-    "end_time_utc": "2026-08-31T18:59:31.247882+00:00",
+    "end_time_utc": "2026-08-31T18:59:39.709774+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/RAllie.com",
     "platform": "DropCatch",
-    "price": 227.0
+    "price": 650.0
+  },
+  {
+    "bid_count": 45,
+    "domain": "wpage.com",
+    "end_time_utc": "2026-08-31T18:59:39.709774+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Wpage.com",
+    "platform": "DropCatch",
+    "price": 370.0
+  },
+  {
+    "bid_count": 37,
+    "domain": "canax.com",
+    "end_time_utc": "2026-08-31T18:59:39.709774+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Canax.com",
+    "platform": "DropCatch",
+    "price": 130.0
   },
   {
     "bid_count": 5,
     "domain": "wjve.com",
-    "end_time_utc": "2026-08-31T18:59:31.247882+00:00",
+    "end_time_utc": "2026-08-31T18:59:39.709774+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/wjve.com",
     "platform": "DropCatch",
     "price": 110.0
+  },
+  {
+    "bid_count": 65,
+    "domain": "kiver.com",
+    "end_time_utc": "2026-09-01T18:59:39.709774+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Kiver.com",
+    "platform": "DropCatch",
+    "price": 730.0
+  },
+  {
+    "bid_count": 10,
+    "domain": "keeprs.com",
+    "end_time_utc": "2026-09-01T18:59:39.709774+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/KeepRs.com",
+    "platform": "DropCatch",
+    "price": 65.0
   }
 ]

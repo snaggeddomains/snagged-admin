@@ -1,14 +1,15 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 6,
   "domains": [
-    "sirrus.com",
-    "trillon.com",
-    "wpage.com",
     "rallie.com",
-    "wjve.com"
+    "wpage.com",
+    "canax.com",
+    "wjve.com",
+    "kiver.com",
+    "keeprs.com"
   ],
-  "generated_at": "2026-08-28T09:59:32.151349+00:00",
+  "generated_at": "2026-08-29T09:50:40.535327+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }
