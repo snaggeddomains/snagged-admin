@@ -1,15 +1,11 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 2,
   "domains": [
-    "democrats.ai",
-    "expenditures.ai",
-    "popularity.ai",
-    "pubs.ai",
-    "republicans.ai",
-    "saps.ai"
+    "krp.com",
+    "taxed.me"
   ],
-  "generated_at": "2026-08-29T17:06:52.565755+00:00",
+  "generated_at": "2026-08-29T23:07:39.381627+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
