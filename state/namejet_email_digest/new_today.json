@@ -1,13 +1,11 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 2,
   "domains": [
-    "polarity.org",
-    "dealings.org",
-    "teases.org",
-    "thee.org"
+    "thee.org",
+    "teases.org"
   ],
-  "generated_at": "2026-08-29T15:10:49.776219+00:00",
+  "generated_at": "2026-08-29T15:11:27.036451+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
