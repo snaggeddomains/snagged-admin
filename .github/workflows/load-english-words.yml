@@ -1,0 +1,37 @@
+name: Load additional english_words (dictionary expansion)
+
+# One-time (re-runnable) load of the broader real-dictionary tranche into english_words
+# on the NAMING project — real English words (dwyl/english-words) with real usage
+# (wordfreq zipf > 0) that we were missing, precomputed + committed as
+# scripts/data/new_english_words.csv. Feeds SNAP Research + Expiring .ai (both curate
+# is_root words). Dry-run by DEFAULT — flip `commit` to true to write. Idempotent:
+# INSERT ... ON CONFLICT DO NOTHING, so re-running never overwrites an existing row.
+#
+# Prereq: english_words.zipf column already exists (scripts/english_words_zipf.sql, done).
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: Actually insert the new rows (otherwise dry-run preview)
+        type: boolean
+        default: false
+
+concurrency:
+  group: load-english-words
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SUPABASE_NAMING_URL:         ${{ secrets.SUPABASE_NAMING_URL }}
+      SUPABASE_NAMING_SERVICE_KEY: ${{ secrets.SUPABASE_NAMING_SERVICE_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Load additional english_words
+        run: |
+          python scripts/load_english_words.py \
+            ${{ github.event.inputs.commit == 'true' && '--commit' || '' }}

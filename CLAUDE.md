@@ -1713,6 +1713,34 @@ future dictionary sweep can `order by zipf desc`.
   root words (+ inflections), a few minutes.
 - **Re-run** if the dictionary grows (new rows are `zipf` NULL → picked up next run).
 
+## english_words — broader dictionary expansion (2026-08-29)
+
+Rob asked to "load the next ~100k most popular words." **Investigated first: the premise didn't hold.**
+`english_words` already has **237,964 words** (98k `is_root`), reaching **zipf 0** — we already hold
+essentially the whole useful English dictionary. wordfreq's "next 100k by frequency" is ~95% junk for us
+(proper nouns michael/obama/facebook, slang gonna/lol/dont, foreign words, surnames, abbreviations) —
+loading it verbatim would pollute the corpus that feeds SNAP Research + Expiring .ai + the naming
+exercise. The genuinely-missing *common* real words are only a few thousand (verified absent:
+blog/podcast/emoji/selfie/awesome/powerful/different/available/useful/elegant…). Rob chose the **broader
+real-dict** option.
+- **What loads:** real English words from the **dwyl/english-words** 370k list (`words_alpha.txt`), 3–15
+  letters, that carry SOME real usage (**wordfreq zipf > 0**) and weren't already present, minus a light
+  inflection filter (drop plural/-ing/-ed forms whose base we already have). **= 23,389 words**, committed
+  as **`scripts/data/new_english_words.csv`** (`word,zipf`) so the load is deterministic + reviewable (no
+  CI network/wordfreq dep). Still includes some stopwords/proper nouns/obscure words — an accepted cost of
+  the "broader" choice (they just become weak/non candidates downstream).
+- **Load:** `scripts/load_english_words.py` (reads the CSV, upserts `{word, zipf, is_root:true}` — `is_root`
+  true so SNAP Research + Expiring .ai actually curate them, both gate on it; pos/definition left NULL for
+  the WordNet pos backfill to fill later). **INSERT … ON CONFLICT DO NOTHING** (`ignore_duplicates`) so it
+  NEVER overwrites an existing curated row — only adds. Dry-run by default; `--commit` to write. Idempotent
+  (re-runnable). Env `SUPABASE_NAMING_URL`+`SUPABASE_NAMING_SERVICE_KEY`.
+- **Run it:** dispatch **`load-english-words.yml`** with `commit=true` (dry-run without). Then re-dispatch
+  the pos backfill if you want the new rows POS-tagged (`enrich`/`backfill-structural`).
+- **To expand again / regenerate the CSV:** it was computed in-session — pull all `english_words` (read via
+  `scripts/db.py naming`), fetch dwyl `words_alpha.txt`, keep real words with zipf>0 not already present,
+  apply the inflection filter. Widen by lowering the zipf>0 floor (the ~178k zipf-0 dwyl remainder is
+  obscure/unrated — mostly not worth it).
+
 # Working agreements
 
 ## ALWAYS deep-link SQL to run AND Actions to dispatch, on GitHub — and NAME THE EXACT PROJECT (Rob, 2026-08-28)
