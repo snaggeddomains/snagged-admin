@@ -5,7 +5,7 @@ We already hold ~238k words (down to zipf 0), so this ADDS the broader real-dict
 tranche we were missing — real English words (from the dwyl/english-words 370k list)
 that carry SOME real-world usage (wordfreq zipf > 0) and weren't already present, with a
 light inflection filter so we don't add plurals/verb-forms of words we already have. The
-exact set is precomputed + committed as scripts/data/new_english_words.csv (word,zipf) so
+exact set is precomputed + committed as scripts/new_english_words.csv (word,zipf) so
 the load is deterministic + reviewable (no CI network / wordfreq dependency).
 
 New rows are inserted with is_root=true so SNAP Research + Expiring .ai actually curate
@@ -26,7 +26,7 @@ import csv
 import os
 import sys
 
-CSV_PATH = os.path.join(os.path.dirname(__file__), "data", "new_english_words.csv")
+CSV_PATH = os.path.join(os.path.dirname(__file__), "new_english_words.csv")
 
 
 def main() -> int:

@@ -3,7 +3,7 @@ name: Load additional english_words (dictionary expansion)
 # One-time (re-runnable) load of the broader real-dictionary tranche into english_words
 # on the NAMING project — real English words (dwyl/english-words) with real usage
 # (wordfreq zipf > 0) that we were missing, precomputed + committed as
-# scripts/data/new_english_words.csv. Feeds SNAP Research + Expiring .ai (both curate
+# scripts/new_english_words.csv. Feeds SNAP Research + Expiring .ai (both curate
 # is_root words). Dry-run by DEFAULT — flip `commit` to true to write. Idempotent:
 # INSERT ... ON CONFLICT DO NOTHING, so re-running never overwrites an existing row.
 #

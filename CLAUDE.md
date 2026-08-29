@@ -1726,7 +1726,7 @@ real-dict** option.
 - **What loads:** real English words from the **dwyl/english-words** 370k list (`words_alpha.txt`), 3–15
   letters, that carry SOME real usage (**wordfreq zipf > 0**) and weren't already present, minus a light
   inflection filter (drop plural/-ing/-ed forms whose base we already have). **= 23,389 words**, committed
-  as **`scripts/data/new_english_words.csv`** (`word,zipf`) so the load is deterministic + reviewable (no
+  as **`scripts/new_english_words.csv`** (`word,zipf`) so the load is deterministic + reviewable (no
   CI network/wordfreq dep). Still includes some stopwords/proper nouns/obscure words — an accepted cost of
   the "broader" choice (they just become weak/non candidates downstream).
 - **Load:** `scripts/load_english_words.py` (reads the CSV, upserts `{word, zipf, is_root:true}` — `is_root`
