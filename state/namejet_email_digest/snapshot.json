@@ -1,9 +1,33 @@
 [
   {
-    "domain": "undertake.org",
+    "domain": "polarity.org",
+    "end_time_utc": "2026-08-31T01:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namejet.com/domain/polarity.org.action",
+    "platform": "NameJet",
+    "price": 69.0
+  },
+  {
+    "domain": "dealings.org",
     "end_time_utc": "2026-08-30T01:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namejet.com/domain/undertake.org.action",
+    "link": "https://www.namejet.com/domain/dealings.org.action",
+    "platform": "NameJet",
+    "price": 69.0
+  },
+  {
+    "domain": "teases.org",
+    "end_time_utc": "2026-08-30T01:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namejet.com/domain/teases.org.action",
+    "platform": "NameJet",
+    "price": 69.0
+  },
+  {
+    "domain": "thee.org",
+    "end_time_utc": "2026-08-30T01:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namejet.com/domain/thee.org.action",
     "platform": "NameJet",
     "price": 69.0
   }
