@@ -2,17 +2,15 @@
   "capped": false,
   "count": 7,
   "domains": [
-    "matisse.co",
-    "brbet.com",
-    "superfan.net",
-    "docen.com",
-    "ljs.co",
-    "vadem.com",
-    "brazen.co"
+    "afro.org",
+    "pplanet.com",
+    "veered.com",
+    "8494.com",
+    "triples.co",
+    "rhono.com",
+    "maddia.com"
   ],
-  "generated_at": "2026-08-29T09:51:07.274591+00:00",
-  "mub": [
-    "vadem.com"
-  ],
+  "generated_at": "2026-08-30T09:55:30.131067+00:00",
+  "mub": [],
   "source": "godaddy_auctions"
 }

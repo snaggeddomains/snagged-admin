@@ -2,55 +2,73 @@
   {
     "bid_count": 44,
     "domain": "rallie.com",
-    "end_time_utc": "2026-08-31T18:59:39.709774+00:00",
+    "end_time_utc": "2026-08-31T18:59:50.427313+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/RAllie.com",
     "platform": "DropCatch",
     "price": 650.0
   },
   {
-    "bid_count": 45,
+    "bid_count": 53,
     "domain": "wpage.com",
-    "end_time_utc": "2026-08-31T18:59:39.709774+00:00",
+    "end_time_utc": "2026-08-31T18:59:50.427313+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Wpage.com",
     "platform": "DropCatch",
-    "price": 370.0
+    "price": 510.0
   },
   {
-    "bid_count": 37,
+    "bid_count": 45,
     "domain": "canax.com",
-    "end_time_utc": "2026-08-31T18:59:39.709774+00:00",
+    "end_time_utc": "2026-08-31T18:59:50.427313+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Canax.com",
     "platform": "DropCatch",
-    "price": 130.0
+    "price": 220.0
+  },
+  {
+    "bid_count": 11,
+    "domain": "fattel.org",
+    "end_time_utc": "2026-08-31T18:59:50.427313+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/fattel.org",
+    "platform": "DropCatch",
+    "price": 114.0
   },
   {
     "bid_count": 5,
     "domain": "wjve.com",
-    "end_time_utc": "2026-08-31T18:59:39.709774+00:00",
+    "end_time_utc": "2026-08-31T18:59:50.427313+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/wjve.com",
     "platform": "DropCatch",
     "price": 110.0
   },
   {
-    "bid_count": 65,
+    "bid_count": 69,
     "domain": "kiver.com",
-    "end_time_utc": "2026-09-01T18:59:39.709774+00:00",
+    "end_time_utc": "2026-09-01T18:59:50.427313+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Kiver.com",
     "platform": "DropCatch",
-    "price": 730.0
+    "price": 900.0
   },
   {
-    "bid_count": 10,
-    "domain": "keeprs.com",
-    "end_time_utc": "2026-09-01T18:59:39.709774+00:00",
+    "bid_count": 80,
+    "domain": "inhd.com",
+    "end_time_utc": "2026-09-02T18:59:50.427313+00:00",
     "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/KeepRs.com",
+    "link": "https://www.dropcatch.com/domain/Inhd.com",
     "platform": "DropCatch",
-    "price": 65.0
+    "price": 800.0
+  },
+  {
+    "bid_count": 9,
+    "domain": "consoles.net",
+    "end_time_utc": "2026-09-03T18:59:50.427313+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Consoles.net",
+    "platform": "DropCatch",
+    "price": 90.0
   }
 ]

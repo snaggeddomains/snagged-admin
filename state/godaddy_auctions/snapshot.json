@@ -1,65 +1,65 @@
 [
   {
-    "bid_count": 0,
-    "domain": "matisse.co",
-    "end_time_utc": "2026-08-29T17:15:00+00:00",
+    "bid_count": 29,
+    "domain": "afro.org",
+    "end_time_utc": "2026-08-30T17:08:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/matisse-co-721981823?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/afro-org-722101994?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 938.0
+  },
+  {
+    "bid_count": 28,
+    "domain": "pplanet.com",
+    "end_time_utc": "2026-08-30T17:59:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/pplanet-com-722108011?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 213.0
+  },
+  {
+    "bid_count": 14,
+    "domain": "veered.com",
+    "end_time_utc": "2026-08-30T18:45:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/veered-com-720788679?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 349.0
+  },
+  {
+    "bid_count": 41,
+    "domain": "8494.com",
+    "end_time_utc": "2026-08-30T19:30:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/8494-com-722081431?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 4594.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "triples.co",
+    "end_time_utc": "2026-08-30T20:01:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/triples-co-722111961?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
     "price": 1.0
   },
   {
-    "bid_count": 28,
-    "domain": "brbet.com",
-    "end_time_utc": "2026-08-29T17:17:00+00:00",
+    "bid_count": 6,
+    "domain": "rhono.com",
+    "end_time_utc": "2026-08-30T20:06:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/brbet-com-721948293?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/rhono-com-722098378?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 3938.0
-  },
-  {
-    "bid_count": 10,
-    "domain": "superfan.net",
-    "end_time_utc": "2026-08-29T17:56:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/superfan-net-721946173?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 60.0
-  },
-  {
-    "bid_count": 23,
-    "domain": "docen.com",
-    "end_time_utc": "2026-08-29T18:04:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/docen-com-721946919?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 404.0
+    "price": 200.0
   },
   {
     "bid_count": 9,
-    "domain": "ljs.co",
-    "end_time_utc": "2026-08-29T18:09:00+00:00",
+    "domain": "maddia.com",
+    "end_time_utc": "2026-08-30T20:45:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/ljs-co-721479278?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/maddia-com-722109051?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 36.0
-  },
-  {
-    "bid_count": 22,
-    "domain": "vadem.com",
-    "end_time_utc": "2026-08-29T18:18:00+00:00",
-    "is_mub": true,
-    "link": "https://www.godaddy.com/domain-auctions/vadem-com-721980946?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 355.0
-  },
-  {
-    "bid_count": 9,
-    "domain": "brazen.co",
-    "end_time_utc": "2026-08-29T19:15:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/brazen-co-721981475?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 227.0
+    "price": 105.0
   }
 ]

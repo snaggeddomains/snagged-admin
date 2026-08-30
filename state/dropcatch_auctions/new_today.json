@@ -1,15 +1,17 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 8,
   "domains": [
     "rallie.com",
     "wpage.com",
     "canax.com",
+    "fattel.org",
     "wjve.com",
     "kiver.com",
-    "keeprs.com"
+    "inhd.com",
+    "consoles.net"
   ],
-  "generated_at": "2026-08-29T09:50:40.535327+00:00",
+  "generated_at": "2026-08-30T09:54:51.755482+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }
