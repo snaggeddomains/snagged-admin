@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "039.org"
-  ],
-  "generated_at": "2026-08-30T10:01:16.970442+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-08-30T17:00:38.567493+00:00",
   "mub": [],
   "source": "reddit_domains"
 }
