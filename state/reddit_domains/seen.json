@@ -1,6 +1,7 @@
 {
-  "count": 51,
+  "count": 52,
   "domains": [
+    "039.org",
     "0801.org",
     "2337.org",
     "264.io",
@@ -54,5 +55,5 @@
     "wordpress.com"
   ],
   "source": "reddit_domains",
-  "updated_at": "2026-08-29T23:03:39.572198+00:00"
+  "updated_at": "2026-08-30T10:01:17.124187+00:00"
 }
