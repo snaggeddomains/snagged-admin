@@ -1,75 +1,19 @@
 [
   {
-    "domain": "curnick.com",
-    "price": 1988.0
-  },
-  {
     "domain": "solomin.com",
     "price": 9888.0
   },
   {
-    "domain": "arcover.com",
-    "price": 9888.0
-  },
-  {
-    "domain": "reigners.com",
-    "price": 2988.0
-  },
-  {
-    "domain": "vegatest.com",
-    "price": 6888.0
-  },
-  {
-    "domain": "schere.com",
-    "price": 9888.0
-  },
-  {
-    "domain": "branic.com",
-    "price": 3988.0
-  },
-  {
-    "domain": "pausch.com",
-    "price": 19888.0
+    "domain": "babying.com",
+    "price": null
   },
   {
     "domain": "hofweber.com",
     "price": 3988.0
   },
   {
-    "domain": "estama.com",
-    "price": 19888.0
-  },
-  {
-    "domain": "hudnut.com",
-    "price": 3988.0
-  },
-  {
-    "domain": "goodwick.com",
-    "price": 6888.0
-  },
-  {
-    "domain": "berghorn.com",
-    "price": 7888.0
-  },
-  {
-    "domain": "premkumar.com",
-    "price": 19888.0
-  },
-  {
-    "domain": "thuringer.com",
-    "price": 4888.0
-  },
-  {
-    "domain": "normanton.com",
-    "price": 19888.0
-  },
-  {
-    "domain": "portadown.com",
-    "price": 4888.0
-  },
-  {
-    "domain": "secondment.com",
-    "price": 9888.0
+    "domain": "plumbfast.com",
+    "price": 1499.0
   },
   {
     "domain": "terreno.ai",
@@ -88,12 +32,12 @@
     "price": 6000.0
   },
   {
-    "domain": "somali.ai",
-    "price": 10000.0
-  },
-  {
     "domain": "truing.ai",
     "price": 6000.0
+  },
+  {
+    "domain": "somali.ai",
+    "price": 10000.0
   },
   {
     "domain": "banaba.ai",
@@ -112,67 +56,7 @@
     "price": 12000.0
   },
   {
-    "domain": "stanborough.com",
-    "price": 4888.0
-  },
-  {
-    "domain": "queensferry.com",
-    "price": 7888.0
-  },
-  {
-    "domain": "burntisland.com",
-    "price": 12888.0
-  },
-  {
-    "domain": "biofilm.net",
-    "price": 2988.0
-  },
-  {
-    "domain": "throne.net",
-    "price": 19888.0
-  },
-  {
-    "domain": "militant.net",
-    "price": 4888.0
-  },
-  {
-    "domain": "woodlands.net",
-    "price": 3988.0
-  },
-  {
-    "domain": "klaus.net",
-    "price": 9888.0
-  },
-  {
-    "domain": "tilly.net",
-    "price": 6888.0
-  },
-  {
-    "domain": "groundwork.net",
-    "price": 6888.0
-  },
-  {
-    "domain": "boks.net",
-    "price": 4888.0
-  },
-  {
-    "domain": "whirlpools.net",
-    "price": 2988.0
-  },
-  {
-    "domain": "christophe.net",
-    "price": 9888.0
-  },
-  {
-    "domain": "kano.net",
-    "price": 9888.0
-  },
-  {
-    "domain": "jetter.co",
-    "price": 49237.0
-  },
-  {
-    "domain": "wheelchairs.net",
-    "price": 2988.0
+    "domain": "mammoth.net",
+    "price": null
   }
 ]
