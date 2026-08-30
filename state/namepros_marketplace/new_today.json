@@ -1,11 +1,10 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 1,
   "domains": [
-    "krp.com",
-    "taxed.me"
+    "saw.com"
   ],
-  "generated_at": "2026-08-29T23:07:39.381627+00:00",
+  "generated_at": "2026-08-30T10:06:24.928750+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
