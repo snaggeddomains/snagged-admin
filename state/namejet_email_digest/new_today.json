@@ -1,8 +1,11 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-30T15:04:59.460752+00:00",
+  "count": 2,
+  "domains": [
+    "polarity.org",
+    "shrines.org"
+  ],
+  "generated_at": "2026-08-30T15:07:35.466843+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
