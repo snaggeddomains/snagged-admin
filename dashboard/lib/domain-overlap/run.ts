@@ -11,6 +11,7 @@ export type OverlapSummary = {
   runDate: string;
   anchors: number;
   guardedSlds: number;
+  restrictedSlds: number;
   candidates: number;
   flags: number;
   exactTld: number;
@@ -38,6 +39,7 @@ export async function runOverlap(_opts: { since?: string; backfill?: boolean } =
     const coreSlds = [...idx.sldIndex.keys()];
     const affixed: string[] = [];
     for (const sld of coreSlds) {
+      if (idx.restrictedSlds.has(sld)) continue; // dictionary-word anchor = T1 exact-major-TLD only, no affix candidates
       for (const p of PREFIXES) affixed.push(p + sld);
       for (const s of SUFFIXES) affixed.push(sld + s);
     }
@@ -64,6 +66,7 @@ export async function runOverlap(_opts: { since?: string; backfill?: boolean } =
       runDate,
       anchors: anchors.length,
       guardedSlds: idx.guarded,
+      restrictedSlds: idx.restrictedSlds.size,
       candidates: saleCandidates.length + auctionCandidates.length,
       flags: flags.length,
       exactTld: flags.filter((f) => f.best_tier === "exact_tld").length,
@@ -73,6 +76,6 @@ export async function runOverlap(_opts: { since?: string; backfill?: boolean } =
   } catch (e) {
     const error = String((e as Error)?.message || e);
     console.error(`[overlap] run failed: ${error}`);
-    return { ok: false, runDate, anchors: 0, guardedSlds: 0, candidates: 0, flags: 0, exactTld: 0, affix: 0, newFlags: [], error };
+    return { ok: false, runDate, anchors: 0, guardedSlds: 0, restrictedSlds: 0, candidates: 0, flags: 0, exactTld: 0, affix: 0, newFlags: [], error };
   }
 }

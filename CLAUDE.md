@@ -789,6 +789,19 @@ and polluted the tracked list. Three fixes in `sources/gmail.ts` + `canonical.ts
   `CLIENT_OVERLAP_EXTRA_EMAILS` (comma-separated, default `brian@snagged.com`), deduped into the
   `to`. So Brian gets the email regardless of his report permission (the bell notification stays
   permission-gated). Slack still → `SLACK_CHANNEL_CLIENT_OVERLAP`.
+- **⚠️ Dictionary-word anchors are RESTRICTED, not dropped (Rob, 2026-08-31).** The matcher's noise
+  guard (`lib/domain-overlap/match.ts` `buildIndex`) used to DROP any anchor whose SLD was ≤3 chars OR
+  a dictionary word — which silently suppressed the highest-signal case: a premium **dictionary-word
+  .com a client owns** (e.g. `giggle.com`, client Rob) getting its exact word on a liquid TLD
+  (`giggle.io` at auction) never flagged, because "giggle" is in `english_words`. Fix: **short SLDs
+  (≤3) still fully drop** (noisy even on a major TLD — `go`), but **dictionary-word SLDs (>3) are KEPT
+  and RESTRICTED** to **T1 exact-SLD on a MAJOR TLD only** (`MAJOR_TLDS` = com/net/org/co/io/ai). Their
+  T2 affix (`getgiggle.com`) and minor-TLD (`giggle.xyz`) matches stay suppressed. `MatchIndex` gained
+  `restrictedSlds:Set`; `matchCandidate` skips T1 for a restricted SLD on a non-major TLD and skips T2
+  when the core is restricted; `run.ts` skips affix candidate-generation for restricted SLDs +
+  surfaces `restrictedSlds` count. Verified: giggle.io/giggle.co FLAG, giggle.xyz/getgiggle.com/go.io
+  don't; a client holding `dream.ai` now flags the `dream.com` upgrade. This unlocks a whole class of
+  overlaps (many client names are dictionary words — giggle/sword/dreaming/beams).
 
 ---
 

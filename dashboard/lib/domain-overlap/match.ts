@@ -56,32 +56,40 @@ export type Flag = {
 };
 
 export type MatchIndex = {
-  sldIndex: Map<string, CorpusAnchor[]>; // non-guarded anchor SLD → anchors
+  sldIndex: Map<string, CorpusAnchor[]>; // matchable anchor SLD → anchors
   corpusDomains: Set<string>; // every corpus apex (skip exact-in-corpus candidates)
-  guarded: number; // count of anchor SLDs dropped by the noise guard
+  guarded: number; // count of anchor SLDs FULLY dropped (short ≤3) — never flag
+  restrictedSlds: Set<string>; // dictionary-word anchor SLDs: kept, but T1 exact-major-TLD ONLY
 };
 
 /**
- * Build the match index from the corpus. `isDictionaryWord` decides the noise guard
- * for words >3 chars; short (≤3) SLDs are always guarded.
+ * Build the match index from the corpus. The noise guard has two tiers (Rob, 2026-08-31):
+ *  - short SLDs (≤3 chars, e.g. `go`) are FULLY dropped — noisy even on a major TLD.
+ *  - dictionary-word SLDs (>3, e.g. `giggle`) are KEPT but RESTRICTED to T1 exact-SLD on a
+ *    MAJOR TLD only (giggle.com → giggle.io/.co/.ai). Their T2 affix (getgiggle.com) and
+ *    minor-TLD (giggle.xyz) matches are still suppressed. This restores the high-signal case
+ *    — a premium dictionary-word .com a client owns getting its exact word on a liquid TLD —
+ *    which the old "drop dictionary words entirely" guard silenced.
  */
 export function buildIndex(anchors: CorpusAnchor[], dictionarySet: Set<string>): MatchIndex {
   const sldIndex = new Map<string, CorpusAnchor[]>();
   const corpusDomains = new Set<string>();
+  const restrictedSlds = new Set<string>();
   let guarded = 0;
   const guardedSlds = new Set<string>();
   for (const a of anchors) {
     corpusDomains.add(a.domain);
     if (!a.sld) continue;
-    if (a.sld.length <= 3 || dictionarySet.has(a.sld)) {
+    if (a.sld.length <= 3) { // short → fully guarded (never matchable)
       if (!guardedSlds.has(a.sld)) { guardedSlds.add(a.sld); guarded++; }
       continue;
     }
+    if (dictionarySet.has(a.sld)) restrictedSlds.add(a.sld); // dictionary word → kept but restricted
     const list = sldIndex.get(a.sld);
     if (list) list.push(a);
     else sldIndex.set(a.sld, [a]);
   }
-  return { sldIndex, corpusDomains, guarded };
+  return { sldIndex, corpusDomains, guarded, restrictedSlds };
 }
 
 function marketLink(feed: string | null, domain: string): string | null {
@@ -106,7 +114,10 @@ export function matchCandidate(c: Candidate, idx: MatchIndex): Flag | null {
   const sameSld = idx.sldIndex.get(c.sld) || [];
   // If ANY owned anchor for this word is the .com, a minor-TLD candidate is noise — skip it.
   const ownsCom = sameSld.some((a) => a.tld === "com");
-  if (!(ownsCom && !MAJOR_TLDS.has(c.tld))) {
+  // A dictionary-word anchor (restricted) flags ONLY on a MAJOR TLD — a common word on a
+  // long-tail TLD is noise regardless of what the client owns.
+  const restricted = idx.restrictedSlds.has(c.sld);
+  if (!((ownsCom || restricted) && !MAJOR_TLDS.has(c.tld))) {
     for (const a of sameSld) {
       const key = `${a.domain}|exact_tld`;
       if (seen.has(key)) continue;
@@ -125,7 +136,7 @@ export function matchCandidate(c: Candidate, idx: MatchIndex): Flag | null {
     for (const p of PREFIXES) {
       if (c.sld.length > p.length && c.sld.startsWith(p)) {
         const core = c.sld.slice(p.length);
-        if (coreOwnsCom(core)) continue; // owns the .com → affix variation is noise
+        if (coreOwnsCom(core) || idx.restrictedSlds.has(core)) continue; // owns .com / dictionary-word core → affix is noise
         for (const a of idx.sldIndex.get(core) || []) {
           const key = `${a.domain}|affix`;
           if (seen.has(key)) continue;
@@ -137,7 +148,7 @@ export function matchCandidate(c: Candidate, idx: MatchIndex): Flag | null {
     for (const s of SUFFIXES) {
       if (c.sld.length > s.length && c.sld.endsWith(s)) {
         const core = c.sld.slice(0, c.sld.length - s.length);
-        if (coreOwnsCom(core)) continue; // owns the .com → affix variation is noise
+        if (coreOwnsCom(core) || idx.restrictedSlds.has(core)) continue; // owns .com / dictionary-word core → affix is noise
         for (const a of idx.sldIndex.get(core) || []) {
           const key = `${a.domain}|affix`;
           if (seen.has(key)) continue;
