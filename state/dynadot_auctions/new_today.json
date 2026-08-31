@@ -1,16 +1,11 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 2,
   "domains": [
-    "sljsh.com",
-    "umott.com",
-    "vxk.net",
-    "salaries.io",
-    "phrases.co",
-    "lolipa.com",
-    "maserati.org"
+    "bbonfire.com",
+    "henre.com"
   ],
-  "generated_at": "2026-08-30T09:54:44.262061+00:00",
+  "generated_at": "2026-08-31T09:55:07.320648+00:00",
   "mub": [],
   "source": "dynadot_auctions"
 }

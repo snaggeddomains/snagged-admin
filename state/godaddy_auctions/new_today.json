@@ -1,16 +1,18 @@
 {
   "capped": false,
-  "count": 7,
+  "count": 9,
   "domains": [
-    "afro.org",
-    "pplanet.com",
-    "veered.com",
-    "8494.com",
-    "triples.co",
-    "rhono.com",
-    "maddia.com"
+    "bhonest.com",
+    "yanne.com",
+    "klopp.org",
+    "arises.co",
+    "giggle.io",
+    "pingr.com",
+    "allocated.co",
+    "tuwd.com",
+    "xmugs.com"
   ],
-  "generated_at": "2026-08-30T09:55:30.131067+00:00",
+  "generated_at": "2026-08-31T09:55:53.899025+00:00",
   "mub": [],
   "source": "godaddy_auctions"
 }

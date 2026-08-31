@@ -1,5 +1,13 @@
 [
   {
+    "domain": "doorswipe.com",
+    "price": null
+  },
+  {
+    "domain": "betterspike.com",
+    "price": null
+  },
+  {
     "domain": "healthindex.net",
     "price": null
   },
@@ -409,7 +417,7 @@
   },
   {
     "domain": "consensus.co",
-    "price": null
+    "price": 89000.0
   },
   {
     "domain": "thcpouch.com",
@@ -1969,10 +1977,6 @@
   },
   {
     "domain": "percortex.com",
-    "price": 38888.0
-  },
-  {
-    "domain": "thermalnodes.com",
     "price": 38888.0
   },
   {
@@ -33985,10 +33989,6 @@
   },
   {
     "domain": "meowing.com",
-    "price": null
-  },
-  {
-    "domain": "institutional.ai",
     "price": null
   },
   {
@@ -162285,7 +162285,7 @@
   },
   {
     "domain": "casualfuck.com",
-    "price": 2499.0
+    "price": 1499.0
   },
   {
     "domain": "wintermadeira.com",
@@ -171937,10 +171937,6 @@
   },
   {
     "domain": "unrealweddings.com",
-    "price": 499.0
-  },
-  {
-    "domain": "goodhairstyle.com",
     "price": 499.0
   },
   {
@@ -181681,7 +181677,7 @@
   },
   {
     "domain": "fetishmeet.com",
-    "price": 2499.0
+    "price": 1499.0
   },
   {
     "domain": "singlets.com",

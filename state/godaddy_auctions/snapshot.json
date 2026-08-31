@@ -1,65 +1,83 @@
 [
   {
-    "bid_count": 29,
-    "domain": "afro.org",
-    "end_time_utc": "2026-08-30T17:08:00+00:00",
+    "bid_count": 12,
+    "domain": "bhonest.com",
+    "end_time_utc": "2026-08-31T16:43:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/afro-org-722101994?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/bhonest-com-721160506?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 938.0
+    "price": 616.0
   },
   {
-    "bid_count": 28,
-    "domain": "pplanet.com",
-    "end_time_utc": "2026-08-30T17:59:00+00:00",
+    "bid_count": 11,
+    "domain": "yanne.com",
+    "end_time_utc": "2026-08-31T16:46:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/pplanet-com-722108011?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/yanne-com-721741187?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 213.0
-  },
-  {
-    "bid_count": 14,
-    "domain": "veered.com",
-    "end_time_utc": "2026-08-30T18:45:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/veered-com-720788679?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 349.0
-  },
-  {
-    "bid_count": 41,
-    "domain": "8494.com",
-    "end_time_utc": "2026-08-30T19:30:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/8494-com-722081431?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 4594.0
+    "price": 119.0
   },
   {
     "bid_count": 0,
-    "domain": "triples.co",
-    "end_time_utc": "2026-08-30T20:01:00+00:00",
+    "domain": "klopp.org",
+    "end_time_utc": "2026-08-31T17:11:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/triples-co-722111961?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/klopp-org-722113661?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
     "price": 1.0
   },
   {
-    "bid_count": 6,
-    "domain": "rhono.com",
-    "end_time_utc": "2026-08-30T20:06:00+00:00",
+    "bid_count": 0,
+    "domain": "arises.co",
+    "end_time_utc": "2026-08-31T18:02:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/rhono-com-722098378?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/arises-co-721610383?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 200.0
+    "price": 1.0
+  },
+  {
+    "bid_count": 28,
+    "domain": "giggle.io",
+    "end_time_utc": "2026-08-31T18:09:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/giggle-io-722237700?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 330.0
+  },
+  {
+    "bid_count": 28,
+    "domain": "pingr.com",
+    "end_time_utc": "2026-08-31T18:19:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/pingr-com-722240258?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 379.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "allocated.co",
+    "end_time_utc": "2026-08-31T19:09:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/allocated-co-722238635?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 1.0
   },
   {
     "bid_count": 9,
-    "domain": "maddia.com",
-    "end_time_utc": "2026-08-30T20:45:00+00:00",
+    "domain": "tuwd.com",
+    "end_time_utc": "2026-08-31T19:21:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/maddia-com-722109051?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/tuwd-com-722254520?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 105.0
+    "price": 140.0
+  },
+  {
+    "bid_count": 5,
+    "domain": "xmugs.com",
+    "end_time_utc": "2026-08-31T21:17:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/xmugs-com-722254526?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 40.0
   }
 ]
