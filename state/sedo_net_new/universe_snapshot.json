@@ -1,22 +1,42 @@
 [
   {
-    "domain": "twilights.com",
-    "price": 18969.0
+    "domain": "simplexs.com",
+    "price": 6995.0
+  },
+  {
+    "domain": "evens.ai",
+    "price": 19500.0
   },
   {
     "domain": "yinshan.net",
     "price": 708.0
   },
   {
+    "domain": "consultia.net",
+    "price": 4777.0
+  },
+  {
     "domain": "tempt.net",
     "price": 5400.0
   },
   {
-    "domain": "meth.co",
-    "price": 3988.0
+    "domain": "feathered.net",
+    "price": 1895.0
   },
   {
-    "domain": "ora.co",
-    "price": null
+    "domain": "background.net",
+    "price": 38000.0
+  },
+  {
+    "domain": "buildware.co",
+    "price": 4888.0
+  },
+  {
+    "domain": "accelerate.co",
+    "price": 99888.0
+  },
+  {
+    "domain": "meth.co",
+    "price": 3988.0
   }
 ]
