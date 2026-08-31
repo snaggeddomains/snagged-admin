@@ -1,1 +1,20 @@
-[]
+[
+  {
+    "currency": "USD",
+    "domain": "meth.co",
+    "end_time_utc": "2026-08-31T10:44:55+00:00",
+    "is_mub": false,
+    "price": 3988.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=meth.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "ora.co",
+    "end_time_utc": "2026-08-31T03:27:16+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=ora.co"
+  }
+]

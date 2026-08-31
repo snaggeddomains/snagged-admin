@@ -1,8 +1,11 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-08-30T23:01:27.953808+00:00",
+  "count": 2,
+  "domains": [
+    "meth.co",
+    "ora.co"
+  ],
+  "generated_at": "2026-08-31T10:01:23.976708+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
