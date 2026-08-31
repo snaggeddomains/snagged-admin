@@ -89,7 +89,7 @@ export default function DetailClient({ id }: { id: string }) {
 
   return (
     <main style={{ maxWidth: 860, margin: "0 auto", padding: "0 16px" }}>
-      <button style={{ ...btn, border: "none", padding: "4px 0", marginBottom: 6 }} onClick={() => router.push("/snap-deals")}>← SNAP Deals</button>
+      <button style={{ ...btn, border: "none", padding: "4px 0", marginBottom: 6 }} onClick={() => router.push("/snap-deals")}>← SNAP Deal Board</button>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
         <div>
           <h1 style={{ fontSize: "1.5rem", margin: 0 }}>{d.domain}</h1>

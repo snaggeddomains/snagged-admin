@@ -77,7 +77,7 @@ export default function BoardClient() {
     <main style={{ width: "100%", padding: "0 12px", boxSizing: "border-box" }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
         <div>
-          <h1 style={{ fontSize: "1.35rem", margin: 0 }}>SNAP Deals</h1>
+          <h1 style={{ fontSize: "1.35rem", margin: 0 }}>SNAP Deal Board</h1>
           <p className="muted" style={{ margin: "4px 0 0", fontSize: 13 }}>
             Internal tracker for names we&apos;re trying to acquire{data?.stats ? ` · ${data.stats.open} open` : ""}
           </p>
@@ -93,7 +93,7 @@ export default function BoardClient() {
       </div>
 
       {err && <div style={{ margin: "12px 0", color: "#a83265" }}>Couldn&apos;t load: {err}</div>}
-      {data && !data.configured && <div style={{ margin: "12px 0" }} className="muted">The SNAP Deals database isn&apos;t set up yet — run <code>scripts/snap_deals.sql</code> on the main project.</div>}
+      {data && !data.configured && <div style={{ margin: "12px 0" }} className="muted">The SNAP Deal Board database isn&apos;t set up yet — run <code>scripts/snap_deals.sql</code> on the main project.</div>}
 
       <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 16, marginTop: 14, alignItems: "flex-start" }}>
         {STAGES.map((stage) => {

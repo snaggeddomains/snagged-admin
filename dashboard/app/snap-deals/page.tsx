@@ -12,7 +12,7 @@ export default async function SnapDealsPage() {
     return (
       <main>
         <h1 style={{ fontSize: "1.25rem" }}>No access</h1>
-        <p className="muted">The SNAP Deals board needs the <code>snap.deals</code> permission.</p>
+        <p className="muted">The SNAP Deal Board needs the <code>snap.deals</code> permission.</p>
       </main>
     );
   }

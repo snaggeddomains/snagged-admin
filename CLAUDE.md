@@ -315,7 +315,17 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
 - **NEXT (Ph3):** email sequences (outbound) + richer pipeline reporting. Existing Pipedrive
   test deals are NOT migrated (day-one) — start fresh natively.
 
-## SNAP Deals — lean internal acquisition tracker (2026-08-28)
+## SNAP Deal Board — lean internal acquisition tracker (2026-08-28; renamed 2026-08-30)
+
+**Renamed "SNAP Deals" → "SNAP Deal Board" (Rob, 2026-08-30)** — all user-facing labels (SNAP_TABS
+label + CATALOG + board H1 / back-link / permission-denied messages; research-SPA nav link + chips).
+The perm key `snap.deals`, route `/snap-deals`, and `scripts/snap_deals.sql` are UNCHANGED. Also the
+research-SPA SNAP nav was missing the board link entirely (admin nav had it from SNAP_TABS) — added
+`#nav-snap-deals` there (research repo). Auto-kicked free reports on add now run BACKGROUND/low-priority
+(see research repo `runResearch` concurrency+priority; both `api/internal/kick-research.js` and the
+research `snap-research` add_deal send `RUN_REQUESTED data.background:true`).
+
+### Original notes (2026-08-28)
 
 A SEPARATE, deliberately-lean board under the **SNAP** menu (submodule) for tracking names
 **we're trying to ACQUIRE** (Sam runs point). NOT the buy-side `deals` CRM — its own table, its
