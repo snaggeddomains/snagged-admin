@@ -1,10 +1,11 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 2,
   "domains": [
-    "accelerate.co"
+    "precedent.com",
+    "salami.co"
   ],
-  "generated_at": "2026-08-31T17:00:57.513710+00:00",
+  "generated_at": "2026-08-31T23:01:40.902605+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }

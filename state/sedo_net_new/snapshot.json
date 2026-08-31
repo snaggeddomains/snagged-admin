@@ -1,20 +1,20 @@
 [
   {
     "currency": "USD",
-    "domain": "accelerate.co",
-    "end_time_utc": "2026-08-31T11:34:12+00:00",
+    "domain": "precedent.com",
+    "end_time_utc": "2026-08-31T19:49:19+00:00",
     "is_mub": false,
-    "price": 99888.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=accelerate.co"
+    "price": 90000.0,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=precedent.com"
   },
   {
     "currency": "USD",
-    "domain": "meth.co",
-    "end_time_utc": "2026-08-31T10:44:55+00:00",
+    "domain": "salami.co",
+    "end_time_utc": "2026-08-31T20:50:14+00:00",
     "is_mub": false,
-    "price": 3988.0,
+    "price": 4995.0,
     "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=meth.co"
+    "url": "https://sedo.com/search/details/?domain=salami.co"
   }
 ]
