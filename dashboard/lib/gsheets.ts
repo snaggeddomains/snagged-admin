@@ -24,6 +24,7 @@ export async function createSheetInSharedDrive(opts: {
   formats?: {
     currencyColumns?: number[]; // 0-based column indices to format as USD, no decimals
     dimRows?: number[]; // 0-based DATA-row indices (header excluded) to gray + strikethrough
+    filter?: boolean; // add a basic filter to the header row (filter dropdowns)
   };
 }): Promise<SheetResult> {
   const title = (opts.title || "Export").slice(0, 200);
@@ -109,6 +110,15 @@ export async function createSheetInSharedDrive(opts: {
         },
       });
       i = j + 1;
+    }
+    // Basic filter on the header row (filter dropdowns over the whole data range).
+    if (fmt.filter) {
+      const cols = values.reduce((m, r) => Math.max(m, Array.isArray(r) ? r.length : 0), 0);
+      requests.push({
+        setBasicFilter: {
+          filter: { range: { sheetId: 0, startRowIndex: 0, endRowIndex: values.length, startColumnIndex: 0, endColumnIndex: cols } },
+        },
+      });
     }
     if (requests.length) {
       try {

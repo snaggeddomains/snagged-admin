@@ -24,6 +24,9 @@ RESEARCH_INTERNAL_SECRET` (same pattern as email-threads/sales-comps; `middlewar
   into contiguous ranges, one `repeatCell` per run). All fold into the SAME best-effort header-bold
   `batchUpdate`. Used by research's naming export to format the Price column + strike the off-brief
   ("Cull off-brief") names. Backward-safe: omit `formats` → identical to before.
+  - **`formats.filter?:boolean` (2026-09-01)** → adds a **`setBasicFilter`** over the full data range so the
+    header row gets filter dropdowns. (Research's naming export passes `filter:true` and also sorts off-brief
+    rows to the bottom on its side before sending, so the culled block is contiguous.)
 
 # Memory cadence (READ FIRST) — commit CLAUDE.md with the code
 

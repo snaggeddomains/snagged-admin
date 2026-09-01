@@ -6,9 +6,11 @@
 // sales-comps; middleware.ts excludes api/internal). Server-to-server, no session.
 //
 //   POST { title, values: string[][], shareWith?: email,
-//          formats?: { currencyColumns?: number[], dimRows?: number[] } } -> { ok, url, warning? }
+//          formats?: { currencyColumns?: number[], dimRows?: number[], filter?: boolean } }
+//          -> { ok, url, warning? }
 //   formats: currencyColumns = 0-based cols rendered as USD (no decimals); dimRows =
-//   0-based DATA-row indices (header excluded) grayed + struck through (off-brief names).
+//   0-based DATA-row indices (header excluded) grayed + struck through (off-brief names);
+//   filter = add a basic filter to the header row.
 
 import { NextResponse, type NextRequest } from "next/server";
 import { googleConfigured } from "@/lib/google-auth";
@@ -64,7 +66,11 @@ export async function POST(req: NextRequest) {
   const intArr = (v: unknown): number[] =>
     Array.isArray(v) ? v.filter((n): n is number => Number.isInteger(n) && (n as number) >= 0) : [];
   const fmtIn = (body?.formats && typeof body.formats === "object") ? (body.formats as Record<string, unknown>) : {};
-  const formats = { currencyColumns: intArr(fmtIn.currencyColumns), dimRows: intArr(fmtIn.dimRows) };
+  const formats = {
+    currencyColumns: intArr(fmtIn.currencyColumns),
+    dimRows: intArr(fmtIn.dimRows),
+    filter: fmtIn.filter === true, // add a basic filter to the header row
+  };
 
   try {
     const r = await createSheetInSharedDrive({ title, values, shareWith, formats });
