@@ -1,8 +1,15 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-09-01T10:07:07.330378+00:00",
+  "count": 6,
+  "domains": [
+    "cavalier.me",
+    "devil.sh",
+    "fyi.sh",
+    "kiwis.app",
+    "led.sh",
+    "shopping.sh"
+  ],
+  "generated_at": "2026-09-01T17:06:19.297171+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
