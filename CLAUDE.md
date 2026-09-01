@@ -54,7 +54,9 @@ a bell + email**; **only Rob** (admin / `admin.feedback.manage`) sees + manages 
   meaningful "mine", so the toggle is gone; the role decides the set server-side (never sends `scope`:
   a manager gets the full queue with the status filter + search shown; everyone else gets their own
   submissions + threads they've joined). Each row shows the **submitter prominently** (colored initials
-  avatar + big name + date) for a manager. `statusF` default `all`.
+  avatar + big name + date) for a manager. `statusF` default `open`. The page uses the STANDARD header
+  back/refresh/share — `TopBar`'s `NavControls` now also renders on `/feedback` (not just section pages),
+  so the standalone page matches every module.
 - **Clarification thread — comments + @mention tagging + screenshots (2026-09-01).** Every ticket has an
   expandable 💬 thread (like the deal comment module) so questions can be sorted out as requests come in.
   Table **`feature_request_comments`** (request_id FK cascade, author_email/name, body, `mentions text[]`,
@@ -68,7 +70,9 @@ a bell + email**; **only Rob** (admin / `admin.feedback.manage`) sees + manages 
   **`comment_count`** per row. **Two ways to tag (both loop the person in, exactly like Deals):** type
   **`@Name`** in the comment body (a type-ahead over the assignee pool + `resolveMentions` resolves the
   tokens on Post — first name / squished full name / email handle) OR click a **Tag chip**; the two are
-  merged (`mentionEmails`) and the chips light up to reflect what the @tokens already caught. **Screenshots
+  merged (`mentionEmails`) and the chips light up to reflect what the @tokens already caught. The @-typeahead
+  is keyboard-driven — **↑/↓ move the highlight, Enter/Tab picks it** (no newline / no submit), Escape closes
+  — mirrored in the Deals comment composer (`deal-client.tsx`) so both behave the same. **Screenshots
   in comments** (📎 button / paste / drop into the composer) reuse `POST /api/feedback/upload` →
   `deal-attachments` bucket → thumbnails on the posted comment. `@mention pool = assignableUsers()`
   (deals.assignable), returned as `assignees` on the main `/api/feedback` GET. API

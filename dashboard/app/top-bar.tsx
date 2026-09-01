@@ -101,7 +101,11 @@ export default function TopBar({
 // clipboard (with a brief "copied" confirmation), then to a prompt.
 function NavControls({ current }: { current?: SectionKey }) {
   const [copied, setCopied] = useState(false);
-  if (current !== "admin" && current !== "reports" && current !== "deals" && current !== "snap") return null;
+  const pathname = usePathname();
+  const isSection = current === "admin" || current === "reports" || current === "deals" || current === "snap";
+  // Standalone pages that aren't in a section but still want the standard back/refresh/share.
+  const isStandalone = (pathname || "").startsWith("/feedback");
+  if (!isSection && !isStandalone) return null;
   const btn: React.CSSProperties = {
     width: 34, height: 34, borderRadius: "50%", border: "none", background: "transparent",
     color: "var(--navy, #254254)", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center",

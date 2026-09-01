@@ -43,6 +43,7 @@ export default function DealClient({ id }: { id: string }) {
   const [saving, setSaving] = useState(false);
   const [note, setNote] = useState("");
   const [mq, setMq] = useState<string | null>(null); // active @mention query
+  const [mqIdx, setMqIdx] = useState(0);             // highlighted @mention row
   const [ingesting, setIngesting] = useState(false);
   const [wonOpen, setWonOpen] = useState(false);
   const [emailsOpen, setEmailsOpen] = useState(false); // email chain collapsed by default (can be 47+)
@@ -177,6 +178,7 @@ export default function DealClient({ id }: { id: string }) {
     const caret = taRef.current?.selectionStart ?? v.length;
     const m = v.slice(0, caret).match(/@(\w*)$/);
     setMq(m ? m[1].toLowerCase() : null);
+    setMqIdx(0);
   };
   const pickMention = (a: Assignee) => {
     const el = taRef.current; const caret = el?.selectionStart ?? note.length;
@@ -443,11 +445,18 @@ export default function DealClient({ id }: { id: string }) {
               onDrop={(e) => { e.preventDefault(); if (e.dataTransfer?.files?.length) uploadFiles(e.dataTransfer.files); }}>
               <textarea ref={taRef} style={{ ...inp, minHeight: 60, resize: "vertical" }} placeholder="Add a comment… paste or drop an image · type @ to mention" value={note}
                 onPaste={onPaste}
-                onChange={(e) => onNoteChange(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && mentionMatches.length && mq) { e.preventDefault(); pickMention(mentionMatches[0]); } }} />
+                onChange={(e) => onNoteChange(e.target.value)}
+                onKeyDown={(e) => {
+                  if (mq == null || !mentionMatches.length) return;
+                  if (e.key === "ArrowDown") { e.preventDefault(); setMqIdx((i) => (i + 1) % mentionMatches.length); }
+                  else if (e.key === "ArrowUp") { e.preventDefault(); setMqIdx((i) => (i - 1 + mentionMatches.length) % mentionMatches.length); }
+                  else if (e.key === "Enter" || e.key === "Tab") { e.preventDefault(); pickMention(mentionMatches[Math.min(mqIdx, mentionMatches.length - 1)]); }
+                  else if (e.key === "Escape") { e.preventDefault(); setMq(null); }
+                }} />
               {mq != null && mentionMatches.length > 0 && (
                 <div style={{ position: "absolute", zIndex: 20, left: 6, right: 6, background: "#fff", border: "1px solid var(--line,#e3ddcf)", borderRadius: 8, boxShadow: "0 4px 14px rgba(0,0,0,0.12)", overflow: "hidden" }}>
-                  {mentionMatches.map((a) => (
-                    <div key={a.email} onMouseDown={(e) => { e.preventDefault(); pickMention(a); }} style={{ padding: "7px 10px", fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 7 }}>
+                  {mentionMatches.map((a, i) => (
+                    <div key={a.email} onMouseEnter={() => setMqIdx(i)} onMouseDown={(e) => { e.preventDefault(); pickMention(a); }} style={{ padding: "7px 10px", fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", gap: 7, background: i === mqIdx ? "var(--paper-2,#f4f1ea)" : "transparent" }}>
                       <span style={{ width: 7, height: 7, borderRadius: "50%", background: ownerColor(a.email), display: "inline-block" }} />{a.name}
                     </div>
                   ))}

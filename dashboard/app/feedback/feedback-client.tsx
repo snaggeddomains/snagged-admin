@@ -294,6 +294,7 @@ function Thread({ requestId, assignees, me, onPosted }: { requestId: string; ass
   const [uploading, setUploading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [mq, setMq] = useState<string | null>(null);   // active @-typeahead query
+  const [mqIdx, setMqIdx] = useState(0);               // highlighted row in the @-typeahead
   const taRef = useRef<HTMLTextAreaElement>(null);
 
   const load = useCallback(async () => {
@@ -334,6 +335,7 @@ function Thread({ requestId, assignees, me, onPosted }: { requestId: string; ass
     const caret = taRef.current?.selectionStart ?? v.length;
     const m = v.slice(0, caret).match(/@([\w.]*)$/);
     setMq(m ? m[1].toLowerCase() : null);
+    setMqIdx(0);
   };
   const pickMention = (a: Assignee) => {
     const el = taRef.current; const caret = el?.selectionStart ?? text.length;
@@ -344,6 +346,14 @@ function Thread({ requestId, assignees, me, onPosted }: { requestId: string; ass
     setTimeout(() => { el?.focus(); const p = before.length; el?.setSelectionRange(p, p); }, 0);
   };
   const mqMatches = mq !== null ? pool.filter((a) => a.name.toLowerCase().includes(mq) || a.email.toLowerCase().includes(mq)).slice(0, 6) : [];
+  // When the @-typeahead is open, ↑/↓ move the highlight and Enter/Tab picks it (no newline / no submit).
+  const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (mq === null || !mqMatches.length) return;
+    if (e.key === "ArrowDown") { e.preventDefault(); setMqIdx((i) => (i + 1) % mqMatches.length); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setMqIdx((i) => (i - 1 + mqMatches.length) % mqMatches.length); }
+    else if (e.key === "Enter" || e.key === "Tab") { e.preventDefault(); pickMention(mqMatches[Math.min(mqIdx, mqMatches.length - 1)]); }
+    else if (e.key === "Escape") { e.preventDefault(); setMq(null); }
+  };
 
   const post = async () => {
     if (!text.trim() && !mentionEmails.length && !atts.length) return;
@@ -401,12 +411,12 @@ function Thread({ requestId, assignees, me, onPosted }: { requestId: string; ass
         onDrop={(e) => { if (e.dataTransfer?.files?.length) { e.preventDefault(); addFiles(e.dataTransfer.files); } }}
       >
         <textarea ref={taRef} style={{ ...input, minHeight: 54, resize: "vertical" }} value={text}
-          onChange={(e) => onTextChange(e.target.value)} placeholder="Add a comment or question… (type @ to tag someone; paste or drop a screenshot)" />
+          onChange={(e) => onTextChange(e.target.value)} onKeyDown={onKeyDown} placeholder="Add a comment or question… (type @ to tag someone; paste or drop a screenshot)" />
         {mq !== null && mqMatches.length > 0 && (
           <div style={{ position: "absolute", zIndex: 20, background: "var(--paper,#fff)", border: "1px solid var(--line,#e3ddcf)", borderRadius: 8, boxShadow: "0 6px 20px rgba(0,0,0,.12)", marginTop: 2, minWidth: 200, overflow: "hidden" }}>
-            {mqMatches.map((a) => (
-              <button key={a.email} onMouseDown={(e) => { e.preventDefault(); pickMention(a); }}
-                style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "left", padding: "7px 11px", border: "none", background: "transparent", cursor: "pointer", fontSize: 13 }}>
+            {mqMatches.map((a, i) => (
+              <button key={a.email} onMouseEnter={() => setMqIdx(i)} onMouseDown={(e) => { e.preventDefault(); pickMention(a); }}
+                style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "left", padding: "7px 11px", border: "none", background: i === mqIdx ? "var(--paper-2,#f4f1ea)" : "transparent", cursor: "pointer", fontSize: 13 }}>
                 <span style={{ width: 22, height: 22, borderRadius: "50%", background: avatarHue(a.email), color: "#fff", fontSize: 10, fontWeight: 700, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{initials(a.name)}</span>
                 {a.name}
               </button>
