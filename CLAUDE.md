@@ -409,6 +409,46 @@ across deals so we accrue a robust view of who owns what and how they deal. Conf
   "👤 Confirm owner" button on the detail sidebar re-opens it if skipped. Deal detail GET returns
   `ownerRecord {id,name}` → sidebar "👤 Owner record ↗" link.
 
+## Owner Review queue — confirm "who we bought from" per Master Txn (2026-09-01)
+
+A human-in-the-loop backlog to confirm the OWNER we acquired each closed Master Txn name FROM
+(the seller — NOT the buyer we later sold to, NOT the broker/escrow), surfaced from the
+acquisition emails. Rob/Brian/Sam each get a per-user queue + an Admin banner; **Confirm →
+upsert into `deal_owners` + link every deal for that domain** (reuses the Owners directory). New
+Master Txn rows create a new pending card (Increment 2 cron — not built yet; the in-app LLM+Gmail
+miner over all 477 txns is also Increment 2).
+- **Why human-confirm:** direction (buyer vs seller) can only be read from the thread. Calibration
+  proved 3 outcomes — a direct seller found (~1/3), broker/escrow-hidden (owner not in email),
+  or auction/registration/inbound-sale where only the BUYER is in email. So each card is
+  Confirm / Edit-then-confirm / Reject (not a real seller) / Skip. **netz.com gotcha:** Uzi was
+  the BUYER, not the seller — the heuristic that only saw escrow.com got it backwards; direction
+  matters, hence the manual gate.
+- **Data** (`dashboard/scripts/owner_review.sql`, run once on the **main** project —
+  https://github.com/snaggeddomains/snagged-admin/blob/main/dashboard/scripts/owner_review.sql):
+  `owner_review_cards` (domain unique(lower), txn_date/price, candidate_name/first_name/email/phone,
+  channel, buyer_context, confidence, evidence, notes, status pending|confirmed|rejected|skipped,
+  assigned_to (per-card reviewer email), reviewed_by/at, deal_owner_id → deal_owners on delete set
+  null, source). RLS enabled. **Seeded with the 15 calibrated cards** (`on conflict do nothing`),
+  assigned per-card to whoever was most active in the thread. Grant nothing new — gated by `deals`.
+- **Lib** `lib/deals/owner-review.ts`: `listCards({assigned_to,status,q})`, `countPending(email)`
+  (banner), `getCard`, `updateCard` (editable candidate fields), `setCardStatus`
+  (reject/skip/reopen), `reassignCard`, **`confirmCard(id, patch, by)`** = apply edits →
+  `findOwner`/`createOwner`/`updateOwner` (merge emails/phones + append a provenance negotiation
+  note) → link ALL `deals` rows for `lower(domain)` to the owner → mark confirmed + stamp
+  `deal_owner_id`. `upsertCardForDomain` (Increment 2 hook). Fail-soft on the missing table
+  (42P01/PGRST205 → []/0) so Admin/Deals stay usable pre-migration.
+- **API** (gated `deals`; `userCan(deals)` or `deals.all`): `app/api/admin/deals/owner-review/route.ts`
+  GET (`?status=&scope=mine|all&q=` → cards + `myPending` + assignable `reviewers`);
+  `[id]/route.ts` POST `{action: confirm|edit|reject|skip|reopen|reassign, patch?, assigned_to?}`.
+- **UI** `app/deals/owner-review/{page,owner-review-client}.tsx` — a **DEALS_TABS** tab
+  ("Owner Review", perm `deals`, next to Owners). Card grid with status/scope filters
+  (Pending·Confirmed·Rejected·Skipped·All × Assigned-to-me/Everyone), inline Edit of the candidate
+  fields, Confirm/Reject/Skip/Reopen, a per-card reassign dropdown (`assignableUsers`), and a link
+  to the created Owner record. **Per-user banner** `app/owner-review-banner.tsx` mounted in
+  `app/section-chrome.tsx` (so it shows across Admin/Deals/Reports/SNAP, honoring "banner at the top
+  of admin") — self-fetches `myPending`, hidden on the queue page itself + dismissable.
+- **One-time setup:** run `owner_review.sql` on the main project. No new env/permission.
+
 **Email-cron heartbeat.** Rob couldn't tell if the hourly `deal-emails` cron was actually
 firing (manual "Pull emails" always worked). Added `cron_heartbeats` (name pk, last_run_at,
 last_result) + `lib/cron-heartbeat.ts` (`recordHeartbeat`/`getHeartbeat`, best-effort). The

@@ -3,8 +3,9 @@
 import { usePathname } from "next/navigation";
 import TopBar from "@/app/top-bar";
 import Nav from "@/app/nav";
+import OwnerReviewBanner from "@/app/owner-review-banner";
 import { sectionForPath, sectionTabs } from "@/lib/navigation";
-import type { AppUser } from "@/lib/permissions";
+import { canEnterDeals, type AppUser } from "@/lib/permissions";
 
 // The shared module chrome: the global TopBar (with the right section highlighted)
 // + that section's sub-nav. The section is resolved from the URL via the
@@ -19,6 +20,7 @@ export default function SectionChrome({ user }: { user: AppUser }) {
     <>
       <TopBar user={user} current={section} />
       <Nav tabs={tabs} />
+      {canEnterDeals(user) && <OwnerReviewBanner />}
     </>
   );
 }

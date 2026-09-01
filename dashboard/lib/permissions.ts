@@ -171,6 +171,8 @@ export const DEALS_TABS: { href: string; label: string; perm: ModuleKey | Action
   { href: "/deals/list", label: "List", perm: "deals" },
   // Owner intelligence directory — every domain owner we work with + negotiation history.
   { href: "/deals/owners", label: "Owners", perm: "deals" },
+  // Owner Review queue — confirm the "owner we bought from" for each closed Master Txn.
+  { href: "/deals/owner-review", label: "Owner Review", perm: "deals" },
   // Buy-side inquiry triage → deals. Gated by research.pipedrive (canTab → userCan).
   { href: "/deals/inquiries", label: "Buy-Side Inquiries", perm: "research.pipedrive" },
   { href: "/deals/reports", label: "Reporting", perm: "deals.reports" },
