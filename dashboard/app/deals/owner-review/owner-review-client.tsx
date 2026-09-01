@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "r
 
 type Card = {
   id: string; domain: string; txn_date: string | null; txn_price: string | null;
-  candidate_name: string | null; candidate_first_name: string | null;
+  candidate_name: string | null; candidate_first_name: string | null; candidate_last_name: string | null;
   candidate_email: string | null; candidate_phone: string | null;
   channel: string | null; buyer_context: string | null; confidence: string | null;
   evidence: string | null; notes: string | null; status: string;
@@ -25,9 +25,14 @@ const CONF_HUE: Record<string, string> = { high: "#2f7d4f", medium: "#946200", l
 // Bought through a broker / marketplace / auction / registration → there's no ACTUAL owner to
 // record (the whole point is a DB of real sellers), so Dismiss is the right call, not Confirm.
 const NO_OWNER_CHANNEL = /godaddy|spaceship|afternic|sedo|\bdan\b|atom|namecheap|dropcatch|drop\s*catch|auction|escrow|registration|register|inbound|marketplace|namejet|namebright|sav\.com|dynadot|porkbun/i;
+// Full name from explicit first/last, falling back to the stored candidate_name.
+function fullName(card: Card): string {
+  const fl = [card.candidate_first_name, card.candidate_last_name].map((s) => (s || "").trim()).filter(Boolean).join(" ");
+  return fl || (card.candidate_name || "").trim();
+}
 function isNoOwner(card: Card): boolean {
   const conf = (card.confidence || "").toLowerCase();
-  const named = !!(card.candidate_name || card.candidate_first_name || card.candidate_email);
+  const named = !!(fullName(card) || card.candidate_email);
   if (named) return false;                        // a real seller was surfaced → not a no-owner card
   if (conf === "broker" || conf === "none") return true;
   return NO_OWNER_CHANNEL.test(card.channel || "");
@@ -125,8 +130,11 @@ function ReviewCard({ card, reviewers, onDone, onRefresh }: { card: Card; review
   const [editing, setEditing] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
+  // Seed the edit form's first/last from explicit fields, else split candidate_name.
+  const seedToks = (card.candidate_name || "").trim().split(/\s+/).filter(Boolean);
   const [f, setF] = useState({
-    candidate_name: card.candidate_name || "", candidate_first_name: card.candidate_first_name || "",
+    candidate_first_name: (card.candidate_first_name || seedToks[0] || ""),
+    candidate_last_name: (card.candidate_last_name || (card.candidate_first_name ? "" : seedToks.slice(1).join(" ")) || ""),
     candidate_email: card.candidate_email || "", candidate_phone: card.candidate_phone || "",
     channel: card.channel || "", buyer_context: card.buyer_context || "",
     confidence: card.confidence || "", evidence: card.evidence || "", notes: card.notes || "",
@@ -167,8 +175,8 @@ function ReviewCard({ card, reviewers, onDone, onRefresh }: { card: Card; review
 
       {!editing ? (
         <div style={{ marginTop: 12, fontSize: 15 }}>
-          {(card.candidate_name || card.candidate_first_name) ? (
-            <div style={{ fontWeight: 700, color: "var(--navy,#254254)", fontSize: 17 }}>{card.candidate_name || card.candidate_first_name}{card.candidate_first_name && card.candidate_name && card.candidate_first_name !== card.candidate_name ? ` (${card.candidate_first_name})` : ""}</div>
+          {fullName(card) ? (
+            <div style={{ fontWeight: 700, color: "var(--navy,#254254)", fontSize: 17 }}>{fullName(card)}</div>
           ) : <div className="muted" style={{ fontStyle: "italic" }}>No candidate seller named</div>}
           {card.candidate_email && <div style={{ color: "var(--navy-2,#4a5b66)", marginTop: 4 }}>✉ {card.candidate_email}</div>}
           {card.candidate_phone && <div style={{ color: "var(--navy-2,#4a5b66)", marginTop: 3 }}>☎ {card.candidate_phone}</div>}
@@ -183,8 +191,8 @@ function ReviewCard({ card, reviewers, onDone, onRefresh }: { card: Card; review
         </div>
       ) : (
         <div style={{ marginTop: 6, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 14px" }}>
-          <div><label style={L}>Owner / seller name</label><input style={input} value={f.candidate_name} onChange={(e) => set("candidate_name", e.target.value)} placeholder="Full name (blank if unknown)" /></div>
-          <div><label style={L}>First name</label><input style={input} value={f.candidate_first_name} onChange={(e) => set("candidate_first_name", e.target.value)} placeholder="e.g. Michel" /></div>
+          <div><label style={L}>First name</label><input style={input} value={f.candidate_first_name} onChange={(e) => set("candidate_first_name", e.target.value)} placeholder="e.g. Marc" /></div>
+          <div><label style={L}>Last name</label><input style={input} value={f.candidate_last_name} onChange={(e) => set("candidate_last_name", e.target.value)} placeholder="e.g. Hadfield" /></div>
           <div><label style={L}>Email</label><input style={input} value={f.candidate_email} onChange={(e) => set("candidate_email", e.target.value)} /></div>
           <div><label style={L}>Phone</label><input style={input} value={f.candidate_phone} onChange={(e) => set("candidate_phone", e.target.value)} /></div>
           <div><label style={L}>Channel</label><input style={input} value={f.channel} onChange={(e) => set("channel", e.target.value)} placeholder="Escrow.com / Direct / GoDaddy …" /></div>

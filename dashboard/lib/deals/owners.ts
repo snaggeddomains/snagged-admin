@@ -172,6 +172,13 @@ export async function updateOwner(id: string, patch: Record<string, unknown>, by
   return data as DealOwner;
 }
 
+// Delete an owner. Linked deals' domain_owner_id is nulled by the FK (on delete set null),
+// so the deals themselves are untouched — they just lose the owner link.
+export async function deleteOwner(id: string): Promise<void> {
+  const { error } = await getDb().from(OWNERS).delete().eq("id", id);
+  if (error) throw new Error(`deleteOwner: ${error.message}`);
+}
+
 // Link (or unlink) a deal to an owner.
 export async function linkDealOwner(dealId: string, ownerId: string | null): Promise<void> {
   const { error } = await getDb().from(DEALS).update({ domain_owner_id: ownerId, updated_at: new Date().toISOString() }).eq("id", dealId);

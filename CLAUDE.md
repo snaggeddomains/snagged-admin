@@ -432,13 +432,22 @@ miner over all 477 txns is also Increment 2).
   hint bar ("no actual owner to record — we only log real sellers"), and de-emphasizes Confirm.
   **Reject** is reserved for a mis-identified candidate (e.g. the buyer named as the seller); **Dismiss**
   is "no real owner exists here." A real named seller on the card → it's a normal Confirm card again.
-- **FULL name (first + last) from the thread headers.** The seller's full name comes from the
-  Gmail From/To display name (`"Marc Hadfield <marc@vital.ai>"`), not just the greeting first name —
-  the seed cards were patched from the real headers (harbor.ai → **Marc Hadfield**; a generic role
-  account like `domainnetcontact@gmail.com` → left name-blank). Increment 2's miner extracts first+last
-  the same way at scale. The reviewer can **edit the name + all contact fields inline** (✎ Edit) before
-  confirming — the edited values persist on the card AND flow into the Owner DB (`candidate_name` = the
-  full name written as the owner's `name`).
+- **Owner is saved as FIRST + LAST (Rob).** The card carries `candidate_first_name` + `candidate_last_name`
+  (added `candidate_last_name` via `alter … add column if not exists`); `candidate_name` is the computed
+  "First Last" display/owner name (kept for search + back-compat). The edit form has **First name / Last
+  name** inputs; `nameParts()` (lib) resolves first/last from the explicit fields, else splits
+  `candidate_name` (first token = first, remainder = last). Confirm writes the owner's `name` = "First
+  Last", and the Owners list splits it back into its own First/Last columns. Full name comes from the
+  Gmail From/To display header (`"Marc Hadfield <marc@vital.ai>"`) — seed rows patched from the real
+  headers via idempotent `update … where status='pending'` (harbor.ai → **Marc Hadfield**, was "Marc
+  (Vital.ai)"); a generic role account (`domainnetcontact@gmail.com`) is left name-blank. Increment 2's
+  miner extracts first+last the same way at scale. Reviewer can edit name + all contact fields inline (✎).
+- **Owners directory (Deals → Owners) is a SORTABLE TABLE, not cards (Rob).** Columns First / Last /
+  Company / Email / Phone / Deals / Notes / Updated (house sort pattern — numeric desc, string asc, blanks
+  last; default Deals desc); row click → detail. First/Last derived from the owner's `name`. The owner
+  DETAIL page (`owner-client.tsx`) gained a **🗑 Delete** button in edit mode (confirm dialog →
+  `POST /api/admin/deals/owners {action:'delete',id}` → `deleteOwner`; the FK `on delete set null` clears
+  linked deals' `domain_owner_id`, deals otherwise untouched).
 - **UI = ONE card at a time** (Rob's call): a single large centered card with a `N of M` counter +
   ← Prev / Next → nav; Confirm/Reject/Skip/Dismiss advance to the next card, so it's a clean triage flow
   (not a grid).

@@ -8,7 +8,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { userCan, userCanAction } from "@/lib/permissions";
 import {
-  ownersConfigured, listOwners, getOwner, ownerDeals, createOwner, updateOwner,
+  ownersConfigured, listOwners, getOwner, ownerDeals, createOwner, updateOwner, deleteOwner,
   confirmOwnerForDeal, linkDealOwner, searchOwnersTypeahead, type OwnerInput,
 } from "@/lib/deals/owners";
 
@@ -74,6 +74,12 @@ export async function POST(req: NextRequest) {
         const dealId = String(body.deal_id || "");
         if (!dealId) return NextResponse.json({ error: "deal_id required" }, { status: 400 });
         await linkDealOwner(dealId, null);
+        return NextResponse.json({ ok: true });
+      }
+      case "delete": {
+        const id = String(body.id || "");
+        if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
+        await deleteOwner(id);
         return NextResponse.json({ ok: true });
       }
       default:

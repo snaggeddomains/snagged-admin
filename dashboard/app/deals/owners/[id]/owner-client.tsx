@@ -29,6 +29,7 @@ export default function OwnerClient({ id }: { id: string }) {
   const [err, setErr] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [f, setF] = useState<Record<string, string>>({});
 
   const load = useCallback(async () => {
@@ -59,6 +60,15 @@ export default function OwnerClient({ id }: { id: string }) {
     } catch (e) { setErr(String((e as Error)?.message || e)); }
     finally { setSaving(false); }
   };
+  const del = async () => {
+    if (!confirm(`Delete owner "${data!.owner.name}"? This can't be undone. Any linked deals keep their history but lose the owner link.`)) return;
+    setDeleting(true);
+    try {
+      const res = await fetch("/api/admin/deals/owners", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "delete", id }) });
+      if (!res.ok) { const j = await res.json().catch(() => ({})); throw new Error(j.error || `HTTP ${res.status}`); }
+      router.push("/deals/owners");
+    } catch (e) { setErr(String((e as Error)?.message || e)); setDeleting(false); }
+  };
 
   if (err && !data) return <main><p style={{ color: "#a83265" }}>Couldn&apos;t load the owner: {err}</p></main>;
   if (!data) return <main><p className="muted">Loading…</p></main>;
@@ -78,7 +88,11 @@ export default function OwnerClient({ id }: { id: string }) {
         <div style={{ display: "flex", gap: 8 }}>
           {!editing
             ? <button style={btn} onClick={startEdit}>✎ Edit</button>
-            : <><button style={btn} onClick={() => setEditing(false)} disabled={saving}>Cancel</button><button style={btnPrimary} onClick={save} disabled={saving}>{saving ? "Saving…" : "Save"}</button></>}
+            : <>
+                <button style={{ ...btn, color: "#a83265", borderColor: "#e2b8c6" }} onClick={del} disabled={saving || deleting}>{deleting ? "Deleting…" : "🗑 Delete"}</button>
+                <button style={btn} onClick={() => setEditing(false)} disabled={saving || deleting}>Cancel</button>
+                <button style={btnPrimary} onClick={save} disabled={saving || deleting}>{saving ? "Saving…" : "Save"}</button>
+              </>}
         </div>
       </div>
 

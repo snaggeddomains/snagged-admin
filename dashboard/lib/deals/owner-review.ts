@@ -19,8 +19,9 @@ export type OwnerReviewCard = {
   domain: string;
   txn_date: string | null;
   txn_price: string | null;
-  candidate_name: string | null;
+  candidate_name: string | null;         // computed display = "First Last" (kept for search/back-compat)
   candidate_first_name: string | null;
+  candidate_last_name: string | null;
   candidate_email: string | null;
   candidate_phone: string | null;
   channel: string | null;
@@ -86,12 +87,32 @@ export async function getCard(id: string): Promise<OwnerReviewCard | null> {
 }
 
 // Patch the editable candidate fields (used before confirming — reviewer corrects name/email/etc).
-const EDITABLE = new Set(["candidate_name", "candidate_first_name", "candidate_email", "candidate_phone", "channel", "buyer_context", "confidence", "evidence", "notes", "assigned_to"]);
+const EDITABLE = new Set(["candidate_name", "candidate_first_name", "candidate_last_name", "candidate_email", "candidate_phone", "channel", "buyer_context", "confidence", "evidence", "notes", "assigned_to"]);
+
+// Resolve first/last for a card — prefer the explicit first/last fields, else split the full
+// candidate_name (first token = first, remainder = last). Returns clean pieces + the joined name.
+function nameParts(c: { candidate_first_name?: string | null; candidate_last_name?: string | null; candidate_name?: string | null }): { first: string; last: string; full: string } {
+  let first = clean(c.candidate_first_name) || "";
+  let last = clean(c.candidate_last_name) || "";
+  if (!first && !last) {
+    const toks = (clean(c.candidate_name) || "").split(/\s+/).filter(Boolean);
+    first = toks[0] || "";
+    last = toks.slice(1).join(" ");
+  }
+  return { first, last, full: [first, last].filter(Boolean).join(" ") };
+}
 export async function updateCard(id: string, patch: Record<string, unknown>, by: string | null): Promise<OwnerReviewCard> {
+  const current = await getCard(id);
   const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
   for (const [k, v] of Object.entries(patch)) {
     if (!EDITABLE.has(k)) continue;
     update[k] = k === "assigned_to" ? (clean(v) ? lc(String(v)) : null) : clean(v);
+  }
+  // Keep candidate_name (the display/owner name) in sync with edited first/last.
+  if (("candidate_first_name" in update || "candidate_last_name" in update) && current) {
+    const merged = { ...current, ...update } as OwnerReviewCard;
+    const { full } = nameParts({ candidate_first_name: merged.candidate_first_name, candidate_last_name: merged.candidate_last_name, candidate_name: null });
+    if (full) update.candidate_name = full;
   }
   const { data, error } = await getDb().from(CARDS).update(update).eq("id", id).select("*").single();
   if (error) throw new Error(`updateCard: ${error.message}`);
@@ -134,7 +155,8 @@ export async function confirmCard(id: string, patch: Record<string, unknown>, by
   // Apply any inline edits first so the confirmed values persist on the card + flow to the owner.
   const merged = { ...card, ...Object.fromEntries(Object.entries(patch).filter(([k]) => EDITABLE.has(k))) } as OwnerReviewCard;
 
-  const name = clean(merged.candidate_name) || clean(merged.candidate_first_name);
+  const { first, last, full } = nameParts(merged);
+  const name = full || clean(merged.candidate_name);   // "First Last"
   const email = clean(merged.candidate_email);
   if (!name && !email) throw new Error("a candidate name or email is required to confirm an owner");
 
@@ -173,8 +195,9 @@ export async function confirmCard(id: string, patch: Record<string, unknown>, by
 
   // 3. Persist the confirmed edits + mark the card done.
   const update: Record<string, unknown> = {
-    candidate_name: clean(merged.candidate_name),
-    candidate_first_name: clean(merged.candidate_first_name),
+    candidate_name: name || clean(merged.candidate_name),
+    candidate_first_name: first || null,
+    candidate_last_name: last || null,
     candidate_email: email,
     candidate_phone: clean(merged.candidate_phone),
     channel: clean(merged.channel),
@@ -205,7 +228,7 @@ export async function upsertCardForDomain(input: Partial<OwnerReviewCard> & { do
     const row = {
       domain,
       txn_date: clean(input.txn_date), txn_price: clean(input.txn_price),
-      candidate_name: clean(input.candidate_name), candidate_first_name: clean(input.candidate_first_name),
+      candidate_name: clean(input.candidate_name), candidate_first_name: clean(input.candidate_first_name), candidate_last_name: clean(input.candidate_last_name),
       candidate_email: clean(input.candidate_email), candidate_phone: clean(input.candidate_phone),
       channel: clean(input.channel), buyer_context: clean(input.buyer_context),
       confidence: clean(input.confidence), evidence: clean(input.evidence),

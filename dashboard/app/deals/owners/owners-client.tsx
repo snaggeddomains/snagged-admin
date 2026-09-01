@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 
 type Owner = {
@@ -13,9 +13,37 @@ type Resp = { ok: boolean; configured?: boolean; owners: Owner[]; error?: string
 const btn: CSSProperties = { padding: "6px 12px", borderRadius: 8, border: "1px solid var(--line,#e3ddcf)", background: "transparent", fontSize: 13, fontWeight: 600, cursor: "pointer", color: "var(--navy,#254254)" };
 const btnPrimary: CSSProperties = { ...btn, background: "var(--coral,#e2674a)", color: "#fff", borderColor: "var(--coral,#e2674a)" };
 const input: CSSProperties = { padding: "7px 9px", borderRadius: 7, border: "1px solid var(--line,#e3ddcf)", fontSize: 14, boxSizing: "border-box" };
-const OWNER_HUES = ["#2f6f7a", "#c0492f", "#6b4a8a", "#2f7d4f", "#946200", "#3f4a8f", "#a83265", "#1f7a5a"];
-const hueFor = (k: string) => { let h = 0; for (let i = 0; i < k.length; i++) h = (h * 31 + k.charCodeAt(i)) >>> 0; return OWNER_HUES[h % OWNER_HUES.length]; };
-const initials = (n: string) => { const p = n.replace(/[^A-Za-z0-9 ]/g, " ").trim().split(/\s+/).filter(Boolean); return ((p[0]?.[0] || "?") + (p[1]?.[0] || "")).toUpperCase(); };
+
+// Full name → first / last (first token = first name, remainder = last name; a single-token
+// name like "NameFind" reads as a first name with a blank last).
+const firstOf = (n: string) => (n || "").trim().split(/\s+/)[0] || "";
+const lastOf = (n: string) => { const p = (n || "").trim().split(/\s+/); return p.length > 1 ? p.slice(1).join(" ") : ""; };
+const when = (iso: string) => (iso ? new Date(iso).toLocaleDateString() : "");
+
+// House sort pattern: COLS metadata + {col,dir}; numeric cols default desc, string asc, blanks last.
+type ColKey = "first" | "last" | "company" | "email" | "phone" | "deals" | "notes" | "updated";
+const COLS: { key: ColKey; label: string; num?: boolean }[] = [
+  { key: "first", label: "First name" },
+  { key: "last", label: "Last name" },
+  { key: "company", label: "Company" },
+  { key: "email", label: "Email" },
+  { key: "phone", label: "Phone" },
+  { key: "deals", label: "Deals", num: true },
+  { key: "notes", label: "Notes" },
+  { key: "updated", label: "Updated", num: true },
+];
+function cellVal(o: Owner, k: ColKey): string | number {
+  switch (k) {
+    case "first": return firstOf(o.name);
+    case "last": return lastOf(o.name);
+    case "company": return o.company || "";
+    case "email": return (o.emails || [])[0] || "";
+    case "phone": return (o.phones || [])[0] || "";
+    case "deals": return o.deal_count || 0;
+    case "notes": return (o.notes || o.negotiation_notes || "").replace(/\s+/g, " ").trim();
+    case "updated": return o.updated_at ? Date.parse(o.updated_at) : 0;
+  }
+}
 
 export default function OwnersClient() {
   const router = useRouter();
@@ -24,6 +52,7 @@ export default function OwnersClient() {
   const [err, setErr] = useState<string | null>(null);
   const [q, setQ] = useState("");
   const [showNew, setShowNew] = useState(false);
+  const [sort, setSort] = useState<{ col: ColKey; dir: "asc" | "desc" }>({ col: "deals", dir: "desc" });
 
   const load = useCallback(async () => {
     setLoading(true); setErr(null);
@@ -38,14 +67,33 @@ export default function OwnersClient() {
   }, [q]);
   useEffect(() => { load(); }, [load]);
 
-  const owners = data?.owners || [];
+  const toggleSort = (col: ColKey) => setSort((s) => s.col === col ? { col, dir: s.dir === "asc" ? "desc" : "asc" } : { col, dir: COLS.find((c) => c.key === col)?.num ? "desc" : "asc" });
+
+  const owners = useMemo(() => {
+    const rows = [...(data?.owners || [])];
+    const { col, dir } = sort;
+    const num = !!COLS.find((c) => c.key === col)?.num;
+    rows.sort((a, b) => {
+      const av = cellVal(a, col), bv = cellVal(b, col);
+      const aEmpty = av === "" || av === 0, bEmpty = bv === "" || bv === 0;
+      if (aEmpty && bEmpty) return 0;
+      if (aEmpty) return 1;            // blanks always last
+      if (bEmpty) return -1;
+      const cmp = num ? (av as number) - (bv as number) : String(av).localeCompare(String(bv));
+      return dir === "asc" ? cmp : -cmp;
+    });
+    return rows;
+  }, [data, sort]);
+
+  const th: CSSProperties = { textAlign: "left", padding: "8px 10px", fontSize: 11.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".02em", color: "var(--navy-2,#4a5b66)", borderBottom: "2px solid var(--line,#e3ddcf)", cursor: "pointer", whiteSpace: "nowrap", userSelect: "none" };
+  const td: CSSProperties = { padding: "9px 10px", fontSize: 13.5, borderBottom: "1px solid var(--line,#eee6d6)", color: "var(--navy,#254254)", verticalAlign: "top" };
 
   return (
-    <main style={{ maxWidth: 1080, margin: "0 auto", padding: "0 12px" }}>
+    <main style={{ maxWidth: 1180, margin: "0 auto", padding: "0 12px" }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
         <div>
           <h1 style={{ fontSize: "1.35rem", margin: 0 }}>Domain owners</h1>
-          <p className="muted" style={{ margin: "4px 0 0", fontSize: 13 }}>Everyone we&apos;ve worked with to acquire a name — contact info + how they negotiate. Built up over deals; confirmed when a deal reaches Negotiating.</p>
+          <p className="muted" style={{ margin: "4px 0 0", fontSize: 13 }}>Everyone we&apos;ve worked with to acquire a name — contact info + how they negotiate. Built up over deals; confirmed via Owner Review or when a deal reaches Negotiating.</p>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
           <input style={{ ...input, minWidth: 200 }} placeholder="Search name / company / email…" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") load(); }} />
@@ -57,23 +105,39 @@ export default function OwnersClient() {
       {err && <div style={{ margin: "12px 0", color: "#a83265" }}>Couldn&apos;t load owners: {err}</div>}
       {data && data.configured === false && <div style={{ margin: "12px 0" }} className="muted">The owner directory isn&apos;t set up yet — run <code>scripts/deals.sql</code>.</div>}
 
-      <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 12 }}>
-        {owners.map((o) => (
-          <button key={o.id} onClick={() => router.push(`/deals/owners/${o.id}`)}
-            style={{ textAlign: "left", cursor: "pointer", border: "1px solid var(--line,#e3ddcf)", borderRadius: 12, padding: 14, background: "var(--paper,#fff)", display: "flex", gap: 12 }}>
-            <span style={{ flex: "none", width: 38, height: 38, borderRadius: "50%", background: hueFor(o.name), color: "#fff", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700 }}>{initials(o.name)}</span>
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "baseline" }}>
-                <span style={{ fontWeight: 700, fontSize: 14.5, color: "var(--navy,#254254)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{o.name}</span>
-                <span style={{ flex: "none", fontSize: 11, fontWeight: 700, color: "var(--navy-2,#4a5b66)", background: "var(--paper-2,#f4f1ea)", borderRadius: 999, padding: "1px 8px" }}>{o.deal_count} deal{o.deal_count === 1 ? "" : "s"}</span>
-              </div>
-              {(o.company || o.kind !== "unknown") && <div style={{ fontSize: 12, color: "var(--muted,#8a94a0)", marginTop: 2 }}>{[o.kind !== "unknown" ? o.kind : null, o.company].filter(Boolean).join(" · ")}</div>}
-              {(o.emails || [])[0] && <div style={{ fontSize: 12.5, color: "var(--navy-2,#4a5b66)", marginTop: 4, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>✉ {o.emails[0]}{o.emails.length > 1 ? ` +${o.emails.length - 1}` : ""}</div>}
-              {o.negotiation_notes && <div style={{ fontSize: 12, color: "var(--muted,#8a94a0)", marginTop: 4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden" }}>💬 {o.negotiation_notes}</div>}
-            </div>
-          </button>
-        ))}
-        {!loading && !owners.length && !err && <div className="muted" style={{ fontSize: 13, padding: "8px 2px" }}>{q ? "No owners match that search." : "No owners yet — they build up as deals reach Negotiating (or add one now)."}</div>}
+      <div style={{ marginTop: 14, overflowX: "auto", border: "1px solid var(--line,#e3ddcf)", borderRadius: 12, background: "var(--paper,#fff)" }}>
+        <table style={{ borderCollapse: "collapse", width: "100%", minWidth: 860 }}>
+          <thead>
+            <tr>
+              {COLS.map((c) => {
+                const active = sort.col === c.key;
+                return (
+                  <th key={c.key} style={{ ...th, color: active ? "var(--coral,#e2674a)" : th.color, textAlign: c.num ? "right" : "left" }} onClick={() => toggleSort(c.key)}>
+                    {c.label}{active ? (sort.dir === "asc" ? " ▲" : " ▼") : ""}
+                  </th>
+                );
+              })}
+            </tr>
+          </thead>
+          <tbody>
+            {owners.map((o) => (
+              <tr key={o.id} onClick={() => router.push(`/deals/owners/${o.id}`)} style={{ cursor: "pointer" }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "var(--paper-2,#f7f5ef)")} onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
+                <td style={{ ...td, fontWeight: 700 }}>{firstOf(o.name) || "—"}</td>
+                <td style={{ ...td, fontWeight: 700 }}>{lastOf(o.name) || <span style={{ color: "var(--muted,#aab)" }}>—</span>}</td>
+                <td style={td}>{o.company || <span style={{ color: "var(--muted,#aab)" }}>—</span>}</td>
+                <td style={td}>{(o.emails || [])[0] ? <span>{o.emails[0]}{o.emails.length > 1 ? <span style={{ color: "var(--muted,#8a94a0)" }}> +{o.emails.length - 1}</span> : ""}</span> : <span style={{ color: "var(--muted,#aab)" }}>—</span>}</td>
+                <td style={td}>{(o.phones || [])[0] || <span style={{ color: "var(--muted,#aab)" }}>—</span>}</td>
+                <td style={{ ...td, textAlign: "right", fontWeight: 700 }}>{o.deal_count || 0}</td>
+                <td style={{ ...td, maxWidth: 320 }}><span style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden", color: "var(--muted,#6b7680)", fontSize: 12.5 }}>{(o.notes || o.negotiation_notes || "").trim() || "—"}</span></td>
+                <td style={{ ...td, textAlign: "right", whiteSpace: "nowrap", color: "var(--muted,#8a94a0)", fontSize: 12.5 }}>{when(o.updated_at)}</td>
+              </tr>
+            ))}
+            {!loading && !owners.length && !err && (
+              <tr><td colSpan={COLS.length} style={{ ...td, textAlign: "center", padding: "20px 10px", color: "var(--muted,#8a94a0)" }}>{q ? "No owners match that search." : "No owners yet — they build up via Owner Review / when a deal reaches Negotiating (or add one now)."}</td></tr>
+            )}
+          </tbody>
+        </table>
       </div>
 
       {showNew && <NewOwnerModal onClose={() => setShowNew(false)} onCreated={(id) => { setShowNew(false); router.push(`/deals/owners/${id}`); }} />}
