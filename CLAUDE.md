@@ -28,6 +28,28 @@ RESEARCH_INTERNAL_SECRET` (same pattern as email-threads/sales-comps; `middlewar
     header row gets filter dropdowns. (Research's naming export passes `filter:true` and also sorts off-brief
     rows to the bottom on its side before sending, so the culled block is contiguous.)
 
+# Feedback / Feature Requests — one central queue, all users submit, Rob-only queue (2026-09-01)
+
+Any logged-in user can log a tweak/addition/new-module idea at **`/feedback`** (a 💡 link in the
+TopBar, visible to everyone); it lands in one queue. **On a new submission ONLY rob@snagged.com gets
+a bell + email**; **only Rob** (admin / `admin.feedback.manage`) sees + manages the whole queue.
+- **Data** (`scripts/feature_requests.sql`, MAIN project, run once): `feature_requests`
+  (submitted_by/name, module, kind addition|tweak|new_module|bug|other, title, body, status
+  open|planned|in_progress|shipped|declined, admin_notes). RLS enabled. Fail-soft on missing table.
+- **Lib** `lib/feedback.ts`: `createFeedback` (→ `notifyRob`: bell via `createNotification` to rob@'s
+  user id + email via `sendEmail` to rob@, both best-effort), `listFeedback({mine|status|q})`,
+  `updateFeedback`, and **`feedbackModules()`** — the area picklist DERIVED from the nav tab registry
+  (RESEARCH/SNAP/REPORTS/DEALS/ADMIN_TABS labels + "New module / other") so it auto-covers every tool.
+- **API** `app/api/feedback/route.ts` (GET `?scope=mine|all` — non-managers forced to `mine`; POST any
+  auth user) + `[id]/route.ts` (PATCH status/notes, gated `admin.feedback.manage`).
+- **UI** `app/feedback/{page,feedback-client}.tsx` — a standalone page (own TopBar, not in a section):
+  submit form (area + type + title + details) + "Your requests"; Rob also gets a **Full queue** toggle
+  with status filter/search + inline status + notes. TopBar 💡 link (`app/top-bar.tsx`) opens it.
+- **Permission** `admin.feedback.manage` (ACTION, group Admin) gates the queue + PATCH; submitting needs
+  only auth. Rob passes via is_admin. **Setup:** run `scripts/feature_requests.sql` on the main project.
+  No new env (reuses the notifications table + `sendEmail`). Research-SPA-only users can't reach it yet
+  (admin-app page) — a research nav link is a possible follow-up.
+
 # Memory cadence (READ FIRST) — commit CLAUDE.md with the code
 
 When you ship a feature/fix, add/update its `CLAUDE.md` section **in the same commit as

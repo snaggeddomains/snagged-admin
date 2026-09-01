@@ -52,6 +52,8 @@ export default function TopBar({
           top-right (mirrors Research). Hidden on mobile (moves to the hamburger). */}
       <span className="topbar__account" style={{ display: "flex", alignItems: "center", gap: 14 }}>
         <NavControls current={current} />
+        {/* Universal — any logged-in user can log a feature request / tweak. */}
+        <Link href="/feedback" title="Feedback & feature requests" aria-label="Feedback" style={{ fontSize: 18, lineHeight: 1, textDecoration: "none" }}>💡</Link>
         <NotificationsBell />
         <span className="topbar__avatar"><AccountAvatar email={user.email} /></span>
       </span>

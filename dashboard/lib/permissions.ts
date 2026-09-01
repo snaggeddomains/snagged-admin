@@ -62,6 +62,7 @@ export const ACTIONS = [
   "admin.users.manage", // user + permission administration
   "admin.sources.edit", // edit source registry / schedules
   "admin.lessons.approve", // curate (approve/edit/delete) playbook lessons
+  "admin.feedback.manage", // see + manage the whole Feedback / Feature Requests queue (submitting is open to all)
   "admin.imports.replace", // allow the destructive Replace mode in the import tool
   "reports.cost", // view the API cost/usage report + edit rates
   "reports.analytics", // view the Site Analytics (GA4) report
@@ -250,6 +251,7 @@ export const CATALOG: CatalogEntry[] = [
   { key: "admin.imports.replace", label: "Imports — Replace mode (destructive)", group: "Admin", kind: "action" },
   { key: "admin.webflow", label: "Marketplace Master — edit listings (Webflow CMS write)", group: "Reports", kind: "module" },
   { key: "admin.lessons.approve", label: "Lessons — curate / approve", group: "Admin", kind: "action" },
+  { key: "admin.feedback.manage", label: "Feedback — manage the feature-request queue", group: "Admin", kind: "action" },
   { key: "reports", label: "Reports — full access (analytics + cost)", group: "Reports", kind: "module" },
   { key: "reports.analytics", label: "Reports — Site Analytics", group: "Reports", kind: "action" },
   { key: "reports.marketplace", label: "Reports — Marketplace (per-domain)", group: "Reports", kind: "action" },
