@@ -1,20 +1,20 @@
 [
   {
     "currency": "USD",
-    "domain": "precedent.com",
-    "end_time_utc": "2026-08-31T19:49:19+00:00",
+    "domain": "petrie.ai",
+    "end_time_utc": "2026-09-01T04:18:55+00:00",
     "is_mub": false,
-    "price": 90000.0,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=precedent.com"
+    "price": 98995.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=petrie.ai"
   },
   {
     "currency": "USD",
-    "domain": "salami.co",
-    "end_time_utc": "2026-08-31T20:50:14+00:00",
+    "domain": "sauce.ai",
+    "end_time_utc": "2026-09-01T02:00:28+00:00",
     "is_mub": false,
-    "price": 4995.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=salami.co"
+    "price": 295000.0,
+    "tld": "ai",
+    "url": "https://sedo.com/search/details/?domain=sauce.ai"
   }
 ]
