@@ -36,7 +36,8 @@ export async function GET(req: NextRequest) {
       q: url.searchParams.get("q") || undefined,
     });
     const [myPending, reviewers] = await Promise.all([countPending(me!.email), assignableUsers()]);
-    return NextResponse.json({ ok: true, configured: true, cards, myPending, reviewers, me: me!.email });
+    const canMine = me!.is_admin || userCanAction(me!, "deals.all");   // backfill touches everyone's queue
+    return NextResponse.json({ ok: true, configured: true, cards, myPending, reviewers, canMine, me: me!.email });
   } catch (e) {
     return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
   }

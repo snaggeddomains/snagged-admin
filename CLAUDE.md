@@ -284,6 +284,11 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
     missing-column strip-retry degrades it gracefully pre-migration. **Setup: run the `current_offer`
     line in `scripts/deals.sql` on the main project.** Not added to the New-deal/convert create
     surfaces (deal-page field only, per the ask).
+  - **Board card shows offer → asking when both set (Rob, 2026-09-01).** `board-client.tsx` card price
+    line: when a deal has BOTH `current_offer` and `asking_price`, it renders **`$offer → $asking`**
+    (green offer · muted arrow · navy asking) so the negotiation gap reads at a glance; otherwise it
+    falls back to `budget_range || usd(asking||appraisal)` as before. `current_offer` added to the board
+    Deal type (the list GET already `select("*")`).
 - **"Didn't proceed" status + link cleanup (2026-07-22).** New terminal status `not_proceeded`
   (STATUSES in stages.ts) — the BUYER bailed before we engaged the owner (didn't pay to pursue),
   distinct from a negotiation Lost. Its own board **drop zone** ("🚫 Didn't proceed", like Mark
@@ -448,6 +453,14 @@ miner over all 477 txns is also Increment 2).
   DETAIL page (`owner-client.tsx`) gained a **🗑 Delete** button in edit mode (confirm dialog →
   `POST /api/admin/deals/owners {action:'delete',id}` → `deleteOwner`; the FK `on delete set null` clears
   linked deals' `domain_owner_id`, deals otherwise untouched).
+- **Deal/domain count = union of `deals` AND confirmed Owner Review cards (Rob, 2026-09-01).** An
+  Owner-Review-confirmed seller of a Master-Txn acquisition often has NO buy-side `deals` row (dale.org /
+  lfg.ai), so `listOwners` counted 0. Fixed: `deal_count` + a new `domains[]` are the DISTINCT domains
+  from BOTH `deals.domain_owner_id` AND `owner_review_cards` (deal_owner_id, status=confirmed) — so a
+  confirmed owner shows their acquisition even with no deal. The directory table gained a **"Domains
+  closed"** column (first 3 + "+N"); the owner DETAIL lists card acquisitions (`ownerAcquisitions(id)`,
+  confirmed cards not already a deal) alongside linked deals under "Names we've worked with them". Both
+  reads fail-open if `owner_review_cards` isn't there yet.
 - **UI = ONE card at a time** (Rob's call): a single large centered card with a `N of M` counter +
   ← Prev / Next → nav; Confirm/Reject/Skip/Dismiss advance to the next card, so it's a clean triage flow
   (not a grid).
@@ -486,9 +499,14 @@ miner over all 477 txns is also Increment 2).
     last_name, email, phone, channel, confidence, buyer_context, evidence}`. Fail-open to a "none" result.
   - **`mineAllTxns({limit,dry})`** — reads the Master Txns List (`SNAGGED_TRACKER_SHEET_ID`, tab auto-detected
     domain/date/price cols), newest first, skips domains that already have a card, mines + `upsertCardForDomain`
-    each. Bounded per run (Gmail quota + 300s). API `POST /api/admin/deals/owner-review/mine {limit,dry}`
-    (gated deals.all/admin); **cron `/api/cron/owner-review-mine` daily `0 15 * * *`** (CRON_SECRET, `?limit=`/`?dry=1`,
-    heartbeat `owner-review-mine`) drains the ~460 backlog over days AND picks up any NEW txn row as its own card.
+    each. Bounded per run (Gmail quota + 300s); returns `{created, existing, remaining, note}`. **HARD GUARD:**
+    no `ANTHROPIC_API_KEY` → creates NOTHING and returns a `note` (would otherwise flood the queue with empty
+    "none" cards). `mineOwnerForDomain` also runs the deterministic `resolveNameFromThread` backstop when the LLM
+    gives an email but no last name, so **every auto-created card carries first+last without a click**. API
+    `POST /api/admin/deals/owner-review/mine {limit,dry}` (gated deals.all/admin) + a **"⛏ Mine backlog" button**
+    on the Owner Review page (shown when `canMine`; runs a 40-txn batch/click, shows created/remaining) +
+    **cron `/api/cron/owner-review-mine` daily `0 15 * * *`** (CRON_SECRET) that drains the ~460 backlog over
+    days AND picks up any NEW txn row as its own card.
   - **Setup:** needs `ANTHROPIC_API_KEY` in the ADMIN Vercel project (the miner runs there; the sandbox has no
     key). Reuses `GOOGLE_SA_KEY` (Gmail SA, deal mailboxes) + `SNAGGED_TRACKER_SHEET_ID` (both set). Run the
     backfill on demand via the mine endpoint, or let the daily cron accrue it.

@@ -9,7 +9,7 @@ const NEGOTIATING = "Negotiating";
 
 type Deal = {
   id: string; domain: string; buyer_name: string | null; buyer_email: string | null; org_name: string | null;
-  budget_range: string | null; appraisal_value: number | null; asking_price: number | null;
+  budget_range: string | null; appraisal_value: number | null; asking_price: number | null; current_offer: number | null;
   source: string | null; priority: string | null; owner_email: string | null; stage: string; status: string;
   tags: string[] | null; updated_at: string;
   likely_owner: string | null; owner_contact: string | null; domain_owner_id: string | null;
@@ -284,7 +284,16 @@ export default function BoardClient() {
                       <span style={{ fontSize: 11.5, fontWeight: 700, color: oc, display: "inline-flex", alignItems: "center", gap: 4 }}>
                         <span style={{ width: 7, height: 7, borderRadius: "50%", background: oc, display: "inline-block" }} />{firstNameFor(d.owner_email)}
                       </span>
-                      <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--navy-2,#4a5b66)" }}>{d.budget_range || usd(d.asking_price || d.appraisal_value)}</span>
+                      {d.current_offer != null && d.asking_price != null
+                        ? (
+                          // Both set → show the negotiation at a glance: our offer → their asking.
+                          <span style={{ fontSize: 11.5, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 3, whiteSpace: "nowrap" }} title="Current offer → Asking">
+                            <span style={{ color: "#2f7d4f" }}>{usd(d.current_offer)}</span>
+                            <span style={{ color: "var(--muted,#8a94a0)" }}>→</span>
+                            <span style={{ color: "var(--navy,#254254)" }}>{usd(d.asking_price)}</span>
+                          </span>
+                        )
+                        : <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--navy-2,#4a5b66)" }}>{d.budget_range || usd(d.asking_price || d.appraisal_value)}</span>}
                     </div>
                     {d.status !== "open" && <div style={{ fontSize: 10.5, fontWeight: 700, marginTop: 4, color: d.status === "won" ? "#1f7a5a" : d.status === "not_proceeded" ? "#b26a00" : d.status === "archived" ? "#7a6f63" : "#a83265" }}>{statusLabel(d.status).toUpperCase()}</div>}
                   </div>

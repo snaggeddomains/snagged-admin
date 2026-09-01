@@ -9,7 +9,8 @@ type Owner = {
   notes: string | null; negotiation_notes: string | null; created_at: string; updated_at: string;
 };
 type OwnerDeal = { id: string; domain: string; stage: string; status: string; buyer_name: string | null; asking_price: number | null; sale_price: number | null; created_at: string; updated_at: string };
-type Resp = { ok: boolean; owner: Owner; deals: OwnerDeal[]; error?: string };
+type Acquisition = { domain: string; date: string | null; price: string | null };
+type Resp = { ok: boolean; owner: Owner; deals: OwnerDeal[]; acquisitions?: Acquisition[]; error?: string };
 
 const card: CSSProperties = { border: "1px solid var(--line,#e3ddcf)", borderRadius: 12, padding: 16, background: "var(--paper,#fff)", marginBottom: 14 };
 const lbl: CSSProperties = { display: "block", fontSize: 11.5, fontWeight: 700, color: "var(--navy-2,#4a5b66)", margin: "9px 0 3px", textTransform: "uppercase", letterSpacing: ".02em" };
@@ -129,7 +130,17 @@ export default function OwnerClient({ id }: { id: string }) {
           </div>
 
           <div style={card}>
-            <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 8 }}>Names we&apos;ve worked with them ({data.deals.length})</div>
+            <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 8 }}>Names we&apos;ve worked with them ({data.deals.length + (data.acquisitions?.length || 0)})</div>
+            {(data.acquisitions?.length || 0) > 0 && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: data.deals.length ? 10 : 0 }}>
+                {data.acquisitions!.map((a) => (
+                  <div key={a.domain} style={{ background: "var(--paper-2,#f7f5ef)", border: "1px solid var(--line,#eee6d6)", borderRadius: 8, padding: "8px 10px", display: "flex", justifyContent: "space-between", gap: 8, alignItems: "baseline" }}>
+                    <span><span style={{ fontWeight: 700, fontSize: 13.5, color: "var(--navy,#254254)" }}>{a.domain}</span> <span style={{ fontSize: 11.5, color: "var(--muted,#8a94a0)" }}>· acquired</span></span>
+                    <span style={{ flex: "none", fontSize: 12, color: "var(--navy-2,#4a5b66)" }}>{a.price || "—"}<span style={{ color: "var(--muted,#aab)" }}>{a.date ? ` · ${a.date}` : ""}</span></span>
+                  </div>
+                ))}
+              </div>
+            )}
             {data.deals.length ? (
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {data.deals.map((d) => (
@@ -140,7 +151,7 @@ export default function OwnerClient({ id }: { id: string }) {
                   </button>
                 ))}
               </div>
-            ) : <div className="muted" style={{ fontSize: 12.5 }}>No linked deals yet.</div>}
+            ) : (!(data.acquisitions?.length) && <div className="muted" style={{ fontSize: 12.5 }}>No linked deals yet.</div>)}
           </div>
         </div>
       </div>

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 type Owner = {
   id: string; name: string; kind: string; company: string | null;
   emails: string[]; phones: string[]; reachability: string | null;
-  notes: string | null; negotiation_notes: string | null; deal_count: number; updated_at: string;
+  notes: string | null; negotiation_notes: string | null; deal_count: number; domains?: string[]; updated_at: string;
 };
 type Resp = { ok: boolean; configured?: boolean; owners: Owner[]; error?: string };
 
@@ -21,7 +21,7 @@ const lastOf = (n: string) => { const p = (n || "").trim().split(/\s+/); return 
 const when = (iso: string) => (iso ? new Date(iso).toLocaleDateString() : "");
 
 // House sort pattern: COLS metadata + {col,dir}; numeric cols default desc, string asc, blanks last.
-type ColKey = "first" | "last" | "company" | "email" | "phone" | "deals" | "notes" | "updated";
+type ColKey = "first" | "last" | "company" | "email" | "phone" | "deals" | "domains" | "notes" | "updated";
 const COLS: { key: ColKey; label: string; num?: boolean }[] = [
   { key: "first", label: "First name" },
   { key: "last", label: "Last name" },
@@ -29,6 +29,7 @@ const COLS: { key: ColKey; label: string; num?: boolean }[] = [
   { key: "email", label: "Email" },
   { key: "phone", label: "Phone" },
   { key: "deals", label: "Deals", num: true },
+  { key: "domains", label: "Domains closed" },
   { key: "notes", label: "Notes" },
   { key: "updated", label: "Updated", num: true },
 ];
@@ -40,6 +41,7 @@ function cellVal(o: Owner, k: ColKey): string | number {
     case "email": return (o.emails || [])[0] || "";
     case "phone": return (o.phones || [])[0] || "";
     case "deals": return o.deal_count || 0;
+    case "domains": return (o.domains || []).join(", ");
     case "notes": return (o.notes || o.negotiation_notes || "").replace(/\s+/g, " ").trim();
     case "updated": return o.updated_at ? Date.parse(o.updated_at) : 0;
   }
@@ -106,7 +108,7 @@ export default function OwnersClient() {
       {data && data.configured === false && <div style={{ margin: "12px 0" }} className="muted">The owner directory isn&apos;t set up yet — run <code>scripts/deals.sql</code>.</div>}
 
       <div style={{ marginTop: 14, overflowX: "auto", border: "1px solid var(--line,#e3ddcf)", borderRadius: 12, background: "var(--paper,#fff)" }}>
-        <table style={{ borderCollapse: "collapse", width: "100%", minWidth: 860 }}>
+        <table style={{ borderCollapse: "collapse", width: "100%", minWidth: 1040 }}>
           <thead>
             <tr>
               {COLS.map((c) => {
@@ -129,7 +131,10 @@ export default function OwnersClient() {
                 <td style={td}>{(o.emails || [])[0] ? <span>{o.emails[0]}{o.emails.length > 1 ? <span style={{ color: "var(--muted,#8a94a0)" }}> +{o.emails.length - 1}</span> : ""}</span> : <span style={{ color: "var(--muted,#aab)" }}>—</span>}</td>
                 <td style={td}>{(o.phones || [])[0] || <span style={{ color: "var(--muted,#aab)" }}>—</span>}</td>
                 <td style={{ ...td, textAlign: "right", fontWeight: 700 }}>{o.deal_count || 0}</td>
-                <td style={{ ...td, maxWidth: 320 }}><span style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden", color: "var(--muted,#6b7680)", fontSize: 12.5 }}>{(o.notes || o.negotiation_notes || "").trim() || "—"}</span></td>
+                <td style={{ ...td, maxWidth: 240 }}>{(o.domains || []).length
+                  ? <span style={{ fontSize: 12.5 }}>{o.domains!.slice(0, 3).join(", ")}{o.domains!.length > 3 ? <span style={{ color: "var(--muted,#8a94a0)" }}> +{o.domains!.length - 3}</span> : ""}</span>
+                  : <span style={{ color: "var(--muted,#aab)" }}>—</span>}</td>
+                <td style={{ ...td, maxWidth: 300 }}><span style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden", color: "var(--muted,#6b7680)", fontSize: 12.5 }}>{(o.notes || o.negotiation_notes || "").trim() || "—"}</span></td>
                 <td style={{ ...td, textAlign: "right", whiteSpace: "nowrap", color: "var(--muted,#8a94a0)", fontSize: 12.5 }}>{when(o.updated_at)}</td>
               </tr>
             ))}

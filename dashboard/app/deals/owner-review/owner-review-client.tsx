@@ -12,7 +12,7 @@ type Card = {
   deal_owner_id: string | null; source: string; created_at: string;
 };
 type Reviewer = { email: string; name: string };
-type Resp = { ok: boolean; configured?: boolean; cards: Card[]; myPending: number; reviewers: Reviewer[]; me?: string; error?: string };
+type Resp = { ok: boolean; configured?: boolean; cards: Card[]; myPending: number; reviewers: Reviewer[]; canMine?: boolean; me?: string; error?: string };
 
 const btn: CSSProperties = { padding: "8px 15px", borderRadius: 9, border: "1px solid var(--line,#e3ddcf)", background: "transparent", fontSize: 13.5, fontWeight: 600, cursor: "pointer", color: "var(--navy,#254254)" };
 const btnPrimary: CSSProperties = { ...btn, background: "var(--coral,#e2674a)", color: "#fff", borderColor: "var(--coral,#e2674a)" };
@@ -54,6 +54,8 @@ export default function OwnerReviewClient() {
   const [scope, setScope] = useState<"mine" | "all">("mine");
   const [q, setQ] = useState("");
   const [idx, setIdx] = useState(0);
+  const [mining, setMining] = useState(false);
+  const [mineMsg, setMineMsg] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true); setErr(null);
@@ -81,12 +83,33 @@ export default function OwnerReviewClient() {
     setData((d) => (d ? { ...d, cards: d.cards.filter((c) => c.id !== card?.id), myPending: Math.max(0, (d.myPending || 0) - (card?.status === "pending" ? 1 : 0)) } : d));
   }, [card]);
 
+  // Backfill the whole Master Txn list — mine each thread for the seller (one LLM batch per click,
+  // bounded to fit the 300s route). Click again until "remaining" hits 0.
+  const mine = async () => {
+    setMining(true); setMineMsg("Mining acquisition threads… (this batch may take a minute)");
+    try {
+      const res = await fetch("/api/admin/deals/owner-review/mine", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ limit: 40 }) });
+      const j = await res.json();
+      if (!res.ok || j.ok === false) throw new Error(j.error || `HTTP ${res.status}`);
+      if (j.note) setMineMsg(`⚠️ ${j.note}`);
+      else setMineMsg(`✓ Created ${j.created} card${j.created === 1 ? "" : "s"} · ${j.remaining ?? 0} still to mine${j.remaining ? " — click again to continue" : " · backlog complete 🎉"}`);
+      await load();
+    } catch (e) { setMineMsg(`⚠️ ${String((e as Error)?.message || e)}`); }
+    finally { setMining(false); }
+  };
+
   return (
     <main style={{ maxWidth: 720, margin: "0 auto", padding: "0 12px" }}>
-      <div>
-        <h1 style={{ fontSize: "1.35rem", margin: 0 }}>Owner Review</h1>
-        <p className="muted" style={{ margin: "4px 0 0", fontSize: 13 }}>Confirm who we <strong>bought each name from</strong> — the owner surfaced from the acquisition emails. Confirm → the owner is saved to the Owners directory + linked to the deal. Reject if it&apos;s not a real seller (broker / auction / the buyer).</p>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
+        <div>
+          <h1 style={{ fontSize: "1.35rem", margin: 0 }}>Owner Review</h1>
+          <p className="muted" style={{ margin: "4px 0 0", fontSize: 13, maxWidth: 620 }}>Confirm who we <strong>bought each name from</strong> — the owner surfaced from the acquisition emails. Confirm → the owner is saved to the Owners directory + linked to the deal. Reject if it&apos;s not a real seller (broker / auction / the buyer).</p>
+        </div>
+        {data?.canMine && (
+          <button style={{ ...btnGood, whiteSpace: "nowrap" }} disabled={mining} onClick={mine} title="Mine the acquisition thread for every Master Txn without a card yet — pulls the seller + full name automatically. Runs in batches; click again to continue.">{mining ? "Mining…" : "⛏ Mine backlog"}</button>
+        )}
       </div>
+      {mineMsg && <div style={{ marginTop: 8, fontSize: 13, color: mineMsg.startsWith("⚠️") ? "#a83265" : (mineMsg.startsWith("✓") ? "#2f7d4f" : "var(--navy-2,#4a5b66)") }}>{mineMsg}</div>}
 
       <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap", margin: "14px 0 4px" }}>
         {STATUSES.map((s) => (

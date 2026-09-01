@@ -133,7 +133,7 @@ export async function mineOwnerForDomain(domain: string, env: NodeJS.ProcessEnv 
     const data = (await res.json()) as { content?: { type: string; text?: string }[] };
     const text = (data.content || []).filter((b) => b.type === "text").map((b) => b.text || "").join("");
     const j = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1)) as Partial<MinedOwner>;
-    return {
+    const out: MinedOwner = {
       seller_found: !!j.seller_found,
       first_name: clean(String(j.first_name || "")),
       last_name: clean(String(j.last_name || "")),
@@ -144,6 +144,14 @@ export async function mineOwnerForDomain(domain: string, env: NodeJS.ProcessEnv 
       buyer_context: clean(String(j.buyer_context || "")),
       evidence: clean(String(j.evidence || "")),
     };
+    // Deterministic backstop: if we have the seller's email but the LLM didn't give a last name,
+    // pull the full name straight from the thread headers (the same path as the "⤓ Pull full name"
+    // button) — so every auto-created card carries first+last without anyone clicking.
+    if (out.email && !out.last_name) {
+      const hit = await resolveNameFromThread(domain, out.email).catch(() => null);
+      if (hit && hit.last) { out.first_name = out.first_name || hit.first; out.last_name = hit.last; }
+    }
+    return out;
   } catch { return empty; }
 }
 
@@ -176,7 +184,7 @@ async function readMasterTxns(): Promise<{ domain: string; date: string; price: 
   return out;
 }
 
-export type MineSummary = { scanned: number; created: number; existing: number; skipped: number; results: { domain: string; created: boolean; confidence: string; name: string }[] };
+export type MineSummary = { scanned: number; created: number; existing: number; skipped: number; total?: number; remaining?: number; note?: string; results: { domain: string; created: boolean; confidence: string; name: string }[] };
 
 // Bulk backfill: mine every Master Txn that doesn't already have a card, newest first. `dry` skips
 // writes. `limit` bounds a run (Gmail quota + the 300s route budget). Idempotent per domain.
@@ -184,8 +192,12 @@ export async function mineAllTxns(opts: { limit?: number; dry?: boolean } = {}):
   const limit = opts.limit ?? 40;
   const dry = !!opts.dry;
   const sum: MineSummary = { scanned: 0, created: 0, existing: 0, skipped: 0, results: [] };
-  if (!isDbConfigured()) return sum;
+  if (!isDbConfigured()) return { ...sum, note: "DB not configured" };
+  // HARD GUARD: without the LLM key the miner can't determine the seller/direction, so it would
+  // create empty "none" cards for the whole backlog. Refuse rather than flood the queue.
+  if (!process.env.ANTHROPIC_API_KEY) return { ...sum, note: "ANTHROPIC_API_KEY not set on the admin project — the miner needs it to read the seller from each thread. Set it, then run again." };
   const txns = (await readMasterTxns()).reverse();   // newest first
+  sum.total = txns.length;
   for (const t of txns) {
     if (sum.created + sum.skipped >= limit) break;
     if (await getCard2ByDomain(t.domain)) { sum.existing++; continue; }
@@ -203,6 +215,9 @@ export async function mineAllTxns(opts: { limit?: number; dry?: boolean } = {}):
     if (card) { sum.created++; sum.results.push({ domain: t.domain, created: true, confidence: mined.confidence, name }); }
     else sum.skipped++;
   }
+  // Rough remaining = txns with no card yet after this batch (existing counted only those hit before
+  // the limit, so recompute against the total for an accurate "more to go").
+  sum.remaining = Math.max(0, (sum.total || 0) - sum.existing - sum.created);
   return sum;
 }
 

@@ -8,7 +8,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { userCan, userCanAction } from "@/lib/permissions";
 import {
-  ownersConfigured, listOwners, getOwner, ownerDeals, createOwner, updateOwner, deleteOwner,
+  ownersConfigured, listOwners, getOwner, ownerDeals, ownerAcquisitions, createOwner, updateOwner, deleteOwner,
   confirmOwnerForDeal, linkDealOwner, searchOwnersTypeahead, type OwnerInput,
 } from "@/lib/deals/owners";
 
@@ -36,7 +36,8 @@ export async function GET(req: NextRequest) {
       const owner = await getOwner(id);
       if (!owner) return NextResponse.json({ error: "Not found" }, { status: 404 });
       const deals = await ownerDeals(id);
-      return NextResponse.json({ ok: true, configured: true, owner, deals, me: me!.email });
+      const acquisitions = await ownerAcquisitions(id, deals.map((d) => d.domain));
+      return NextResponse.json({ ok: true, configured: true, owner, deals, acquisitions, me: me!.email });
     }
     const owners = await listOwners({ q: url.searchParams.get("q") || undefined });
     return NextResponse.json({ ok: true, configured: true, owners, me: me!.email });

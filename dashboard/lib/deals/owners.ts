@@ -58,7 +58,7 @@ const emailArr = (a?: unknown): string[] => [...new Set(cleanArr(a).map(lc))];
 
 // List owners (optionally filtered by name/company/email), newest-updated first, each with
 // a count of the deals linked to it. Bounded for safety.
-export async function listOwners(opts: { q?: string; limit?: number } = {}): Promise<(DealOwner & { deal_count: number })[]> {
+export async function listOwners(opts: { q?: string; limit?: number } = {}): Promise<(DealOwner & { deal_count: number; domains: string[] })[]> {
   let query = getDb().from(OWNERS).select("*").order("updated_at", { ascending: false }).limit(Math.min(opts.limit ?? 500, 1000));
   if (opts.q && opts.q.trim()) {
     const like = `%${opts.q.trim()}%`;
@@ -78,14 +78,25 @@ export async function listOwners(opts: { q?: string; limit?: number } = {}): Pro
       (o.emails || []).some((e) => lc(e).includes(term)) || (o.phones || []).some((p) => p.includes(term)));
   }
   if (!owners.length) return [];
-  // Deal counts per owner (one grouped read).
+  // The names we've worked with an owner = DISTINCT domains from BOTH the buy-side `deals` table
+  // (domain_owner_id) AND confirmed Owner Review cards (Master-Txn acquisitions that have no deals
+  // row). Union so a confirmed seller shows their acquisition even with no buy-side deal.
   const ids = owners.map((o) => o.id);
-  const counts: Record<string, number> = {};
+  const domainsByOwner = new Map<string, Set<string>>();
+  const add = (ownerId: string | null | undefined, domain: string | null | undefined) => {
+    if (!ownerId || !domain) return;
+    if (!domainsByOwner.has(ownerId)) domainsByOwner.set(ownerId, new Set());
+    domainsByOwner.get(ownerId)!.add(String(domain).toLowerCase());
+  };
   try {
-    const { data: dd } = await getDb().from(DEALS).select("domain_owner_id").in("domain_owner_id", ids);
-    for (const r of (dd as { domain_owner_id: string | null }[]) || []) if (r.domain_owner_id) counts[r.domain_owner_id] = (counts[r.domain_owner_id] || 0) + 1;
-  } catch { /* count is best-effort */ }
-  return owners.map((o) => ({ ...o, deal_count: counts[o.id] || 0 }));
+    const { data: dd } = await getDb().from(DEALS).select("domain_owner_id,domain").in("domain_owner_id", ids);
+    for (const r of (dd as { domain_owner_id: string | null; domain: string | null }[]) || []) add(r.domain_owner_id, r.domain);
+  } catch { /* best-effort */ }
+  try {
+    const { data: cc } = await getDb().from("owner_review_cards").select("domain,deal_owner_id").in("deal_owner_id", ids).eq("status", "confirmed");
+    for (const r of (cc as { domain: string | null; deal_owner_id: string | null }[]) || []) add(r.deal_owner_id, r.domain);
+  } catch { /* owner_review_cards may not exist yet — best-effort */ }
+  return owners.map((o) => { const set = domainsByOwner.get(o.id) || new Set<string>(); return { ...o, deal_count: set.size, domains: [...set].sort() }; });
 }
 
 export async function getOwner(id: string): Promise<DealOwner | null> {
@@ -101,6 +112,18 @@ export async function ownerDeals(id: string): Promise<OwnerDeal[]> {
     .eq("domain_owner_id", id).order("updated_at", { ascending: false });
   if (error) return [];
   return (data as OwnerDeal[]) || [];
+}
+
+// Confirmed Owner Review acquisitions for this owner (Master-Txn names we bought from them) that
+// aren't already a buy-side deal — so the detail shows every name even without a `deals` row.
+export async function ownerAcquisitions(id: string, excludeDomains: string[] = []): Promise<{ domain: string; date: string | null; price: string | null }[]> {
+  const skip = new Set(excludeDomains.map((d) => d.toLowerCase()));
+  try {
+    const { data } = await getDb().from("owner_review_cards").select("domain,txn_date,txn_price").eq("deal_owner_id", id).eq("status", "confirmed");
+    return ((data as { domain: string; txn_date: string | null; txn_price: string | null }[]) || [])
+      .filter((r) => r.domain && !skip.has(r.domain.toLowerCase()))
+      .map((r) => ({ domain: r.domain, date: r.txn_date, price: r.txn_price }));
+  } catch { return []; }
 }
 
 // Find an existing owner by any shared email (strongest), else by exact (case-insensitive)
