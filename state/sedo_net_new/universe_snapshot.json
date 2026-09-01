@@ -1,26 +1,18 @@
 [
   {
-    "domain": "abclite.com",
-    "price": 3983.0
-  },
-  {
-    "domain": "scrapalot.com",
-    "price": 238526.0
-  },
-  {
     "domain": "thighland.com",
     "price": 199.0
   },
   {
-    "domain": "petrie.ai",
-    "price": 98995.0
-  },
-  {
-    "domain": "sauce.ai",
-    "price": 295000.0
-  },
-  {
     "domain": "westlea.net",
     "price": 199.0
+  },
+  {
+    "domain": "flared.net",
+    "price": 395.0
+  },
+  {
+    "domain": "sensitive.co",
+    "price": null
   }
 ]
