@@ -1,20 +1,11 @@
 [
   {
-    "bid_count": 6,
-    "domain": "orvits.com",
-    "end_time_utc": "2026-08-31T15:00:00+00:00",
-    "is_mub": true,
-    "link": "https://www.namesilo.com/auctions/orvits.com",
-    "platform": "NameSilo",
-    "price": 6.0
-  },
-  {
-    "bid_count": 6,
-    "domain": "lele.co",
-    "end_time_utc": "2026-08-31T15:00:00+00:00",
+    "bid_count": 5,
+    "domain": "tnu.co",
+    "end_time_utc": "2026-09-02T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/lele.co",
+    "link": "https://www.namesilo.com/auctions/tnu.co",
     "platform": "NameSilo",
-    "price": 333.0
+    "price": 22.0
   }
 ]

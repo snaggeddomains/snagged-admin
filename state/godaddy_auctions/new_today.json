@@ -1,18 +1,24 @@
 {
   "capped": false,
-  "count": 9,
+  "count": 12,
   "domains": [
-    "bhonest.com",
-    "yanne.com",
-    "klopp.org",
-    "arises.co",
-    "giggle.io",
-    "pingr.com",
-    "allocated.co",
-    "tuwd.com",
-    "xmugs.com"
+    "neva.co",
+    "feight.com",
+    "sapo.net",
+    "abit.com",
+    "nanob.com",
+    "taqo.com",
+    "indoors.co",
+    "novice.co",
+    "nilx.com",
+    "thumbs.net",
+    "umo.co",
+    "upu.co"
   ],
-  "generated_at": "2026-08-31T09:55:53.899025+00:00",
-  "mub": [],
+  "generated_at": "2026-09-01T10:14:38.305993+00:00",
+  "mub": [
+    "neva.co",
+    "sapo.net"
+  ],
   "source": "godaddy_auctions"
 }

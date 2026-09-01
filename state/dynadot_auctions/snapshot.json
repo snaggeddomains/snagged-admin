@@ -1,38 +1,11 @@
 [
   {
     "bid_count": 6,
-    "domain": "bbonfire.com",
-    "end_time_utc": "2026-08-31T13:14:53+00:00",
+    "domain": "prpal.com",
+    "end_time_utc": "2026-09-01T19:58:13+00:00",
     "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/43259005.html",
+    "link": "https://www.dynadot.com/market/auction/43285208.html",
     "platform": "Dynadot",
-    "price": 52.57
-  },
-  {
-    "bid_count": 6,
-    "domain": "lele.co",
-    "end_time_utc": "2026-08-31T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/42191576.html",
-    "platform": "Dynadot",
-    "price": 333.0
-  },
-  {
-    "bid_count": 6,
-    "domain": "orvits.com",
-    "end_time_utc": "2026-08-31T15:00:00+00:00",
-    "is_mub": true,
-    "link": "https://www.dynadot.com/market/auction/42191552.html",
-    "platform": "Dynadot",
-    "price": 6.0
-  },
-  {
-    "bid_count": 21,
-    "domain": "henre.com",
-    "end_time_utc": "2026-08-31T20:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.dynadot.com/market/auction/42928087.html",
-    "platform": "Dynadot",
-    "price": 25.68
+    "price": 305.0
   }
 ]

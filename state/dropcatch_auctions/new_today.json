@@ -2,13 +2,13 @@
   "capped": false,
   "count": 5,
   "domains": [
-    "rallie.com",
-    "wpage.com",
-    "canax.com",
     "kiver.com",
-    "inhd.com"
+    "phap.org",
+    "msfa.net",
+    "inhd.com",
+    "macha.com"
   ],
-  "generated_at": "2026-08-31T09:55:16.663165+00:00",
+  "generated_at": "2026-09-01T10:13:56.316840+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }
