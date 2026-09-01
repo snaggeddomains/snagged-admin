@@ -49,12 +49,34 @@ a bell + email**; **only Rob** (admin / `admin.feedback.manage`) sees + manages 
 - **API** `app/api/feedback/route.ts` (GET `?scope=mine|all` — non-managers forced to `mine`; POST any
   auth user) + `[id]/route.ts` (PATCH status/notes, gated `admin.feedback.manage`).
 - **UI** `app/feedback/{page,feedback-client}.tsx` — a standalone page (own TopBar, not in a section):
-  submit form (area + type + title + details) + "Your requests"; Rob also gets a **Full queue** toggle
-  with status filter/search + inline status + notes. TopBar 💡 link (`app/top-bar.tsx`) opens it.
-- **Permission** `admin.feedback.manage` (ACTION, group Admin) gates the queue + PATCH; submitting needs
-  only auth. Rob passes via is_admin. **Setup:** run `scripts/feature_requests.sql` on the main project.
-  No new env (reuses the notifications table + `sendEmail`). Research-SPA-only users can't reach it yet
-  (admin-app page) — a research nav link is a possible follow-up.
+  submit form (area + type + title + details) + the list. TopBar 💡 link (`app/top-bar.tsx`) opens it.
+  **Manager view is the whole queue, no Mine/Full-queue toggle (2026-09-01)** — for Rob there's no
+  meaningful "mine", so the toggle is gone; the role decides the set server-side (never sends `scope`:
+  a manager gets the full queue with the status filter + search shown; everyone else gets their own
+  submissions + threads they've joined). Each row shows the **submitter prominently** (colored initials
+  avatar + big name + date) for a manager. `statusF` default `all`.
+- **Clarification thread — comments + @mention tagging (2026-09-01).** Every ticket has an expandable
+  💬 thread (like the deal comment module) so questions can be sorted out as requests come in. Table
+  **`feature_request_comments`** (request_id FK cascade, author_email/name, body, `mentions text[]`,
+  created_at + index + RLS — in the same `feature_requests.sql`). `lib/feedback.ts`: `listComments`,
+  `addComment({body,mentions}, author)` (→ `notifyFeedbackComment`: tagged teammates get a stronger
+  "tagged you" bell+email, every other **participant** — submitter + Rob + past commenters/mentioned —
+  is kept in the loop, minus the author), `participantTicketIds(email)` (tickets a user commented on
+  OR was tagged in), `getFeedback`. **`listFeedback` mine-scope now UNIONs the user's own submissions
+  with tickets they've joined** (so a tagged teammate/commenter sees the ticket in their list without
+  being the submitter), and attaches a **`comment_count`** per row. `@mention pool = assignableUsers()`
+  (deals.assignable), returned as `assignees` on the main `/api/feedback` GET. API
+  `app/api/feedback/[id]/comments/route.ts` (GET+POST, access = manager || submitter || participant).
+  A comment notification links `/feedback?ticket=<id>` → the client auto-expands that thread. All
+  comment reads/writes fail-soft on the missing table (thread just doesn't show pre-migration).
+- **Permission** `admin.feedback.manage` (ACTION, group Admin) gates the queue + PATCH; submitting +
+  commenting need only auth (+ thread access). Rob passes via is_admin. **Setup:** run
+  `scripts/feature_requests.sql` on the **`domain-owner-research`** project (the PRODUCTION one with the
+  other `domain_research_*` tables — NOT snagged-naming-universe) —
+  https://github.com/snaggeddomains/snagged-admin/blob/main/dashboard/scripts/feature_requests.sql —
+  it's idempotent, so re-run it to add the `feature_request_comments` table. No new env (reuses the
+  notifications table + `sendEmail`). Research-SPA-only users can't reach it yet (admin-app page) — a
+  research nav link is a possible follow-up.
 
 # Memory cadence (READ FIRST) — commit CLAUDE.md with the code
 

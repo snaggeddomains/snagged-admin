@@ -18,6 +18,19 @@ create table if not exists feature_requests (
 );
 -- (attachments added after first ship — safe to re-run.)
 alter table feature_requests add column if not exists attachments jsonb;
+
+-- Clarification thread on each ticket (like deal comments): submitter ↔ Rob ↔ tagged teammates.
+create table if not exists feature_request_comments (
+  id           uuid primary key default gen_random_uuid(),
+  request_id   uuid not null references feature_requests(id) on delete cascade,
+  author_email text,
+  author_name  text,
+  body         text,
+  mentions     text[],          -- tagged teammate emails (lowercased)
+  created_at   timestamptz not null default now()
+);
+create index if not exists idx_frc_request on feature_request_comments (request_id, created_at);
+alter table feature_request_comments enable row level security;
 create index if not exists idx_feature_requests_status on feature_requests (status, created_at desc);
 create index if not exists idx_feature_requests_submitter on feature_requests (submitted_by, created_at desc);
 alter table feature_requests enable row level security;

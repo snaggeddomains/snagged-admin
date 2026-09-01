@@ -7,6 +7,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { canAdmin } from "@/lib/permissions";
 import { feedbackConfigured, listFeedback, createFeedback, feedbackModules } from "@/lib/feedback";
+import { assignableUsers } from "@/lib/deals/assignees";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,15 +17,16 @@ export async function GET(req: NextRequest) {
   const me = await getCurrentUser();
   if (!me) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   const canManage = canAdmin(me, "admin.feedback.manage");
-  if (!feedbackConfigured()) return NextResponse.json({ ok: true, configured: false, items: [], canManage, modules: feedbackModules(), me: me.email });
+  const assignees = await assignableUsers().catch(() => []);   // @mention pool for the clarification threads
+  if (!feedbackConfigured()) return NextResponse.json({ ok: true, configured: false, items: [], canManage, modules: feedbackModules(), assignees, me: me.email });
   const url = new URL(req.url);
   const scope = url.searchParams.get("scope") || (canManage ? "all" : "mine");
   try {
-    // Only Rob sees the whole queue; everyone else is forced to their own submissions.
+    // Only Rob sees the whole queue; everyone else sees their own submissions + threads they've joined.
     const items = scope === "all" && canManage
       ? await listFeedback({ status: url.searchParams.get("status") || undefined, q: url.searchParams.get("q") || undefined })
       : await listFeedback({ mine: me.email });
-    return NextResponse.json({ ok: true, configured: true, items, canManage, modules: feedbackModules(), me: me.email });
+    return NextResponse.json({ ok: true, configured: true, items, canManage, modules: feedbackModules(), assignees, me: me.email });
   } catch (e) {
     return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
   }
