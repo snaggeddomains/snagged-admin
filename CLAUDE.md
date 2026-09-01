@@ -420,13 +420,24 @@ miner over all 477 txns is also Increment 2).
 - **Why human-confirm:** direction (buyer vs seller) can only be read from the thread. Calibration
   proved 3 outcomes — a direct seller found (~1/3), broker/escrow-hidden (owner not in email),
   or auction/registration/inbound-sale where only the BUYER is in email. So each card is
-  Confirm / Edit-then-confirm / Reject (not a real seller) / Skip. **netz.com gotcha:** Uzi was
-  the BUYER, not the seller — the heuristic that only saw escrow.com got it backwards; direction
-  matters, hence the manual gate.
+  Confirm / Edit-then-confirm / Reject (not a real seller) / Skip (decide later) / **Dismiss** (not
+  worth logging an owner — set aside; all non-confirm terminals are reopenable). **netz.com gotcha:**
+  Uzi was the BUYER, not the seller — the heuristic that only saw escrow.com got it backwards;
+  direction matters, hence the manual gate.
+- **FULL name (first + last) from the thread headers.** The seller's full name comes from the
+  Gmail From/To display name (`"Marc Hadfield <marc@vital.ai>"`), not just the greeting first name —
+  the seed cards were patched from the real headers (harbor.ai → **Marc Hadfield**; a generic role
+  account like `domainnetcontact@gmail.com` → left name-blank). Increment 2's miner extracts first+last
+  the same way at scale. The reviewer can **edit the name + all contact fields inline** (✎ Edit) before
+  confirming — the edited values persist on the card AND flow into the Owner DB (`candidate_name` = the
+  full name written as the owner's `name`).
+- **UI = ONE card at a time** (Rob's call): a single large centered card with a `N of M` counter +
+  ← Prev / Next → nav; Confirm/Reject/Skip/Dismiss advance to the next card, so it's a clean triage flow
+  (not a grid).
 - **Data** (`dashboard/scripts/owner_review.sql`, run once on the **main** project —
   https://github.com/snaggeddomains/snagged-admin/blob/main/dashboard/scripts/owner_review.sql):
   `owner_review_cards` (domain unique(lower), txn_date/price, candidate_name/first_name/email/phone,
-  channel, buyer_context, confidence, evidence, notes, status pending|confirmed|rejected|skipped,
+  channel, buyer_context, confidence, evidence, notes, status pending|confirmed|rejected|skipped|dismissed,
   assigned_to (per-card reviewer email), reviewed_by/at, deal_owner_id → deal_owners on delete set
   null, source). RLS enabled. **Seeded with the 15 calibrated cards** (`on conflict do nothing`),
   assigned per-card to whoever was most active in the thread. Grant nothing new — gated by `deals`.

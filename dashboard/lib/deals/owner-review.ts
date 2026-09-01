@@ -12,7 +12,7 @@ import { findOwner, createOwner, updateOwner, type OwnerInput } from "./owners";
 const CARDS = "owner_review_cards";
 const DEALS = "deals";
 
-export type OwnerReviewStatus = "pending" | "confirmed" | "rejected" | "skipped";
+export type OwnerReviewStatus = "pending" | "confirmed" | "rejected" | "skipped" | "dismissed";
 
 export type OwnerReviewCard = {
   id: string;
@@ -99,8 +99,9 @@ export async function updateCard(id: string, patch: Record<string, unknown>, by:
   return data as OwnerReviewCard;
 }
 
-// Terminal status without a confirm — reject (not a real seller / can't determine) or skip (later).
-export async function setCardStatus(id: string, status: "rejected" | "skipped" | "pending", by: string | null): Promise<OwnerReviewCard> {
+// Terminal status without a confirm — reject (not a real seller / can't determine), skip (decide
+// later), or dismiss (not worth logging an owner — set aside). All are reopenable.
+export async function setCardStatus(id: string, status: "rejected" | "skipped" | "dismissed" | "pending", by: string | null): Promise<OwnerReviewCard> {
   const update: Record<string, unknown> = {
     status,
     updated_at: new Date().toISOString(),

@@ -42,6 +42,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         return NextResponse.json({ ok: true, card: await setCardStatus(id, "rejected", me!.email) });
       case "skip":
         return NextResponse.json({ ok: true, card: await setCardStatus(id, "skipped", me!.email) });
+      case "dismiss":
+        return NextResponse.json({ ok: true, card: await setCardStatus(id, "dismissed", me!.email) });
       case "reopen":
         return NextResponse.json({ ok: true, card: await setCardStatus(id, "pending", me!.email) });
       case "reassign":

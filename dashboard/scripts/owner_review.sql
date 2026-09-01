@@ -17,7 +17,7 @@ create table if not exists owner_review_cards (
   confidence           text,           -- high | medium | low | none | broker
   evidence             text,           -- short human-readable note / thread evidence
   notes                text,           -- reviewer's free-text note
-  status               text not null default 'pending',  -- pending | confirmed | rejected | skipped
+  status               text not null default 'pending',  -- pending | confirmed | rejected | skipped | dismissed
   assigned_to          text,           -- reviewer email (per-card assignment)
   reviewed_by          text,
   reviewed_at          timestamptz,
@@ -39,7 +39,7 @@ values
   ('agentnative.com','8/28/2026','$28,000','','','','','Spaceship aftermarket','','broker','Bought via Spaceship aftermarket; owner not named.','rob@snagged.com'),
   ('tryscope.com','8/28/2026','$2,898','','','','','Inbound sale (no acquisition thread)','Anand Pajaniradjane <anand@tryscope.app>','none','Only the BUYER is in email (Anand bought FROM us); no seller/acquisition thread.','rob@snagged.com'),
   ('lfg.ai','8/27/2026','$50,000','Rick Latona','Rick','rick@giantpanda.com','','Direct','','high','Rick Latona (domain investor) — direct seller.','rob@snagged.com'),
-  ('harbor.ai','8/26/2026','$80,000','Marc (Vital.ai)','Marc','marc@vital.ai','','Escrow.com','Ghalib Suleiman <ghalib@polytomic.com> (inquired)','high','Seller Marc @vital.ai via Escrow; a separate buyer also inquired.','rob@snagged.com'),
+  ('harbor.ai','8/26/2026','$80,000','Marc Hadfield','Marc','marc@vital.ai','','Escrow.com','Ghalib Suleiman <ghalib@polytomic.com> (inquired)','high','Seller Marc Hadfield (Vital.ai) via Escrow; a separate buyer also inquired.','rob@snagged.com'),
   ('netz.com','8/25/2026','$52,200','','','','','Escrow.com','Uzi Dan Pagirsky <uzi@acentecom.com> (BUYER)','none','Uzi is the BUYER, not the seller; the seller is escrow-hidden.','sam@snagged.com'),
   ('booko.com','8/24/2026','$35,000','','','','','GoDaddy','Arjun Saluja <arjun@bookoapp.com>','broker','Via GoDaddy broker (owner not named; "done several deals w/ this owner").','rob@snagged.com'),
   ('abortion.org','8/24/2026','$76,100','','','','','DropCatch auction','Daniel Nall / ineedana.com <eng@ateam.tech>','none','Caught at a DropCatch drop auction — no prior owner.','rob@snagged.com'),
