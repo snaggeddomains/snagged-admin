@@ -180,7 +180,7 @@ function ReviewCard({ card, reviewers, onDone, onRefresh }: { card: Card; review
             <div style={{ fontWeight: 700, color: "var(--navy,#254254)", fontSize: 17 }}>{fullName(card)}</div>
           ) : <div className="muted" style={{ fontStyle: "italic" }}>No candidate seller named</div>}
           {card.candidate_email && <div style={{ color: "var(--navy-2,#4a5b66)", marginTop: 4 }}>✉ {card.candidate_email}</div>}
-          {card.status === "pending" && !editing && card.candidate_email && !(card.candidate_last_name || "").trim() && (
+          {card.status !== "confirmed" && !editing && card.candidate_email && !(card.candidate_last_name || "").trim() && (
             <button style={{ ...btn, marginTop: 8, fontSize: 12.5, padding: "5px 11px" }} disabled={!!busy} onClick={() => act("resolve_name")} title="Read the seller's full name from the deal-mailbox thread headers">{busy === "resolve_name" ? "…" : "⤓ Pull full name from email"}</button>
           )}
           {card.candidate_phone && <div style={{ color: "var(--navy-2,#4a5b66)", marginTop: 3 }}>☎ {card.candidate_phone}</div>}
