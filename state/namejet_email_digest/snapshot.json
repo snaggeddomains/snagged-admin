@@ -1,13 +1,5 @@
 [
   {
-    "domain": "corals.org",
-    "end_time_utc": "2026-09-03T01:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namejet.com/domain/corals.org.action",
-    "platform": "NameJet",
-    "price": 69.0
-  },
-  {
     "domain": "lacrosse.org",
     "end_time_utc": "2026-09-02T01:00:00+00:00",
     "is_mub": false,
@@ -16,11 +8,11 @@
     "price": 69.0
   },
   {
-    "domain": "antagonists.org",
-    "end_time_utc": "2026-09-02T01:00:00+00:00",
+    "domain": "crushing.org",
+    "end_time_utc": "2026-09-01T09:15:00+00:00",
     "is_mub": false,
-    "link": "https://www.namejet.com/domain/antagonists.org.action",
+    "link": "https://www.namejet.com/domain/crushing.org.action",
     "platform": "NameJet",
-    "price": 69.0
+    "price": 79.0
   }
 ]
