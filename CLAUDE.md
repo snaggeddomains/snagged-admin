@@ -514,6 +514,22 @@ miner over all 477 txns is also Increment 2).
   named-row name corrections re-apply on re-run; the correction guard is `status <> 'confirmed'` so a
   skipped/dismissed card still gets fixed). No new permission. `ANTHROPIC_API_KEY` (admin) unlocks the miner.
 
+## Known-owner match for the Domain Owner report (2026-09-01)
+
+"Have we worked with this owner before?" — surfaced as a banner on the research **Domain Owner
+report** (free + full pass) so we lead with the relationship. Cross-app: the report is in research,
+`deal_owners` is here.
+- **Matcher** `lib/deals/owner-match.ts` `matchOwnersForResearch({domain,email,name})` → `OwnerMatch[]`
+  with the owner + **domains closed with them** (union of `deals` + confirmed `owner_review_cards`) +
+  the Snagged **point(s) of contact** (deals.owner_email + card.reviewed_by/assigned_to → display
+  names) + a `/deals/owners/<id>` link + `matched_by`. Precedence: exact **domain** (a deal or a
+  confirmed card for this name) > **email** overlap on `deal_owners.emails` > exact specific **name**.
+  Fail-soft (missing table/column → no match).
+- **Endpoint** `app/api/internal/owner-match/route.ts` (x-internal-secret == RESEARCH_INTERNAL_SECRET):
+  `GET ?domain=&email=&name=` → `{ok, owners}`. Fail-soft to `owners:[]` so it never breaks the report.
+  Research side: `api/owner-known.js` + the `#owner-known` banner (see research CLAUDE.md).
+- **No new table/env** — reuses `deal_owners` + `owner_review_cards` + `RESEARCH_INTERNAL_SECRET`.
+
 **Email-cron heartbeat.** Rob couldn't tell if the hourly `deal-emails` cron was actually
 firing (manual "Pull emails" always worked). Added `cron_heartbeats` (name pk, last_run_at,
 last_result) + `lib/cron-heartbeat.ts` (`recordHeartbeat`/`getHeartbeat`, best-effort). The
