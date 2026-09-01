@@ -1813,6 +1813,16 @@ keep that list in sync with the admin nav tab arrays. Verify from every section,
 Same permission gating as the page. (2026-09-01 audit added Feedback + Ahrefs/My Tasks/Owner Review/
 SNAP Opportunities/SNAP Names coverage across both palettes; admin `extraDests` added.)
 
+**…AND must carry the STANDARD HEADER (Rob, 2026-09-01).** Same standing rule extends to chrome: every new
+module/submodule/standalone page — on research OR admin — must show the same top-of-page header controls as
+every other module: the **back / refresh / share** icons, the **💡 Feedback** link, the **🔔 notifications**
+bell, and the **account avatar** (plus the top-level section switcher). In the admin app a page that renders
+inside `SectionChrome`/`TopBar` gets these automatically; a STANDALONE page (its own `<TopBar>`, like
+`/feedback`) must still get them — `NavControls` renders on section pages AND on `/feedback`, so extend that
+allow-list when you add another standalone page. In the research SPA the same header (`.topbar` + the PWA
+back/refresh/share + 💡 + bell + avatar) must be present. A module you can't ⌘K-to from everywhere, that
+isn't on the menus, OR that's missing the standard header icons isn't finished.
+
 **Corporate Portfolios → Reports (2026-06-28):** added the missing `research.portfolio`
 module key (MODULES + CATALOG, group Reports) and put Corporate Portfolios
 (`/research/portfolio`, a research-app page) in `REPORTS_TABS`. `canEnterReports` now
