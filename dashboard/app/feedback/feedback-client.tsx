@@ -45,7 +45,7 @@ export default function FeedbackClient() {
   const [data, setData] = useState<Resp | null>(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
-  const [statusF, setStatusF] = useState("all");
+  const [statusF, setStatusF] = useState("open");
   const [q, setQ] = useState("");
   const [openTicket, setOpenTicket] = useState<string | null>(null);
   useEffect(() => { try { setOpenTicket(new URLSearchParams(window.location.search).get("ticket")); } catch { /* ignore */ } }, []);
