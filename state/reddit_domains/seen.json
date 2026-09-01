@@ -1,5 +1,5 @@
 {
-  "count": 53,
+  "count": 54,
   "domains": [
     "039.org",
     "0801.org",
@@ -10,6 +10,7 @@
     "apartments.com",
     "appraise.net",
     "bar.com",
+    "beautiful.ai",
     "beverley.co",
     "bur.ai",
     "dada.com",
@@ -56,5 +57,5 @@
     "wordpress.com"
   ],
   "source": "reddit_domains",
-  "updated_at": "2026-09-01T17:00:50.414606+00:00"
+  "updated_at": "2026-09-01T23:03:33.396346+00:00"
 }
