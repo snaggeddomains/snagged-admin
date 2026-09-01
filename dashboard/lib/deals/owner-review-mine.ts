@@ -98,15 +98,21 @@ function transcript(domain: string, msgs: GmailMessage[]): string {
 }
 
 // Gather the acquisition-relevant messages for a domain across the deal mailboxes (deduped by mid).
-async function gatherMessages(domain: string, perMailbox = 8): Promise<GmailMessage[]> {
+// Bounded by a GLOBAL fetch cap (not just per-mailbox) so one domain never balloons into dozens of
+// full-message reads — keeps a mine batch well under the function budget + easy on the Gmail quota.
+async function gatherMessages(domain: string, perMailbox = 6, maxFetch = 10): Promise<GmailMessage[]> {
   const seen = new Set<string>();
   const out: GmailMessage[] = [];
+  let fetched = 0;
   for (const mb of dealMailboxes()) {
+    if (fetched >= maxFetch) break;
     let stubs: { id: string; threadId: string }[] = [];
     try { stubs = await searchMessages(mb, `"${domain}"`, perMailbox); } catch { continue; }
     for (const s of stubs.slice(0, perMailbox)) {
+      if (fetched >= maxFetch) break;
       try {
         const m = await getMessage(mb, s.id);
+        fetched++;
         const key = m.mid || m.id;
         if (seen.has(key) || m.bulk) continue;   // skip dup + mass/marketing sends
         seen.add(key);
@@ -188,9 +194,10 @@ export type MineSummary = { scanned: number; created: number; existing: number; 
 
 // Bulk backfill: mine every Master Txn that doesn't already have a card, newest first. `dry` skips
 // writes. `limit` bounds a run (Gmail quota + the 300s route budget). Idempotent per domain.
-export async function mineAllTxns(opts: { limit?: number; dry?: boolean } = {}): Promise<MineSummary> {
-  const limit = opts.limit ?? 40;
+export async function mineAllTxns(opts: { limit?: number; dry?: boolean; assignTo?: string | null } = {}): Promise<MineSummary> {
+  const limit = opts.limit ?? 20;
   const dry = !!opts.dry;
+  const assignTo = opts.assignTo || null;   // new cards go to whoever ran the mine (button); cron → unassigned
   const sum: MineSummary = { scanned: 0, created: 0, existing: 0, skipped: 0, results: [] };
   if (!isDbConfigured()) return { ...sum, note: "DB not configured" };
   // HARD GUARD: without the LLM key the miner can't determine the seller/direction, so it would
@@ -211,7 +218,7 @@ export async function mineAllTxns(opts: { limit?: number; dry?: boolean } = {}):
       candidate_email: mined.email || null, candidate_phone: mined.phone || null,
       channel: mined.channel || null, buyer_context: mined.buyer_context || null,
       confidence: mined.confidence, evidence: mined.evidence || null, source: "txn",
-    });
+    }, assignTo);
     if (card) { sum.created++; sum.results.push({ domain: t.domain, created: true, confidence: mined.confidence, name }); }
     else sum.skipped++;
   }

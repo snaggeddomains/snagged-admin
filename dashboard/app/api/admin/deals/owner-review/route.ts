@@ -29,10 +29,12 @@ export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   try {
     const status = (url.searchParams.get("status") || "pending") as OwnerReviewStatus | "all";
+    // scope: "mine" (me + unclaimed, default) · "all" (everyone) · "<email>" (a specific reviewer).
     const scope = url.searchParams.get("scope") || "mine";
     const cards = await listCards({
       status,
-      assigned_to: scope === "all" ? undefined : me!.email,
+      assigned_to: scope === "all" ? undefined : (scope === "mine" ? me!.email : scope),
+      include_unassigned: scope === "mine",
       q: url.searchParams.get("q") || undefined,
     });
     const [myPending, reviewers] = await Promise.all([countPending(me!.email), assignableUsers()]);

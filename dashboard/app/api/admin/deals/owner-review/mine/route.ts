@@ -20,7 +20,8 @@ export async function POST(req: NextRequest) {
   if (!me.is_admin && !userCanAction(me, "deals.all") && !userCan(me, "deals")) return NextResponse.json({ error: "No access" }, { status: 403 });
   const body = (await req.json().catch(() => ({}))) as { limit?: number; dry?: boolean };
   try {
-    const summary = await mineAllTxns({ limit: Math.min(Number(body.limit) || 40, 200), dry: !!body.dry });
+    // New cards are assigned to whoever clicked Mine, so they land in that person's "Assigned to me".
+    const summary = await mineAllTxns({ limit: Math.min(Number(body.limit) || 12, 60), dry: !!body.dry, assignTo: me.email });
     return NextResponse.json({ ok: true, ...summary });
   } catch (e) {
     return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });

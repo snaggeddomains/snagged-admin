@@ -51,7 +51,7 @@ export default function OwnerReviewClient() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
   const [status, setStatus] = useState("pending");
-  const [scope, setScope] = useState<"mine" | "all">("mine");
+  const [scope, setScope] = useState<string>("mine");   // "mine" (default) | "all" | a reviewer email
   const [q, setQ] = useState("");
   const [idx, setIdx] = useState(0);
   const [mining, setMining] = useState(false);
@@ -86,16 +86,23 @@ export default function OwnerReviewClient() {
   // Backfill the whole Master Txn list — mine each thread for the seller (one LLM batch per click,
   // bounded to fit the 300s route). Click again until "remaining" hits 0.
   const mine = async () => {
-    setMining(true); setMineMsg("Mining acquisition threads… (this batch may take a minute)");
+    setMining(true); setMineMsg("Mining acquisition threads… (a batch takes ~30–60s)");
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 150000);   // don't spin forever if the function runs long
     try {
-      const res = await fetch("/api/admin/deals/owner-review/mine", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ limit: 40 }) });
+      const res = await fetch("/api/admin/deals/owner-review/mine", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ limit: 12 }), signal: ctrl.signal });
       const j = await res.json();
       if (!res.ok || j.ok === false) throw new Error(j.error || `HTTP ${res.status}`);
       if (j.note) setMineMsg(`⚠️ ${j.note}`);
       else setMineMsg(`✓ Created ${j.created} card${j.created === 1 ? "" : "s"} · ${j.remaining ?? 0} still to mine${j.remaining ? " — click again to continue" : " · backlog complete 🎉"}`);
       await load();
-    } catch (e) { setMineMsg(`⚠️ ${String((e as Error)?.message || e)}`); }
-    finally { setMining(false); }
+    } catch (e) {
+      const msg = (e as Error)?.name === "AbortError"
+        ? "Still mining server-side — the batch is running; refresh in a minute to see new cards, then click again to continue."
+        : String((e as Error)?.message || e);
+      setMineMsg(`⚠️ ${msg}`);
+      await load().catch(() => {});
+    } finally { clearTimeout(timer); setMining(false); }
   };
 
   return (
@@ -117,8 +124,12 @@ export default function OwnerReviewClient() {
             style={{ ...chipBtn, ...(status === s.key ? { background: "var(--navy,#254254)", color: "#fff", borderColor: "var(--navy,#254254)" } : {}) }}>{s.label}</button>
         ))}
         <span style={{ width: 1, height: 18, background: "var(--line,#e3ddcf)", margin: "0 4px" }} />
-        <button style={{ ...chipBtn, ...(scope === "mine" ? { background: "var(--navy,#254254)", color: "#fff", borderColor: "var(--navy,#254254)" } : {}) }} onClick={() => setScope("mine")}>Assigned to me</button>
-        <button style={{ ...chipBtn, ...(scope === "all" ? { background: "var(--navy,#254254)", color: "#fff", borderColor: "var(--navy,#254254)" } : {}) }} onClick={() => setScope("all")}>Everyone</button>
+        <select value={scope} onChange={(e) => setScope(e.target.value)} title="Whose cards to show"
+          style={{ ...input, width: "auto", padding: "6px 8px", fontWeight: 600, background: scope === "mine" ? "var(--navy,#254254)" : "transparent", color: scope === "mine" ? "#fff" : "var(--navy,#254254)", borderColor: scope === "mine" ? "var(--navy,#254254)" : "var(--line,#e3ddcf)" }}>
+          <option value="mine">Assigned to me</option>
+          <option value="all">Everyone</option>
+          {(data?.reviewers || []).filter((r) => r.email !== data?.me).map((r) => <option key={r.email} value={r.email}>{r.name}</option>)}
+        </select>
         <input style={{ ...input, width: "auto", minWidth: 160, marginLeft: "auto" }} placeholder="Search domain / candidate…" value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") load(); }} />
         <button style={chipBtn} onClick={() => load()} disabled={loading}>{loading ? "…" : "↻"}</button>
       </div>

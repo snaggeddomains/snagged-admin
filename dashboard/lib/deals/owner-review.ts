@@ -55,12 +55,18 @@ const lc = (s: string) => s.toLowerCase();
 
 // List cards for the queue. Defaults to pending; `assigned_to` narrows to one reviewer's cards
 // (the banner + "mine" view). `q` filters by domain/candidate. Newest txn first.
-export async function listCards(opts: { assigned_to?: string; status?: OwnerReviewStatus | "all"; q?: string; limit?: number } = {}): Promise<OwnerReviewCard[]> {
+export async function listCards(opts: { assigned_to?: string; include_unassigned?: boolean; status?: OwnerReviewStatus | "all"; q?: string; limit?: number } = {}): Promise<OwnerReviewCard[]> {
   if (!isDbConfigured()) return [];
   let query = getDb().from(CARDS).select("*");
   const status = opts.status || "pending";
   if (status !== "all") query = query.eq("status", status);
-  if (opts.assigned_to) query = query.eq("assigned_to", lc(opts.assigned_to));
+  if (opts.assigned_to) {
+    // "Assigned to me" also surfaces UNCLAIMED cards (cron-mined ones land unassigned), so the
+    // default view is "mine + the shared backlog" rather than hiding freshly-mined cards.
+    query = opts.include_unassigned
+      ? query.or(`assigned_to.eq.${lc(opts.assigned_to)},assigned_to.is.null`)
+      : query.eq("assigned_to", lc(opts.assigned_to));
+  }
   if (opts.q && opts.q.trim()) { const like = `%${opts.q.trim()}%`; query = query.or(`domain.ilike.${like},candidate_name.ilike.${like},candidate_email.ilike.${like}`); }
   query = query.order("created_at", { ascending: false }).limit(Math.min(opts.limit ?? 500, 1000));
   const { data, error } = await query;

@@ -504,9 +504,15 @@ miner over all 477 txns is also Increment 2).
     "none" cards). `mineOwnerForDomain` also runs the deterministic `resolveNameFromThread` backstop when the LLM
     gives an email but no last name, so **every auto-created card carries first+last without a click**. API
     `POST /api/admin/deals/owner-review/mine {limit,dry}` (gated deals.all/admin) + a **"⛏ Mine backlog" button**
-    on the Owner Review page (shown when `canMine`; runs a 40-txn batch/click, shows created/remaining) +
-    **cron `/api/cron/owner-review-mine` daily `0 15 * * *`** (CRON_SECRET) that drains the ~460 backlog over
-    days AND picks up any NEW txn row as its own card.
+    on the Owner Review page (shown when `canMine`; runs a **12-txn** batch/click — client aborts at 150s so it
+    never hangs; shows created/remaining) + **cron `/api/cron/owner-review-mine` daily `0 15 * * *`** (CRON_SECRET)
+    that drains the ~460 backlog over days AND picks up any NEW txn row as its own card. `gatherMessages` is
+    globally capped (`maxFetch` 10 reads/domain) so a batch stays under the function budget + easy on Gmail quota.
+  - **Assignment + scope (2026-09-01, Rob).** Button-mined cards are **assigned to whoever clicked Mine**
+    (`mineAllTxns({assignTo})` → `me.email`); cron-mined cards land **unassigned**. The queue's scope is now a
+    **dropdown** (`scope` = "mine" default | "all" | a specific reviewer email), replacing the me/everyone
+    buttons. **"Assigned to me" also surfaces UNCLAIMED cards** (`listCards({include_unassigned})` → `.or(assigned_to.eq.me,assigned_to.is.null)`),
+    so cron-mined + any unassigned cards show in the default view instead of hiding under "Everyone".
   - **Setup:** needs `ANTHROPIC_API_KEY` in the ADMIN Vercel project (the miner runs there; the sandbox has no
     key). Reuses `GOOGLE_SA_KEY` (Gmail SA, deal mailboxes) + `SNAGGED_TRACKER_SHEET_ID` (both set). Run the
     backfill on demand via the mine endpoint, or let the daily cron accrue it.
