@@ -12,9 +12,12 @@ create table if not exists feature_requests (
   body               text,
   status             text not null default 'open',     -- open | planned | in_progress | shipped | declined
   admin_notes        text,            -- Rob's notes
+  attachments        jsonb,           -- screenshots [{url,name,type}] in the public deal-attachments bucket
   created_at         timestamptz not null default now(),
   updated_at         timestamptz not null default now()
 );
+-- (attachments added after first ship — safe to re-run.)
+alter table feature_requests add column if not exists attachments jsonb;
 create index if not exists idx_feature_requests_status on feature_requests (status, created_at desc);
 create index if not exists idx_feature_requests_submitter on feature_requests (submitted_by, created_at desc);
 alter table feature_requests enable row level security;

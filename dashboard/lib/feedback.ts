@@ -35,6 +35,7 @@ export type FeatureRequest = {
   body: string | null;
   status: string;
   admin_notes: string | null;
+  attachments: { url: string; name: string; type: string }[] | null;
   created_at: string;
   updated_at: string;
 };
@@ -62,13 +63,18 @@ function missingTable(err: unknown): boolean {
 }
 const clean = (v: unknown): string | null => { const s = String(v ?? "").trim(); return s || null; };
 
-export type CreateFeedbackInput = { module?: string; kind?: string; title: string; body?: string };
+export type CreateFeedbackInput = { module?: string; kind?: string; title: string; body?: string; attachments?: { url: string; name?: string; type?: string }[] };
 
 export async function createFeedback(input: CreateFeedbackInput, by: { email: string; name?: string | null }): Promise<FeatureRequest> {
   const title = clean(input.title);
   if (!title) throw new Error("A short title is required.");
   const kind = KINDS.some((k) => k.value === input.kind) ? String(input.kind) : "tweak";
-  const row = {
+  // Sanitize attachments: http(s) URLs only, ≤10.
+  const attachments = (Array.isArray(input.attachments) ? input.attachments : [])
+    .filter((a) => a && /^https?:\/\//i.test(String(a.url)))
+    .slice(0, 10)
+    .map((a) => ({ url: String(a.url), name: String(a.name || "image"), type: String(a.type || "") }));
+  const row: Record<string, unknown> = {
     submitted_by: (by.email || "").toLowerCase() || null,
     submitted_by_name: clean(by.name) || by.email || null,
     module: clean(input.module),
@@ -76,10 +82,16 @@ export async function createFeedback(input: CreateFeedbackInput, by: { email: st
     title,
     body: clean(input.body),
     status: "open",
+    attachments: attachments.length ? attachments : null,
   };
-  const { data, error } = await getDb().from(TABLE).insert(row).select("*").single();
-  if (error) throw new Error(`createFeedback: ${error.message}`);
-  const fr = data as FeatureRequest;
+  let ins = await getDb().from(TABLE).insert(row).select("*").single();
+  // Degrade gracefully if the attachments column isn't migrated yet.
+  if (ins.error && /attachments/i.test(ins.error.message || "")) {
+    delete row.attachments;
+    ins = await getDb().from(TABLE).insert(row).select("*").single();
+  }
+  if (ins.error) throw new Error(`createFeedback: ${ins.error.message}`);
+  const fr = ins.data as FeatureRequest;
   notifyRob(fr).catch(() => {});   // best-effort, never blocks the submit
   return fr;
 }

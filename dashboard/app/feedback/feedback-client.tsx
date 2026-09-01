@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState, type CSSProperties } from "react";
 type Item = {
   id: string; submitted_by: string | null; submitted_by_name: string | null;
   module: string | null; kind: string; title: string; body: string | null;
-  status: string; admin_notes: string | null; created_at: string; updated_at: string;
+  status: string; admin_notes: string | null; attachments: { url: string; name: string; type: string }[] | null; created_at: string; updated_at: string;
 };
 type Resp = { ok: boolean; configured?: boolean; items: Item[]; canManage: boolean; modules: string[]; me: string; error?: string };
 
@@ -102,30 +102,56 @@ export default function FeedbackClient() {
   );
 }
 
+type Att = { url: string; name: string; type: string };
 function SubmitForm({ modules, onSubmitted }: { modules: string[]; onSubmitted: () => void }) {
   const [f, setF] = useState({ module: "", kind: "tweak", title: "", body: "" });
+  const [atts, setAtts] = useState<Att[]>([]);
   const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const set = (k: string, v: string) => setF((s) => ({ ...s, [k]: v }));
+
+  const addFiles = async (files: FileList | File[] | null) => {
+    const imgs = Array.from(files || []).filter((f) => f.type.startsWith("image/"));
+    if (!imgs.length) return;
+    setUploading(true); setMsg(null);
+    for (const file of imgs.slice(0, 10)) {
+      try {
+        const fd = new FormData(); fd.append("file", file);
+        const res = await fetch("/api/feedback/upload", { method: "POST", body: fd });
+        const j = await res.json();
+        if (res.ok && j.attachment) setAtts((a) => [...a, j.attachment].slice(0, 10));
+        else setMsg(`⚠️ ${j.error || "upload failed"}`);
+      } catch { setMsg("⚠️ upload failed"); }
+    }
+    setUploading(false);
+  };
+
   const submit = async () => {
     if (!f.title.trim()) { setMsg("⚠️ Give it a short title."); return; }
     setBusy(true); setMsg(null);
     try {
-      const res = await fetch("/api/feedback", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(f) });
+      const res = await fetch("/api/feedback", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...f, attachments: atts }) });
       const j = await res.json();
       if (!res.ok || j.ok === false) throw new Error(j.error || `HTTP ${res.status}`);
       setMsg("✓ Logged — thanks! Rob's been notified.");
-      setF({ module: "", kind: "tweak", title: "", body: "" });
+      setF({ module: "", kind: "tweak", title: "", body: "" }); setAtts([]);
       onSubmitted();
     } catch (e) { setMsg(`⚠️ ${String((e as Error)?.message || e)}`); }
     finally { setBusy(false); }
   };
+
   return (
-    <div style={{ border: "1px solid var(--line,#e3ddcf)", borderRadius: 12, padding: "16px 18px", background: "var(--paper,#fff)", marginTop: 12 }}>
+    <div
+      style={{ border: "1px solid var(--line,#e3ddcf)", borderRadius: 12, padding: "16px 18px", background: "var(--paper,#fff)", marginTop: 12 }}
+      onPaste={(e) => { const files = Array.from(e.clipboardData?.files || []); if (files.length) { e.preventDefault(); addFiles(files); } }}
+      onDragOver={(e) => e.preventDefault()}
+      onDrop={(e) => { if (e.dataTransfer?.files?.length) { e.preventDefault(); addFiles(e.dataTransfer.files); } }}
+    >
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 14px" }}>
-        <div><label style={L}>Area / module</label>
+        <div><label style={L}>Area / module <span style={{ fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(optional)</span></label>
           <select style={input} value={f.module} onChange={(e) => set("module", e.target.value)}>
-            <option value="">— pick an area —</option>
+            <option value="">— pick an area (optional) —</option>
             {modules.map((m) => <option key={m} value={m}>{m}</option>)}
           </select></div>
         <div><label style={L}>Type</label>
@@ -136,9 +162,31 @@ function SubmitForm({ modules, onSubmitted }: { modules: string[]; onSubmitted: 
       <label style={L}>Title</label>
       <input style={input} value={f.title} onChange={(e) => set("title", e.target.value)} placeholder="One line — what do you want?" />
       <label style={L}>Details (optional)</label>
-      <textarea style={{ ...input, minHeight: 80, resize: "vertical" }} value={f.body} onChange={(e) => set("body", e.target.value)} placeholder="What should it do, why, an example…" />
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 12 }}>
-        <button style={btnPrimary} onClick={submit} disabled={busy || !f.title.trim()}>{busy ? "Sending…" : "Submit request"}</button>
+      <textarea style={{ ...input, minHeight: 80, resize: "vertical" }} value={f.body} onChange={(e) => set("body", e.target.value)} placeholder="What should it do, why, an example… (you can paste or drop a screenshot here)" />
+
+      <label style={L}>Screenshots (optional)</label>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        <label style={{ ...chip, cursor: "pointer" }}>
+          📎 Add image
+          <input type="file" accept="image/*" multiple hidden onChange={(e) => { addFiles(e.target.files); e.currentTarget.value = ""; }} />
+        </label>
+        <span style={{ fontSize: 12, color: "var(--muted,#8a94a0)" }}>{uploading ? "Uploading…" : "or paste / drop into this box"}</span>
+      </div>
+      {atts.length > 0 && (
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
+          {atts.map((a, i) => (
+            <span key={a.url} style={{ position: "relative", display: "inline-block" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={a.url} alt={a.name} style={{ width: 66, height: 66, objectFit: "cover", borderRadius: 8, border: "1px solid var(--line,#e3ddcf)" }} />
+              <button onClick={() => setAtts((s) => s.filter((_, j) => j !== i))} aria-label="Remove"
+                style={{ position: "absolute", top: -6, right: -6, width: 20, height: 20, borderRadius: "50%", border: "none", background: "var(--navy,#254254)", color: "#fff", cursor: "pointer", fontSize: 12, lineHeight: 1 }}>×</button>
+            </span>
+          ))}
+        </div>
+      )}
+
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 14 }}>
+        <button style={btnPrimary} onClick={submit} disabled={busy || uploading || !f.title.trim()}>{busy ? "Sending…" : "Submit request"}</button>
         {msg && <span style={{ fontSize: 13, color: msg.startsWith("✓") ? "#2f7d4f" : "#a83265" }}>{msg}</span>}
       </div>
     </div>
@@ -170,6 +218,16 @@ function Row({ it, canManage, onChanged }: { it: Item; canManage: boolean; onCha
         <span style={{ color: "var(--muted,#8a94a0)" }}>{KIND_LABEL[it.kind] || it.kind}</span>
       </div>
       {it.body && <div style={{ fontSize: 13.5, color: "var(--navy-2,#4a5b66)", marginTop: 6, whiteSpace: "pre-wrap" }}>{it.body}</div>}
+      {(it.attachments || []).length > 0 && (
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
+          {(it.attachments || []).map((a) => (
+            <a key={a.url} href={a.url} target="_blank" rel="noopener" title={a.name}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={a.url} alt={a.name} style={{ width: 88, height: 66, objectFit: "cover", borderRadius: 8, border: "1px solid var(--line,#e3ddcf)" }} />
+            </a>
+          ))}
+        </div>
+      )}
       <div style={{ fontSize: 11.5, color: "var(--muted,#8a94a0)", marginTop: 8 }}>
         {canManage && it.submitted_by_name ? `${it.submitted_by_name} · ` : ""}{when(it.created_at)}
       </div>

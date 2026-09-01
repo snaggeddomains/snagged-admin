@@ -33,9 +33,15 @@ RESEARCH_INTERNAL_SECRET` (same pattern as email-threads/sales-comps; `middlewar
 Any logged-in user can log a tweak/addition/new-module idea at **`/feedback`** (a 💡 link in the
 TopBar, visible to everyone); it lands in one queue. **On a new submission ONLY rob@snagged.com gets
 a bell + email**; **only Rob** (admin / `admin.feedback.manage`) sees + manages the whole queue.
-- **Data** (`scripts/feature_requests.sql`, MAIN project, run once): `feature_requests`
+- **Data** (`scripts/feature_requests.sql`, `domain-owner-research` project, run once): `feature_requests`
   (submitted_by/name, module, kind addition|tweak|new_module|bug|other, title, body, status
-  open|planned|in_progress|shipped|declined, admin_notes). RLS enabled. Fail-soft on missing table.
+  open|planned|in_progress|shipped|declined, admin_notes, **attachments jsonb**). RLS enabled. Fail-soft on missing table.
+- **Screenshots (2026-09-01).** The submit form takes image uploads — 📎 button, paste, or drag-drop into
+  the form/textarea. Uploaded via `POST /api/feedback/upload` (any auth user) → `uploadDealImage("feedback", …)`
+  (reuses the public `deal-attachments` bucket, image-only ≤10MB) → `{url,name,type}` stored in
+  `feature_requests.attachments`; thumbnails render on each queue row (click = full size). `createFeedback`
+  strip-and-retries the `attachments` column so it degrades pre-migration. **Area/module is OPTIONAL** (only
+  the title is required).
 - **Lib** `lib/feedback.ts`: `createFeedback` (→ `notifyRob`: bell via `createNotification` to rob@'s
   user id + email via `sendEmail` to rob@, both best-effort), `listFeedback({mine|status|q})`,
   `updateFeedback`, and **`feedbackModules()`** — the area picklist DERIVED from the nav tab registry
