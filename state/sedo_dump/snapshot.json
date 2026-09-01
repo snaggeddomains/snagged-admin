@@ -1,14 +1,14 @@
 {
   "crawl": {
     "current_partition": null,
-    "elapsed_sec": 14237.6,
+    "elapsed_sec": 12841.3,
     "failed_partitions": [],
-    "leaves_harvested": 240,
-    "leaves_truncated": 68,
-    "max_hits_total": 3102030,
-    "queries": 3117,
-    "request_count": 3117,
-    "rows_seen": 1447332,
+    "leaves_harvested": 235,
+    "leaves_truncated": 66,
+    "max_hits_total": 2951182,
+    "queries": 3075,
+    "request_count": 3075,
+    "rows_seen": 1424952,
     "stopped_early": null,
     "truncated_partitions": [
       "tld=xyz len=9-12 words=2-2 price=1000-5000",
@@ -27,7 +27,6 @@
       "tld=org len=9-12 words=2-2 price=1000-5000",
       "tld=org len=4-4 words=2-2 price=1000-5000",
       "tld=org len=9-12 words=2-2 price=0-100",
-      "tld=net len=13-\u221e words=2-2 price=1000-5000",
       "tld=net len=9-12 words=2-2 price=1000-5000",
       "tld=net len=8-8 words=2-2 price=1000-5000",
       "tld=net len=7-7 words=2-2 price=1000-5000",
@@ -46,7 +45,6 @@
       "tld=com len=9-12 words=2-2 price=5000-25000",
       "tld=com len=8-8 words=2-2 price=5000-25000",
       "tld=com len=7-7 words=2-2 price=5000-25000",
-      "tld=com len=6-6 words=2-2 price=5000-25000",
       "tld=com len=5-5 words=2-2 price=5000-25000",
       "tld=com len=4-4 words=2-2 price=5000-25000",
       "tld=com len=13-\u221e words=2-2 price=1000-5000",
@@ -81,8 +79,8 @@
       "tld=com len=1-3 words=1-1 price=0-100"
     ]
   },
-  "report_date": "2026-08-15",
+  "report_date": "2026-09-01",
   "status": "ok",
-  "unique_domains": 1216212,
-  "universe_qualifying": 443459
+  "unique_domains": 1197038,
+  "universe_qualifying": 436310
 }
