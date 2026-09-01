@@ -1763,6 +1763,18 @@ the search bar (the research SPA's boot handler consumes the flag; see that repo
 array (and update its CATALOG `group`). `sectionForPath` handles the URL→section
 mapping automatically.
 
+**⚠️ STANDING RULE — every new module/submodule must be uniformly navigable + ⌘K-enabled
+from ANYWHERE (Rob, 2026-09-01).** A new tool/report/tab/standalone page isn't done until it's
+reachable via ⌘K from BOTH apps. **Admin palette (`app/command-palette.tsx`)** derives from the nav
+tab arrays (`visibleSections × sectionTabs`), so putting the page in a tab array here auto-covers it;
+a STANDALONE/universal page (not a section tab) goes in that palette's **`extraDests()`** (e.g.
+Feedback, and the research tools not in `RESEARCH_TABS` — TLD Count/Renewal/Net Worth). **Research
+palette (`domain-owner-research public/app.js`)** DOM-scans its own nav-btns, but any cross-app or
+hidden destination needs a row in **`CMDK_CROSS_APP`** (use `section:'always'` for a universal page) —
+keep that list in sync with the admin nav tab arrays. Verify from every section, then it's shippable.
+Same permission gating as the page. (2026-09-01 audit added Feedback + Ahrefs/My Tasks/Owner Review/
+SNAP Opportunities/SNAP Names coverage across both palettes; admin `extraDests` added.)
+
 **Corporate Portfolios → Reports (2026-06-28):** added the missing `research.portfolio`
 module key (MODULES + CATALOG, group Reports) and put Corporate Portfolios
 (`/research/portfolio`, a research-app page) in `REPORTS_TABS`. `canEnterReports` now

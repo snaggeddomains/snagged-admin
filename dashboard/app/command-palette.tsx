@@ -8,10 +8,24 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
-import { type AppUser } from "@/lib/permissions";
+import { type AppUser, isGranted } from "@/lib/permissions";
 import { visibleSections, sectionTabs } from "@/lib/navigation";
 
 type Dest = { label: string; href: string };
+
+// Destinations that are NOT section tabs (so the registry-driven list above can't include them):
+// the universal Feedback page + a few research tools that live in the research SPA but aren't in
+// RESEARCH_TABS. Kept here so ⌘K reaches EVERYTHING from the admin app too. Gated per perm; Feedback
+// is universal. STANDING RULE: any new module/submodule must be reachable here — put it in a nav tab
+// array (auto-covered) or add it below if it's a standalone/universal page.
+function extraDests(user: AppUser): Dest[] {
+  const has = (k: string) => user.is_admin || isGranted(user.permissions, k);
+  const out: Dest[] = [{ label: "Feedback & feature requests", href: "/feedback" }]; // universal
+  if (has("domain_owner") || has("evaluate")) out.push({ label: "Research · TLD Count", href: "/research/tld-count" });
+  if (has("evaluate") || has("domain_owner")) out.push({ label: "Research · Renewal Price", href: "/research/renewal" });
+  if (has("person")) out.push({ label: "Research · Net Worth", href: "/research/networth" });
+  return out;
+}
 
 // exact-prefix > word-prefix > substring > subsequence (matches the research palette).
 function score(label: string, q: string): number {
@@ -42,6 +56,7 @@ export default function CommandPalette({ user }: { user: AppUser }) {
       add(s.label, s.href);
       for (const t of sectionTabs(user, s.key)) add(`${s.label} · ${t.label}`, t.href);
     }
+    for (const e of extraDests(user)) if (!seen.has(e.href)) { seen.add(e.href); out.push(e); }
     return out;
   }, [user]);
 
