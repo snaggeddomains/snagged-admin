@@ -420,10 +420,18 @@ miner over all 477 txns is also Increment 2).
 - **Why human-confirm:** direction (buyer vs seller) can only be read from the thread. Calibration
   proved 3 outcomes — a direct seller found (~1/3), broker/escrow-hidden (owner not in email),
   or auction/registration/inbound-sale where only the BUYER is in email. So each card is
-  Confirm / Edit-then-confirm / Reject (not a real seller) / Skip (decide later) / **Dismiss** (not
-  worth logging an owner — set aside; all non-confirm terminals are reopenable). **netz.com gotcha:**
-  Uzi was the BUYER, not the seller — the heuristic that only saw escrow.com got it backwards;
-  direction matters, hence the manual gate.
+  Confirm / Edit-then-confirm / Reject (surfaced candidate is WRONG) / Skip (decide later) /
+  **Dismiss** (all non-confirm terminals reopenable). **netz.com gotcha:** Uzi was the BUYER, not
+  the seller — the heuristic that only saw escrow.com got it backwards; direction matters, hence the
+  manual gate.
+- **The whole point is a DB of ACTUAL owners (Rob).** When we bought through a broker / marketplace /
+  auction / registration (GoDaddy, Spaceship, Afternic, Sedo, Escrow, DropCatch auction, a
+  registration…) there's genuinely no owner to record → **Dismiss** is the right call, NOT Confirm.
+  The client's `isNoOwner(card)` (no candidate surfaced AND (confidence broker/none OR the channel
+  matches `NO_OWNER_CHANNEL`)) makes **Dismiss the PRIMARY (purple) button** on those cards + shows a
+  hint bar ("no actual owner to record — we only log real sellers"), and de-emphasizes Confirm.
+  **Reject** is reserved for a mis-identified candidate (e.g. the buyer named as the seller); **Dismiss**
+  is "no real owner exists here." A real named seller on the card → it's a normal Confirm card again.
 - **FULL name (first + last) from the thread headers.** The seller's full name comes from the
   Gmail From/To display name (`"Marc Hadfield <marc@vital.ai>"`), not just the greeting first name —
   the seed cards were patched from the real headers (harbor.ai → **Marc Hadfield**; a generic role

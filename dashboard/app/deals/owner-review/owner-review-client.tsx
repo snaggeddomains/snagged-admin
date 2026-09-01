@@ -22,6 +22,16 @@ const input: CSSProperties = { padding: "8px 10px", borderRadius: 7, border: "1p
 const L: CSSProperties = { display: "block", fontSize: 10.5, fontWeight: 700, letterSpacing: 0.3, textTransform: "uppercase", color: "var(--muted,#8a94a0)", margin: "10px 0 3px" };
 
 const CONF_HUE: Record<string, string> = { high: "#2f7d4f", medium: "#946200", low: "#c0492f", broker: "#6b4a8a", none: "#8a94a0" };
+// Bought through a broker / marketplace / auction / registration → there's no ACTUAL owner to
+// record (the whole point is a DB of real sellers), so Dismiss is the right call, not Confirm.
+const NO_OWNER_CHANNEL = /godaddy|spaceship|afternic|sedo|\bdan\b|atom|namecheap|dropcatch|drop\s*catch|auction|escrow|registration|register|inbound|marketplace|namejet|namebright|sav\.com|dynadot|porkbun/i;
+function isNoOwner(card: Card): boolean {
+  const conf = (card.confidence || "").toLowerCase();
+  const named = !!(card.candidate_name || card.candidate_first_name || card.candidate_email);
+  if (named) return false;                        // a real seller was surfaced → not a no-owner card
+  if (conf === "broker" || conf === "none") return true;
+  return NO_OWNER_CHANNEL.test(card.channel || "");
+}
 const STATUSES = [
   { key: "pending", label: "Pending" },
   { key: "confirmed", label: "Confirmed" },
@@ -140,6 +150,8 @@ function ReviewCard({ card, reviewers, onDone, onRefresh }: { card: Card; review
   };
 
   const confHue = CONF_HUE[(card.confidence || "").toLowerCase()] || "#8a94a0";
+  const noOwner = isNoOwner(card);
+  const btnDismiss: CSSProperties = { ...btn, background: "#6b4a8a", color: "#fff", borderColor: "#6b4a8a", padding: "9px 20px", fontSize: 14 };
 
   return (
     <div style={{ border: "1px solid var(--line,#e3ddcf)", borderRadius: 14, padding: "20px 22px", background: "var(--paper,#fff)", boxShadow: "0 2px 10px rgba(20,25,30,0.05)" }}>
@@ -163,6 +175,11 @@ function ReviewCard({ card, reviewers, onDone, onRefresh }: { card: Card; review
           {card.buyer_context && <div className="muted" style={{ marginTop: 8, fontSize: 13.5 }}>👤 Buyer/context: {card.buyer_context}</div>}
           {card.evidence && <div className="muted" style={{ marginTop: 6, fontSize: 13.5 }}>🔎 {card.evidence}</div>}
           {card.notes && <div className="muted" style={{ marginTop: 6, fontSize: 13.5 }}>📝 {card.notes}</div>}
+          {noOwner && card.status === "pending" && (
+            <div style={{ marginTop: 12, padding: "9px 12px", background: "#f5f0f8", border: "1px solid #e4d8ee", borderRadius: 9, fontSize: 13, color: "#5a4372" }}>
+              ↳ Bought via a broker / marketplace / auction — there&apos;s likely <strong>no actual owner</strong> to record. We only log real sellers, so <strong>Dismiss</strong> this one (or Edit if a real seller IS in the thread).
+            </div>
+          )}
         </div>
       ) : (
         <div style={{ marginTop: 6, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 14px" }}>
@@ -179,13 +196,15 @@ function ReviewCard({ card, reviewers, onDone, onRefresh }: { card: Card; review
       {msg && <div style={{ marginTop: 10, fontSize: 13, color: msg.startsWith("✓") ? "#2f7d4f" : "#a83265" }}>{msg}</div>}
 
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 18, alignItems: "center" }}>
-        {card.status === "pending" && !editing && <button style={btnGood} disabled={!!busy} onClick={() => act("confirm")}>{busy === "confirm" ? "…" : "✓ Confirm owner"}</button>}
+        {/* No-owner card (broker/marketplace/auction): Dismiss is the right call → make it primary. */}
+        {card.status === "pending" && !editing && noOwner && <button style={btnDismiss} disabled={!!busy} onClick={() => act("dismiss")} title="No actual owner to log — bought via a broker / marketplace / auction. We only record real sellers.">⊘ Dismiss — no owner</button>}
+        {card.status === "pending" && !editing && <button style={noOwner ? btn : btnGood} disabled={!!busy} onClick={() => act("confirm")}>{busy === "confirm" ? "…" : "✓ Confirm owner"}</button>}
         {editing && <button style={btnPrimary} disabled={!!busy} onClick={() => act("confirm")}>{busy === "confirm" ? "…" : "✓ Save & confirm"}</button>}
         <button style={btn} disabled={!!busy} onClick={() => { if (editing) act("edit"); else setEditing(true); }}>{editing ? (busy === "edit" ? "…" : "Save edits") : "✎ Edit"}</button>
         {editing && <button style={btn} onClick={() => setEditing(false)}>Cancel</button>}
-        {card.status === "pending" && !editing && <button style={btn} disabled={!!busy} onClick={() => act("reject")}>✕ Reject</button>}
+        {card.status === "pending" && !editing && <button style={btn} disabled={!!busy} onClick={() => act("reject")} title="The surfaced candidate is wrong / mis-identified (e.g. it named the buyer as the seller)">✕ Reject</button>}
         {card.status === "pending" && !editing && <button style={btn} disabled={!!busy} onClick={() => act("skip")} title="Decide later — stays in the queue">Skip →</button>}
-        {card.status === "pending" && !editing && <button style={{ ...btn, color: "var(--muted,#8a94a0)" }} disabled={!!busy} onClick={() => act("dismiss")} title="Not worth logging an owner — set aside (reopenable)">Dismiss</button>}
+        {card.status === "pending" && !editing && !noOwner && <button style={{ ...btn, color: "var(--muted,#8a94a0)" }} disabled={!!busy} onClick={() => act("dismiss")} title="No actual owner to log — set aside (reopenable). We only record real sellers.">⊘ Dismiss</button>}
         {card.status !== "pending" && <button style={btn} disabled={!!busy} onClick={() => act("reopen")}>↩ Reopen</button>}
       </div>
 
