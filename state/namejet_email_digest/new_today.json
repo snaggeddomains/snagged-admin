@@ -1,11 +1,12 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 3,
   "domains": [
     "corals.org",
-    "taken.org"
+    "lacrosse.org",
+    "antagonists.org"
   ],
-  "generated_at": "2026-08-31T15:12:45.525326+00:00",
+  "generated_at": "2026-09-01T15:08:03.411257+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }

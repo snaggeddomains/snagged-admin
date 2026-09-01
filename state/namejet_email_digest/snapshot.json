@@ -8,10 +8,18 @@
     "price": 69.0
   },
   {
-    "domain": "taken.org",
-    "end_time_utc": "2026-09-01T01:00:00+00:00",
+    "domain": "lacrosse.org",
+    "end_time_utc": "2026-09-02T01:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namejet.com/domain/taken.org.action",
+    "link": "https://www.namejet.com/domain/lacrosse.org.action",
+    "platform": "NameJet",
+    "price": 69.0
+  },
+  {
+    "domain": "antagonists.org",
+    "end_time_utc": "2026-09-02T01:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namejet.com/domain/antagonists.org.action",
     "platform": "NameJet",
     "price": 69.0
   }
