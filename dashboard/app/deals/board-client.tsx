@@ -34,6 +34,15 @@ function ago(iso: string | null | undefined): string {
 }
 
 const usd = (n: number | null | undefined) => (n == null || n === 0 ? "—" : `$${Math.round(n).toLocaleString()}`);
+// Compact money for the tight board card — $80k / $52.2k / $1.5M / $2.9k / $500.
+const usdK = (n: number | null | undefined) => {
+  if (n == null || n === 0) return "—";
+  const abs = Math.abs(n);
+  const trim = (x: number) => { const r = Math.round(x * 10) / 10; return r % 1 === 0 ? r.toFixed(0) : r.toFixed(1); };
+  if (abs >= 1e6) return `$${trim(n / 1e6)}M`;
+  if (abs >= 1e3) return `$${trim(n / 1e3)}k`;
+  return `$${Math.round(n)}`;
+};
 const btn: CSSProperties = { padding: "6px 12px", borderRadius: 8, border: "1px solid var(--line,#e3ddcf)", background: "transparent", fontSize: 13, fontWeight: 600, cursor: "pointer", color: "var(--navy,#254254)" };
 const btnPrimary: CSSProperties = { ...btn, background: "var(--coral,#e2674a)", color: "#fff", borderColor: "var(--coral,#e2674a)" };
 const input: CSSProperties = { padding: "7px 9px", borderRadius: 7, border: "1px solid var(--line,#e3ddcf)", fontSize: 14, boxSizing: "border-box", width: "100%" };
@@ -287,13 +296,13 @@ export default function BoardClient() {
                       {d.current_offer != null && d.asking_price != null
                         ? (
                           // Both set → show the negotiation at a glance: our offer → their asking.
-                          <span style={{ fontSize: 11.5, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 3, whiteSpace: "nowrap" }} title="Current offer → Asking">
-                            <span style={{ color: "#2f7d4f" }}>{usd(d.current_offer)}</span>
+                          <span style={{ fontSize: 11.5, fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 3, whiteSpace: "nowrap" }} title={`Current offer ${usd(d.current_offer)} → Asking ${usd(d.asking_price)}`}>
+                            <span style={{ color: "#2f7d4f" }}>{usdK(d.current_offer)}</span>
                             <span style={{ color: "var(--muted,#8a94a0)" }}>→</span>
-                            <span style={{ color: "var(--navy,#254254)" }}>{usd(d.asking_price)}</span>
+                            <span style={{ color: "var(--navy,#254254)" }}>{usdK(d.asking_price)}</span>
                           </span>
                         )
-                        : <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--navy-2,#4a5b66)" }}>{d.budget_range || usd(d.asking_price || d.appraisal_value)}</span>}
+                        : <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--navy-2,#4a5b66)" }} title={d.asking_price || d.appraisal_value ? usd(d.asking_price || d.appraisal_value) : undefined}>{d.budget_range || usdK(d.asking_price || d.appraisal_value)}</span>}
                     </div>
                     {d.status !== "open" && <div style={{ fontSize: 10.5, fontWeight: 700, marginTop: 4, color: d.status === "won" ? "#1f7a5a" : d.status === "not_proceeded" ? "#b26a00" : d.status === "archived" ? "#7a6f63" : "#a83265" }}>{statusLabel(d.status).toUpperCase()}</div>}
                   </div>

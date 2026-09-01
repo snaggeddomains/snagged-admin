@@ -289,6 +289,10 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
     (green offer · muted arrow · navy asking) so the negotiation gap reads at a glance; otherwise it
     falls back to `budget_range || usd(asking||appraisal)` as before. `current_offer` added to the board
     Deal type (the list GET already `select("*")`).
+    - **Compact money on the card (Rob, 2026-09-01).** `usdK()` renders the card price line as
+      **$80k / $52.2k / $1.5M / $500** (no long zeros) to save space; the exact `$80,000` value is in the
+      cell's `title` tooltip. Used for the offer→asking pair AND the asking/appraisal fallback; the deal
+      DETAIL page still shows full `usd()`.
 - **"Didn't proceed" status + link cleanup (2026-07-22).** New terminal status `not_proceeded`
   (STATUSES in stages.ts) — the BUYER bailed before we engaged the owner (didn't pay to pursue),
   distinct from a negotiation Lost. Its own board **drop zone** ("🚫 Didn't proceed", like Mark
