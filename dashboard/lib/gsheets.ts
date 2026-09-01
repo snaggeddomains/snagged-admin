@@ -21,6 +21,10 @@ export async function createSheetInSharedDrive(opts: {
   values: (string | number)[][]; // row 0 = header
   shareWith?: string; // email to grant writer access
   boldHeader?: boolean;
+  formats?: {
+    currencyColumns?: number[]; // 0-based column indices to format as USD, no decimals
+    dimRows?: number[]; // 0-based DATA-row indices (header excluded) to gray + strikethrough
+  };
 }): Promise<SheetResult> {
   const title = (opts.title || "Export").slice(0, 200);
   const values = Array.isArray(opts.values) ? opts.values : [];
@@ -58,26 +62,64 @@ export async function createSheetInSharedDrive(opts: {
     if (!putRes.ok) throw new Error(`Sheets write failed ${putRes.status}: ${(await putRes.text()).slice(0, 300)}`);
   }
 
-  // 3) Bold the header row (best-effort, cosmetic).
-  if (opts.boldHeader !== false && values.length) {
-    try {
-      await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${sheetsToken}`, "content-type": "application/json" },
-        body: JSON.stringify({
-          requests: [
-            {
-              repeatCell: {
-                range: { sheetId: 0, startRowIndex: 0, endRowIndex: 1 },
-                cell: { userEnteredFormat: { textFormat: { bold: true } } },
-                fields: "userEnteredFormat.textFormat.bold",
-              },
-            },
-          ],
-        }),
+  // 3) Formatting (best-effort, cosmetic): bold header + currency columns + dim off-brief rows.
+  if (values.length) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const requests: any[] = [];
+    if (opts.boldHeader !== false) {
+      requests.push({
+        repeatCell: {
+          range: { sheetId: 0, startRowIndex: 0, endRowIndex: 1 },
+          cell: { userEnteredFormat: { textFormat: { bold: true } } },
+          fields: "userEnteredFormat.textFormat.bold",
+        },
       });
-    } catch {
-      /* cosmetic — ignore */
+    }
+    const fmt = opts.formats || {};
+    // Currency (USD, no decimals) on the given columns' DATA rows. Text cells (e.g.
+    // "TBD") are unaffected — a number format only renders numeric cells.
+    for (const col of fmt.currencyColumns || []) {
+      if (!Number.isInteger(col) || col < 0) continue;
+      requests.push({
+        repeatCell: {
+          range: { sheetId: 0, startRowIndex: 1, endRowIndex: values.length, startColumnIndex: col, endColumnIndex: col + 1 },
+          cell: { userEnteredFormat: { numberFormat: { type: "CURRENCY", pattern: '"$"#,##0' } } },
+          fields: "userEnteredFormat.numberFormat",
+        },
+      });
+    }
+    // Gray + strikethrough the off-brief data rows (coalesced into contiguous ranges).
+    const dim = [...new Set((fmt.dimRows || []).filter((n) => Number.isInteger(n) && n >= 0))]
+      .map((n) => n + 1) // skip the header row
+      .filter((r) => r >= 1 && r < values.length)
+      .sort((a, b) => a - b);
+    for (let i = 0; i < dim.length;) {
+      let j = i;
+      while (j + 1 < dim.length && dim[j + 1] === dim[j] + 1) j++;
+      requests.push({
+        repeatCell: {
+          range: { sheetId: 0, startRowIndex: dim[i], endRowIndex: dim[j] + 1 },
+          cell: {
+            userEnteredFormat: {
+              backgroundColor: { red: 0.93, green: 0.93, blue: 0.93 },
+              textFormat: { strikethrough: true, foregroundColor: { red: 0.5, green: 0.5, blue: 0.5 } },
+            },
+          },
+          fields: "userEnteredFormat.backgroundColor,userEnteredFormat.textFormat.strikethrough,userEnteredFormat.textFormat.foregroundColor",
+        },
+      });
+      i = j + 1;
+    }
+    if (requests.length) {
+      try {
+        await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${sheetsToken}`, "content-type": "application/json" },
+          body: JSON.stringify({ requests }),
+        });
+      } catch {
+        /* cosmetic — ignore */
+      }
     }
   }
 

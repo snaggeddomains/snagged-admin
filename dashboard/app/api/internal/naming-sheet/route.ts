@@ -5,7 +5,10 @@
 // `x-internal-secret` == RESEARCH_INTERNAL_SECRET (same pattern as email-threads /
 // sales-comps; middleware.ts excludes api/internal). Server-to-server, no session.
 //
-//   POST { title, values: string[][], shareWith?: email } -> { ok, url, warning? }
+//   POST { title, values: string[][], shareWith?: email,
+//          formats?: { currencyColumns?: number[], dimRows?: number[] } } -> { ok, url, warning? }
+//   formats: currencyColumns = 0-based cols rendered as USD (no decimals); dimRows =
+//   0-based DATA-row indices (header excluded) grayed + struck through (off-brief names).
 
 import { NextResponse, type NextRequest } from "next/server";
 import { googleConfigured } from "@/lib/google-auth";
@@ -42,7 +45,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Google service account not configured (set GOOGLE_SA_KEY on snagged-admin)." }, { status: 503 });
   }
 
-  let body: { title?: unknown; values?: unknown; shareWith?: unknown };
+  let body: { title?: unknown; values?: unknown; shareWith?: unknown; formats?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -56,9 +59,15 @@ export async function POST(req: NextRequest) {
   if (!values || !values.length) {
     return NextResponse.json({ error: "No rows to export (values required)." }, { status: 400 });
   }
+  // Optional formatting directives (currency columns + off-brief dim rows). Sanitized
+  // to arrays of non-negative integers; anything else is ignored (formatting is cosmetic).
+  const intArr = (v: unknown): number[] =>
+    Array.isArray(v) ? v.filter((n): n is number => Number.isInteger(n) && (n as number) >= 0) : [];
+  const fmtIn = (body?.formats && typeof body.formats === "object") ? (body.formats as Record<string, unknown>) : {};
+  const formats = { currencyColumns: intArr(fmtIn.currencyColumns), dimRows: intArr(fmtIn.dimRows) };
 
   try {
-    const r = await createSheetInSharedDrive({ title, values, shareWith });
+    const r = await createSheetInSharedDrive({ title, values, shareWith, formats });
     return NextResponse.json({ ok: true, url: r.url, ...(r.shareWarning ? { warning: r.shareWarning } : {}) });
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500 });

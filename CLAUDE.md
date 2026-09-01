@@ -16,6 +16,14 @@ RESEARCH_INTERNAL_SECRET` (same pattern as email-threads/sales-comps; `middlewar
   No new env — reuses `RESEARCH_INTERNAL_SECRET` (both projects) + `GOOGLE_SA_KEY` (admin, already
   set for GA/Sheets). This is the "app integration" the Google-Docs/Sheets working-agreement noted
   as not-yet-built; now built (research→admin internal call, not creds-in-research).
+- **Optional `formats` directives (2026-09-01).** The endpoint + `createSheetInSharedDrive` accept
+  `formats: { currencyColumns?: number[], dimRows?: number[] }` (both sanitized to non-negative ints,
+  fully optional + cosmetic). `currencyColumns` = 0-based cols whose DATA rows get a **USD, no-decimals**
+  number format (`type:CURRENCY, pattern:'"$"#,##0'` — text cells like "TBD" are unaffected); `dimRows` =
+  0-based **DATA-row** indices (header excluded) that get **gray background + strikethrough** (coalesced
+  into contiguous ranges, one `repeatCell` per run). All fold into the SAME best-effort header-bold
+  `batchUpdate`. Used by research's naming export to format the Price column + strike the off-brief
+  ("Cull off-brief") names. Backward-safe: omit `formats` → identical to before.
 
 # Memory cadence (READ FIRST) — commit CLAUDE.md with the code
 
