@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 
 type Item = {
   id: string; submitted_by: string | null; submitted_by_name: string | null;
@@ -9,7 +9,7 @@ type Item = {
   comment_count?: number;
 };
 type Assignee = { email: string; name: string };
-type Comment = { id: string; request_id: string; author_email: string | null; author_name: string | null; body: string | null; mentions: string[] | null; created_at: string };
+type Comment = { id: string; request_id: string; author_email: string | null; author_name: string | null; body: string | null; mentions: string[] | null; attachments: Att[] | null; created_at: string };
 type Resp = { ok: boolean; configured?: boolean; items: Item[]; canManage: boolean; modules: string[]; assignees: Assignee[]; me: string; error?: string };
 
 const KINDS = [
@@ -264,18 +264,37 @@ function Row({ it, canManage, onChanged, assignees, me, defaultOpen }: { it: Ite
         <button style={{ ...chip, padding: "4px 10px", fontSize: 12.5 }} onClick={() => setShowThread((s) => !s)}>
           {showThread ? "▾" : "▸"} 💬 {it.comment_count ? `${it.comment_count} comment${it.comment_count === 1 ? "" : "s"}` : "Discuss / ask a question"}
         </button>
-        {showThread && <Thread requestId={it.id} assignees={assignees} me={me} canManage={canManage} onPosted={onChanged} />}
+        {showThread && <Thread requestId={it.id} assignees={assignees} me={me} onPosted={onChanged} />}
       </div>
     </div>
   );
 }
 
-function Thread({ requestId, assignees, me, canManage, onPosted }: { requestId: string; assignees: Assignee[]; me: string; canManage: boolean; onPosted: () => void }) {
+// Resolve @tokens typed in the body to assignee emails (first name / squished full name / handle) —
+// same behavior as the Deals comment box, so typing "@Sam" loops Sam in. Merged with chip picks.
+function resolveMentions(text: string, assignees: Assignee[]): string[] {
+  const tokens = [...text.matchAll(/@([\w.]+)/g)].map((m) => m[1].toLowerCase());
+  if (!tokens.length) return [];
+  const out = new Set<string>();
+  for (const a of assignees) {
+    const first = a.name.split(/\s+/)[0].toLowerCase();
+    const full = a.name.toLowerCase().replace(/\s+/g, "");
+    const handle = a.email.split("@")[0].toLowerCase();
+    if (tokens.some((t) => t === first || t === full || t === handle)) out.add(a.email);
+  }
+  return [...out];
+}
+
+function Thread({ requestId, assignees, me, onPosted }: { requestId: string; assignees: Assignee[]; me: string; onPosted: () => void }) {
   const [comments, setComments] = useState<Comment[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [text, setText] = useState("");
   const [tags, setTags] = useState<string[]>([]);
+  const [atts, setAtts] = useState<Att[]>([]);
+  const [uploading, setUploading] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [mq, setMq] = useState<string | null>(null);   // active @-typeahead query
+  const taRef = useRef<HTMLTextAreaElement>(null);
 
   const load = useCallback(async () => {
     setErr(null);
@@ -288,17 +307,52 @@ function Thread({ requestId, assignees, me, canManage, onPosted }: { requestId: 
   }, [requestId]);
   useEffect(() => { load(); }, [load]);
 
+  const pool = assignees.filter((a) => a.email.toLowerCase() !== me.toLowerCase());
   const nameFor = (email: string | null) => assignees.find((a) => a.email.toLowerCase() === (email || "").toLowerCase())?.name || email || "Someone";
   const toggleTag = (email: string) => setTags((t) => (t.includes(email) ? t.filter((x) => x !== email) : [...t, email]));
+  // Everyone who'll be notified = chip picks ∪ @tokens resolved from the body.
+  const mentionEmails = [...new Set([...tags, ...resolveMentions(text, assignees)])];
+
+  const addFiles = async (files: FileList | File[] | null) => {
+    const imgs = Array.from(files || []).filter((f) => f.type.startsWith("image/"));
+    if (!imgs.length) return;
+    setUploading(true); setErr(null);
+    for (const file of imgs.slice(0, 10)) {
+      try {
+        const fd = new FormData(); fd.append("file", file);
+        const res = await fetch("/api/feedback/upload", { method: "POST", body: fd });
+        const j = await res.json();
+        if (res.ok && j.attachment) setAtts((a) => [...a, j.attachment].slice(0, 10));
+        else setErr(j.error || "upload failed");
+      } catch { setErr("upload failed"); }
+    }
+    setUploading(false);
+  };
+
+  const onTextChange = (v: string) => {
+    setText(v);
+    const caret = taRef.current?.selectionStart ?? v.length;
+    const m = v.slice(0, caret).match(/@([\w.]*)$/);
+    setMq(m ? m[1].toLowerCase() : null);
+  };
+  const pickMention = (a: Assignee) => {
+    const el = taRef.current; const caret = el?.selectionStart ?? text.length;
+    const token = a.name.split(/\s+/)[0].replace(/\s+/g, "");
+    const before = text.slice(0, caret).replace(/@([\w.]*)$/, "@" + token + " ");
+    const next = before + text.slice(caret);
+    setText(next); setMq(null);
+    setTimeout(() => { el?.focus(); const p = before.length; el?.setSelectionRange(p, p); }, 0);
+  };
+  const mqMatches = mq !== null ? pool.filter((a) => a.name.toLowerCase().includes(mq) || a.email.toLowerCase().includes(mq)).slice(0, 6) : [];
 
   const post = async () => {
-    if (!text.trim() && !tags.length) return;
+    if (!text.trim() && !mentionEmails.length && !atts.length) return;
     setBusy(true); setErr(null);
     try {
-      const res = await fetch(`/api/feedback/${requestId}/comments`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ body: text, mentions: tags }) });
+      const res = await fetch(`/api/feedback/${requestId}/comments`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ body: text, mentions: mentionEmails, attachments: atts }) });
       const j = await res.json();
       if (!res.ok) throw new Error(j.error || `HTTP ${res.status}`);
-      setText(""); setTags([]);
+      setText(""); setTags([]); setAtts([]); setMq(null);
       await load();
       onPosted();
     } catch (e) { setErr(String((e as Error)?.message || e)); }
@@ -319,6 +373,16 @@ function Thread({ requestId, assignees, me, canManage, onPosted }: { requestId: 
                   <span style={{ fontWeight: 700, color: "var(--navy,#254254)" }}>{nm}</span> · {whenFull(c.created_at)}
                 </div>
                 {c.body && <div style={{ fontSize: 13.5, color: "var(--navy-2,#4a5b66)", whiteSpace: "pre-wrap", marginTop: 1 }}>{c.body}</div>}
+                {(c.attachments || []).length > 0 && (
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 6 }}>
+                    {(c.attachments || []).map((a) => (
+                      <a key={a.url} href={a.url} target="_blank" rel="noopener" title={a.name}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={a.url} alt={a.name} style={{ width: 84, height: 64, objectFit: "cover", borderRadius: 8, border: "1px solid var(--line,#e3ddcf)" }} />
+                      </a>
+                    ))}
+                  </div>
+                )}
                 {(c.mentions || []).length > 0 && (
                   <div style={{ fontSize: 11.5, color: "var(--muted,#8a94a0)", marginTop: 2 }}>Tagged: {(c.mentions || []).map((m) => nameFor(m)).join(", ")}</div>
                 )}
@@ -330,21 +394,58 @@ function Thread({ requestId, assignees, me, canManage, onPosted }: { requestId: 
         {comments === null && !err && <div className="muted" style={{ fontSize: 12.5 }}>Loading…</div>}
       </div>
 
-      <div style={{ marginTop: 10 }}>
-        <textarea style={{ ...input, minHeight: 54, resize: "vertical" }} value={text} onChange={(e) => setText(e.target.value)} placeholder="Add a comment or question…" />
-        {assignees.length > 0 && (
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center", marginTop: 6 }}>
-            <span style={{ fontSize: 11.5, color: "var(--muted,#8a94a0)" }}>Tag:</span>
-            {assignees.filter((a) => a.email.toLowerCase() !== me.toLowerCase()).map((a) => (
-              <button key={a.email} onClick={() => toggleTag(a.email)}
-                style={{ ...chip, padding: "3px 9px", fontSize: 12, ...(tags.includes(a.email) ? { background: "var(--navy,#254254)", color: "#fff", borderColor: "var(--navy,#254254)" } : {}) }}>
-                {tags.includes(a.email) ? "✓ " : "@"}{a.name}
+      <div
+        style={{ marginTop: 10, position: "relative" }}
+        onPaste={(e) => { const files = Array.from(e.clipboardData?.files || []); if (files.length) { e.preventDefault(); addFiles(files); } }}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e) => { if (e.dataTransfer?.files?.length) { e.preventDefault(); addFiles(e.dataTransfer.files); } }}
+      >
+        <textarea ref={taRef} style={{ ...input, minHeight: 54, resize: "vertical" }} value={text}
+          onChange={(e) => onTextChange(e.target.value)} placeholder="Add a comment or question… (type @ to tag someone; paste or drop a screenshot)" />
+        {mq !== null && mqMatches.length > 0 && (
+          <div style={{ position: "absolute", zIndex: 20, background: "var(--paper,#fff)", border: "1px solid var(--line,#e3ddcf)", borderRadius: 8, boxShadow: "0 6px 20px rgba(0,0,0,.12)", marginTop: 2, minWidth: 200, overflow: "hidden" }}>
+            {mqMatches.map((a) => (
+              <button key={a.email} onMouseDown={(e) => { e.preventDefault(); pickMention(a); }}
+                style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "left", padding: "7px 11px", border: "none", background: "transparent", cursor: "pointer", fontSize: 13 }}>
+                <span style={{ width: 22, height: 22, borderRadius: "50%", background: avatarHue(a.email), color: "#fff", fontSize: 10, fontWeight: 700, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{initials(a.name)}</span>
+                {a.name}
               </button>
             ))}
           </div>
         )}
-        <div style={{ marginTop: 8 }}>
-          <button style={{ ...btnPrimary, padding: "6px 14px", fontSize: 13 }} disabled={busy || (!text.trim() && !tags.length)} onClick={post}>{busy ? "Posting…" : "Post"}</button>
+        {atts.length > 0 && (
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
+            {atts.map((a, i) => (
+              <span key={a.url} style={{ position: "relative", display: "inline-block" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={a.url} alt={a.name} style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 8, border: "1px solid var(--line,#e3ddcf)" }} />
+                <button onClick={() => setAtts((s) => s.filter((_, j) => j !== i))} aria-label="Remove"
+                  style={{ position: "absolute", top: -6, right: -6, width: 20, height: 20, borderRadius: "50%", border: "none", background: "var(--navy,#254254)", color: "#fff", cursor: "pointer", fontSize: 12, lineHeight: 1 }}>×</button>
+              </span>
+            ))}
+          </div>
+        )}
+        {pool.length > 0 && (
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center", marginTop: 8 }}>
+            <span style={{ fontSize: 11.5, color: "var(--muted,#8a94a0)" }}>Tag:</span>
+            {pool.map((a) => {
+              const on = mentionEmails.includes(a.email);
+              return (
+                <button key={a.email} onClick={() => toggleTag(a.email)}
+                  style={{ ...chip, padding: "3px 9px", fontSize: 12, ...(on ? { background: "var(--navy,#254254)", color: "#fff", borderColor: "var(--navy,#254254)" } : {}) }}>
+                  {on ? "✓ " : "@"}{a.name}
+                </button>
+              );
+            })}
+          </div>
+        )}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 10 }}>
+          <label style={{ ...chip, padding: "4px 10px", fontSize: 12.5, cursor: "pointer" }}>
+            📎 Image
+            <input type="file" accept="image/*" multiple hidden onChange={(e) => { addFiles(e.target.files); e.currentTarget.value = ""; }} />
+          </label>
+          <button style={{ ...btnPrimary, padding: "6px 14px", fontSize: 13 }} disabled={busy || uploading || (!text.trim() && !mentionEmails.length && !atts.length)} onClick={post}>{busy ? "Posting…" : "Post"}</button>
+          <span style={{ fontSize: 11.5, color: "var(--muted,#8a94a0)" }}>{uploading ? "Uploading…" : mentionEmails.length ? `${mentionEmails.length} will be notified` : ""}</span>
         </div>
       </div>
     </div>

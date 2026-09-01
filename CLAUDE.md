@@ -55,20 +55,26 @@ a bell + email**; **only Rob** (admin / `admin.feedback.manage`) sees + manages 
   a manager gets the full queue with the status filter + search shown; everyone else gets their own
   submissions + threads they've joined). Each row shows the **submitter prominently** (colored initials
   avatar + big name + date) for a manager. `statusF` default `all`.
-- **Clarification thread — comments + @mention tagging (2026-09-01).** Every ticket has an expandable
-  💬 thread (like the deal comment module) so questions can be sorted out as requests come in. Table
-  **`feature_request_comments`** (request_id FK cascade, author_email/name, body, `mentions text[]`,
-  created_at + index + RLS — in the same `feature_requests.sql`). `lib/feedback.ts`: `listComments`,
-  `addComment({body,mentions}, author)` (→ `notifyFeedbackComment`: tagged teammates get a stronger
-  "tagged you" bell+email, every other **participant** — submitter + Rob + past commenters/mentioned —
-  is kept in the loop, minus the author), `participantTicketIds(email)` (tickets a user commented on
-  OR was tagged in), `getFeedback`. **`listFeedback` mine-scope now UNIONs the user's own submissions
-  with tickets they've joined** (so a tagged teammate/commenter sees the ticket in their list without
-  being the submitter), and attaches a **`comment_count`** per row. `@mention pool = assignableUsers()`
+- **Clarification thread — comments + @mention tagging + screenshots (2026-09-01).** Every ticket has an
+  expandable 💬 thread (like the deal comment module) so questions can be sorted out as requests come in.
+  Table **`feature_request_comments`** (request_id FK cascade, author_email/name, body, `mentions text[]`,
+  **`attachments jsonb`**, created_at + index + RLS — in the same `feature_requests.sql`). `lib/feedback.ts`:
+  `listComments`, `addComment({body,mentions,attachments}, author)` (→ `notifyFeedbackComment`: tagged
+  teammates get a stronger "tagged you" bell+email, every other **participant** — submitter + Rob + past
+  commenters/mentioned — is kept in the loop, minus the author; strip-and-retries the `attachments` column
+  pre-migration), `participantTicketIds(email)` (tickets a user commented on OR was tagged in), `getFeedback`.
+  **`listFeedback` mine-scope now UNIONs the user's own submissions with tickets they've joined** (so a
+  tagged teammate/commenter sees the ticket in their list without being the submitter), and attaches a
+  **`comment_count`** per row. **Two ways to tag (both loop the person in, exactly like Deals):** type
+  **`@Name`** in the comment body (a type-ahead over the assignee pool + `resolveMentions` resolves the
+  tokens on Post — first name / squished full name / email handle) OR click a **Tag chip**; the two are
+  merged (`mentionEmails`) and the chips light up to reflect what the @tokens already caught. **Screenshots
+  in comments** (📎 button / paste / drop into the composer) reuse `POST /api/feedback/upload` →
+  `deal-attachments` bucket → thumbnails on the posted comment. `@mention pool = assignableUsers()`
   (deals.assignable), returned as `assignees` on the main `/api/feedback` GET. API
-  `app/api/feedback/[id]/comments/route.ts` (GET+POST, access = manager || submitter || participant).
-  A comment notification links `/feedback?ticket=<id>` → the client auto-expands that thread. All
-  comment reads/writes fail-soft on the missing table (thread just doesn't show pre-migration).
+  `app/api/feedback/[id]/comments/route.ts` (GET+POST {body,mentions,attachments}, access = manager ||
+  submitter || participant). A comment notification links `/feedback?ticket=<id>` → the client auto-expands
+  that thread. All comment reads/writes fail-soft on the missing table (thread just doesn't show pre-migration).
 - **Permission** `admin.feedback.manage` (ACTION, group Admin) gates the queue + PATCH; submitting +
   commenting need only auth (+ thread access). Rob passes via is_admin. **Setup:** run
   `scripts/feature_requests.sql` on the **`domain-owner-research`** project (the PRODUCTION one with the

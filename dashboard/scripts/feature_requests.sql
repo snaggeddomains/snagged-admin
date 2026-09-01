@@ -27,8 +27,11 @@ create table if not exists feature_request_comments (
   author_name  text,
   body         text,
   mentions     text[],          -- tagged teammate emails (lowercased)
+  attachments  jsonb,           -- screenshots [{url,name,type}] in the public deal-attachments bucket
   created_at   timestamptz not null default now()
 );
+-- (attachments added after first ship — safe to re-run.)
+alter table feature_request_comments add column if not exists attachments jsonb;
 create index if not exists idx_frc_request on feature_request_comments (request_id, created_at);
 alter table feature_request_comments enable row level security;
 create index if not exists idx_feature_requests_status on feature_requests (status, created_at desc);

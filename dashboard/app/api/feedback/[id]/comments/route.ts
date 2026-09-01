@@ -34,12 +34,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const me = await getCurrentUser();
   if (!me) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   const { id } = await params;
-  const body = (await req.json().catch(() => ({}))) as { body?: string; mentions?: string[] };
+  const body = (await req.json().catch(() => ({}))) as { body?: string; mentions?: string[]; attachments?: { url: string; name?: string; type?: string }[] };
   try {
     if (!(await canAccess(me, id))) return NextResponse.json({ error: "No access" }, { status: 403 });
     const comment = await addComment(
       id,
-      { body: body.body, mentions: body.mentions },
+      { body: body.body, mentions: body.mentions, attachments: body.attachments },
       { email: me.email, name: [me.first_name, me.last_name].filter(Boolean).join(" ") || null },
     );
     return NextResponse.json({ ok: true, comment });

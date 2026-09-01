@@ -49,8 +49,17 @@ export type FeatureComment = {
   author_name: string | null;
   body: string | null;
   mentions: string[] | null;
+  attachments: { url: string; name: string; type: string }[] | null;
   created_at: string;
 };
+
+// http(s) URLs only, ≤10 — shared by request + comment attachment sanitizing.
+function cleanAttachments(list: unknown): { url: string; name: string; type: string }[] {
+  return (Array.isArray(list) ? list : [])
+    .filter((a) => a && /^https?:\/\//i.test(String((a as { url?: unknown }).url)))
+    .slice(0, 10)
+    .map((a) => { const x = a as { url: unknown; name?: unknown; type?: unknown }; return { url: String(x.url), name: String(x.name || "image"), type: String(x.type || "") }; });
+}
 
 export function feedbackConfigured(): boolean {
   return isDbConfigured();
@@ -216,22 +225,29 @@ export async function getFeedback(id: string): Promise<FeatureRequest | null> {
 
 export async function addComment(
   requestId: string,
-  input: { body?: string; mentions?: string[] },
+  input: { body?: string; mentions?: string[]; attachments?: { url: string; name?: string; type?: string }[] },
   author: { email: string; name?: string | null },
 ): Promise<FeatureComment> {
   const body = clean(input.body);
   const mentions = [...new Set((Array.isArray(input.mentions) ? input.mentions : []).map((m) => String(m || "").toLowerCase().trim()).filter(Boolean))];
-  if (!body && !mentions.length) throw new Error("Write a comment first.");
-  const row = {
+  const attachments = cleanAttachments(input.attachments);
+  if (!body && !mentions.length && !attachments.length) throw new Error("Write a comment first.");
+  const row: Record<string, unknown> = {
     request_id: requestId,
     author_email: (author.email || "").toLowerCase() || null,
     author_name: clean(author.name) || author.email || null,
     body,
     mentions: mentions.length ? mentions : null,
+    attachments: attachments.length ? attachments : null,
   };
-  const { data, error } = await getDb().from(COMMENTS).insert(row).select("*").single();
-  if (error) throw new Error(`addComment: ${error.message}`);
-  const comment = data as FeatureComment;
+  let ins = await getDb().from(COMMENTS).insert(row).select("*").single();
+  // Degrade gracefully if the attachments column isn't migrated yet.
+  if (ins.error && /attachments/i.test(ins.error.message || "")) {
+    delete row.attachments;
+    ins = await getDb().from(COMMENTS).insert(row).select("*").single();
+  }
+  if (ins.error) throw new Error(`addComment: ${ins.error.message}`);
+  const comment = ins.data as FeatureComment;
   notifyFeedbackComment(requestId, comment).catch(() => {});   // best-effort
   return comment;
 }
@@ -253,7 +269,8 @@ async function notifyFeedbackComment(requestId: string, comment: FeatureComment)
       for (const m of c.mentions || []) if (m) participants.add(m.toLowerCase());
     }
     const who = comment.author_name || comment.author_email || "Someone";
-    const preview = (comment.body || "").slice(0, 300);
+    const nAtt = (comment.attachments || []).length;
+    const preview = ((comment.body || "").slice(0, 300)) || (nAtt ? `📎 ${nAtt} screenshot${nAtt === 1 ? "" : "s"}` : "");
     const link = `/feedback?ticket=${requestId}`;
     const base = (process.env.DASHBOARD_BASE || "https://app.snagged.com").replace(/\/$/, "");
     // Tagged people first (stronger wording), then the rest of the participants.
