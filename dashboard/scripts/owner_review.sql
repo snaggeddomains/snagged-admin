@@ -58,7 +58,7 @@ on conflict (lower(domain)) do nothing;
 -- Correct the named-seller rows to clean First + Last (idempotent; only touches still-pending
 -- cards so a confirmed/edited card is never clobbered). Fixes rows seeded before the last-name
 -- split — e.g. harbor.ai was "Marc (Vital.ai)" → "Marc Hadfield".
-update owner_review_cards set candidate_name='Marc Hadfield',    candidate_first_name='Marc',   candidate_last_name='Hadfield',   evidence='Seller Marc Hadfield (Vital.ai) via Escrow; a separate buyer also inquired.' where lower(domain)='harbor.ai' and status='pending';
-update owner_review_cards set candidate_name='Michel Lecumberry', candidate_first_name='Michel', candidate_last_name='Lecumberry' where lower(domain)='sagapanama.com' and status='pending';
-update owner_review_cards set candidate_name='Rick Latona',       candidate_first_name='Rick',   candidate_last_name='Latona'     where lower(domain)='lfg.ai' and status='pending';
-update owner_review_cards set candidate_name='Tim Symington',     candidate_first_name='Tim',    candidate_last_name='Symington'  where lower(domain)='industrial.capital' and status='pending';
+update owner_review_cards set candidate_name='Marc Hadfield',    candidate_first_name='Marc',   candidate_last_name='Hadfield',   evidence='Seller Marc Hadfield (Vital.ai) via Escrow; a separate buyer also inquired.' where lower(domain)='harbor.ai' and status <> 'confirmed';
+update owner_review_cards set candidate_name='Michel Lecumberry', candidate_first_name='Michel', candidate_last_name='Lecumberry' where lower(domain)='sagapanama.com' and status <> 'confirmed';
+update owner_review_cards set candidate_name='Rick Latona',       candidate_first_name='Rick',   candidate_last_name='Latona'     where lower(domain)='lfg.ai' and status <> 'confirmed';
+update owner_review_cards set candidate_name='Tim Symington',     candidate_first_name='Tim',    candidate_last_name='Symington'  where lower(domain)='industrial.capital' and status <> 'confirmed';

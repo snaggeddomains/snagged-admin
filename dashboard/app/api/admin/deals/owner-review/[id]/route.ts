@@ -10,7 +10,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { userCan, userCanAction } from "@/lib/permissions";
-import { confirmCard, updateCard, setCardStatus, reassignCard } from "@/lib/deals/owner-review";
+import { confirmCard, updateCard, setCardStatus, reassignCard, getCard } from "@/lib/deals/owner-review";
+import { resolveNameFromThread } from "@/lib/deals/owner-review-mine";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -48,6 +49,17 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         return NextResponse.json({ ok: true, card: await setCardStatus(id, "pending", me!.email) });
       case "reassign":
         return NextResponse.json({ ok: true, card: await reassignCard(id, String(body.assigned_to || "") || null) });
+      case "resolve_name": {
+        // Pull the seller's FULL name from the deal-mailbox thread headers (display name on their email).
+        const card = await getCard(id);
+        if (!card) return NextResponse.json({ error: "card not found" }, { status: 404 });
+        const email = String(body.email || card.candidate_email || "");
+        if (!email) return NextResponse.json({ error: "no email on this card to look up" }, { status: 400 });
+        const hit = await resolveNameFromThread(card.domain, email);
+        if (!hit || !hit.full) return NextResponse.json({ ok: true, resolved: false, card });
+        const updated = await updateCard(id, { candidate_first_name: hit.first, candidate_last_name: hit.last }, me!.email);
+        return NextResponse.json({ ok: true, resolved: true, full: hit.full, card: updated });
+      }
       default:
         return NextResponse.json({ error: "Unknown action" }, { status: 400 });
     }

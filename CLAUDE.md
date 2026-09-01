@@ -475,7 +475,26 @@ miner over all 477 txns is also Increment 2).
   to the created Owner record. **Per-user banner** `app/owner-review-banner.tsx` mounted in
   `app/section-chrome.tsx` (so it shows across Admin/Deals/Reports/SNAP, honoring "banner at the top
   of admin") — self-fetches `myPending`, hidden on the queue page itself + dismissable.
-- **One-time setup:** run `owner_review.sql` on the main project. No new env/permission.
+- **Increment 2 — acquisition-email MINER (2026-09-01, shipped).** `lib/deals/owner-review-mine.ts`:
+  - **`resolveNameFromThread(domain, email)`** — DETERMINISTIC full-name pull: the seller's full name is
+    the display name attached to their address in the deal-mailbox From/To/Cc headers ("Marc Hadfield
+    <marc@vital.ai>"). No LLM. Powers the card's **"⤓ Pull full name from email"** button (shown on a
+    pending card that has an email but no last name yet → API action `resolve_name` on `[id]`).
+  - **`mineOwnerForDomain(domain)`** — one Anthropic call (`OWNER_REVIEW_MODEL`||`DEAL_RECAP_MODEL`||haiku)
+    over the gathered acquisition thread (deal mailboxes, `"<domain>"`, dedup by mid, skips `bulk` sends);
+    direction-aware SELLER extraction (NOT the buyer/broker/escrow/auction) → `{seller_found, first_name,
+    last_name, email, phone, channel, confidence, buyer_context, evidence}`. Fail-open to a "none" result.
+  - **`mineAllTxns({limit,dry})`** — reads the Master Txns List (`SNAGGED_TRACKER_SHEET_ID`, tab auto-detected
+    domain/date/price cols), newest first, skips domains that already have a card, mines + `upsertCardForDomain`
+    each. Bounded per run (Gmail quota + 300s). API `POST /api/admin/deals/owner-review/mine {limit,dry}`
+    (gated deals.all/admin); **cron `/api/cron/owner-review-mine` daily `0 15 * * *`** (CRON_SECRET, `?limit=`/`?dry=1`,
+    heartbeat `owner-review-mine`) drains the ~460 backlog over days AND picks up any NEW txn row as its own card.
+  - **Setup:** needs `ANTHROPIC_API_KEY` in the ADMIN Vercel project (the miner runs there; the sandbox has no
+    key). Reuses `GOOGLE_SA_KEY` (Gmail SA, deal mailboxes) + `SNAGGED_TRACKER_SHEET_ID` (both set). Run the
+    backfill on demand via the mine endpoint, or let the daily cron accrue it.
+- **One-time setup:** run `owner_review.sql` on the main project (idempotent — the last-name column + the
+  named-row name corrections re-apply on re-run; the correction guard is `status <> 'confirmed'` so a
+  skipped/dismissed card still gets fixed). No new permission. `ANTHROPIC_API_KEY` (admin) unlocks the miner.
 
 **Email-cron heartbeat.** Rob couldn't tell if the hourly `deal-emails` cron was actually
 firing (manual "Pull emails" always worked). Added `cron_heartbeats` (name pk, last_run_at,
