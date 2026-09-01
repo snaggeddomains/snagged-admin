@@ -871,6 +871,23 @@ Daily top picks, appraised and ranked, surfaced in Reports → SNAP Opportunitie
   gained an optional `opts.{attachments,blocks}` arg (text still sent as the notification fallback); the
   `opportunity-picks` route builds the payload per bucket. New env knobs `OPPORTUNITY_PICKS_MIN`/`_GEM`.
   `formatBucketSlack` kept as the plain-text fallback.
+- **Live-BIN re-price for afternic picks — kills stale-feed false bargains (2026-09-01, Rob).** A pick
+  showed sauce.ai at cost **$75,000 → appr $177,500 → "2.4× value/cost"**, but Afternic's LIVE storefront
+  BIN was **$295,000** (the real ratio 0.6× — not a bargain at all, shouldn't have surfaced). Root cause:
+  our afternic FEED price for sauce.ai was **stale** (a seller raised the BIN after our last feed snapshot
+  captured $75k; `name_universe.best_price` still read $75k), and `buildPicks` ranks value/cost on that
+  feed price — a stale-LOW cost INFLATES the ratio and manufactures a false bargain. Verified it's a
+  stale-row issue, not systemic (firing.ai/rheumatoid.co feed prices matched their live BINs exactly).
+  Fix: `lib/afternic-bin.ts` `afternicBin(domain)` / `afternicBins(domains)` — a dependency-free live read
+  of the Afternic lander's embedded `"buyNow":<micros>` (÷1e6), bounded concurrency 8, 6s timeout,
+  fail-open (mirrors the research app's sweep.js parse). `buildPicks` (`opportunities-picks.ts`) re-prices
+  every AFTERNIC-sourced candidate in the valued pool against the live BIN BEFORE computing the ratio +
+  ranking (`costOf(d)` → live BIN when readable, else the feed price). Only the small pool is checked
+  (≤POOL/bucket), so it fits the 60s route / 120s cron. sauce.ai now re-prices to $295k → ratio 0.6× →
+  drops out of the cream. Auctions keep their bid price (real auction sources aren't "afternic"); other
+  marketplaces (sedo/atom) keep their feed price for now — extend `costOf` if they show the same drift.
+  Underlying staleness self-heals on the next afternic feed refresh; this guards the surfaced picks in the
+  meantime. No new env/table/migration.
 - **Single-seller portfolio de-flood (2026-07-24).** One owner listing `<name>+word` permutations
   (e.g. julianadvice/julianpartners/juliancorp… from the Efty Partner feed, all unpriced) was
   flooding the SNAP list. `defloodSnap()` in `lib/opportunities.ts` clusters UNPRICED names within a

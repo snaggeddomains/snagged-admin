@@ -7,6 +7,7 @@
 
 import { newOpportunities, type OpportunitiesReport } from "./opportunities";
 import { valuateDomains, type Valuation } from "./research-valuation";
+import { afternicBins } from "./afternic-bin";
 
 export type Pick = {
   domain: string;
@@ -111,23 +112,44 @@ export async function buildPicks(report?: OpportunitiesReport): Promise<PicksRep
   const valued = vals.size > 0;
   const v = (d: string): Valuation | undefined => vals.get(String(d).toLowerCase());
 
+  // Re-price AFTERNIC-sourced candidates against the LIVE storefront BIN. The feed
+  // price can go stale (a seller raises the BIN but our cached feed lags), and a
+  // stale-LOW cost manufactures a false value-÷-cost bargain — e.g. sauce.ai was fed
+  // $75k while the live Afternic BIN was $295k, turning a 0.6× dud into a fake 2.4×
+  // pick. Only the small valued pool is checked; fail-open (no live read → feed price).
+  // Other marketplaces keep their feed price — extend here if they show the same drift.
+  const isAfternic = (s: string | null): boolean => /afternic/i.test(String(s || ""));
+  const afternicDomains = [...snapTop, ...auctionTop]
+    .filter((d) => isAfternic(d.source))
+    .map((d) => String(d.domain).toLowerCase());
+  const liveBins = await afternicBins(afternicDomains);
+  const costOf = (d: { domain: string; source: string; price: number | null }): number | null => {
+    if (isAfternic(d.source)) {
+      const live = liveBins.get(String(d.domain).toLowerCase());
+      if (live != null && live > 0) return live;
+    }
+    return d.price ?? null;
+  };
+
   const snapValued: Pick[] = snapTop.map((d): Pick => {
     const val = v(d.domain);
+    const cost = costOf(d);
     return {
       domain: d.domain, bucket: "snap", source: d.source, link: listingUrl(d.domain, d.source, d.link),
-      cost: d.price ?? null, quality_score: d.quality_score ?? null, is_mub: d.is_mub ?? null,
+      cost, quality_score: d.quality_score ?? null, is_mub: d.is_mub ?? null,
       appraisalMid: val?.appraisalMid ?? null, tldCount: val?.tldCount ?? null, tldBand: val?.tldBand ?? null,
-      ratio: ratioOf(val?.appraisalMid ?? null, d.price ?? null),
+      ratio: ratioOf(val?.appraisalMid ?? null, cost),
     };
   }).sort(byRatioThenQuality);
 
   const auctionsValued: Pick[] = auctionTop.map((a): Pick => {
     const val = v(a.domain);
+    const cost = costOf(a);
     return {
       domain: a.domain, bucket: "auction", source: a.source, link: listingUrl(a.domain, a.source, a.link), endTimeUtc: a.endTimeUtc ?? null,
-      cost: a.price ?? null, quality_score: a.quality_score ?? null, is_mub: a.is_mub ?? null,
+      cost, quality_score: a.quality_score ?? null, is_mub: a.is_mub ?? null,
       appraisalMid: val?.appraisalMid ?? null, tldCount: val?.tldCount ?? null, tldBand: val?.tldBand ?? null,
-      ratio: ratioOf(val?.appraisalMid ?? null, a.price ?? null),
+      ratio: ratioOf(val?.appraisalMid ?? null, cost),
     };
   }).sort(byRatioThenQuality);
 
