@@ -1,14 +1,10 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 1,
   "domains": [
-    "corals.org",
-    "dealings.org",
-    "reflected.org",
-    "teases.org",
-    "thee.org"
+    "corals.org"
   ],
-  "generated_at": "2026-09-02T15:07:14.250975+00:00",
+  "generated_at": "2026-09-02T15:09:50.429814+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
