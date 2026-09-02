@@ -619,8 +619,9 @@ miner over all 477 txns is also Increment 2).
     processed EXACTLY ONCE and the drain terminates. Migration: `owner_review_cards.remined_at timestamptz`
     (`owner_review.sql`, add-if-not-exists; strip-retry pre-migration). **Cron** `/api/cron/owner-review-remine`
     (`vercel.json` `*/2 * * * *`, CRON_SECRET, maxDuration 300) **drains a CHUNK per invocation** — a
-    time-boxed loop of 12-card batches until ~220s or the wrong-set is empty. **⚠️ Vercel does NOT honor a
-    `*/2` schedule reliably (observed ~10-min actual cadence), so a one-batch-per-tick design stalls** (Judy's
+    time-boxed loop of 12-card batches until ~220s or the wrong-set is empty (schedule `*/5 * * * *`).
+    **⚠️ Vercel does NOT honor a frequent schedule reliably (observed ~15-30-min actual cadence), so a
+    one-batch-per-tick design stalls** (Judy's
     queue barely moved) — draining a lot per invocation clears the backlog in a few ticks regardless of how
     often Vercel fires. `?once=1` = single batch; `?dry=1&limit=` previews; `requireMarker` makes the unattended
     cron refuse to run until `remined_at` exists (else it'd loop on the same cards). Later ticks no-op once drained.
