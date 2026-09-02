@@ -1,15 +1,8 @@
 {
   "capped": false,
-  "count": 6,
-  "domains": [
-    "besides.xyz",
-    "granddad.xyz",
-    "net.com",
-    "rent.tv",
-    "salas.ai",
-    "unpopular.ai"
-  ],
-  "generated_at": "2026-09-02T17:07:18.000925+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-09-02T23:10:37.611577+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
