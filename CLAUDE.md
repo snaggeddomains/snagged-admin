@@ -631,7 +631,15 @@ miner over all 477 txns is also Increment 2).
       after a chunk, if `remaining>0` it fire-and-forget `fetch`es its own URL with `?chain=n+1` (Bearer
       CRON_SECRET), so ONE trigger cascades through the whole backlog instead of waiting for Vercel's next tick —
       bounded by `MAX_CHAIN` 60 + the `remined_at` marker (each card once) so it can't run away, and `requireMarker`
-      stops it if the column's missing. **Test button** "🔁 Re-mine wrong → Judy (10)" on the
+      stops it if the column's missing.
+    - **⚠️ Gmail-throttle backoff (2026-09-02).** The miner reads WHOLE threads across ALL deal mailboxes
+      (incl. **brian@**) per card, and the shared per-user Gmail quota is the real constraint — the parallel +
+      self-chain drain spiked brian@ (Superhuman throttled him). So: concurrency default dropped **4→2**
+      (`OWNER_REVIEW_REMINE_CONCURRENCY`), and the **self-chain is OFF by default** (`OWNER_REVIEW_REMINE_CHAIN=1`
+      to re-enable) — the `*/5` cron at low concurrency drains gently (~24-48/5 min) without cascading
+      back-to-back invocations. If a mailbox is being throttled, set concurrency=1 or disable the cron. NB our
+      SA uses domain-wide delegation, so it does NOT appear in a user's Gmail "apps with access" list — only in
+      the Admin Console AUDIT logs (matches Superhuman's guidance). **Test button** "🔁 Re-mine wrong → Judy (10)" on the
     Owner Review page (`canMine` only) → `POST /api/admin/deals/owner-review/remine-bulk {limit,dry}` (gated
     deals.all/admin, maxDuration 300) → runs a bounded batch live so Rob can eyeball the new logic; the cron
     handles the rest. **Setup:** run the updated `owner_review.sql` (adds `remined_at`) on the

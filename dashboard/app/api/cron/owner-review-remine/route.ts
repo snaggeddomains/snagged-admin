@@ -34,10 +34,13 @@ export async function GET(req: NextRequest) {
       if (once || s.note || s.scanned === 0 || s.remaining === 0) break;   // note = migration missing → stop (don't loop)
     } while (Date.now() < deadline);
     if (!dry) await recordHeartbeat("owner-review-remine", { updated, found, remaining }).catch(() => {});
-    // Self-chain: Vercel fires the schedule irregularly (~15-30 min), so instead of waiting for the
-    // next tick, kick the next chunk ourselves — one trigger then cascades through the whole backlog
-    // (bounded by MAX_CHAIN + the remined_at marker, so it can't loop forever). Fire-and-forget.
-    if (!dry && !once && !note && remaining > 0 && chain < MAX_CHAIN) {
+    // Self-chain: kick the next chunk ourselves so one trigger cascades through the backlog instead of
+    // waiting for Vercel's next tick. OFF by default now — cascading back-to-back invocations HAMMERS
+    // the shared per-user Gmail quota (brian@ was getting throttled), and the */5 schedule at low
+    // concurrency drains gently enough. Set OWNER_REVIEW_REMINE_CHAIN=1 to re-enable when mailboxes
+    // aren't under pressure. Bounded by MAX_CHAIN + the remined_at marker.
+    const chainOn = process.env.OWNER_REVIEW_REMINE_CHAIN === "1";
+    if (chainOn && !dry && !once && !note && remaining > 0 && chain < MAX_CHAIN) {
       const next = new URL(req.url); next.searchParams.set("chain", String(chain + 1)); next.searchParams.set("limit", String(batch));
       fetch(next.toString(), { headers: { authorization: `Bearer ${process.env.CRON_SECRET || ""}` } }).catch(() => {});
     }
