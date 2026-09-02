@@ -69,8 +69,11 @@ export async function POST(req: NextRequest) {
   const body = (await req.json().catch(() => ({}))) as CreateDealInput & { comment?: string };
   if (!body.domain) return NextResponse.json({ error: "domain is required" }, { status: 400 });
   const comment = body.comment ? String(body.comment).trim() : "";
+  // Upfront fee is an optional money field from the New-deal modal — coerce "$5,000"/"5000" → number.
+  const feeRaw = body.upfrontFee == null ? "" : String(body.upfrontFee).replace(/[^0-9.]/g, "");
+  const upfrontFee = feeRaw !== "" && Number.isFinite(Number(feeRaw)) ? Number(feeRaw) : undefined;
   try {
-    const { deal, created } = await createDeal({ ...body, createdBy: me.email });
+    const { deal, created } = await createDeal({ ...body, upfrontFee, createdBy: me.email });
     // Optional free-text pretext → posted as the deal's first comment (timeline), attributed to
     // the creator. Separate from Notes; best-effort so it never blocks deal creation.
     if (comment) { try { await addActivity(deal.id, { user_email: me.email, kind: "comment", body: comment, meta: null }); } catch { /* non-fatal */ } }

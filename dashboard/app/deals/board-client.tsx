@@ -463,7 +463,7 @@ function PrefsModal({ onClose }: { onClose: () => void }) {
 }
 
 function NewDealModal({ assignees, onClose, onCreated }: { assignees: Assignee[]; onClose: () => void; onCreated: (id: string) => void }) {
-  const [f, setF] = useState({ domain: "", buyerName: "", buyerEmail: "", orgName: "", budgetRange: "", source: SOURCES[0] as string, heardAbout: "", priority: "", ownerEmail: "", comment: "" });
+  const [f, setF] = useState({ domain: "", buyerName: "", buyerEmail: "", orgName: "", budgetRange: "", upfrontFee: "", source: SOURCES[0] as string, heardAbout: "", priority: "", ownerEmail: "", comment: "" });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const set = (k: string, v: string) => setF((s) => ({ ...s, [k]: v }));
@@ -534,6 +534,8 @@ function NewDealModal({ assignees, onClose, onCreated }: { assignees: Assignee[]
         <select style={input} value={f.budgetRange} onChange={(e) => set("budgetRange", e.target.value)}>
           <option value="">—</option>{BUDGET_BANDS.map((b) => <option key={b} value={b}>{b}</option>)}
         </select>
+        <label style={fieldLabel}>Upfront fee (optional)</label>
+        <input style={input} value={f.upfrontFee} onChange={(e) => set("upfrontFee", e.target.value)} inputMode="decimal" placeholder="e.g. $5,000 — what we charge the client to pursue it" />
         <label style={fieldLabel}>Source</label>
         <select style={input} value={f.source} onChange={(e) => set("source", e.target.value)}>{SOURCES.map((s) => <option key={s} value={s}>{s}</option>)}</select>
         <label style={fieldLabel}>Heard about (optional)</label>

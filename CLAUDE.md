@@ -344,6 +344,11 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
     missing-column strip-retry degrades it gracefully pre-migration. **Setup: run the `current_offer`
     line in `scripts/deals.sql` on the main project.** Not added to the New-deal/convert create
     surfaces (deal-page field only, per the ask).
+  - **Upfront fee on the New-deal modal (Rob, 2026-09-02).** `deals.upfront_fee` already existed (the
+    deal-detail edit form has it + `upfront_paid` auto-flips at Research & Outreach). Added it as an
+    **optional field on the board New-deal modal** too: `CreateDealInput.upfrontFee` + `createDeal` writes
+    `upfront_fee`; the POST route coerces "$5,000"/"5000" → number; modal has an "Upfront fee (optional)"
+    input after Budget range. No migration (column exists).
   - **Board card shows offer → asking when both set (Rob, 2026-09-01).** `board-client.tsx` card price
     line: when a deal has BOTH `current_offer` and `asking_price`, it renders **`$offer → $asking`**
     (green offer · muted arrow · navy asking) so the negotiation gap reads at a glance; otherwise it
@@ -595,9 +600,12 @@ miner over all 477 txns is also Increment 2).
     (`judy@snagged.com`, env `OWNER_REVIEW_REMINE_ASSIGNEE`), and stamps **`remined_at`** so each wrong card is
     processed EXACTLY ONCE and the drain terminates. Migration: `owner_review_cards.remined_at timestamptz`
     (`owner_review.sql`, add-if-not-exists; strip-retry pre-migration). **Cron** `/api/cron/owner-review-remine`
-    (`vercel.json` **`*/2 * * * *`**, CRON_SECRET) does **ONE batch of 12 per tick** (Rob's cadence — steady
-    12-per-120s, gentle on the shared Gmail quota, no bursts); `?dry=1&limit=` previews; `requireMarker` makes
-    the unattended cron refuse to run until `remined_at` exists (else it'd loop). Later ticks no-op once drained. **Test button** "🔁 Re-mine wrong → Judy (10)" on the
+    (`vercel.json` `*/2 * * * *`, CRON_SECRET, maxDuration 300) **drains a CHUNK per invocation** — a
+    time-boxed loop of 12-card batches until ~220s or the wrong-set is empty. **⚠️ Vercel does NOT honor a
+    `*/2` schedule reliably (observed ~10-min actual cadence), so a one-batch-per-tick design stalls** (Judy's
+    queue barely moved) — draining a lot per invocation clears the backlog in a few ticks regardless of how
+    often Vercel fires. `?once=1` = single batch; `?dry=1&limit=` previews; `requireMarker` makes the unattended
+    cron refuse to run until `remined_at` exists (else it'd loop on the same cards). Later ticks no-op once drained. **Test button** "🔁 Re-mine wrong → Judy (10)" on the
     Owner Review page (`canMine` only) → `POST /api/admin/deals/owner-review/remine-bulk {limit,dry}` (gated
     deals.all/admin, maxDuration 300) → runs a bounded batch live so Rob can eyeball the new logic; the cron
     handles the rest. **Setup:** run the updated `owner_review.sql` (adds `remined_at`) on the

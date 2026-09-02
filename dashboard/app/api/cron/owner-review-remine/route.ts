@@ -1,9 +1,11 @@
 // Background drain: re-mine the wrong-looking Owner Review cards (broker/none · no seller named)
 // with the whole-thread miner and assign each to Judy — so Rob doesn't click "Re-mine" repeatedly.
-// ONE batch of `limit` (default 12) per invocation; the vercel.json schedule (every 2 min) sets the
-// cadence — a steady 12-per-120s drain, gentle on the shared Gmail quota (no big bursts). Each card
-// is re-mined ONCE (remined_at marker), so the drain terminates and later ticks no-op. Auth: CRON_SECRET.
-//   ?limit=N per batch (default 12) · ?dry=1 (preview, no writes)
+// Each invocation DRAINS A CHUNK: a time-boxed loop of batches until ~220s elapsed or nothing wrong
+// remains. Vercel does NOT reliably fire a */2 schedule (observed ~10-min cadence), so relying on
+// frequent ticks stalls; draining a lot per invocation makes the backlog clear in a few ticks
+// regardless of how often Vercel actually fires. Each card is re-mined ONCE (remined_at marker), so
+// the drain terminates and later ticks no-op. Auth: CRON_SECRET.
+//   ?limit=N per batch (default 12) · ?once=1 (single batch) · ?dry=1 (preview one batch, no writes)
 import { NextResponse, type NextRequest } from "next/server";
 import { authorizedCron } from "@/lib/orchestrator";
 import { remineWrongCards } from "@/lib/deals/owner-review-mine";
@@ -20,11 +22,17 @@ export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const batch = Math.min(Number(url.searchParams.get("limit")) || 12, 40);
   const dry = url.searchParams.get("dry") === "1";
+  const once = dry || url.searchParams.get("once") === "1";
+  const deadline = Date.now() + 220000; // stay under maxDuration 300
+  let scanned = 0, updated = 0, found = 0, remaining = 0, note: string | undefined;
   try {
-    // ONE batch per invocation — the every-2-min schedule paces the drain (12 per 120s).
-    const s = await remineWrongCards({ limit: batch, dry, assignTo: REMINE_ASSIGNEE, requireMarker: !dry });
-    if (!dry) await recordHeartbeat("owner-review-remine", { updated: s.updated, found: s.found, remaining: s.remaining }).catch(() => {});
-    return NextResponse.json({ ok: true, scanned: s.scanned, updated: s.updated, found: s.found, remaining: s.remaining, note: s.note });
+    do {
+      const s = await remineWrongCards({ limit: batch, dry, assignTo: REMINE_ASSIGNEE, requireMarker: !dry });
+      scanned += s.scanned; updated += s.updated; found += s.found; remaining = s.remaining; note = s.note;
+      if (once || s.note || s.scanned === 0 || s.remaining === 0) break;   // note = migration missing → stop (don't loop)
+    } while (Date.now() < deadline);
+    if (!dry) await recordHeartbeat("owner-review-remine", { updated, found, remaining }).catch(() => {});
+    return NextResponse.json({ ok: true, scanned, updated, found, remaining, note });
   } catch (e) {
     return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
   }

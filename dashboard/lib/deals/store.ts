@@ -84,6 +84,7 @@ export type CreateDealInput = {
   budgetRange?: string;
   appraisalValue?: number;
   askingPrice?: number;
+  upfrontFee?: number;      // optional fee we charge the client up front to pursue the acquisition
   source?: string;
   heardAbout?: string;
   priority?: string;
@@ -133,6 +134,7 @@ export async function createDeal(input: CreateDealInput): Promise<{ deal: Deal; 
     budget_range: normalizeBudget(input.budgetRange) || norm(input.budgetRange),
     appraisal_value: input.appraisalValue ?? null,
     asking_price: input.askingPrice ?? null,
+    upfront_fee: input.upfrontFee ?? null,
     source: norm(input.source),
     heard_about: norm(input.heardAbout),
     priority: norm(input.priority),
