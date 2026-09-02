@@ -80,6 +80,7 @@ export const ACTIONS = [
   "deals.inbox", // additionally see the unassigned Inbox (claim new/unassigned deals)
   "deals.assignable", // "can receive deals" — appears in the assignee dropdowns
   "deals.reports", // the Deals Reporting view — query/aggregate across ALL deals
+  "deals.sam_split", // can toggle the "Sam splits upfront" flag on a deal (Rob/Judy/Brian)
 ] as const;
 export type ActionKey = (typeof ACTIONS)[number];
 
@@ -292,4 +293,5 @@ export const CATALOG: CatalogEntry[] = [
   { key: "deals.inbox", label: "Deals — see the unassigned Inbox", group: "Deals", kind: "action" },
   { key: "deals.assignable", label: "Deals — can receive deals (shows in assignee lists)", group: "Deals", kind: "action" },
   { key: "deals.reports", label: "Deals — Reporting (query/aggregate all deals)", group: "Deals", kind: "action" },
+  { key: "deals.sam_split", label: "Deals — toggle 'Sam splits upfront' on a deal", group: "Deals", kind: "action" },
 ];

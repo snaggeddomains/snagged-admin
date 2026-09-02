@@ -349,6 +349,21 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
     **optional field on the board New-deal modal** too: `CreateDealInput.upfrontFee` + `createDeal` writes
     `upfront_fee`; the POST route coerces "$5,000"/"5000" → number; modal has an "Upfront fee (optional)"
     input after Budget range. No migration (column exists).
+  - **"Sam splits upfront" flag + monthly report (Rob, 2026-09-02).** A permission-gated toggle on the deal
+    detail header (next to Snooze/Share) marking that Sam takes a cut of the upfront fee on this deal, so we
+    can report how many he took on per month. **Permission `deals.sam_split`** (ACTIONS + CATALOG group Deals)
+    — grant to **Judy + Brian**; Rob/admins auto-pass. Columns `deals.sam_split boolean` + **`sam_split_at
+    timestamptz`** (stamped when turned ON = the month he took it → month-accurate reporting; `deals.sql`,
+    add-if-not-exists + partial index). `store.setSamSplit(id,value,by)` sets the flag+stamp + logs a note;
+    deal `[id]` route POST **`action:'sam_split' {value}`** gated by the perm (independent of edit rights, so
+    Judy/Brian can toggle any deal); GET returns `canSamSplit`. UI: `deal-client.tsx` header shows a ☑/☐
+    "Sam splits upfront" button only when `canSamSplit` (optimistic toggle). **Reporting**: `ReportFilters.samSplit`
+    ('yes'|'no'); `reportDeals` filters it AND — when 'yes' — **bounds the date range by `sam_split_at`** (so
+    "This month" = deals Sam split this month, not created this month); reports-client got a **Sam split filter**,
+    a **Sam split column** (✓ + YYYY-MM), CSV cols, and a **group-by "Sam split — by month taken"** (buckets by
+    `sam_split_at` month). All degrade pre-migration (reportDeals strip-retries the sam_split clauses).
+    **Setup:** run the `sam_split`/`sam_split_at` lines in `scripts/deals.sql` on the **`domain-owner-research`**
+    project (the PRODUCTION one — NOT snagged-naming-universe), and grant `deals.sam_split` to Judy + Brian.
   - **Board card shows offer → asking when both set (Rob, 2026-09-01).** `board-client.tsx` card price
     line: when a deal has BOTH `current_offer` and `asking_price`, it renders **`$offer → $asking`**
     (green offer · muted arrow · navy asking) so the negotiation gap reads at a glance; otherwise it

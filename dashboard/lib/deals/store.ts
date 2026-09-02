@@ -25,6 +25,8 @@ export type Deal = {
   commission: number | null;    // our commission on the close
   upfront_fee: number | null;   // what we charged the client up front to pursue the acquisition
   upfront_paid: boolean | null; // auto-true once the deal reaches Research & Outreach
+  sam_split: boolean | null;    // Sam takes a cut of the upfront fee on this deal (permission-gated toggle)
+  sam_split_at: string | null;  // when the split was taken on — for month-accurate reporting
   source: string | null;
   heard_about: string | null;  // "How did you hear about us?" — marketing attribution off the inquiry form
   priority: string | null;
@@ -194,6 +196,8 @@ export async function listDeals(opts: { all: boolean; me: string; inbox?: boolea
 export type ReportFilters = {
   status?: string; owner?: string; stage?: string; source?: string; heardAbout?: string; priority?: string;
   budgetBand?: string; minAsking?: number; maxAsking?: number; q?: string; from?: string; to?: string;
+  samSplit?: "yes" | "no";   // filter to deals Sam splits (or not); when "yes", the date range
+                              // keys off sam_split_at (the month he TOOK it on) — for monthly reports.
 };
 
 // Unscoped, filterable query across ALL deals — for the Reporting view (gated by
@@ -201,7 +205,10 @@ export type ReportFilters = {
 // heard_about clauses; on a pre-migration DB (no heard_about column) the query is retried
 // without them so the report still loads.
 export async function reportDeals(f: ReportFilters): Promise<Deal[]> {
-  const build = (withHeard: boolean) => {
+  const build = (withHeard: boolean, withSamSplit: boolean) => {
+    // When filtering to Sam's splits, bound the date range by WHEN he took it on (sam_split_at),
+    // so "This month" = deals Sam split this month, not deals created this month.
+    const dateCol = withSamSplit && f.samSplit === "yes" ? "sam_split_at" : "created_at";
     let query = getDb().from(DEALS).select("*").order("created_at", { ascending: false }).limit(2000);
     if (f.status) query = query.eq("status", f.status);
     if (f.owner) query = f.owner === "__inbox__" ? query.is("owner_email", null) : query.eq("owner_email", f.owner.toLowerCase());
@@ -212,16 +219,19 @@ export async function reportDeals(f: ReportFilters): Promise<Deal[]> {
     if (f.budgetBand) query = query.eq("budget_range", f.budgetBand);
     if (f.minAsking != null) query = query.gte("asking_price", f.minAsking);
     if (f.maxAsking != null) query = query.lte("asking_price", f.maxAsking);
+    if (withSamSplit && f.samSplit === "yes") query = query.eq("sam_split", true);
+    if (withSamSplit && f.samSplit === "no") query = query.or("sam_split.is.null,sam_split.eq.false");
     if (f.q) {
       const cols = ["domain", "buyer_name", "buyer_email", "org_name", ...(withHeard ? ["heard_about"] : [])];
       query = query.or(cols.map((c) => `${c}.ilike.%${f.q}%`).join(","));
     }
-    if (f.from) query = query.gte("created_at", f.from);
-    if (f.to) query = query.lte("created_at", `${f.to}T23:59:59`);
+    if (f.from) query = query.gte(dateCol, f.from);
+    if (f.to) query = query.lte(dateCol, `${f.to}T23:59:59`);
     return query;
   };
-  let { data, error } = await build(true);
-  if (error && /heard_about/i.test(error.message)) ({ data, error } = await build(false));
+  let { data, error } = await build(true, true);
+  if (error && /heard_about/i.test(error.message)) ({ data, error } = await build(false, true));
+  if (error && /sam_split/i.test(error.message)) ({ data, error } = await build(true, false));
   if (error) throw new Error(`reportDeals: ${error.message}`);
   return (data as Deal[]) || [];
 }
@@ -349,6 +359,16 @@ export async function updateDeal(id: string, patch: Record<string, unknown>, act
     await addActivity(id, { user_email: actor, kind: "assignment", body: null, meta: { from: before.owner_email, to: after.owner_email } });
   }
   return after;
+}
+
+// Toggle the "Sam splits upfront" flag (permission-gated by the caller). Stamps sam_split_at when
+// turned ON (the month Sam took it on → month-accurate reporting), clears it when OFF. Logs a note.
+export async function setSamSplit(id: string, value: boolean, actor: string | null): Promise<Deal> {
+  const update = { sam_split: value, sam_split_at: value ? new Date().toISOString() : null };
+  const { data, error } = await getDb().from(DEALS).update(update).eq("id", id).select("*").single();
+  if (error) throw new Error(`setSamSplit: ${error.message}`);
+  await addActivity(id, { user_email: actor, kind: "note", body: value ? "🤝 Sam splits upfront — ON" : "Sam splits upfront — OFF", meta: { sam_split: value } }).catch(() => {});
+  return data as Deal;
 }
 
 export async function addActivity(deal_id: string, a: { user_email: string | null; kind: string; body: string | null; meta: Record<string, unknown> | null }): Promise<Activity | null> {

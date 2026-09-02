@@ -98,6 +98,13 @@ alter table deals add column if not exists current_offer numeric;
 alter table deals add column if not exists upfront_fee numeric;
 alter table deals add column if not exists upfront_paid boolean default false;
 
+-- "Sam splits upfront" flag — Sam takes a cut of the upfront fee on this deal. Permission-gated
+-- toggle (deals.sam_split: Rob/Judy/Brian). sam_split_at stamps WHEN it was taken on, so monthly
+-- reports can bucket by the month Sam took it (not the deal's creation month).
+alter table deals add column if not exists sam_split boolean default false;
+alter table deals add column if not exists sam_split_at timestamptz;
+create index if not exists idx_deals_sam_split on deals (sam_split_at) where sam_split;
+
 -- Per-user deal notification preferences ({deal:{in_app,email,slack}}), default all on.
 alter table domain_research_users add column if not exists notif_prefs jsonb;
 

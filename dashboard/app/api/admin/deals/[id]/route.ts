@@ -5,7 +5,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { userCan, userCanAction, type AppUser } from "@/lib/permissions";
-import { getDeal, updateDeal, addActivity, listActivity, listDealEmails, type Deal } from "@/lib/deals/store";
+import { getDeal, updateDeal, addActivity, listActivity, listDealEmails, setSamSplit, type Deal } from "@/lib/deals/store";
 import { notifyAssignment, notifyStageChange, notifyMention, notifyComment, notifyShare } from "@/lib/deals/notify";
 import { ingestDealEmails } from "@/lib/deals/emails";
 import { researchReportLink, kickResearchRun, researchReportSummary } from "@/lib/deals/research-link";
@@ -95,7 +95,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   // The confirmed owner record (built at Negotiating), for the sidebar link + directory.
   let ownerRecord: { id: string; name: string } | null = null;
   if (deal.domain_owner_id) { try { const o = await getOwner(deal.domain_owner_id); if (o) ownerRecord = { id: o.id, name: o.name }; } catch { /* best-effort */ } }
-  return NextResponse.json({ ok: true, deal, dossierUrl, additional, ownerRecord, activity, emails, assignees, shares, reminder, canEdit, me: me!.email });
+  const canSamSplit = me!.is_admin || userCanAction(me!, "deals.sam_split");
+  return NextResponse.json({ ok: true, deal, dossierUrl, additional, ownerRecord, activity, emails, assignees, shares, reminder, canEdit, canSamSplit, me: me!.email });
 }
 
 const EDITABLE = new Set([
@@ -172,7 +173,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const canEdit = mayEdit(me!, deal);
 
   type Attach = { url: string; name?: string; type?: string };
-  const body = (await req.json().catch(() => ({}))) as { action?: string; body?: string; mentions?: string[]; attachments?: Attach[]; emails?: string[]; email?: string; remind_at?: string; note?: string };
+  const body = (await req.json().catch(() => ({}))) as { action?: string; body?: string; mentions?: string[]; attachments?: Attach[]; emails?: string[]; email?: string; remind_at?: string; note?: string; value?: boolean };
   // Sanitize attachments to our own storage host only (never render an arbitrary URL).
   const cleanAttachments = (Array.isArray(body.attachments) ? body.attachments : [])
     .filter((a) => a && typeof a.url === "string" && /^https?:\/\//i.test(a.url))
@@ -232,6 +233,12 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     case "unsnooze": {
       await clearReminder(deal.id, me!.email);
       return NextResponse.json({ ok: true, reminder: null });
+    }
+    case "sam_split": {
+      // Permission-gated (deals.sam_split: Rob/Judy/Brian) — independent of edit rights on the deal.
+      if (!me!.is_admin && !userCanAction(me!, "deals.sam_split")) return NextResponse.json({ error: "Not allowed to toggle this." }, { status: 403 });
+      const updated = await setSamSplit(deal.id, !!body.value, me!.email);
+      return NextResponse.json({ ok: true, deal: updated });
     }
     case "ingest": {
       if (!canEdit) return NextResponse.json({ error: "You can view this shared deal but not edit it." }, { status: 403 });

@@ -8,6 +8,7 @@ type Deal = {
   id: string; domain: string; buyer_name: string | null; buyer_email: string | null; org_name: string | null;
   budget_range: string | null; asking_price: number | null; appraisal_value: number | null;
   source: string | null; heard_about: string | null; priority: string | null; owner_email: string | null; stage: string; status: string; created_at: string;
+  sam_split: boolean | null; sam_split_at: string | null;
 };
 type Agg = { count: number; askingTotal: number; byStage: Record<string, number>; byOwner: Record<string, number>; byStatus: Record<string, number> };
 type Resp = { ok: boolean; deals: Deal[]; aggregates: Agg; assignees: { email: string; name: string }[]; error?: string };
@@ -20,7 +21,7 @@ const td: CSSProperties = { padding: "7px 12px 7px 0", fontSize: 13, borderTop: 
 const btn: CSSProperties = { padding: "7px 13px", borderRadius: 8, border: "1px solid var(--line,#e3ddcf)", background: "transparent", fontSize: 13, fontWeight: 600, cursor: "pointer" };
 const stat: CSSProperties = { border: "1px solid var(--line,#e3ddcf)", borderRadius: 10, padding: "10px 14px", minWidth: 120 };
 
-const EMPTY: Record<string, string> = { status: "", owner: "", stage: "", source: "", heardAbout: "", priority: "", budgetBand: "", minAsking: "", maxAsking: "", q: "", from: "", to: "" };
+const EMPTY: Record<string, string> = { status: "", owner: "", stage: "", source: "", heardAbout: "", priority: "", budgetBand: "", minAsking: "", maxAsking: "", q: "", from: "", to: "", samSplit: "" };
 
 const value = (d: Deal) => d.asking_price || d.appraisal_value || 0;
 
@@ -47,19 +48,19 @@ function presetRange(key: string): { from: string; to: string } {
 }
 
 // Sortable columns — each maps a header to a comparable value over a row.
-type SortKey = "domain" | "buyer" | "owner" | "stage" | "status" | "budget" | "asking" | "source" | "heard" | "created";
+type SortKey = "domain" | "buyer" | "owner" | "stage" | "status" | "budget" | "asking" | "source" | "heard" | "created" | "sam";
 const COLS: { key: SortKey; label: string; num?: boolean }[] = [
   { key: "domain", label: "Domain" }, { key: "buyer", label: "Buyer" }, { key: "owner", label: "Owner" },
   { key: "stage", label: "Stage" }, { key: "status", label: "Status" }, { key: "budget", label: "Budget" },
   { key: "asking", label: "Asking", num: true }, { key: "source", label: "Source" },
-  { key: "heard", label: "Heard about" }, { key: "created", label: "Created", num: true },
+  { key: "heard", label: "Heard about" }, { key: "created", label: "Created", num: true }, { key: "sam", label: "Sam split" },
 ];
 
 // Group-by breakdown fields — value bucket per deal.
 const GROUP_FIELDS: { key: string; label: string }[] = [
   { key: "", label: "— none —" }, { key: "heard_about", label: "Heard about" }, { key: "budget_range", label: "Budget" },
   { key: "source", label: "Source" }, { key: "stage", label: "Stage" }, { key: "status", label: "Status" },
-  { key: "owner", label: "Owner" }, { key: "priority", label: "Priority" },
+  { key: "owner", label: "Owner" }, { key: "priority", label: "Priority" }, { key: "sam_split_month", label: "Sam split — by month taken" },
 ];
 
 export default function ReportsClient() {
@@ -108,6 +109,7 @@ export default function ReportsClient() {
       case "source": return d.source || "";
       case "heard": return (d.heard_about || "").toLowerCase();
       case "created": return d.created_at || "";
+      case "sam": return d.sam_split ? "yes" : "";
     }
   }, [nameFor]);
 
@@ -131,6 +133,7 @@ export default function ReportsClient() {
   const groupVal = useCallback((d: Deal): string => {
     if (groupBy === "owner") return nameFor(d.owner_email);
     if (groupBy === "status") return statusLabel(d.status);
+    if (groupBy === "sam_split_month") return d.sam_split && d.sam_split_at ? d.sam_split_at.slice(0, 7) : "— not split —";
     const v = (d as unknown as Record<string, unknown>)[groupBy];
     return (v == null || v === "") ? "—" : String(v);
   }, [groupBy, nameFor]);
@@ -148,9 +151,9 @@ export default function ReportsClient() {
   }, [deals, groupBy, groupVal]);
 
   const exportCsv = () => {
-    const head = ["domain", "buyer", "email", "company", "owner", "stage", "status", "budget", "asking", "appraisal", "source", "heard_about", "priority", "created"];
+    const head = ["domain", "buyer", "email", "company", "owner", "stage", "status", "budget", "asking", "appraisal", "source", "heard_about", "priority", "created", "sam_split", "sam_split_at"];
     const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-    const rows = sorted.map((d) => [d.domain, d.buyer_name, d.buyer_email, d.org_name, nameFor(d.owner_email), d.stage, d.status, d.budget_range, d.asking_price, d.appraisal_value, d.source, d.heard_about, d.priority, d.created_at?.slice(0, 10)].map(esc).join(","));
+    const rows = sorted.map((d) => [d.domain, d.buyer_name, d.buyer_email, d.org_name, nameFor(d.owner_email), d.stage, d.status, d.budget_range, d.asking_price, d.appraisal_value, d.source, d.heard_about, d.priority, d.created_at?.slice(0, 10), d.sam_split ? "yes" : "", d.sam_split_at?.slice(0, 10)].map(esc).join(","));
     const blob = new Blob([[head.join(","), ...rows].join("\n")], { type: "text/csv" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "deals-report.csv"; a.click();
   };
@@ -175,6 +178,7 @@ export default function ReportsClient() {
         <div><span style={lbl}>Heard about</span><input style={input} value={f.heardAbout} onChange={(e) => set("heardAbout", e.target.value)} placeholder="e.g. X / Twitter" /></div>
         <div><span style={lbl}>Priority</span><select style={input} value={f.priority} onChange={(e) => set("priority", e.target.value)}><option value="">Any</option>{PRIORITIES.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
         <div><span style={lbl}>Budget</span><select style={input} value={f.budgetBand} onChange={(e) => set("budgetBand", e.target.value)}><option value="">Any</option>{BUDGET_BANDS.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
+        <div><span style={lbl}>Sam split</span><select style={input} value={f.samSplit} onChange={(e) => set("samSplit", e.target.value)} title="When set to Yes, the date range counts the month Sam TOOK it on (sam_split_at)"><option value="">Any</option><option value="yes">Yes</option><option value="no">No</option></select></div>
         <div><span style={lbl}>Min asking $</span><input style={input} value={f.minAsking} onChange={(e) => set("minAsking", e.target.value)} placeholder="0" /></div>
         <div><span style={lbl}>Max asking $</span><input style={input} value={f.maxAsking} onChange={(e) => set("maxAsking", e.target.value)} placeholder="—" /></div>
         <div><span style={lbl}>Date range</span><select style={input} value={preset} onChange={(e) => onPreset(e.target.value)}>{DATE_PRESETS.map((p) => <option key={p.key} value={p.key}>{p.label}</option>)}</select></div>
@@ -255,6 +259,7 @@ export default function ReportsClient() {
                 <td style={td}>{d.source || "—"}</td>
                 <td style={td}>{d.heard_about || "—"}</td>
                 <td style={{ ...td, textAlign: "right", color: "var(--muted,#889)" }}>{d.created_at?.slice(0, 10)}</td>
+                <td style={td}>{d.sam_split ? <span style={{ color: "#1f6b52", fontWeight: 700 }}>✓{d.sam_split_at ? ` ${d.sam_split_at.slice(0, 7)}` : ""}</span> : "—"}</td>
               </tr>
             ))}
             {!deals.length && !loading && <tr><td style={{ ...td, color: "var(--muted,#aab)" }} colSpan={COLS.length}>No deals match.</td></tr>}

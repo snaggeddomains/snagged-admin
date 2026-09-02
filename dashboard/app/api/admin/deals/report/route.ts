@@ -31,6 +31,7 @@ export async function GET(req: NextRequest) {
     q: s.get("q") || undefined,
     from: s.get("from") || undefined,
     to: s.get("to") || undefined,
+    samSplit: s.get("samSplit") === "yes" ? "yes" : s.get("samSplit") === "no" ? "no" : undefined,
   };
   try {
     const deals = await reportDeals(f);

@@ -10,7 +10,7 @@ const NEGOTIATING = "Negotiating";
 type Deal = {
   id: string; domain: string; additional_domains: string | null; buyer_name: string | null; buyer_email: string | null;
   buyer_phone: string | null; org_name: string | null; budget_range: string | null; appraisal_value: number | null;
-  asking_price: number | null; current_offer: number | null; upfront_fee: number | null; upfront_paid: boolean | null; source: string | null; heard_about: string | null; priority: string | null; owner_email: string | null;
+  asking_price: number | null; current_offer: number | null; upfront_fee: number | null; upfront_paid: boolean | null; sam_split: boolean | null; sam_split_at: string | null; source: string | null; heard_about: string | null; priority: string | null; owner_email: string | null;
   stage: string; status: string; lost_reason: string | null; report_link: string | null; likely_owner: string | null;
   owner_contact: string | null; reachability: string | null; notes: string | null; tags: string[] | null; created_at: string;
   lead_key: string | null; domain_owner_id: string | null;
@@ -21,7 +21,7 @@ type Assignee = { email: string; name: string };
 type AddlDomain = { domain: string; report: string | null };
 type OwnerRecord = { id: string; name: string };
 type Reminder = { id: string; remind_at: string; note: string | null };
-type Resp = { ok: boolean; deal: Deal; dossierUrl: string | null; ownerRecord?: OwnerRecord | null; additional?: AddlDomain[]; activity: Activity[]; emails: Email[]; assignees: Assignee[]; shares?: string[]; reminder?: Reminder | null; canEdit?: boolean; me: string; error?: string };
+type Resp = { ok: boolean; deal: Deal; dossierUrl: string | null; ownerRecord?: OwnerRecord | null; additional?: AddlDomain[]; activity: Activity[]; emails: Email[]; assignees: Assignee[]; shares?: string[]; reminder?: Reminder | null; canEdit?: boolean; canSamSplit?: boolean; me: string; error?: string };
 
 const card: CSSProperties = { border: "1px solid var(--line,#e3ddcf)", borderRadius: 12, padding: 16, background: "var(--paper,#fff)", marginBottom: 14 };
 const lbl: CSSProperties = { display: "block", fontSize: 11.5, fontWeight: 700, color: "var(--navy-2,#4a5b66)", margin: "9px 0 3px", textTransform: "uppercase", letterSpacing: ".02em" };
@@ -69,6 +69,15 @@ export default function DealClient({ id }: { id: string }) {
     if (!remindAt) return;
     await fetch(`/api/admin/deals/${id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "snooze", remind_at: remindAt, note: noteText }) });
     setSnoozeOpen(false); await load();
+  };
+  // "Sam splits upfront" — permission-gated toggle (Rob/Judy/Brian). Optimistic + reload.
+  const toggleSamSplit = async () => {
+    const next = !data?.deal.sam_split;
+    setData((d) => (d ? { ...d, deal: { ...d.deal, sam_split: next } } : d));
+    try {
+      await fetch(`/api/admin/deals/${id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "sam_split", value: next }) });
+    } catch { /* ignore */ }
+    await load();
   };
   const unsnooze = async () => {
     await fetch(`/api/admin/deals/${id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "unsnooze" }) });
@@ -258,6 +267,13 @@ export default function DealClient({ id }: { id: string }) {
         <h1 style={{ fontSize: "1.5rem", margin: 0 }}>{d.domain}</h1>
         <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
           {!canEdit && <span style={{ fontSize: 12, fontWeight: 700, color: "#1f6b52", background: "#dff2ea", borderRadius: 999, padding: "3px 10px" }}>🔗 Shared with you · view &amp; comment</span>}
+          {data.canSamSplit && (
+            <button
+              onClick={toggleSamSplit}
+              title={d.sam_split ? (d.sam_split_at ? `Sam splits the upfront on this deal (marked ${when(d.sam_split_at)})` : "Sam splits the upfront on this deal") : "Mark that Sam takes a split of the upfront fee on this deal"}
+              style={{ ...btn, ...(d.sam_split ? { background: "#dff2ea", color: "#1f6b52", borderColor: "#1f6b52", fontWeight: 700 } : {}) }}
+            >{d.sam_split ? "☑" : "☐"} Sam splits upfront</button>
+          )}
           {data.reminder
             ? <button style={{ ...btn, color: "#9a3412", borderColor: "#f0c9a8" }} onClick={unsnooze} title={`Boomerangs ${when(data.reminder.remind_at)}`}>⏰ Snoozed · clear</button>
             : <button style={btn} onClick={() => setSnoozeOpen((v) => !v)}>⏰ Snooze</button>}
