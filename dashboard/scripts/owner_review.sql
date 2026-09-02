@@ -29,6 +29,9 @@ create table if not exists owner_review_cards (
 -- Explicit last name (first name is candidate_first_name). candidate_name stays as the
 -- computed "First Last" display/owner name. Added after the initial ship — safe to re-run.
 alter table owner_review_cards add column if not exists candidate_last_name text;
+-- Stamp set when a card has been RE-MINED with the whole-thread miner, so the background re-mine
+-- drain processes each wrong card exactly once (and terminates). Added after ship — safe to re-run.
+alter table owner_review_cards add column if not exists remined_at timestamptz;
 create unique index if not exists idx_owner_review_domain on owner_review_cards (lower(domain));
 create index if not exists idx_owner_review_queue on owner_review_cards (status, assigned_to);
 alter table owner_review_cards enable row level security;

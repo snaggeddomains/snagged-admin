@@ -18,6 +18,16 @@ const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 const MODEL = process.env.OWNER_REVIEW_MODEL || process.env.DEAL_RECAP_MODEL || "claude-haiku-4-5-20251001";
 const CARDS = "owner_review_cards";
 
+// Automated monitoring / bot senders that NEVER name an owner — DomainScout EPP-status alerts,
+// mailer-daemons, no-reply notifications. Dropped from the transcript so they can't crowd out (or
+// mislead) the seller read. (DomainScout emails show as rob→rob "…has been updated. The EPP Status
+// Codes have been changed…", so a sender-only filter needs the subject/body cues too.)
+const NOISE_FROM = /@domainscout\.|domainscout\.io|mailer-daemon|postmaster@|(^|[._-])no-?reply|do-?not-?reply|notifications?@/i;
+const NOISE_SUBJECT = /epp status code|status codes? (have )?been changed|has been updated\b/i;
+function isNoiseMsg(m: GmailMessage): boolean {
+  return NOISE_FROM.test(m.from || "") || NOISE_SUBJECT.test(m.subject || "");
+}
+
 const esc = (s: string) => s.replace(/[.+*?^${}()|[\]\\]/g, "\\$&");
 const clean = (s: string) => (s || "").trim().replace(/^"|"$/g, "");
 const splitName = (full: string): { first: string; last: string } => {
@@ -140,7 +150,7 @@ async function gatherMessages(domain: string, opts: { maxThreads?: number; perTh
   for (const { mb, threadId } of threads) {
     let msgs: GmailMessage[] = [];
     try { msgs = await getThreadCapped(mb, threadId); } catch { continue; }
-    const kept = msgs.filter((m) => !m.bulk).sort((a, b) => a.date - b.date).slice(0, perThread);
+    const kept = msgs.filter((m) => !m.bulk && !isNoiseMsg(m)).sort((a, b) => a.date - b.date).slice(0, perThread);
     for (const m of kept) {
       const k = m.mid || m.id;
       if (seenMid.has(k)) continue;
@@ -262,4 +272,94 @@ async function getCard2ByDomain(domain: string): Promise<boolean> {
     const { data } = await getDb().from(CARDS).select("id").eq("domain", domain.toLowerCase()).limit(1).maybeSingle();
     return !!data;
   } catch { return false; }
+}
+
+// ---- Bulk RE-MINE of wrong-looking cards -------------------------------------------------------
+// Cards created by the FIRST (first-10-messages) miner often read "broker / no candidate seller"
+// because the escrow thread swamped the read. Re-mine them with the whole-thread logic, assign each
+// to a reviewer (Judy), and stamp `remined_at` so each wrong card is re-processed EXACTLY ONCE (the
+// background drain terminates). A card that turns up a real seller drops out of the wrong-set; one
+// that stays broker/none is a genuine broker card (Dismiss).
+
+export type RemineSummary = { scanned: number; updated: number; found: number; remaining: number; dry?: boolean; note?: string; results: { domain: string; found: boolean; confidence: string; name: string }[] };
+
+// "Wrong-looking" = pending, not yet re-mined, AND (confidence broker/none OR no candidate name).
+// Returns { columnMissing:true } when `remined_at` isn't migrated yet — the caller then refuses the
+// unattended drain (it can't mark progress → would loop forever), but a bounded one-shot still runs.
+async function selectWrongCards(limit: number): Promise<{ rows: { id: string; domain: string }[]; columnMissing: boolean }> {
+  const wrong = "confidence.in.(broker,none),candidate_name.is.null";
+  try {
+    const { data, error } = await getDb().from(CARDS).select("id,domain")
+      .eq("status", "pending").is("remined_at", null).or(wrong)
+      .order("txn_date", { ascending: false }).limit(limit);
+    if (error) throw error;
+    return { rows: (data as { id: string; domain: string }[]) || [], columnMissing: false };
+  } catch (e) {
+    if (/remined_at/.test((e as { message?: string })?.message || "")) {
+      const { data } = await getDb().from(CARDS).select("id,domain")
+        .eq("status", "pending").or(wrong).order("txn_date", { ascending: false }).limit(limit);
+      return { rows: (data as { id: string; domain: string }[]) || [], columnMissing: true };
+    }
+    return { rows: [], columnMissing: false };
+  }
+}
+
+async function countWrongCards(): Promise<number> {
+  const wrong = "confidence.in.(broker,none),candidate_name.is.null";
+  try {
+    const { count, error } = await getDb().from(CARDS).select("id", { count: "exact", head: true })
+      .eq("status", "pending").is("remined_at", null).or(wrong);
+    if (error) throw error;
+    return count || 0;
+  } catch {
+    try {
+      const { count } = await getDb().from(CARDS).select("id", { count: "exact", head: true }).eq("status", "pending").or(wrong);
+      return count || 0;
+    } catch { return 0; }
+  }
+}
+
+async function applyRemine(id: string, mined: MinedOwner, assignTo: string | null): Promise<void> {
+  const base: Record<string, unknown> = {
+    candidate_first_name: mined.first_name || null,
+    candidate_last_name: mined.last_name || null,
+    candidate_name: [mined.first_name, mined.last_name].filter(Boolean).join(" ") || null,
+    candidate_email: mined.email || null,
+    candidate_phone: mined.phone || null,
+    channel: mined.channel || null,
+    buyer_context: mined.buyer_context || null,
+    confidence: mined.confidence,
+    evidence: mined.evidence || null,
+    updated_at: new Date().toISOString(),
+  };
+  if (assignTo) base.assigned_to = assignTo.toLowerCase();
+  const { error } = await getDb().from(CARDS).update({ ...base, remined_at: new Date().toISOString() }).eq("id", id);
+  if (error && /remined_at/.test(error.message || "")) await getDb().from(CARDS).update(base).eq("id", id);
+}
+
+// Re-mine a batch of wrong cards. `requireMarker` (the unattended cron) refuses when `remined_at`
+// isn't migrated (can't guarantee termination); a bounded manual test passes requireMarker=false.
+export async function remineWrongCards(opts: { limit?: number; dry?: boolean; assignTo?: string | null; requireMarker?: boolean } = {}): Promise<RemineSummary> {
+  const limit = opts.limit ?? 15;
+  const dry = !!opts.dry;
+  const assignTo = opts.assignTo ?? null;
+  const out: RemineSummary = { scanned: 0, updated: 0, found: 0, remaining: 0, dry, results: [] };
+  if (!isDbConfigured()) return { ...out, note: "DB not configured" };
+  if (!process.env.ANTHROPIC_API_KEY) return { ...out, note: "ANTHROPIC_API_KEY not set on the admin project — the miner needs it. Set it, then run again." };
+  const { rows, columnMissing } = await selectWrongCards(limit);
+  if (columnMissing && opts.requireMarker) {
+    return { ...out, remaining: rows.length, note: "Run the owner_review.sql migration to add `remined_at` before the background drain (needed so it doesn't re-process the same cards). A manual test batch still works." };
+  }
+  for (const c of rows) {
+    out.scanned++;
+    const mined = await mineOwnerForDomain(c.domain);
+    const name = [mined.first_name, mined.last_name].filter(Boolean).join(" ");
+    if (mined.seller_found) out.found++;
+    out.results.push({ domain: c.domain, found: mined.seller_found, confidence: mined.confidence, name });
+    if (dry) continue;
+    await applyRemine(c.id, mined, assignTo);
+    out.updated++;
+  }
+  out.remaining = await countWrongCards();
+  return out;
 }

@@ -18,6 +18,7 @@
     { "path": "/api/cron/client-overlap", "schedule": "0 12 * * *" },
     { "path": "/api/cron/reddit-sweep", "schedule": "0 13,18,23 * * *" },
     { "path": "/api/cron/x-sweep", "schedule": "0 13,18,23 * * *" },
-    { "path": "/api/cron/owner-review-mine", "schedule": "0 15 * * *" }
+    { "path": "/api/cron/owner-review-mine", "schedule": "0 15 * * *" },
+    { "path": "/api/cron/owner-review-remine", "schedule": "*/30 * * * *" }
   ]
 }

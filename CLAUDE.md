@@ -583,6 +583,26 @@ miner over all 477 txns is also Increment 2).
     on `[id]` (maxDuration 60): re-runs `mineOwnerForDomain(card.domain)` with the new whole-thread logic and
     OVERWRITES the candidate fields (stays pending). Button on the review card next to Skip; message says whether
     a direct seller was found. Use it on any card that looks wrong / reads "broker · no candidate seller."
+  - **DomainScout / bot alerts skipped in the miner (Rob, 2026-09-02).** `gatherMessages` now drops noise
+    messages (`isNoiseMsg`: DomainScout `@domainscout.io` / "EPP status codes have been changed" / "has been
+    updated" monitoring alerts, mailer-daemon, no-reply/notifications@) from every thread before the LLM read —
+    they never name an owner and only crowd/mislead the read. (These show as rob→rob, so the sender-only filter
+    also keys on the subject cues.)
+  - **BULK re-mine → assign Judy + BACKGROUND drain (Rob, 2026-09-02).** So Rob doesn't click every 60s:
+    `remineWrongCards({limit,dry,assignTo,requireMarker})` (`owner-review-mine.ts`) selects PENDING cards that
+    look wrong (`confidence in (broker,none) OR candidate_name is null`) and **not yet re-mined** (`remined_at`
+    null), re-mines each with the whole-thread logic, OVERWRITES the fields, **assigns to Judy**
+    (`judy@snagged.com`, env `OWNER_REVIEW_REMINE_ASSIGNEE`), and stamps **`remined_at`** so each wrong card is
+    processed EXACTLY ONCE and the drain terminates. Migration: `owner_review_cards.remined_at timestamptz`
+    (`owner_review.sql`, add-if-not-exists; strip-retry pre-migration). **Cron** `/api/cron/owner-review-remine`
+    (`vercel.json` **`*/30 * * * *`**, CRON_SECRET, maxDuration 300) time-boxed loops batches (~240s) until the
+    wrong-set is drained then no-ops; `?dry=1&limit=` previews; `requireMarker` makes the unattended cron refuse
+    to run until `remined_at` exists (else it'd loop). **Test button** "🔁 Re-mine wrong → Judy (10)" on the
+    Owner Review page (`canMine` only) → `POST /api/admin/deals/owner-review/remine-bulk {limit,dry}` (gated
+    deals.all/admin, maxDuration 300) → runs a bounded batch live so Rob can eyeball the new logic; the cron
+    handles the rest. **Setup:** run the updated `owner_review.sql` (adds `remined_at`) on the
+    **`domain-owner-research`** project (the PRODUCTION one — NOT snagged-naming-universe) —
+    https://github.com/snaggeddomains/snagged-admin/blob/main/dashboard/scripts/owner_review.sql
   - **`mineAllTxns({limit,dry})`** — reads the Master Txns List (`SNAGGED_TRACKER_SHEET_ID`, tab auto-detected
     domain/date/price cols), newest first, skips domains that already have a card, mines + `upsertCardForDomain`
     each. Bounded per run (Gmail quota + 300s); returns `{created, existing, remaining, note}`. **HARD GUARD:**
