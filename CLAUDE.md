@@ -490,7 +490,11 @@ miner over all 477 txns is also Increment 2).
   proved 3 outcomes — a direct seller found (~1/3), broker/escrow-hidden (owner not in email),
   or auction/registration/inbound-sale where only the BUYER is in email. So each card is
   Confirm / Edit-then-confirm / Reject (surfaced candidate is WRONG) / Skip (decide later) /
-  **Dismiss** (all non-confirm terminals reopenable). **netz.com gotcha:** Uzi was the BUYER, not
+  **Dismiss** (all non-confirm terminals reopenable). **Skip is pure NAVIGATION (Rob, 2026-09-02):**
+  it just advances to the next card and leaves this one **pending/open** — it does NOT set a `skipped`
+  status or move it out of the queue (client-side `onSkip` = bump the index; no API call). The
+  backend `setCardStatus('skipped')` + the "Skipped" filter tab remain for any historically-skipped
+  cards, but the review flow no longer creates them. **netz.com gotcha:** Uzi was the BUYER, not
   the seller — the heuristic that only saw escrow.com got it backwards; direction matters, hence the
   manual gate.
 - **The whole point is a DB of ACTUAL owners (Rob).** When we bought through a broker / marketplace /

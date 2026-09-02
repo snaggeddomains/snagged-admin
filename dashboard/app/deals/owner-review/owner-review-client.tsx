@@ -146,7 +146,8 @@ export default function OwnerReviewClient() {
       )}
 
       {card ? (
-        <ReviewCard key={card.id} card={card} reviewers={reviewers} onDone={afterAction} onRefresh={load} />
+        <ReviewCard key={card.id} card={card} reviewers={reviewers} onDone={afterAction} onRefresh={load}
+          onSkip={() => setIdx((i) => Math.min(cards.length - 1, i + 1))} />
       ) : (
         !loading && !err && data?.configured !== false && (
           <div style={{ textAlign: "center", padding: "48px 12px" }} className="muted">
@@ -160,7 +161,7 @@ export default function OwnerReviewClient() {
   );
 }
 
-function ReviewCard({ card, reviewers, onDone, onRefresh }: { card: Card; reviewers: Reviewer[]; onDone: () => void; onRefresh: () => void }) {
+function ReviewCard({ card, reviewers, onDone, onRefresh, onSkip }: { card: Card; reviewers: Reviewer[]; onDone: () => void; onRefresh: () => void; onSkip: () => void }) {
   const [editing, setEditing] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
@@ -249,7 +250,7 @@ function ReviewCard({ card, reviewers, onDone, onRefresh }: { card: Card; review
         <button style={btn} disabled={!!busy} onClick={() => { if (editing) act("edit"); else setEditing(true); }}>{editing ? (busy === "edit" ? "…" : "Save edits") : "✎ Edit"}</button>
         {editing && <button style={btn} onClick={() => setEditing(false)}>Cancel</button>}
         {card.status === "pending" && !editing && <button style={btn} disabled={!!busy} onClick={() => act("reject")} title="The surfaced candidate is wrong / mis-identified (e.g. it named the buyer as the seller)">✕ Reject</button>}
-        {card.status === "pending" && !editing && <button style={btn} disabled={!!busy} onClick={() => act("skip")} title="Decide later — stays in the queue">Skip →</button>}
+        {card.status === "pending" && !editing && <button style={btn} disabled={!!busy} onClick={onSkip} title="Decide later — just moves to the next card; this one stays pending in the queue">Skip →</button>}
         {card.status === "pending" && !editing && !noOwner && <button style={{ ...btn, color: "var(--muted,#8a94a0)" }} disabled={!!busy} onClick={() => act("dismiss")} title="No actual owner to log — set aside (reopenable). We only record real sellers.">⊘ Dismiss</button>}
         {card.status !== "pending" && <button style={btn} disabled={!!busy} onClick={() => act("reopen")}>↩ Reopen</button>}
       </div>
