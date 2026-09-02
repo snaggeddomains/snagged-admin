@@ -288,20 +288,25 @@ export type RemineSummary = { scanned: number; updated: number; found: number; r
 // unattended drain (it can't mark progress → would loop forever), but a bounded one-shot still runs.
 async function selectWrongCards(limit: number): Promise<{ rows: { id: string; domain: string }[]; columnMissing: boolean }> {
   const wrong = "confidence.in.(broker,none),candidate_name.is.null";
-  try {
-    const { data, error } = await getDb().from(CARDS).select("id,domain")
-      .eq("status", "pending").is("remined_at", null).or(wrong)
-      .order("txn_date", { ascending: false }).limit(limit);
-    if (error) throw error;
-    return { rows: (data as { id: string; domain: string }[]) || [], columnMissing: false };
-  } catch (e) {
-    if (/remined_at/.test((e as { message?: string })?.message || "")) {
-      const { data } = await getDb().from(CARDS).select("id,domain")
-        .eq("status", "pending").or(wrong).order("txn_date", { ascending: false }).limit(limit);
-      return { rows: (data as { id: string; domain: string }[]) || [], columnMissing: true };
+  // Fetch a POOL of wrong cards WITH remined_at and filter the unmined ones in JS — a PostgREST
+  // `.is("remined_at", null)` server-filter on this freshly-added column was silently mis-behaving
+  // and letting already-remined cards through, so the drain re-mined the same 12 forever. Selecting
+  // the value + filtering in JS is bulletproof. Order newest-txn first.
+  const { data, error } = await getDb().from(CARDS).select("id,domain,remined_at")
+    .eq("status", "pending").or(wrong).order("txn_date", { ascending: false, nullsFirst: false }).limit(Math.max(limit * 10, 120));
+  if (error) {
+    if (/remined_at/.test(error.message || "")) {
+      // Column genuinely absent (migration not run) → can't guarantee termination.
+      const { data: d2 } = await getDb().from(CARDS).select("id,domain").eq("status", "pending").or(wrong).order("txn_date", { ascending: false }).limit(limit);
+      return { rows: (d2 as { id: string; domain: string }[]) || [], columnMissing: true };
     }
     return { rows: [], columnMissing: false };
   }
+  const rows = ((data as { id: string; domain: string; remined_at: string | null }[]) || [])
+    .filter((r) => !r.remined_at)
+    .slice(0, limit)
+    .map((r) => ({ id: r.id, domain: r.domain }));
+  return { rows, columnMissing: false };
 }
 
 async function countWrongCards(): Promise<number> {
