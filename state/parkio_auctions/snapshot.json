@@ -1,14 +1,5 @@
 [
   {
-    "bid_count": 6,
-    "domain": "freehand.io",
-    "end_time_utc": "2026-09-01T16:41:01+00:00",
-    "is_mub": false,
-    "link": null,
-    "platform": "Park.io",
-    "price": 200.0
-  },
-  {
     "bid_count": 5,
     "domain": "nodex.io",
     "end_time_utc": "2026-09-02T16:41:01+00:00",
@@ -18,13 +9,13 @@
     "price": 112.0
   },
   {
-    "bid_count": 21,
+    "bid_count": 28,
     "domain": "stress.io",
     "end_time_utc": "2026-09-02T20:00:15+00:00",
     "is_mub": false,
     "link": null,
     "platform": "Park.io",
-    "price": 305.0
+    "price": 405.0
   },
   {
     "bid_count": 11,
@@ -45,13 +36,13 @@
     "price": 4550.0
   },
   {
-    "bid_count": 42,
+    "bid_count": 44,
     "domain": "xnames.com",
     "end_time_utc": "2026-09-07T15:00:00+00:00",
     "is_mub": false,
     "link": null,
     "platform": "Park.io",
-    "price": 938.0
+    "price": 1009.0
   },
   {
     "bid_count": 46,

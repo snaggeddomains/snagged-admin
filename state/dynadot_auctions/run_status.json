@@ -1,9 +1,9 @@
 {
-  "deduped_against_existing": 0,
-  "generated_at": "2026-09-01T10:13:48.410167+00:00",
+  "deduped_against_existing": 2,
+  "generated_at": "2026-09-02T09:59:05.484225+00:00",
   "label": "Dynadot",
-  "new_count": 1,
-  "sheet_total_after": 664,
+  "new_count": 4,
+  "sheet_total_after": 703,
   "slack_posted": false,
   "source": "dynadot_auctions",
   "status": "ok"

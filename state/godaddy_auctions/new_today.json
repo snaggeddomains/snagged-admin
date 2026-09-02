@@ -1,24 +1,20 @@
 {
   "capped": false,
-  "count": 12,
+  "count": 11,
   "domains": [
-    "neva.co",
-    "feight.com",
-    "sapo.net",
-    "abit.com",
-    "nanob.com",
-    "taqo.com",
-    "indoors.co",
-    "novice.co",
-    "nilx.com",
-    "thumbs.net",
-    "umo.co",
-    "upu.co"
+    "charitable.net",
+    "sponsorz.com",
+    "restatement.com",
+    "cccp.net",
+    "sporadic.org",
+    "lisra.com",
+    "maphunt.com",
+    "bodwin.com",
+    "blazes.com",
+    "hairsy.com",
+    "cascadeo.com"
   ],
-  "generated_at": "2026-09-01T10:14:38.305993+00:00",
-  "mub": [
-    "neva.co",
-    "sapo.net"
-  ],
+  "generated_at": "2026-09-02T09:59:53.553297+00:00",
+  "mub": [],
   "source": "godaddy_auctions"
 }

@@ -7,5 +7,14 @@
     "link": "https://www.namesilo.com/auctions/tnu.co",
     "platform": "NameSilo",
     "price": 22.0
+  },
+  {
+    "bid_count": 19,
+    "domain": "moderators.net",
+    "end_time_utc": "2026-09-03T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namesilo.com/auctions/moderators.net",
+    "platform": "NameSilo",
+    "price": 56.0
   }
 ]
