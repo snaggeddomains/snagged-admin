@@ -187,6 +187,7 @@ function ReviewCard({ card, reviewers, onDone, onRefresh, onSkip }: { card: Card
       if (!res.ok || j.ok === false) throw new Error(j.error || `HTTP ${res.status}`);
       if (action === "reassign") { onRefresh(); return; }        // stay on the card; just reload assignment
       if (action === "resolve_name") { setMsg(j.resolved ? `✓ Pulled "${j.full}" from the thread` : "No fuller name found in the deal-mailbox headers"); onRefresh(); return; }
+      if (action === "remine") { setMsg(j.remined ? "✓ Re-mined — updated from the email threads" : "Re-mined — no direct seller found in the threads"); onRefresh(); return; }
       if (action === "edit") { setEditing(false); onRefresh(); return; }
       onDone();                                                  // confirm / reject / skip → advance to next
     } catch (e) { setMsg(String((e as Error)?.message || e)); }
@@ -250,6 +251,7 @@ function ReviewCard({ card, reviewers, onDone, onRefresh, onSkip }: { card: Card
         <button style={btn} disabled={!!busy} onClick={() => { if (editing) act("edit"); else setEditing(true); }}>{editing ? (busy === "edit" ? "…" : "Save edits") : "✎ Edit"}</button>
         {editing && <button style={btn} onClick={() => setEditing(false)}>Cancel</button>}
         {card.status === "pending" && !editing && <button style={btn} disabled={!!busy} onClick={() => act("reject")} title="The surfaced candidate is wrong / mis-identified (e.g. it named the buyer as the seller)">✕ Reject</button>}
+        {card.status === "pending" && !editing && <button style={btn} disabled={!!busy} onClick={() => act("remine")} title="Re-read the acquisition email threads for this domain and refresh the candidate seller — for a card that looks wrong or missed the real owner">{busy === "remine" ? "Re-mining…" : "↻ Re-mine from email"}</button>}
         {card.status === "pending" && !editing && <button style={btn} disabled={!!busy} onClick={onSkip} title="Decide later — just moves to the next card; this one stays pending in the queue">Skip →</button>}
         {card.status === "pending" && !editing && !noOwner && <button style={{ ...btn, color: "var(--muted,#8a94a0)" }} disabled={!!busy} onClick={() => act("dismiss")} title="No actual owner to log — set aside (reopenable). We only record real sellers.">⊘ Dismiss</button>}
         {card.status !== "pending" && <button style={btn} disabled={!!busy} onClick={() => act("reopen")}>↩ Reopen</button>}

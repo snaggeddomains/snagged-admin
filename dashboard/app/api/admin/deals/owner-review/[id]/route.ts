@@ -11,11 +11,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { userCan, userCanAction } from "@/lib/permissions";
 import { confirmCard, updateCard, setCardStatus, reassignCard, getCard } from "@/lib/deals/owner-review";
-import { resolveNameFromThread } from "@/lib/deals/owner-review-mine";
+import { resolveNameFromThread, mineOwnerForDomain } from "@/lib/deals/owner-review-mine";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-export const maxDuration = 30;
+export const maxDuration = 60;
 
 async function gate() {
   const me = await getCurrentUser();
@@ -49,6 +49,25 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         return NextResponse.json({ ok: true, card: await setCardStatus(id, "pending", me!.email) });
       case "reassign":
         return NextResponse.json({ ok: true, card: await reassignCard(id, String(body.assigned_to || "") || null) });
+      case "remine": {
+        // Re-run the acquisition-email miner for this domain (whole-thread read + direction-aware
+        // LLM) and OVERWRITE the candidate fields — for a card mined before the miner improved, or
+        // one that looks wrong. Stays pending. maxDuration 60 covers the multi-thread read.
+        const card = await getCard(id);
+        if (!card) return NextResponse.json({ error: "card not found" }, { status: 404 });
+        const mined = await mineOwnerForDomain(card.domain);
+        const updated = await updateCard(id, {
+          candidate_first_name: mined.first_name || "",
+          candidate_last_name: mined.last_name || "",
+          candidate_email: mined.email || "",
+          candidate_phone: mined.phone || "",
+          channel: mined.channel || "",
+          buyer_context: mined.buyer_context || "",
+          confidence: mined.confidence,
+          evidence: mined.evidence || "",
+        }, me!.email);
+        return NextResponse.json({ ok: true, remined: mined.seller_found, card: updated });
+      }
       case "resolve_name": {
         // Pull the seller's FULL name from the deal-mailbox thread headers (display name on their email).
         const card = await getCard(id);

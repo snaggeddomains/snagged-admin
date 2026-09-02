@@ -562,9 +562,27 @@ miner over all 477 txns is also Increment 2).
     <marc@vital.ai>"). No LLM. Powers the card's **"⤓ Pull full name from email"** button (shown on a
     pending card that has an email but no last name yet → API action `resolve_name` on `[id]`).
   - **`mineOwnerForDomain(domain)`** — one Anthropic call (`OWNER_REVIEW_MODEL`||`DEAL_RECAP_MODEL`||haiku)
-    over the gathered acquisition thread (deal mailboxes, `"<domain>"`, dedup by mid, skips `bulk` sends);
-    direction-aware SELLER extraction (NOT the buyer/broker/escrow/auction) → `{seller_found, first_name,
-    last_name, email, phone, channel, confidence, buyer_context, evidence}`. Fail-open to a "none" result.
+    over the gathered acquisition threads; direction-aware SELLER extraction (NOT the buyer/broker/escrow/
+    auction) → `{seller_found, first_name, last_name, email, phone, channel, confidence, buyer_context,
+    evidence}`. Fail-open to a "none" result.
+  - **⚠️ WHOLE-THREAD gather — was missing the real owner (Rob, 2026-09-02).** The first cut read the first
+    ~10 individual messages matching `"<domain>"`, which on a real buy got **swamped by the escrow/broker
+    thread** (many transaction/notification emails) so it never reached the SEPARATE direct-negotiation thread
+    with the actual owner → tons of false "broker / no candidate seller" cards (e.g. cerebro.ai: escrow.com
+    agent surfaced, but the real seller **Alex Garcia <alex@ennube.solutions>** — "50k is the price… otherwise
+    it's going to power my LLM app" — was in another thread, missed). Fix in `gatherMessages`: collect the
+    **distinct THREADS** mentioning the domain (≤`maxThreads` 6 across mailboxes) and pull **each whole thread**
+    via `getThreadCapped` (quota-safe; oldest `perThread` 8 non-bulk msgs/thread so a noisy escrow thread can't
+    crowd out the owner thread), dedup by Message-ID. `transcript()` now renders **per-thread blocks** (not one
+    date-merged blur) so the model sees escrow AND direct-owner as distinct conversations. SYSTEM prompt gained
+    a "look across ALL threads; PREFER the direct human seller who quotes their own price / reveals a personal
+    stake / replies from a real address (incl. a person replying THROUGH a privacy relay) over the escrow/broker
+    intermediary; only broker/none if NO direct seller in ANY thread" rule. Input cap 12k→16k.
+  - **Per-card "↻ Re-mine from email" (2026-09-02).** Existing cards were mined with the OLD (first-10) logic
+    and `mineAllTxns` skips domains that already have a card, so they don't self-correct. Added action **`remine`**
+    on `[id]` (maxDuration 60): re-runs `mineOwnerForDomain(card.domain)` with the new whole-thread logic and
+    OVERWRITES the candidate fields (stays pending). Button on the review card next to Skip; message says whether
+    a direct seller was found. Use it on any card that looks wrong / reads "broker · no candidate seller."
   - **`mineAllTxns({limit,dry})`** — reads the Master Txns List (`SNAGGED_TRACKER_SHEET_ID`, tab auto-detected
     domain/date/price cols), newest first, skips domains that already have a card, mines + `upsertCardForDomain`
     each. Bounded per run (Gmail quota + 300s); returns `{created, existing, remaining, note}`. **HARD GUARD:**

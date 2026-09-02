@@ -9,7 +9,7 @@
 //      marketplace), with full name + contact + channel + confidence. Powers the bulk backfill over
 //      all Master Txns + the "new txn row → new card" cron.
 
-import { dealMailboxes, searchMessages, getMessage, type GmailMessage } from "../gmail";
+import { dealMailboxes, searchMessages, getMessage, getThreadCapped, type GmailMessage } from "../gmail";
 import { getSheetValues } from "../sheets";
 import { upsertCardForDomain } from "./owner-review";
 import { getDb, isDbConfigured } from "../supabase";
@@ -79,45 +79,73 @@ CRITICAL — direction:
 - Do NOT return a broker/escrow/marketplace intermediary as the owner (GoDaddy/Afternic broker, Escrow.com agent, a marketplace) — if the real owner is hidden behind one of those, seller_found=false and set channel accordingly.
 - If the domain was caught at a DROP AUCTION (DropCatch/NameJet/etc.) or REGISTERED (not bought from an owner), seller_found=false, channel="DropCatch auction" / "registration".
 
+IMPORTANT — look across ALL the threads below, not just the first:
+- A single acquisition usually has BOTH an escrow/broker thread (transaction mechanics) AND a DIRECT thread with the actual owner (who names a price or reveals ownership). The escrow/broker thread often comes first or is noisiest — do NOT stop there.
+- PREFER the direct HUMAN seller who speaks as the owner — quotes their own price ("50k is the price", "my price is…"), reveals a personal stake ("otherwise it's going to power my app", "I built it", "I've owned it since…"), or replies from a real personal/company address (alex@ennube.solutions) — over the escrow/broker intermediary.
+- A privacy-relay address (…@digitalprivacy.co, whoisguard, etc.) that a REAL person replies from/through is still the owner — capture the real name+address they reply as, not the relay.
+- Only return seller_found=false (broker/none) when NO direct human seller appears in ANY of the threads.
+
 Full name: take the seller's real first + last name from their email display name ("Marc Hadfield <marc@vital.ai>") or signature. A generic role mailbox (privacy@, admin@, domainnetcontact@) has no personal name — leave names blank but keep the email.
 
 Return STRICT JSON only, no prose:
 {"seller_found":bool,"first_name":"","last_name":"","email":"","phone":"","channel":"","confidence":"high|medium|low|broker|none","buyer_context":"","evidence":"one short sentence"}
 confidence: high = a clearly-identified direct seller; medium = probable; low = a guess worth verifying; broker = bought via a broker/marketplace (no real owner surfaced); none = auction/registration/only-the-buyer-in-email.`;
 
+// Group the transcript BY THREAD (each thread's own oldest-first run), so the model sees the escrow
+// thread AND the direct-owner thread as distinct conversations rather than one date-merged blur.
 function transcript(domain: string, msgs: GmailMessage[]): string {
-  const lines = msgs
-    .sort((a, b) => a.date - b.date)
-    .slice(0, 14)
-    .map((m) => {
+  const byThread = new Map<string, GmailMessage[]>();
+  for (const m of msgs) { const k = m.threadId || m.id; (byThread.get(k) || byThread.set(k, []).get(k)!).push(m); }
+  // Order threads by their earliest message (oldest conversation first).
+  const threads = [...byThread.values()].sort((a, b) => Math.min(...a.map((m) => m.date)) - Math.min(...b.map((m) => m.date)));
+  const blocks = threads.map((t, i) => {
+    const lines = t.sort((a, b) => a.date - b.date).map((m) => {
       const who = m.fromName ? `${m.fromName} <${m.from}>` : m.from;
-      const body = (m.body || m.snippet || "").replace(/\s+/g, " ").trim().slice(0, 320);
-      return `— ${new Date(m.date).toISOString().slice(0, 10)} FROM ${who} TO ${clean(m.to).slice(0, 80)}\n  ${body}`;
+      const body = (m.body || m.snippet || "").replace(/\s+/g, " ").trim().slice(0, 400);
+      return `  · ${new Date(m.date).toISOString().slice(0, 10)} FROM ${who} TO ${clean(m.to).slice(0, 90)}\n    ${body}`;
     });
-  return `DOMAIN: ${domain}\n\nTHREAD (oldest first):\n${lines.join("\n")}`;
+    return `THREAD ${i + 1} — "${clean(t[0]?.subject || "").slice(0, 90)}"\n${lines.join("\n")}`;
+  });
+  return `DOMAIN: ${domain}\n\n${blocks.join("\n\n")}`;
 }
 
-// Gather the acquisition-relevant messages for a domain across the deal mailboxes (deduped by mid).
-// Bounded by a GLOBAL fetch cap (not just per-mailbox) so one domain never balloons into dozens of
-// full-message reads — keeps a mine batch well under the function budget + easy on the Gmail quota.
-async function gatherMessages(domain: string, perMailbox = 6, maxFetch = 10): Promise<GmailMessage[]> {
-  const seen = new Set<string>();
-  const out: GmailMessage[] = [];
-  let fetched = 0;
+// Gather the acquisition-relevant messages for a domain by WHOLE THREADS across the deal mailboxes.
+// Reading whole threads (not the first N individual messages) is what surfaces the actual owner: a
+// buy often has a noisy escrow/broker thread AND a separate direct thread with the real seller, and a
+// flat "first 10 messages" read gets swamped by the escrow one. Per-thread cap keeps a busy thread
+// from crowding out the owner thread; getThreadCapped is quota-safe (skips a giant chain). Deduped by
+// RFC Message-ID across threads/mailboxes.
+async function gatherMessages(domain: string, opts: { maxThreads?: number; perThread?: number } = {}): Promise<GmailMessage[]> {
+  const maxThreads = opts.maxThreads ?? 6;
+  const perThread = opts.perThread ?? 8;
+  // 1. Distinct threads mentioning the domain, across the deal mailboxes.
+  const threads: { mb: string; threadId: string }[] = [];
+  const seenThread = new Set<string>();
   for (const mb of dealMailboxes()) {
-    if (fetched >= maxFetch) break;
+    if (threads.length >= maxThreads) break;
     let stubs: { id: string; threadId: string }[] = [];
-    try { stubs = await searchMessages(mb, `"${domain}"`, perMailbox); } catch { continue; }
-    for (const s of stubs.slice(0, perMailbox)) {
-      if (fetched >= maxFetch) break;
-      try {
-        const m = await getMessage(mb, s.id);
-        fetched++;
-        const key = m.mid || m.id;
-        if (seen.has(key) || m.bulk) continue;   // skip dup + mass/marketing sends
-        seen.add(key);
-        out.push(m);
-      } catch { /* skip */ }
+    try { stubs = await searchMessages(mb, `"${domain}"`, 20); } catch { continue; }
+    for (const s of stubs) {
+      if (threads.length >= maxThreads) break;
+      const key = `${mb}:${s.threadId}`;
+      if (seenThread.has(key)) continue;
+      seenThread.add(key);
+      threads.push({ mb, threadId: s.threadId });
+    }
+  }
+  // 2. Pull each whole thread; keep its oldest `perThread` non-bulk messages (identity/price is
+  //    usually stated early). Dedupe by Message-ID.
+  const seenMid = new Set<string>();
+  const out: GmailMessage[] = [];
+  for (const { mb, threadId } of threads) {
+    let msgs: GmailMessage[] = [];
+    try { msgs = await getThreadCapped(mb, threadId); } catch { continue; }
+    const kept = msgs.filter((m) => !m.bulk).sort((a, b) => a.date - b.date).slice(0, perThread);
+    for (const m of kept) {
+      const k = m.mid || m.id;
+      if (seenMid.has(k)) continue;
+      seenMid.add(k);
+      out.push(m);
     }
   }
   return out;
@@ -134,7 +162,7 @@ export async function mineOwnerForDomain(domain: string, env: NodeJS.ProcessEnv 
     const res = await fetch(ANTHROPIC_URL, {
       method: "POST",
       headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-      body: JSON.stringify({ model: MODEL, max_tokens: 600, system: SYSTEM, messages: [{ role: "user", content: transcript(domain, msgs).slice(0, 12000) }] }),
+      body: JSON.stringify({ model: MODEL, max_tokens: 600, system: SYSTEM, messages: [{ role: "user", content: transcript(domain, msgs).slice(0, 16000) }] }),
     });
     const data = (await res.json()) as { content?: { type: string; text?: string }[] };
     const text = (data.content || []).filter((b) => b.type === "text").map((b) => b.text || "").join("");
