@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "corals.org"
-  ],
-  "generated_at": "2026-09-02T15:04:53.415958+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-09-02T15:06:12.462202+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
