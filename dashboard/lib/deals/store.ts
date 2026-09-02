@@ -362,12 +362,13 @@ export async function updateDeal(id: string, patch: Record<string, unknown>, act
 }
 
 // Toggle the "Sam splits upfront" flag (permission-gated by the caller). Stamps sam_split_at when
-// turned ON (the month Sam took it on → month-accurate reporting), clears it when OFF. Logs a note.
+// turned ON (the month Sam took it on → month-accurate reporting), clears it when OFF. No timeline
+// note — the flag + sam_split_at are the record (Rob: don't clutter Comments with on/off).
 export async function setSamSplit(id: string, value: boolean, actor: string | null): Promise<Deal> {
+  void actor;
   const update = { sam_split: value, sam_split_at: value ? new Date().toISOString() : null };
   const { data, error } = await getDb().from(DEALS).update(update).eq("id", id).select("*").single();
   if (error) throw new Error(`setSamSplit: ${error.message}`);
-  await addActivity(id, { user_email: actor, kind: "note", body: value ? "🤝 Sam splits upfront — ON" : "Sam splits upfront — OFF", meta: { sam_split: value } }).catch(() => {});
   return data as Deal;
 }
 

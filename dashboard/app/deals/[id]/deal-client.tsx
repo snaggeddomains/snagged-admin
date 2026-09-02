@@ -268,11 +268,14 @@ export default function DealClient({ id }: { id: string }) {
         <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
           {!canEdit && <span style={{ fontSize: 12, fontWeight: 700, color: "#1f6b52", background: "#dff2ea", borderRadius: 999, padding: "3px 10px" }}>🔗 Shared with you · view &amp; comment</span>}
           {data.canSamSplit && (
-            <button
-              onClick={toggleSamSplit}
-              title={d.sam_split ? (d.sam_split_at ? `Sam splits the upfront on this deal (marked ${when(d.sam_split_at)})` : "Sam splits the upfront on this deal") : "Mark that Sam takes a split of the upfront fee on this deal"}
-              style={{ ...btn, ...(d.sam_split ? { background: "#dff2ea", color: "#1f6b52", borderColor: "#1f6b52", fontWeight: 700 } : {}) }}
-            >{d.sam_split ? "☑" : "☐"} Sam splits upfront</button>
+            <>
+              <button
+                onClick={toggleSamSplit}
+                title={d.sam_split ? (d.sam_split_at ? `Sam splits the upfront on this deal (marked ${when(d.sam_split_at)})` : "Sam splits the upfront on this deal") : "Mark that Sam takes a split of the upfront fee on this deal"}
+                style={{ ...btn, ...(d.sam_split ? { background: "#dff2ea", color: "#1f6b52", borderColor: "#1f6b52", fontWeight: 700 } : {}) }}
+              >{d.sam_split ? "☑" : "☐"} Sam splits upfront</button>
+              <a href="/deals/reports?samSplit=yes" title="See all deals where Sam splits the upfront" style={{ fontSize: 12.5, fontWeight: 600, color: "var(--coral,#e2674a)", textDecoration: "none", alignSelf: "center" }}>all splits ↗</a>
+            </>
           )}
           {data.reminder
             ? <button style={{ ...btn, color: "#9a3412", borderColor: "#f0c9a8" }} onClick={unsnooze} title={`Boomerangs ${when(data.reminder.remind_at)}`}>⏰ Snoozed · clear</button>

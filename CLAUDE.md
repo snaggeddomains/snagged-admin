@@ -361,7 +361,10 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
     ('yes'|'no'); `reportDeals` filters it AND — when 'yes' — **bounds the date range by `sam_split_at`** (so
     "This month" = deals Sam split this month, not created this month); reports-client got a **Sam split filter**,
     a **Sam split column** (✓ + YYYY-MM), CSV cols, and a **group-by "Sam split — by month taken"** (buckets by
-    `sam_split_at` month). All degrade pre-migration (reportDeals strip-retries the sam_split clauses).
+    `sam_split_at` month). All degrade pre-migration (reportDeals strip-retries the sam_split clauses). **No
+    timeline note** on toggle (Rob: don't clutter Comments). **`reports-client` now hydrates filters from the
+    URL query on load**, so **`/deals/reports?samSplit=yes`** opens the report pre-filtered — the deal header
+    shows an **"all splits ↗"** link (next to the toggle) pointing there.
     **Setup:** run the `sam_split`/`sam_split_at` lines in `scripts/deals.sql` on the **`domain-owner-research`**
     project (the PRODUCTION one — NOT snagged-naming-universe), and grant `deals.sam_split` to Judy + Brian.
   - **Board card shows offer → asking when both set (Rob, 2026-09-01).** `board-client.tsx` card price
@@ -620,7 +623,14 @@ miner over all 477 txns is also Increment 2).
     `*/2` schedule reliably (observed ~10-min actual cadence), so a one-batch-per-tick design stalls** (Judy's
     queue barely moved) — draining a lot per invocation clears the backlog in a few ticks regardless of how
     often Vercel fires. `?once=1` = single batch; `?dry=1&limit=` previews; `requireMarker` makes the unattended
-    cron refuse to run until `remined_at` exists (else it'd loop on the same cards). Later ticks no-op once drained. **Test button** "🔁 Re-mine wrong → Judy (10)" on the
+    cron refuse to run until `remined_at` exists (else it'd loop on the same cards). Later ticks no-op once drained.
+    - **⚠️ Vercel fires it only ~every 15-30 min (not */2), so it crawled — added PARALLELISM + SELF-CHAIN
+      (2026-09-02).** `remineWrongCards` now mines in parallel pools (`OWNER_REVIEW_REMINE_CONCURRENCY`, default 4)
+      so each invocation drains far more than the ~12 a serial 220s loop managed. And the cron **self-chains**:
+      after a chunk, if `remaining>0` it fire-and-forget `fetch`es its own URL with `?chain=n+1` (Bearer
+      CRON_SECRET), so ONE trigger cascades through the whole backlog instead of waiting for Vercel's next tick —
+      bounded by `MAX_CHAIN` 60 + the `remined_at` marker (each card once) so it can't run away, and `requireMarker`
+      stops it if the column's missing. **Test button** "🔁 Re-mine wrong → Judy (10)" on the
     Owner Review page (`canMine` only) → `POST /api/admin/deals/owner-review/remine-bulk {limit,dry}` (gated
     deals.all/admin, maxDuration 300) → runs a bounded batch live so Rob can eyeball the new logic; the cron
     handles the rest. **Setup:** run the updated `owner_review.sql` (adds `remined_at`) on the

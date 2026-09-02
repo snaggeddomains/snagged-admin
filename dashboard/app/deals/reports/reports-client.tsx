@@ -88,7 +88,19 @@ export default function ReportsClient() {
     try { const res = await fetch(`/api/admin/deals/report?${p}`, { cache: "no-store" }); setData(await res.json()); }
     finally { setLoading(false); }
   }, [f]);
-  useEffect(() => { run(); /* initial (unfiltered) */ }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // Initial load — hydrate filters from the URL query (so a link like
+  // /deals/reports?samSplit=yes&from=…&to=… opens pre-filtered), then fetch.
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    const init: Record<string, string> = { ...EMPTY };
+    let any = false;
+    for (const k of Object.keys(EMPTY)) { const v = sp.get(k); if (v) { init[k] = v; any = true; } }
+    if (any) { setF(init as typeof EMPTY); if (init.from || init.to) setPreset("custom"); }
+    const p = new URLSearchParams();
+    for (const k of Object.keys(init)) { const v = init[k]; if (v) p.set(k, v); }
+    setLoading(true);
+    fetch(`/api/admin/deals/report?${p}`, { cache: "no-store" }).then((r) => r.json()).then(setData).finally(() => setLoading(false));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const nameFor = useMemo(() => {
     const m = new Map((data?.assignees || []).map((a) => [a.email.toLowerCase(), a.name]));

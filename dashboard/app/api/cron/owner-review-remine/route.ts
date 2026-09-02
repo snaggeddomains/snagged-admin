@@ -23,6 +23,8 @@ export async function GET(req: NextRequest) {
   const batch = Math.min(Number(url.searchParams.get("limit")) || 12, 40);
   const dry = url.searchParams.get("dry") === "1";
   const once = dry || url.searchParams.get("once") === "1";
+  const chain = Number(url.searchParams.get("chain")) || 0;
+  const MAX_CHAIN = 60;   // hard cap so a self-chain can never run away (60 × batch ≫ backlog)
   const deadline = Date.now() + 220000; // stay under maxDuration 300
   let scanned = 0, updated = 0, found = 0, remaining = 0, note: string | undefined;
   try {
@@ -32,7 +34,14 @@ export async function GET(req: NextRequest) {
       if (once || s.note || s.scanned === 0 || s.remaining === 0) break;   // note = migration missing → stop (don't loop)
     } while (Date.now() < deadline);
     if (!dry) await recordHeartbeat("owner-review-remine", { updated, found, remaining }).catch(() => {});
-    return NextResponse.json({ ok: true, scanned, updated, found, remaining, note });
+    // Self-chain: Vercel fires the schedule irregularly (~15-30 min), so instead of waiting for the
+    // next tick, kick the next chunk ourselves — one trigger then cascades through the whole backlog
+    // (bounded by MAX_CHAIN + the remined_at marker, so it can't loop forever). Fire-and-forget.
+    if (!dry && !once && !note && remaining > 0 && chain < MAX_CHAIN) {
+      const next = new URL(req.url); next.searchParams.set("chain", String(chain + 1)); next.searchParams.set("limit", String(batch));
+      fetch(next.toString(), { headers: { authorization: `Bearer ${process.env.CRON_SECRET || ""}` } }).catch(() => {});
+    }
+    return NextResponse.json({ ok: true, scanned, updated, found, remaining, chain, note });
   } catch (e) {
     return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
   }

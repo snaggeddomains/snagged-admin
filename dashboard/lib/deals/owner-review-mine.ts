@@ -350,15 +350,23 @@ export async function remineWrongCards(opts: { limit?: number; dry?: boolean; as
   if (columnMissing && opts.requireMarker) {
     return { ...out, remaining: rows.length, note: "Run the owner_review.sql migration to add `remined_at` before the background drain (needed so it doesn't re-process the same cards). A manual test batch still works." };
   }
-  for (const c of rows) {
-    out.scanned++;
-    const mined = await mineOwnerForDomain(c.domain);
-    const name = [mined.first_name, mined.last_name].filter(Boolean).join(" ");
-    if (mined.seller_found) out.found++;
-    out.results.push({ domain: c.domain, found: mined.seller_found, confidence: mined.confidence, name });
-    if (dry) continue;
-    await applyRemine(c.id, mined, assignTo);
-    out.updated++;
+  // Mine in parallel pools — each card is ~10s (Gmail threads + LLM), so serial drains ~12/220s;
+  // a modest concurrency drains far more per invocation. gget backs off on 429, so this stays under
+  // the shared Gmail quota. Tunable via OWNER_REVIEW_REMINE_CONCURRENCY.
+  const CONC = Math.max(1, Math.min(Number(process.env.OWNER_REVIEW_REMINE_CONCURRENCY) || 4, 8));
+  for (let i = 0; i < rows.length; i += CONC) {
+    const slice = rows.slice(i, i + CONC);
+    const mined = await Promise.all(slice.map((c) => mineOwnerForDomain(c.domain).then((m) => ({ c, m })).catch(() => ({ c, m: null as MinedOwner | null }))));
+    for (const { c, m } of mined) {
+      out.scanned++;
+      if (!m) continue;
+      const name = [m.first_name, m.last_name].filter(Boolean).join(" ");
+      if (m.seller_found) out.found++;
+      out.results.push({ domain: c.domain, found: m.seller_found, confidence: m.confidence, name });
+      if (dry) continue;
+      await applyRemine(c.id, m, assignTo);
+      out.updated++;
+    }
   }
   out.remaining = await countWrongCards();
   return out;
