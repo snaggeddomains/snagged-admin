@@ -1,10 +1,19 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 10,
   "domains": [
-    "rheumatoid.co"
+    "applies.org",
+    "shreveport.co",
+    "englewood.co",
+    "crusades.ai",
+    "fleetwood.co",
+    "shoddy.co",
+    "friendlies.co",
+    "considering.com",
+    "determined.com",
+    "conflict.com"
   ],
-  "generated_at": "2026-08-31T08:12:33.026348+00:00",
+  "generated_at": "2026-09-02T08:17:29.934034+00:00",
   "mub": [],
   "source": "afternic"
 }
