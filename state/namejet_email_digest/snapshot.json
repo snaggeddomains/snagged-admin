@@ -1,1 +1,42 @@
-[]
+[
+  {
+    "domain": "corals.org",
+    "end_time_utc": "2026-09-03T01:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namejet.com/domain/corals.org.action",
+    "platform": "NameJet",
+    "price": 69.0
+  },
+  {
+    "domain": "dealings.org",
+    "end_time_utc": "2026-09-02T17:35:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namejet.com/domain/dealings.org.action",
+    "platform": "NameJet",
+    "price": 69.0
+  },
+  {
+    "domain": "reflected.org",
+    "end_time_utc": "2026-09-03T01:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namejet.com/domain/reflected.org.action",
+    "platform": "NameJet",
+    "price": 69.0
+  },
+  {
+    "domain": "teases.org",
+    "end_time_utc": "2026-09-02T17:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namejet.com/domain/teases.org.action",
+    "platform": "NameJet",
+    "price": 69.0
+  },
+  {
+    "domain": "thee.org",
+    "end_time_utc": "2026-09-02T17:05:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namejet.com/domain/thee.org.action",
+    "platform": "NameJet",
+    "price": 69.0
+  }
+]
