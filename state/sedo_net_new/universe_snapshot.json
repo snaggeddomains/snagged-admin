@@ -12,12 +12,12 @@
     "price": 899.0
   },
   {
-    "domain": "coyness.com",
-    "price": 899.0
-  },
-  {
     "domain": "roiling.com",
     "price": 3559.0
+  },
+  {
+    "domain": "coyness.com",
+    "price": 899.0
   },
   {
     "domain": "reihen.com",
@@ -52,24 +52,16 @@
     "price": null
   },
   {
-    "domain": "blondes.ai",
-    "price": null
+    "domain": "biopocket.com",
+    "price": 66430.0
   },
   {
-    "domain": "subsidy.ai",
-    "price": null
+    "domain": "holders.ai",
+    "price": 278000.0
   },
   {
-    "domain": "adclip.ai",
-    "price": null
-  },
-  {
-    "domain": "primates.ai",
-    "price": null
-  },
-  {
-    "domain": "diagnoses.ai",
-    "price": null
+    "domain": "tortillas.ai",
+    "price": 1111500.0
   },
   {
     "domain": "disinclined.com",
@@ -78,22 +70,6 @@
   {
     "domain": "nervousness.com",
     "price": 3559.0
-  },
-  {
-    "domain": "extracting.ai",
-    "price": null
-  },
-  {
-    "domain": "palestinian.ai",
-    "price": null
-  },
-  {
-    "domain": "acquisitions.ai",
-    "price": null
-  },
-  {
-    "domain": "mildly.net",
-    "price": 250.0
   },
   {
     "domain": "emulators.net",
@@ -192,12 +168,12 @@
     "price": 749.0
   },
   {
-    "domain": "russian.co",
-    "price": 1199.0
-  },
-  {
     "domain": "centres.co",
     "price": 299.0
+  },
+  {
+    "domain": "russian.co",
+    "price": 1199.0
   },
   {
     "domain": "bipolar.co",
@@ -276,6 +252,10 @@
     "price": 299.0
   },
   {
+    "domain": "cherokee.co",
+    "price": 1199.0
+  },
+  {
     "domain": "ortega.co",
     "price": 1199.0
   },
@@ -308,10 +288,6 @@
     "price": 899.0
   },
   {
-    "domain": "cherokee.co",
-    "price": 1199.0
-  },
-  {
     "domain": "bulldogs.co",
     "price": 749.0
   },
@@ -340,6 +316,10 @@
     "price": 299.0
   },
   {
+    "domain": "midget.co",
+    "price": 749.0
+  },
+  {
     "domain": "christie.co",
     "price": 599.0
   },
@@ -350,10 +330,6 @@
   {
     "domain": "celtic.co",
     "price": 1199.0
-  },
-  {
-    "domain": "midget.co",
-    "price": 749.0
   },
   {
     "domain": "bells.co",
@@ -428,10 +404,6 @@
     "price": 2425.0
   },
   {
-    "domain": "mythology.co",
-    "price": 1199.0
-  },
-  {
     "domain": "clamshell.co",
     "price": 299.0
   },
@@ -448,12 +420,12 @@
     "price": 599.0
   },
   {
-    "domain": "powerline.co",
-    "price": 599.0
+    "domain": "mythology.co",
+    "price": 1199.0
   },
   {
-    "domain": "circulating.net",
-    "price": 250.0
+    "domain": "powerline.co",
+    "price": 599.0
   },
   {
     "domain": "bowl.co",
@@ -472,6 +444,10 @@
     "price": 599.0
   },
   {
+    "domain": "bane.co",
+    "price": 8400.0
+  },
+  {
     "domain": "roadrunner.co",
     "price": 2999.0
   },
@@ -488,15 +464,15 @@
     "price": 299.0
   },
   {
+    "domain": "privileges.co",
+    "price": 299.0
+  },
+  {
     "domain": "stabilizer.co",
     "price": 299.0
   },
   {
     "domain": "simulators.co",
-    "price": 299.0
-  },
-  {
-    "domain": "privileges.co",
     "price": 299.0
   },
   {
@@ -510,6 +486,10 @@
   {
     "domain": "sacs.co",
     "price": 299.0
+  },
+  {
+    "domain": "volatility.co",
+    "price": 1111500.0
   },
   {
     "domain": "shreveport.co",
@@ -536,12 +516,12 @@
     "price": 299.0
   },
   {
-    "domain": "condolences.co",
-    "price": 299.0
-  },
-  {
     "domain": "bittersweet.co",
     "price": 1199.0
+  },
+  {
+    "domain": "condolences.co",
+    "price": 299.0
   },
   {
     "domain": "auctioneers.co",
@@ -570,6 +550,10 @@
   {
     "domain": "indianapolis.co",
     "price": 1199.0
+  },
+  {
+    "domain": "distributing.co",
+    "price": 299.0
   },
   {
     "domain": "sledgehammer.co",

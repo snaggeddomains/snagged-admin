@@ -10,39 +10,21 @@
   },
   {
     "currency": "USD",
-    "domain": "blondes.ai",
-    "end_time_utc": "2026-09-02T10:42:00+00:00",
+    "domain": "holders.ai",
+    "end_time_utc": "2026-09-02T18:23:36+00:00",
     "is_mub": false,
-    "price": null,
+    "price": 278000.0,
     "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=blondes.ai"
+    "url": "https://sedo.com/search/details/?domain=holders.ai"
   },
   {
     "currency": "USD",
-    "domain": "subsidy.ai",
-    "end_time_utc": "2026-09-02T10:42:05+00:00",
+    "domain": "tortillas.ai",
+    "end_time_utc": "2026-09-02T18:23:31+00:00",
     "is_mub": false,
-    "price": null,
+    "price": 1111500.0,
     "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=subsidy.ai"
-  },
-  {
-    "currency": "USD",
-    "domain": "primates.ai",
-    "end_time_utc": "2026-09-02T10:43:04+00:00",
-    "is_mub": false,
-    "price": null,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=primates.ai"
-  },
-  {
-    "currency": "USD",
-    "domain": "diagnoses.ai",
-    "end_time_utc": "2026-09-02T10:42:14+00:00",
-    "is_mub": false,
-    "price": null,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=diagnoses.ai"
+    "url": "https://sedo.com/search/details/?domain=tortillas.ai"
   },
   {
     "currency": "USD",
@@ -52,24 +34,6 @@
     "price": 3559.0,
     "tld": "com",
     "url": "https://sedo.com/search/details/?domain=nervousness.com"
-  },
-  {
-    "currency": "USD",
-    "domain": "palestinian.ai",
-    "end_time_utc": "2026-09-02T07:57:10+00:00",
-    "is_mub": false,
-    "price": null,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=palestinian.ai"
-  },
-  {
-    "currency": "USD",
-    "domain": "acquisitions.ai",
-    "end_time_utc": "2026-09-02T10:41:35+00:00",
-    "is_mub": false,
-    "price": null,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=acquisitions.ai"
   },
   {
     "currency": "USD",
@@ -271,21 +235,21 @@
   },
   {
     "currency": "USD",
-    "domain": "russian.co",
-    "end_time_utc": "2026-09-02T15:48:50+00:00",
-    "is_mub": false,
-    "price": 1199.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=russian.co"
-  },
-  {
-    "currency": "USD",
     "domain": "centres.co",
     "end_time_utc": "2026-09-02T15:46:48+00:00",
     "is_mub": false,
     "price": 299.0,
     "tld": "co",
     "url": "https://sedo.com/search/details/?domain=centres.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "russian.co",
+    "end_time_utc": "2026-09-02T15:48:50+00:00",
+    "is_mub": false,
+    "price": 1199.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=russian.co"
   },
   {
     "currency": "USD",
@@ -451,6 +415,15 @@
   },
   {
     "currency": "USD",
+    "domain": "cherokee.co",
+    "end_time_utc": "2026-09-02T15:45:54+00:00",
+    "is_mub": false,
+    "price": 1199.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=cherokee.co"
+  },
+  {
+    "currency": "USD",
     "domain": "ortega.co",
     "end_time_utc": "2026-09-02T15:46:22+00:00",
     "is_mub": true,
@@ -493,15 +466,6 @@
     "price": 499.0,
     "tld": "co",
     "url": "https://sedo.com/search/details/?domain=snoopy.co"
-  },
-  {
-    "currency": "USD",
-    "domain": "cherokee.co",
-    "end_time_utc": "2026-09-02T15:45:54+00:00",
-    "is_mub": false,
-    "price": 1199.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=cherokee.co"
   },
   {
     "currency": "USD",
@@ -550,6 +514,15 @@
   },
   {
     "currency": "USD",
+    "domain": "midget.co",
+    "end_time_utc": "2026-09-02T15:46:48+00:00",
+    "is_mub": false,
+    "price": 749.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=midget.co"
+  },
+  {
+    "currency": "USD",
     "domain": "christie.co",
     "end_time_utc": "2026-09-02T15:45:54+00:00",
     "is_mub": false,
@@ -574,15 +547,6 @@
     "price": 1199.0,
     "tld": "co",
     "url": "https://sedo.com/search/details/?domain=celtic.co"
-  },
-  {
-    "currency": "USD",
-    "domain": "midget.co",
-    "end_time_utc": "2026-09-02T15:46:48+00:00",
-    "is_mub": false,
-    "price": 749.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=midget.co"
   },
   {
     "currency": "USD",
@@ -721,15 +685,6 @@
   },
   {
     "currency": "USD",
-    "domain": "mythology.co",
-    "end_time_utc": "2026-09-02T15:46:21+00:00",
-    "is_mub": false,
-    "price": 1199.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=mythology.co"
-  },
-  {
-    "currency": "USD",
     "domain": "helga.co",
     "end_time_utc": "2026-09-02T15:46:40+00:00",
     "is_mub": false,
@@ -763,6 +718,15 @@
     "price": 599.0,
     "tld": "co",
     "url": "https://sedo.com/search/details/?domain=sissy.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "mythology.co",
+    "end_time_utc": "2026-09-02T15:46:21+00:00",
+    "is_mub": false,
+    "price": 1199.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=mythology.co"
   },
   {
     "currency": "USD",
@@ -802,6 +766,15 @@
   },
   {
     "currency": "USD",
+    "domain": "bane.co",
+    "end_time_utc": "2026-09-02T18:14:28+00:00",
+    "is_mub": false,
+    "price": 8400.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=bane.co"
+  },
+  {
+    "currency": "USD",
     "domain": "characters.co",
     "end_time_utc": "2026-09-02T15:46:44+00:00",
     "is_mub": false,
@@ -817,6 +790,15 @@
     "price": 299.0,
     "tld": "co",
     "url": "https://sedo.com/search/details/?domain=christophe.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "privileges.co",
+    "end_time_utc": "2026-09-02T15:46:51+00:00",
+    "is_mub": false,
+    "price": 299.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=privileges.co"
   },
   {
     "currency": "USD",
@@ -838,15 +820,6 @@
   },
   {
     "currency": "USD",
-    "domain": "privileges.co",
-    "end_time_utc": "2026-09-02T15:46:51+00:00",
-    "is_mub": false,
-    "price": 299.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=privileges.co"
-  },
-  {
-    "currency": "USD",
     "domain": "linebacker.co",
     "end_time_utc": "2026-09-02T15:46:36+00:00",
     "is_mub": false,
@@ -862,6 +835,15 @@
     "price": 899.0,
     "tld": "co",
     "url": "https://sedo.com/search/details/?domain=stationary.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "volatility.co",
+    "end_time_utc": "2026-09-02T18:23:41+00:00",
+    "is_mub": false,
+    "price": 1111500.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=volatility.co"
   },
   {
     "currency": "USD",
@@ -910,21 +892,21 @@
   },
   {
     "currency": "USD",
-    "domain": "condolences.co",
-    "end_time_utc": "2026-09-02T15:46:22+00:00",
-    "is_mub": false,
-    "price": 299.0,
-    "tld": "co",
-    "url": "https://sedo.com/search/details/?domain=condolences.co"
-  },
-  {
-    "currency": "USD",
     "domain": "bittersweet.co",
     "end_time_utc": "2026-09-02T15:46:21+00:00",
     "is_mub": false,
     "price": 1199.0,
     "tld": "co",
     "url": "https://sedo.com/search/details/?domain=bittersweet.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "condolences.co",
+    "end_time_utc": "2026-09-02T15:46:22+00:00",
+    "is_mub": false,
+    "price": 299.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=condolences.co"
   },
   {
     "currency": "USD",
