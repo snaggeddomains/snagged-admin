@@ -1,3 +1,27 @@
+# ⚠️ ALL Gmail-mailbox crons PAUSED — throttling rob@ (2026-09-02)
+
+Rob's own mailbox started getting Gmail-throttled. Diagnosed (read-only SQL on the research
+project): the owner-review miner was the new heavy reader concentrated on rob@ — `owner-review-mine`
+created **233 cards/24h** and `owner-review-remine` re-mined **95/24h** (12 in the last hour, 233 still
+queued), each pulling **up to 6 WHOLE threads** across the deal mailboxes. When we excluded `brian@`
+from the miner last session (`minerMailboxes()`), the load didn't drop — it **concentrated onto
+`rob@snagged.com` + `rob@snagged.co`**, so Brian recovered and Rob inherited the throttle.
+- **Action:** REMOVED all five Gmail-mailbox-reading crons from `dashboard/vercel.json` so Vercel stops
+  firing them. The **route handlers are untouched** (still curl-able with `CRON_SECRET`).
+- **Validate externally:** Google Admin Console → Reporting → Audit → **OAuth log events**, filter
+  `rob@snagged.com`, group by application → our SA `marketplace-pipeline` (client id
+  `104413441059090976334`) is the top authorizer. SA READS themselves show in **Cloud Console → the
+  SA project → Gmail API → Metrics** (audit log-events don't capture API reads).
+- **RESTORE when the quota recovers** — re-add these to `vercel.json` `crons` (ideally re-pointed to
+  spread reads across mailboxes, or at lower frequency, so they don't pile on one box again):
+  - `{ "path": "/api/cron/deal-emails", "schedule": "15 */4 * * *" }`
+  - `{ "path": "/api/cron/pitch-scan", "schedule": "0 13 * * 1" }`
+  - `{ "path": "/api/cron/client-corpus", "schedule": "0 11 * * *" }`
+  - `{ "path": "/api/cron/owner-review-mine", "schedule": "0 15 * * *" }`
+  - `{ "path": "/api/cron/owner-review-remine", "schedule": "*/5 * * * *" }`
+- `client-overlap`, `email-health`, `newsletter-sync` were LEFT running — they don't read the Gmail
+  deal mailboxes (client-overlap consumes the already-harvested `client_domains`).
+
 # Email module — search the deal inbox + AI-draft a reply (draft-only) (2026-09-02)
 
 A top-level admin section (`/email`, peer to Research/Admin/SNAP/Reports/Deals) that lets you
