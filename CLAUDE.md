@@ -595,9 +595,9 @@ miner over all 477 txns is also Increment 2).
     (`judy@snagged.com`, env `OWNER_REVIEW_REMINE_ASSIGNEE`), and stamps **`remined_at`** so each wrong card is
     processed EXACTLY ONCE and the drain terminates. Migration: `owner_review_cards.remined_at timestamptz`
     (`owner_review.sql`, add-if-not-exists; strip-retry pre-migration). **Cron** `/api/cron/owner-review-remine`
-    (`vercel.json` **`*/30 * * * *`**, CRON_SECRET, maxDuration 300) time-boxed loops batches (~240s) until the
-    wrong-set is drained then no-ops; `?dry=1&limit=` previews; `requireMarker` makes the unattended cron refuse
-    to run until `remined_at` exists (else it'd loop). **Test button** "🔁 Re-mine wrong → Judy (10)" on the
+    (`vercel.json` **`*/2 * * * *`**, CRON_SECRET) does **ONE batch of 12 per tick** (Rob's cadence — steady
+    12-per-120s, gentle on the shared Gmail quota, no bursts); `?dry=1&limit=` previews; `requireMarker` makes
+    the unattended cron refuse to run until `remined_at` exists (else it'd loop). Later ticks no-op once drained. **Test button** "🔁 Re-mine wrong → Judy (10)" on the
     Owner Review page (`canMine` only) → `POST /api/admin/deals/owner-review/remine-bulk {limit,dry}` (gated
     deals.all/admin, maxDuration 300) → runs a bounded batch live so Rob can eyeball the new logic; the cron
     handles the rest. **Setup:** run the updated `owner_review.sql` (adds `remined_at`) on the

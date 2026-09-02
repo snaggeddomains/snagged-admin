@@ -96,7 +96,7 @@ export default function OwnerReviewClient() {
       const j = await res.json();
       if (!res.ok || j.ok === false) throw new Error(j.error || `HTTP ${res.status}`);
       if (j.note) setMineMsg(`⚠️ ${j.note}`);
-      else setMineMsg(`✓ Re-mined ${j.updated} → assigned Judy · found a real seller on ${j.found}/${j.scanned} · ${j.remaining} wrong card${j.remaining === 1 ? "" : "s"} left (the cron drains these automatically every 30 min)`);
+      else setMineMsg(`✓ Re-mined ${j.updated} → assigned Judy · found a real seller on ${j.found}/${j.scanned} · ${j.remaining} wrong card${j.remaining === 1 ? "" : "s"} left (the cron drains these automatically — 12 every 2 min)`);
       await load();
     } catch (e) {
       const msg = (e as Error)?.name === "AbortError" ? "Still re-mining server-side — refresh in a minute to see the updated cards." : String((e as Error)?.message || e);

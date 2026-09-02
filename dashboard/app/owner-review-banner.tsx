@@ -27,7 +27,7 @@ export default function OwnerReviewBanner() {
 
   if (!n || dismissed || pathname.startsWith("/deals/owner-review")) return null;
   return (
-    <div style={{ background: "#fef3ec", borderBottom: "1px solid #f3d3c4", padding: "8px 16px", display: "flex", alignItems: "center", gap: 10, fontSize: 13, flexWrap: "wrap" }}>
+    <div style={{ background: "#fef3ec", border: "1px solid #f3d3c4", borderRadius: 10, padding: "10px 16px", margin: "12px 16px 20px", display: "flex", alignItems: "center", gap: 10, fontSize: 13, flexWrap: "wrap" }}>
       <span style={{ fontWeight: 700, color: "var(--coral,#e2674a)" }}>👤 Owner Review</span>
       <span style={{ color: "var(--navy-2,#4a5b66)" }}>You have <strong>{n}</strong> owner{n === 1 ? "" : "s"} to confirm from recent acquisitions.</span>
       <a href="/deals/owner-review" style={{ marginLeft: "auto", fontWeight: 700, color: "var(--coral,#e2674a)" }}>Review now →</a>
