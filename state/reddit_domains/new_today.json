@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "beautiful.ai"
-  ],
-  "generated_at": "2026-09-01T23:03:33.131977+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-09-02T10:01:09.722415+00:00",
   "mub": [],
   "source": "reddit_domains"
 }
