@@ -8,6 +8,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { authorizedCron } from "@/lib/orchestrator";
 import { mineAllTxns } from "@/lib/deals/owner-review-mine";
 import { recordHeartbeat } from "@/lib/cron-heartbeat";
+import { withGmailFeature } from "@/lib/gmail-budget";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,7 +20,7 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(Number(url.searchParams.get("limit")) || 30, 200);
   const dry = url.searchParams.get("dry") === "1";
   try {
-    const summary = await mineAllTxns({ limit, dry });
+    const summary = await withGmailFeature("owner-review-mine", () => mineAllTxns({ limit, dry }));
     if (!dry) await recordHeartbeat("owner-review-mine", { created: summary.created, existing: summary.existing, scanned: summary.scanned }).catch(() => {});
     return NextResponse.json({ ok: true, ...summary });
   } catch (e) {

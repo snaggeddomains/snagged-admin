@@ -13,6 +13,7 @@ import {
   gmailConfigured,
   type GmailMessage,
 } from "@/lib/gmail";
+import { withGmailFeature, isGmailBudgetError } from "@/lib/gmail-budget";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -133,27 +134,30 @@ export async function GET(req: NextRequest) {
 
   const url = new URL(req.url);
   const action = url.searchParams.get("action") || "search";
-  try {
-    if (action === "search") {
-      const q = (url.searchParams.get("q") || "").trim();
-      if (!q) return NextResponse.json({ ok: true, threads: [] });
-      const threads = await searchThreads(q);
-      return NextResponse.json({ ok: true, threads });
+  return withGmailFeature("email-module", async () => {
+    try {
+      if (action === "search") {
+        const q = (url.searchParams.get("q") || "").trim();
+        if (!q) return NextResponse.json({ ok: true, threads: [] });
+        const threads = await searchThreads(q);
+        return NextResponse.json({ ok: true, threads });
+      }
+      if (action === "thread") {
+        const mailbox = url.searchParams.get("mailbox") || "";
+        const threadId = url.searchParams.get("thread_id") || "";
+        if (!dealMailboxes().includes(mailbox) || !threadId)
+          return NextResponse.json({ error: "Bad request" }, { status: 400 });
+        const raw = await getThreadCapped(mailbox, threadId);
+        if (!raw.length) return NextResponse.json({ error: "Thread too large or empty to load." }, { status: 413 });
+        const msgs = shapeThread(raw);
+        return NextResponse.json({ ok: true, subject: msgs[msgs.length - 1]?.subject || "", messages: msgs });
+      }
+      return NextResponse.json({ error: "Unknown action" }, { status: 400 });
+    } catch (e) {
+      if (isGmailBudgetError(e)) return NextResponse.json({ error: "Inbox read budget reached for today — try again later." }, { status: 429 });
+      return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
     }
-    if (action === "thread") {
-      const mailbox = url.searchParams.get("mailbox") || "";
-      const threadId = url.searchParams.get("thread_id") || "";
-      if (!dealMailboxes().includes(mailbox) || !threadId)
-        return NextResponse.json({ error: "Bad request" }, { status: 400 });
-      const raw = await getThreadCapped(mailbox, threadId);
-      if (!raw.length) return NextResponse.json({ error: "Thread too large or empty to load." }, { status: 413 });
-      const msgs = shapeThread(raw);
-      return NextResponse.json({ ok: true, subject: msgs[msgs.length - 1]?.subject || "", messages: msgs });
-    }
-    return NextResponse.json({ error: "Unknown action" }, { status: 400 });
-  } catch (e) {
-    return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
-  }
+  });
 }
 
 export async function POST(req: NextRequest) {
@@ -173,14 +177,17 @@ export async function POST(req: NextRequest) {
   const threadId = body.thread_id || "";
   if (!dealMailboxes().includes(mailbox) || !threadId)
     return NextResponse.json({ error: "Bad request" }, { status: 400 });
-  try {
-    const raw = await getThreadCapped(mailbox, threadId);
-    if (!raw.length) return NextResponse.json({ error: "Thread too large or empty to draft from." }, { status: 413 });
-    const msgs = shapeThread(raw);
-    const subject = msgs[msgs.length - 1]?.subject || "";
-    const draft = await draftReply(subject, msgs, body.instruction || "");
-    return NextResponse.json({ ok: true, draft, subject });
-  } catch (e) {
-    return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
-  }
+  return withGmailFeature("email-module", async () => {
+    try {
+      const raw = await getThreadCapped(mailbox, threadId);
+      if (!raw.length) return NextResponse.json({ error: "Thread too large or empty to draft from." }, { status: 413 });
+      const msgs = shapeThread(raw);
+      const subject = msgs[msgs.length - 1]?.subject || "";
+      const draft = await draftReply(subject, msgs, body.instruction || "");
+      return NextResponse.json({ ok: true, draft, subject });
+    } catch (e) {
+      if (isGmailBudgetError(e)) return NextResponse.json({ error: "Inbox read budget reached for today — try again later." }, { status: 429 });
+      return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
+    }
+  });
 }

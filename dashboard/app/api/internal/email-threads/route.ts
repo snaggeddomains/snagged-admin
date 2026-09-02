@@ -12,6 +12,7 @@
 
 import { NextResponse, type NextRequest } from "next/server";
 import { dealMailboxes, gmailConfigured, searchMessages, getMessage, getThread, getThreadMeta, GMAIL_THREAD_SIZE_CAP } from "@/lib/gmail";
+import { withGmailFeature } from "@/lib/gmail-budget";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -48,6 +49,7 @@ export async function GET(req: NextRequest) {
   const mailboxes = dealMailboxes();
 
   try {
+    return await withGmailFeature("email-threads", async () => {
     if (sp.get("action") === "thread") {
       const mailbox = (sp.get("mailbox") || "").trim().toLowerCase();
       const threadId = (sp.get("thread_id") || "").trim();
@@ -113,6 +115,7 @@ export async function GET(req: NextRequest) {
     ).filter(Boolean) as Array<Record<string, unknown>>;
     threads.sort((a, b) => Number(b.date || 0) - Number(a.date || 0));
     return NextResponse.json({ threads });
+    });
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500 });
   }

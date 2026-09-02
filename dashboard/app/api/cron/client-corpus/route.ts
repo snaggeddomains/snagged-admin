@@ -12,6 +12,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { authorizedCron } from "@/lib/orchestrator";
 import { buildCorpus } from "@/lib/domain-corpus/build";
+import { withGmailFeature } from "@/lib/gmail-budget";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -25,6 +26,6 @@ export async function GET(req: NextRequest) {
   const skipMirror = p.get("skipMirror") === "1";
   const prune = p.get("prune") === "1"; // scrub bulk-list (NameJet/Catches) pollution
 
-  const stats = await buildCorpus({ gmailDays, skipGmail, skipMirror, prune });
+  const stats = await withGmailFeature("client-corpus", () => buildCorpus({ gmailDays, skipGmail, skipMirror, prune }));
   return NextResponse.json(stats, { status: stats.ok ? 200 : 500 });
 }

@@ -12,6 +12,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { authorizedCron } from "@/lib/orchestrator";
 import { gmailConfigured } from "@/lib/gmail";
+import { withGmailFeature, isGmailBudgetError } from "@/lib/gmail-budget";
 import { listDeals, updateDeal, dealsConfigured } from "@/lib/deals/store";
 import { ingestDealEmails } from "@/lib/deals/emails";
 import { researchReportLink } from "@/lib/deals/research-link";
@@ -50,17 +51,20 @@ export async function GET(req: NextRequest) {
   const batch = selected.slice(0, limit);
 
   let processed = 0, ingested = 0, linked = 0;
-  for (const d of batch) {
-    try { ingested += await ingestDealEmails(d); } catch { /* one bad deal never sinks the run */ }
-    // Auto-link the Domain Owner report for this domain if one exists + isn't linked yet.
-    if (!d.report_link) {
-      try {
-        const link = await researchReportLink(d.domain);
-        if (link) { await updateDeal(d.id, { report_link: link }, null); linked++; }
-      } catch { /* best-effort */ }
+  await withGmailFeature("deal-emails", async () => {
+    for (const d of batch) {
+      try { ingested += await ingestDealEmails(d); }
+      catch (e) { if (isGmailBudgetError(e)) return; /* mailbox over budget → stop for today */ }
+      // Auto-link the Domain Owner report for this domain if one exists + isn't linked yet.
+      if (!d.report_link) {
+        try {
+          const link = await researchReportLink(d.domain);
+          if (link) { await updateDeal(d.id, { report_link: link }, null); linked++; }
+        } catch { /* best-effort */ }
+      }
+      processed++;
     }
-    processed++;
-  }
+  });
   // Heartbeat so the UI can show "emails auto-synced N min ago" — proof the cron fired.
   await recordHeartbeat("deal-emails", { openDeals: total, selected: batch.length, processed, ingested, linked });
   return NextResponse.json({ ok: true, openDeals: total, selected: batch.length, processed, ingested, linked });

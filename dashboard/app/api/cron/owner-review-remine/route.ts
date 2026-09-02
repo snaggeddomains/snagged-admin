@@ -10,6 +10,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { authorizedCron } from "@/lib/orchestrator";
 import { remineWrongCards } from "@/lib/deals/owner-review-mine";
 import { recordHeartbeat } from "@/lib/cron-heartbeat";
+import { withGmailFeature } from "@/lib/gmail-budget";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -28,11 +29,13 @@ export async function GET(req: NextRequest) {
   const deadline = Date.now() + 220000; // stay under maxDuration 300
   let scanned = 0, updated = 0, found = 0, remaining = 0, note: string | undefined;
   try {
-    do {
-      const s = await remineWrongCards({ limit: batch, dry, assignTo: REMINE_ASSIGNEE, requireMarker: !dry });
-      scanned += s.scanned; updated += s.updated; found += s.found; remaining = s.remaining; note = s.note;
-      if (once || s.note || s.scanned === 0 || s.remaining === 0) break;   // note = migration missing → stop (don't loop)
-    } while (Date.now() < deadline);
+    await withGmailFeature("owner-review-remine", async () => {
+      do {
+        const s = await remineWrongCards({ limit: batch, dry, assignTo: REMINE_ASSIGNEE, requireMarker: !dry });
+        scanned += s.scanned; updated += s.updated; found += s.found; remaining = s.remaining; note = s.note;
+        if (once || s.note || s.scanned === 0 || s.remaining === 0) break;   // note = migration missing → stop (don't loop)
+      } while (Date.now() < deadline);
+    });
     if (!dry) await recordHeartbeat("owner-review-remine", { updated, found, remaining }).catch(() => {});
     // Self-chain: kick the next chunk ourselves so one trigger cascades through the backlog instead of
     // waiting for Vercel's next tick. OFF by default now — cascading back-to-back invocations HAMMERS

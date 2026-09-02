@@ -185,6 +185,7 @@ export const DEALS_TABS: { href: string; label: string; perm: ModuleKey | Action
 // reply from its context (draft-only). Single page; gated by the `email` module perm.
 export const EMAIL_TABS: { href: string; label: string; perm: ModuleKey | ActionKey }[] = [
   { href: "/email", label: "Compose", perm: "email" },
+  { href: "/email/load", label: "Inbox load", perm: "email" },
 ];
 
 // SNAP — its own top-level workspace (peer to Research/Admin/Reports). Two tools,

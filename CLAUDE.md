@@ -1,3 +1,39 @@
+# Gmail read GOVERNOR — the shared throttle every mailbox read passes through (2026-09-02)
+
+After the owner-review miner throttled rob@ (see the PAUSED-crons note below), built a single
+**read governor** so no feature (or the sum of them) can ever eat the per-user Gmail quota that
+Superhuman shares. Every deal-mailbox read in the app funnels through `lib/gmail.ts` `gget`, which is
+now the one chokepoint.
+- **Ledger** (`gmail_read_budget` table, main project — `scripts/gmail_read_budget.sql`, RLS on):
+  per `(mailbox, day)` — `reads`, `est_bytes`, and a **`by_feature` jsonb** breakdown. Charged via an
+  atomic `gmail_charge_read` RPC. `gget` charges every successful read by approximate bytes returned
+  (thread reads = the byte-heavy ones; Gmail throttling is byte-based).
+- **Governor** `lib/gmail-budget.ts`: `withGmailFeature(feature, fn)` tags every read inside `fn` (via
+  AsyncLocalStorage) so the ledger knows WHO is spending. `assertReadBudget(mailbox)` runs in `gget`
+  BEFORE each read and **hard-stops a BACKGROUND feature** once its mailbox hits the daily cap (throws
+  `GmailBudgetError`, callers fail open → skip/resume next window). **Interactive** features
+  (`email-module`) get a separate, higher ceiling and are never hard-stopped by the background cap.
+  Caps are self-imposed + env-tunable (Gmail's real limit is opaque): `GMAIL_BG_READS_PER_DAY` (300),
+  `GMAIL_BG_BYTES_PER_DAY` (200 MB), `GMAIL_IX_READS_PER_DAY` (1500), `GMAIL_IX_BYTES_PER_DAY` (1 GB),
+  PER MAILBOX. **Fails fully OPEN pre-migration** (table/RPC missing → governing no-ops, reads proceed).
+- **Tagged callers:** the 5 crons (`owner-review-mine`/`-remine`, `deal-emails`, `pitch-scan`,
+  `client-corpus`), the deal-detail "Pull emails" ingest, the research chat `email-threads` internal
+  route, and the Email module (`email-module`, interactive). Any UNtagged reader still charges under
+  `other` and is governed by the background cap — the protection is universal, tagging just improves
+  attribution.
+- **Visibility:** Email → **Inbox load** tab (`/email/load`, `app/email/load/*` + `api/admin/email/load`):
+  per-mailbox reads today, by-feature breakdown, cap meters (green/amber/red), and a **"Pull Google
+  audit (7d)"** button that shows OAuth-token grants per app per mailbox (our SA vs Superhuman vs
+  others) — the same audit-log check used to diagnose the throttle, now in-app. Needs the SA's DWD to
+  include `admin.reports.audit.readonly` (added 2026-09-02) + the Admin SDK API enabled on the
+  `snagged-pipeline` project (done); fails open to just the ledger if not.
+- **Setup:** run `scripts/gmail_read_budget.sql` on the **`domain-owner-research`** project (the
+  PRODUCTION one with the other `domain_research_*`/deals tables — NOT snagged-naming-universe) —
+  https://github.com/snaggeddomains/snagged-admin/blob/main/dashboard/scripts/gmail_read_budget.sql .
+  Until it runs, the governor no-ops (reads still work; no capping/ledger).
+- **Re-enabling the paused crons is now SAFE** — the cap prevents a repeat — but STILL prefer to also
+  spread the miner's reads across mailboxes / lower its volume before turning it back on (see below).
+
 # ⚠️ ALL Gmail-mailbox crons PAUSED — throttling rob@ (2026-09-02)
 
 Rob's own mailbox started getting Gmail-throttled. Diagnosed (read-only SQL on the research

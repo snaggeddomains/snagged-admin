@@ -11,6 +11,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { authorizedCron } from "@/lib/orchestrator";
 import { gmailConfigured } from "@/lib/gmail";
+import { withGmailFeature } from "@/lib/gmail-budget";
 import { scanPitchSuggestions, renderPitchDigest } from "@/lib/pitch-scan";
 import { sendEmail, emailConfigured } from "@/lib/email";
 
@@ -27,7 +28,7 @@ export async function GET(req: NextRequest) {
   const to = process.env.PITCH_SCAN_TO || "rob@snagged.com";
 
   try {
-    const result = await scanPitchSuggestions(days);
+    const result = await withGmailFeature("pitch-scan", () => scanPitchSuggestions(days));
     const digest = renderPitchDigest(result);
     if (dry) return NextResponse.json({ ok: true, dry: true, ...result });
     if (!digest) return NextResponse.json({ ok: true, sent: false, reason: "no untracked pitches", ...result });

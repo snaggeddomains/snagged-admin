@@ -6,6 +6,7 @@
 // threads. NEVER writes — gmail.readonly only.
 
 import { googleAccessToken } from "./google-auth";
+import { assertReadBudget, chargeRead } from "./gmail-budget";
 
 const SCOPE = "https://www.googleapis.com/auth/gmail.readonly";
 const API = "https://gmail.googleapis.com/gmail/v1/users/me";
@@ -44,12 +45,32 @@ export type GmailMessage = {
 // retry on 429 / 5xx instead of hammering, honoring Retry-After, and (b) callers
 // keep total volume down (see the deal-emails cron's activity gating). Read-only.
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+// Rough byte size of a parsed Gmail response, for the read governor's byte-budget. Prefer the
+// message payload's own sizeEstimate(s) (present on messages/threads) over stringifying the JSON.
+function approxBytes(json: any): number {
+  try {
+    if (Array.isArray(json?.messages) && json.messages.some((m: any) => m?.sizeEstimate != null)) {
+      return json.messages.reduce((s: number, m: any) => s + (Number(m?.sizeEstimate) || 0), 0);
+    }
+    if (json?.sizeEstimate != null) return Number(json.sizeEstimate) || 0;
+    return JSON.stringify(json).length;
+  } catch { return 0; }
+}
 async function gget(subject: string, path: string): Promise<any> {
+  // Governor: a BACKGROUND read on a mailbox over its daily budget is refused here (hard-stop,
+  // fail-open) so the sum of our features can never eat the per-user quota Superhuman shares.
+  await assertReadBudget(subject);
   const token = await googleAccessToken(SCOPE, subject);
   let lastErr: Error | null = null;
   for (let attempt = 0; attempt < 4; attempt++) {
     const res = await fetch(`${API}/${path}`, { headers: { Authorization: `Bearer ${token}` } });
-    if (res.ok) return res.json();
+    if (res.ok) {
+      const json = await res.json();
+      // Charge the ledger by approximate bytes returned (thread reads = the byte-heavy ones).
+      const bytes = Number(res.headers.get("content-length")) || approxBytes(json);
+      void chargeRead(subject, bytes);
+      return json;
+    }
     const bodyText = (await res.text()).slice(0, 200);
     // 429 (rate/quota) and 5xx are transient — back off and retry a few times.
     if (res.status === 429 || res.status >= 500) {
