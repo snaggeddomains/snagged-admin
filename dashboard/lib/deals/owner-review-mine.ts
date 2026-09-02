@@ -28,6 +28,16 @@ function isNoiseMsg(m: GmailMessage): boolean {
   return NOISE_FROM.test(m.from || "") || NOISE_SUBJECT.test(m.subject || "");
 }
 
+// Mailboxes the miner reads. brian@ is EXCLUDED by default — his mailbox was being Gmail-throttled
+// (shared per-user quota) and the miner reads whole threads across every deal mailbox per card.
+// Override with OWNER_REVIEW_SKIP_MAILBOXES (comma list); set it to "" to re-include everyone.
+function minerMailboxes(): string[] {
+  const raw = process.env.OWNER_REVIEW_SKIP_MAILBOXES;
+  const skip = (raw != null ? raw : "brian@snagged.com,brian@snagged.co")
+    .split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+  return dealMailboxes().filter((mb) => !skip.includes(mb.toLowerCase()));
+}
+
 const esc = (s: string) => s.replace(/[.+*?^${}()|[\]\\]/g, "\\$&");
 const clean = (s: string) => (s || "").trim().replace(/^"|"$/g, "");
 const splitName = (full: string): { first: string; last: string } => {
@@ -51,7 +61,7 @@ export async function resolveNameFromThread(domain: string, email: string): Prom
   const e = (email || "").trim().toLowerCase();
   if (!e || !/@/.test(e)) return null;
   let best = "";
-  for (const mb of dealMailboxes()) {
+  for (const mb of minerMailboxes()) {
     let stubs: { id: string; threadId: string }[] = [];
     try { stubs = await searchMessages(mb, `from:${e} OR to:${e}`, 6); } catch { continue; }
     for (const s of stubs.slice(0, 6)) {
@@ -131,7 +141,7 @@ async function gatherMessages(domain: string, opts: { maxThreads?: number; perTh
   // 1. Distinct threads mentioning the domain, across the deal mailboxes.
   const threads: { mb: string; threadId: string }[] = [];
   const seenThread = new Set<string>();
-  for (const mb of dealMailboxes()) {
+  for (const mb of minerMailboxes()) {
     if (threads.length >= maxThreads) break;
     let stubs: { id: string; threadId: string }[] = [];
     try { stubs = await searchMessages(mb, `"${domain}"`, 20); } catch { continue; }
