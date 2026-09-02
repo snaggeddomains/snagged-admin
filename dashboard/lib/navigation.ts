@@ -35,11 +35,12 @@ import {
   SNAP_TABS,
   REPORTS_TABS,
   DEALS_TABS,
+  EMAIL_TABS,
   canEnterDeals,
 } from "./permissions";
 
 export type NavTab = { href: string; label: string; perm: ModuleKey | ActionKey };
-export type SectionKey = "research" | "admin" | "snap" | "reports" | "deals";
+export type SectionKey = "research" | "admin" | "snap" | "reports" | "deals" | "email";
 
 export type NavSection = {
   key: SectionKey;
@@ -85,6 +86,13 @@ export const SECTIONS: NavSection[] = [
     href: "/deals/tasks",   // land on My Tasks (the first tab) by default
     blurb: "Buy-side CRM — the deal board, ownership, notes & email ingestion.",
     tabs: DEALS_TABS,
+  },
+  {
+    key: "email",
+    label: "Email",
+    href: "/email",
+    blurb: "Search the deal inbox for a thread and draft a reply with AI (copy/paste).",
+    tabs: EMAIL_TABS,
   },
 ];
 

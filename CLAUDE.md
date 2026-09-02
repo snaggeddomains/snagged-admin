@@ -1,3 +1,32 @@
+# Email module — search the deal inbox + AI-draft a reply (draft-only) (2026-09-02)
+
+A top-level admin section (`/email`, peer to Research/Admin/SNAP/Reports/Deals) that lets you
+**search the deal inbox for a thread** (a domain, a name, or keywords), pull the whole thread up
+inside admin, then have an LLM **draft a reply** grounded in the thread context + Snagged's
+negotiation voice (e.g. "acknowledge they don't want to sell, mention I have a $50k offer, ask if
+now's a better time"). **DRAFT-ONLY** (Rob's call) — nothing is sent; you copy/paste the draft into
+your mail client. Reads the deal mailboxes via the admin Gmail SA (read-only, `lib/gmail.ts`).
+- **Permission:** ONE module key **`email`** (MODULES + CATALOG group "Email" + `EMAIL_TABS`
+  `[{href:'/email', label:'Compose', perm:'email'}]`). `SECTIONS` entry in `lib/navigation.ts`
+  (`SectionKey` += `"email"`; `canEnterSection` default branch admits when the tab is granted). Admins
+  auto-pass. Grant per-user in the Users editor.
+- **API** `app/api/admin/email/route.ts` (gated `userCan(me,"email")`, maxDuration 60): GET
+  `?action=search&q=` → newest distinct threads across `dealMailboxes()` (one message fetch per hit
+  stub, deduped by thread, newest wins); GET `?action=thread&mailbox=&thread_id=` → the thread's
+  messages via `getThreadCapped` (quota-safe; 413 if oversized/empty); POST `{action:'draft', mailbox,
+  thread_id, instruction}` → one Anthropic call (`EMAIL_ASSIST_MODEL`||`OUTREACH_MODEL`||`DEAL_RECAP_MODEL`||haiku)
+  over the thread transcript + instruction → `{draft}`. Mailbox is constrained to `dealMailboxes()`.
+- **UI** `app/email/{layout,page,email-client}.tsx` — `layout` = SectionChrome (standard header:
+  back/refresh/share + 💡 + bell + avatar auto; `NavControls` covers `email` via the SectionKey).
+  `email-client` = search box → thread list (left) → thread view + instruction textarea + ✨ Draft
+  reply + editable draft + Copy (right). No Gmail write, no DB, no new table.
+- **⌘K:** admin palette auto-covers it (derives from `visibleSections × sectionTabs`); research SPA
+  palette has an `'always'` `CMDK_CROSS_APP` row (`Email · Compose a reply (AI draft)` → `/email`).
+- **Setup:** grant the `email` perm per-user (admins auto-pass). Reuses `GOOGLE_SA_KEY` (Gmail SA) +
+  `ANTHROPIC_API_KEY` (both already set in the admin Vercel project). No migration/new env.
+- **⚠️ Gmail quota:** reads are on-demand + light (a search + a couple thread fetches per draft, all
+  `getThreadCapped` so a giant chain is skipped) — same shared per-user quota discipline as the rest.
+
 # Internal Google-Sheet builder for the research app (2026-08-27)
 
 `app/api/internal/naming-sheet/route.ts` — lets the **research** app (which holds NO Google

@@ -52,6 +52,7 @@ export const MODULES = [
   "research.pipedrive", // Add-to-Pipedrive — turn a research surface into a buy-side deal (stored flat as `pipedrive`)
   "deals", // Deals — the native buy-side CRM board (see + own deals)
   "snap.deals", // SNAP Deal Board — Sam's lean internal board for names we're trying to ACQUIRE (single view+edit perm)
+  "email", // Email — search the deal inbox for a thread + LLM-draft a reply from its context (draft-only)
 ] as const;
 export type ModuleKey = (typeof MODULES)[number];
 
@@ -180,6 +181,12 @@ export const DEALS_TABS: { href: string; label: string; perm: ModuleKey | Action
   { href: "/deals/reports", label: "Reporting", perm: "deals.reports" },
 ];
 
+// Email — a standalone top-level module: search the deal inbox for a thread and LLM-draft a
+// reply from its context (draft-only). Single page; gated by the `email` module perm.
+export const EMAIL_TABS: { href: string; label: string; perm: ModuleKey | ActionKey }[] = [
+  { href: "/email", label: "Compose", perm: "email" },
+];
+
 // SNAP — its own top-level workspace (peer to Research/Admin/Reports). Two tools,
 // each served by a different app: SNAP Eval (the research app) + SNAP Opportunities
 // (the auctions/snap feed, page still at /reports/opportunities). This drives the
@@ -294,4 +301,5 @@ export const CATALOG: CatalogEntry[] = [
   { key: "deals.assignable", label: "Deals — can receive deals (shows in assignee lists)", group: "Deals", kind: "action" },
   { key: "deals.reports", label: "Deals — Reporting (query/aggregate all deals)", group: "Deals", kind: "action" },
   { key: "deals.sam_split", label: "Deals — toggle 'Sam splits upfront' on a deal", group: "Deals", kind: "action" },
+  { key: "email", label: "Email — search the inbox + LLM-draft a reply (draft-only)", group: "Email", kind: "module" },
 ];

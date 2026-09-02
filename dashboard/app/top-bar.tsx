@@ -102,7 +102,7 @@ export default function TopBar({
 function NavControls({ current }: { current?: SectionKey }) {
   const [copied, setCopied] = useState(false);
   const pathname = usePathname();
-  const isSection = current === "admin" || current === "reports" || current === "deals" || current === "snap";
+  const isSection = current === "admin" || current === "reports" || current === "deals" || current === "snap" || current === "email";
   // Standalone pages that aren't in a section but still want the standard back/refresh/share.
   const isStandalone = (pathname || "").startsWith("/feedback");
   if (!isSection && !isStandalone) return null;
