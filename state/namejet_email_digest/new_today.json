@@ -1,11 +1,10 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 1,
   "domains": [
-    "lacrosse.org",
-    "crushing.org"
+    "corals.org"
   ],
-  "generated_at": "2026-09-01T15:09:48.223101+00:00",
+  "generated_at": "2026-09-02T15:04:53.415958+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
