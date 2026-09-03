@@ -1,1 +1,263 @@
-[]
+[
+  {
+    "currency": "USD",
+    "domain": "enquiry.com",
+    "end_time_utc": "2026-09-03T19:26:59+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=enquiry.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "donetsk.com",
+    "end_time_utc": "2026-09-03T19:27:41+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=donetsk.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "belgian.com",
+    "end_time_utc": "2026-09-03T19:26:51+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=belgian.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "cooker.com",
+    "end_time_utc": "2026-09-03T19:27:32+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=cooker.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "honour.com",
+    "end_time_utc": "2026-09-03T19:27:08+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=honour.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "favour.com",
+    "end_time_utc": "2026-09-03T19:26:57+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=favour.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "barren.com",
+    "end_time_utc": "2026-09-03T19:26:57+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=barren.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "eldest.com",
+    "end_time_utc": "2026-09-03T19:27:50+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=eldest.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "shouts.com",
+    "end_time_utc": "2026-09-03T19:27:38+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=shouts.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "brahms.com",
+    "end_time_utc": "2026-09-03T19:26:45+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=brahms.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "practise.com",
+    "end_time_utc": "2026-09-03T19:27:45+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=practise.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "durban.com",
+    "end_time_utc": "2026-09-03T19:26:48+00:00",
+    "is_mub": true,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=durban.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "labourer.com",
+    "end_time_utc": "2026-09-03T19:26:27+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=labourer.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "davao.com",
+    "end_time_utc": "2026-09-03T19:27:19+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=davao.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "swaziland.com",
+    "end_time_utc": "2026-09-03T19:27:17+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=swaziland.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "haydn.com",
+    "end_time_utc": "2026-09-03T19:26:56+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=haydn.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "turin.com",
+    "end_time_utc": "2026-09-03T19:26:37+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=turin.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "gloom.com",
+    "end_time_utc": "2026-09-03T19:26:17+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=gloom.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "mosul.com",
+    "end_time_utc": "2026-09-03T19:27:34+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=mosul.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "comb.com",
+    "end_time_utc": "2026-09-03T19:26:45+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=comb.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "monotonous.com",
+    "end_time_utc": "2026-09-03T19:27:11+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=monotonous.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "cebu.com",
+    "end_time_utc": "2026-09-03T19:27:02+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=cebu.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "complicate.com",
+    "end_time_utc": "2026-09-03T19:26:40+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=complicate.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "compulsory.com",
+    "end_time_utc": "2026-09-03T19:26:33+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=compulsory.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "montpellier.com",
+    "end_time_utc": "2026-09-03T19:27:33+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=montpellier.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "nevertheless.com",
+    "end_time_utc": "2026-09-03T19:26:46+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=nevertheless.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "astonishment.com",
+    "end_time_utc": "2026-09-03T19:26:55+00:00",
+    "is_mub": false,
+    "price": null,
+    "tld": "com",
+    "url": "https://sedo.com/search/details/?domain=astonishment.com"
+  },
+  {
+    "currency": "USD",
+    "domain": "shorty.co",
+    "end_time_utc": "2026-09-03T22:25:19+00:00",
+    "is_mub": false,
+    "price": 59500.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=shorty.co"
+  },
+  {
+    "currency": "USD",
+    "domain": "sportsman.co",
+    "end_time_utc": "2026-09-03T20:49:12+00:00",
+    "is_mub": false,
+    "price": 9888.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=sportsman.co"
+  }
+]
