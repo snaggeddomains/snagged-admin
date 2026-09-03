@@ -34,6 +34,44 @@
   border-bottom-color: var(--coral);
   font-weight: 700;
 }
+/* Tools 3rd-tier: a group is a dropdown trigger styled exactly like a tab. */
+.tab-nav-group {
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--navy-2);
+  font-family: inherit;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+.tab-nav-group:hover { color: var(--navy); }
+.tab-nav-group.active {
+  color: var(--navy);
+  border-bottom-color: var(--coral);
+  font-weight: 700;
+}
+/* Dropdown items inside a group menu — a flat list row, not an underlined tab. The selectors carry
+   `a.tab-nav-item` so they outrank `.tab-nav a` (which also matches these descendant links). */
+.tab-nav a.tab-nav-item {
+  display: block;
+  padding: 8px 12px;
+  border-radius: 7px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--navy-2);
+  text-decoration: none;
+  white-space: nowrap;
+  border-bottom: none;
+  margin-bottom: 0;
+}
+.tab-nav a.tab-nav-item:hover { background: var(--cream); color: var(--navy); }
+.tab-nav a.tab-nav-item.active { color: var(--navy); font-weight: 700; background: var(--cream); border-bottom-color: transparent; }
 
 /* Counter strip — surfaces the at-a-glance state */
 .counter-strip {

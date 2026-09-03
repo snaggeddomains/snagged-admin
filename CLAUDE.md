@@ -2045,6 +2045,21 @@ to a second row like the Research sub-nav does). Header order: Research · Admin
   links, their els, and the old dropdown wiring were removed; the ⌘K `sectionOpen.reports` + `SECTION_NAV.reports.topbar`
   now point at `topbar-tools`. See research CLAUDE.md.
 - The dead `.topbar__nav button.topbar__nav-btn` CSS rule in `dashboard.css` is harmless (no nav buttons now).
+- **3rd tier — the Tools sub-nav is GROUPED dropdowns (Rob, 2026-09-03).** Instead of one flat 14-tab
+  row, the Tools sub-nav shows named group triggers, each a small dropdown of its pages:
+  **Reporting** (Site analytics · Chat · Cost & usage · Client Overlap) · **Marketplace** (Marketplace
+  Reports · Marketplace CMS) · **Content** (Social Sweep · Content) · **Email & SEO** (SEO · Email
+  Health · Ahrefs Report · Compose · Inbox load) · **Corporate** (Corporate Portfolios). Defined in
+  `permissions.ts` `TOOLS_GROUPS` (tabs referenced by href from REPORTS_TABS/EMAIL_TABS so labels/perms
+  stay single-sourced; `TOOLS_TABS = TOOLS_GROUPS.flatMap(g=>g.tabs)` is the flat list for path
+  resolution / perm filtering / the mobile hamburger). `navigation.ts` `toolsGroups(user)` returns the
+  permission-filtered groups (empty groups dropped). `app/nav.tsx` `Nav` takes an optional `groups` prop
+  → renders `NavGroup` dropdowns (active group = one containing the current path; outside-click/Escape
+  close); flat `tabs` for every other section. `SectionChrome` passes `groups` only when the resolved
+  section is `tools`. CSS: `.tab-nav-group` (trigger, styled like a tab) + `.tab-nav a.tab-nav-item`
+  (dropdown row — the `a.` prefix outranks the `.tab-nav a` descendant rule). **To re-group: edit
+  `TOOLS_GROUPS`** (add a group, or move an href between groups). Mobile is unaffected — the hamburger
+  still shows the flat `sectionTabs('tools')` list; grouped dropdowns are the desktop sub-nav only.
 
 **⌘K command palette (2026-07-22):** `app/command-palette.tsx` — a universal Cmd/Ctrl-K
 quick-switch mounted in `TopBar` (so it works on every admin-app page: Admin/SNAP/Reports/

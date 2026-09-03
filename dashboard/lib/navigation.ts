@@ -34,6 +34,7 @@ import {
   SNAP_TABS,
   DEALS_TABS,
   TOOLS_TABS,
+  TOOLS_GROUPS,
   canEnterDeals,
   canEnterTools,
 } from "./permissions";
@@ -107,6 +108,15 @@ export function sectionTabs(user: AppUser | null, key: SectionKey): NavTab[] {
   const section = SECTIONS.find((s) => s.key === key);
   if (!section) return [];
   return section.tabs.filter((t) => canTab(user, t.perm));
+}
+
+// The Tools section's sub-nav is a 3rd tier: named groups, each a dropdown of its pages. Returns the
+// permission-filtered groups (tabs the user can open), dropping any group left empty.
+export type NavGroup = { label: string; tabs: NavTab[] };
+export function toolsGroups(user: AppUser | null): NavGroup[] {
+  return TOOLS_GROUPS
+    .map((g) => ({ label: g.label, tabs: g.tabs.filter((t) => canTab(user, t.perm)) }))
+    .filter((g) => g.tabs.length > 0);
 }
 
 // Admin and Reports have an umbrella that admits the section even with no single

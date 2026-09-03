@@ -188,14 +188,30 @@ export const EMAIL_TABS: { href: string; label: string; perm: ModuleKey | Action
   { href: "/email/load", label: "Inbox load", perm: "email" },
 ];
 
-// Tools — a top-level section that CONSOLIDATES Reports + Email into one SNAP-style sub-nav
-// (Rob, 2026-09-03: no dropdown; one header item whose sub-modules mirror SNAP's layout). The
-// section's tabs are the Reports pages + the Email pages, flattened into one row (wraps like the
-// Research sub-nav). REPORTS_TABS/EMAIL_TABS stay defined for the per-perm helpers + gates.
-export const TOOLS_TABS: { href: string; label: string; perm: ModuleKey | ActionKey }[] = [
-  ...REPORTS_TABS,
-  ...EMAIL_TABS,
+// Tools — a top-level section that CONSOLIDATES Reports + Email. Its sub-nav is a 3rd tier: named
+// GROUPS (Reporting / Marketplace / Content / Email & SEO / Corporate), each a small dropdown of its
+// pages (Rob, 2026-09-03). Tabs are referenced by href from REPORTS_TABS/EMAIL_TABS so labels/perms
+// stay single-sourced. `TOOLS_TABS` is the FLATTENED list (path resolution, perm filtering, mobile).
+const TOOLS_TAB_BY_HREF = new Map(
+  [...REPORTS_TABS, ...EMAIL_TABS].map((t) => [t.href, t] as const),
+);
+const toolsTab = (href: string) => {
+  const t = TOOLS_TAB_BY_HREF.get(href);
+  if (!t) throw new Error(`TOOLS_GROUPS references unknown tab href: ${href}`);
+  return t;
+};
+export const TOOLS_GROUPS: {
+  label: string;
+  tabs: { href: string; label: string; perm: ModuleKey | ActionKey }[];
+}[] = [
+  { label: "Reporting", tabs: ["/reports", "/reports/chat", "/reports/cost", "/reports/client-overlap"].map(toolsTab) },
+  { label: "Marketplace", tabs: ["/reports/marketplace", "/reports/marketplace-master"].map(toolsTab) },
+  { label: "Content", tabs: ["/reports/social-sweep", "/reports/content"].map(toolsTab) },
+  { label: "Email & SEO", tabs: ["/reports/seo", "/reports/email-health", "/research/ahrefs", "/email", "/email/load"].map(toolsTab) },
+  { label: "Corporate", tabs: ["/research/portfolio"].map(toolsTab) },
 ];
+export const TOOLS_TABS: { href: string; label: string; perm: ModuleKey | ActionKey }[] =
+  TOOLS_GROUPS.flatMap((g) => g.tabs);
 
 // SNAP — its own top-level workspace (peer to Research/Admin/Reports). Two tools,
 // each served by a different app: SNAP Eval (the research app) + SNAP Opportunities
