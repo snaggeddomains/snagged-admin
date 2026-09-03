@@ -119,8 +119,10 @@ const normIntent = (v: unknown): string | null => {
   const s = String(v ?? "").trim();
   if (!s) return null;
   const l = s.toLowerCase();
-  if (/\bsell|selling\b/.test(l)) return "Sell";
-  if (/\bacquir|buy|buying|purchas/.test(l)) return "Acquire";
+  // NB the inquiry form's value is commonly misspelled "Aquire a domain" (no "c"),
+  // so match ac?quir to catch both spellings.
+  if (/sell|selling/.test(l)) return "Sell";
+  if (/ac?quir|buy|buying|purchas/.test(l)) return "Acquire";
   return s.charAt(0).toUpperCase() + s.slice(1);
 };
 

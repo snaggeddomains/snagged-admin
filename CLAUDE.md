@@ -358,10 +358,15 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
     (Any/Acquire/Sell), an **Intent** sortable column (placed after Owner; Sell rendered magenta),
     an **Acquire / Sell** group-by option, and CSV column. **Captured on convert** from the lead form's
     intent: inquiries triage (`inquiries-client` sends `inquiry.intent` → `inquiries/route.ts`) + the
-    research dossier drawer (`internal/pipedrive-deal/route.ts`). **Backfill** existing deals:
-    `app/api/admin/deals/backfill-intent/route.ts` (admin-only; GET dry-run, `?apply=1`) — matches each
-    deal to its `domain_research_leads` row by `lead_key` then buyer email → canonicalized `intent`, writes
-    where null. **Migration:** `deals.intent text` in `scripts/deals.sql` (create + add-if-not-exists) — run
+    research dossier drawer (`internal/pipedrive-deal/route.ts`). **⚠️ The form value is commonly
+    MISSPELLED "Aquire a domain" (no "c")**, so `normIntent`'s regex is `ac?quir` (catches both spellings)
+    — a live dry-run found 106 deals already storing the raw "Aquire a domain" because an earlier convert
+    path wrote intent uncanonicalized. **Backfill/repair** `app/api/admin/deals/backfill-intent/route.ts`
+    (admin-only; GET dry-run, `?apply=1`) does TWO passes: (A) **re-canonicalize** existing non-canonical
+    values ("Aquire a domain" → "Acquire") and (B) fill NULLs by matching each deal to its
+    `domain_research_leads` row (lead_key then buyer email). NB older/non-form deals (Inbound email/
+    Returning client/Referral) have no matching lead → stay "—" (pass A is the one that actually moves the
+    needle here). **Migration:** `deals.intent text` in `scripts/deals.sql` (create + add-if-not-exists) — run
     on the **`domain-owner-research`** project (the PRODUCTION one — NOT snagged-naming-universe):
     https://github.com/snaggeddomains/snagged-admin/blob/main/dashboard/scripts/deals.sql . Until it runs,
     createDeal + reportDeals strip-retry the column so everything still works (intent just reads "—").
