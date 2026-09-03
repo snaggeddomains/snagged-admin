@@ -15,6 +15,7 @@ import { Readable } from "node:stream";
 import { getDb } from "../supabase";
 import { googleAccessToken } from "../google-auth";
 import { parseRawMessage } from "./mbox";
+import { listZipEntries, openZipEntryStream, pickMboxEntry, type RangeReader, type RangeStreamer } from "./zip-remote";
 
 type CoreOpts = {
   mailbox: string;
@@ -143,21 +144,61 @@ export async function ingestMbox(opts: FileOpts): Promise<{ mailbox: string; imp
   return runIngest(rl, opts);
 }
 
-// Ingest by STREAMING a Takeout .mbox straight from Google Drive (by file id) via the service account —
-// no giant local temp file, bounded memory. The file must be readable by the SA: drop it in the
-// "Snagged Pipeline" shared drive, or share it to the SA's email. NB point this at the raw `.mbox`
-// file, not the Takeout .zip (unzip first, or upload the extracted mbox).
+// Ingest by STREAMING a Takeout export straight from Google Drive (by file id) via the service
+// account — no giant local temp file, bounded memory. The file must be readable by the SA: drop it
+// in the "Snagged Pipeline" shared drive, or share it to the SA's email. Accepts EITHER a raw
+// `.mbox` OR a Takeout `.zip` (Google exports Mail as a .zip) — a zip is detected and the .mbox
+// entry is streamed straight out of it via HTTP Range requests (never unzipped to disk).
 export async function ingestMboxFromDrive(opts: DriveOpts): Promise<{ mailbox: string; imported: number }> {
   const token = await googleAccessToken(DRIVE_SCOPE);
-  const url = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(opts.fileId)}?alt=media&supportsAllDrives=true`;
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  const base = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(opts.fileId)}`;
+  const authHdr = { Authorization: `Bearer ${token}` };
+
+  // Metadata → decide zip vs raw mbox (by mimeType/name).
+  const metaRes = await fetch(`${base}?fields=name,size,mimeType&supportsAllDrives=true`, { headers: authHdr });
+  if (!metaRes.ok) {
+    const detail = (await metaRes.text().catch(() => "")).slice(0, 300);
+    throw new Error(`Drive metadata failed (${metaRes.status}) for file ${opts.fileId}: ${detail}`);
+  }
+  const meta = (await metaRes.json()) as { name?: string; size?: string; mimeType?: string };
+  const isZip = /\.zip$/i.test(meta.name || "") || meta.mimeType === "application/zip";
+
+  const mediaUrl = `${base}?alt=media&supportsAllDrives=true`;
+  const rl = isZip
+    ? await mboxLinesFromZip(mediaUrl, authHdr, Number(meta.size || 0))
+    : await mboxLinesDirect(mediaUrl, authHdr);
+  return runIngest(rl, { ...opts, backfillSource: opts.backfillSource || (isZip ? "takeout-drive-zip" : "takeout-drive") });
+}
+
+// Direct .mbox download → readline (streaming line parse, no whole-file buffer).
+async function mboxLinesDirect(mediaUrl: string, authHdr: Record<string, string>): Promise<Interface> {
+  const res = await fetch(mediaUrl, { headers: authHdr });
   if (!res.ok || !res.body) {
     const detail = (await res.text().catch(() => "")).slice(0, 300);
-    throw new Error(`Drive download failed (${res.status}) for file ${opts.fileId}: ${detail}`);
+    throw new Error(`Drive download failed (${res.status}): ${detail}`);
   }
-  // Web ReadableStream → Node stream → readline (streaming line parse, no whole-file buffer).
   const nodeStream = Readable.fromWeb(res.body as Parameters<typeof Readable.fromWeb>[0]);
   nodeStream.setEncoding("utf8");
-  const rl = createInterface({ input: nodeStream, crlfDelay: Infinity });
-  return runIngest(rl, { ...opts, backfillSource: opts.backfillSource || "takeout-drive" });
+  return createInterface({ input: nodeStream, crlfDelay: Infinity });
+}
+
+// Takeout .zip → locate + stream-inflate the .mbox entry via HTTP Range requests → readline.
+async function mboxLinesFromZip(mediaUrl: string, authHdr: Record<string, string>, size: number): Promise<Interface> {
+  if (!size) throw new Error("Drive: missing file size for zip (needed for Range reads)");
+  const readRange: RangeReader = async (start, end) => {
+    const r = await fetch(mediaUrl, { headers: { ...authHdr, Range: `bytes=${start}-${end}` } });
+    if (!r.ok) throw new Error(`Drive range read ${start}-${end} failed (${r.status})`);
+    return Buffer.from(await r.arrayBuffer());
+  };
+  const streamRange: RangeStreamer = async (start, end) => {
+    const r = await fetch(mediaUrl, { headers: { ...authHdr, Range: `bytes=${start}-${end}` } });
+    if (!r.ok || !r.body) throw new Error(`Drive range stream ${start}-${end} failed (${r.status})`);
+    return Readable.fromWeb(r.body as Parameters<typeof Readable.fromWeb>[0]);
+  };
+  const entries = await listZipEntries(size, readRange);
+  const entry = pickMboxEntry(entries);
+  if (!entry) throw new Error(`No .mbox entry found in the Takeout zip (${entries.length} entries)`);
+  const mbox = await openZipEntryStream(entry, readRange, streamRange);
+  mbox.setEncoding("utf8");
+  return createInterface({ input: mbox, crlfDelay: Infinity });
 }

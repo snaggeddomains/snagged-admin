@@ -31,6 +31,26 @@ const DATE_PRESETS: { key: string; label: string }[] = [
   { key: "90d", label: "Last 90 days" }, { key: "mtd", label: "This month" }, { key: "lastmonth", label: "Last month" },
   { key: "ytd", label: "Year to date" }, { key: "12m", label: "Last 12 months" }, { key: "custom", label: "Custom…" },
 ];
+// Quick one-click range buttons (Rob 2026-09-03) — apply + run immediately.
+const QUICK_RANGES: { key: string; label: string }[] = [
+  { key: "today", label: "Today" }, { key: "yesterday", label: "Yesterday" }, { key: "3d", label: "Last 3 days" },
+  { key: "week", label: "Last week" }, { key: "30d", label: "Last 30 days" }, { key: "mtd", label: "Month to date" },
+];
+function quickRange(key: string): { from: string; to: string } {
+  const today = new Date();
+  const fmt = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const back = (days: number) => { const s = new Date(today); s.setDate(today.getDate() - days); return s; };
+  switch (key) {
+    case "today": return { from: fmt(today), to: fmt(today) };
+    case "yesterday": return { from: fmt(back(1)), to: fmt(back(1)) };
+    case "3d": return { from: fmt(back(2)), to: fmt(today) };
+    case "week": return { from: fmt(back(6)), to: fmt(today) };
+    case "30d": return { from: fmt(back(29)), to: fmt(today) };
+    case "mtd": return { from: fmt(new Date(today.getFullYear(), today.getMonth(), 1)), to: fmt(today) };
+    default: return { from: "", to: "" };
+  }
+}
+
 function presetRange(key: string): { from: string; to: string } {
   const today = new Date();
   const fmt = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -81,13 +101,21 @@ export default function ReportsClient() {
     setF((s) => ({ ...s, from, to }));
   };
 
-  const run = useCallback(async () => {
+  const runWith = useCallback(async (ff: Record<string, string>) => {
     setLoading(true);
     const p = new URLSearchParams();
-    for (const k of Object.keys(f)) { const v = (f as Record<string, string>)[k]; if (v) p.set(k, v); }
+    for (const k of Object.keys(ff)) { const v = ff[k]; if (v) p.set(k, v); }
     try { const res = await fetch(`/api/admin/deals/report?${p}`, { cache: "no-store" }); setData(await res.json()); }
     finally { setLoading(false); }
-  }, [f]);
+  }, []);
+  const run = useCallback(() => runWith(f), [f, runWith]);
+
+  // One-click quick range → set from/to, reveal the custom inputs, and run immediately.
+  const applyQuick = (key: string) => {
+    const { from, to } = quickRange(key);
+    const next = { ...f, from, to };
+    setF(next); setPreset("custom"); runWith(next);
+  };
   // Initial load — hydrate filters from the URL query (so a link like
   // /deals/reports?samSplit=yes&from=…&to=… opens pre-filtered), then fetch.
   useEffect(() => {
@@ -209,9 +237,16 @@ export default function ReportsClient() {
         </>}
         <div><span style={lbl}>Search</span><input style={input} value={f.q} onChange={(e) => set("q", e.target.value)} placeholder="domain / buyer" /></div>
       </div>
+      {/* Quick date ranges — one click applies the range + runs. */}
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center", marginBottom: 12 }}>
+        <span style={{ ...lbl, margin: "0 4px 0 0" }}>Quick range</span>
+        {QUICK_RANGES.map((q) => (
+          <button key={q.key} style={{ ...btn, padding: "5px 11px", fontSize: 12.5 }} onClick={() => applyQuick(q.key)} disabled={loading}>{q.label}</button>
+        ))}
+      </div>
       <div style={{ display: "flex", gap: 8, marginBottom: 14, alignItems: "flex-end", flexWrap: "wrap" }}>
         <button style={{ ...btn, background: "var(--coral,#e2674a)", color: "#fff", borderColor: "var(--coral,#e2674a)" }} onClick={run} disabled={loading}>{loading ? "Running…" : "Run report"}</button>
-        <button style={btn} onClick={() => { setF({ ...EMPTY }); setPreset("all"); setTimeout(run, 0); }}>Clear</button>
+        <button style={btn} onClick={() => { const cleared = { ...EMPTY }; setF(cleared); setPreset("all"); runWith(cleared); }}>Clear</button>
         <button style={btn} onClick={exportCsv} disabled={!deals.length}>Export CSV</button>
         <div style={{ marginLeft: "auto" }}>
           <span style={lbl}>Group by</span>
