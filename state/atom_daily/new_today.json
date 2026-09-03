@@ -1,24 +1,8 @@
 {
   "capped": false,
-  "count": 15,
-  "domains": [
-    "fabric.ai",
-    "lives.io",
-    "alumni.ai",
-    "streets.co",
-    "weak.io",
-    "jumpers.ai",
-    "bds.ai",
-    "weller.ai",
-    "jolla.ai",
-    "gobble.ai",
-    "charley.co",
-    "smoothie.co",
-    "mailer.co",
-    "matchday.co",
-    "ucl.org"
-  ],
-  "generated_at": "2026-09-03T09:31:39.515276+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-09-03T13:46:41.260383+00:00",
   "mub": [],
   "source": "atom_daily"
 }
