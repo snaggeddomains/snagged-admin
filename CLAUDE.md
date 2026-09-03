@@ -10,23 +10,34 @@ now the one chokepoint.
   (thread reads = the byte-heavy ones; Gmail throttling is byte-based).
 - **Governor** `lib/gmail-budget.ts`: `withGmailFeature(feature, fn)` tags every read inside `fn` (via
   AsyncLocalStorage) so the ledger knows WHO is spending. `assertReadBudget(mailbox)` runs in `gget`
-  BEFORE each read and **hard-stops a BACKGROUND feature** once its mailbox hits the daily cap (throws
-  `GmailBudgetError`, callers fail open → skip/resume next window). **Interactive** features
-  (`email-module`) get a separate, higher ceiling and are never hard-stopped by the background cap.
-  Caps are self-imposed + env-tunable (Gmail's real limit is opaque): `GMAIL_BG_READS_PER_DAY` (300),
-  `GMAIL_BG_BYTES_PER_DAY` (200 MB), `GMAIL_IX_READS_PER_DAY` (1500), `GMAIL_IX_BYTES_PER_DAY` (1 GB),
-  PER MAILBOX. **Fails fully OPEN pre-migration** (table/RPC missing → governing no-ops, reads proceed).
+  BEFORE each read. **We never want to REACH the cap**, so background reads **hard-stop at a SAFETY
+  MARGIN** (`GMAIL_BG_SAFETY_PCT`, default **0.7 = 70%** of the cap), never at 100%. And it's a
+  **GLOBAL circuit-breaker (Rob, 2026-09-02):** if ANY watched deal mailbox reaches 70% of either cap,
+  ALL background reads stop everywhere (`backgroundHalt()` scans every mailbox in `GMAIL_DEAL_MAILBOXES`)
+  — so if Rob/Brian/(any box) even gets close, no account risks the shared throttle. Throws
+  `GmailBudgetError`; callers fail open → skip/resume next window (daily reset). **Interactive**
+  features (`email-module`) get a separate, higher ceiling and are NEVER halted by the background trip
+  (a person waiting on a click keeps working). Caps are self-imposed + env-tunable (Gmail's real limit
+  is opaque): `GMAIL_BG_READS_PER_DAY` (300), `GMAIL_BG_BYTES_PER_DAY` (200 MB), `GMAIL_IX_READS_PER_DAY`
+  (1500), `GMAIL_IX_BYTES_PER_DAY` (1 GB), PER MAILBOX. **Fails fully OPEN pre-migration** (table/RPC
+  missing → governing no-ops, reads proceed). NB the watched set = the deal mailboxes we actually read
+  (rob@/brian@ .com/.co); Sam isn't a deal mailbox so we never read it — add it to `GMAIL_DEAL_MAILBOXES`
+  to bring it under the breaker if that ever changes.
 - **Tagged callers:** the 5 crons (`owner-review-mine`/`-remine`, `deal-emails`, `pitch-scan`,
   `client-corpus`), the deal-detail "Pull emails" ingest, the research chat `email-threads` internal
   route, and the Email module (`email-module`, interactive). Any UNtagged reader still charges under
   `other` and is governed by the background cap — the protection is universal, tagging just improves
   attribution.
 - **Visibility:** Email → **Inbox load** tab (`/email/load`, `app/email/load/*` + `api/admin/email/load`):
-  per-mailbox reads today, by-feature breakdown, cap meters (green/amber/red), and a **"Pull Google
-  audit (7d)"** button that shows OAuth-token grants per app per mailbox (our SA vs Superhuman vs
-  others) — the same audit-log check used to diagnose the throttle, now in-app. Needs the SA's DWD to
-  include `admin.reports.audit.readonly` (added 2026-09-02) + the Admin SDK API enabled on the
-  `snagged-pipeline` project (done); fails open to just the ledger if not.
+  per-mailbox reads today vs the **70% stop line** (+ the full cap), by-feature breakdown, cap meters
+  (green/amber/red), a **global "background HALTED" banner** when the breaker trips, and a **"Pull Google
+  audit (7d)"** button that shows OAuth-token grants per app per mailbox (our SA vs Superhuman vs others)
+  — the same audit-log check used to diagnose the throttle, now in-app. Needs the SA's DWD to include
+  `admin.reports.audit.readonly` (added 2026-09-02) + the Admin SDK API enabled on the `snagged-pipeline`
+  project (done); fails open to just the ledger if not. **NB "0 / cap · no reads charged" = healthy**
+  (nothing of ours read that box; the mailbox crons are paused) — NOT "broken/unwired". The ledger only
+  climbs when a cron or the Email tool actually reads; use the Google-audit button to see what EVERY app
+  (incl. Superhuman) did to a box.
 - **Setup:** run `scripts/gmail_read_budget.sql` on the **`domain-owner-research`** project (the
   PRODUCTION one with the other `domain_research_*`/deals tables — NOT snagged-naming-universe) —
   https://github.com/snaggeddomains/snagged-admin/blob/main/dashboard/scripts/gmail_read_budget.sql .

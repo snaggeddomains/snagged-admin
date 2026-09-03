@@ -53,6 +53,17 @@ const BG_BYTES = Number(process.env.GMAIL_BG_BYTES_PER_DAY) || 200 * 1024 * 1024
 const IX_READS = Number(process.env.GMAIL_IX_READS_PER_DAY) || 1500;
 const IX_BYTES = Number(process.env.GMAIL_IX_BYTES_PER_DAY) || 1024 * 1024 * 1024; // 1 GB
 
+// Safety margin: background reads STOP at this fraction of the cap — we never want to actually
+// REACH the daily cap (that risks the shared per-user quota Superhuman draws on). Default 70%.
+const SAFETY = Math.min(1, Math.max(0.1, Number(process.env.GMAIL_BG_SAFETY_PCT) || 0.7));
+
+// The mailboxes we read (mirror of gmail.ts dealMailboxes — kept here to avoid an import cycle,
+// since gmail.ts imports this module). The GLOBAL circuit-breaker watches ALL of them.
+function watchedMailboxes(): string[] {
+  return (process.env.GMAIL_DEAL_MAILBOXES || "rob@snagged.com,brian@snagged.com,rob@snagged.co,brian@snagged.co")
+    .split(",").map((s) => s.trim()).filter(Boolean);
+}
+
 function utcDay(d = new Date()): string {
   return d.toISOString().slice(0, 10);
 }
@@ -109,16 +120,43 @@ export function isGmailBudgetError(e: unknown): e is GmailBudgetError {
   return e instanceof GmailBudgetError || (e as { name?: string })?.name === "GmailBudgetError";
 }
 
-// Called by gget BEFORE a read. Throws GmailBudgetError if a BACKGROUND feature's mailbox is over
-// budget (hard-stop). Interactive features are never hard-stopped here (they have their own high
-// ceiling, enforced softly below only to catch a runaway). Fail-open on any governor error.
+// Is ANY watched mailbox at/over the safety threshold of either background cap? If so, ALL
+// background reads stop everywhere (global circuit-breaker) — so if Rob/Brian/(any deal box) is
+// even getting close, no account risks the shared throttle. Cached ~15s (each mailbox's usage is
+// itself cached), so it's cheap to check on every read.
+let haltCache: { at: number; tripped: { mailbox: string; reads: number; bytes: number } | null } = { at: 0, tripped: null };
+async function backgroundHalt(): Promise<{ mailbox: string; reads: number; bytes: number } | null> {
+  if (disabled) return null;
+  if (Date.now() - haltCache.at < CACHE_MS) return haltCache.tripped;
+  let tripped: { mailbox: string; reads: number; bytes: number } | null = null;
+  for (const mb of watchedMailboxes()) {
+    const u = await currentUsage(mb);
+    if (u.reads >= SAFETY * BG_READS || u.bytes >= SAFETY * BG_BYTES) { tripped = { mailbox: mb, ...u }; break; }
+  }
+  haltCache = { at: Date.now(), tripped };
+  return tripped;
+}
+
+// Called by gget BEFORE a read.
+//  - BACKGROUND feature: refused (GmailBudgetError, hard-stop) if the GLOBAL circuit-breaker is
+//    tripped (any watched mailbox ≥ SAFETY×cap) OR this mailbox is itself ≥ SAFETY×cap. So we stop
+//    at the safety margin, never at 100%, and one hot mailbox halts background reads for all.
+//  - INTERACTIVE feature (the Email tool): never hard-stopped by the background trip; only its own
+//    high ceiling catches a runaway. A person waiting on a click keeps working.
+// Fail-open on any governor error — never block a real read on our own bookkeeping.
 export async function assertReadBudget(mailbox: string): Promise<void> {
   if (disabled) return;
   const { feature, interactive } = currentCtx();
   try {
+    if (interactive) {
+      const u = await currentUsage(mailbox);
+      if (u.reads >= IX_READS || u.bytes >= IX_BYTES) throw new GmailBudgetError(mailbox, feature);
+      return;
+    }
+    const halt = await backgroundHalt();
+    if (halt) throw new GmailBudgetError(halt.mailbox, feature);
     const usage = await currentUsage(mailbox);
-    const [rCap, bCap] = interactive ? [IX_READS, IX_BYTES] : [BG_READS, BG_BYTES];
-    if (usage.reads >= rCap || usage.bytes >= bCap) throw new GmailBudgetError(mailbox, feature);
+    if (usage.reads >= SAFETY * BG_READS || usage.bytes >= SAFETY * BG_BYTES) throw new GmailBudgetError(mailbox, feature);
   } catch (e) {
     if (isGmailBudgetError(e)) throw e;
     /* governor read failed — fail open, never block a real read on our own bookkeeping */
@@ -146,7 +184,7 @@ export async function chargeRead(mailbox: string, bytes: number): Promise<void> 
 
 // Read-only status for the "Inbox load" dashboard (per mailbox, today).
 export async function budgetStatus(mailboxes: string[]): Promise<
-  { mailbox: string; reads: number; bytes: number; by_feature: Record<string, { reads: number; bytes: number }>; bg_read_cap: number; bg_byte_cap: number }[]
+  { mailbox: string; reads: number; bytes: number; by_feature: Record<string, { reads: number; bytes: number }>; bg_read_cap: number; bg_byte_cap: number; bg_read_stop: number; bg_byte_stop: number; halted: boolean }[]
 > {
   const day = utcDay();
   const out: Awaited<ReturnType<typeof budgetStatus>> = [];
@@ -161,9 +199,17 @@ export async function budgetStatus(mailboxes: string[]): Promise<
         if (data) { reads = data.reads || 0; bytes = Number(data.est_bytes) || 0; by_feature = data.by_feature || {}; }
       } catch { /* fail-open → zeros */ }
     }
-    out.push({ mailbox: mb, reads, bytes, by_feature, bg_read_cap: BG_READS, bg_byte_cap: BG_BYTES });
+    // Background reads stop at SAFETY×cap — surface both the stop line and whether this box has hit it.
+    const readStop = Math.round(SAFETY * BG_READS);
+    const byteStop = Math.round(SAFETY * BG_BYTES);
+    out.push({
+      mailbox: mb, reads, bytes, by_feature,
+      bg_read_cap: BG_READS, bg_byte_cap: BG_BYTES,
+      bg_read_stop: readStop, bg_byte_stop: byteStop,
+      halted: reads >= readStop || bytes >= byteStop,
+    });
   }
   return out;
 }
 
-export const CAPS = { BG_READS, BG_BYTES, IX_READS, IX_BYTES };
+export const CAPS = { BG_READS, BG_BYTES, IX_READS, IX_BYTES, SAFETY };

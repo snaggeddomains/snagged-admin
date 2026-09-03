@@ -63,8 +63,9 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     ok: true,
     mailboxes,
-    ledger,      // [{ mailbox, reads, bytes, by_feature, bg_read_cap, bg_byte_cap }]
-    caps: CAPS,
+    ledger,      // [{ mailbox, reads, bytes, by_feature, bg_read_cap, bg_byte_cap, bg_read_stop, bg_byte_stop, halted }]
+    caps: CAPS,  // { BG_READS, BG_BYTES, IX_READS, IX_BYTES, SAFETY }
+    halted: ledger.some((l) => l.halted),  // global background circuit-breaker tripped?
     audit,       // null unless ?audit=1; then { mailbox: [{app,events}] | null }
     day: new Date().toISOString().slice(0, 10),
   });

@@ -9,12 +9,16 @@ type Ledger = {
   by_feature: Record<string, { reads: number; bytes: number }>;
   bg_read_cap: number;
   bg_byte_cap: number;
+  bg_read_stop: number;
+  bg_byte_stop: number;
+  halted: boolean;
 };
 type Resp = {
   ok: boolean;
   mailboxes: string[];
   ledger: Ledger[];
-  caps: { BG_READS: number; BG_BYTES: number; IX_READS: number; IX_BYTES: number };
+  caps: { BG_READS: number; BG_BYTES: number; IX_READS: number; IX_BYTES: number; SAFETY: number };
+  halted: boolean;
   audit: Record<string, { app: string; events: number }[] | null> | null;
   day: string;
 };
@@ -65,12 +69,26 @@ export default function LoadClient() {
   return (
     <main style={{ maxWidth: 900, margin: "0 auto", padding: "8px 4px 40px" }}>
       <h1 style={{ fontSize: "1.35rem", color: NAVY, margin: "4px 0 2px" }}>Inbox load</h1>
-      <p className="muted" style={{ margin: "0 0 16px", fontSize: 13 }}>
-        How much our own features are reading the deal mailboxes today (UTC {data?.day || "…"}). Every
-        Gmail read across the app charges this ledger; a background job is <b>hard-stopped</b> once its
-        mailbox hits the daily cap, so the shared per-user quota (which Superhuman draws on) always keeps
-        headroom.
+      <p className="muted" style={{ margin: "0 0 10px", fontSize: 13 }}>
+        How much <b>our own features</b> are reading the deal mailboxes today (UTC {data?.day || "…"}).
+        Every Gmail read across the app charges this ledger. Background jobs <b>stop at{" "}
+        {data ? Math.round(data.caps.SAFETY * 100) : 70}% of the daily cap</b> (never 100%), and if{" "}
+        <b>any one mailbox</b> gets that close, <b>all</b> background reading halts everywhere — so the
+        shared per-user quota Superhuman draws on always keeps headroom. The Email tool (interactive) is
+        never halted.
       </p>
+      <p className="muted" style={{ margin: "0 0 16px", fontSize: 12.5, color: "#8a939b" }}>
+        <b>Reading this:</b> 0 / cap with “no reads charged” = healthy — it means nothing of ours has
+        touched that mailbox today (the background mailbox crons are currently paused). Numbers climb here
+        only when a cron or the Email tool reads. For what <i>every</i> app (Superhuman, us, etc.) did to a
+        box, use <b>Pull Google audit</b>.
+      </p>
+      {data?.halted && (
+        <div style={{ background: "#fdecea", color: "#a4271a", padding: "10px 12px", borderRadius: 8, marginBottom: 12, fontSize: 13, fontWeight: 600 }}>
+          ⛔ Background reads are HALTED — a mailbox reached the {Math.round(data.caps.SAFETY * 100)}% safety line.
+          All crons are paused on the Gmail side until the daily window resets (interactive Email still works).
+        </div>
+      )}
 
       <div style={{ display: "flex", gap: 8, marginBottom: 14, alignItems: "center" }}>
         <button type="button" onClick={() => load(audit)} disabled={loading}
@@ -87,8 +105,6 @@ export default function LoadClient() {
       {err && <div style={{ background: "#fdecea", color: "#a4271a", padding: "8px 12px", borderRadius: 8, marginBottom: 12, fontSize: 13 }}>{err}</div>}
 
       {data?.ledger?.map((l) => {
-        const rp = pct(l.reads, l.bg_read_cap);
-        const bp = pct(l.bytes, l.bg_byte_cap);
         const feats = Object.entries(l.by_feature || {}).sort((a, b) => (b[1]?.bytes || 0) - (a[1]?.bytes || 0));
         const aud = data.audit?.[l.mailbox];
         return (
@@ -96,9 +112,10 @@ export default function LoadClient() {
             <div style={{ fontWeight: 700, color: NAVY, marginBottom: 10 }}>{l.mailbox}</div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-              <Meter label="Reads (background cap)" value={`${l.reads} / ${l.bg_read_cap}`} p={rp} />
-              <Meter label="Bytes (background cap)" value={`${mb(l.bytes)} / ${mb(l.bg_byte_cap)}`} p={bp} />
+              <Meter label={`Reads (stop at ${l.bg_read_stop} · cap ${l.bg_read_cap})`} value={`${l.reads} / ${l.bg_read_stop}`} p={pct(l.reads, l.bg_read_stop)} />
+              <Meter label={`Bytes (stop at ${mb(l.bg_byte_stop)} · cap ${mb(l.bg_byte_cap)})`} value={`${mb(l.bytes)} / ${mb(l.bg_byte_stop)}`} p={pct(l.bytes, l.bg_byte_stop)} />
             </div>
+            {l.halted && <div style={{ marginTop: 8, fontSize: 12.5, color: CORAL, fontWeight: 600 }}>⛔ At the safety line — background reads on this mailbox are stopped for today.</div>}
 
             {feats.length > 0 && (
               <div style={{ marginTop: 12 }}>
@@ -116,7 +133,7 @@ export default function LoadClient() {
                 </table>
               </div>
             )}
-            {feats.length === 0 && <div className="muted" style={{ fontSize: 13, marginTop: 8 }}>No reads charged today.</div>}
+            {feats.length === 0 && <div className="muted" style={{ fontSize: 13, marginTop: 8 }}>No reads charged today — nothing of ours has touched this mailbox (background crons paused).</div>}
 
             {data.audit && (
               <div style={{ marginTop: 12 }}>
