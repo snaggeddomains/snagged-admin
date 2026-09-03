@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { type AppUser } from "@/lib/permissions";
-import { visibleSections, sectionTabs, type SectionKey } from "@/lib/navigation";
+import { visibleSections, sectionTabs, toolsGroups, type SectionKey } from "@/lib/navigation";
 import NotificationsBell from "./notifications-bell";
 import CommandPalette from "./command-palette";
 
@@ -24,6 +24,18 @@ export default function TopBar({
   // Everything below is derived from the navigation registry (lib/navigation.ts).
   const sections = visibleSections(user);
   const menuTabs = current ? sectionTabs(user, current) : [];
+  // Mobile hamburger: the Tools section shows its named groups (each with its pages under a heading),
+  // mirroring the desktop 3rd-tier dropdowns; every other section is a flat list.
+  const menuGroups = current === "tools" ? toolsGroups(user) : null;
+  const menuLink = (t: { href: string; label: string }) => {
+    const isIndex = t.href === "/admin" || t.href === "/reports" || t.href === "/research";
+    const active = isIndex ? pathname === t.href : Boolean(pathname && pathname.startsWith(t.href));
+    const cls = active ? "active" : "";
+    // /research/* is the separate research app — full-nav anchor.
+    return t.href.startsWith("/research")
+      ? <a key={t.href} href={t.href} className={cls} onClick={() => setOpen(false)}>{t.label}</a>
+      : <Link key={t.href} href={t.href} className={cls} onClick={() => setOpen(false)}>{t.label}</Link>;
+  };
 
   return (
     <header className="topbar">
@@ -69,23 +81,22 @@ export default function TopBar({
         &#9776;
       </button>
 
-      {/* Mobile dropdown: the active module's section tabs (if any) + account. */}
+      {/* Mobile dropdown: the active module's section tabs (if any) + account. Tools shows grouped. */}
       <div className={"topbar__menu" + (open ? " open" : "")}>
-        {menuTabs.length > 0 && (
+        {menuGroups ? (
           <nav className="topbar__menu-nav">
-            {menuTabs.map((t) => {
-              const isIndex = t.href === "/admin" || t.href === "/reports" || t.href === "/research";
-              const active = isIndex ? pathname === t.href : Boolean(pathname && pathname.startsWith(t.href));
-              const cls = active ? "active" : "";
-              // /research/* is the separate research app — full-nav anchor.
-              return t.href.startsWith("/research") ? (
-                <a key={t.href} href={t.href} className={cls} onClick={() => setOpen(false)}>{t.label}</a>
-              ) : (
-                <Link key={t.href} href={t.href} className={cls} onClick={() => setOpen(false)}>{t.label}</Link>
-              );
-            })}
+            {menuGroups.map((g) => (
+              <div key={g.label} className="topbar__menu-group">
+                <div className="topbar__menu-grouplabel">{g.label}</div>
+                {g.tabs.map((t) => menuLink(t))}
+              </div>
+            ))}
           </nav>
-        )}
+        ) : menuTabs.length > 0 ? (
+          <nav className="topbar__menu-nav">
+            {menuTabs.map((t) => menuLink(t))}
+          </nav>
+        ) : null}
         <div className="topbar__menu-account">
           <span className="muted">{user.email}</span>
           <a href="/api/logout">Log out</a>

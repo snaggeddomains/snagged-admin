@@ -2058,8 +2058,11 @@ to a second row like the Research sub-nav does). Header order: Research · Admin
   close); flat `tabs` for every other section. `SectionChrome` passes `groups` only when the resolved
   section is `tools`. CSS: `.tab-nav-group` (trigger, styled like a tab) + `.tab-nav a.tab-nav-item`
   (dropdown row — the `a.` prefix outranks the `.tab-nav a` descendant rule). **To re-group: edit
-  `TOOLS_GROUPS`** (add a group, or move an href between groups). Mobile is unaffected — the hamburger
-  still shows the flat `sectionTabs('tools')` list; grouped dropdowns are the desktop sub-nav only.
+  `TOOLS_GROUPS`** (add a group, or move an href between groups). **Mobile too:** the hamburger
+  (`top-bar.tsx`) renders the Tools groups as headings with their pages indented under each
+  (`menuGroups = toolsGroups(user)` when `current==='tools'`; `.topbar__menu-group` +
+  `.topbar__menu-grouplabel` CSS) — no dropdowns on mobile, just grouped sections; every other
+  section stays a flat list.
 
 **⌘K command palette (2026-07-22):** `app/command-palette.tsx` — a universal Cmd/Ctrl-K
 quick-switch mounted in `TopBar` (so it works on every admin-app page: Admin/SNAP/Reports/
