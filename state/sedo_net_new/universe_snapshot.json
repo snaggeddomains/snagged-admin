@@ -1,566 +1,86 @@
 [
   {
-    "domain": "mucking.com",
-    "price": 1199.0
+    "domain": "chenine.com",
+    "price": 4695.0
   },
   {
-    "domain": "yelping.com",
-    "price": 899.0
+    "domain": "ambers.com",
+    "price": 89185.0
   },
   {
-    "domain": "foulest.com",
-    "price": 899.0
+    "domain": "deepening.com",
+    "price": 28000.0
   },
   {
-    "domain": "roiling.com",
-    "price": 3559.0
+    "domain": "outwit.net",
+    "price": 2095.0
   },
   {
-    "domain": "coyness.com",
-    "price": 899.0
+    "domain": "quid.net",
+    "price": 9888.0
   },
   {
-    "domain": "reihen.com",
-    "price": 1041.0
+    "domain": "helpers.co",
+    "price": 34995.0
   },
   {
-    "domain": "vidios.com",
-    "price": 14999.0
+    "domain": "teashop.co",
+    "price": 4995.0
   },
   {
-    "domain": "friere.com",
-    "price": 2315.0
+    "domain": "paradis.co",
+    "price": 17500.0
   },
   {
-    "domain": "schals.com",
-    "price": 2083.0
+    "domain": "belinda.co",
+    "price": 5995.0
   },
   {
-    "domain": "modles.com",
-    "price": 1799.0
+    "domain": "everett.co",
+    "price": 9500.0
   },
   {
-    "domain": "dishonour.com",
-    "price": 2999.0
+    "domain": "connie.co",
+    "price": 18995.0
   },
   {
-    "domain": "prolapsed.com",
-    "price": 899.0
+    "domain": "sunpro.co",
+    "price": 9995.0
   },
   {
-    "domain": "perky.com",
-    "price": null
+    "domain": "dovetail.co",
+    "price": 49995.0
   },
   {
-    "domain": "biopocket.com",
-    "price": 66430.0
+    "domain": "balboa.co",
+    "price": 24995.0
   },
   {
-    "domain": "holders.ai",
-    "price": 278000.0
+    "domain": "exceed.co",
+    "price": 59500.0
   },
   {
-    "domain": "tortillas.ai",
-    "price": 1111500.0
+    "domain": "karim.co",
+    "price": 24995.0
   },
   {
-    "domain": "disinclined.com",
-    "price": 899.0
+    "domain": "clare.co",
+    "price": 32500.0
   },
   {
-    "domain": "nervousness.com",
-    "price": 3559.0
+    "domain": "anita.co",
+    "price": 77500.0
   },
   {
-    "domain": "emulators.net",
-    "price": 479.0
+    "domain": "hari.co",
+    "price": 34995.0
   },
   {
-    "domain": "clinics.co",
-    "price": 1799.0
+    "domain": "dems.co",
+    "price": 34995.0
   },
   {
-    "domain": "states.co",
-    "price": 1799.0
-  },
-  {
-    "domain": "disease.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "gutters.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "busters.co",
-    "price": 299.0
-  },
-  {
-    "domain": "monkeys.co",
-    "price": 1799.0
-  },
-  {
-    "domain": "barbers.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "redneck.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "poverty.co",
-    "price": 1799.0
-  },
-  {
-    "domain": "kittens.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "prayers.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "targets.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "needles.co",
-    "price": 299.0
-  },
-  {
-    "domain": "rabbits.co",
-    "price": 599.0
-  },
-  {
-    "domain": "turtles.co",
-    "price": 899.0
-  },
-  {
-    "domain": "maniacs.co",
-    "price": 299.0
-  },
-  {
-    "domain": "goggles.co",
-    "price": 899.0
-  },
-  {
-    "domain": "geology.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "pajamas.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "chaotic.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "marlene.co",
-    "price": 299.0
-  },
-  {
-    "domain": "alaskan.co",
-    "price": 299.0
-  },
-  {
-    "domain": "alimony.co",
-    "price": 749.0
-  },
-  {
-    "domain": "centres.co",
-    "price": 299.0
-  },
-  {
-    "domain": "russian.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "bipolar.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "chrissy.co",
-    "price": 299.0
-  },
-  {
-    "domain": "matches.co",
-    "price": 899.0
-  },
-  {
-    "domain": "palermo.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "elderly.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "tijuana.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "prison.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "prostate.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "clocks.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "slides.co",
-    "price": 1799.0
-  },
-  {
-    "domain": "recorder.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "cladding.co",
-    "price": 299.0
-  },
-  {
-    "domain": "radiator.co",
-    "price": 599.0
-  },
-  {
-    "domain": "inmate.co",
-    "price": 599.0
-  },
-  {
-    "domain": "bibles.co",
-    "price": 599.0
-  },
-  {
-    "domain": "snakes.co",
-    "price": 599.0
-  },
-  {
-    "domain": "comments.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "bleach.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "switches.co",
-    "price": 299.0
-  },
-  {
-    "domain": "cherokee.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "ortega.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "pasion.co",
-    "price": 1799.0
-  },
-  {
-    "domain": "bacteria.co",
-    "price": 749.0
-  },
-  {
-    "domain": "usenet.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "cascades.co",
-    "price": 299.0
-  },
-  {
-    "domain": "blasting.co",
-    "price": 299.0
-  },
-  {
-    "domain": "proofing.co",
-    "price": 299.0
-  },
-  {
-    "domain": "sandra.co",
-    "price": 899.0
-  },
-  {
-    "domain": "bulldogs.co",
-    "price": 749.0
-  },
-  {
-    "domain": "medina.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "serviced.co",
-    "price": 299.0
-  },
-  {
-    "domain": "reptiles.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "meltdown.co",
-    "price": 299.0
-  },
-  {
-    "domain": "german.co",
-    "price": 1799.0
-  },
-  {
-    "domain": "extranet.co",
-    "price": 299.0
-  },
-  {
-    "domain": "midget.co",
-    "price": 749.0
-  },
-  {
-    "domain": "christie.co",
-    "price": 599.0
-  },
-  {
-    "domain": "chubby.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "celtic.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "bells.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "lamps.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "leaks.co",
-    "price": 6995.0
-  },
-  {
-    "domain": "nurseries.co",
-    "price": 299.0
-  },
-  {
-    "domain": "coats.co",
-    "price": 1799.0
-  },
-  {
-    "domain": "frogs.co",
-    "price": 899.0
-  },
-  {
-    "domain": "elephants.co",
-    "price": 899.0
-  },
-  {
-    "domain": "endeavors.co",
-    "price": 299.0
-  },
-  {
-    "domain": "curse.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "cribs.co",
-    "price": 599.0
-  },
-  {
-    "domain": "ancestors.co",
-    "price": 899.0
-  },
-  {
-    "domain": "additives.co",
-    "price": 299.0
-  },
-  {
-    "domain": "malaysian.co",
-    "price": 727.0
-  },
-  {
-    "domain": "probation.co",
-    "price": 299.0
-  },
-  {
-    "domain": "englewood.co",
-    "price": 299.0
-  },
-  {
-    "domain": "brasserie.co",
-    "price": 299.0
-  },
-  {
-    "domain": "footloose.co",
-    "price": 299.0
-  },
-  {
-    "domain": "liverpool.co",
-    "price": 2425.0
-  },
-  {
-    "domain": "clamshell.co",
-    "price": 299.0
-  },
-  {
-    "domain": "owned.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "chino.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "sissy.co",
-    "price": 599.0
-  },
-  {
-    "domain": "mythology.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "powerline.co",
-    "price": 599.0
-  },
-  {
-    "domain": "bowl.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "heel.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "amps.co",
-    "price": 899.0
-  },
-  {
-    "domain": "gout.co",
-    "price": 599.0
-  },
-  {
-    "domain": "bane.co",
-    "price": 8400.0
-  },
-  {
-    "domain": "roadrunner.co",
-    "price": 2999.0
-  },
-  {
-    "domain": "characters.co",
-    "price": 1799.0
-  },
-  {
-    "domain": "penthouses.co",
-    "price": 299.0
-  },
-  {
-    "domain": "christophe.co",
-    "price": 299.0
-  },
-  {
-    "domain": "privileges.co",
-    "price": 299.0
-  },
-  {
-    "domain": "stabilizer.co",
-    "price": 299.0
-  },
-  {
-    "domain": "simulators.co",
-    "price": 299.0
-  },
-  {
-    "domain": "linebacker.co",
-    "price": 299.0
-  },
-  {
-    "domain": "stationary.co",
-    "price": 899.0
-  },
-  {
-    "domain": "sacs.co",
-    "price": 299.0
-  },
-  {
-    "domain": "volatility.co",
-    "price": 1111500.0
-  },
-  {
-    "domain": "shreveport.co",
-    "price": 299.0
-  },
-  {
-    "domain": "apts.co",
-    "price": 1799.0
-  },
-  {
-    "domain": "rat.co",
-    "price": 2999.0
-  },
-  {
-    "domain": "mug.co",
-    "price": 1799.0
-  },
-  {
-    "domain": "specialties.co",
-    "price": 299.0
-  },
-  {
-    "domain": "concessions.co",
-    "price": 299.0
-  },
-  {
-    "domain": "bittersweet.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "condolences.co",
-    "price": 299.0
-  },
-  {
-    "domain": "auctioneers.co",
-    "price": 299.0
-  },
-  {
-    "domain": "shy.co",
-    "price": 2999.0
-  },
-  {
-    "domain": "yah.co",
-    "price": 1499.0
-  },
-  {
-    "domain": "vac.co",
-    "price": 1799.0
-  },
-  {
-    "domain": "switchblade.co",
-    "price": 299.0
-  },
-  {
-    "domain": "certificates.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "indianapolis.co",
-    "price": 1199.0
-  },
-  {
-    "domain": "distributing.co",
-    "price": 299.0
-  },
-  {
-    "domain": "sledgehammer.co",
-    "price": 299.0
-  },
-  {
-    "domain": "enhancements.co",
-    "price": 299.0
+    "domain": "storyteller.co",
+    "price": 59995.0
   }
 ]
