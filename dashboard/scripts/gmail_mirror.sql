@@ -49,3 +49,8 @@ create table if not exists gmail_sync_state (
 );
 
 alter table gmail_sync_state enable row level security;
+
+-- Refresh PostgREST's schema cache so the REST API (supabase-js) sees the new tables immediately.
+-- Without this, the first ingest can 404 with "Could not find the table 'public.gmail_messages'
+-- in the schema cache" until PostgREST reloads on its own. Safe + idempotent to re-run.
+notify pgrst, 'reload schema';

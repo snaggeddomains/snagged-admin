@@ -95,7 +95,16 @@ async function runIngest(rl: Interface, opts: CoreOpts): Promise<{ mailbox: stri
     if (!batch.length) return;
     const rows = batch;
     batch = [];
-    const { error } = await db.from("gmail_messages").upsert(rows, { onConflict: "mailbox,id" });
+    // Upsert with a retry on a PostgREST "schema cache" miss — right after the migration runs,
+    // PostgREST can take a few seconds to reload and see the new table (PGRST205). Retry a few
+    // times with backoff so a reload that lands moments after dispatch self-heals.
+    let error: { message: string } | null = null;
+    for (let attempt = 0; attempt < 6; attempt++) {
+      ({ error } = await db.from("gmail_messages").upsert(rows, { onConflict: "mailbox,id" }));
+      if (!error) break;
+      if (!/schema cache|pgrst205|could not find the table/i.test(error.message)) break;
+      await new Promise((r) => setTimeout(r, 5000));
+    }
     if (error) throw new Error(`gmail_messages upsert failed: ${error.message}`);
     imported += rows.length;
     if (opts.onProgress && imported % progressEvery < rows.length) opts.onProgress(imported);
