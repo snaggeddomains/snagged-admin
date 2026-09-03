@@ -1,174 +1,12 @@
 [
   {
     "bid_count": 0,
-    "domain": "massey.ai",
-    "end_time_utc": "2026-09-02T13:00:00+00:00",
+    "domain": "nationally.io",
+    "end_time_utc": "2026-09-03T13:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/2rNLLSqSWtXocEWKhugAF6/",
-    "platform": "Namecheap",
-    "price": 10.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "trashy.ai",
-    "end_time_utc": "2026-09-02T13:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/fZ2QavRdrq3MrrMaezYzb7/",
-    "platform": "Namecheap",
-    "price": 10.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "shenandoah.ai",
-    "end_time_utc": "2026-09-02T13:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/86FewxGYiqqQP3v8mvvY5E/",
+    "link": "https://www.namecheap.com/market/sale/txaS8cj63jRLzgcriNcPe9/",
     "platform": "Namecheap",
     "price": 400.0
-  },
-  {
-    "bid_count": 27,
-    "domain": "centrality.ai",
-    "end_time_utc": "2026-09-02T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/5BhqQkH6Rm3SCFihNRSQMr/",
-    "platform": "Namecheap",
-    "price": 175.0
-  },
-  {
-    "bid_count": 27,
-    "domain": "autistic.ai",
-    "end_time_utc": "2026-09-02T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/sQN6G7Bnfrz6jDQ3HNyXVP/",
-    "platform": "Namecheap",
-    "price": 201.0
-  },
-  {
-    "bid_count": 7,
-    "domain": "dkk.ai",
-    "end_time_utc": "2026-09-02T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/91FudGX7gUEpMTCrNyEJMQ/",
-    "platform": "Namecheap",
-    "price": 103.0
-  },
-  {
-    "bid_count": 7,
-    "domain": "dko.ai",
-    "end_time_utc": "2026-09-02T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/oYn2gCtR2xqxRx6MX496hD/",
-    "platform": "Namecheap",
-    "price": 103.0
-  },
-  {
-    "bid_count": 7,
-    "domain": "kahx.com",
-    "end_time_utc": "2026-09-02T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/swMUHZ2ebpdGVk536e26NS/",
-    "platform": "Namecheap",
-    "price": 305.0
-  },
-  {
-    "bid_count": 6,
-    "domain": "znah.com",
-    "end_time_utc": "2026-09-02T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/9ybkK7GjWq2c9kFdcXZKCV/",
-    "platform": "Namecheap",
-    "price": 197.0
-  },
-  {
-    "bid_count": 5,
-    "domain": "tnu.co",
-    "end_time_utc": "2026-09-02T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/46MxRJH9Q3qRTAV2weSSyg/",
-    "platform": "Namecheap",
-    "price": 22.0
-  },
-  {
-    "bid_count": 5,
-    "domain": "agoth.com",
-    "end_time_utc": "2026-09-02T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/aKQYoWM5uo7obRms4ZsnrR/",
-    "platform": "Namecheap",
-    "price": 19.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "additionally.ai",
-    "end_time_utc": "2026-09-02T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/6pJpAA3AGqpb3Qa52xV62d/",
-    "platform": "Namecheap",
-    "price": 15.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "aiken.ai",
-    "end_time_utc": "2026-09-02T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/12z8qWv3pKPJ9xVvBA3hnS/",
-    "platform": "Namecheap",
-    "price": 15.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "lyman.ai",
-    "end_time_utc": "2026-09-02T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/4JawNvRQyFYKBMmU3eBmvg/",
-    "platform": "Namecheap",
-    "price": 15.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "particulate.ai",
-    "end_time_utc": "2026-09-02T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/hgZ2wDAXf5mwHwSPdKKBEp/",
-    "platform": "Namecheap",
-    "price": 15.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "royalist.co",
-    "end_time_utc": "2026-09-02T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/mQ7LpEh83R7f27tMnKe7Tq/",
-    "platform": "Namecheap",
-    "price": 5.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "stressful.io",
-    "end_time_utc": "2026-09-02T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/iro97UiTUNtgpT1hjVafuc/",
-    "platform": "Namecheap",
-    "price": 15.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "apparent.io",
-    "end_time_utc": "2026-09-02T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/feEiErvKSnjov4YeMGAHzj/",
-    "platform": "Namecheap",
-    "price": 15.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "unaware.io",
-    "end_time_utc": "2026-09-02T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/etGhQ3e1c1Qnr7WxkK7puD/",
-    "platform": "Namecheap",
-    "price": 15.0
   },
   {
     "bid_count": 0,
@@ -181,55 +19,64 @@
   },
   {
     "bid_count": 0,
-    "domain": "nationally.io",
+    "domain": "shenandoah.ai",
     "end_time_utc": "2026-09-03T13:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/txaS8cj63jRLzgcriNcPe9/",
+    "link": "https://www.namecheap.com/market/sale/86FewxGYiqqQP3v8mvvY5E/",
     "platform": "Namecheap",
-    "price": 400.0
+    "price": 10.0
   },
   {
-    "bid_count": 22,
+    "bid_count": 37,
     "domain": "soko.ai",
     "end_time_utc": "2026-09-03T15:00:00+00:00",
     "is_mub": false,
     "link": "https://www.namecheap.com/market/sale/d3mfNFqHFQ3L7maY7hgNzk/",
     "platform": "Namecheap",
-    "price": 610.0
+    "price": 1350.0
   },
   {
-    "bid_count": 19,
+    "bid_count": 25,
     "domain": "moderators.net",
     "end_time_utc": "2026-09-03T15:00:00+00:00",
     "is_mub": false,
     "link": "https://www.namecheap.com/market/sale/dnL3gxzg3pBRxneS1kRt2n/",
     "platform": "Namecheap",
-    "price": 56.0
+    "price": 88.0
   },
   {
-    "bid_count": 0,
+    "bid_count": 7,
+    "domain": "tra.io",
+    "end_time_utc": "2026-09-03T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namecheap.com/market/sale/4a4DL2ZgynTLm2MmN18Hyb/",
+    "platform": "Namecheap",
+    "price": 116.0
+  },
+  {
+    "bid_count": 7,
+    "domain": "olown.com",
+    "end_time_utc": "2026-09-03T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namecheap.com/market/sale/8A5QpCjedwJHLheroqt2jw/",
+    "platform": "Namecheap",
+    "price": 7.0
+  },
+  {
+    "bid_count": 6,
+    "domain": "greetr.ai",
+    "end_time_utc": "2026-09-03T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namecheap.com/market/sale/vMtKtEMxgRD42SvuXSJuRU/",
+    "platform": "Namecheap",
+    "price": 51.0
+  },
+  {
+    "bid_count": 1,
     "domain": "grips.ai",
     "end_time_utc": "2026-09-03T15:00:00+00:00",
     "is_mub": false,
     "link": "https://www.namecheap.com/market/sale/nNzaYsa5W3LRjggf9DTFKb/",
-    "platform": "Namecheap",
-    "price": 15.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "shellfish.ai",
-    "end_time_utc": "2026-09-03T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/czGCTfr62nxerYBxutSqUj/",
-    "platform": "Namecheap",
-    "price": 15.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "sixers.ai",
-    "end_time_utc": "2026-09-03T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/6y6QqXpGc2ZSqKgVCfKekD/",
     "platform": "Namecheap",
     "price": 15.0
   },
@@ -244,10 +91,28 @@
   },
   {
     "bid_count": 0,
+    "domain": "sixers.ai",
+    "end_time_utc": "2026-09-03T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namecheap.com/market/sale/6y6QqXpGc2ZSqKgVCfKekD/",
+    "platform": "Namecheap",
+    "price": 15.0
+  },
+  {
+    "bid_count": 0,
     "domain": "wrexham.ai",
     "end_time_utc": "2026-09-03T15:00:00+00:00",
     "is_mub": false,
     "link": "https://www.namecheap.com/market/sale/huB8KEyAfnUocPnvUCEyXM/",
+    "platform": "Namecheap",
+    "price": 15.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "shellfish.ai",
+    "end_time_utc": "2026-09-03T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namecheap.com/market/sale/czGCTfr62nxerYBxutSqUj/",
     "platform": "Namecheap",
     "price": 15.0
   },
@@ -262,12 +127,30 @@
   },
   {
     "bid_count": 0,
-    "domain": "bachelors.ai",
-    "end_time_utc": "2026-09-04T13:00:00+00:00",
+    "domain": "stressful.io",
+    "end_time_utc": "2026-09-03T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/cEFcbQfQNzvMgHk2h6phaB/",
+    "link": "https://www.namecheap.com/market/sale/iro97UiTUNtgpT1hjVafuc/",
     "platform": "Namecheap",
-    "price": 400.0
+    "price": 5.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "unaware.io",
+    "end_time_utc": "2026-09-03T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namecheap.com/market/sale/etGhQ3e1c1Qnr7WxkK7puD/",
+    "platform": "Namecheap",
+    "price": 5.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "apparent.io",
+    "end_time_utc": "2026-09-03T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namecheap.com/market/sale/feEiErvKSnjov4YeMGAHzj/",
+    "platform": "Namecheap",
+    "price": 5.0
   },
   {
     "bid_count": 0,
@@ -275,6 +158,15 @@
     "end_time_utc": "2026-09-04T13:00:00+00:00",
     "is_mub": false,
     "link": "https://www.namecheap.com/market/sale/1dw8y73GdNGBeTz3u5tK7D/",
+    "platform": "Namecheap",
+    "price": 400.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "bachelors.ai",
+    "end_time_utc": "2026-09-04T13:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namecheap.com/market/sale/cEFcbQfQNzvMgHk2h6phaB/",
     "platform": "Namecheap",
     "price": 400.0
   },
@@ -361,12 +253,12 @@
   },
   {
     "bid_count": 0,
-    "domain": "crushes.ai",
+    "domain": "pliers.ai",
     "end_time_utc": "2026-09-04T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/tq4jzA23KWTEWs4bNuFukL/",
+    "link": "https://www.namecheap.com/market/sale/166r56fp7sFeG2ovWPhrGv/",
     "platform": "Namecheap",
-    "price": 15.0
+    "price": 25.0
   },
   {
     "bid_count": 0,
@@ -397,21 +289,12 @@
   },
   {
     "bid_count": 0,
-    "domain": "pliers.ai",
+    "domain": "crushes.ai",
     "end_time_utc": "2026-09-04T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/166r56fp7sFeG2ovWPhrGv/",
+    "link": "https://www.namecheap.com/market/sale/tq4jzA23KWTEWs4bNuFukL/",
     "platform": "Namecheap",
-    "price": 25.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "kicking.co",
-    "end_time_utc": "2026-09-04T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/qfNKNEJ2AD8vCQYp1yLxxa/",
-    "platform": "Namecheap",
-    "price": 2.0
+    "price": 15.0
   },
   {
     "bid_count": 0,
@@ -433,12 +316,12 @@
   },
   {
     "bid_count": 0,
-    "domain": "thursdays.ai",
-    "end_time_utc": "2026-09-05T13:00:00+00:00",
+    "domain": "kicking.co",
+    "end_time_utc": "2026-09-04T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namecheap.com/market/sale/5pjJSTZYzG2zfE9umAViEy/",
+    "link": "https://www.namecheap.com/market/sale/qfNKNEJ2AD8vCQYp1yLxxa/",
     "platform": "Namecheap",
-    "price": 400.0
+    "price": 2.0
   },
   {
     "bid_count": 0,
@@ -455,6 +338,15 @@
     "end_time_utc": "2026-09-05T13:00:00+00:00",
     "is_mub": false,
     "link": "https://www.namecheap.com/market/sale/qhbKTLLY4spYsmMJT34NZM/",
+    "platform": "Namecheap",
+    "price": 400.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "thursdays.ai",
+    "end_time_utc": "2026-09-05T13:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namecheap.com/market/sale/5pjJSTZYzG2zfE9umAViEy/",
     "platform": "Namecheap",
     "price": 400.0
   },
@@ -495,13 +387,13 @@
     "price": 15.0
   },
   {
-    "bid_count": 7,
+    "bid_count": 19,
     "domain": "vdu.org",
     "end_time_utc": "2026-09-06T13:00:00+00:00",
     "is_mub": false,
     "link": "https://www.namecheap.com/market/sale/1EeevTs2rWqWJWX47ybQqe/",
     "platform": "Namecheap",
-    "price": 131.0
+    "price": 255.0
   },
   {
     "bid_count": 0,
@@ -563,6 +455,132 @@
     "end_time_utc": "2026-09-06T15:00:00+00:00",
     "is_mub": false,
     "link": "https://www.namecheap.com/market/sale/ci78nH3TZyTwnvqK2YTuL7/",
+    "platform": "Namecheap",
+    "price": 15.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "mishra.ai",
+    "end_time_utc": "2026-09-07T13:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namecheap.com/market/sale/2BwqmR5PDUKzGWk35BQu3J/",
+    "platform": "Namecheap",
+    "price": 400.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "alford.ai",
+    "end_time_utc": "2026-09-07T13:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namecheap.com/market/sale/a4DT7MRNbwLRHQgheQ2rP1/",
+    "platform": "Namecheap",
+    "price": 400.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "lentils.ai",
+    "end_time_utc": "2026-09-07T13:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namecheap.com/market/sale/6dujkMs2aRPRKjxKarhqXh/",
+    "platform": "Namecheap",
+    "price": 400.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "laughlin.ai",
+    "end_time_utc": "2026-09-07T13:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namecheap.com/market/sale/3EBGYcBfjX1vKEFSig5CYj/",
+    "platform": "Namecheap",
+    "price": 400.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "appreciates.org",
+    "end_time_utc": "2026-09-07T13:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namecheap.com/market/sale/s7FdzGzejuCVYDxvAnUjpN/",
+    "platform": "Namecheap",
+    "price": 15.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "litres.org",
+    "end_time_utc": "2026-09-07T13:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namecheap.com/market/sale/vVdpaZxPqwKELStXYuaJef/",
+    "platform": "Namecheap",
+    "price": 15.0
+  },
+  {
+    "bid_count": 46,
+    "domain": "xnames.com",
+    "end_time_utc": "2026-09-07T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namecheap.com/market/sale/fFHgGaSqRKi9HeL3CyRR1k/",
+    "platform": "Namecheap",
+    "price": 1061.0
+  },
+  {
+    "bid_count": 31,
+    "domain": "nmrc.com",
+    "end_time_utc": "2026-09-07T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namecheap.com/market/sale/axHaSZ3JLvLAmKPirsjFzH/",
+    "platform": "Namecheap",
+    "price": 320.0
+  },
+  {
+    "bid_count": 14,
+    "domain": "robota.ai",
+    "end_time_utc": "2026-09-07T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namecheap.com/market/sale/2tvTpJJs1JxSgaQ9pv6HHr/",
+    "platform": "Namecheap",
+    "price": 505.0
+  },
+  {
+    "bid_count": 13,
+    "domain": "breakup.ai",
+    "end_time_utc": "2026-09-07T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namecheap.com/market/sale/43HUKLUMzv63KLsHdViAP6/",
+    "platform": "Namecheap",
+    "price": 135.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "johnnie.ai",
+    "end_time_utc": "2026-09-07T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namecheap.com/market/sale/979UMn7WvbZscwYHvwxFZX/",
+    "platform": "Namecheap",
+    "price": 15.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "depths.co",
+    "end_time_utc": "2026-09-07T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namecheap.com/market/sale/3RAbo8eZ9y133bQ4J97NcD/",
+    "platform": "Namecheap",
+    "price": 15.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "brazilian.ai",
+    "end_time_utc": "2026-09-07T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namecheap.com/market/sale/pwk7odsq6nmVMGkZUPu9tW/",
+    "platform": "Namecheap",
+    "price": 15.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "solves.co",
+    "end_time_utc": "2026-09-07T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namecheap.com/market/sale/4BbnBojLpmM5RrJRxFfkQL/",
     "platform": "Namecheap",
     "price": 15.0
   }

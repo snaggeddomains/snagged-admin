@@ -1,32 +1,5 @@
 [
   {
-    "bid_count": 5,
-    "domain": "nodex.io",
-    "end_time_utc": "2026-09-02T16:41:01+00:00",
-    "is_mub": false,
-    "link": null,
-    "platform": "Park.io",
-    "price": 112.0
-  },
-  {
-    "bid_count": 28,
-    "domain": "stress.io",
-    "end_time_utc": "2026-09-02T20:00:15+00:00",
-    "is_mub": false,
-    "link": null,
-    "platform": "Park.io",
-    "price": 405.0
-  },
-  {
-    "bid_count": 11,
-    "domain": "bora.io",
-    "end_time_utc": "2026-09-04T16:41:01+00:00",
-    "is_mub": false,
-    "link": null,
-    "platform": "Park.io",
-    "price": 270.0
-  },
-  {
     "bid_count": 48,
     "domain": "collect.net",
     "end_time_utc": "2026-09-05T20:00:00+00:00",
@@ -36,21 +9,30 @@
     "price": 4550.0
   },
   {
-    "bid_count": 44,
+    "bid_count": 46,
     "domain": "xnames.com",
     "end_time_utc": "2026-09-07T15:00:00+00:00",
     "is_mub": false,
     "link": null,
     "platform": "Park.io",
-    "price": 1009.0
+    "price": 1061.0
   },
   {
-    "bid_count": 46,
+    "bid_count": 61,
     "domain": "eonis.com",
     "end_time_utc": "2026-09-07T20:00:00+00:00",
     "is_mub": false,
     "link": null,
     "platform": "Park.io",
-    "price": 338.0
+    "price": 1035.0
+  },
+  {
+    "bid_count": 11,
+    "domain": "bora.io",
+    "end_time_utc": "2026-09-08T16:41:01+00:00",
+    "is_mub": false,
+    "link": null,
+    "platform": "Park.io",
+    "price": 270.0
   }
 ]

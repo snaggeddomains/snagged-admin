@@ -1,14 +1,17 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 8,
   "domains": [
-    "inhd.com",
     "consoles.net",
+    "grandx.org",
     "macha.com",
     "interpos.com",
+    "ead.org",
+    "plaited.com",
+    "suiv.com",
     "yrub.com"
   ],
-  "generated_at": "2026-09-02T09:59:15.573863+00:00",
+  "generated_at": "2026-09-03T09:54:18.470304+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }

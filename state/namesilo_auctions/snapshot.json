@@ -1,20 +1,38 @@
 [
   {
-    "bid_count": 5,
-    "domain": "tnu.co",
-    "end_time_utc": "2026-09-02T15:00:00+00:00",
+    "bid_count": 7,
+    "domain": "olown.com",
+    "end_time_utc": "2026-09-03T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/tnu.co",
+    "link": "https://www.namesilo.com/auctions/olown.com",
     "platform": "NameSilo",
-    "price": 22.0
+    "price": 7.0
   },
   {
-    "bid_count": 19,
+    "bid_count": 25,
     "domain": "moderators.net",
     "end_time_utc": "2026-09-03T15:00:00+00:00",
     "is_mub": false,
     "link": "https://www.namesilo.com/auctions/moderators.net",
     "platform": "NameSilo",
-    "price": 56.0
+    "price": 88.0
+  },
+  {
+    "bid_count": 0,
+    "domain": "kicking.co",
+    "end_time_utc": "2026-09-04T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namesilo.com/auctions/kicking.co",
+    "platform": "NameSilo",
+    "price": 1.0
+  },
+  {
+    "bid_count": 12,
+    "domain": "sosw.net",
+    "end_time_utc": "2026-09-04T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namesilo.com/auctions/sosw.net",
+    "platform": "NameSilo",
+    "price": 116.0
   }
 ]

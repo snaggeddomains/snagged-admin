@@ -1,20 +1,14 @@
 {
   "capped": false,
-  "count": 11,
+  "count": 5,
   "domains": [
-    "charitable.net",
-    "sponsorz.com",
-    "restatement.com",
-    "cccp.net",
-    "sporadic.org",
-    "lisra.com",
-    "maphunt.com",
-    "bodwin.com",
-    "blazes.com",
-    "hairsy.com",
-    "cascadeo.com"
+    "blythe.org",
+    "tcbh.org",
+    "lqie.com",
+    "dabf.com",
+    "governance.net"
   ],
-  "generated_at": "2026-09-02T09:59:53.553297+00:00",
+  "generated_at": "2026-09-03T09:54:58.830037+00:00",
   "mub": [],
   "source": "godaddy_auctions"
 }
