@@ -14,9 +14,15 @@ it's not a workaround; Takeout/Workspace export is), then kept fresh by cheap **
   (`splitMbox`, `parseRawMessage`): unfolds headers, decodes QP/base64/RFC2047, walks multipart to
   text/plain (html-stripped fallback), un-escapes `>From `, reads Takeout's `X-GM-THRID`/`X-Gmail-Labels`.
   Unit-verified in the sandbox against a synthetic mbox.
-- **Ingester** `lib/gmail-mirror/ingest.ts` `ingestMbox({mailbox, filePath})` — STREAMS the (multi-GB)
-  MBOX line-by-line, batches upserts into `gmail_messages` (idempotent on the PK), stamps
-  `gmail_sync_state` backfill_source='takeout-mbox'. Quota-free (reads a local file).
+- **Ingester** `lib/gmail-mirror/ingest.ts` — STREAMS the (multi-GB) MBOX line-by-line, batches upserts
+  into `gmail_messages` (idempotent on the PK), stamps `gmail_sync_state`. Two entry points sharing one
+  core loop: **`ingestMbox({mailbox, filePath})`** (local file) and **`ingestMboxFromDrive({mailbox,
+  fileId})`** — pulls the archive straight from Google Drive via the SA (`googleAccessToken` +
+  `files/{id}?alt=media&supportsAllDrives=true`, streamed through readline — no giant temp file). So the
+  handoff is: unzip the Takeout, drop the raw **.mbox** in the "Snagged Pipeline" shared drive (or share
+  it to the SA email), pass its Drive file id. Quota-free (Takeout/Drive, never the Gmail API). NB it
+  must be the extracted `.mbox`, not the Takeout `.zip`. A big mbox needs a long-running runner (sandbox
+  / GitHub Action), not a Vercel function.
 - **Read layer** `lib/gmail-mirror.ts` — a **drop-in for `lib/gmail.ts`**: same signatures
   (`searchMessages`/`searchThreadIds`/`getMessage`/`getThread`/`getThreadCapped`/`getThreadMeta`/
   `getProfile` + re-exports `dealMailboxes`/`gmailConfigured`/`GmailMessage`/`GMAIL_THREAD_SIZE_CAP`).
