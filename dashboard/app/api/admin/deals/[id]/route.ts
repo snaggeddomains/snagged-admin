@@ -8,7 +8,7 @@ import { userCan, userCanAction, type AppUser } from "@/lib/permissions";
 import { getDeal, updateDeal, addActivity, listActivity, listDealEmails, setSamSplit, type Deal } from "@/lib/deals/store";
 import { notifyAssignment, notifyStageChange, notifyMention, notifyComment, notifyShare } from "@/lib/deals/notify";
 import { ingestDealEmails } from "@/lib/deals/emails";
-import { withGmailFeature } from "@/lib/gmail-budget";
+import { withGmailFeature, isGmailBudgetError, GMAIL_BUDGET_MESSAGE } from "@/lib/gmail-budget";
 import { researchReportLink, kickResearchRun, researchReportSummary } from "@/lib/deals/research-link";
 import { isStage } from "@/lib/deals/stages";
 import { assignableUsers } from "@/lib/deals/assignees";
@@ -243,9 +243,15 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     }
     case "ingest": {
       if (!canEdit) return NextResponse.json({ error: "You can view this shared deal but not edit it." }, { status: 403 });
-      const count = await withGmailFeature("deal-emails", () => ingestDealEmails(deal));
-      const emails = await listDealEmails(deal.id);
-      return NextResponse.json({ ok: true, ingested: count, emails });
+      // Human-initiated pull → if we're at the Gmail throttle line, fail loudly with a clear message.
+      try {
+        const count = await withGmailFeature("deal-emails", () => ingestDealEmails(deal));
+        const emails = await listDealEmails(deal.id);
+        return NextResponse.json({ ok: true, ingested: count, emails });
+      } catch (e) {
+        if (isGmailBudgetError(e)) return NextResponse.json({ ok: false, budgetPaused: true, error: GMAIL_BUDGET_MESSAGE }, { status: 429 });
+        throw e;
+      }
     }
     case "resync-research": {
       if (!canEdit) return NextResponse.json({ error: "You can view this shared deal but not edit it." }, { status: 403 });

@@ -55,6 +55,11 @@ const IX_BYTES = Number(process.env.GMAIL_IX_BYTES_PER_DAY) || 1024 * 1024 * 102
 // Safety margin: background reads STOP at this fraction of the cap — we never want to actually
 // REACH the daily cap (that risks the shared per-user quota Superhuman draws on). Default 70%.
 const SAFETY = Math.min(1, Math.max(0.1, Number(process.env.GMAIL_BG_SAFETY_PCT) || 0.7));
+// APPROACH line (< SAFETY): the GLOBAL circuit-breaker trips here, EARLIER than any one mailbox's own
+// stop — so the instant ANY watched mailbox is merely *approaching* its cap, ALL background reads halt
+// everywhere. This is the universal "any user about to hit their limit → hard skip" guarantee, and the
+// ~10-point buffer below the stop absorbs a concurrent-burst overshoot (what pushed brian past his stop).
+const APPROACH = Math.min(SAFETY, Math.max(0.1, Number(process.env.GMAIL_BG_APPROACH_PCT) || 0.6));
 
 // The mailboxes we read (mirror of gmail.ts dealMailboxes — kept here to avoid an import cycle,
 // since gmail.ts imports this module). The GLOBAL circuit-breaker watches ALL of them.
@@ -65,6 +70,18 @@ function watchedMailboxes(): string[] {
 
 function utcDay(d = new Date()): string {
   return d.toISOString().slice(0, 10);
+}
+
+// OPTIONAL manual permanent block — mailboxes our BACKGROUND code must never read regardless of
+// usage (env override, default EMPTY). The AUTOMATIC protection below (the approach-line breaker)
+// already covers "any user about to hit their limit"; this is just a manual escape hatch (e.g. to
+// hard-exclude a box entirely until it's served from the local mirror). Interactive Email is exempt.
+function bgSkipMailboxes(): Set<string> {
+  const raw = process.env.GMAIL_BG_SKIP_MAILBOXES ?? "";
+  return new Set(raw.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean));
+}
+export function isBackgroundSkipped(mailbox: string): boolean {
+  return bgSkipMailboxes().has(mailbox.trim().toLowerCase());
 }
 
 // Per-invocation cache of today's totals so we don't hit the DB before every single read.
@@ -105,6 +122,11 @@ function isMissing(e: unknown): boolean {
     s.includes("could not find") || s.includes("does not exist");
 }
 
+// Standard user-facing message for a human-initiated pull that hits the throttle line — shown
+// verbatim in the UI so the person knows it's a rate limit, not a failure, and to retry tomorrow.
+export const GMAIL_BUDGET_MESSAGE =
+  "Can't pull emails right now — we've reached today's email-read limit (throttling protection for the shared inbox quota). Please check back tomorrow.";
+
 export class GmailBudgetError extends Error {
   mailbox: string;
   feature: GmailFeature;
@@ -130,7 +152,8 @@ async function backgroundHalt(): Promise<{ mailbox: string; reads: number; bytes
   let tripped: { mailbox: string; reads: number; bytes: number } | null = null;
   for (const mb of watchedMailboxes()) {
     const u = await currentUsage(mb);
-    if (u.reads >= SAFETY * BG_READS || u.bytes >= SAFETY * BG_BYTES) { tripped = { mailbox: mb, ...u }; break; }
+    // Trip at the APPROACH line (earlier than the per-mailbox stop) → any box nearing its cap halts ALL.
+    if (u.reads >= APPROACH * BG_READS || u.bytes >= APPROACH * BG_BYTES) { tripped = { mailbox: mb, ...u }; break; }
   }
   haltCache = { at: Date.now(), tripped };
   return tripped;
@@ -144,8 +167,10 @@ async function backgroundHalt(): Promise<{ mailbox: string; reads: number; bytes
 //    high ceiling catches a runaway. A person waiting on a click keeps working.
 // Fail-open on any governor error — never block a real read on our own bookkeeping.
 export async function assertReadBudget(mailbox: string): Promise<void> {
-  if (disabled) return;
   const { feature, interactive } = currentCtx();
+  // Manual permanent block (env, default empty) — enforced even pre-migration, background only.
+  if (!interactive && isBackgroundSkipped(mailbox)) throw new GmailBudgetError(mailbox, feature);
+  if (disabled) return;
   try {
     if (interactive) {
       const u = await currentUsage(mailbox);
@@ -211,4 +236,4 @@ export async function budgetStatus(mailboxes: string[]): Promise<
   return out;
 }
 
-export const CAPS = { BG_READS, BG_BYTES, IX_READS, IX_BYTES, SAFETY };
+export const CAPS = { BG_READS, BG_BYTES, IX_READS, IX_BYTES, SAFETY, APPROACH };

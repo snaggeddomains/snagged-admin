@@ -11,7 +11,7 @@ import { analyticsReport, gaConfigured, type MarketplaceReport } from "@/lib/ga"
 import { getNewsletterFeatures, summarizeNewsletter } from "@/lib/newsletter";
 import { buildDealReport, REPORT_VERSION, type DealReport } from "@/lib/marketplace-deals";
 import { gmailConfigured } from "@/lib/gmail";
-import { withGmailFeature, isGmailBudgetError } from "@/lib/gmail-budget";
+import { withGmailFeature, isGmailBudgetError, GMAIL_BUDGET_MESSAGE } from "@/lib/gmail-budget";
 import { getDb, isDbConfigured } from "@/lib/supabase";
 
 export const runtime = "nodejs";
@@ -78,7 +78,7 @@ export async function GET(req: NextRequest) {
     } catch (e) {
       if (!isGmailBudgetError(e)) throw e;
       const stale = await readCache(domain).catch(() => null);
-      return { report: stale?.report ?? null, generatedAt: stale?.generatedAt ?? null, configured: true, budgetPaused: true };
+      return { report: stale?.report ?? null, generatedAt: stale?.generatedAt ?? null, configured: true, budgetPaused: true, budgetMessage: GMAIL_BUDGET_MESSAGE };
     }
   })();
 

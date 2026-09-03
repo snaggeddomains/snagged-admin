@@ -84,6 +84,23 @@ now the one chokepoint.
   reads `minerMailboxes()` which EXCLUDES brian by default, so the miner wasn't today's culprit — the
   marketplace/leads readers (which fan out across ALL deal mailboxes) were the likely source. Follow-up:
   the marketplace builder still fans out across every deal mailbox even when a domain's mail is in one.
+- **HARD CUTOFF — global breaker trips EARLY, universally (Rob, 2026-09-03 "any user about to hit limit").**
+  Tagging + the per-mailbox 70% stop still let brian OVERSHOOT to 160 MB / 140 MB stop (concurrent
+  whole-thread reads in one request all pass the check before any charge). Fix: the GLOBAL circuit-breaker
+  now trips at an **APPROACH line** (`GMAIL_BG_APPROACH_PCT`, default **0.6**) — BELOW each mailbox's own
+  0.7 stop — so the instant ANY watched mailbox merely *approaches* its cap, **ALL background reads halt
+  everywhere**, and the ~10-point buffer absorbs the burst overshoot. Universal (not brian-specific) +
+  self-clears daily. `assertReadBudget` also enforces an OPTIONAL manual permanent block
+  `GMAIL_BG_SKIP_MAILBOXES` (env, default EMPTY; background-only, interactive Email exempt) — an escape
+  hatch to hard-exclude a box until it's served from the local mirror. Interactive Email keeps its own
+  higher ceiling (never halted). `CAPS` now exports `APPROACH`.
+- **Human-initiated pulls fail LOUDLY on a halt (Rob, 2026-09-03).** Exported `GMAIL_BUDGET_MESSAGE`
+  ("Can't pull emails right now — we've reached today's email-read limit … Please check back tomorrow.")
+  returned verbatim: 429 + `budgetPaused` from the deal-detail **Pull emails** ingest, the Owner Review
+  buttons (mine / remine-bulk / per-card remine·resolve_name), and the Email tool; the report surfaces
+  (marketplace deal report, leads analytics) return it as `budgetMessage` alongside a stale/empty payload
+  so the page still renders. NB the dashboard's "stop at 70%" copy is now the per-mailbox stop; the global
+  breaker trips earlier at APPROACH (60%) — a copy refresh on `/email/load` is a pending follow-up.
 - **Visibility:** Email → **Inbox load** tab (`/email/load`, `app/email/load/*` + `api/admin/email/load`):
   per-mailbox reads today vs the **70% stop line** (+ the full cap), by-feature breakdown, cap meters
   (green/amber/red), a **global "background HALTED" banner** when the breaker trips, and a **"Pull Google

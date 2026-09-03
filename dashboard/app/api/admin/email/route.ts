@@ -13,7 +13,7 @@ import {
   gmailConfigured,
   type GmailMessage,
 } from "@/lib/gmail";
-import { withGmailFeature, isGmailBudgetError } from "@/lib/gmail-budget";
+import { withGmailFeature, isGmailBudgetError, GMAIL_BUDGET_MESSAGE } from "@/lib/gmail-budget";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -154,7 +154,7 @@ export async function GET(req: NextRequest) {
       }
       return NextResponse.json({ error: "Unknown action" }, { status: 400 });
     } catch (e) {
-      if (isGmailBudgetError(e)) return NextResponse.json({ error: "Inbox read budget reached for today — try again later." }, { status: 429 });
+      if (isGmailBudgetError(e)) return NextResponse.json({ error: GMAIL_BUDGET_MESSAGE, budgetPaused: true }, { status: 429 });
       return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
     }
   });
@@ -186,7 +186,7 @@ export async function POST(req: NextRequest) {
       const draft = await draftReply(subject, msgs, body.instruction || "");
       return NextResponse.json({ ok: true, draft, subject });
     } catch (e) {
-      if (isGmailBudgetError(e)) return NextResponse.json({ error: "Inbox read budget reached for today — try again later." }, { status: 429 });
+      if (isGmailBudgetError(e)) return NextResponse.json({ error: GMAIL_BUDGET_MESSAGE, budgetPaused: true }, { status: 429 });
       return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
     }
   });

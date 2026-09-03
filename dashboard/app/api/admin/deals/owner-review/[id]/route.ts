@@ -12,7 +12,7 @@ import { getCurrentUser } from "@/lib/session";
 import { userCan, userCanAction } from "@/lib/permissions";
 import { confirmCard, updateCard, setCardStatus, reassignCard, getCard } from "@/lib/deals/owner-review";
 import { resolveNameFromThread, mineOwnerForDomain } from "@/lib/deals/owner-review-mine";
-import { withGmailFeature, isGmailBudgetError } from "@/lib/gmail-budget";
+import { withGmailFeature, isGmailBudgetError, GMAIL_BUDGET_MESSAGE } from "@/lib/gmail-budget";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         return NextResponse.json({ error: "Unknown action" }, { status: 400 });
     }
   } catch (e) {
-    if (isGmailBudgetError(e)) return NextResponse.json({ ok: false, budgetPaused: true, error: "Paused: Gmail daily read budget reached — try again after the daily reset." }, { status: 503 });
+    if (isGmailBudgetError(e)) return NextResponse.json({ ok: false, budgetPaused: true, error: GMAIL_BUDGET_MESSAGE }, { status: 429 });
     return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
   }
 }
