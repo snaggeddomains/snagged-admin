@@ -10,6 +10,27 @@
 // (the Drive service account, which must be able to read the file — shared drive or shared to the SA).
 
 import { ingestMbox, ingestMboxFromDrive } from "../lib/gmail-mirror/ingest";
+import { getDb } from "../lib/supabase";
+
+// Preflight: probe which tables PostgREST can see, so a "schema cache" failure is diagnosable.
+// `deals` is a long-standing table on the main project → if it's visible we're on the RIGHT
+// project and the miss is purely a stale schema cache (run NOTIFY); if `deals` is ALSO missing,
+// the SUPABASE_URL secret points at the WRONG project.
+async function preflight() {
+  const db = getDb();
+  const probe = async (t: string) => {
+    const { error } = await db.from(t).select("id", { head: true, count: "exact" }).limit(1);
+    return error ? `NOT VISIBLE (${error.message.slice(0, 70)})` : "visible";
+  };
+  const deals = await probe("deals");
+  const gmail = await probe("gmail_messages");
+  console.log(`[preflight] deals=${deals} | gmail_messages=${gmail}`);
+  if (deals.startsWith("visible") && !gmail.startsWith("visible")) {
+    console.log("[preflight] → RIGHT project, but gmail_messages isn't in PostgREST's cache. Run `notify pgrst, 'reload schema';` on domain-owner-research.");
+  } else if (!deals.startsWith("visible")) {
+    console.log("[preflight] → deals is missing too — the SUPABASE_URL secret likely points at the WRONG project (not domain-owner-research).");
+  }
+}
 
 function arg(name: string): string | undefined {
   const i = process.argv.indexOf(`--${name}`);
@@ -35,6 +56,7 @@ async function main() {
     console.log(`  … ${n.toLocaleString()} messages ingested (${mins} min)`);
   };
 
+  await preflight();
   console.log(`[gmail-mirror] Seeding ${mailbox} from ${fileId ? `Drive ${fileId}` : filePath}`);
   const res = fileId
     ? await ingestMboxFromDrive({ mailbox, fileId, onProgress })
