@@ -188,6 +188,15 @@ export const EMAIL_TABS: { href: string; label: string; perm: ModuleKey | Action
   { href: "/email/load", label: "Inbox load", perm: "email" },
 ];
 
+// Tools — a top-level section that CONSOLIDATES Reports + Email into one SNAP-style sub-nav
+// (Rob, 2026-09-03: no dropdown; one header item whose sub-modules mirror SNAP's layout). The
+// section's tabs are the Reports pages + the Email pages, flattened into one row (wraps like the
+// Research sub-nav). REPORTS_TABS/EMAIL_TABS stay defined for the per-perm helpers + gates.
+export const TOOLS_TABS: { href: string; label: string; perm: ModuleKey | ActionKey }[] = [
+  ...REPORTS_TABS,
+  ...EMAIL_TABS,
+];
+
 // SNAP — its own top-level workspace (peer to Research/Admin/Reports). Two tools,
 // each served by a different app: SNAP Eval (the research app) + SNAP Opportunities
 // (the auctions/snap feed, page still at /reports/opportunities). This drives the
@@ -238,6 +247,13 @@ export function canEnterReports(user: AppUser | null): boolean {
   if (isGranted(user.permissions, "reports.opportunities")) return true;
   if (isGranted(user.permissions, "reports.snap_names")) return true;
   return REPORTS_TABS.some((t) => isGranted(user.permissions, t.perm));
+}
+
+// Tools section = Reports ∪ Email. Enterable if the user can enter Reports OR has an Email tab.
+export function canEnterTools(user: AppUser | null): boolean {
+  if (!user) return false;
+  if (canEnterReports(user)) return true;
+  return EMAIL_TABS.some((t) => isGranted(user.permissions, t.perm));
 }
 
 // UI descriptor for the /admin/users permission editor. Adding a future module

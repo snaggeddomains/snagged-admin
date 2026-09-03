@@ -2022,15 +2022,29 @@ the hub, header, or layouts again.
 `lib/permissions.ts` (MODULES/ACTIONS + CATALOG), then add one `NavSection` to
 `SECTIONS`. Done — card, header item, mobile menu, sub-nav all appear.
 
-**Header nav is FLAT — no "Tools" dropdown (Rob, 2026-09-03).** A brief experiment grouped Reports +
-Email under a **Tools ▾** dropdown; Rob wanted them to mirror the other nav items exactly, so it was
-**reverted to flat top-level links**. Header order is now Research · Admin · SNAP · Deals · Reports ·
-Email — every section is a plain `visibleSections` link (no `parent`/`headerNav` split, no dropdown
-state). `top-bar.tsx` renders `sections.map(...)`; the mobile hamburger shows the current section's
-sub-tabs as before. The research SPA mirrors this (`index.html` `#topbar-reports`/`#topbar-email` are
-direct `.topbar__nav` links again, each gated per-permission in `checkAuth`; the `#topbar-tools`
-wrapper + `wireToolsMenu` + `.topbar__tools*` CSS were removed — see research CLAUDE.md). The dead
-`.topbar__nav button.topbar__nav-btn` CSS rule in `dashboard.css` is harmless (no nav buttons now).
+**"Tools" is a REAL top-level section = Reports + Email consolidated, SNAP-style (Rob, 2026-09-03).**
+After a dropdown experiment (reverted) and a flat-links pass (also reverted), the final shape Rob wanted:
+**Tools** is ONE top-level header item (peer to Research/Admin/SNAP/Deals) whose sub-nav row is all the
+Reports pages + the Email pages, flattened — exactly how SNAP shows its sub-tabs (NO dropdown; it wraps
+to a second row like the Research sub-nav does). Header order: Research · Admin · SNAP · Deals · Tools.
+- **`lib/permissions.ts`:** `TOOLS_TABS = [...REPORTS_TABS, ...EMAIL_TABS]` (the two originals stay
+  defined for the per-perm helpers/gates); `canEnterTools(user)` = `canEnterReports(user) ||` any
+  EMAIL tab granted.
+- **`lib/navigation.ts`:** `SectionKey` is now `research|admin|snap|deals|tools` (dropped `reports`/`email`).
+  SECTIONS has ONE `tools` entry (`href:'/reports'`, `tabs:TOOLS_TABS`) replacing the separate reports+email
+  entries. `canEnterSection('tools')→canEnterTools`. `sectionForPath` resolves every `/reports/*` and
+  `/email/*` path to `tools` (so `SectionChrome` renders the combined sub-nav there); `/reports/opportunities`
+  + `/reports/snap-names` still resolve to SNAP (longer tab-href match). No `headerNav`/`parent` — the header
+  is flat `visibleSections`.
+- **`app/top-bar.tsx`:** `NavControls` `isSection` includes `"tools"` (back/refresh/share render on Tools
+  pages). The `app/reports/*` + `app/email/*` layouts are UNCHANGED — they use `SectionChrome`, which
+  derives the section from the URL, so both now render under the Tools header with the Tools sub-nav; their
+  access gates (canEnterReports / userCan('email')) are untouched.
+- **Research SPA mirrors it:** one `#topbar-tools` header link → `/reports` (full-nav to the admin Tools
+  section); gated `canEnterReports || portfolio || ahrefs || email`. The `#topbar-reports`/`#topbar-email`
+  links, their els, and the old dropdown wiring were removed; the ⌘K `sectionOpen.reports` + `SECTION_NAV.reports.topbar`
+  now point at `topbar-tools`. See research CLAUDE.md.
+- The dead `.topbar__nav button.topbar__nav-btn` CSS rule in `dashboard.css` is harmless (no nav buttons now).
 
 **⌘K command palette (2026-07-22):** `app/command-palette.tsx` — a universal Cmd/Ctrl-K
 quick-switch mounted in `TopBar` (so it works on every admin-app page: Admin/SNAP/Reports/

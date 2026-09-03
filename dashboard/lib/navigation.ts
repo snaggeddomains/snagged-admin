@@ -29,18 +29,17 @@ import {
   canAdmin,
   canReports,
   canEnterAdmin,
-  canEnterReports,
   RESEARCH_TABS,
   ADMIN_TABS,
   SNAP_TABS,
-  REPORTS_TABS,
   DEALS_TABS,
-  EMAIL_TABS,
+  TOOLS_TABS,
   canEnterDeals,
+  canEnterTools,
 } from "./permissions";
 
 export type NavTab = { href: string; label: string; perm: ModuleKey | ActionKey };
-export type SectionKey = "research" | "admin" | "snap" | "reports" | "deals" | "email";
+export type SectionKey = "research" | "admin" | "snap" | "deals" | "tools";
 
 export type NavSection = {
   key: SectionKey;
@@ -74,13 +73,6 @@ export const SECTIONS: NavSection[] = [
     tabs: SNAP_TABS,
   },
   {
-    key: "reports",
-    label: "Reports",
-    href: "/reports",
-    blurb: "Site analytics, SEO, revenue & API cost — plus corporate portfolios.",
-    tabs: REPORTS_TABS,
-  },
-  {
     key: "deals",
     label: "Deals",
     href: "/deals/tasks",   // land on My Tasks (the first tab) by default
@@ -88,11 +80,13 @@ export const SECTIONS: NavSection[] = [
     tabs: DEALS_TABS,
   },
   {
-    key: "email",
-    label: "Email",
-    href: "/email",
-    blurb: "Search the deal inbox for a thread and draft a reply with AI (copy/paste).",
-    tabs: EMAIL_TABS,
+    // Tools = Reports + Email consolidated into ONE section, SNAP-style (one header item,
+    // a sub-nav row of all its pages — no dropdown). Reports pages + the Email drafter.
+    key: "tools",
+    label: "Tools",
+    href: "/reports",   // lands on Site analytics (the first Reports tab)
+    blurb: "Reports & analytics, SEO, revenue, API cost — plus the deal-inbox email drafter.",
+    tabs: TOOLS_TABS,
   },
 ];
 
@@ -119,7 +113,7 @@ export function sectionTabs(user: AppUser | null, key: SectionKey): NavTab[] {
 // tab granted; Research and SNAP are enterable iff at least one tab is allowed.
 export function canEnterSection(user: AppUser | null, key: SectionKey): boolean {
   if (key === "admin") return canEnterAdmin(user);
-  if (key === "reports") return canEnterReports(user);
+  if (key === "tools") return canEnterTools(user);
   if (key === "deals") return canEnterDeals(user);
   return sectionTabs(user, key).length > 0;
 }
