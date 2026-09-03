@@ -242,6 +242,7 @@ function PicksTable({ title, rows }: { title: string; rows: Pick[] }) {
   return (
     <div style={{ marginBottom: 12 }}>
       <div style={{ fontSize: 13, fontWeight: 700, margin: "6px 0", color: "var(--navy, #254254)" }}>{title}</div>
+      <div className="table-scroll">
       <table style={{ borderCollapse: "collapse", width: "100%", fontSize: 13 }}>
         <thead><tr style={{ textAlign: "left", color: "var(--muted, #667)", fontSize: 11, textTransform: "uppercase", letterSpacing: ".03em" }}>
           <th style={{ padding: "0 16px 4px 0" }}>Domain</th><th style={{ padding: "0 16px 4px 0" }}>Source</th>
@@ -252,6 +253,7 @@ function PicksTable({ title, rows }: { title: string; rows: Pick[] }) {
         </tr></thead>
         <tbody>{rows.map((p) => <PickRow key={p.domain} p={p} />)}</tbody>
       </table>
+      </div>
     </div>
   );
 }

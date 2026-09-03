@@ -1,3 +1,41 @@
+# Gmail local MIRROR — quota-free copy of the deal mailboxes (FOUNDATION landed, not yet wired — 2026-09-03)
+
+The durable fix for the shared per-user Gmail throttle: keep a **local Postgres copy** of the deal
+mailboxes and run our features' reads against it instead of the Gmail API. Seeded ONCE by a
+**Google Takeout MBOX** import (Takeout does NOT consume the per-user Gmail API quota — IMAP does, so
+it's not a workaround; Takeout/Workspace export is), then kept fresh by cheap **History-API deltas**.
+- **Schema** `scripts/gmail_mirror.sql` (run on the **`domain-owner-research`** PRODUCTION project — the
+  one with the other `domain_research_*`/deals tables, NOT snagged-naming-universe):
+  `gmail_messages` (mailbox+id PK, thread_id/mid/from/to/cc/subject/ts/snippet/body/labels[]/size_est/
+  bulk + a **trgm-indexed `search_text`** = subject+from+to+first-8KB-body) + `gmail_sync_state`
+  (per-mailbox History cursor + backfill bookkeeping). `create extension pg_trgm`. RLS on (service key
+  bypasses).
+- **Parser** `lib/gmail-mirror/mbox.ts` — self-contained, dependency-free mboxrd + MIME parser
+  (`splitMbox`, `parseRawMessage`): unfolds headers, decodes QP/base64/RFC2047, walks multipart to
+  text/plain (html-stripped fallback), un-escapes `>From `, reads Takeout's `X-GM-THRID`/`X-Gmail-Labels`.
+  Unit-verified in the sandbox against a synthetic mbox.
+- **Ingester** `lib/gmail-mirror/ingest.ts` `ingestMbox({mailbox, filePath})` — STREAMS the (multi-GB)
+  MBOX line-by-line, batches upserts into `gmail_messages` (idempotent on the PK), stamps
+  `gmail_sync_state` backfill_source='takeout-mbox'. Quota-free (reads a local file).
+- **Read layer** `lib/gmail-mirror.ts` — a **drop-in for `lib/gmail.ts`**: same signatures
+  (`searchMessages`/`searchThreadIds`/`getMessage`/`getThread`/`getThreadCapped`/`getThreadMeta`/
+  `getProfile` + re-exports `dealMailboxes`/`gmailConfigured`/`GmailMessage`/`GMAIL_THREAD_SIZE_CAP`).
+  Each fn serves LOCAL when the mailbox is mirrored (`gmail_sync_state.backfill_done`), else FALLS BACK
+  to the governed live client (also falls back for a message/thread not yet in the mirror, or any mirror
+  error) — so it's always correct, just cheaper. A bounded **Gmail-query→SQL translator** (parseQuery)
+  handles ONLY the operators our readers use — quoted/bare phrase, `from:`/`to:`/`subject:`,
+  `after:`/`before:`/`newer_than:Nd`, and `in:`/`-in:` labels (applied JS-side post-fetch) — verified
+  against the 9 real query strings in the codebase.
+- **⚠️ NOT WIRED YET (by design — zero prod risk).** These are new files that touch no live consumer.
+  **Repoint to the mirror once an MBOX is loaded + verified:** `lib/deals/owner-review-mine.ts`,
+  `lib/domain-corpus/sources/gmail.ts`, `lib/pitch-scan.ts`, `lib/marketplace-deals.ts`, `lib/leads.ts`,
+  `app/api/internal/email-threads/route.ts` (swap `from "../gmail"`→`"../gmail-mirror"`). Keep LIVE (they
+  need the freshest data / are already governed): `lib/deals/emails.ts` + the `deal-emails` cron + the
+  deal-detail ingest, and the Email tool (`app/api/admin/email/route.ts`). **TODO:** `lib/gmail-mirror/
+  sync.ts` (History-API delta sync) is not built yet — the mirror is import-seeded only until then.
+- **Setup (pending):** run `scripts/gmail_mirror.sql`; run one-time Takeout for rob@/brian@ (.com+.co) →
+  drop the MBOX somewhere readable → `ingestMbox` per mailbox; verify counts; THEN repoint the 6 readers.
+
 # Gmail read GOVERNOR — the shared throttle every mailbox read passes through (2026-09-02)
 
 After the owner-review miner throttled rob@ (see the PAUSED-crons note below), built a single
@@ -1986,6 +2024,11 @@ and the hub cards all work exactly as before; only the header presentation group
 section under Tools, add `parent:"tools"`; to pull it back out, remove it. The research SPA mirrors
 this (`index.html` `#topbar-tools` dropdown wrapping `#topbar-reports`+`#topbar-email`; see research
 CLAUDE.md).
+- **Trigger mirrors the sibling links (2026-09-03).** The Tools ▾ `<button>` now carries the
+  `topbar__nav-btn` class so `.topbar__nav a, .topbar__nav button.topbar__nav-btn` share ONE rule
+  (same pill padding / hover / navy active state) — it was a bare inline-styled button (`padding:0`)
+  that looked smaller/mis-aligned vs Research/Admin/SNAP/Deals on both desktop AND mobile. Now
+  identical (`dashboard.css` + `top-bar.tsx`).
 
 **⌘K command palette (2026-07-22):** `app/command-palette.tsx` — a universal Cmd/Ctrl-K
 quick-switch mounted in `TopBar` (so it works on every admin-app page: Admin/SNAP/Reports/

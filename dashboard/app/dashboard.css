@@ -216,13 +216,18 @@ tr.dim { opacity: 0.6; }
   border-bottom: 1px solid var(--line);
 }
 .topbar__brand { font-size: 1.4rem; text-decoration: none; }
-.topbar__nav { display: flex; gap: 6px; }
-.topbar__nav a {
+.topbar__nav { display: flex; gap: 6px; align-items: center; }
+.topbar__nav a,
+.topbar__nav button.topbar__nav-btn {
   padding: 6px 13px; border-radius: 999px; font-size: 14px; font-weight: 600;
   color: var(--navy-2); text-decoration: none;
+  font-family: inherit; line-height: 1.2; background: none; border: none; cursor: pointer;
+  display: inline-flex; align-items: center;
 }
-.topbar__nav a:hover { background: var(--cream-2); color: var(--navy); }
-.topbar__nav a.active { background: var(--navy); color: var(--cream-2); }
+.topbar__nav a:hover,
+.topbar__nav button.topbar__nav-btn:hover { background: var(--cream-2); color: var(--navy); }
+.topbar__nav a.active,
+.topbar__nav button.topbar__nav-btn.active { background: var(--navy); color: var(--cream-2); }
 .topbar__account { margin-left: auto; display: flex; align-items: center; gap: 14px; font-size: 14px; }
 .topbar__account .muted { color: var(--navy-3); }
 .topbar__account a { color: var(--teal-deep); font-weight: 700; text-decoration: none; }

@@ -63,13 +63,12 @@ export default function TopBar({
             <span ref={toolsRef} style={{ position: "relative", display: "inline-flex" }}>
               <button
                 type="button"
-                className={toolsActive ? "active" : ""}
+                className={"topbar__nav-btn" + (toolsActive ? " active" : "")}
                 aria-haspopup="menu"
                 aria-expanded={toolsOpen}
                 onClick={() => setToolsOpen((v) => !v)}
-                style={{ font: "inherit", color: "inherit", background: "none", border: "none", cursor: "pointer", padding: 0 }}
               >
-                Tools ▾
+                Tools&nbsp;▾
               </button>
               {toolsOpen && (
                 <span role="menu" style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, minWidth: 160, background: "#fff", border: "1px solid #e4e8ec", borderRadius: 10, boxShadow: "0 8px 24px rgba(0,0,0,.10)", padding: 6, display: "flex", flexDirection: "column", gap: 2, zIndex: 60 }}>
