@@ -1,19 +1,11 @@
 {
   "capped": false,
-  "count": 10,
+  "count": 2,
   "domains": [
-    "applies.org",
-    "shreveport.co",
-    "englewood.co",
-    "crusades.ai",
-    "fleetwood.co",
-    "shoddy.co",
-    "friendlies.co",
-    "considering.com",
-    "determined.com",
-    "conflict.com"
+    "binoculars.co",
+    "underside.org"
   ],
-  "generated_at": "2026-09-02T08:17:29.934034+00:00",
+  "generated_at": "2026-09-03T08:49:34.784399+00:00",
   "mub": [],
   "source": "afternic"
 }
