@@ -1,15 +1,19 @@
-// One-time backfill/repair for deals.intent ("Acquire or Sell?"). Two passes:
+// One-time backfill/repair for deals.intent ("Acquire or Sell?"). Three passes:
 //   A. RE-CANONICALIZE existing values — the inquiry form's answer is commonly the raw,
 //      misspelled "Aquire a domain", so older converts stored that verbatim. normIntent maps
 //      it to a clean "Acquire"/"Sell"; any row whose stored value isn't already canonical is
 //      rewritten.
-//   B. FILL NULLS from the lead form — match a deal to its domain_research_leads row by
-//      lead_key first, else by buyer email, and write the canonicalized intent.
+//   B. FILL NULLS from the enriched leads table — match a deal to its domain_research_leads
+//      row by lead_key first, else by buyer email.
+//   C. FILL NULLS from the RAW Gmail form submissions (leadsReport, ~3 yrs) — the historical
+//      "Acquire or Sell?" answer for deals that never got a leads-table row. Match by buyer
+//      email, then by domain of interest. (Same source the heard_about backfill uses.)
 // Admin-only.  GET → dry-run (counts + samples).  GET ?apply=1 → write.
 
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { getDb, isDbConfigured } from "@/lib/supabase";
+import { leadsReport } from "@/lib/leads";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -62,12 +66,36 @@ export async function GET(req: NextRequest) {
     const em = (l.email || "").trim().toLowerCase();
     if (em && !byEmail.has(em)) byEmail.set(em, ci);
   }
-  const fills: { id: string; domain: string; intent: string; via: "lead_key" | "email" }[] = [];
+  // Pass C — the RAW Gmail form submissions (~3 yrs), the historical source of the
+  // "Acquire or Sell?" answer for deals with no leads-table row. Index by email + by domain.
+  const byEmailRaw = new Map<string, string>();
+  const byDomainRaw = new Map<string, string>();
+  let submissionsParsed = 0;
+  try {
+    const day = (t: number) => new Date(t).toISOString().slice(0, 10);
+    const rep = await leadsReport(day(Date.now() - 3 * 365 * 86_400_000), day(Date.now()));
+    submissionsParsed = rep.leads.length;
+    for (const l of rep.leads) {
+      const ci = normIntent(l.intent);
+      if (!ci) continue;
+      const em = (l.email || "").trim().toLowerCase();
+      if (em && !byEmailRaw.has(em)) byEmailRaw.set(em, ci);
+      for (const dom of l.domains || []) {
+        const dd = (dom || "").trim().toLowerCase();
+        if (dd && !byDomainRaw.has(dd)) byDomainRaw.set(dd, ci);
+      }
+    }
+  } catch { /* Gmail unavailable → Pass C just contributes nothing */ }
+
+  const fills: { id: string; domain: string; intent: string; via: "lead_key" | "email" | "raw_email" | "raw_domain" }[] = [];
   for (const d of deals) {
     if (d.intent) continue;
+    const em = d.buyer_email ? String(d.buyer_email).trim().toLowerCase() : "";
     let hit = d.lead_key ? byKey.get(d.lead_key) : undefined;
-    let via: "lead_key" | "email" = "lead_key";
-    if (!hit && d.buyer_email) { hit = byEmail.get(String(d.buyer_email).trim().toLowerCase()); via = "email"; }
+    let via: "lead_key" | "email" | "raw_email" | "raw_domain" = "lead_key";
+    if (!hit && em) { hit = byEmail.get(em); via = "email"; }
+    if (!hit && em) { hit = byEmailRaw.get(em); via = "raw_email"; }
+    if (!hit) { hit = byDomainRaw.get(String(d.domain).trim().toLowerCase()); via = "raw_domain"; }
     if (hit) fills.push({ id: d.id, domain: d.domain, intent: hit, via });
   }
 
@@ -90,9 +118,11 @@ export async function GET(req: NextRequest) {
     dealsTotal: deals.length,
     recanonicalize: recanon.length,     // existing values needing a clean rewrite (e.g. "Aquire a domain")
     recanonUpdated,
-    fillNullsFromLeads: fills.length,    // null-intent deals matched to a lead
+    fillNulls: fills.length,             // null-intent deals matched to a lead OR a raw submission
     filled,
+    fillsByVia: fills.reduce((a, f) => { a[f.via] = (a[f.via] || 0) + 1; return a; }, {} as Record<string, number>),
     leadsWithIntent: (leadData as LeadRow[] | null)?.length || 0,
+    submissionsParsed,
     errors: errors.slice(0, 10),
     recanonSample: recanon.slice(0, 15),
     fillSample: fills.slice(0, 15),
