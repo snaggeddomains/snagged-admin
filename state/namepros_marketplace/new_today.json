@@ -1,13 +1,8 @@
 {
   "capped": false,
-  "count": 4,
-  "domains": [
-    "13.com",
-    "advanced.me",
-    "referees.ai",
-    "tortillas.ai"
-  ],
-  "generated_at": "2026-09-03T10:07:39.740288+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-09-03T17:06:43.783481+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
