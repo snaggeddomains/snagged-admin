@@ -1,0 +1,46 @@
+# Seed the local Gmail MIRROR for one mailbox from its Google Takeout export (quota-free — reads
+# Drive/Takeout, never the Gmail API). Long-running by design: streams a multi-GB .mbox (or the .mbox
+# straight out of the Takeout .zip) into the gmail_messages table. Dispatch once per mailbox.
+#
+# Prereqs: scripts/gmail_mirror.sql has been run on the domain-owner-research (PRODUCTION) project,
+# and the Takeout file is readable by the Drive service account (dropped in the "Snagged Pipeline"
+# shared drive, or shared to the SA email). Get the Drive file id from its share link:
+#   https://drive.google.com/file/d/<FILE_ID>/view
+name: Gmail mirror — ingest a mailbox
+
+on:
+  workflow_dispatch:
+    inputs:
+      mailbox:
+        description: "Mailbox to seed (e.g. brian@snagged.com)"
+        required: true
+        type: string
+      file_id:
+        description: "Google Drive file id of the Takeout .zip or raw .mbox"
+        required: true
+        type: string
+
+concurrency:
+  group: gmail-mirror-${{ inputs.mailbox }}
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    defaults:
+      run:
+        working-directory: dashboard
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dashboard deps
+        run: npm ci
+      - name: Ingest mailbox into the mirror
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GOOGLE_SA_KEY: ${{ secrets.GOOGLE_SA_KEY }}
+        run: npx --yes tsx@4.19.2 scripts/ingest-gmail-mirror.ts --mailbox "${{ inputs.mailbox }}" --file-id "${{ inputs.file_id }}"

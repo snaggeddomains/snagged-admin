@@ -17,12 +17,20 @@ it's not a workaround; Takeout/Workspace export is), then kept fresh by cheap **
 - **Ingester** `lib/gmail-mirror/ingest.ts` — STREAMS the (multi-GB) MBOX line-by-line, batches upserts
   into `gmail_messages` (idempotent on the PK), stamps `gmail_sync_state`. Two entry points sharing one
   core loop: **`ingestMbox({mailbox, filePath})`** (local file) and **`ingestMboxFromDrive({mailbox,
-  fileId})`** — pulls the archive straight from Google Drive via the SA (`googleAccessToken` +
-  `files/{id}?alt=media&supportsAllDrives=true`, streamed through readline — no giant temp file). So the
-  handoff is: unzip the Takeout, drop the raw **.mbox** in the "Snagged Pipeline" shared drive (or share
-  it to the SA email), pass its Drive file id. Quota-free (Takeout/Drive, never the Gmail API). NB it
-  must be the extracted `.mbox`, not the Takeout `.zip`. A big mbox needs a long-running runner (sandbox
-  / GitHub Action), not a Vercel function.
+  fileId})`** — pulls the archive straight from Google Drive via the SA. Quota-free (Takeout/Drive, never
+  the Gmail API). **Accepts a Takeout `.zip` OR a raw `.mbox`** (2026-09-03): a zip is detected by Drive
+  metadata (mimeType/name) and the `.mbox` entry is streamed straight out of it via HTTP **Range requests**
+  + on-the-fly inflate — no whole-archive download, no unzip to disk (dependency-free ZIP reader
+  `lib/gmail-mirror/zip-remote.ts`: reads the central directory from the tail, then streams just the mbox
+  entry; assumes <4 GB archive so the CD offset + each entry's compressed size/local-offset fit in 32 bits;
+  stored/deflate only). So the handoff is now just: drop the Takeout **.zip** in the "Snagged Pipeline"
+  shared drive (or share it to the SA email), pass its Drive file id — no local unzip needed.
+- **Runner (2026-09-03):** `dashboard/scripts/ingest-gmail-mirror.ts` (`npx tsx`, CLI `--mailbox` +
+  `--file-id`|`--file`) + the **`gmail-mirror-ingest.yml`** GitHub Action (`workflow_dispatch`, inputs
+  mailbox + Drive file_id; node 20, `npm ci`, `npx tsx`, secrets `SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY`/
+  `GOOGLE_SA_KEY`; `timeout-minutes: 180`). Dispatch once per mailbox — this is the long-running runner the
+  multi-GB ingest needs (a Vercel fn can't). Get the file id from the Drive share link
+  `drive.google.com/file/d/<FILE_ID>/view`.
 - **Read layer** `lib/gmail-mirror.ts` — a **drop-in for `lib/gmail.ts`**: same signatures
   (`searchMessages`/`searchThreadIds`/`getMessage`/`getThread`/`getThreadCapped`/`getThreadMeta`/
   `getProfile` + re-exports `dealMailboxes`/`gmailConfigured`/`GmailMessage`/`GMAIL_THREAD_SIZE_CAP`).
@@ -39,8 +47,13 @@ it's not a workaround; Takeout/Workspace export is), then kept fresh by cheap **
   need the freshest data / are already governed): `lib/deals/emails.ts` + the `deal-emails` cron + the
   deal-detail ingest, and the Email tool (`app/api/admin/email/route.ts`). **TODO:** `lib/gmail-mirror/
   sync.ts` (History-API delta sync) is not built yet — the mirror is import-seeded only until then.
-- **Setup (pending):** run `scripts/gmail_mirror.sql`; run one-time Takeout for rob@/brian@ (.com+.co) →
-  drop the MBOX somewhere readable → `ingestMbox` per mailbox; verify counts; THEN repoint the 6 readers.
+- **Setup (pending):** (1) run `scripts/gmail_mirror.sql` on the **`domain-owner-research`** PRODUCTION
+  project; (2) one-time Takeout per mailbox (rob@/brian@ .com+.co) → drop each **.zip** in the "Snagged
+  Pipeline" shared drive (or share to the SA) → dispatch **`gmail-mirror-ingest.yml`** with the mailbox +
+  Drive file id; (3) verify counts; (4) THEN repoint the readers (`marketplace-deals`/`leads`/etc.) to
+  `lib/gmail-mirror`. Rob's direction (2026-09-03): retool the marketplace deal report + other modules to
+  rely on this LOCAL historical email once seeded — that removes their Gmail load entirely (and lets us
+  safely re-include brian in `GMAIL_DEAL_MAILBOXES` background reads, since mirror reads never touch Gmail).
 
 # Gmail read GOVERNOR — the shared throttle every mailbox read passes through (2026-09-02)
 
