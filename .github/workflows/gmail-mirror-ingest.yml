@@ -42,6 +42,9 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          # Direct-Postgres write path (bypasses PostgREST + its schema cache). When set, the ingester
+          # writes via node-pg instead of supabase-js. This is the reliable path for the seed.
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
           # The dashboard's lib/google-auth.ts reads GOOGLE_SA_KEY; the repo secret is named
           # GOOGLE_SERVICE_ACCOUNT_JSON (as every other workflow uses), so map it across.
           GOOGLE_SA_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}

@@ -79,12 +79,71 @@ function unescapeMboxrd(block: string): string {
   return block.replace(/^(>+)From /gm, (_m, gt: string) => ">".repeat(gt.length - 1) + "From ");
 }
 
+const ROW_COLS = [
+  "mailbox", "id", "thread_id", "mid", "from_addr", "from_name", "to_addr", "cc",
+  "subject", "ts", "snippet", "body", "labels", "size_est", "bulk", "search_text",
+] as const;
+const rowValues = (r: Row): unknown[] => [
+  r.mailbox, r.id, r.thread_id, r.mid, r.from_addr, r.from_name, r.to_addr, r.cc,
+  r.subject, r.ts, r.snippet, r.body, r.labels, r.size_est, r.bulk, r.search_text,
+];
+
+type SyncState = { mailbox: string; backfill_done: boolean; backfill_source: string; message_count: number; updated_at: string };
+type Writer = { upsertMessages: (rows: Row[]) => Promise<void>; setSyncState: (s: SyncState) => Promise<void>; close: () => Promise<void> };
+
+// Pick the write path. When SUPABASE_DB_URL is set, write via a DIRECT Postgres connection (node-pg) —
+// this bypasses PostgREST + its schema cache entirely (the schema-cache "could not find the table"
+// failures on the REST write path are what blocked the seed). Otherwise use supabase-js (REST), with
+// the schema-cache retry as a stopgap.
+async function makeWriter(): Promise<Writer> {
+  const dbUrl = process.env.SUPABASE_DB_URL || process.env.DATABASE_URL;
+  if (dbUrl) {
+    const pg = (await import("pg")).default as typeof import("pg");
+    const pool = new pg.Pool({ connectionString: dbUrl, ssl: { rejectUnauthorized: false }, max: 4 });
+    const cols = ROW_COLS.join(", ");
+    const updates = ROW_COLS.filter((c) => c !== "mailbox" && c !== "id").map((c) => `${c} = excluded.${c}`).join(", ");
+    return {
+      async upsertMessages(rows) {
+        const params: unknown[] = [];
+        const tuples = rows.map((r) => `(${rowValues(r).map((v) => { params.push(v); return `$${params.length}`; }).join(",")})`);
+        await pool.query(`insert into gmail_messages (${cols}) values ${tuples.join(",")} on conflict (mailbox, id) do update set ${updates}`, params);
+      },
+      async setSyncState(s) {
+        await pool.query(
+          `insert into gmail_sync_state (mailbox, backfill_done, backfill_source, message_count, updated_at)
+           values ($1,$2,$3,$4,$5)
+           on conflict (mailbox) do update set backfill_done = excluded.backfill_done, backfill_source = excluded.backfill_source, message_count = excluded.message_count, updated_at = excluded.updated_at`,
+          [s.mailbox, s.backfill_done, s.backfill_source, s.message_count, s.updated_at],
+        );
+      },
+      async close() { await pool.end(); },
+    };
+  }
+  // supabase-js (REST) fallback — with the PostgREST schema-cache retry.
+  const db = getDb();
+  return {
+    async upsertMessages(rows) {
+      let error: { message: string } | null = null;
+      for (let attempt = 0; attempt < 40; attempt++) {
+        ({ error } = await db.from("gmail_messages").upsert(rows, { onConflict: "mailbox,id" }));
+        if (!error) return;
+        if (!/schema cache|pgrst205|could not find the table/i.test(error.message)) break;
+        if (attempt === 0 || attempt % 5 === 0) console.log(`  [schema-cache] PostgREST not ready yet, retrying (attempt ${attempt + 1})…`);
+        await new Promise((r) => setTimeout(r, 6000));
+      }
+      throw new Error(`gmail_messages upsert failed: ${error?.message}`);
+    },
+    async setSyncState(s) { await db.from("gmail_sync_state").upsert(s, { onConflict: "mailbox" }); },
+    async close() { /* supabase-js has no pool to close */ },
+  };
+}
+
 // The shared core: consume a readline stream of mbox lines and upsert every message.
 async function runIngest(rl: Interface, opts: CoreOpts): Promise<{ mailbox: string; imported: number }> {
   const { mailbox } = opts;
   const batchSize = opts.batchSize ?? 500;
   const progressEvery = opts.progressEvery ?? 5000;
-  const db = getDb();
+  const writer = await makeWriter();
 
   let current: string[] = [];  // lines of the message currently being accumulated (excludes the `From ` separator)
   let started = false;
@@ -95,20 +154,7 @@ async function runIngest(rl: Interface, opts: CoreOpts): Promise<{ mailbox: stri
     if (!batch.length) return;
     const rows = batch;
     batch = [];
-    // Upsert with a generous retry on a PostgREST "schema cache" miss. Right after the migration +
-    // `notify pgrst, 'reload schema'`, PostgREST's workers reload their schema cache asynchronously
-    // and inconsistently — a read can succeed on a warmed worker while a write hits a cold one
-    // ("could not find the table … in the schema cache" / PGRST205). It converges within a minute or
-    // two, so retry across that whole window (each attempt is a fresh HTTPS request → a fresh worker).
-    let error: { message: string } | null = null;
-    for (let attempt = 0; attempt < 40; attempt++) {
-      ({ error } = await db.from("gmail_messages").upsert(rows, { onConflict: "mailbox,id" }));
-      if (!error) break;
-      if (!/schema cache|pgrst205|could not find the table/i.test(error.message)) break;
-      if (attempt === 0 || attempt % 5 === 0) console.log(`  [schema-cache] PostgREST not ready yet, retrying (attempt ${attempt + 1})…`);
-      await new Promise((r) => setTimeout(r, 6000));
-    }
-    if (error) throw new Error(`gmail_messages upsert failed: ${error.message}`);
+    await writer.upsertMessages(rows);
     imported += rows.length;
     if (opts.onProgress && imported % progressEvery < rows.length) opts.onProgress(imported);
   }
@@ -125,27 +171,28 @@ async function runIngest(rl: Interface, opts: CoreOpts): Promise<{ mailbox: stri
     }
   }
 
-  for await (const line of rl) {
-    if (line.startsWith("From ")) { // an mbox message begins with "From " at column 0
-      if (started) await finishMessage();
-      started = true;
-      continue; // drop the separator line itself
+  try {
+    for await (const line of rl) {
+      if (line.startsWith("From ")) { // an mbox message begins with "From " at column 0
+        if (started) await finishMessage();
+        started = true;
+        continue; // drop the separator line itself
+      }
+      if (started) current.push(line);
     }
-    if (started) current.push(line);
-  }
-  await finishMessage();
-  await flush();
+    await finishMessage();
+    await flush();
 
-  await db.from("gmail_sync_state").upsert(
-    {
+    await writer.setSyncState({
       mailbox,
       backfill_done: true,
       backfill_source: opts.backfillSource || "takeout-mbox",
       message_count: imported,
       updated_at: new Date().toISOString(),
-    },
-    { onConflict: "mailbox" },
-  );
+    });
+  } finally {
+    await writer.close().catch(() => { /* best-effort pool close */ });
+  }
 
   return { mailbox, imported };
 }

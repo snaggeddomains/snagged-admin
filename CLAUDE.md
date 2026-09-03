@@ -27,10 +27,22 @@ it's not a workaround; Takeout/Workspace export is), then kept fresh by cheap **
   shared drive (or share it to the SA email), pass its Drive file id — no local unzip needed.
 - **Runner (2026-09-03):** `dashboard/scripts/ingest-gmail-mirror.ts` (`npx tsx`, CLI `--mailbox` +
   `--file-id`|`--file`) + the **`gmail-mirror-ingest.yml`** GitHub Action (`workflow_dispatch`, inputs
-  mailbox + Drive file_id; node 20, `npm ci`, `npx tsx`, secrets `SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY`/
-  `GOOGLE_SA_KEY`; `timeout-minutes: 180`). Dispatch once per mailbox — this is the long-running runner the
-  multi-GB ingest needs (a Vercel fn can't). Get the file id from the Drive share link
+  mailbox + Drive file_id; **node 22** (native WebSocket for supabase-js), `npm ci`, `npx tsx`; secrets
+  `SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL` (direct-pg), and `GOOGLE_SA_KEY` ← mapped
+  from the repo's `GOOGLE_SERVICE_ACCOUNT_JSON` secret; `timeout-minutes: 180`). Dispatch once per mailbox —
+  the long-running runner the multi-GB ingest needs (a Vercel fn can't). File id from the Drive share link
   `drive.google.com/file/d/<FILE_ID>/view`.
+- **⚠️ Write path = DIRECT Postgres, not supabase-js (2026-09-03).** The REST/supabase-js write path hit a
+  persistent PostgREST **schema-cache** failure — "Could not find the table 'public.gmail_messages' in the
+  schema cache" on the INSERT even though a SELECT on the same table succeeded (preflight proved it), and it
+  did NOT clear after `notify pgrst, 'reload schema'` + a 4-min/40× retry (PostgREST workers stayed
+  inconsistent for writes). Fix: `ingest.ts` `makeWriter()` writes via **node-pg** (`pg`, added as a dep)
+  when **`SUPABASE_DB_URL`** (or `DATABASE_URL`) is set — a direct connection with no schema cache — else
+  falls back to supabase-js (with the schema-cache retry as a stopgap). `SUPABASE_DB_URL` = the Supabase
+  **Session-pooler** connection string for domain-owner-research (Settings → Database → Connection string →
+  Session pooler URI, real password); `ssl:{rejectUnauthorized:false}`. GitHub runners can reach the pooler
+  (5432/6543) directly (the sandbox can't — 443-only proxy). The ZIP64 zip-streaming, Drive auth, and mbox
+  parse were all already proven working before this; the schema cache was the last blocker.
 - **Read layer** `lib/gmail-mirror.ts` — a **drop-in for `lib/gmail.ts`**: same signatures
   (`searchMessages`/`searchThreadIds`/`getMessage`/`getThread`/`getThreadCapped`/`getThreadMeta`/
   `getProfile` + re-exports `dealMailboxes`/`gmailConfigured`/`GmailMessage`/`GMAIL_THREAD_SIZE_CAP`).

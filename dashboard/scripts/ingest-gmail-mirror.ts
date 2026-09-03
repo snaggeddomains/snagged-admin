@@ -56,7 +56,9 @@ async function main() {
     console.log(`  … ${n.toLocaleString()} messages ingested (${mins} min)`);
   };
 
-  await preflight();
+  const writePath = (process.env.SUPABASE_DB_URL || process.env.DATABASE_URL) ? "direct Postgres (pg)" : "supabase-js (REST)";
+  console.log(`[gmail-mirror] Write path: ${writePath}`);
+  if (writePath.startsWith("supabase")) await preflight();  // REST path only — pg has no schema cache
   console.log(`[gmail-mirror] Seeding ${mailbox} from ${fileId ? `Drive ${fileId}` : filePath}`);
   const res = fileId
     ? await ingestMboxFromDrive({ mailbox, fileId, onProgress })
