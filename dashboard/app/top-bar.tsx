@@ -28,7 +28,7 @@ export default function TopBar({
   // mirroring the desktop 3rd-tier dropdowns; every other section is a flat list.
   const menuGroups = current === "tools" ? toolsGroups(user) : null;
   const menuLink = (t: { href: string; label: string }) => {
-    const isIndex = t.href === "/admin" || t.href === "/reports" || t.href === "/research";
+    const isIndex = t.href === "/admin" || t.href === "/reports" || t.href === "/research" || t.href === "/deals";
     const active = isIndex ? pathname === t.href : Boolean(pathname && pathname.startsWith(t.href));
     const cls = active ? "active" : "";
     // /research/* is the separate research app — full-nav anchor.

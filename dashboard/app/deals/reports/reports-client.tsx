@@ -7,7 +7,7 @@ import { STAGES, STATUSES, SOURCES, PRIORITIES, BUDGET_BANDS, statusLabel } from
 type Deal = {
   id: string; domain: string; buyer_name: string | null; buyer_email: string | null; org_name: string | null;
   budget_range: string | null; asking_price: number | null; appraisal_value: number | null;
-  source: string | null; heard_about: string | null; priority: string | null; owner_email: string | null; stage: string; status: string; created_at: string;
+  source: string | null; heard_about: string | null; intent: string | null; priority: string | null; owner_email: string | null; stage: string; status: string; created_at: string;
   sam_split: boolean | null; sam_split_at: string | null;
 };
 type Agg = { count: number; askingTotal: number; byStage: Record<string, number>; byOwner: Record<string, number>; byStatus: Record<string, number> };
@@ -21,7 +21,7 @@ const td: CSSProperties = { padding: "7px 12px 7px 0", fontSize: 13, borderTop: 
 const btn: CSSProperties = { padding: "7px 13px", borderRadius: 8, border: "1px solid var(--line,#e3ddcf)", background: "transparent", fontSize: 13, fontWeight: 600, cursor: "pointer" };
 const stat: CSSProperties = { border: "1px solid var(--line,#e3ddcf)", borderRadius: 10, padding: "10px 14px", minWidth: 120 };
 
-const EMPTY: Record<string, string> = { status: "", owner: "", stage: "", source: "", heardAbout: "", priority: "", budgetBand: "", minAsking: "", maxAsking: "", q: "", from: "", to: "", samSplit: "" };
+const EMPTY: Record<string, string> = { status: "", owner: "", stage: "", source: "", heardAbout: "", intent: "", priority: "", budgetBand: "", minAsking: "", maxAsking: "", q: "", from: "", to: "", samSplit: "" };
 
 const value = (d: Deal) => d.asking_price || d.appraisal_value || 0;
 
@@ -48,17 +48,17 @@ function presetRange(key: string): { from: string; to: string } {
 }
 
 // Sortable columns — each maps a header to a comparable value over a row.
-type SortKey = "domain" | "buyer" | "owner" | "stage" | "status" | "budget" | "asking" | "source" | "heard" | "created" | "sam";
+type SortKey = "domain" | "buyer" | "owner" | "stage" | "status" | "budget" | "asking" | "source" | "heard" | "intent" | "created" | "sam";
 const COLS: { key: SortKey; label: string; num?: boolean }[] = [
   { key: "domain", label: "Domain" }, { key: "buyer", label: "Buyer" }, { key: "owner", label: "Owner" },
-  { key: "stage", label: "Stage" }, { key: "status", label: "Status" }, { key: "budget", label: "Budget" },
-  { key: "asking", label: "Asking", num: true }, { key: "source", label: "Source" },
+  { key: "intent", label: "Intent" }, { key: "stage", label: "Stage" }, { key: "status", label: "Status" }, { key: "budget", label: "Budget" },
+  { key: "source", label: "Source" },
   { key: "heard", label: "Heard about" }, { key: "created", label: "Created", num: true }, { key: "sam", label: "Sam split" },
 ];
 
 // Group-by breakdown fields — value bucket per deal.
 const GROUP_FIELDS: { key: string; label: string }[] = [
-  { key: "", label: "— none —" }, { key: "heard_about", label: "Heard about" }, { key: "budget_range", label: "Budget" },
+  { key: "", label: "— none —" }, { key: "intent", label: "Acquire / Sell" }, { key: "heard_about", label: "Heard about" }, { key: "budget_range", label: "Budget" },
   { key: "source", label: "Source" }, { key: "stage", label: "Stage" }, { key: "status", label: "Status" },
   { key: "owner", label: "Owner" }, { key: "priority", label: "Priority" }, { key: "sam_split_month", label: "Sam split — by month taken" },
 ];
@@ -109,6 +109,13 @@ export default function ReportsClient() {
   const deals = data?.deals || [];
   const agg = data?.aggregates;
 
+  // Acquire vs Sell counts over the loaded (filtered/date-ranged) set — for the recap card.
+  const byIntent = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const d of deals) { const k = d.intent || "—"; m[k] = (m[k] || 0) + 1; }
+    return Object.entries(m).sort((a, b) => b[1] - a[1]);
+  }, [deals]);
+
   const cellVal = useCallback((d: Deal, key: SortKey): string | number => {
     switch (key) {
       case "domain": return d.domain || "";
@@ -119,6 +126,7 @@ export default function ReportsClient() {
       case "budget": return d.budget_range || "";
       case "asking": return value(d);
       case "source": return d.source || "";
+      case "intent": return (d.intent || "").toLowerCase();
       case "heard": return (d.heard_about || "").toLowerCase();
       case "created": return d.created_at || "";
       case "sam": return d.sam_split ? "yes" : "";
@@ -163,9 +171,9 @@ export default function ReportsClient() {
   }, [deals, groupBy, groupVal]);
 
   const exportCsv = () => {
-    const head = ["domain", "buyer", "email", "company", "owner", "stage", "status", "budget", "asking", "appraisal", "source", "heard_about", "priority", "created", "sam_split", "sam_split_at"];
+    const head = ["domain", "buyer", "email", "company", "owner", "intent", "stage", "status", "budget", "asking", "appraisal", "source", "heard_about", "priority", "created", "sam_split", "sam_split_at"];
     const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-    const rows = sorted.map((d) => [d.domain, d.buyer_name, d.buyer_email, d.org_name, nameFor(d.owner_email), d.stage, d.status, d.budget_range, d.asking_price, d.appraisal_value, d.source, d.heard_about, d.priority, d.created_at?.slice(0, 10), d.sam_split ? "yes" : "", d.sam_split_at?.slice(0, 10)].map(esc).join(","));
+    const rows = sorted.map((d) => [d.domain, d.buyer_name, d.buyer_email, d.org_name, nameFor(d.owner_email), d.intent, d.stage, d.status, d.budget_range, d.asking_price, d.appraisal_value, d.source, d.heard_about, d.priority, d.created_at?.slice(0, 10), d.sam_split ? "yes" : "", d.sam_split_at?.slice(0, 10)].map(esc).join(","));
     const blob = new Blob([[head.join(","), ...rows].join("\n")], { type: "text/csv" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "deals-report.csv"; a.click();
   };
@@ -188,6 +196,7 @@ export default function ReportsClient() {
         <div><span style={lbl}>Stage</span><select style={input} value={f.stage} onChange={(e) => set("stage", e.target.value)}><option value="">Any</option>{STAGES.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
         <div><span style={lbl}>Source</span><select style={input} value={f.source} onChange={(e) => set("source", e.target.value)}><option value="">Any</option>{SOURCES.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
         <div><span style={lbl}>Heard about</span><input style={input} value={f.heardAbout} onChange={(e) => set("heardAbout", e.target.value)} placeholder="e.g. X / Twitter" /></div>
+        <div><span style={lbl}>Acquire / Sell</span><select style={input} value={f.intent} onChange={(e) => set("intent", e.target.value)}><option value="">Any</option><option value="Acquire">Acquire</option><option value="Sell">Sell</option></select></div>
         <div><span style={lbl}>Priority</span><select style={input} value={f.priority} onChange={(e) => set("priority", e.target.value)}><option value="">Any</option>{PRIORITIES.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
         <div><span style={lbl}>Budget</span><select style={input} value={f.budgetBand} onChange={(e) => set("budgetBand", e.target.value)}><option value="">Any</option>{BUDGET_BANDS.map((s) => <option key={s} value={s}>{s}</option>)}</select></div>
         <div><span style={lbl}>Sam split</span><select style={input} value={f.samSplit} onChange={(e) => set("samSplit", e.target.value)} title="When set to Yes, the date range counts the month Sam TOOK it on (sam_split_at)"><option value="">Any</option><option value="yes">Yes</option><option value="no">No</option></select></div>
@@ -214,11 +223,22 @@ export default function ReportsClient() {
 
       {/* Aggregates */}
       {agg && (
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 16 }}>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 16, alignItems: "flex-start" }}>
           <div style={stat}><div style={{ fontSize: 22, fontWeight: 800 }}>{agg.count}</div><div className="muted" style={{ fontSize: 12 }}>deals</div></div>
-          <div style={stat}><div style={{ fontSize: 22, fontWeight: 800 }}>{usd(agg.askingTotal)}</div><div className="muted" style={{ fontSize: 12 }}>total asking</div></div>
-          <div style={{ ...stat, minWidth: 200 }}><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>BY STATUS</div>{Object.entries(agg.byStatus).map(([k, v]) => <span key={k} style={{ fontSize: 12.5, marginRight: 10 }}>{statusLabel(k)}: <b>{v}</b></span>)}</div>
-          <div style={{ ...stat, minWidth: 240, maxWidth: 420 }}><div className="muted" style={{ fontSize: 11, marginBottom: 3 }}>BY OWNER</div>{(Object.entries(agg.byOwner) as [string, number][]).sort((a, b) => b[1] - a[1]).map(([k, v]) => <span key={k} style={{ fontSize: 12.5, marginRight: 10 }}>{nameFor(k === "Inbox" ? null : k)}: <b>{v}</b></span>)}</div>
+          <div style={{ ...stat, minWidth: 200 }}>
+            <div className="muted" style={{ fontSize: 11, marginBottom: 4 }}>BY OWNER</div>
+            {(Object.entries(agg.byOwner) as [string, number][]).sort((a, b) => b[1] - a[1]).map(([k, v]) => (
+              <div key={k} style={{ fontSize: 12.5, lineHeight: 1.7 }}>{nameFor(k === "Inbox" ? null : k)}: <b>{v}</b></div>
+            ))}
+          </div>
+          {byIntent.length > 0 && (
+            <div style={{ ...stat, minWidth: 170 }}>
+              <div className="muted" style={{ fontSize: 11, marginBottom: 4 }}>ACQUIRE / SELL</div>
+              {byIntent.map(([k, v]) => (
+                <div key={k} style={{ fontSize: 12.5, lineHeight: 1.7 }}>{k}: <b>{v}</b></div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -264,10 +284,10 @@ export default function ReportsClient() {
                 <td style={{ ...td, fontWeight: 700, color: "var(--navy,#254254)" }}>{d.domain}</td>
                 <td style={td}>{d.buyer_name || d.buyer_email || "—"}</td>
                 <td style={td}>{nameFor(d.owner_email)}</td>
+                <td style={td}>{d.intent ? <span style={{ fontWeight: 600, color: d.intent === "Sell" ? "#a83265" : "var(--navy,#254254)" }}>{d.intent}</span> : "—"}</td>
                 <td style={td}>{d.stage}</td>
                 <td style={{ ...td, fontWeight: 600, color: d.status === "won" ? "#1f7a5a" : d.status === "lost" ? "#a83265" : "inherit" }}>{d.status}</td>
                 <td style={td}>{d.budget_range || "—"}</td>
-                <td style={{ ...td, textAlign: "right" }}>{usd(d.asking_price || d.appraisal_value)}</td>
                 <td style={td}>{d.source || "—"}</td>
                 <td style={td}>{d.heard_about || "—"}</td>
                 <td style={{ ...td, textAlign: "right", color: "var(--muted,#889)" }}>{d.created_at?.slice(0, 10)}</td>

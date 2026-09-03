@@ -20,6 +20,7 @@ create table if not exists deals (
   current_offer     numeric,                             -- latest CLIENT offer (shown side-by-side with asking for at-a-glance gap)
   source            text,
   heard_about       text,                              -- "How did you hear about us?" form attribution (e.g. "X / Twitter")
+  intent            text,                              -- "Acquire or Sell?" form answer, canonicalized to Acquire | Sell
   priority          text,                              -- Top | High | Normal | Low
   budget_max        numeric,                           -- band ceiling for sort/search (5000/25000/50000/100000/100000000)
   owner_email       text,                              -- assignee (our user's email); null = Inbox
@@ -84,6 +85,7 @@ create unique index if not exists deal_emails_deal_msg on deal_emails (deal_id, 
 -- If `deals` already existed before budget_max was added, this backfills the column.
 alter table deals add column if not exists budget_max numeric;
 alter table deals add column if not exists heard_about text;
+alter table deals add column if not exists intent text;   -- "Acquire or Sell?" form answer (Acquire | Sell)
 
 -- Close-Won capture: final price paid + our commission.
 alter table deals add column if not exists sale_price numeric;

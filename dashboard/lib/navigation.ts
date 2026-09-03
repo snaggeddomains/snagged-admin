@@ -76,7 +76,7 @@ export const SECTIONS: NavSection[] = [
   {
     key: "deals",
     label: "Deals",
-    href: "/deals/tasks",   // land on My Tasks (the first tab) by default
+    href: "/deals",   // land on the Board by default (Rob 2026-09-03)
     blurb: "Buy-side CRM — the deal board, ownership, notes & email ingestion.",
     tabs: DEALS_TABS,
   },

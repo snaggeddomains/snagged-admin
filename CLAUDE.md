@@ -348,6 +348,33 @@ comment timeline with @mentions, and per-deal Gmail ingestion. The old Pipedrive
     single **Date range** select (`DATE_PRESETS`/`presetRange`: All time / Last 7·30·90 days / This month /
     Last month / YTD / Last 12 months / Custom…). A preset fills `f.from`/`f.to`; "Custom…" reveals the two
     date inputs for exact picks. Clear resets it to All time.
+  - **"Acquire or Sell?" intent field threaded end-to-end (Rob, 2026-09-03).** The inquiry form's buyer
+    intent now lives on the deal (`deals.intent`, canonicalized to **Acquire / Sell**) so Reporting can
+    see/sort/filter/group by it. Mirrors the `heard_about` pattern exactly: `store.ts` — `Deal.intent`,
+    `CreateDealInput.intent`, a **`normIntent()`** canonicalizer (regex → "Acquire"/"Sell", else
+    title-cased; used by `createDeal`), added to the insert + the `OPTIONAL` strip-retry list; `ReportFilters.intent`
+    + a `withIntent` clause in `reportDeals` with its own `/intent/i` strip-retry (degrades pre-migration).
+    `report/route.ts` reads `?intent=`. `reports-client.tsx` — an **Acquire / Sell** filter select
+    (Any/Acquire/Sell), an **Intent** sortable column (placed after Owner; Sell rendered magenta),
+    an **Acquire / Sell** group-by option, and CSV column. **Captured on convert** from the lead form's
+    intent: inquiries triage (`inquiries-client` sends `inquiry.intent` → `inquiries/route.ts`) + the
+    research dossier drawer (`internal/pipedrive-deal/route.ts`). **Backfill** existing deals:
+    `app/api/admin/deals/backfill-intent/route.ts` (admin-only; GET dry-run, `?apply=1`) — matches each
+    deal to its `domain_research_leads` row by `lead_key` then buyer email → canonicalized `intent`, writes
+    where null. **Migration:** `deals.intent text` in `scripts/deals.sql` (create + add-if-not-exists) — run
+    on the **`domain-owner-research`** project (the PRODUCTION one — NOT snagged-naming-universe):
+    https://github.com/snaggeddomains/snagged-admin/blob/main/dashboard/scripts/deals.sql . Until it runs,
+    createDeal + reportDeals strip-retry the column so everything still works (intent just reads "—").
+    Same commit also (Rob, 2026-09-03): **removed the Asking column** from the results grid (still in CSV +
+    the group-by "total asking"), and **slimmed the recap cards** to just **deals** + **BY OWNER** (dropped
+    total-asking + BY STATUS), stacked the owner rows vertically, and added a stacked **ACQUIRE / SELL** count
+    card (`byIntent` computed client-side over the loaded rows).
+  - **Deals section defaults to the BOARD, only Board highlights (Rob, 2026-09-03).** Clicking the top-level
+    **Deals** header used to land on `/deals/tasks` (My Tasks) AND light up BOTH My Tasks + Board (Board's
+    href `/deals` is a prefix of `/deals/tasks`). Fixed: `SECTIONS.deals.href` → `/deals` (Board is the
+    default landing), and `/deals` is now an exact-index route in `nav.tsx` `isActive` (+ `top-bar.tsx`
+    mobile menu) alongside `/admin`/`/reports`, so on `/deals/tasks` only My Tasks lights and on `/deals`
+    only Board lights. My Tasks stays reachable as the first sub-tab.
 - **Nav/perms:** `deals` (MODULE) + `deals.all` + `deals.inbox` + `deals.assignable` +
   `deals.reports` (ACTIONS) + `DEALS_TABS` +
   `canEnterDeals` in `permissions.ts`; `'deals'` SectionKey + SECTIONS entry in `navigation.ts`

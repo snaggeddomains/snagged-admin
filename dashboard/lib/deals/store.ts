@@ -29,6 +29,7 @@ export type Deal = {
   sam_split_at: string | null;  // when the split was taken on — for month-accurate reporting
   source: string | null;
   heard_about: string | null;  // "How did you hear about us?" — marketing attribution off the inquiry form
+  intent: string | null;       // "Acquire or Sell?" off the inquiry form — canonicalized to "Acquire"/"Sell"
   priority: string | null;
   budget_max: number | null;
   owner_email: string | null;
@@ -89,6 +90,7 @@ export type CreateDealInput = {
   upfrontFee?: number;      // optional fee we charge the client up front to pursue the acquisition
   source?: string;
   heardAbout?: string;
+  intent?: string;          // "Acquire or Sell?" off the inquiry form
   priority?: string;
   ownerEmail?: string;      // assignee
   reportLink?: string;
@@ -108,6 +110,18 @@ export function dealsConfigured(): boolean {
 const norm = (v: unknown): string | null => {
   const s = String(v ?? "").trim();
   return s || null;
+};
+
+// Canonicalize the inquiry form's "Acquire or Sell?" answer to a clean "Acquire" / "Sell"
+// so the report sorts/filters/groups cleanly (the form value is free-ish, e.g. "Acquire a
+// domain" / "I want to sell"). Anything unrecognized is kept as-is (title-cased) or null.
+const normIntent = (v: unknown): string | null => {
+  const s = String(v ?? "").trim();
+  if (!s) return null;
+  const l = s.toLowerCase();
+  if (/\bsell|selling\b/.test(l)) return "Sell";
+  if (/\bacquir|buy|buying|purchas/.test(l)) return "Acquire";
+  return s.charAt(0).toUpperCase() + s.slice(1);
 };
 
 // Find-or-create by (domain, buyer email). Returns { deal, created }. Same buyer + domain
@@ -139,6 +153,7 @@ export async function createDeal(input: CreateDealInput): Promise<{ deal: Deal; 
     upfront_fee: input.upfrontFee ?? null,
     source: norm(input.source),
     heard_about: norm(input.heardAbout),
+    intent: normIntent(input.intent),
     priority: norm(input.priority),
     budget_max: budgetMaxFor(input.budgetRange),
     owner_email: ownerEmail,
@@ -155,9 +170,9 @@ export async function createDeal(input: CreateDealInput): Promise<{ deal: Deal; 
     position: Date.now(), // newest sinks to the bottom of the column initially
   };
   let ins = await getDb().from(DEALS).insert(row).select("*").single();
-  // Degrade gracefully before optional-column migrations land (budget_max, heard_about). The DB
-  // reports one missing column at a time, so drop the named one and retry a few times.
-  const OPTIONAL = ["budget_max", "heard_about"];
+  // Degrade gracefully before optional-column migrations land (budget_max, heard_about, intent).
+  // The DB reports one missing column at a time, so drop the named one and retry a few times.
+  const OPTIONAL = ["budget_max", "heard_about", "intent"];
   const mut = row as Record<string, unknown>;
   for (let i = 0; ins.error && i < OPTIONAL.length; i++) {
     const msg = ins.error.message;
@@ -195,6 +210,7 @@ export async function listDeals(opts: { all: boolean; me: string; inbox?: boolea
 
 export type ReportFilters = {
   status?: string; owner?: string; stage?: string; source?: string; heardAbout?: string; priority?: string;
+  intent?: string;   // "Acquire" / "Sell" off the inquiry form
   budgetBand?: string; minAsking?: number; maxAsking?: number; q?: string; from?: string; to?: string;
   samSplit?: "yes" | "no";   // filter to deals Sam splits (or not); when "yes", the date range
                               // keys off sam_split_at (the month he TOOK it on) — for monthly reports.
@@ -205,7 +221,7 @@ export type ReportFilters = {
 // heard_about clauses; on a pre-migration DB (no heard_about column) the query is retried
 // without them so the report still loads.
 export async function reportDeals(f: ReportFilters): Promise<Deal[]> {
-  const build = (withHeard: boolean, withSamSplit: boolean) => {
+  const build = (withHeard: boolean, withSamSplit: boolean, withIntent: boolean) => {
     // When filtering to Sam's splits, bound the date range by WHEN he took it on (sam_split_at),
     // so "This month" = deals Sam split this month, not deals created this month.
     const dateCol = withSamSplit && f.samSplit === "yes" ? "sam_split_at" : "created_at";
@@ -215,6 +231,7 @@ export async function reportDeals(f: ReportFilters): Promise<Deal[]> {
     if (f.stage) query = query.eq("stage", f.stage);
     if (f.source) query = query.eq("source", f.source);
     if (withHeard && f.heardAbout) query = query.ilike("heard_about", `%${f.heardAbout}%`);
+    if (withIntent && f.intent) query = query.eq("intent", f.intent);
     if (f.priority) query = query.eq("priority", f.priority);
     if (f.budgetBand) query = query.eq("budget_range", f.budgetBand);
     if (f.minAsking != null) query = query.gte("asking_price", f.minAsking);
@@ -229,9 +246,11 @@ export async function reportDeals(f: ReportFilters): Promise<Deal[]> {
     if (f.to) query = query.lte(dateCol, `${f.to}T23:59:59`);
     return query;
   };
-  let { data, error } = await build(true, true);
-  if (error && /heard_about/i.test(error.message)) ({ data, error } = await build(false, true));
-  if (error && /sam_split/i.test(error.message)) ({ data, error } = await build(true, false));
+  let { data, error } = await build(true, true, true);
+  // Retry without each optional column the DB doesn't have yet (one at a time).
+  if (error && /heard_about/i.test(error.message)) ({ data, error } = await build(false, true, true));
+  if (error && /sam_split/i.test(error.message)) ({ data, error } = await build(true, false, true));
+  if (error && /intent/i.test(error.message)) ({ data, error } = await build(true, true, false));
   if (error) throw new Error(`reportDeals: ${error.message}`);
   return (data as Deal[]) || [];
 }

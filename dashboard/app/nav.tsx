@@ -7,10 +7,11 @@ import { useEffect, useRef, useState } from "react";
 type Tab = { href: string; label: string };
 type Group = { label: string; tabs: Tab[] };
 
-// Index routes ("/admin", "/reports") match exactly so a child route ("/reports/cost")
-// doesn't also light up the parent tab.
+// Index routes ("/admin", "/reports", "/deals") match exactly so a child route
+// ("/reports/cost", "/deals/tasks") doesn't also light up the parent tab. Without this,
+// Board ("/deals") lit up alongside My Tasks ("/deals/tasks") since it's a prefix.
 function isActive(pathname: string, href: string): boolean {
-  const isIndex = href === "/admin" || href === "/reports";
+  const isIndex = href === "/admin" || href === "/reports" || href === "/deals";
   return isIndex ? pathname === href : pathname.startsWith(href);
 }
 

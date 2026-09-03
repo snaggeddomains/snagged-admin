@@ -235,6 +235,7 @@ function ConvertModal({ inquiry, meta, onClose, onDone }: { inquiry: Inquiry; me
           buyerEmail: buyerEmail.trim() || undefined,
           budgetRange: budget || undefined,
           heardAbout: inquiry.heardAbout || undefined,
+          intent: inquiry.intent || undefined,
           notes: inquiryNotes,
           comment: comment.trim() || undefined,
           additionalDomains: inquiry.domains.slice(1).join(", ") || undefined,
