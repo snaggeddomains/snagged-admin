@@ -42,5 +42,7 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          GOOGLE_SA_KEY: ${{ secrets.GOOGLE_SA_KEY }}
+          # The dashboard's lib/google-auth.ts reads GOOGLE_SA_KEY; the repo secret is named
+          # GOOGLE_SERVICE_ACCOUNT_JSON (as every other workflow uses), so map it across.
+          GOOGLE_SA_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
         run: npx --yes tsx@4.19.2 scripts/ingest-gmail-mirror.ts --mailbox "${{ inputs.mailbox }}" --file-id "${{ inputs.file_id }}"
