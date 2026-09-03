@@ -72,6 +72,18 @@ now the one chokepoint.
   route, and the Email module (`email-module`, interactive). Any UNtagged reader still charges under
   `other` and is governed by the background cap — the protection is universal, tagging just improves
   attribution.
+- **⚠️ ON-DEMAND readers tagged too (Rob, 2026-09-03).** brian@ hit the 70% safety line with the crons
+  paused — because the byte-heavy WHOLE-THREAD readers behind admin/report actions were UNtagged, so they
+  piled into `other` and no cron pause could stop them. Now wrapped in `withGmailFeature` (all BACKGROUND
+  = they halt at the safety line, per Rob "shut them off too"): the **marketplace deal-report builder**
+  (`app/api/admin/marketplace/deals/route.ts` → `marketplace-deals`; on a budget halt it serves a STALE
+  cache + `budgetPaused:true`, never a 500), the **leads report** (`app/api/admin/analytics/route.ts`
+  `part=leads` + both `backfill-intent`/`backfill-heard-about` → `leads`), and the **Owner Review manual
+  buttons** (`owner-review/mine` → `owner-review-mine`; `remine-bulk` + the per-card `remine`/`resolve_name`
+  in `owner-review/[id]` → `owner-review-remine`; 503 `budgetPaused` on halt). NB the owner-review miner
+  reads `minerMailboxes()` which EXCLUDES brian by default, so the miner wasn't today's culprit — the
+  marketplace/leads readers (which fan out across ALL deal mailboxes) were the likely source. Follow-up:
+  the marketplace builder still fans out across every deal mailbox even when a domain's mail is in one.
 - **Visibility:** Email → **Inbox load** tab (`/email/load`, `app/email/load/*` + `api/admin/email/load`):
   per-mailbox reads today vs the **70% stop line** (+ the full cap), by-feature breakdown, cap meters
   (green/amber/red), a **global "background HALTED" banner** when the breaker trips, and a **"Pull Google

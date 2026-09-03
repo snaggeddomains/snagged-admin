@@ -12,6 +12,7 @@ import { getCurrentUser } from "@/lib/session";
 import { userCan, userCanAction } from "@/lib/permissions";
 import { confirmCard, updateCard, setCardStatus, reassignCard, getCard } from "@/lib/deals/owner-review";
 import { resolveNameFromThread, mineOwnerForDomain } from "@/lib/deals/owner-review-mine";
+import { withGmailFeature, isGmailBudgetError } from "@/lib/gmail-budget";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -55,7 +56,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         // one that looks wrong. Stays pending. maxDuration 60 covers the multi-thread read.
         const card = await getCard(id);
         if (!card) return NextResponse.json({ error: "card not found" }, { status: 404 });
-        const mined = await mineOwnerForDomain(card.domain);
+        const mined = await withGmailFeature("owner-review-remine", () => mineOwnerForDomain(card.domain));
         const updated = await updateCard(id, {
           candidate_first_name: mined.first_name || "",
           candidate_last_name: mined.last_name || "",
@@ -74,7 +75,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         if (!card) return NextResponse.json({ error: "card not found" }, { status: 404 });
         const email = String(body.email || card.candidate_email || "");
         if (!email) return NextResponse.json({ error: "no email on this card to look up" }, { status: 400 });
-        const hit = await resolveNameFromThread(card.domain, email);
+        const hit = await withGmailFeature("owner-review-remine", () => resolveNameFromThread(card.domain, email));
         if (!hit || !hit.full) return NextResponse.json({ ok: true, resolved: false, card });
         const updated = await updateCard(id, { candidate_first_name: hit.first, candidate_last_name: hit.last }, me!.email);
         return NextResponse.json({ ok: true, resolved: true, full: hit.full, card: updated });
@@ -83,6 +84,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         return NextResponse.json({ error: "Unknown action" }, { status: 400 });
     }
   } catch (e) {
+    if (isGmailBudgetError(e)) return NextResponse.json({ ok: false, budgetPaused: true, error: "Paused: Gmail daily read budget reached — try again after the daily reset." }, { status: 503 });
     return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
   }
 }

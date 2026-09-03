@@ -14,6 +14,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { getDb, isDbConfigured } from "@/lib/supabase";
 import { leadsReport } from "@/lib/leads";
+import { withGmailFeature } from "@/lib/gmail-budget";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -73,7 +74,7 @@ export async function GET(req: NextRequest) {
   let submissionsParsed = 0;
   try {
     const day = (t: number) => new Date(t).toISOString().slice(0, 10);
-    const rep = await leadsReport(day(Date.now() - 3 * 365 * 86_400_000), day(Date.now()));
+    const rep = await withGmailFeature("leads", () => leadsReport(day(Date.now() - 3 * 365 * 86_400_000), day(Date.now())));
     submissionsParsed = rep.leads.length;
     for (const l of rep.leads) {
       const ci = normIntent(l.intent);

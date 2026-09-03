@@ -9,6 +9,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { getDb, isDbConfigured } from "@/lib/supabase";
 import { leadsReport, canonicalSource } from "@/lib/leads";
+import { withGmailFeature } from "@/lib/gmail-budget";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,7 +33,7 @@ export async function GET(req: NextRequest) {
 
   // Parse ~3 years of contact-form submissions → email → the "How did you hear about us?" value.
   const day = (t: number) => new Date(t).toISOString().slice(0, 10);
-  const rep = await leadsReport(day(Date.now() - 3 * 365 * 86_400_000), day(Date.now()));
+  const rep = await withGmailFeature("leads", () => leadsReport(day(Date.now() - 3 * 365 * 86_400_000), day(Date.now())));
   const byEmail = new Map<string, string>();
   for (const l of rep.leads) {
     const em = (l.email || "").trim().toLowerCase();

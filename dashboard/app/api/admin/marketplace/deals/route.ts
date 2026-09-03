@@ -11,6 +11,7 @@ import { analyticsReport, gaConfigured, type MarketplaceReport } from "@/lib/ga"
 import { getNewsletterFeatures, summarizeNewsletter } from "@/lib/newsletter";
 import { buildDealReport, REPORT_VERSION, type DealReport } from "@/lib/marketplace-deals";
 import { gmailConfigured } from "@/lib/gmail";
+import { withGmailFeature, isGmailBudgetError } from "@/lib/gmail-budget";
 import { getDb, isDbConfigured } from "@/lib/supabase";
 
 export const runtime = "nodejs";
@@ -61,16 +62,24 @@ export async function GET(req: NextRequest) {
 
   // Deal activity (cached) + GA stats (live, fast) + newsletter (all-time) in parallel.
   const dealsP = (async () => {
-    if (!gmailConfigured()) return { report: null as DealReport | null, generatedAt: null as string | null, configured: false };
+    if (!gmailConfigured()) return { report: null as DealReport | null, generatedAt: null as string | null, configured: false, budgetPaused: false };
     if (!force) {
       const hit = await readCache(domain);
       if (hit && Date.now() - Date.parse(hit.generatedAt) < FRESH_MS) {
-        return { report: hit.report, generatedAt: hit.generatedAt, configured: true };
+        return { report: hit.report, generatedAt: hit.generatedAt, configured: true, budgetPaused: false };
       }
     }
-    const report = await buildDealReport(domain);
-    const generatedAt = await writeCache(domain, report);
-    return { report, generatedAt, configured: true };
+    // Governed background read — halts at the Gmail safety line. If we're paused, serve a stale
+    // cache (if any) rather than spending more of the shared quota; never a 500.
+    try {
+      const report = await withGmailFeature("marketplace-deals", () => buildDealReport(domain));
+      const generatedAt = await writeCache(domain, report);
+      return { report, generatedAt, configured: true, budgetPaused: false };
+    } catch (e) {
+      if (!isGmailBudgetError(e)) throw e;
+      const stale = await readCache(domain).catch(() => null);
+      return { report: stale?.report ?? null, generatedAt: stale?.generatedAt ?? null, configured: true, budgetPaused: true };
+    }
   })();
 
   const gaP = (async () => {

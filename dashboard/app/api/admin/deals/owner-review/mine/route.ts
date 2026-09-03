@@ -8,6 +8,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { userCan, userCanAction } from "@/lib/permissions";
 import { mineAllTxns } from "@/lib/deals/owner-review-mine";
+import { withGmailFeature, isGmailBudgetError } from "@/lib/gmail-budget";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,9 +22,11 @@ export async function POST(req: NextRequest) {
   const body = (await req.json().catch(() => ({}))) as { limit?: number; dry?: boolean };
   try {
     // New cards are assigned to whoever clicked Mine, so they land in that person's "Assigned to me".
-    const summary = await mineAllTxns({ limit: Math.min(Number(body.limit) || 12, 60), dry: !!body.dry, assignTo: me.email });
+    // Governed background read — halts at the Gmail safety line to protect the shared quota.
+    const summary = await withGmailFeature("owner-review-mine", () => mineAllTxns({ limit: Math.min(Number(body.limit) || 12, 60), dry: !!body.dry, assignTo: me.email }));
     return NextResponse.json({ ok: true, ...summary });
   } catch (e) {
+    if (isGmailBudgetError(e)) return NextResponse.json({ ok: false, budgetPaused: true, error: "Paused: Gmail daily read budget reached — try again after the daily reset." }, { status: 503 });
     return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
   }
 }

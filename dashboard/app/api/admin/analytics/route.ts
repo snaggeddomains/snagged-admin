@@ -15,6 +15,7 @@ import { xAdsReport, xAdsLift, xAdsEffectiveness, xAdsConfigured } from "@/lib/x
 import { redditAdsReport, redditAdsConfigured } from "@/lib/redditads";
 import type { AdPlatform } from "@/lib/ads-types";
 import { leadsReport, leadsConfigured } from "@/lib/leads";
+import { withGmailFeature, isGmailBudgetError } from "@/lib/gmail-budget";
 import { newsletterReport, mailchimpConfigured, recentMemberCounts } from "@/lib/mailchimp";
 import { histSignups, histUnsubs, mergeDaily, emailDataThrough } from "@/lib/historical-email";
 
@@ -133,9 +134,10 @@ export async function GET(req: NextRequest) {
     if (sp.get("part") === "leads") {
       if (!leadsConfigured()) return NextResponse.json({ ok: true, configured: true, tranche: "ads", part: "leads", leads: null });
       try {
-        const leads = await leadsReport(from, to);
+        const leads = await withGmailFeature("leads", () => leadsReport(from, to));
         return NextResponse.json({ ok: true, configured: true, tranche: "ads", part: "leads", leads });
       } catch (e) {
+        if (isGmailBudgetError(e)) return NextResponse.json({ ok: true, configured: true, tranche: "ads", part: "leads", leads: null, budgetPaused: true });
         return NextResponse.json({ ok: false, error: String((e as Error)?.message || e) }, { status: 500 });
       }
     }
