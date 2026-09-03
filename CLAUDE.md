@@ -28,7 +28,7 @@ it's not a workaround; Takeout/Workspace export is), then kept fresh by cheap **
   against the 9 real query strings in the codebase.
 - **⚠️ NOT WIRED YET (by design — zero prod risk).** These are new files that touch no live consumer.
   **Repoint to the mirror once an MBOX is loaded + verified:** `lib/deals/owner-review-mine.ts`,
-  `lib/domain-corpus/sources/gmail.ts`, `lib/pitch-scan.ts`, `lib/marketplace-deals.ts`, `lib/leads.ts`,
+  `lib/domain-corpus/sources/gmail.ts`, `lib/marketplace-deals.ts`, `lib/leads.ts`,
   `app/api/internal/email-threads/route.ts` (swap `from "../gmail"`→`"../gmail-mirror"`). Keep LIVE (they
   need the freshest data / are already governed): `lib/deals/emails.ts` + the `deal-emails` cron + the
   deal-detail ingest, and the Email tool (`app/api/admin/email/route.ts`). **TODO:** `lib/gmail-mirror/
@@ -61,7 +61,7 @@ now the one chokepoint.
   missing → governing no-ops, reads proceed). NB the watched set = the deal mailboxes we actually read
   (rob@/brian@ .com/.co); Sam isn't a deal mailbox so we never read it — add it to `GMAIL_DEAL_MAILBOXES`
   to bring it under the breaker if that ever changes.
-- **Tagged callers:** the 5 crons (`owner-review-mine`/`-remine`, `deal-emails`, `pitch-scan`,
+- **Tagged callers:** the mailbox crons (`owner-review-mine`/`-remine`, `deal-emails`,
   `client-corpus`), the deal-detail "Pull emails" ingest, the research chat `email-threads` internal
   route, and the Email module (`email-module`, interactive). Any UNtagged reader still charges under
   `other` and is governed by the background cap — the protection is universal, tagging just improves
@@ -100,12 +100,15 @@ from the miner last session (`minerMailboxes()`), the load didn't drop — it **
 - **RESTORE when the quota recovers** — re-add these to `vercel.json` `crons` (ideally re-pointed to
   spread reads across mailboxes, or at lower frequency, so they don't pile on one box again):
   - `{ "path": "/api/cron/deal-emails", "schedule": "15 */4 * * *" }`
-  - `{ "path": "/api/cron/pitch-scan", "schedule": "0 13 * * 1" }`
   - `{ "path": "/api/cron/client-corpus", "schedule": "0 11 * * *" }`
   - `{ "path": "/api/cron/owner-review-mine", "schedule": "0 15 * * *" }`
   - `{ "path": "/api/cron/owner-review-remine", "schedule": "*/5 * * * *" }`
 - `client-overlap`, `email-health`, `newsletter-sync` were LEFT running — they don't read the Gmail
   deal mailboxes (client-overlap consumes the already-harvested `client_domains`).
+- **⚠️ pitch-scan RETIRED (Rob, 2026-09-03) — do NOT restore.** The weekly pitch-scan is no longer
+  needed, so its cron route (`app/api/cron/pitch-scan/`) + `lib/pitch-scan.ts` were DELETED and the
+  `pitch-scan` `GmailFeature` tag removed. (`lib/marketplace-pitch-sheets.ts` stays — it's used by the
+  marketplace deal report, not pitch-scan.) It was already out of `vercel.json` from the pause above.
 
 # Email module — search the deal inbox + AI-draft a reply (draft-only) (2026-09-02)
 
@@ -2013,22 +2016,15 @@ the hub, header, or layouts again.
 `lib/permissions.ts` (MODULES/ACTIONS + CATALOG), then add one `NavSection` to
 `SECTIONS`. Done — card, header item, mobile menu, sub-nav all appear.
 
-**"Tools" header dropdown (2026-09-03).** The top header groups less-primary sections under a
-**Tools ▾** dropdown instead of listing them flat. A `NavSection` with **`parent: "tools"`** is
-collapsed under it (currently **Reports** + **Email**); everything else stays a top-level link.
-Header order is now Research · Admin · SNAP · Deals · Tools. `headerNav(user)` (navigation.ts)
-splits `visibleSections` into `{ top, tools }`; `top-bar.tsx` renders `top` as links + a Tools
-dropdown (`toolsOpen` state, outside-click/Escape close) listing `tools`. The sections are
-UNCHANGED (still real sections — `sectionForPath`, `sectionTabs`, SectionChrome, the ⌘K palette,
-and the hub cards all work exactly as before; only the header presentation groups them). To move a
-section under Tools, add `parent:"tools"`; to pull it back out, remove it. The research SPA mirrors
-this (`index.html` `#topbar-tools` dropdown wrapping `#topbar-reports`+`#topbar-email`; see research
-CLAUDE.md).
-- **Trigger mirrors the sibling links (2026-09-03).** The Tools ▾ `<button>` now carries the
-  `topbar__nav-btn` class so `.topbar__nav a, .topbar__nav button.topbar__nav-btn` share ONE rule
-  (same pill padding / hover / navy active state) — it was a bare inline-styled button (`padding:0`)
-  that looked smaller/mis-aligned vs Research/Admin/SNAP/Deals on both desktop AND mobile. Now
-  identical (`dashboard.css` + `top-bar.tsx`).
+**Header nav is FLAT — no "Tools" dropdown (Rob, 2026-09-03).** A brief experiment grouped Reports +
+Email under a **Tools ▾** dropdown; Rob wanted them to mirror the other nav items exactly, so it was
+**reverted to flat top-level links**. Header order is now Research · Admin · SNAP · Deals · Reports ·
+Email — every section is a plain `visibleSections` link (no `parent`/`headerNav` split, no dropdown
+state). `top-bar.tsx` renders `sections.map(...)`; the mobile hamburger shows the current section's
+sub-tabs as before. The research SPA mirrors this (`index.html` `#topbar-reports`/`#topbar-email` are
+direct `.topbar__nav` links again, each gated per-permission in `checkAuth`; the `#topbar-tools`
+wrapper + `wireToolsMenu` + `.topbar__tools*` CSS were removed — see research CLAUDE.md). The dead
+`.topbar__nav button.topbar__nav-btn` CSS rule in `dashboard.css` is harmless (no nav buttons now).
 
 **⌘K command palette (2026-07-22):** `app/command-palette.tsx` — a universal Cmd/Ctrl-K
 quick-switch mounted in `TopBar` (so it works on every admin-app page: Admin/SNAP/Reports/

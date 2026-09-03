@@ -48,7 +48,6 @@ export type NavSection = {
   href: string; // top-level link target (the section's "home")
   blurb: string; // hub card description
   tabs: NavTab[]; // sub-nav + hub-card tasks (gated per-tab)
-  parent?: "tools"; // collapsed under the "Tools" header dropdown instead of being a top-level item
 };
 
 // Order here = order in the top header AND the hub: Research, Admin, SNAP, Reports.
@@ -80,7 +79,6 @@ export const SECTIONS: NavSection[] = [
     href: "/reports",
     blurb: "Site analytics, SEO, revenue & API cost — plus corporate portfolios.",
     tabs: REPORTS_TABS,
-    parent: "tools",   // lives under the "Tools" header dropdown
   },
   {
     key: "deals",
@@ -95,7 +93,6 @@ export const SECTIONS: NavSection[] = [
     href: "/email",
     blurb: "Search the deal inbox for a thread and draft a reply with AI (copy/paste).",
     tabs: EMAIL_TABS,
-    parent: "tools",   // lives under the "Tools" header dropdown
   },
 ];
 
@@ -130,16 +127,6 @@ export function canEnterSection(user: AppUser | null, key: SectionKey): boolean 
 // The sections this user can see, in registry order — drives the header + hub.
 export function visibleSections(user: AppUser | null): NavSection[] {
   return SECTIONS.filter((s) => canEnterSection(user, s.key));
-}
-
-// Header split: top-level items rendered as their own links, plus the sections collapsed under
-// the "Tools" dropdown. `tools` is empty when the user can enter neither Reports nor Email.
-export function headerNav(user: AppUser | null): { top: NavSection[]; tools: NavSection[] } {
-  const visible = visibleSections(user);
-  return {
-    top: visible.filter((s) => !s.parent),
-    tools: visible.filter((s) => s.parent === "tools"),
-  };
 }
 
 // Resolve which section a path belongs to — the tab whose href is the LONGEST

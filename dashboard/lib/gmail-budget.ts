@@ -20,7 +20,6 @@ export type GmailFeature =
   | "owner-review-mine"
   | "owner-review-remine"
   | "deal-emails"
-  | "pitch-scan"
   | "client-corpus"
   | "marketplace-deals"
   | "email-threads"        // research chat email-attach (internal)
