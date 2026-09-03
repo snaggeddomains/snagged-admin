@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { type AppUser } from "@/lib/permissions";
-import { visibleSections, sectionTabs, type SectionKey } from "@/lib/navigation";
+import { visibleSections, headerNav, sectionTabs, type SectionKey } from "@/lib/navigation";
 import NotificationsBell from "./notifications-bell";
 import CommandPalette from "./command-palette";
 
@@ -20,10 +20,24 @@ export default function TopBar({
   current?: SectionKey;
 }) {
   const [open, setOpen] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(false);
+  const toolsRef = useRef<HTMLSpanElement | null>(null);
   const pathname = usePathname();
   // Everything below is derived from the navigation registry (lib/navigation.ts).
   const sections = visibleSections(user);
+  const { top: topSections, tools: toolsSections } = headerNav(user);
+  const toolsActive = toolsSections.some((s) => s.key === current);
   const menuTabs = current ? sectionTabs(user, current) : [];
+
+  // Close the Tools dropdown on outside-click / Escape.
+  useEffect(() => {
+    if (!toolsOpen) return;
+    const onDoc = (e: MouseEvent) => { if (toolsRef.current && !toolsRef.current.contains(e.target as Node)) setToolsOpen(false); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setToolsOpen(false); };
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => { document.removeEventListener("mousedown", onDoc); document.removeEventListener("keydown", onKey); };
+  }, [toolsOpen]);
 
   return (
     <header className="topbar">
@@ -36,7 +50,7 @@ export default function TopBar({
 
       {sections.length > 0 && (
         <nav className="topbar__nav">
-          {sections.map((s) => {
+          {topSections.map((s) => {
             const cls = current === s.key ? "active" : "";
             // /research/* is the separate research app — full-nav anchor.
             return s.href.startsWith("/research") ? (
@@ -45,6 +59,33 @@ export default function TopBar({
               <Link key={s.key} href={s.href} className={cls}>{s.label}</Link>
             );
           })}
+          {toolsSections.length > 0 && (
+            <span ref={toolsRef} style={{ position: "relative", display: "inline-flex" }}>
+              <button
+                type="button"
+                className={toolsActive ? "active" : ""}
+                aria-haspopup="menu"
+                aria-expanded={toolsOpen}
+                onClick={() => setToolsOpen((v) => !v)}
+                style={{ font: "inherit", color: "inherit", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+              >
+                Tools ▾
+              </button>
+              {toolsOpen && (
+                <span role="menu" style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, minWidth: 160, background: "#fff", border: "1px solid #e4e8ec", borderRadius: 10, boxShadow: "0 8px 24px rgba(0,0,0,.10)", padding: 6, display: "flex", flexDirection: "column", gap: 2, zIndex: 60 }}>
+                  {toolsSections.map((s) => {
+                    const active = current === s.key;
+                    const style: React.CSSProperties = { display: "block", padding: "8px 12px", borderRadius: 7, textDecoration: "none", color: "var(--navy,#254254)", fontWeight: active ? 700 : 500, background: active ? "#f2f7fa" : "transparent", whiteSpace: "nowrap" };
+                    return s.href.startsWith("/research") ? (
+                      <a key={s.key} href={s.href} style={style} onClick={() => setToolsOpen(false)}>{s.label}</a>
+                    ) : (
+                      <Link key={s.key} href={s.href} style={style} onClick={() => setToolsOpen(false)}>{s.label}</Link>
+                    );
+                  })}
+                </span>
+              )}
+            </span>
+          )}
         </nav>
       )}
 

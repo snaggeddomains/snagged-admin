@@ -1975,6 +1975,18 @@ the hub, header, or layouts again.
 `lib/permissions.ts` (MODULES/ACTIONS + CATALOG), then add one `NavSection` to
 `SECTIONS`. Done — card, header item, mobile menu, sub-nav all appear.
 
+**"Tools" header dropdown (2026-09-03).** The top header groups less-primary sections under a
+**Tools ▾** dropdown instead of listing them flat. A `NavSection` with **`parent: "tools"`** is
+collapsed under it (currently **Reports** + **Email**); everything else stays a top-level link.
+Header order is now Research · Admin · SNAP · Deals · Tools. `headerNav(user)` (navigation.ts)
+splits `visibleSections` into `{ top, tools }`; `top-bar.tsx` renders `top` as links + a Tools
+dropdown (`toolsOpen` state, outside-click/Escape close) listing `tools`. The sections are
+UNCHANGED (still real sections — `sectionForPath`, `sectionTabs`, SectionChrome, the ⌘K palette,
+and the hub cards all work exactly as before; only the header presentation groups them). To move a
+section under Tools, add `parent:"tools"`; to pull it back out, remove it. The research SPA mirrors
+this (`index.html` `#topbar-tools` dropdown wrapping `#topbar-reports`+`#topbar-email`; see research
+CLAUDE.md).
+
 **⌘K command palette (2026-07-22):** `app/command-palette.tsx` — a universal Cmd/Ctrl-K
 quick-switch mounted in `TopBar` (so it works on every admin-app page: Admin/SNAP/Reports/
 Deals/hub). Destinations are built from `visibleSections(user) × sectionTabs(user, key)` — so
