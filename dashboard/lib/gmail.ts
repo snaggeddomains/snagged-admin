@@ -90,6 +90,14 @@ export async function getProfile(subject: string): Promise<{ emailAddress: strin
   return gget(subject, "profile");
 }
 
+// Governed low-level Gmail GET (users/me/<path>) — same budget check + charge + retry as every other
+// read. The mirror's History delta-sync uses this for history.list / messages.get?format=raw / profile
+// (it's the ONE controlled path allowed to touch Gmail, keeping the mirror fresh off-peak). Returns the
+// parsed JSON. `path` is everything after users/me/ (e.g. "history?startHistoryId=123&historyTypes=messageAdded").
+export async function gapiGet(subject: string, path: string): Promise<any> {
+  return gget(subject, path);
+}
+
 // Distinct thread IDs matching a Gmail search query, in one mailbox.
 export async function searchThreadIds(subject: string, q: string, max = 100): Promise<string[]> {
   const ids = new Set<string>();

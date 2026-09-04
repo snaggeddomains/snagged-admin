@@ -14,6 +14,7 @@
     { "path": "/api/cron/newsletter-sync", "schedule": "0 12 * * 1" },
     { "path": "/api/cron/client-overlap", "schedule": "0 12 * * *" },
     { "path": "/api/cron/reddit-sweep", "schedule": "0 13,18,23 * * *" },
-    { "path": "/api/cron/x-sweep", "schedule": "0 13,18,23 * * *" }
+    { "path": "/api/cron/x-sweep", "schedule": "0 13,18,23 * * *" },
+    { "path": "/api/cron/gmail-mirror-sync", "schedule": "50 23 * * *" }
   ]
 }

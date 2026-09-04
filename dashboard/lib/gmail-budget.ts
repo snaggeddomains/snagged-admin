@@ -26,6 +26,7 @@ export type GmailFeature =
   | "email-threads"        // research chat email-attach (internal)
   | "email-module"         // the admin Email compose tool (interactive)
   | "leads"
+  | "mirror-sync"          // the Gmail-mirror History delta-sync (keeps the local copy current)
   | "other";
 
 // Interactive features get the higher ceiling + are never hard-stopped by the BACKGROUND cap

@@ -60,21 +60,34 @@ it's not a workaround; Takeout/Workspace export is), then kept fresh by cheap **
   handles ONLY the operators our readers use — quoted/bare phrase, `from:`/`to:`/`subject:`,
   `after:`/`before:`/`newer_than:Nd`, and `in:`/`-in:` labels (applied JS-side post-fetch) — verified
   against the 9 real query strings in the codebase.
-- **✅ WIRED to the mirror (2026-09-04).** The historical readers now import from `lib/gmail-mirror`
-  instead of `lib/gmail`, so mirrored mailboxes (rob@/brian@ .com + rob@.co) serve from the local
-  Postgres copy — ZERO Gmail-API load / no throttle — and any un-mirrored mailbox or not-yet-synced
-  message/thread transparently FALLS BACK to the governed live client (still correct). Repointed:
+- **✅ WIRED to the mirror + STRICTLY LOCAL-ONLY (2026-09-04).** The historical readers import from
+  `lib/gmail-mirror` instead of `lib/gmail`, and the mirror now defaults to **strict local-only: it
+  NEVER falls back to live Gmail** — every fn serves the local Postgres copy and returns EMPTY on a miss
+  (`searchMessages`/`getThread`/`getThreadCapped`→`[]`, `getMessage`→an empty stub, `getProfile`→a stub).
+  So a mirror-backed reader is physically Gmail-free — **zero throttle impact, the `live.*` branches are
+  unreachable.** Escape hatch **`GMAIL_MIRROR_ALLOW_LIVE=1`** restores the transparent fallback (use once
+  the delta sync keeps the mirror current + you want misses resolved live). Repointed:
   `lib/deals/owner-review-mine.ts` (owner-review miner), `lib/domain-corpus/sources/gmail.ts`
-  (client-corpus harvest), `lib/marketplace-deals.ts` (marketplace per-domain deal report),
-  `lib/leads.ts` (leads/inquiries report), `app/api/internal/email-threads/route.ts` (research chat
-  attach). **Kept LIVE (need freshest / already governed):** `lib/deals/emails.ts` + the `deal-emails`
-  cron + the deal-detail ingest, and the Email tool + Follow-up (`app/api/admin/email/*`).
-  **⚠️ FRESHNESS GAP:** the mirror is import-SEEDED only (snapshot ~2026-09-03/04) — the History-API
-  delta sync (`lib/gmail-mirror/sync.ts`) is NOT built yet, so a mirror SEARCH sees email only up to the
-  snapshot (it returns local matches, it does NOT fall back just because recent messages are missing).
-  Acceptable for the historical reconstructions these readers do; build `sync.ts` to close the gap, then
-  the repointed readers become fully current. **Now safe to re-include brian in `GMAIL_DEAL_MAILBOXES`
-  background reads** — the repointed readers no longer hit Gmail for the mirrored boxes.
+  (client-corpus harvest), `lib/marketplace-deals.ts` (marketplace deal report), `lib/leads.ts`
+  (leads/inquiries), `app/api/internal/email-threads/route.ts` (research chat attach). **Kept LIVE
+  (import `lib/gmail` directly, budget-governed):** `lib/deals/emails.ts` + `deal-emails` cron + the
+  deal-detail ingest, and the Email tool + Follow-up (`app/api/admin/email/*`). **brian@ is back in the
+  owner-review miner** (`minerMailboxes()` default skip = none) — local-only, so no Gmail load.
+  **VERIFY local-only:** run a mine/report, then Email → Inbox load (`/email/load`) — the reader's feature
+  (`owner-review-mine` etc.) should show **0 reads charged** (local reads bypass the governed `gget`).
+- **✅ History delta-sync BUILT (2026-09-04) — `lib/gmail-mirror/sync.ts`.** Keeps the local copy current
+  after the Takeout seed. `syncMailbox(mailbox)`: reads `gmail_sync_state.last_history_id`; incremental via
+  Gmail **`history.list?historyTypes=messageAdded`** from that cursor → new message ids → **`messages.get?
+  format=raw`** → the SAME `parseRawMessage` + new `rowFromMessage` (exported from `ingest.ts`) so a delta
+  row is byte-identical to a Takeout row (**id = RFC Message-ID**; **thread_id = decimal(hex API threadId)**
+  = X-GM-THRID, so seed+delta threads don't split). First run (or an expired historyId → 404) falls back to
+  a date-bounded `messages.list?q=after:<newest mirrored ts − 2d>` catch-up, then sets the baseline
+  historyId. Bounded `GMAIL_SYNC_MAX_PER_MAILBOX` (1500). Reads go through governed `gapiGet` (new export
+  in `lib/gmail.ts`) under the **`mirror-sync`** feature. **Cron** `app/api/cron/gmail-mirror-sync`
+  (`vercel.json` **`50 23 * * *`** = end of the UTC day, right before the read-budget resets, off-peak,
+  CRON_SECRET; `?mailbox=` for one box). Heartbeat `gmail-mirror-sync`. A per-mailbox budget stop just
+  skips that box (retries next run). **Once proven, set `GMAIL_MIRROR_ALLOW_LIVE=1`** so the mirror readers
+  resolve a rare fresh miss live too (the daily sync means misses are ≤1 day of mail).
 - **Setup (pending):** (1) run `scripts/gmail_mirror.sql` on the **`domain-owner-research`** PRODUCTION
   project; (2) one-time Takeout per mailbox (rob@/brian@ .com+.co) → drop each **.zip** in the "Snagged
   Pipeline" shared drive (or share to the SA) → dispatch **`gmail-mirror-ingest.yml`** with the mailbox +

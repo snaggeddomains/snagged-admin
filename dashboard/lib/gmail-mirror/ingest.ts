@@ -14,7 +14,7 @@ import { createInterface, type Interface } from "node:readline";
 import { Readable } from "node:stream";
 import { getDb } from "../supabase";
 import { googleAccessToken } from "../google-auth";
-import { parseRawMessage } from "./mbox";
+import { parseRawMessage, type MirrorMessage } from "./mbox";
 import { listZipEntries, openZipEntryStream, pickMboxEntry, type RangeReader, type RangeStreamer } from "./zip-remote";
 
 type CoreOpts = {
@@ -27,7 +27,7 @@ type CoreOpts = {
 type FileOpts = CoreOpts & { filePath: string };
 type DriveOpts = CoreOpts & { fileId: string };
 
-type Row = {
+export type Row = {
   mailbox: string;
   id: string;
   thread_id: string | null;
@@ -61,7 +61,13 @@ function clean(s: string | null): string | null {
 }
 
 function toRow(mailbox: string, raw: string): Row | null {
-  const m = parseRawMessage(raw);
+  return rowFromMessage(mailbox, parseRawMessage(raw));
+}
+
+// Map a parsed MirrorMessage → a gmail_messages Row. Shared by the mbox ingest (via toRow) and the
+// History delta-sync (which builds a MirrorMessage from the Gmail API + raw, then calls this) so both
+// paths produce byte-identical rows (same id/thread/search-text/clean scheme).
+export function rowFromMessage(mailbox: string, m: MirrorMessage): Row | null {
   if (!m.id) return null;
   const searchText = [m.subject, m.from, m.fromName, m.to, m.cc, m.body.slice(0, SEARCH_BODY_CAP)]
     .filter(Boolean).join(" \n ").toLowerCase();
