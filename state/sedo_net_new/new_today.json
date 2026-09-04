@@ -1,40 +1,13 @@
 {
   "capped": false,
-  "count": 29,
+  "count": 4,
   "domains": [
-    "shorty.co",
-    "sportsman.co",
-    "turin.com",
-    "swaziland.com",
-    "shouts.com",
-    "practise.com",
-    "nevertheless.com",
-    "mosul.com",
-    "montpellier.com",
-    "monotonous.com",
-    "labourer.com",
-    "honour.com",
-    "haydn.com",
-    "gloom.com",
-    "favour.com",
-    "enquiry.com",
-    "eldest.com",
-    "durban.com",
-    "donetsk.com",
-    "davao.com",
-    "cooker.com",
-    "compulsory.com",
-    "complicate.com",
-    "comb.com",
-    "cebu.com",
-    "brahms.com",
-    "belgian.com",
-    "barren.com",
-    "astonishment.com"
+    "menswear.com",
+    "knees.com",
+    "cameron.ai",
+    "ied.co"
   ],
-  "generated_at": "2026-09-03T23:01:26.415841+00:00",
-  "mub": [
-    "durban.com"
-  ],
+  "generated_at": "2026-09-04T10:01:23.973816+00:00",
+  "mub": [],
   "source": "sedo_net_new"
 }
