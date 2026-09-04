@@ -144,12 +144,38 @@ export async function listNotes(opts: { limit?: number; createdAfter?: number; m
       const n = normalizeNote(o);
       if (n.id) byId.set(n.id, n);
     }
-    // next cursor lives under a few possible keys; stop when there isn't one or the page was empty.
+    // next cursor lives under a few possible keys; stop when the API says there's no more, when there's
+    // no cursor, or the page was empty.
     const meta = (body.meta as Obj) || {};
+    const hasMore = body.has_more ?? body.hasMore ?? meta.has_more ?? meta.hasMore;
     cursor = String(body.cursor || body.next_cursor || meta.cursor || meta.next_cursor || "");
-    if (!cursor || !arr.length) break;
+    if (hasMore === false || !cursor || !arr.length) break;
   }
   return [...byId.values()].sort((a, b) => b.createdAt - a.createdAt);
+}
+
+// Debug helper (admin-gated caller only): the RAW first-page shape, so we can verify the real
+// public-API field names on a live run without guessing. Returns the envelope keys, the first note's
+// keys, and small samples of the fields we read (id/title/created/attendees) — NO bodies/transcripts.
+export async function rawNotesShape(): Promise<Obj | null> {
+  const body = await gget(`/notes?limit=3`);
+  if (!body) return null;
+  const arr = (Array.isArray(body.notes) ? body.notes : Array.isArray((body as Obj).data) ? (body as Obj).data : []) as Obj[];
+  const first = (arr[0] || {}) as Obj;
+  const att = (first.attendees || first.participants || first.people) as unknown;
+  const attSample = Array.isArray(att) ? att.slice(0, 2) : att;
+  return {
+    envelope_keys: Object.keys(body),
+    note_count: arr.length,
+    first_note_keys: Object.keys(first),
+    sample: {
+      id: first.id ?? first.note_id ?? first.document_id ?? null,
+      title: first.title ?? first.name ?? null,
+      created_raw: first.created_at ?? first.createdAt ?? first.started_at ?? first.created ?? null,
+      normalized_createdAt: normalizeNote(first).createdAt,
+      attendees: attSample,
+    },
+  };
 }
 
 // One note WITH its AI summary (and optionally the transcript) for the drafting context.

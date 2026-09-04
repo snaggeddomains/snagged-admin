@@ -11,7 +11,7 @@ import { getCurrentUser } from "@/lib/session";
 import { userCan } from "@/lib/permissions";
 import { dealMailboxes, getThreadCapped, gmailConfigured, type GmailMessage } from "@/lib/gmail";
 import { withGmailFeature, isGmailBudgetError, GMAIL_BUDGET_MESSAGE } from "@/lib/gmail-budget";
-import { granolaConfigured, listNotes, getNote } from "@/lib/granola";
+import { granolaConfigured, listNotes, getNote, rawNotesShape } from "@/lib/granola";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -79,6 +79,10 @@ export async function GET(req: NextRequest) {
   if (!granolaConfigured())
     return NextResponse.json({ error: "Granola is not connected (set GRANOLA_API_KEY).", notes: [] }, { status: 503 });
 
+  // Diagnostic: return the RAW Granola response shape so we can verify the live field names.
+  if (url.searchParams.get("debug") === "1")
+    return NextResponse.json({ ok: true, shape: await rawNotesShape() });
+
   // Auto-match: emails from the thread's counterparty (comma-separated) — a note whose attendees
   // include one of them is floated to the top and flagged.
   const match = new Set(
@@ -87,7 +91,11 @@ export async function GET(req: NextRequest) {
       .map((s) => s.trim().toLowerCase())
       .filter((s) => s.includes("@")),
   );
-  const notes = await listNotes({ limit: 100, maxPages: 6 }); // paginate → don't miss recent meetings
+  // Bound to a RECENT window (default 180 days) so the fetched pages are the relevant recent set
+  // regardless of the API's default page order — otherwise paging from all-time history could return
+  // only OLD meetings and never reach today's. The client sorts newest-first over what we return.
+  const windowDays = Math.min(Math.max(Number(url.searchParams.get("days")) || 180, 7), 730);
+  const notes = await listNotes({ limit: 100, maxPages: 12, createdAfter: Date.now() - windowDays * 864e5 });
   const shaped = notes.map((n) => {
     const matched = match.size > 0 && n.attendees.some((a) => a.email && match.has(a.email));
     return {
