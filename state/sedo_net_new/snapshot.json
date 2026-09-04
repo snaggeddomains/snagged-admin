@@ -10,24 +10,6 @@
   },
   {
     "currency": "USD",
-    "domain": "knees.com",
-    "end_time_utc": "2026-09-04T07:01:04+00:00",
-    "is_mub": false,
-    "price": 100816.0,
-    "tld": "com",
-    "url": "https://sedo.com/search/details/?domain=knees.com"
-  },
-  {
-    "currency": "USD",
-    "domain": "cameron.ai",
-    "end_time_utc": "2026-09-04T06:44:18+00:00",
-    "is_mub": false,
-    "price": 78000.0,
-    "tld": "ai",
-    "url": "https://sedo.com/search/details/?domain=cameron.ai"
-  },
-  {
-    "currency": "USD",
     "domain": "ied.co",
     "end_time_utc": "2026-09-04T10:58:22+00:00",
     "is_mub": false,

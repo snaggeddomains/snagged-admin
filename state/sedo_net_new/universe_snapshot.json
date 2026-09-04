@@ -1,9 +1,5 @@
 [
   {
-    "domain": "bandung.com",
-    "price": 68000.0
-  },
-  {
     "domain": "menswear.com",
     "price": 2518375.0
   },
@@ -12,32 +8,8 @@
     "price": 3690.0
   },
   {
-    "domain": "autocare.com",
-    "price": 2518375.0
-  },
-  {
-    "domain": "faxing.com",
-    "price": 58320.0
-  },
-  {
     "domain": "netgolds.com",
     "price": 175.0
-  },
-  {
-    "domain": "padang.com",
-    "price": 36900.0
-  },
-  {
-    "domain": "balang.com",
-    "price": 1680.0
-  },
-  {
-    "domain": "malang.com",
-    "price": 168000.0
-  },
-  {
-    "domain": "knees.com",
-    "price": 100816.0
   },
   {
     "domain": "mimes.com",
@@ -48,32 +20,12 @@
     "price": 4195.0
   },
   {
-    "domain": "salting.ai",
-    "price": 19995.0
-  },
-  {
-    "domain": "cameron.ai",
-    "price": 78000.0
-  },
-  {
     "domain": "magnolias.ai",
     "price": 30000.0
   },
   {
-    "domain": "calella.net",
-    "price": 988.0
-  },
-  {
     "domain": "bethani.net",
     "price": 1680.0
-  },
-  {
-    "domain": "carissa.net",
-    "price": 1088.0
-  },
-  {
-    "domain": "fibrous.net",
-    "price": 9360.0
   },
   {
     "domain": "turning.net",
@@ -82,14 +34,6 @@
   {
     "domain": "flyaway.net",
     "price": 1988.0
-  },
-  {
-    "domain": "bioclean.net",
-    "price": 2888.0
-  },
-  {
-    "domain": "disharmony.net",
-    "price": 1995.0
   },
   {
     "domain": "projections.net",
