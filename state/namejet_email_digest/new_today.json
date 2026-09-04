@@ -1,11 +1,8 @@
 {
   "capped": false,
-  "count": 2,
-  "domains": [
-    "moat.org",
-    "blasts.org"
-  ],
-  "generated_at": "2026-09-04T15:09:56.255434+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-09-04T15:13:43.040423+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
