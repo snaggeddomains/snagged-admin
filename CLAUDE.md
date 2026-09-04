@@ -2265,6 +2265,14 @@ budget, Superhuman (and everything else) gets 429'd.
     quantify our data volume, but it proved we were a frequent, reducible reader.
   - **HubSpot is CLEARED** — absent from both logs; it doesn't touch Brian's Gmail via API (sends
     via its own path, not the Gmail API).
+  - **Zapier newsletter opt-ins are a SEPARATE, EXTERNAL Gmail consumer (2026-09-04).** Rob saw a run of
+    Zapier "newsletter opt-in" **429** errors. That's a Zap authorized against a mailbox on its OWN Google
+    OAuth grant — it draws on the SAME shared per-user Gmail quota but is NOT one of our features and NOT
+    behind our read governor (`gget`/`lib/gmail-budget.ts`), so our caps + kill switch can't throttle it.
+    When diagnosing a mailbox nearing the cap, remember the shared pool = our SA + Superhuman + **Zapier** +
+    HubSpot + anything else the user authorized; check the Admin Console OAuth audit (group by app) to see
+    all of them. Fix a noisy Zap by lowering its frequency / narrowing its trigger in Zapier — nothing on
+    our side governs it.
 - **Hardening (2026-08-09):** `gget()` backs off + retries on 429 / 5xx (honors `Retry-After`, exp
   backoff, 4 attempts). AND the `deal-emails` cron was trimmed from **hourly → every 4h**
   (`15 */4 * * *`) + **activity-gated**: ACTIVE deals (updated ≤ ACTIVE_DAYS=21) sync every run;
