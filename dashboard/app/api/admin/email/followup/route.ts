@@ -5,6 +5,8 @@
 // Thread search/load is reused from the Email module (/api/admin/email ?action=search|thread). This
 // route adds: GET ?action=notes (list recent Granola meetings, auto-matched to the thread's
 // counterparty by attendee email) and POST {action:'draft'} (the follow-up draft). Gated by `email`.
+// NB Granola meeting access follows the GRANOLA_API_KEY's note scope — a personal-scoped key is
+// required to read the key owner's private spaces (e.g. the "Client calls" folder in "My notes").
 
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
