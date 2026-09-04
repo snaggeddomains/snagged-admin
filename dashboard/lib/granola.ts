@@ -4,6 +4,8 @@
 //
 // Auth: a single bearer key `GRANOLA_API_KEY` (a `grn_…` personal key, or a workspace key on a
 // Business/Enterprise plan that sees team notes). One shared key = v1 (per-user keys are a later add).
+// NB the key must live in the snagged-admin (app.snagged.com) Vercel project — this route runs there,
+// not in the research project — and Vercel only picks up env changes on the NEXT deploy.
 //
 // ⚠️ VERIFY FIELD SHAPES ON THE FIRST LIVE RUN. The public API's exact JSON field names aren't fully
 // documented and the key is Vercel-only (can't be probed from the sandbox). The list envelope is
