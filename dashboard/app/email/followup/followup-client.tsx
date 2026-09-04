@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import SnippetsPanel from "../snippets-panel";
 
 type ThreadHit = { mailbox: string; threadId: string; subject: string; from: string; fromName: string; date: number; snippet: string };
 type Msg = { id: string; from: string; fromName: string; to: string; date: number; subject: string; body: string };
@@ -53,27 +54,12 @@ export default function FollowupClient() {
   const [draft, setDraft] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const search = useCallback(async () => {
-    const query = q.trim();
-    if (!query) return;
-    setSearching(true); setErr(""); setThreads(null); setActive(null); setMessages(null); setDraft(""); setNotes(null); setNoteId("");
+  // Load recent Granola meetings. `match` (counterparty emails) floats+pre-selects the meeting whose
+  // attendees match an attached thread; with no match it's just the recent list (thread-less flow).
+  const loadNotes = useCallback(async (match: string[]) => {
+    setLoadingNotes(true); setNotesErr("");
     try {
-      const res = await fetch(`/api/admin/email?action=search&q=${encodeURIComponent(query)}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Search failed");
-      setThreads(data.threads || []);
-    } catch (e) {
-      setErr(String((e as Error)?.message || e)); setThreads([]);
-    } finally {
-      setSearching(false);
-    }
-  }, [q]);
-
-  const loadNotes = useCallback(async (msgs: Msg[]) => {
-    setLoadingNotes(true); setNotesErr(""); setNotes(null);
-    try {
-      const match = counterpartyEmails(msgs).join(",");
-      const res = await fetch(`/api/admin/email/followup?action=notes&match=${encodeURIComponent(match)}`);
+      const res = await fetch(`/api/admin/email/followup?action=notes&match=${encodeURIComponent(match.join(","))}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Could not load meetings");
       const list: Note[] = data.notes || [];
@@ -87,8 +73,27 @@ export default function FollowupClient() {
     }
   }, []);
 
+  // Meetings load up front so you can draft purely from a call, no email thread needed.
+  useEffect(() => { loadNotes([]); }, [loadNotes]);
+
+  const search = useCallback(async () => {
+    const query = q.trim();
+    if (!query) return;
+    setSearching(true); setErr(""); setThreads(null);
+    try {
+      const res = await fetch(`/api/admin/email?action=search&q=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Search failed");
+      setThreads(data.threads || []);
+    } catch (e) {
+      setErr(String((e as Error)?.message || e)); setThreads([]);
+    } finally {
+      setSearching(false);
+    }
+  }, [q]);
+
   const openThread = useCallback(async (t: ThreadHit) => {
-    setActive(t); setMessages(null); setSubject(t.subject); setDraft(""); setInstruction(""); setLoadingThread(true); setErr("");
+    setActive(t); setMessages(null); setSubject(t.subject); setDraft(""); setLoadingThread(true); setErr("");
     try {
       const res = await fetch(`/api/admin/email?action=thread&mailbox=${encodeURIComponent(t.mailbox)}&thread_id=${encodeURIComponent(t.threadId)}`);
       const data = await res.json();
@@ -96,7 +101,7 @@ export default function FollowupClient() {
       setSubject(data.subject || t.subject);
       const msgs: Msg[] = data.messages || [];
       setMessages(msgs);
-      loadNotes(msgs);
+      loadNotes(counterpartyEmails(msgs)); // re-rank meetings by this thread's counterparty
     } catch (e) {
       setErr(String((e as Error)?.message || e)); setMessages([]);
     } finally {
@@ -104,14 +109,24 @@ export default function FollowupClient() {
     }
   }, [loadNotes]);
 
+  const detachThread = useCallback(() => {
+    setActive(null); setMessages(null); setSubject(""); setDraft("");
+    loadNotes([]); // drop the stale ✓ match flags
+  }, [loadNotes]);
+
   const makeDraft = useCallback(async () => {
-    if (!active) return;
     setDrafting(true); setErr(""); setDraft("");
     try {
       const res = await fetch(`/api/admin/email/followup`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ action: "draft", mailbox: active.mailbox, thread_id: active.threadId, note_id: noteId, instruction }),
+        body: JSON.stringify({
+          action: "draft",
+          mailbox: active?.mailbox || "",
+          thread_id: active?.threadId || "",
+          note_id: noteId,
+          instruction,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Draft failed");
@@ -126,26 +141,33 @@ export default function FollowupClient() {
   const copy = useCallback(async () => {
     try { await navigator.clipboard.writeText(draft); setCopied(true); setTimeout(() => setCopied(false), 1600); } catch { /* ignore */ }
   }, [draft]);
-
   useEffect(() => { setCopied(false); }, [draft]);
 
+  // Insert a snippet's language into the brief (append with spacing).
+  const insertSnippet = useCallback((text: string) => {
+    setInstruction((cur) => (cur.trim() ? `${cur.trim()}\n\n${text}` : text));
+  }, []);
+
   const card: React.CSSProperties = { border: "1px solid #e4e8ec", borderRadius: 10, background: "#fff" };
+  const showList = threads != null;
+  const canDraft = !!(noteId || active || instruction.trim());
 
   return (
     <main style={{ maxWidth: 1100, margin: "0 auto", padding: "8px 4px 40px" }}>
       <h1 style={{ fontSize: "1.35rem", color: NAVY, margin: "4px 0 2px" }}>Follow-up</h1>
       <p className="muted" style={{ margin: "0 0 16px", fontSize: 13 }}>
-        Draft the follow-up after a "should we work together?" call. Find the prospect's thread, pick the Granola
-        meeting (auto-matched by attendee), add the terms you want to propose, and draft. Draft-only — nothing is
-        sent; copy it into your mail client.
+        Draft the follow-up after a "should we work together?" call. Pick the Granola meeting, add the terms you
+        want to propose, and draft — the email thread is optional (attach one to ground the reply in prior emails,
+        or draft purely from the call). Draft-only — nothing is sent; copy it into your mail client.
       </p>
 
-      <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+      {/* Optional: attach the prospect's email thread */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 6 }}>
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") search(); }}
-          placeholder="Find the prospect's thread — name, company, or email"
+          placeholder="Optional — attach the prospect's email thread (name, company, or email)"
           style={{ flex: 1, padding: "9px 12px", border: "1px solid #cfd6dc", borderRadius: 8, fontSize: 14 }}
         />
         <button type="button" onClick={search} disabled={searching || !q.trim()}
@@ -153,38 +175,46 @@ export default function FollowupClient() {
           {searching ? "Searching…" : "Search"}
         </button>
       </div>
+      {active && (
+        <div style={{ fontSize: 12.5, color: "#6b7681", marginBottom: 12 }}>
+          Thread attached: <strong style={{ color: NAVY }}>{subject || "(no subject)"}</strong>{" "}
+          <button type="button" onClick={detachThread} style={{ border: "none", background: "none", color: CORAL, cursor: "pointer", fontWeight: 600, fontSize: 12.5, padding: 0 }}>✕ detach</button>
+        </div>
+      )}
+      {!active && <div style={{ height: 6 }} />}
 
       {err && <div style={{ background: "#fdecea", color: "#a4271a", padding: "8px 12px", borderRadius: 8, marginBottom: 12, fontSize: 13 }}>{err}</div>}
 
-      <div style={{ display: "grid", gridTemplateColumns: active ? "minmax(240px, 320px) 1fr" : "1fr", gap: 16, alignItems: "start" }}>
-        {/* Thread list */}
-        <div style={{ ...card, overflow: "hidden" }}>
-          <div style={{ padding: "8px 12px", borderBottom: "1px solid #eef1f4", fontSize: 12, fontWeight: 600, color: "#6b7681" }}>
-            {threads == null ? "Results" : `${threads.length} thread${threads.length === 1 ? "" : "s"}`}
+      <div style={{ display: "grid", gridTemplateColumns: showList ? "minmax(240px, 320px) 1fr" : "1fr", gap: 16, alignItems: "start" }}>
+        {/* Thread search results (optional attach) */}
+        {showList && (
+          <div style={{ ...card, overflow: "hidden" }}>
+            <div style={{ padding: "8px 12px", borderBottom: "1px solid #eef1f4", fontSize: 12, fontWeight: 600, color: "#6b7681" }}>
+              {threads!.length} thread{threads!.length === 1 ? "" : "s"} — click to attach
+            </div>
+            {threads!.length === 0 && !searching && <div className="muted" style={{ padding: 16, fontSize: 13 }}>No matching threads.</div>}
+            {threads!.map((t) => {
+              const on = active?.mailbox === t.mailbox && active?.threadId === t.threadId;
+              return (
+                <button key={`${t.mailbox}:${t.threadId}`} type="button" onClick={() => openThread(t)}
+                  style={{ display: "block", width: "100%", textAlign: "left", padding: "10px 12px", border: "none", borderBottom: "1px solid #f0f3f5", background: on ? "#f2f7fa" : "transparent", borderLeft: on ? `3px solid ${CORAL}` : "3px solid transparent", cursor: "pointer" }}>
+                  <div style={{ fontWeight: 600, color: NAVY, fontSize: 13, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.subject || "(no subject)"}</div>
+                  <div style={{ fontSize: 12, color: "#6b7681", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.fromName || t.from} · {rel(t.date)} · <span style={{ color: "#9aa5ad" }}>{t.mailbox}</span></div>
+                  <div style={{ fontSize: 12, color: "#8a939b", marginTop: 3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.snippet}</div>
+                </button>
+              );
+            })}
           </div>
-          {threads == null && !searching && <div className="muted" style={{ padding: 16, fontSize: 13 }}>Search to find the prospect&apos;s thread.</div>}
-          {threads != null && threads.length === 0 && !searching && <div className="muted" style={{ padding: 16, fontSize: 13 }}>No matching threads.</div>}
-          {(threads || []).map((t) => {
-            const on = active?.mailbox === t.mailbox && active?.threadId === t.threadId;
-            return (
-              <button key={`${t.mailbox}:${t.threadId}`} type="button" onClick={() => openThread(t)}
-                style={{ display: "block", width: "100%", textAlign: "left", padding: "10px 12px", border: "none", borderBottom: "1px solid #f0f3f5", background: on ? "#f2f7fa" : "transparent", borderLeft: on ? `3px solid ${CORAL}` : "3px solid transparent", cursor: "pointer" }}>
-                <div style={{ fontWeight: 600, color: NAVY, fontSize: 13, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.subject || "(no subject)"}</div>
-                <div style={{ fontSize: 12, color: "#6b7681", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.fromName || t.from} · {rel(t.date)} · <span style={{ color: "#9aa5ad" }}>{t.mailbox}</span></div>
-                <div style={{ fontSize: 12, color: "#8a939b", marginTop: 3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.snippet}</div>
-              </button>
-            );
-          })}
-        </div>
+        )}
 
-        {/* Thread + meeting + brief + draft */}
-        {active && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        {/* Composer — always present; drafts from meeting + brief (+ optional thread) */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {active && (
             <div style={{ ...card, padding: 14 }}>
               <div style={{ fontWeight: 700, color: NAVY, marginBottom: 8 }}>{subject || "(no subject)"}</div>
               {loadingThread && <div className="muted" style={{ fontSize: 13 }}>Loading thread…</div>}
               {!loadingThread && messages && (
-                <div style={{ maxHeight: 300, overflowY: "auto", display: "flex", flexDirection: "column", gap: 10 }}>
+                <div style={{ maxHeight: 260, overflowY: "auto", display: "flex", flexDirection: "column", gap: 10 }}>
                   {messages.map((m) => (
                     <div key={m.id} style={{ borderTop: "1px solid #f0f3f5", paddingTop: 8 }}>
                       <div style={{ fontSize: 12, color: "#6b7681", marginBottom: 3 }}><strong style={{ color: NAVY }}>{m.fromName || m.from}</strong> · {new Date(m.date).toLocaleString()}</div>
@@ -194,58 +224,62 @@ export default function FollowupClient() {
                 </div>
               )}
             </div>
+          )}
 
-            {/* Granola meeting picker */}
-            <div style={{ ...card, padding: 14 }}>
-              <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#6b7681", marginBottom: 6 }}>📝 Granola meeting</label>
-              {loadingNotes && <div className="muted" style={{ fontSize: 13 }}>Loading recent meetings…</div>}
-              {notesErr && <div style={{ fontSize: 12.5, color: "#a4271a" }}>{notesErr}</div>}
-              {!loadingNotes && !notesErr && notes && (
-                notes.length === 0 ? (
-                  <div className="muted" style={{ fontSize: 13 }}>No recent Granola meetings found.</div>
-                ) : (
-                  <>
-                    <select value={noteId} onChange={(e) => setNoteId(e.target.value)}
-                      style={{ width: "100%", padding: "9px 12px", border: "1px solid #cfd6dc", borderRadius: 8, fontSize: 14, background: "#fff" }}>
-                      <option value="">— No meeting (draft from the thread + brief) —</option>
-                      {notes.map((n) => (
-                        <option key={n.id} value={n.id}>
-                          {n.matched ? "✓ " : ""}{n.title}{n.createdAt ? ` · ${new Date(n.createdAt).toLocaleDateString()}` : ""}{n.attendees.length ? ` · ${n.attendees.slice(0, 3).join(", ")}` : ""}
-                        </option>
-                      ))}
-                    </select>
-                    {notes.some((n) => n.matched) && <div style={{ fontSize: 11.5, color: "#2eb67d", marginTop: 5 }}>✓ = attendee matches this thread — pre-selected.</div>}
-                  </>
-                )
-              )}
-            </div>
-
-            {/* Brief + draft */}
-            <div style={{ ...card, padding: 14 }}>
-              <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#6b7681", marginBottom: 6 }}>Follow-up brief — terms & anything to emphasize</label>
-              <textarea value={instruction} onChange={(e) => setInstruction(e.target.value)}
-                placeholder='e.g. Go with a 10% success fee, no upfront. Reassure them there&apos;s no risk. Confirm they want us to focus on the .com first, and propose a kickoff call next week.'
-                rows={4}
-                style={{ width: "100%", padding: "9px 12px", border: "1px solid #cfd6dc", borderRadius: 8, fontSize: 14, resize: "vertical", fontFamily: "inherit" }} />
-              <div style={{ display: "flex", gap: 10, marginTop: 10, alignItems: "center" }}>
-                <button type="button" onClick={makeDraft} disabled={drafting || loadingThread}
-                  style={{ padding: "9px 18px", border: "none", borderRadius: 8, background: CORAL, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
-                  {drafting ? "Drafting…" : draft ? "Re-draft" : "✨ Draft follow-up"}
-                </button>
-                {draft && (
-                  <button type="button" onClick={copy}
-                    style={{ padding: "9px 16px", border: `1px solid ${NAVY}`, borderRadius: 8, background: "#fff", color: NAVY, fontWeight: 600, cursor: "pointer" }}>
-                    {copied ? "✓ Copied" : "Copy"}
-                  </button>
-                )}
-              </div>
-              {draft && (
-                <textarea value={draft} onChange={(e) => setDraft(e.target.value)} rows={14}
-                  style={{ width: "100%", marginTop: 12, padding: "12px", border: "1px solid #cfd6dc", borderRadius: 8, fontSize: 14, lineHeight: 1.5, resize: "vertical", fontFamily: "inherit", background: "#fbfcfd" }} />
-              )}
-            </div>
+          {/* Granola meeting picker */}
+          <div style={{ ...card, padding: 14 }}>
+            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#6b7681", marginBottom: 6 }}>📝 Granola meeting</label>
+            {loadingNotes && <div className="muted" style={{ fontSize: 13 }}>Loading recent meetings…</div>}
+            {notesErr && <div style={{ fontSize: 12.5, color: "#a4271a" }}>{notesErr}</div>}
+            {!loadingNotes && !notesErr && notes && (
+              notes.length === 0 ? (
+                <div className="muted" style={{ fontSize: 13 }}>No recent Granola meetings found.</div>
+              ) : (
+                <>
+                  <select value={noteId} onChange={(e) => setNoteId(e.target.value)}
+                    style={{ width: "100%", padding: "9px 12px", border: "1px solid #cfd6dc", borderRadius: 8, fontSize: 14, background: "#fff" }}>
+                    <option value="">— No meeting —</option>
+                    {notes.map((n) => (
+                      <option key={n.id} value={n.id}>
+                        {n.matched ? "✓ " : ""}{n.title}{n.createdAt ? ` · ${new Date(n.createdAt).toLocaleDateString()}` : ""}{n.attendees.length ? ` · ${n.attendees.slice(0, 3).join(", ")}` : ""}
+                      </option>
+                    ))}
+                  </select>
+                  {active && notes.some((n) => n.matched) && <div style={{ fontSize: 11.5, color: "#2eb67d", marginTop: 5 }}>✓ = attendee matches the attached thread — pre-selected.</div>}
+                </>
+              )
+            )}
           </div>
-        )}
+
+          {/* Reusable language */}
+          <SnippetsPanel onInsert={insertSnippet} />
+
+          {/* Brief + draft */}
+          <div style={{ ...card, padding: 14 }}>
+            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#6b7681", marginBottom: 6 }}>Follow-up brief — terms & anything to emphasize</label>
+            <textarea value={instruction} onChange={(e) => setInstruction(e.target.value)}
+              placeholder='e.g. Go with a 10% success fee, no upfront. Reassure them there&apos;s no risk. Confirm they want us to focus on the .com first, and propose a kickoff call next week.'
+              rows={4}
+              style={{ width: "100%", padding: "9px 12px", border: "1px solid #cfd6dc", borderRadius: 8, fontSize: 14, resize: "vertical", fontFamily: "inherit" }} />
+            <div style={{ display: "flex", gap: 10, marginTop: 10, alignItems: "center" }}>
+              <button type="button" onClick={makeDraft} disabled={drafting || loadingThread || !canDraft}
+                title={!canDraft ? "Pick a meeting, attach a thread, or write a brief first" : undefined}
+                style={{ padding: "9px 18px", border: "none", borderRadius: 8, background: canDraft ? CORAL : "#d7dde1", color: "#fff", fontWeight: 600, cursor: canDraft ? "pointer" : "not-allowed" }}>
+                {drafting ? "Drafting…" : draft ? "Re-draft" : "✨ Draft follow-up"}
+              </button>
+              {draft && (
+                <button type="button" onClick={copy}
+                  style={{ padding: "9px 16px", border: `1px solid ${NAVY}`, borderRadius: 8, background: "#fff", color: NAVY, fontWeight: 600, cursor: "pointer" }}>
+                  {copied ? "✓ Copied" : "Copy"}
+                </button>
+              )}
+            </div>
+            {draft && (
+              <textarea value={draft} onChange={(e) => setDraft(e.target.value)} rows={14}
+                style={{ width: "100%", marginTop: 12, padding: "12px", border: "1px solid #cfd6dc", borderRadius: 8, fontSize: 14, lineHeight: 1.5, resize: "vertical", fontFamily: "inherit", background: "#fbfcfd" }} />
+            )}
+          </div>
+        </div>
       </div>
     </main>
   );

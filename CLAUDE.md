@@ -235,17 +235,31 @@ A second Email-section tab (`/email/followup`, gated `email`) that drafts the fo
   (ground in the actual call + thread, work in the brief's terms, one clear next step, no invented
   commitments). Thread search/load REUSES the Email module's `/api/admin/email?action=search|thread` (no
   duplication). A giant thread is skipped by the cap; a draft can also run meeting-only or brief-only.
+- **Thread is OPTIONAL (Rob, 2026-09-04).** Meetings load UP FRONT (on mount, no match), so you can draft
+  **purely from a Granola call transcript + brief** — no email thread needed. Attaching a thread (the search
+  box, now labeled optional) re-ranks meetings by that thread's counterparty (matched pre-selected) and adds
+  the prior emails to the draft context; a "✕ detach" clears it. Backend already accepted any of thread/note/
+  brief (guard: needs at least one); the Draft button enables on `noteId || active || instruction`.
+- **Snippets — reusable language (Rob, 2026-09-04).** A **`🧩 Snippets`** panel (shared component
+  `app/email/snippets-panel.tsx`) in the composer holds team boilerplate (standard engagement terms, call-recap
+  template, no-risk reassurance, …). Each snippet has **→ Insert** (appends into the brief) + **Copy**; a tucked
+  "Manage" toggle adds/edits/deletes. Backed by `email_snippets` (main project, `scripts/email_snippets.sql`,
+  RLS on, seeded with 3 starters) via `lib/email-snippets.ts` (list/save/delete, fail-soft on the missing table)
+  + `app/api/admin/email/snippets/route.ts` (GET list / POST save|delete, gated `email`). Reusable on Compose
+  later (drop in `<SnippetsPanel onInsert=…/>`).
 - **UI** `app/email/followup/{page,followup-client}.tsx` — inherits `app/email/layout.tsx` (SectionChrome →
-  standard header). Search → thread list → thread view + **Granola meeting `<select>`** (auto-loads on
-  thread open, matched-first, "✓" = attendee matches the thread, pre-selected) + brief textarea + ✨ Draft
-  follow-up + editable draft + Copy. Counterparty emails for matching = thread addresses minus `@snagged.(com|co)`.
+  standard header). Optional thread search → thread list (click to attach) → optional thread view +
+  **Granola meeting `<select>`** (loads up front; matched-first + pre-selected when a thread is attached) +
+  Snippets panel + brief textarea + ✨ Draft follow-up + editable draft + Copy. Counterparty emails for
+  matching = thread addresses minus `@snagged.(com|co)`.
 - **Nav/⌘K:** `EMAIL_TABS` gained `{/email/followup, "Follow-up"}` (auto in the Tools "Email & SEO" group +
   the admin ⌘K); the research ⌘K picks it up via the live `/api/nav-destinations` auto-sync, plus a
   `CMDK_CROSS_APP` fallback row (research cache-bust `app.js?v=20260904followup`).
 - **Setup:** set **`GRANOLA_API_KEY`** in the ADMIN Vercel project (Granola → Settings → Connectors → API
-  keys). Reuses `GOOGLE_SA_KEY` (Gmail) + `ANTHROPIC_API_KEY` (both set). No migration/new table/new perm
-  (reuses `email`). Gmail reads governed like the rest — quota-free once the deal mailboxes are on the local
-  mirror. **Follow-ups (not built):** per-user Granola keys; real send.
+  keys); run **`scripts/email_snippets.sql`** on the `domain-owner-research` project (snippets work without it,
+  just empty — the seed + persistence need it). Reuses `GOOGLE_SA_KEY` (Gmail) + `ANTHROPIC_API_KEY` (both set).
+  No new perm (reuses `email`). Gmail reads governed like the rest — quota-free once the deal mailboxes are on
+  the local mirror. **Follow-ups (not built):** per-user Granola keys; real send; snippets on Compose.
 
 # Internal Google-Sheet builder for the research app (2026-08-27)
 
