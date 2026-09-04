@@ -193,20 +193,40 @@ function pageMeta(body: Obj): { cursor: string; hasMore: boolean | undefined } {
   return { cursor, hasMore: typeof hm === "boolean" ? hm : undefined };
 }
 
-// Recent meeting notes, newest first. Pages via the CURSOR (the only pagination mechanism the API has)
-// at the MAX page size. NB the page-size param is `page_size` (default 10, MAX 30) — NOT `limit`, which
-// the API ignores (that's why the picker was showing only a handful). No offset/limit params exist.
-// We don't send `created_after` by default so the full accessible history is reachable newest-first;
-// `createdAfter` (epoch ms) still narrows it when a caller wants a window. (Granola lists only notes it
-// can access — workspace-shared + the key owner's — so a brand-new meeting may lag until it's saved.)
-const GRANOLA_PAGE_SIZE = 30; // API maximum
-export async function listNotes(opts: { limit?: number; createdAfter?: number; maxPages?: number } = {}): Promise<GranolaNote[]> {
-  const maxPages = Math.min(Math.max(opts.maxPages || 20, 1), 80);
-  const byId = new Map<string, GranolaNote>();
+const GRANOLA_PAGE_SIZE = 30; // API maximum (page_size 1..30, default 10)
+const NOTES_CAP = 1500; // soft ceiling so folder traversal can't run away
+
+export type GranolaFolder = { id: string; name: string };
+
+// List the workspace folders (GET /v1/folders), cursor-paginated. Meetings are organized into folders,
+// and the default /notes only returns un-foldered/owner notes — so we enumerate folders and pull each
+// folder's notes to see the full set.
+export async function listFolders(maxPages = 6): Promise<GranolaFolder[]> {
+  const out: GranolaFolder[] = [];
   let cursor = "";
   for (let page = 0; page < maxPages; page++) {
     const qs = new URLSearchParams({ page_size: String(GRANOLA_PAGE_SIZE) });
-    if (opts.createdAfter) qs.set("created_after", new Date(opts.createdAfter).toISOString());
+    if (cursor) qs.set("cursor", cursor);
+    const body = await gget(`/folders?${qs.toString()}`);
+    if (!body) break;
+    const arr = (Array.isArray(body.folders) ? body.folders : extractNotes(body)) as Obj[];
+    if (!arr.length) break;
+    for (const f of arr) {
+      const id = pick(f, "id", "folder_id");
+      if (id) out.push({ id, name: pick(f, "name", "title") });
+    }
+    const { cursor: next, hasMore } = pageMeta(body);
+    if (hasMore === false || !next || next === cursor) break;
+    cursor = next;
+  }
+  return out;
+}
+
+// Page /notes with a set of query params into a shared map (cursor pagination, page_size=30).
+async function pageNotesInto(extra: Record<string, string>, maxPages: number, into: Map<string, GranolaNote>): Promise<void> {
+  let cursor = "";
+  for (let page = 0; page < maxPages && into.size < NOTES_CAP; page++) {
+    const qs = new URLSearchParams({ page_size: String(GRANOLA_PAGE_SIZE), ...extra });
     if (cursor) qs.set("cursor", cursor);
     const body = await gget(`/notes?${qs.toString()}`);
     if (!body) break;
@@ -214,12 +234,32 @@ export async function listNotes(opts: { limit?: number; createdAfter?: number; m
     if (!arr.length) break;
     for (const o of arr) {
       const n = normalizeNote(o);
-      if (n.id) byId.set(n.id, n);
+      if (n.id) into.set(n.id, n);
     }
     const { cursor: next, hasMore } = pageMeta(body);
-    if (hasMore === false) break; // API says no more
-    if (!next || next === cursor) break; // no forward progress → end
+    if (hasMore === false || !next || next === cursor) break;
     cursor = next;
+  }
+}
+
+// Recent meeting notes, newest first. The default /notes only returns un-foldered/owner notes (≈a
+// handful), so we ALSO enumerate the workspace folders and union in each folder's notes — that's how
+// the bulk of meetings are reachable. Cursor pagination at page_size=30 (the API max — NOT `limit`,
+// which it ignores). `createdAfter` (epoch ms) narrows the window; `includeFolders:false` skips the
+// folder sweep. Soft-capped at NOTES_CAP. (Granola only exposes notes with a generated summary, so a
+// just-recorded meeting may be absent until Granola finishes processing it.)
+export async function listNotes(opts: { limit?: number; createdAfter?: number; maxPages?: number; includeFolders?: boolean } = {}): Promise<GranolaNote[]> {
+  const maxPages = Math.min(Math.max(opts.maxPages || 20, 1), 80);
+  const byId = new Map<string, GranolaNote>();
+  const base: Record<string, string> = {};
+  if (opts.createdAfter) base.created_after = new Date(opts.createdAfter).toISOString();
+  await pageNotesInto(base, maxPages, byId); // top-level (un-foldered) notes
+  if (opts.includeFolders !== false) {
+    const folders = await listFolders();
+    await pool(folders, 3, async (f) => {
+      if (byId.size >= NOTES_CAP) return;
+      await pageNotesInto({ ...base, folder_id: f.id }, Math.min(maxPages, 8), byId);
+    });
   }
   return [...byId.values()].sort((a, b) => b.createdAt - a.createdAt);
 }
@@ -301,15 +341,20 @@ export async function rawNotesShape(): Promise<Obj | null> {
     cursor = m.cursor;
     hasMore = m.hasMore;
   }
-  const all = await listNotes({ maxPages: 40 });
-  const dates = all.map((n) => n.createdAt).filter(Boolean).sort((a, b) => a - b);
+  const folders = await listFolders();
+  const noFolders = await listNotes({ maxPages: 40, includeFolders: false });
+  const withFolders = await listNotes({ maxPages: 40 });
+  const dates = withFolders.map((n) => n.createdAt).filter(Boolean).sort((a, b) => a - b);
   return {
     envelope_keys: Object.keys(p1),
     non_note_keys: nonNote,
     page1_count: arr1.length,
     first_note_keys: Object.keys(first),
     pages,
-    total_distinct_via_listNotes: all.length,
+    folder_count: folders.length,
+    folder_names: folders.slice(0, 15).map((f) => f.name || f.id),
+    notes_without_folders: noFolders.length,
+    total_distinct_with_folders: withFolders.length,
     created_range: dates.length
       ? { oldest: new Date(dates[0]).toISOString().slice(0, 10), newest: new Date(dates[dates.length - 1]).toISOString().slice(0, 10) }
       : null,

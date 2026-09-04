@@ -246,8 +246,15 @@ A second Email-section tab (`/email/followup`, gated `email`) that drafts the fo
     (`GET /notes/{id}` → NoteSummary + `summary`/`transcript`). **⚠️ THE BUG that showed only ~3 meetings:**
     we were sending **`limit=100` (ignored → default page_size 10)** plus a `created_after` window, so the
     picker only ever saw a handful. Fixed: `listNotes` now sends **`page_size=30`** and pages by **cursor**
-    (`hasMore`/`cursor`) up to `maxPages`, with NO default `created_after` — so the full accessible history
-    is reachable newest-first. Titles are participant-based ("Rob / Judy").
+    (`hasMore`/`cursor`) up to `maxPages`, with NO default `created_after`. Titles are participant-based
+    ("Rob / Judy").
+  - **⚠️ FOLDERS are where the meetings live (2026-09-04).** Even fixed, the default `GET /notes` returned
+    only **11 notes total** (`hasMore:false`) across a full year — it returns only un-foldered / owner
+    notes. The bulk of meetings are in **workspace folders**. Fix: `listFolders()` (`GET /v1/folders`,
+    per-folder `{id,name,parent_folder_id}`, cursor-paged) + `listNotes` now UNIONS the top-level notes
+    with **each folder's notes** (`GET /notes?folder_id=<fol_…>`, concurrency 3, soft-capped `NOTES_CAP`
+    1500). `includeFolders:false` skips the sweep. So the picker sees the full set, not 11. NB Granola
+    only exposes notes that HAVE a generated summary — a just-recorded meeting still lags until processed.
   - **Content search = hydrate the recent notes (2026-09-04).** Because the list carries no attendees/summary,
     searching by a client/topic that isn't in the participant title (e.g. "Reyes") — and attendee auto-match —
     need the detail. `hydrateNotes(notes, 60)` fetches the ~60 most-recent notes' detail (attendees + summary,
