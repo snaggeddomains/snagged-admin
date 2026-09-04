@@ -185,6 +185,7 @@ export const DEALS_TABS: { href: string; label: string; perm: ModuleKey | Action
 // reply from its context (draft-only). Single page; gated by the `email` module perm.
 export const EMAIL_TABS: { href: string; label: string; perm: ModuleKey | ActionKey }[] = [
   { href: "/email", label: "Compose", perm: "email" },
+  { href: "/email/followup", label: "Follow-up", perm: "email" },
   { href: "/email/load", label: "Inbox load", perm: "email" },
 ];
 
@@ -207,7 +208,7 @@ export const TOOLS_GROUPS: {
   { label: "Reporting", tabs: ["/reports", "/reports/chat", "/reports/cost", "/reports/client-overlap"].map(toolsTab) },
   { label: "Marketplace", tabs: ["/reports/marketplace", "/reports/marketplace-master"].map(toolsTab) },
   { label: "Content", tabs: ["/reports/social-sweep", "/reports/content"].map(toolsTab) },
-  { label: "Email & SEO", tabs: ["/reports/seo", "/reports/email-health", "/research/ahrefs", "/email", "/email/load"].map(toolsTab) },
+  { label: "Email & SEO", tabs: ["/reports/seo", "/reports/email-health", "/research/ahrefs", "/email", "/email/followup", "/email/load"].map(toolsTab) },
   { label: "Corporate", tabs: ["/research/portfolio"].map(toolsTab) },
 ];
 export const TOOLS_TABS: { href: string; label: string; perm: ModuleKey | ActionKey }[] =

@@ -211,6 +211,42 @@ your mail client. Reads the deal mailboxes via the admin Gmail SA (read-only, `l
 - **⚠️ Gmail quota:** reads are on-demand + light (a search + a couple thread fetches per draft, all
   `getThreadCapped` so a giant chain is skipped) — same shared per-user quota discipline as the rest.
 
+## Email → Follow-up tool — post-"should we work together?" draft from Gmail + Granola (2026-09-04)
+
+A second Email-section tab (`/email/followup`, gated `email`) that drafts the follow-up after a
+"should we work together?" call from THREE inputs: (1) the prospect's most recent **Gmail thread**,
+(2) the **Granola meeting notes** for that call (auto-matched by attendee email), and (3) a free-text
+**brief** with the terms to propose ("10% success fee, no upfront…"). **DRAFT-ONLY** (copy/paste; no send).
+- **Granola client** `lib/granola.ts` — dependency-free, fail-open, bearer `GRANOLA_API_KEY` (a `grn_…`
+  personal key, or a workspace key on Business/Enterprise for team notes; ONE shared key = v1). Base
+  `https://public-api.granola.ai/v1`. `granolaConfigured()`, `listNotes({limit,createdAfter})` (list
+  envelope is `{notes:[...]}`), `getNote(id,{transcript})` (+ falls back to `/notes/{id}/transcript`).
+  **⚠️ VERIFY FIELD SHAPES ON FIRST LIVE RUN** — the public API's exact per-note field names aren't fully
+  documented and the key is Vercel-only (can't probe from the sandbox), so every field is read across
+  likely aliases (id/note_id, title/name, created_at/started_at, attendees/participants[+email],
+  summary{markdown|text}/summary_markdown/overview, transcript string|segments). Adjust the alias lists
+  once a real response is seen. Rate limit ~5 req/s (fine — one list + one get per draft).
+- **API** `app/api/admin/email/followup/route.ts` (gated `email`, maxDuration 60): GET `?action=notes&match=<comma emails>`
+  → recent meetings, notes whose attendees include a thread counterparty flagged `matched` + floated to
+  top (503 if `GRANOLA_API_KEY` unset); POST `{action:'draft', mailbox, thread_id, note_id?, instruction}`
+  → pulls the thread (`getThreadCapped`, under `withGmailFeature("email-module")` → the budget breaker /
+  kill switch / 429 `budgetPaused` apply) + the Granola note (summary + transcript) → ONE Anthropic call
+  (`EMAIL_ASSIST_MODEL`||`OUTREACH_MODEL`||`DEAL_RECAP_MODEL`||haiku) with a follow-up-tuned SYSTEM prompt
+  (ground in the actual call + thread, work in the brief's terms, one clear next step, no invented
+  commitments). Thread search/load REUSES the Email module's `/api/admin/email?action=search|thread` (no
+  duplication). A giant thread is skipped by the cap; a draft can also run meeting-only or brief-only.
+- **UI** `app/email/followup/{page,followup-client}.tsx` — inherits `app/email/layout.tsx` (SectionChrome →
+  standard header). Search → thread list → thread view + **Granola meeting `<select>`** (auto-loads on
+  thread open, matched-first, "✓" = attendee matches the thread, pre-selected) + brief textarea + ✨ Draft
+  follow-up + editable draft + Copy. Counterparty emails for matching = thread addresses minus `@snagged.(com|co)`.
+- **Nav/⌘K:** `EMAIL_TABS` gained `{/email/followup, "Follow-up"}` (auto in the Tools "Email & SEO" group +
+  the admin ⌘K); the research ⌘K picks it up via the live `/api/nav-destinations` auto-sync, plus a
+  `CMDK_CROSS_APP` fallback row (research cache-bust `app.js?v=20260904followup`).
+- **Setup:** set **`GRANOLA_API_KEY`** in the ADMIN Vercel project (Granola → Settings → Connectors → API
+  keys). Reuses `GOOGLE_SA_KEY` (Gmail) + `ANTHROPIC_API_KEY` (both set). No migration/new table/new perm
+  (reuses `email`). Gmail reads governed like the rest — quota-free once the deal mailboxes are on the local
+  mirror. **Follow-ups (not built):** per-user Granola keys; real send.
+
 # Internal Google-Sheet builder for the research app (2026-08-27)
 
 `app/api/internal/naming-sheet/route.ts` — lets the **research** app (which holds NO Google
