@@ -12,7 +12,21 @@ type Card = {
   deal_owner_id: string | null; source: string; created_at: string;
 };
 type Reviewer = { email: string; name: string };
-type Resp = { ok: boolean; configured?: boolean; cards: Card[]; myPending: number; reviewers: Reviewer[]; canMine?: boolean; me?: string; error?: string };
+type Mirror = { localOnly: boolean; lastSyncedAt: string | null; dataThrough: string | null; mailboxes: { mailbox: string; lastSyncedAt: string | null; messages: number }[] };
+type Resp = { ok: boolean; configured?: boolean; cards: Card[]; myPending: number; reviewers: Reviewer[]; canMine?: boolean; me?: string; mirror?: Mirror | null; error?: string };
+
+// Relative-time for the mirror badge.
+function relTime(iso: string | null): string {
+  if (!iso) return "";
+  const ms = Date.now() - Date.parse(iso);
+  if (!Number.isFinite(ms)) return "";
+  const min = Math.round(ms / 60000);
+  if (min < 1) return "just now";
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.round(min / 60);
+  if (hr < 48) return `${hr}h ago`;
+  return `${Math.round(hr / 24)}d ago`;
+}
 
 const btn: CSSProperties = { padding: "8px 15px", borderRadius: 9, border: "1px solid var(--line,#e3ddcf)", background: "transparent", fontSize: 13.5, fontWeight: 600, cursor: "pointer", color: "var(--navy,#254254)" };
 const btnPrimary: CSSProperties = { ...btn, background: "var(--coral,#e2674a)", color: "#fff", borderColor: "var(--coral,#e2674a)" };
@@ -133,6 +147,16 @@ export default function OwnerReviewClient() {
         <div>
           <h1 style={{ fontSize: "1.35rem", margin: 0 }}>Owner Review</h1>
           <p className="muted" style={{ margin: "4px 0 0", fontSize: 13, maxWidth: 620 }}>Confirm who we <strong>bought each name from</strong> — the owner surfaced from the acquisition emails. Confirm → the owner is saved to the Owners directory + linked to the deal. Reject if it&apos;s not a real seller (broker / auction / the buyer).</p>
+          {data?.mirror && (
+            <div title="Owner Review mines the LOCAL Gmail mirror only — it never calls the Gmail API, so it can't affect the shared throttle. The nightly delta sync keeps the mirror current." style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 8, padding: "4px 10px", borderRadius: 999, background: data.mirror.localOnly ? "#e7f5ec" : "#fdf1e3", border: `1px solid ${data.mirror.localOnly ? "#b6e0c4" : "#eecfa6"}`, fontSize: 12, color: "#2f5d42", fontWeight: 600, maxWidth: "100%", flexWrap: "wrap" }}>
+              <span aria-hidden style={{ width: 8, height: 8, borderRadius: 999, background: data.mirror.localOnly ? "#2f9e5f" : "#d08a2c", display: "inline-block" }} />
+              {data.mirror.localOnly ? "🔒 Local mirror only — not reading Gmail" : "⚠︎ Live Gmail fallback ON"}
+              <span style={{ color: "#6b7a70", fontWeight: 400 }}>
+                · data through {data.mirror.dataThrough ? relTime(data.mirror.dataThrough) : "—"}
+                {" · last Gmail sync "}{data.mirror.lastSyncedAt ? relTime(data.mirror.lastSyncedAt) : "Takeout import"}
+              </span>
+            </div>
+          )}
         </div>
         {data?.canMine && (
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>

@@ -10,6 +10,7 @@ import { getCurrentUser } from "@/lib/session";
 import { userCan, userCanAction } from "@/lib/permissions";
 import { ownerReviewConfigured, listCards, countPending, type OwnerReviewStatus } from "@/lib/deals/owner-review";
 import { assignableUsers } from "@/lib/deals/assignees";
+import { mirrorStatus } from "@/lib/gmail-mirror";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -37,9 +38,9 @@ export async function GET(req: NextRequest) {
       include_unassigned: scope === "mine",
       q: url.searchParams.get("q") || undefined,
     });
-    const [myPending, reviewers] = await Promise.all([countPending(me!.email), assignableUsers()]);
+    const [myPending, reviewers, mirror] = await Promise.all([countPending(me!.email), assignableUsers(), mirrorStatus().catch(() => null)]);
     const canMine = me!.is_admin || userCanAction(me!, "deals.all");   // backfill touches everyone's queue
-    return NextResponse.json({ ok: true, configured: true, cards, myPending, reviewers, canMine, me: me!.email });
+    return NextResponse.json({ ok: true, configured: true, cards, myPending, reviewers, canMine, me: me!.email, mirror });
   } catch (e) {
     return NextResponse.json({ error: String((e as Error)?.message || e) }, { status: 500 });
   }

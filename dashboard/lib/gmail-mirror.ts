@@ -36,6 +36,42 @@ function emptyMsg(id: string): GmailMessage {
   return { id, threadId: id, mid: "", from: "", fromName: "", to: "", cc: "", subject: "", date: 0, snippet: "", body: "", bulk: false };
 }
 
+// Mirror freshness + mode, for a UI badge. `localOnly` = the readers never touch Gmail. `lastSyncedAt`
+// = the most recent delta pull FROM Gmail (null until the sync has run — the Takeout seed doesn't set
+// it). `dataThrough` = the newest message timestamp in the local copy (how current the data actually is).
+export async function mirrorStatus(): Promise<{
+  localOnly: boolean;
+  lastSyncedAt: string | null;
+  dataThrough: string | null;
+  mailboxes: { mailbox: string; lastSyncedAt: string | null; messages: number }[];
+}> {
+  const localOnly = process.env.GMAIL_MIRROR_ALLOW_LIVE !== "1";
+  if (!isDbConfigured()) return { localOnly, lastSyncedAt: null, dataThrough: null, mailboxes: [] };
+  let mailboxes: { mailbox: string; lastSyncedAt: string | null; messages: number }[] = [];
+  try {
+    const { data } = await getDb()
+      .from("gmail_sync_state")
+      .select("mailbox,last_synced_at,message_count,backfill_done")
+      .eq("backfill_done", true);
+    mailboxes = ((data as { mailbox: string; last_synced_at: string | null; message_count: number | null }[] | null) || []).map((r) => ({
+      mailbox: r.mailbox,
+      lastSyncedAt: r.last_synced_at || null,
+      messages: Number(r.message_count) || 0,
+    }));
+  } catch {
+    /* table missing → empty */
+  }
+  const lastSyncedAt = mailboxes.map((m) => m.lastSyncedAt).filter(Boolean).sort().pop() || null;
+  let dataThrough: string | null = null;
+  try {
+    const { data } = await getDb().from(TABLE).select("ts").order("ts", { ascending: false }).limit(1).maybeSingle();
+    dataThrough = (data as { ts: string | null } | null)?.ts || null;
+  } catch {
+    /* ignore */
+  }
+  return { localOnly, lastSyncedAt, dataThrough, mailboxes };
+}
+
 // ── mirrored-mailbox check (cached) ─────────────────────────────────────────
 const mirroredCache = new Map<string, { at: number; ok: boolean }>();
 const MIRRORED_TTL_MS = 60_000;
