@@ -236,16 +236,18 @@ A second Email-section tab (`/email/followup`, gated `email`) that drafts the fo
   personal key, or a workspace key on Business/Enterprise for team notes; ONE shared key = v1). Base
   `https://public-api.granola.ai/v1`. `granolaConfigured()`, `listNotes({limit,createdAfter})` (list
   envelope is `{notes:[...]}`), `getNote(id,{transcript})` (+ falls back to `/notes/{id}/transcript`).
-  **⚠️ VERIFY FIELD SHAPES ON FIRST LIVE RUN** — the public API's exact per-note field names aren't fully
-  documented and the key is Vercel-only (can't probe from the sandbox), so every field is read across
-  likely aliases (id/note_id, title/name, created_at/started_at, attendees/participants[+email],
-  summary{markdown|text}/summary_markdown/overview, transcript string|segments). Adjust the alias lists
-  once a real response is seen. Rate limit ~5 req/s.
-  - **⚠️ LIVE SHAPE CONFIRMED (2026-09-04):** the note LIST (`GET /notes`) returns ONLY
-    `{id, object, title, owner, created_at, updated_at}` per note — **no attendees, no summary** — and
-    `title` is participant-based ("Rob / Judy"). Only notes that HAVE a generated summary are returned.
-    `created_at` parses (newest-first sort works). Attendees + the AI summary live on the per-note DETAIL
-    (`getNote(id)`), not the list.
+  Field readers stay defensive (alias lists + deep-scan) but the shape is now confirmed from the OpenAPI
+  spec (docs.granola.ai/api-reference/openapi.json). Rate limit ~5 req/s.
+  - **⚠️ SPEC CONFIRMED — `GET /v1/notes` (2026-09-04, from the OpenAPI):** params are `created_after`/
+    `created_before`/`updated_after` (ISO), `folder_id`, `cursor`, and **`page_size` (default 10, MAX 30)**
+    — there is **NO `limit` and NO `offset`**. Envelope `{ notes, hasMore, cursor }` (cursor = the value to
+    pass on the NEXT request). NoteSummary = `{id, object, title(null-able), owner{name,email}, created_at,
+    updated_at}` — **no attendees, no summary in the LIST**; those live only on the per-note DETAIL
+    (`GET /notes/{id}` → NoteSummary + `summary`/`transcript`). **⚠️ THE BUG that showed only ~3 meetings:**
+    we were sending **`limit=100` (ignored → default page_size 10)** plus a `created_after` window, so the
+    picker only ever saw a handful. Fixed: `listNotes` now sends **`page_size=30`** and pages by **cursor**
+    (`hasMore`/`cursor`) up to `maxPages`, with NO default `created_after` — so the full accessible history
+    is reachable newest-first. Titles are participant-based ("Rob / Judy").
   - **Content search = hydrate the recent notes (2026-09-04).** Because the list carries no attendees/summary,
     searching by a client/topic that isn't in the participant title (e.g. "Reyes") — and attendee auto-match —
     need the detail. `hydrateNotes(notes, 60)` fetches the ~60 most-recent notes' detail (attendees + summary,

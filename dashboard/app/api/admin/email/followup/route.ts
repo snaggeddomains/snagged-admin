@@ -91,10 +91,10 @@ export async function GET(req: NextRequest) {
       .map((s) => s.trim().toLowerCase())
       .filter((s) => s.includes("@")),
   );
-  // Page the recent notes newest-first (up to ~pages×100). We no longer send a created_after window —
-  // it was over-limiting the result to a handful of notes; newest-first paging returns the recent set.
-  const pages = Math.min(Math.max(Number(url.searchParams.get("pages")) || 12, 1), 40);
-  const listed = await listNotes({ limit: 100, maxPages: pages });
+  // Page the recent notes newest-first (page_size=30 is the API max; ~pages×30 notes). We no longer
+  // send a created_after window — it was capping the visible set; newest-first paging returns the set.
+  const pages = Math.min(Math.max(Number(url.searchParams.get("pages")) || 20, 1), 60);
+  const listed = await listNotes({ maxPages: pages });
   // The LIST payload has only id/title/created (no attendees, no summary — verified live), so we
   // hydrate the most-recent notes with their detail (attendees + AI summary). That makes (a) the
   // attendee auto-match work and (b) search match meeting CONTENT, not just the participant-based
