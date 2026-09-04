@@ -1,13 +1,5 @@
 [
   {
-    "domain": "blasts.org",
-    "end_time_utc": "2026-09-05T01:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namejet.com/domain/blasts.org.action",
-    "platform": "NameJet",
-    "price": 69.0
-  },
-  {
     "domain": "moat.org",
     "end_time_utc": "2026-09-05T01:00:00+00:00",
     "is_mub": false,
@@ -16,19 +8,11 @@
     "price": 69.0
   },
   {
-    "domain": "dealings.org",
-    "end_time_utc": "2026-09-04T17:35:00+00:00",
+    "domain": "blasts.org",
+    "end_time_utc": "2026-09-05T01:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namejet.com/domain/dealings.org.action",
+    "link": "https://www.namejet.com/domain/blasts.org.action",
     "platform": "NameJet",
-    "price": 19.0
-  },
-  {
-    "domain": "teases.org",
-    "end_time_utc": "2026-09-04T17:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namejet.com/domain/teases.org.action",
-    "platform": "NameJet",
-    "price": 19.0
+    "price": 69.0
   }
 ]
