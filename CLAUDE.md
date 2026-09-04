@@ -253,8 +253,19 @@ A second Email-section tab (`/email/followup`, gated `email`) that drafts the fo
     notes. The bulk of meetings are in **workspace folders**. Fix: `listFolders()` (`GET /v1/folders`,
     per-folder `{id,name,parent_folder_id}`, cursor-paged) + `listNotes` now UNIONS the top-level notes
     with **each folder's notes** (`GET /notes?folder_id=<fol_…>`, concurrency 3, soft-capped `NOTES_CAP`
-    1500). `includeFolders:false` skips the sweep. So the picker sees the full set, not 11. NB Granola
-    only exposes notes that HAVE a generated summary — a just-recorded meeting still lags until processed.
+    1500). `includeFolders:false` skips the sweep. So the picker sees the full set. NB Granola only
+    exposes notes that HAVE a generated summary — a just-recorded meeting lags until processed.
+  - **⚠️ ROOT BLOCKER — the "Client calls" SPACE is not API-accessible (2026-09-04).** Live probe
+    (`?debug=1` `folder_note_probe`): `GET /notes?folder_id=<Client calls>` returns **0**, while
+    "Team Snagged" returns 8 — so the code works, but the current **personal `grn_` key cannot read the
+    "Client calls" space** (`space_id spa_O2BsJKjU2qa6Q4`), which is where the client meetings (incl.
+    "Rays") live. Per Granola's docs a personal key sees only *notes you own / shared with you / public +
+    Team space*, and a space's notes reach the API **only if that space is granted Granola API access**.
+    **FIX (Granola admin action, NOT code):** in the Granola desktop app grant the **"Client calls"**
+    space API access (Business/Enterprise: Settings → Workspace → General → API access), OR create a
+    **workspace API key** with that space granted and set it as `GRANOLA_API_KEY` in the admin Vercel
+    project. The moment the space is API-accessible the folder sweep surfaces every client call
+    automatically — no code change. Until then the picker shows only the ~11 owner/Team-space notes.
   - **Content search = hydrate the recent notes (2026-09-04).** Because the list carries no attendees/summary,
     searching by a client/topic that isn't in the participant title (e.g. "Reyes") — and attendee auto-match —
     need the detail. `hydrateNotes(notes, 60)` fetches the ~60 most-recent notes' detail (attendees + summary,
