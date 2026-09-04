@@ -9,7 +9,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { userCan } from "@/lib/permissions";
 import { dealMailboxes } from "@/lib/gmail";
-import { budgetStatus, CAPS } from "@/lib/gmail-budget";
+import { budgetStatus, CAPS, gmailKillSwitchStatus, setGmailKillSwitch } from "@/lib/gmail-budget";
 import { googleAccessToken } from "@/lib/google-auth";
 
 export const runtime = "nodejs";
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
 
   const mailboxes = dealMailboxes();
   const withAudit = new URL(req.url).searchParams.get("audit") === "1";
-  const ledger = await budgetStatus(mailboxes);
+  const [ledger, killSwitch] = await Promise.all([budgetStatus(mailboxes), gmailKillSwitchStatus()]);
 
   let audit: Record<string, { app: string; events: number }[] | null> | null = null;
   if (withAudit) {
@@ -66,7 +66,22 @@ export async function GET(req: NextRequest) {
     ledger,      // [{ mailbox, reads, bytes, by_feature, bg_read_cap, bg_byte_cap, bg_read_stop, bg_byte_stop, halted }]
     caps: CAPS,  // { BG_READS, BG_BYTES, IX_READS, IX_BYTES, SAFETY }
     halted: ledger.some((l) => l.halted),  // global background circuit-breaker tripped?
+    killSwitch,  // { on, by, at } — master hard-cut of all Gmail reads
+    canKill: me.is_admin,  // only admins see/toggle the kill switch
     audit,       // null unless ?audit=1; then { mailbox: [{app,events}] | null }
     day: new Date().toISOString().slice(0, 10),
   });
+}
+
+// Admin-only master kill switch: hard-cut (or resume) ALL Gmail reads across both apps.
+export async function POST(req: NextRequest) {
+  const me = await getCurrentUser();
+  if (!me) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  if (!me.is_admin) return NextResponse.json({ error: "Admin only" }, { status: 403 });
+  const body = (await req.json().catch(() => ({}))) as { action?: string };
+  if (body.action !== "kill" && body.action !== "unkill") {
+    return NextResponse.json({ error: "action must be 'kill' or 'unkill'" }, { status: 400 });
+  }
+  await setGmailKillSwitch(body.action === "kill", me.email);
+  return NextResponse.json({ ok: true, killSwitch: await gmailKillSwitchStatus() });
 }

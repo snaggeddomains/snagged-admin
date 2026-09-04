@@ -15,6 +15,7 @@
 
 import { AsyncLocalStorage } from "node:async_hooks";
 import { getDb, isDbConfigured } from "./supabase";
+import { getHeartbeat, recordHeartbeat } from "./cron-heartbeat";
 
 export type GmailFeature =
   | "owner-review-mine"
@@ -82,6 +83,34 @@ function bgSkipMailboxes(): Set<string> {
 }
 export function isBackgroundSkipped(mailbox: string): boolean {
   return bgSkipMailboxes().has(mailbox.trim().toLowerCase());
+}
+
+// ── MASTER KILL SWITCH ─────────────────────────────────────────────────────────────────────
+// An admin panic button (Inbox Load page) that HARD-CUTS every Gmail read across both apps —
+// crons, automated, on-demand, AND the interactive Email tool. Stored in cron_heartbeats (no
+// migration), read on every read via a ~10s cache so it's cheap. When on, assertReadBudget throws
+// for everything → callers fail open / return the throttle message. Highest precedence of all.
+const KILL = "gmail_kill_switch";
+let killCache: { at: number; on: boolean } = { at: 0, on: false };
+async function killSwitchActive(): Promise<boolean> {
+  if (Date.now() - killCache.at < 10000) return killCache.on;
+  try {
+    const hb = await getHeartbeat(KILL);
+    const on = Boolean((hb?.last_result as { killed?: boolean } | null)?.killed);
+    killCache = { at: Date.now(), on };
+    return on;
+  } catch {
+    return killCache.on; // fail to last-known state (default off)
+  }
+}
+export async function setGmailKillSwitch(on: boolean, by: string): Promise<void> {
+  await recordHeartbeat(KILL, { killed: on, by, at: new Date().toISOString() });
+  killCache = { at: Date.now(), on }; // reflect immediately for this instance
+}
+export async function gmailKillSwitchStatus(): Promise<{ on: boolean; by: string | null; at: string | null }> {
+  const hb = await getHeartbeat(KILL);
+  const r = (hb?.last_result as { killed?: boolean; by?: string; at?: string } | null) || null;
+  return { on: Boolean(r?.killed), by: r?.by ?? null, at: r?.at ?? null };
 }
 
 // Per-invocation cache of today's totals so we don't hit the DB before every single read.
@@ -168,17 +197,25 @@ async function backgroundHalt(): Promise<{ mailbox: string; reads: number; bytes
 // Fail-open on any governor error — never block a real read on our own bookkeeping.
 export async function assertReadBudget(mailbox: string): Promise<void> {
   const { feature, interactive } = currentCtx();
+  // (0) MASTER KILL SWITCH — an admin hard-cut of ALL reads (crons/automated/on-demand/interactive).
+  // Highest precedence; applies even pre-migration of the budget table.
+  if (await killSwitchActive()) throw new GmailBudgetError(mailbox, feature);
   // Manual permanent block (env, default empty) — enforced even pre-migration, background only.
   if (!interactive && isBackgroundSkipped(mailbox)) throw new GmailBudgetError(mailbox, feature);
   if (disabled) return;
   try {
+    // The GLOBAL circuit-breaker now applies to EVERYTHING, interactive included: if ANY watched
+    // mailbox is approaching its cap, all reads pause — so even the Email tool can't push a mailbox
+    // toward the shared throttle during a danger window.
+    const halt = await backgroundHalt();
+    if (halt) throw new GmailBudgetError(halt.mailbox, feature);
     if (interactive) {
+      // Interactive keeps its own higher ceiling for normal use (only the global breaker + kill
+      // switch override it).
       const u = await currentUsage(mailbox);
       if (u.reads >= IX_READS || u.bytes >= IX_BYTES) throw new GmailBudgetError(mailbox, feature);
       return;
     }
-    const halt = await backgroundHalt();
-    if (halt) throw new GmailBudgetError(halt.mailbox, feature);
     const usage = await currentUsage(mailbox);
     if (usage.reads >= SAFETY * BG_READS || usage.bytes >= SAFETY * BG_BYTES) throw new GmailBudgetError(mailbox, feature);
   } catch (e) {

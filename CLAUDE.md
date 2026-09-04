@@ -119,6 +119,18 @@ now the one chokepoint.
   `GMAIL_BG_SKIP_MAILBOXES` (env, default EMPTY; background-only, interactive Email exempt) — an escape
   hatch to hard-exclude a box until it's served from the local mirror. Interactive Email keeps its own
   higher ceiling (never halted). `CAPS` now exports `APPROACH`.
+- **MASTER KILL SWITCH + Email tool now halt-able (Rob, 2026-09-04).** Two final closures so NOTHING can
+  push a mailbox toward the shared throttle: (1) the **interactive** Email tool is no longer exempt from the
+  GLOBAL circuit-breaker — `assertReadBudget` now checks `backgroundHalt()` for interactive too, so if any
+  watched mailbox is at the approach line, even the Email tool pauses (it keeps its higher own-ceiling only
+  for normal, non-danger use). (2) A **master kill switch** (`gmail-budget.ts` `setGmailKillSwitch`/
+  `gmailKillSwitchStatus`/`killSwitchActive`, stored in `cron_heartbeats` name `gmail_kill_switch` → NO
+  migration, ~10s cache) — when on, `assertReadBudget` throws for EVERYTHING (crons/automated/on-demand/
+  interactive), highest precedence, even pre-migration. Toggled by an **Admin-only** button on the **Inbox
+  load** page (`/email/load`): `POST /api/admin/email/load {action:'kill'|'unkill'}` (gated `me.is_admin`);
+  the page shows a red "KILL SWITCH ACTIVE" banner + Resume when on, and a "🛑 Kill all Gmail reads" button
+  when off. Since `gget` is the single choke point, the switch cuts BOTH apps (research reads via the admin
+  `email-threads` endpoint → also cut). Use it if a mailbox is in danger; resume anytime.
 - **Human-initiated pulls fail LOUDLY on a halt (Rob, 2026-09-03).** Exported `GMAIL_BUDGET_MESSAGE`
   ("Can't pull emails right now — we've reached today's email-read limit … Please check back tomorrow.")
   returned verbatim: 429 + `budgetPaused` from the deal-detail **Pull emails** ingest, the Owner Review

@@ -19,6 +19,8 @@ type Resp = {
   ledger: Ledger[];
   caps: { BG_READS: number; BG_BYTES: number; IX_READS: number; IX_BYTES: number; SAFETY: number };
   halted: boolean;
+  killSwitch: { on: boolean; by: string | null; at: string | null };
+  canKill: boolean;
   audit: Record<string, { app: string; events: number }[] | null> | null;
   day: string;
 };
@@ -46,6 +48,7 @@ export default function LoadClient() {
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(true);
   const [audit, setAudit] = useState(false);
+  const [killing, setKilling] = useState(false);
 
   const load = useCallback(async (withAudit: boolean) => {
     setLoading(true);
@@ -64,7 +67,23 @@ export default function LoadClient() {
 
   useEffect(() => { load(false); }, [load]);
 
+  const toggleKill = useCallback(async (on: boolean) => {
+    if (on && !window.confirm("Hard-cut ALL Gmail reads across Admin + Research (crons, automated, on-demand, and the Email tool)? Use this only if a mailbox is in danger of the shared throttle. You can resume anytime.")) return;
+    setKilling(true);
+    try {
+      const res = await fetch("/api/admin/email/load", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: on ? "kill" : "unkill" }) });
+      const j = await res.json();
+      if (!res.ok) throw new Error(j.error || "Failed");
+      await load(audit);
+    } catch (e) {
+      setErr(String((e as Error)?.message || e));
+    } finally {
+      setKilling(false);
+    }
+  }, [load, audit]);
+
   const card: React.CSSProperties = { border: "1px solid #e4e8ec", borderRadius: 10, background: "#fff", padding: 16, marginBottom: 14 };
+  const ks = data?.killSwitch;
 
   return (
     <main style={{ maxWidth: 900, margin: "0 auto", padding: "8px 4px 40px" }}>
@@ -73,9 +92,9 @@ export default function LoadClient() {
         How much <b>our own features</b> are reading the deal mailboxes today (UTC {data?.day || "…"}).
         Every Gmail read across the app charges this ledger. Background jobs <b>stop at{" "}
         {data ? Math.round(data.caps.SAFETY * 100) : 70}% of the daily cap</b> (never 100%), and if{" "}
-        <b>any one mailbox</b> gets that close, <b>all</b> background reading halts everywhere — so the
-        shared per-user quota Superhuman draws on always keeps headroom. The Email tool (interactive) is
-        never halted.
+        <b>any one mailbox</b> gets that close, <b>all</b> reading halts everywhere (the Email tool
+        included) — so the shared per-user quota Superhuman draws on always keeps headroom. Admins can
+        also hard-cut everything instantly with the kill switch below.
       </p>
       <p className="muted" style={{ margin: "0 0 16px", fontSize: 12.5, color: "#8a939b" }}>
         <b>Reading this:</b> 0 / cap with “no reads charged” = healthy — it means nothing of ours has
@@ -83,10 +102,25 @@ export default function LoadClient() {
         only when a cron or the Email tool reads. For what <i>every</i> app (Superhuman, us, etc.) did to a
         box, use <b>Pull Google audit</b>.
       </p>
-      {data?.halted && (
+      {ks?.on && (
+        <div style={{ background: "#fdecea", color: "#a4271a", border: `2px solid ${CORAL}`, padding: "12px 14px", borderRadius: 10, marginBottom: 12 }}>
+          <div style={{ fontSize: 14, fontWeight: 800 }}>🛑 KILL SWITCH ACTIVE — all Gmail reads are cut</div>
+          <div style={{ fontSize: 12.5, marginTop: 4 }}>
+            Nothing from Admin or Research is reading Gmail — crons, automated jobs, on-demand reports, and the Email tool are all blocked.
+            {ks.by ? ` Set by ${ks.by}${ks.at ? ` · ${new Date(ks.at).toLocaleString()}` : ""}.` : ""}
+          </div>
+          {data?.canKill && (
+            <button type="button" onClick={() => toggleKill(false)} disabled={killing}
+              style={{ marginTop: 10, padding: "8px 16px", border: "none", borderRadius: 8, background: GREEN, color: "#fff", fontWeight: 700, cursor: "pointer" }}>
+              {killing ? "…" : "▶ Resume Gmail reads"}
+            </button>
+          )}
+        </div>
+      )}
+      {data?.halted && !ks?.on && (
         <div style={{ background: "#fdecea", color: "#a4271a", padding: "10px 12px", borderRadius: 8, marginBottom: 12, fontSize: 13, fontWeight: 600 }}>
-          ⛔ Background reads are HALTED — a mailbox reached the {Math.round(data.caps.SAFETY * 100)}% safety line.
-          All crons are paused on the Gmail side until the daily window resets (interactive Email still works).
+          ⛔ Reads are HALTED — a mailbox reached the {Math.round(data.caps.SAFETY * 100)}% safety line.
+          All reading (crons + the Email tool) pauses on the Gmail side until the daily window resets.
         </div>
       )}
 
@@ -100,6 +134,13 @@ export default function LoadClient() {
           title="Pull the Google OAuth-token audit (which apps authorized to each mailbox, last 7d)">
           Pull Google audit (7d)
         </button>
+        {data?.canKill && !ks?.on && (
+          <button type="button" onClick={() => toggleKill(true)} disabled={killing}
+            style={{ marginLeft: "auto", padding: "8px 16px", border: "none", borderRadius: 8, background: CORAL, color: "#fff", fontWeight: 700, cursor: "pointer" }}
+            title="Emergency: hard-cut ALL Gmail reads across Admin + Research (crons, automated, on-demand, and the Email tool)">
+            {killing ? "…" : "🛑 Kill all Gmail reads"}
+          </button>
+        )}
       </div>
 
       {err && <div style={{ background: "#fdecea", color: "#a4271a", padding: "8px 12px", borderRadius: 8, marginBottom: 12, fontSize: 13 }}>{err}</div>}
