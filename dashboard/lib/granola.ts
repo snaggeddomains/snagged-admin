@@ -341,23 +341,27 @@ export async function rawNotesShape(): Promise<Obj | null> {
     cursor = m.cursor;
     hasMore = m.hasMore;
   }
+  // Folders: raw /folders envelope (in case listFolders parses 0 due to a shape surprise) + a direct
+  // test that GET /notes?folder_id=<id> returns notes for this key. Kept light so it never times out.
+  const rawFolders = await gget(`/folders?page_size=${GRANOLA_PAGE_SIZE}`);
   const folders = await listFolders();
-  const noFolders = await listNotes({ maxPages: 40, includeFolders: false });
-  const withFolders = await listNotes({ maxPages: 40 });
-  const dates = withFolders.map((n) => n.createdAt).filter(Boolean).sort((a, b) => a - b);
+  const folderProbe: Obj[] = [];
+  for (const f of folders.slice(0, 4)) {
+    const fb = await gget(`/notes?page_size=${GRANOLA_PAGE_SIZE}&folder_id=${encodeURIComponent(f.id)}`);
+    const fa = extractNotes(fb);
+    folderProbe.push({ folder: f.name || f.id, note_count: fa.length, hasMore: pageMeta(fb || {}).hasMore, sample_title: (fa[0] as Obj)?.title ?? null });
+  }
   return {
     envelope_keys: Object.keys(p1),
     non_note_keys: nonNote,
     page1_count: arr1.length,
     first_note_keys: Object.keys(first),
     pages,
+    folders_envelope_keys: rawFolders ? Object.keys(rawFolders) : "NULL (no /folders response — 404/403/unsupported?)",
+    folders_raw_first: rawFolders ? (extractNotes(rawFolders)[0] ?? (Array.isArray(rawFolders.folders) ? rawFolders.folders[0] : null)) ?? "empty" : null,
     folder_count: folders.length,
     folder_names: folders.slice(0, 15).map((f) => f.name || f.id),
-    notes_without_folders: noFolders.length,
-    total_distinct_with_folders: withFolders.length,
-    created_range: dates.length
-      ? { oldest: new Date(dates[0]).toISOString().slice(0, 10), newest: new Date(dates[dates.length - 1]).toISOString().slice(0, 10) }
-      : null,
+    folder_note_probe: folderProbe,
   };
 }
 
