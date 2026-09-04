@@ -94,8 +94,17 @@ export async function openZipEntryStream(entry: ZipEntry, readRange: RangeReader
   const dataStart = entry.localOffset + 30 + nameLen + extraLen;
   const raw = await streamRange(dataStart, dataStart + entry.compSize - 1);
   if (entry.method === 0) return raw;                    // stored (no compression)
-  if (entry.method === 8) return raw.pipe(createInflateRaw()); // deflate (ZIP uses raw deflate)
-  throw new Error(`ZIP: unsupported compression method ${entry.method}`);
+  if (entry.method !== 8) throw new Error(`ZIP: unsupported compression method ${entry.method}`);
+  // deflate (ZIP uses raw deflate). CRITICAL: `.pipe()` does NOT forward errors, so a failure on the
+  // multi-GB range source (a dropped Drive connection) would never reach the inflate stream / the
+  // readline consumer — the job would hang to the workflow timeout instead of failing. Wire errors
+  // BOTH ways so any failure surfaces as an 'error' on the returned stream (→ readline rejects → the
+  // ingest throws loudly).
+  const inflate = createInflateRaw();
+  raw.on("error", (e) => inflate.destroy(e));
+  inflate.on("error", () => raw.destroy());
+  raw.pipe(inflate);
+  return inflate;
 }
 
 // Pick the mailbox .mbox entry — the largest .mbox (Takeout's "All mail…" file is the big one).
