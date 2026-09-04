@@ -46,30 +46,87 @@ function pick(o: Obj, ...keys: string[]): string {
   }
   return "";
 }
-function ts(o: Obj, ...keys: string[]): number {
-  for (const k of keys) {
-    const v = o[k];
-    if (typeof v === "number" && v > 0) return v < 1e12 ? v * 1000 : v; // sec → ms
-    if (typeof v === "string" && v) {
-      const t = Date.parse(v);
-      if (!Number.isNaN(t)) return t;
-    }
+function parseTs(v: unknown): number {
+  if (typeof v === "number" && v > 0) return v < 1e12 ? v * 1000 : v; // sec → ms
+  if (typeof v === "string" && v.trim()) {
+    const t = Date.parse(v);
+    if (!Number.isNaN(t)) return t;
   }
   return 0;
 }
+function ts(o: Obj, ...keys: string[]): number {
+  for (const k of keys) {
+    const t = parseTs(o[k]);
+    if (t) return t;
+  }
+  return 0;
+}
+// Shape-agnostic timestamp: try the known keys, else DEEP-SCAN the object (+ one level of nesting)
+// for any created/start-like key that parses as a date. Prefers a "created/started" key over
+// "updated/modified/ended" so a re-sort is by when the meeting HAPPENED. The public-API field name
+// isn't guaranteed, so this keeps the newest-first sort working regardless of exact naming.
+function deepCreatedAt(o: Obj): number {
+  const known = ts(o, "created_at", "createdAt", "started_at", "start_time", "start", "date", "created", "timestamp", "meeting_date");
+  if (known) return known;
+  // Deep-scan (self + one level of nested objects) for a date-ish key. A "created/started" key
+  // beats a generic "date/time" key; "updated/modified/ended" keys are ignored.
+  const PREFER = /creat|start|begin|held|record/i;
+  const OK = /(_at$|at$|date|time|when|on$)/i;
+  const AVOID = /updat|modif|edit|end|finish|delete|last/i;
+  let preferred = 0;
+  let fallback = 0;
+  const scan = (obj: Obj, depth: number) => {
+    for (const [k, v] of Object.entries(obj)) {
+      if ((typeof v === "string" || typeof v === "number") && !AVOID.test(k)) {
+        const t = parseTs(v);
+        if (t) {
+          if (PREFER.test(k) && t > preferred) preferred = t;
+          else if (OK.test(k) && t > fallback) fallback = t;
+        }
+      } else if (v && typeof v === "object" && !Array.isArray(v) && depth < 1) {
+        scan(v as Obj, depth + 1);
+      }
+    }
+  };
+  scan(o, 0);
+  return preferred || fallback;
+}
+function toAttendee(p: unknown): GranolaAttendee | null {
+  if (typeof p === "string") {
+    const s = p.trim();
+    if (!s) return null;
+    return s.includes("@") ? { name: "", email: s.toLowerCase() } : { name: s, email: "" };
+  }
+  const a = (p || {}) as Obj;
+  // email may be nested (e.g. { email: { address } } or { emailAddress })
+  let email = pick(a, "email", "email_address", "emailAddress", "address").toLowerCase();
+  if (!email && a.email && typeof a.email === "object") email = pick(a.email as Obj, "address", "value").toLowerCase();
+  const name = pick(a, "name", "display_name", "displayName", "full_name", "fullName");
+  return name || email ? { name, email } : null;
+}
 function attendees(o: Obj): GranolaAttendee[] {
-  const raw =
+  let raw: unknown[] =
     (Array.isArray(o.attendees) && o.attendees) ||
     (Array.isArray(o.participants) && o.participants) ||
     (Array.isArray(o.people) && o.people) ||
+    (Array.isArray(o.guests) && o.guests) ||
     [];
-  return (raw as unknown[])
-    .map((p): GranolaAttendee => {
-      if (typeof p === "string") return p.includes("@") ? { name: "", email: p.toLowerCase() } : { name: p, email: "" };
-      const a = (p || {}) as Obj;
-      return { name: pick(a, "name", "display_name", "full_name"), email: pick(a, "email", "email_address").toLowerCase() };
-    })
-    .filter((a) => a.name || a.email);
+  // Shape-agnostic fallback: no known key hit → find the first array of person-ish objects/strings
+  // anywhere on the note (self + one nesting level), so attendee search keeps working if the field
+  // is named differently (e.g. "invitees", or nested under "meeting"/"event"/"calendar").
+  if (!raw.length) {
+    const looksPeople = (arr: unknown[]) =>
+      arr.length > 0 && arr.every((x) => typeof x === "string" ? true : !!(x && typeof x === "object" && ((x as Obj).email || (x as Obj).name || (x as Obj).display_name)));
+    const find = (obj: Obj, depth: number): unknown[] | null => {
+      for (const [k, v] of Object.entries(obj)) {
+        if (Array.isArray(v) && looksPeople(v) && /attend|particip|people|guest|invit|member/i.test(k)) return v;
+      }
+      if (depth < 1) for (const v of Object.values(obj)) if (v && typeof v === "object" && !Array.isArray(v)) { const f = find(v as Obj, depth + 1); if (f) return f; }
+      return null;
+    };
+    raw = find(o, 0) || [];
+  }
+  return raw.map(toAttendee).filter((a): a is GranolaAttendee => !!a);
 }
 function summaryOf(o: Obj): string {
   // Nested { summary: { markdown|text } } OR flat summary_markdown/summary_text/overview.
@@ -99,9 +156,9 @@ function transcriptOf(o: Obj): string {
 }
 function normalizeNote(o: Obj): GranolaNote {
   return {
-    id: pick(o, "id", "note_id", "document_id"),
-    title: pick(o, "title", "name", "subject") || "(untitled meeting)",
-    createdAt: ts(o, "created_at", "createdAt", "started_at", "start_time", "date", "created"),
+    id: pick(o, "id", "note_id", "document_id", "documentId", "uuid"),
+    title: pick(o, "title", "name", "subject", "document_title", "documentTitle", "heading") || "(untitled meeting)",
+    createdAt: deepCreatedAt(o),
     attendees: attendees(o),
     summary: summaryOf(o),
     transcript: transcriptOf(o),
