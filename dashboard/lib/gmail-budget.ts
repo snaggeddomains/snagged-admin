@@ -43,6 +43,11 @@ export function withGmailFeature<T>(feature: GmailFeature, fn: () => Promise<T>)
 function currentCtx(): FeatureCtx {
   return als.getStore() || { feature: "other", interactive: false };
 }
+// The feature tag of the CURRENT read context (or "other" when unwrapped). The mirror uses this to
+// decide whether a background/historical reader must stay strictly local (never fall back to Gmail).
+export function currentGmailFeature(): GmailFeature {
+  return currentCtx().feature;
+}
 
 // ---- caps (self-imposed, conservative, env-tunable) ---------------------------------------
 // Gmail's real per-user limit is opaque and unraisable, so these sit well UNDER what caused the

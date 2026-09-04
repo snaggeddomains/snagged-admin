@@ -20,6 +20,22 @@ export type { GmailMessage } from "./gmail";
 
 const TABLE = "gmail_messages";
 
+// ── strictly-local (never touch Gmail) — DEFAULT ────────────────────────────
+// Every module that reads through the mirror is Gmail-FREE: it serves only the local Postgres copy and,
+// on a miss (un-mirrored mailbox, or a thread not yet in the snapshot), returns EMPTY rather than
+// falling back to the live API — so a mirror-backed reader can NEVER add load to the shared per-user
+// Gmail quota / throttle. This is the hard guarantee: zero live pulls from any mirror consumer. (The
+// deal-emails cron, deal-detail ingest, and the Email compose tool import the LIVE client directly, not
+// the mirror — they're intentionally live + budget-governed.) Escape hatch: GMAIL_MIRROR_ALLOW_LIVE=1
+// restores the transparent live fallback (e.g. once the History delta-sync keeps the mirror current and
+// you want misses to resolve live).
+function localOnly(): boolean {
+  return process.env.GMAIL_MIRROR_ALLOW_LIVE !== "1";
+}
+function emptyMsg(id: string): GmailMessage {
+  return { id, threadId: id, mid: "", from: "", fromName: "", to: "", cc: "", subject: "", date: 0, snippet: "", body: "", bulk: false };
+}
+
 // ── mirrored-mailbox check (cached) ─────────────────────────────────────────
 const mirroredCache = new Map<string, { at: number; ok: boolean }>();
 const MIRRORED_TTL_MS = 60_000;
@@ -200,23 +216,23 @@ const hasLabelFilter = (p: Parsed) => p.includeLabels.length > 0 || p.excludeLab
 // ── public API (gmail.ts-compatible) ────────────────────────────────────────
 
 export async function searchMessages(subject: string, q: string, max = 200): Promise<{ id: string; threadId: string }[]> {
-  if (!(await isMailboxMirrored(subject))) return live.searchMessages(subject, q, max);
+  if (!(await isMailboxMirrored(subject))) return localOnly() ? [] : live.searchMessages(subject, q, max);
   const p = parseQuery(q);
   const fetchN = hasLabelFilter(p) ? Math.min(max * 4, 2000) : max;
   const { data, error } = await buildQuery(subject, p, "id,thread_id,labels,ts", fetchN);
-  if (error) return live.searchMessages(subject, q, max); // degrade to live on any mirror error
+  if (error) return localOnly() ? [] : live.searchMessages(subject, q, max); // degrade to live on any mirror error
   const rows = (data as unknown as { id: string; thread_id: string | null; labels: string[] | null }[]) || [];
   const filtered = hasLabelFilter(p) ? rows.filter((r) => passesLabels(r, p)) : rows;
   return filtered.slice(0, max).map((r) => ({ id: r.id, threadId: r.thread_id || r.id }));
 }
 
 export async function searchThreadIds(subject: string, q: string, max = 100): Promise<string[]> {
-  if (!(await isMailboxMirrored(subject))) return live.searchThreadIds(subject, q, max);
+  if (!(await isMailboxMirrored(subject))) return localOnly() ? [] : live.searchThreadIds(subject, q, max);
   const p = parseQuery(q);
   // Over-fetch messages then collapse to distinct threads (newest-first) up to max.
   const fetchN = Math.min(Math.max(max * 6, 300), 3000);
   const { data, error } = await buildQuery(subject, p, "thread_id,id,labels,ts", fetchN);
-  if (error) return live.searchThreadIds(subject, q, max);
+  if (error) return localOnly() ? [] : live.searchThreadIds(subject, q, max);
   const rows = (data as unknown as { thread_id: string | null; id: string; labels: string[] | null }[]) || [];
   const seen = new Set<string>();
   const out: string[] = [];
@@ -235,9 +251,9 @@ export async function getMessage(subject: string, id: string): Promise<GmailMess
   if (await isMailboxMirrored(subject)) {
     const { data } = await getDb().from(TABLE).select(MSG_COLS).eq("mailbox", subject).eq("id", id).maybeSingle();
     if (data) return toMessage(data as DbRow);
-    // Not in the mirror (e.g. brand-new message not yet synced) — fall back to live.
+    // Not in the mirror (e.g. brand-new message not yet synced) — empty (local-only) or live.
   }
-  return live.getMessage(subject, id);
+  return localOnly() ? emptyMsg(id) : live.getMessage(subject, id);
 }
 
 async function threadRows(subject: string, threadId: string): Promise<DbRow[] | null> {
@@ -255,9 +271,9 @@ export async function getThread(subject: string, threadId: string): Promise<Gmai
   if (await isMailboxMirrored(subject)) {
     const rows = await threadRows(subject, threadId);
     if (rows && rows.length) return rows.map(toMessage);
-    // Empty locally — the thread may be live-only; fall back.
+    // Empty locally — the thread may be live-only; empty (local-only) or fall back.
   }
-  return live.getThread(subject, threadId);
+  return localOnly() ? [] : live.getThread(subject, threadId);
 }
 
 export async function getThreadMeta(
@@ -284,7 +300,7 @@ export async function getThreadMeta(
       return { count: rows.length, sizeEstimate: size, newestMid };
     }
   }
-  return live.getThreadMeta(subject, threadId);
+  return localOnly() ? { count: 0, sizeEstimate: 0, newestMid: null } : live.getThreadMeta(subject, threadId);
 }
 
 export async function getThreadCapped(
@@ -300,9 +316,10 @@ export async function getThreadCapped(
       return rows.map(toMessage);
     }
   }
-  return live.getThreadCapped(subject, threadId, maxBytes);
+  return localOnly() ? [] : live.getThreadCapped(subject, threadId, maxBytes);
 }
 
 export async function getProfile(subject: string): ReturnType<typeof live.getProfile> {
-  return live.getProfile(subject); // profile is always live (cheap, and not mirrored)
+  // Local-only: never touch Gmail (a stub keeps mirror consumers Gmail-free); else live (cheap).
+  return localOnly() ? { emailAddress: subject, messagesTotal: 0, threadsTotal: 0 } : live.getProfile(subject);
 }

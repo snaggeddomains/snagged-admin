@@ -28,12 +28,14 @@ function isNoiseMsg(m: GmailMessage): boolean {
   return NOISE_FROM.test(m.from || "") || NOISE_SUBJECT.test(m.subject || "");
 }
 
-// Mailboxes the miner reads. brian@ is EXCLUDED by default — his mailbox was being Gmail-throttled
-// (shared per-user quota) and the miner reads whole threads across every deal mailbox per card.
-// Override with OWNER_REVIEW_SKIP_MAILBOXES (comma list); set it to "" to re-include everyone.
+// Mailboxes the miner reads. brian@ is now BACK IN by default (2026-09-04): the miner reads through
+// lib/gmail-mirror in strict local-only mode, so it NEVER pulls from Gmail — reading brian's mailbox
+// hits only the local Postgres copy (or returns empty for a not-yet-mirrored box), zero throttle risk.
+// (He was excluded while the miner still hit Gmail directly.) Override with OWNER_REVIEW_SKIP_MAILBOXES
+// (comma list) to skip a mailbox again; default = skip none.
 function minerMailboxes(): string[] {
   const raw = process.env.OWNER_REVIEW_SKIP_MAILBOXES;
-  const skip = (raw != null ? raw : "brian@snagged.com,brian@snagged.co")
+  const skip = (raw != null ? raw : "")
     .split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
   return dealMailboxes().filter((mb) => !skip.includes(mb.toLowerCase()));
 }
