@@ -129,13 +129,29 @@ function attendees(o: Obj): GranolaAttendee[] {
   return raw.map(toAttendee).filter((a): a is GranolaAttendee => !!a);
 }
 function summaryOf(o: Obj): string {
-  // Nested { summary: { markdown|text } } OR flat summary_markdown/summary_text/overview.
+  // Known shapes first: nested { summary: { markdown|text } } OR flat summary_*/overview/notes_markdown.
   const s = o.summary;
   if (s && typeof s === "object") {
-    const so = s as Obj;
-    return pick(so, "markdown", "text", "content") || "";
+    const nested = pick(s as Obj, "markdown", "text", "content", "value", "body");
+    if (nested) return nested;
+  } else if (typeof s === "string" && s.trim()) {
+    return s;
   }
-  return pick(o, "summary_markdown", "summary_text", "summary", "overview", "notes_markdown");
+  const flat = pick(o, "summary_markdown", "summary_text", "summary", "overview", "notes_markdown", "ai_summary", "content", "body_markdown", "notes");
+  if (flat) return flat;
+  // Deep-scan fallback: the detail payload's exact summary field name isn't guaranteed, so find the
+  // LONGEST string on the note (self + one nesting level) under a summary/notes/overview/content-ish
+  // key. Keeps content flowing to the drafter even if Granola renames the field.
+  const KEY = /summ|overview|notes|content|markdown|body|recap|highlight|takeaway/i;
+  let best = "";
+  const scan = (obj: Obj, depth: number) => {
+    for (const [k, v] of Object.entries(obj)) {
+      if (typeof v === "string" && KEY.test(k) && v.trim().length > best.length) best = v.trim();
+      else if (v && typeof v === "object" && !Array.isArray(v) && depth < 1) scan(v as Obj, depth + 1);
+    }
+  };
+  scan(o, 0);
+  return best;
 }
 function transcriptOf(o: Obj): string {
   const t = o.transcript;
@@ -368,16 +384,54 @@ export async function rawNotesShape(): Promise<Obj | null> {
 // One note WITH its AI summary (and optionally the transcript) for the drafting context.
 export async function getNote(id: string, opts: { transcript?: boolean } = {}): Promise<GranolaNote | null> {
   if (!id) return null;
-  const include = ["summary"].concat(opts.transcript ? ["transcript"] : []).join(",");
-  let body = await gget(`/notes/${encodeURIComponent(id)}?include=${include}`);
-  if (!body) return null;
-  // Some APIs wrap the object as { note: {...} } / { data: {...} }.
-  const inner = (body.note as Obj) || (body.data as Obj) || body;
-  let note = normalizeNote(inner);
+  const unwrap = (b: Obj): Obj => (b.note as Obj) || (b.data as Obj) || (b.document as Obj) || b;
+  // Fetch the plain detail first (the detail returns the summary by default), then, if the summary
+  // came back empty, retry with an explicit include= (some APIs gate the body behind it). Robust to
+  // either behavior.
+  let body = await gget(`/notes/${encodeURIComponent(id)}`);
+  let note = body ? normalizeNote(unwrap(body)) : null;
+  if (!note || !note.summary) {
+    const inc = ["summary"].concat(opts.transcript ? ["transcript"] : []).join(",");
+    const b2 = await gget(`/notes/${encodeURIComponent(id)}?include=${inc}`);
+    if (b2) {
+      const n2 = normalizeNote(unwrap(b2));
+      // keep whichever fields are richer
+      note = {
+        ...(note || n2),
+        title: (note?.title && note.title !== "(untitled meeting)" ? note.title : n2.title) || n2.title,
+        createdAt: note?.createdAt || n2.createdAt,
+        attendees: (note?.attendees.length ? note.attendees : n2.attendees) || n2.attendees,
+        summary: note?.summary || n2.summary,
+        transcript: note?.transcript || n2.transcript,
+      };
+    }
+  }
+  if (!note) return null;
   // If the transcript was asked for but came back empty, try the dedicated endpoint.
   if (opts.transcript && !note.transcript) {
     const tb = await gget(`/notes/${encodeURIComponent(id)}/transcript`);
     if (tb) note = { ...note, transcript: transcriptOf((tb.transcript ? tb : (tb.data as Obj)) || tb) };
   }
   return note;
+}
+
+// Debug: fetch one note's DETAIL and report what actually came back (field names + content lengths),
+// so we can see whether the summary/transcript reach the drafter without guessing the shape.
+export async function rawNoteDetail(id: string): Promise<Obj | null> {
+  if (!id) return null;
+  const plain = await gget(`/notes/${encodeURIComponent(id)}`);
+  const withInc = await gget(`/notes/${encodeURIComponent(id)}?include=summary,transcript`);
+  const tb = await gget(`/notes/${encodeURIComponent(id)}/transcript`);
+  const shape = (b: Obj | null) => {
+    if (!b) return null;
+    const inner = ((b.note as Obj) || (b.data as Obj) || (b.document as Obj) || b) as Obj;
+    const n = normalizeNote(inner);
+    return { top_keys: Object.keys(b), inner_keys: Object.keys(inner), summary_len: n.summary.length, transcript_len: n.transcript.length, title: n.title };
+  };
+  return {
+    id,
+    plain: shape(plain),
+    with_include: shape(withInc),
+    transcript_endpoint: tb ? { keys: Object.keys(tb), len: transcriptOf((tb.transcript ? tb : (tb.data as Obj)) || tb).length } : null,
+  };
 }

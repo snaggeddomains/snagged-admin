@@ -13,7 +13,7 @@ import { getCurrentUser } from "@/lib/session";
 import { userCan } from "@/lib/permissions";
 import { dealMailboxes, getThreadCapped, gmailConfigured, type GmailMessage } from "@/lib/gmail";
 import { withGmailFeature, isGmailBudgetError, GMAIL_BUDGET_MESSAGE } from "@/lib/gmail-budget";
-import { granolaConfigured, listNotes, hydrateNotes, getNote, rawNotesShape } from "@/lib/granola";
+import { granolaConfigured, listNotes, hydrateNotes, getNote, rawNotesShape, rawNoteDetail } from "@/lib/granola";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -53,6 +53,7 @@ Rules:
 - Reference the meeting only as far as the notes support it. Never invent commitments, numbers, names, or claims not in the notes/thread/brief.
 - Address the person by name if it's clear from the thread or attendees; otherwise a neutral greeting.
 - Keep it tight — a few short paragraphs. End with ONE clear next step.
+- NEVER reply by asking for more information or with a meta note like "I need you to provide the thread / meeting notes / brief." You always have enough to draft: write the best follow-up you can from whatever MEETING NOTES and BRIEF are present, and use [bracketed placeholders] for any specific fact you genuinely don't have. Output an email, never a request for inputs.
 - Return ONLY the email body text, ready to copy/paste. No subject line unless the brief asks. No preamble, no markdown fences, no quotes. Sign off simply ("[Your name]" if the sender's name isn't obvious).`;
 
 async function callAnthropic(user: string): Promise<string> {
@@ -84,6 +85,9 @@ export async function GET(req: NextRequest) {
   // Diagnostic: return the RAW Granola response shape so we can verify the live field names.
   if (url.searchParams.get("debug") === "1")
     return NextResponse.json({ ok: true, shape: await rawNotesShape() });
+  // Diagnostic: one note's DETAIL — does the summary/transcript actually come back? (?debug=note&id=)
+  if (url.searchParams.get("debug") === "note")
+    return NextResponse.json({ ok: true, detail: await rawNoteDetail(url.searchParams.get("id") || "") });
 
   // Auto-match: emails from the thread's counterparty (comma-separated) — a note whose attendees
   // include one of them is floated to the top and flagged.
