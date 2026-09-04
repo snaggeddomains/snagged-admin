@@ -22,9 +22,17 @@ it's not a workaround; Takeout/Workspace export is), then kept fresh by cheap **
   metadata (mimeType/name) and the `.mbox` entry is streamed straight out of it via HTTP **Range requests**
   + on-the-fly inflate — no whole-archive download, no unzip to disk (dependency-free ZIP reader
   `lib/gmail-mirror/zip-remote.ts`: reads the central directory from the tail, then streams just the mbox
-  entry; assumes <4 GB archive so the CD offset + each entry's compressed size/local-offset fit in 32 bits;
-  stored/deflate only). So the handoff is now just: drop the Takeout **.zip** in the "Snagged Pipeline"
-  shared drive (or share it to the SA email), pass its Drive file id — no local unzip needed.
+  entry; stored/deflate only). **ZIP64 supported (2026-09-04)** — for a Takeout archive **>4 GB** (rob@.com
+  was 10.5 GB) the 32-bit EOCD CD offset/size overflow to the `0xFFFFFFFF` sentinel, so `listZipEntries`
+  reads the real 64-bit CD offset/size from the ZIP64 EOCD record (found via the ZIP64 EOCD locator, sig
+  `0x07064b50`, 20 bytes before the regular EOCD; record sig `0x06064b50`). Live-verified against the real
+  10.54 GB file (CD in 3 range requests). So the handoff is now just: drop the Takeout **.zip** in the
+  "Snagged Pipeline" shared drive (or share it to the SA email), pass its Drive file id — no local unzip.
+- **NUL / control / lone-surrogate scrub (2026-09-04).** A Postgres `text` column can't store a NUL
+  (`0x00`) — one such byte in a message field aborts the WHOLE multi-row INSERT (`invalid byte sequence for
+  encoding "UTF8": 0x00`), which crashed the rob@.com seed at ~140K messages. `ingest.ts` `toRow` now runs
+  every text field (from/to/cc/subject/snippet/body/labels/search_text) through `clean()` = a regex that strips NUL + bare C0 controls (U+0000–U+001F except \t\n\r) + lone UTF-16 surrogates. Idempotent ingest, so a re-run resumes cleanly. **Seeded &
+  verified 2026-09-04:** rob@.com 232,235 · brian@.com 71,733 · rob@.co 1,328 rows.
 - **Runner (2026-09-03):** `dashboard/scripts/ingest-gmail-mirror.ts` (`npx tsx`, CLI `--mailbox` +
   `--file-id`|`--file`) + the **`gmail-mirror-ingest.yml`** GitHub Action (`workflow_dispatch`, inputs
   mailbox + Drive file_id; **node 22** (native WebSocket for supabase-js), `npm ci`, `npx tsx`; secrets
@@ -232,7 +240,22 @@ A second Email-section tab (`/email/followup`, gated `email`) that drafts the fo
   documented and the key is Vercel-only (can't probe from the sandbox), so every field is read across
   likely aliases (id/note_id, title/name, created_at/started_at, attendees/participants[+email],
   summary{markdown|text}/summary_markdown/overview, transcript string|segments). Adjust the alias lists
-  once a real response is seen. Rate limit ~5 req/s (fine — one list + one get per draft).
+  once a real response is seen. Rate limit ~5 req/s.
+  - **⚠️ LIVE SHAPE CONFIRMED (2026-09-04):** the note LIST (`GET /notes`) returns ONLY
+    `{id, object, title, owner, created_at, updated_at}` per note — **no attendees, no summary** — and
+    `title` is participant-based ("Rob / Judy"). Only notes that HAVE a generated summary are returned.
+    `created_at` parses (newest-first sort works). Attendees + the AI summary live on the per-note DETAIL
+    (`getNote(id)`), not the list.
+  - **Content search = hydrate the recent notes (2026-09-04).** Because the list carries no attendees/summary,
+    searching by a client/topic that isn't in the participant title (e.g. "Reyes") — and attendee auto-match —
+    need the detail. `hydrateNotes(notes, 60)` fetches the ~60 most-recent notes' detail (attendees + summary,
+    no transcript) — bounded (concurrency 5), 10-min module cache, fail-open (a note whose detail can't be
+    fetched keeps its list fields) — merging attendees + summary onto each. The notes handler then emits a
+    lowercased `search` blob (title + attendees + summary snippet) that the client filters on, so a meeting is
+    findable by a person/topic discussed on the call. `deepCreatedAt`/`attendees`/`summaryOf`/`normalizeNote`
+    stay shape-agnostic (deep-scan + alias lists) so an unexpected detail shape still degrades to a blank
+    field, not an exception. **A just-recorded meeting still appears only once Granola summarizes it** — the
+    UI hint says so; nothing we fetch changes that.
 - **API** `app/api/admin/email/followup/route.ts` (gated `email`, maxDuration 60): GET `?action=notes&match=<comma emails>`
   → recent meetings, notes whose attendees include a thread counterparty flagged `matched` + floated to
   top (503 if `GRANOLA_API_KEY` unset); POST `{action:'draft', mailbox, thread_id, note_id?, instruction}`
