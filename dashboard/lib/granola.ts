@@ -211,6 +211,56 @@ export async function listNotes(opts: { limit?: number; createdAfter?: number; m
   return [...byId.values()].sort((a, b) => b.createdAt - a.createdAt);
 }
 
+// -------- content hydration (list → per-note detail) --------
+// The note LIST endpoint returns only id/title/created (verified live: no attendees, no summary, and
+// titles are participant-based like "Rob / Judy"). So searching by a person or topic that isn't in the
+// title needs the per-note DETAIL (attendees + AI summary). hydrateNotes fetches the detail for the most
+// recent `limit` notes — bounded, cached, fail-open — and merges attendees + summary onto each.
+const detailCache = new Map<string, { at: number; note: GranolaNote }>();
+const DETAIL_TTL = 10 * 60 * 1000; // 10 min — a best-effort warm-instance speed cache
+
+async function pool<T, R>(items: T[], concurrency: number, fn: (t: T, i: number) => Promise<R>): Promise<R[]> {
+  const out: R[] = new Array(items.length);
+  let i = 0;
+  const n = Math.max(1, Math.min(concurrency, items.length));
+  await Promise.all(
+    Array.from({ length: n }, async () => {
+      while (i < items.length) {
+        const idx = i++;
+        out[idx] = await fn(items[idx], idx);
+      }
+    }),
+  );
+  return out;
+}
+
+function mergeDetail(list: GranolaNote, detail: GranolaNote): GranolaNote {
+  return {
+    ...list,
+    title: list.title && list.title !== "(untitled meeting)" ? list.title : detail.title || list.title,
+    createdAt: list.createdAt || detail.createdAt,
+    attendees: detail.attendees.length ? detail.attendees : list.attendees,
+    summary: detail.summary || list.summary,
+  };
+}
+
+export async function hydrateNotes(notes: GranolaNote[], limit = 60): Promise<GranolaNote[]> {
+  const top = notes.slice(0, limit);
+  const now = Date.now();
+  const hydrated = await pool(top, 5, async (n) => {
+    if (!n.id) return n;
+    const cached = detailCache.get(n.id);
+    if (cached && now - cached.at < DETAIL_TTL) return mergeDetail(n, cached.note);
+    const detail = await getNote(n.id); // summary + attendees (no transcript)
+    if (detail) {
+      detailCache.set(n.id, { at: now, note: detail });
+      return mergeDetail(n, detail);
+    }
+    return n; // fail-open: keep the list-level fields
+  });
+  return [...hydrated, ...notes.slice(limit)];
+}
+
 // Debug helper (admin-gated caller only): the RAW first-page shape, so we can verify the real
 // public-API field names on a live run without guessing. Returns the envelope keys, the first note's
 // keys, and small samples of the fields we read (id/title/created/attendees) — NO bodies/transcripts.

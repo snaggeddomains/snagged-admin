@@ -5,7 +5,7 @@ import SnippetsPanel from "../snippets-panel";
 
 type ThreadHit = { mailbox: string; threadId: string; subject: string; from: string; fromName: string; date: number; snippet: string };
 type Msg = { id: string; from: string; fromName: string; to: string; date: number; subject: string; body: string };
-type Note = { id: string; title: string; createdAt: number; attendees: string[]; matched: boolean };
+type Note = { id: string; title: string; createdAt: number; attendees: string[]; matched: boolean; search?: string };
 
 const NAVY = "#254254";
 const CORAL = "#e8735f";
@@ -236,11 +236,15 @@ export default function FollowupClient() {
               notes.length === 0 ? (
                 <div className="muted" style={{ fontSize: 13 }}>No recent Granola meetings found.</div>
               ) : (() => {
-                // Newest-first (defensive client sort), then filter by the search box (title / attendees / date).
+                // Newest-first (defensive client sort), then filter by the search box. The server sends a
+                // `search` blob (title + attendees + AI-summary snippet) so a term in the meeting CONTENT
+                // matches, not just the participant-based title; fall back to title/attendees/date.
                 const sorted = [...notes].sort((a, b) => b.createdAt - a.createdAt);
                 const q = noteQuery.trim().toLowerCase();
                 const shown = q
-                  ? sorted.filter((n) => `${n.title} ${n.attendees.join(" ")} ${n.createdAt ? new Date(n.createdAt).toLocaleDateString() : ""}`.toLowerCase().includes(q))
+                  ? sorted.filter((n) =>
+                      (n.search || `${n.title} ${n.attendees.join(" ")} ${n.createdAt ? new Date(n.createdAt).toLocaleDateString() : ""}`.toLowerCase()).includes(q),
+                    )
                   : sorted;
                 const rowBase: React.CSSProperties = { display: "block", width: "100%", textAlign: "left", padding: "8px 10px", border: "none", borderBottom: "1px solid #f4f6f8", background: "transparent", borderLeft: "3px solid transparent", cursor: "pointer", fontSize: 13 };
                 return (

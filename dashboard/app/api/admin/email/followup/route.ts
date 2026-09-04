@@ -11,7 +11,7 @@ import { getCurrentUser } from "@/lib/session";
 import { userCan } from "@/lib/permissions";
 import { dealMailboxes, getThreadCapped, gmailConfigured, type GmailMessage } from "@/lib/gmail";
 import { withGmailFeature, isGmailBudgetError, GMAIL_BUDGET_MESSAGE } from "@/lib/gmail-budget";
-import { granolaConfigured, listNotes, getNote, rawNotesShape } from "@/lib/granola";
+import { granolaConfigured, listNotes, hydrateNotes, getNote, rawNotesShape } from "@/lib/granola";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -95,16 +95,21 @@ export async function GET(req: NextRequest) {
   // regardless of the API's default page order — otherwise paging from all-time history could return
   // only OLD meetings and never reach today's. The client sorts newest-first over what we return.
   const windowDays = Math.min(Math.max(Number(url.searchParams.get("days")) || 180, 7), 730);
-  const notes = await listNotes({ limit: 100, maxPages: 12, createdAfter: Date.now() - windowDays * 864e5 });
+  // The LIST payload has only id/title/created (no attendees, no summary — verified live), so we
+  // hydrate the most-recent notes with their detail (attendees + AI summary). That makes (a) the
+  // attendee auto-match work and (b) search match meeting CONTENT, not just the participant-based
+  // title — a meeting is findable by a client/topic even when the title is "Rob / Judy".
+  const listed = await listNotes({ limit: 100, maxPages: 12, createdAfter: Date.now() - windowDays * 864e5 });
+  const notes = await hydrateNotes(listed, 60);
   const shaped = notes.map((n) => {
     const matched = match.size > 0 && n.attendees.some((a) => a.email && match.has(a.email));
-    return {
-      id: n.id,
-      title: n.title,
-      createdAt: n.createdAt,
-      attendees: n.attendees.map((a) => a.name || a.email).filter(Boolean).slice(0, 8),
-      matched,
-    };
+    const attendees = n.attendees.map((a) => a.name || a.email).filter(Boolean).slice(0, 8);
+    // A single lowercased blob the client filters on: title + attendees + a summary snippet, so a
+    // search term that lives in the meeting content (a client name, a topic) matches too.
+    const search = [n.title, n.attendees.map((a) => `${a.name} ${a.email}`).join(" "), (n.summary || "").slice(0, 2000)]
+      .join(" ")
+      .toLowerCase();
+    return { id: n.id, title: n.title, createdAt: n.createdAt, attendees, matched, search };
   });
   shaped.sort((a, b) => (a.matched === b.matched ? b.createdAt - a.createdAt : a.matched ? -1 : 1));
   return NextResponse.json({ ok: true, notes: shaped });
