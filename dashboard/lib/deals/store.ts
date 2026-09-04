@@ -218,10 +218,31 @@ export type ReportFilters = {
                               // keys off sam_split_at (the month he TOOK it on) — for monthly reports.
 };
 
+// The America/New_York UTC offset (minutes, e.g. -240 EDT / -300 EST) for a given instant —
+// DST-correct via Intl, no tz library.
+function etOffsetMinutes(at: Date): number {
+  const p = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York", hour12: false,
+    year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit",
+  }).formatToParts(at).reduce((o, x) => (o[x.type] = x.value, o), {} as Record<string, string>);
+  const asUtc = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour === 24 ? 0 : +p.hour, +p.minute, +p.second);
+  return Math.round((asUtc - at.getTime()) / 60000);
+}
+// A bare 'YYYY-MM-DD' from the report picker is an America/New_York CALENDAR day (that's how the team
+// thinks about "today"). Convert its start/end to the real UTC instant so a deal created at 10pm ET
+// (= next-day UTC) still counts for "today". Pass a full ISO through unchanged.
+function etDayBoundaryUtc(dateStr: string, endOfDay: boolean): string {
+  if (/[T:]/.test(dateStr)) return dateStr; // already a full timestamp — use as-is
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const wall = endOfDay ? Date.UTC(y, m - 1, d, 23, 59, 59, 999) : Date.UTC(y, m - 1, d, 0, 0, 0, 0);
+  const off = etOffsetMinutes(new Date(wall));
+  return new Date(wall - off * 60000).toISOString();
+}
+
 // Unscoped, filterable query across ALL deals — for the Reporting view (gated by
 // deals.reports). Every filter is optional; capped for safety. `withHeard` includes the
 // heard_about clauses; on a pre-migration DB (no heard_about column) the query is retried
-// without them so the report still loads.
+// without them so the report still loads. Date range is interpreted in America/New_York.
 export async function reportDeals(f: ReportFilters): Promise<Deal[]> {
   const build = (withHeard: boolean, withSamSplit: boolean, withIntent: boolean) => {
     // When filtering to Sam's splits, bound the date range by WHEN he took it on (sam_split_at),
@@ -244,8 +265,8 @@ export async function reportDeals(f: ReportFilters): Promise<Deal[]> {
       const cols = ["domain", "buyer_name", "buyer_email", "org_name", ...(withHeard ? ["heard_about"] : [])];
       query = query.or(cols.map((c) => `${c}.ilike.%${f.q}%`).join(","));
     }
-    if (f.from) query = query.gte(dateCol, f.from);
-    if (f.to) query = query.lte(dateCol, `${f.to}T23:59:59`);
+    if (f.from) query = query.gte(dateCol, etDayBoundaryUtc(f.from, false));
+    if (f.to) query = query.lte(dateCol, etDayBoundaryUtc(f.to, true));
     return query;
   };
   let { data, error } = await build(true, true, true);
