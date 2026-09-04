@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-09-03T23:12:20.293480+00:00",
+  "count": 1,
+  "domains": [
+    "incorporates.net"
+  ],
+  "generated_at": "2026-09-04T10:06:25.100505+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
