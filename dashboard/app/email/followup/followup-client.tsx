@@ -66,7 +66,9 @@ export default function FollowupClient() {
       const list: Note[] = data.notes || [];
       setNotes(list);
       const auto = list.find((n) => n.matched);
-      if (auto) setNoteId(auto.id); // pre-select the meeting whose attendees match the thread
+      // Only auto-select the attendee-matched meeting when NOTHING is picked yet — never clobber a
+      // manual selection when the list re-ranks (e.g. after attaching a thread).
+      if (auto) setNoteId((cur) => cur || auto.id);
     } catch (e) {
       setNotesErr(String((e as Error)?.message || e)); setNotes([]);
     } finally {
@@ -229,10 +231,10 @@ export default function FollowupClient() {
 
           {/* Granola meeting picker */}
           <div style={{ ...card, padding: 14 }}>
-            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#6b7681", marginBottom: 6 }}>📝 Granola meeting</label>
-            {loadingNotes && <div className="muted" style={{ fontSize: 13 }}>Loading recent meetings…</div>}
+            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#6b7681", marginBottom: 6 }}>📝 Granola meeting{loadingNotes && notes ? <span style={{ color: "#8a939b", fontWeight: 400 }}> · updating…</span> : null}</label>
+            {loadingNotes && !notes && <div className="muted" style={{ fontSize: 13 }}>Loading recent meetings…</div>}
             {notesErr && <div style={{ fontSize: 12.5, color: "#a4271a" }}>{notesErr}</div>}
-            {!loadingNotes && !notesErr && notes && (
+            {!notesErr && notes && (
               notes.length === 0 ? (
                 <div className="muted" style={{ fontSize: 13 }}>No recent Granola meetings found.</div>
               ) : (() => {
@@ -265,6 +267,7 @@ export default function FollowupClient() {
                         return (
                           <button key={n.id} type="button" onClick={() => setNoteId(n.id)}
                             style={{ ...rowBase, background: on ? "#f2f7fa" : "transparent", borderLeft: on ? `3px solid ${CORAL}` : "3px solid transparent" }}>
+                            {on && <span style={{ color: CORAL, fontWeight: 700 }}>✓ </span>}
                             <span style={{ fontWeight: 600, color: NAVY }}>{n.title}</span>
                             {n.matched && <span style={{ marginLeft: 6, fontSize: 11, fontWeight: 700, color: "#2eb67d" }}>✓ match</span>}
                             <span style={{ color: "#8a939b" }}>
@@ -276,6 +279,10 @@ export default function FollowupClient() {
                       })}
                       {shown.length === 0 && <div className="muted" style={{ padding: "10px 12px", fontSize: 13 }}>No meetings match “{noteQuery}”.</div>}
                     </div>
+                    {noteId && (() => {
+                      const sel = notes.find((n) => n.id === noteId);
+                      return sel ? <div style={{ fontSize: 12, color: "#2eb67d", fontWeight: 600, marginTop: 6 }}>✓ Using “{sel.title}” for the draft</div> : null;
+                    })()}
                     {active && notes.some((n) => n.matched) && <div style={{ fontSize: 11.5, color: "#2eb67d", marginTop: 5 }}>✓ match = attendee matches the attached thread — pre-selected.</div>}
                     <div className="muted" style={{ fontSize: 11, marginTop: 5 }}>Newest first. A meeting from the last little while appears once Granola finishes generating its summary — refresh the page if it&apos;s not here yet.</div>
                   </>
