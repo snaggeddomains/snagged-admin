@@ -60,13 +60,21 @@ it's not a workaround; Takeout/Workspace export is), then kept fresh by cheap **
   handles ONLY the operators our readers use — quoted/bare phrase, `from:`/`to:`/`subject:`,
   `after:`/`before:`/`newer_than:Nd`, and `in:`/`-in:` labels (applied JS-side post-fetch) — verified
   against the 9 real query strings in the codebase.
-- **⚠️ NOT WIRED YET (by design — zero prod risk).** These are new files that touch no live consumer.
-  **Repoint to the mirror once an MBOX is loaded + verified:** `lib/deals/owner-review-mine.ts`,
-  `lib/domain-corpus/sources/gmail.ts`, `lib/marketplace-deals.ts`, `lib/leads.ts`,
-  `app/api/internal/email-threads/route.ts` (swap `from "../gmail"`→`"../gmail-mirror"`). Keep LIVE (they
-  need the freshest data / are already governed): `lib/deals/emails.ts` + the `deal-emails` cron + the
-  deal-detail ingest, and the Email tool (`app/api/admin/email/route.ts`). **TODO:** `lib/gmail-mirror/
-  sync.ts` (History-API delta sync) is not built yet — the mirror is import-seeded only until then.
+- **✅ WIRED to the mirror (2026-09-04).** The historical readers now import from `lib/gmail-mirror`
+  instead of `lib/gmail`, so mirrored mailboxes (rob@/brian@ .com + rob@.co) serve from the local
+  Postgres copy — ZERO Gmail-API load / no throttle — and any un-mirrored mailbox or not-yet-synced
+  message/thread transparently FALLS BACK to the governed live client (still correct). Repointed:
+  `lib/deals/owner-review-mine.ts` (owner-review miner), `lib/domain-corpus/sources/gmail.ts`
+  (client-corpus harvest), `lib/marketplace-deals.ts` (marketplace per-domain deal report),
+  `lib/leads.ts` (leads/inquiries report), `app/api/internal/email-threads/route.ts` (research chat
+  attach). **Kept LIVE (need freshest / already governed):** `lib/deals/emails.ts` + the `deal-emails`
+  cron + the deal-detail ingest, and the Email tool + Follow-up (`app/api/admin/email/*`).
+  **⚠️ FRESHNESS GAP:** the mirror is import-SEEDED only (snapshot ~2026-09-03/04) — the History-API
+  delta sync (`lib/gmail-mirror/sync.ts`) is NOT built yet, so a mirror SEARCH sees email only up to the
+  snapshot (it returns local matches, it does NOT fall back just because recent messages are missing).
+  Acceptable for the historical reconstructions these readers do; build `sync.ts` to close the gap, then
+  the repointed readers become fully current. **Now safe to re-include brian in `GMAIL_DEAL_MAILBOXES`
+  background reads** — the repointed readers no longer hit Gmail for the mirrored boxes.
 - **Setup (pending):** (1) run `scripts/gmail_mirror.sql` on the **`domain-owner-research`** PRODUCTION
   project; (2) one-time Takeout per mailbox (rob@/brian@ .com+.co) → drop each **.zip** in the "Snagged
   Pipeline" shared drive (or share to the SA) → dispatch **`gmail-mirror-ingest.yml`** with the mailbox +

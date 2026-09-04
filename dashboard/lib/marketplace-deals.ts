@@ -12,7 +12,7 @@
 // Validated against live mail (person.com → 49 inbound; refresh.ai → 10 inbound
 // + a 46-msg Efty negotiation). Read-only; see lib/gmail.ts.
 
-import { dealMailboxes, getThreadCapped, searchThreadIds, type GmailMessage } from "./gmail";
+import { dealMailboxes, getThreadCapped, searchThreadIds, type GmailMessage } from "./gmail-mirror";
 import { findPitchExercises, type PitchExercise } from "./marketplace-pitch-sheets";
 import { classifyMessageIds, hubspotConfigured, normMid, recipientEngagementForDomain, type HubspotEmail, type RecipientEngagement } from "./hubspot";
 import type { QuoteKind } from "./marketplace-deal-recaps";

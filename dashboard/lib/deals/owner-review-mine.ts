@@ -9,7 +9,7 @@
 //      marketplace), with full name + contact + channel + confidence. Powers the bulk backfill over
 //      all Master Txns + the "new txn row → new card" cron.
 
-import { dealMailboxes, searchMessages, getMessage, getThreadCapped, type GmailMessage } from "../gmail";
+import { dealMailboxes, searchMessages, getMessage, getThreadCapped, type GmailMessage } from "../gmail-mirror";
 import { getSheetValues } from "../sheets";
 import { upsertCardForDomain } from "./owner-review";
 import { getDb, isDbConfigured } from "../supabase";

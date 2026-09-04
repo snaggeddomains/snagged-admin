@@ -16,7 +16,7 @@
 // Acquisition Price. We match each lead by email → name → domain-of-interest and
 // attach the deal (and any Payments $ on that domain). Won't always hit; that's fine.
 
-import { dealMailboxes, gmailConfigured, searchMessages, getMessage, type GmailMessage } from "./gmail";
+import { dealMailboxes, gmailConfigured, searchMessages, getMessage, type GmailMessage } from "./gmail-mirror";
 import { getSheetValues } from "./sheets";
 
 const SHEET_ID = process.env.SNAGGED_TRACKER_SHEET_ID || "1TVAJ2ef_rM03pHZ9rq8C3W4BgyiSBiOc5j7jAbFzGTA";

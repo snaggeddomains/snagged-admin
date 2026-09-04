@@ -11,7 +11,7 @@
 //   GET ?action=thread&mailbox=<m>&thread_id=  -> { thread:{mailbox,threadId,subject,count,text} }
 
 import { NextResponse, type NextRequest } from "next/server";
-import { dealMailboxes, gmailConfigured, searchMessages, getMessage, getThread, getThreadMeta, GMAIL_THREAD_SIZE_CAP } from "@/lib/gmail";
+import { dealMailboxes, gmailConfigured, searchMessages, getMessage, getThread, getThreadMeta, GMAIL_THREAD_SIZE_CAP } from "@/lib/gmail-mirror";
 import { withGmailFeature } from "@/lib/gmail-budget";
 
 export const runtime = "nodejs";

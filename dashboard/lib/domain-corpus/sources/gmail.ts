@@ -9,7 +9,7 @@
 // Incremental by design: pass a small `days` for the daily run; a large `days` for a
 // one-time backfill. The DB accumulates, so old mail need only be scanned once.
 
-import { searchMessages, getMessage } from "../../gmail";
+import { searchMessages, getMessage } from "../../gmail-mirror";
 import { extractApexes, isBulkSender, isBulkClientName, cleanClientLabel, isInternalOwner, looksDomainDeal, looksSellIntent } from "../canonical";
 import { isoFromEpoch } from "../merge";
 import type { RawHit } from "../types";
