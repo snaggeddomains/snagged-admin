@@ -1,23 +1,5 @@
 [
   {
-    "bid_count": 7,
-    "domain": "olown.com",
-    "end_time_utc": "2026-09-03T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/olown.com",
-    "platform": "NameSilo",
-    "price": 7.0
-  },
-  {
-    "bid_count": 25,
-    "domain": "moderators.net",
-    "end_time_utc": "2026-09-03T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/moderators.net",
-    "platform": "NameSilo",
-    "price": 88.0
-  },
-  {
     "bid_count": 0,
     "domain": "kicking.co",
     "end_time_utc": "2026-09-04T15:00:00+00:00",
@@ -27,12 +9,12 @@
     "price": 1.0
   },
   {
-    "bid_count": 12,
+    "bid_count": 15,
     "domain": "sosw.net",
     "end_time_utc": "2026-09-04T15:00:00+00:00",
     "is_mub": false,
     "link": "https://www.namesilo.com/auctions/sosw.net",
     "platform": "NameSilo",
-    "price": 116.0
+    "price": 126.0
   }
 ]

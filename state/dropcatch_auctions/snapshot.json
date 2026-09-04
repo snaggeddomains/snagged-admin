@@ -1,74 +1,56 @@
 [
   {
-    "bid_count": 11,
-    "domain": "consoles.net",
-    "end_time_utc": "2026-09-03T18:59:17.437217+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Consoles.net",
-    "platform": "DropCatch",
-    "price": 158.0
-  },
-  {
-    "bid_count": 19,
-    "domain": "grandx.org",
-    "end_time_utc": "2026-09-03T18:59:17.437217+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/grandx.org",
-    "platform": "DropCatch",
-    "price": 144.0
-  },
-  {
     "bid_count": 182,
     "domain": "macha.com",
-    "end_time_utc": "2026-09-04T18:59:17.437217+00:00",
+    "end_time_utc": "2026-09-04T18:59:03.928460+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Macha.com",
     "platform": "DropCatch",
     "price": 11501.0
   },
   {
+    "bid_count": 64,
+    "domain": "ead.org",
+    "end_time_utc": "2026-09-04T18:59:03.928460+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Ead.org",
+    "platform": "DropCatch",
+    "price": 439.0
+  },
+  {
     "bid_count": 46,
     "domain": "interpos.com",
-    "end_time_utc": "2026-09-04T18:59:17.437217+00:00",
+    "end_time_utc": "2026-09-04T18:59:03.928460+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/InterPos.com",
     "platform": "DropCatch",
     "price": 380.0
   },
   {
-    "bid_count": 53,
-    "domain": "ead.org",
-    "end_time_utc": "2026-09-04T18:59:17.437217+00:00",
+    "bid_count": 22,
+    "domain": "suiv.com",
+    "end_time_utc": "2026-09-04T18:59:03.928460+00:00",
     "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Ead.org",
+    "link": "https://www.dropcatch.com/domain/SUIV.COM",
     "platform": "DropCatch",
-    "price": 241.0
+    "price": 320.0
   },
   {
     "bid_count": 15,
     "domain": "plaited.com",
-    "end_time_utc": "2026-09-04T18:59:17.437217+00:00",
+    "end_time_utc": "2026-09-04T18:59:03.928460+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Plaited.com",
     "platform": "DropCatch",
     "price": 209.0
   },
   {
-    "bid_count": 15,
-    "domain": "suiv.com",
-    "end_time_utc": "2026-09-04T18:59:17.437217+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/SUIV.COM",
-    "platform": "DropCatch",
-    "price": 185.0
-  },
-  {
-    "bid_count": 16,
+    "bid_count": 19,
     "domain": "yrub.com",
-    "end_time_utc": "2026-09-08T18:59:17.437217+00:00",
+    "end_time_utc": "2026-09-08T18:59:03.928460+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Yrub.com",
     "platform": "DropCatch",
-    "price": 170.0
+    "price": 195.0
   }
 ]

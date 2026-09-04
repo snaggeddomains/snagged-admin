@@ -1,5 +1,17 @@
 [
   {
+    "domain": "homesteal.com",
+    "price": null
+  },
+  {
+    "domain": "broadthc.com",
+    "price": null
+  },
+  {
+    "domain": "broadcbd.com",
+    "price": null
+  },
+  {
     "domain": "burgerlab.net",
     "price": null
   },
@@ -322188,6 +322200,10 @@
     "price": null
   },
   {
+    "domain": "duisacramento.com",
+    "price": 1500.0
+  },
+  {
     "domain": "duioakland.com",
     "price": 995.0
   },
@@ -324073,7 +324089,7 @@
   },
   {
     "domain": "anaheimrentals.com",
-    "price": 2500.0
+    "price": 1500.0
   },
   {
     "domain": "utahmoves.com",
