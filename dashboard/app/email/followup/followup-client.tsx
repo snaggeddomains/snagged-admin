@@ -48,6 +48,7 @@ export default function FollowupClient() {
   const [notesErr, setNotesErr] = useState("");
   const [loadingNotes, setLoadingNotes] = useState(false);
   const [noteId, setNoteId] = useState("");
+  const [noteQuery, setNoteQuery] = useState("");
 
   const [instruction, setInstruction] = useState("");
   const [drafting, setDrafting] = useState(false);
@@ -234,20 +235,47 @@ export default function FollowupClient() {
             {!loadingNotes && !notesErr && notes && (
               notes.length === 0 ? (
                 <div className="muted" style={{ fontSize: 13 }}>No recent Granola meetings found.</div>
-              ) : (
-                <>
-                  <select value={noteId} onChange={(e) => setNoteId(e.target.value)}
-                    style={{ width: "100%", padding: "9px 12px", border: "1px solid #cfd6dc", borderRadius: 8, fontSize: 14, background: "#fff" }}>
-                    <option value="">— No meeting —</option>
-                    {notes.map((n) => (
-                      <option key={n.id} value={n.id}>
-                        {n.matched ? "✓ " : ""}{n.title}{n.createdAt ? ` · ${new Date(n.createdAt).toLocaleDateString()}` : ""}{n.attendees.length ? ` · ${n.attendees.slice(0, 3).join(", ")}` : ""}
-                      </option>
-                    ))}
-                  </select>
-                  {active && notes.some((n) => n.matched) && <div style={{ fontSize: 11.5, color: "#2eb67d", marginTop: 5 }}>✓ = attendee matches the attached thread — pre-selected.</div>}
-                </>
-              )
+              ) : (() => {
+                // Newest-first (defensive client sort), then filter by the search box (title / attendees / date).
+                const sorted = [...notes].sort((a, b) => b.createdAt - a.createdAt);
+                const q = noteQuery.trim().toLowerCase();
+                const shown = q
+                  ? sorted.filter((n) => `${n.title} ${n.attendees.join(" ")} ${n.createdAt ? new Date(n.createdAt).toLocaleDateString() : ""}`.toLowerCase().includes(q))
+                  : sorted;
+                const rowBase: React.CSSProperties = { display: "block", width: "100%", textAlign: "left", padding: "8px 10px", border: "none", borderBottom: "1px solid #f4f6f8", background: "transparent", borderLeft: "3px solid transparent", cursor: "pointer", fontSize: 13 };
+                return (
+                  <>
+                    <input
+                      value={noteQuery}
+                      onChange={(e) => setNoteQuery(e.target.value)}
+                      placeholder="Search meetings — name, company, or date"
+                      style={{ width: "100%", padding: "8px 12px", border: "1px solid #cfd6dc", borderRadius: 8, fontSize: 14, marginBottom: 8, boxSizing: "border-box" }}
+                    />
+                    <div style={{ maxHeight: 260, overflowY: "auto", border: "1px solid #eef1f4", borderRadius: 8 }}>
+                      <button type="button" onClick={() => setNoteId("")}
+                        style={{ ...rowBase, background: noteId === "" ? "#f2f7fa" : "transparent", borderLeft: noteId === "" ? `3px solid ${CORAL}` : "3px solid transparent", color: "#6b7681" }}>
+                        — No meeting (draft from the thread + brief) —
+                      </button>
+                      {shown.map((n) => {
+                        const on = noteId === n.id;
+                        return (
+                          <button key={n.id} type="button" onClick={() => setNoteId(n.id)}
+                            style={{ ...rowBase, background: on ? "#f2f7fa" : "transparent", borderLeft: on ? `3px solid ${CORAL}` : "3px solid transparent" }}>
+                            <span style={{ fontWeight: 600, color: NAVY }}>{n.title}</span>
+                            {n.matched && <span style={{ marginLeft: 6, fontSize: 11, fontWeight: 700, color: "#2eb67d" }}>✓ match</span>}
+                            <span style={{ color: "#8a939b" }}>
+                              {n.createdAt ? ` · ${new Date(n.createdAt).toLocaleDateString()}` : ""}
+                              {n.attendees.length ? ` · ${n.attendees.slice(0, 3).join(", ")}` : ""}
+                            </span>
+                          </button>
+                        );
+                      })}
+                      {shown.length === 0 && <div className="muted" style={{ padding: "10px 12px", fontSize: 13 }}>No meetings match “{noteQuery}”.</div>}
+                    </div>
+                    {active && notes.some((n) => n.matched) && <div style={{ fontSize: 11.5, color: "#2eb67d", marginTop: 5 }}>✓ match = attendee matches the attached thread — pre-selected.</div>}
+                  </>
+                );
+              })()
             )}
           </div>
 
