@@ -2178,6 +2178,18 @@ the search bar (the research SPA's boot handler consumes the flag; see that repo
 array (and update its CATALOG `group`). `sectionForPath` handles the URL→section
 mapping automatically.
 
+**⌘K cross-app auto-sync — the research palette pulls the admin nav as DATA (2026-09-04).**
+The research SPA's ⌘K used a HARDCODED `CMDK_CROSS_APP` list that kept drifting from the admin
+menus (a new admin tab — e.g. Inbox Load — appeared in the admin palette but not research). Durable
+fix: **`app/api/nav-destinations/route.ts`** (session-gated, same-origin `app.snagged.com`) returns
+`visibleSections(me) × sectionTabs(me)` as `{destinations:[{section,label,href}]}` — permission-filtered
+for the caller, research section excluded (research owns its own DOM-scanned entries). The research
+palette fetches it once at boot and prefers it over `CMDK_CROSS_APP`, falling back to the hardcoded list
+when unreachable (research repo `public/app.js` `loadCmdkRemoteDests`/`cmdkRemoteDests`; see that repo's
+CLAUDE.md "Cross-app dests AUTO-SYNC"). So a new admin section tab now shows up in BOTH palettes
+automatically — put it in a tab array and you're done (a STANDALONE/non-tab page still needs the admin
+palette's `extraDests()` + a research `CMDK_CROSS_APP` `always` row). No new env/perm/table.
+
 **⚠️ STANDING RULE — every new module/submodule must be uniformly navigable + ⌘K-enabled
 from ANYWHERE (Rob, 2026-09-01).** A new tool/report/tab/standalone page isn't done until it's
 reachable via ⌘K from BOTH apps. **Admin palette (`app/command-palette.tsx`)** derives from the nav
