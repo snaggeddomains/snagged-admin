@@ -32,13 +32,32 @@ type ThreadHit = {
   subject: string;
   from: string;
   fromName: string;
+  to: string;
+  cc: string;
   date: number;
   snippet: string;
 };
 
+// A thread is only useful here if we're actually corresponding with a CLIENT/PROSPECT — not one of
+// our own system emails (deal-assignment notifications, Client-overlap / SNAP reports, DomainScout
+// alerts, mailer-daemon, marketplace bots). Two signals: (1) a known notification/bot sender or
+// subject, (2) no EXTERNAL party at all (a snagged↔snagged notification has no non-snagged address).
+const OURS = /@snagged\.(com|co)$/i;
+const EMAIL_RE = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/gi;
+const NOISE_FROM = /(^|[@.])(namejet|dropcatch|namebright|godaddy|afternic|sedo|dan\.com|dynadot|namesilo|namecheap|domainscout)\.|reports@snagged\.com|deals@snagged\.com|no-?reply|do-?not-?reply|notifications?@|mailer-daemon|postmaster@/i;
+const NOISE_SUBJECT = /new buy-side deal|deal assigned|client domain overlap|domain overlap|new matches|namejet alert|domain (alert|backorder)|name ?check|worth a look|snap (opportunities|picks)|has been updated\.?\s*$/i;
+function hasExternalParty(from: string, to: string, cc: string): boolean {
+  return (`${from} ${to} ${cc}`.match(EMAIL_RE) || []).some((e) => !OURS.test(e));
+}
+function isClientThread(t: ThreadHit): boolean {
+  if (NOISE_FROM.test(t.from) || NOISE_SUBJECT.test(t.subject)) return false;
+  return hasExternalParty(t.from, t.to, t.cc); // drop snagged↔snagged notifications/reports
+}
+
 // Search every deal mailbox for a query (a domain, a name, keywords), return the newest
 // distinct threads (one row per thread, newest message wins). Light: one search + one
-// message fetch per hit stub.
+// message fetch per hit stub. Internal notifications/reports are filtered out — only real
+// client/prospect correspondence is returned.
 async function searchThreads(q: string, limit = 25): Promise<ThreadHit[]> {
   const byThread = new Map<string, ThreadHit>();
   for (const mb of dealMailboxes()) {
@@ -65,6 +84,8 @@ async function searchThreads(q: string, limit = 25): Promise<ThreadHit[]> {
           subject: msg.subject,
           from: msg.from,
           fromName: msg.fromName,
+          to: msg.to,
+          cc: msg.cc,
           date: msg.date,
           snippet: msg.snippet || msg.body.slice(0, 200),
         });
@@ -72,7 +93,7 @@ async function searchThreads(q: string, limit = 25): Promise<ThreadHit[]> {
       if (byThread.size >= limit * 2) break;
     }
   }
-  return [...byThread.values()].sort((a, b) => b.date - a.date).slice(0, limit);
+  return [...byThread.values()].filter(isClientThread).sort((a, b) => b.date - a.date).slice(0, limit);
 }
 
 // A thread's messages, oldest-first, trimmed for display.

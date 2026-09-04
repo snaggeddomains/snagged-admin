@@ -210,6 +210,13 @@ your mail client. Reads the deal mailboxes via the admin Gmail SA (read-only, `l
   `ANTHROPIC_API_KEY` (both already set in the admin Vercel project). No migration/new env.
 - **⚠️ Gmail quota:** reads are on-demand + light (a search + a couple thread fetches per draft, all
   `getThreadCapped` so a giant chain is skipped) — same shared per-user quota discipline as the rest.
+- **Thread search shows CLIENT threads only (Rob, 2026-09-04).** `searchThreads` filters out our own
+  system emails so only real client/prospect correspondence surfaces (used by both Compose + Follow-up).
+  `isClientThread` drops a hit when the sender/subject is a known notification/bot (`NOISE_FROM`:
+  deals@/reports@/notifications@/no-reply/mailer-daemon + marketplace bots; `NOISE_SUBJECT`: deal assigned /
+  client domain overlap / new matches / worth a look / SNAP picks / …) OR there's **no external party**
+  (a snagged↔snagged email — every address `@snagged.(com|co)` — is a notification/report, never a client
+  thread). A normal thread where WE sent the newest reply still has the client on `to`, so it's kept.
 
 ## Email → Follow-up tool — post-"should we work together?" draft from Gmail + Granola (2026-09-04)
 
