@@ -87,7 +87,7 @@ export async function GET(req: NextRequest) {
       .map((s) => s.trim().toLowerCase())
       .filter((s) => s.includes("@")),
   );
-  const notes = await listNotes({ limit: 40 });
+  const notes = await listNotes({ limit: 100, maxPages: 6 }); // paginate → don't miss recent meetings
   const shaped = notes.map((n) => {
     const matched = match.size > 0 && n.attendees.some((a) => a.email && match.has(a.email));
     return {

@@ -119,18 +119,37 @@ async function gget(path: string): Promise<Obj | null> {
   }
 }
 
-// Recent meeting notes, newest first. `createdAfter` (epoch ms) filters server-side when supported.
-// Only the first page (Granola returns notes that HAVE an AI summary + transcript).
-export async function listNotes(opts: { limit?: number; createdAfter?: number } = {}): Promise<GranolaNote[]> {
-  const limit = Math.min(Math.max(opts.limit || 40, 1), 100);
-  const qs = new URLSearchParams({ limit: String(limit) });
-  if (opts.createdAfter) qs.set("created_after", new Date(opts.createdAfter).toISOString());
-  const body = await gget(`/notes?${qs.toString()}`);
-  const arr =
-    (body && Array.isArray(body.notes) && body.notes) ||
-    (body && Array.isArray((body as Obj).data) && (body as Obj).data) ||
-    [];
-  return (arr as Obj[]).map(normalizeNote).filter((n) => n.id).sort((a, b) => b.createdAt - a.createdAt);
+// Recent meeting notes, newest first. Follows the cursor across several pages and unions them, so a
+// recent meeting isn't missed just because the first page's default order/size didn't include it.
+// (Granola only returns notes that HAVE a generated AI summary + transcript, so a meeting recorded
+// in the last little while may still be absent until Granola finishes processing it — nothing we can
+// fetch changes that.) `createdAfter` (epoch ms) filters server-side when supported.
+export async function listNotes(opts: { limit?: number; createdAfter?: number; maxPages?: number } = {}): Promise<GranolaNote[]> {
+  const perPage = Math.min(Math.max(opts.limit || 100, 1), 100);
+  const maxPages = Math.min(Math.max(opts.maxPages || 6, 1), 20);
+  const byId = new Map<string, GranolaNote>();
+  let cursor = "";
+  for (let page = 0; page < maxPages; page++) {
+    const qs = new URLSearchParams({ limit: String(perPage) });
+    if (opts.createdAfter) qs.set("created_after", new Date(opts.createdAfter).toISOString());
+    if (cursor) qs.set("cursor", cursor);
+    const body = await gget(`/notes?${qs.toString()}`);
+    if (!body) break;
+    const arr: Obj[] = (Array.isArray(body.notes)
+      ? body.notes
+      : Array.isArray((body as Obj).data)
+        ? ((body as Obj).data as unknown[])
+        : []) as Obj[];
+    for (const o of arr) {
+      const n = normalizeNote(o);
+      if (n.id) byId.set(n.id, n);
+    }
+    // next cursor lives under a few possible keys; stop when there isn't one or the page was empty.
+    const meta = (body.meta as Obj) || {};
+    cursor = String(body.cursor || body.next_cursor || meta.cursor || meta.next_cursor || "");
+    if (!cursor || !arr.length) break;
+  }
+  return [...byId.values()].sort((a, b) => b.createdAt - a.createdAt);
 }
 
 // One note WITH its AI summary (and optionally the transcript) for the drafting context.

@@ -273,6 +273,7 @@ export default function FollowupClient() {
                       {shown.length === 0 && <div className="muted" style={{ padding: "10px 12px", fontSize: 13 }}>No meetings match “{noteQuery}”.</div>}
                     </div>
                     {active && notes.some((n) => n.matched) && <div style={{ fontSize: 11.5, color: "#2eb67d", marginTop: 5 }}>✓ match = attendee matches the attached thread — pre-selected.</div>}
+                    <div className="muted" style={{ fontSize: 11, marginTop: 5 }}>Newest first. A meeting from the last little while appears once Granola finishes generating its summary — refresh the page if it&apos;s not here yet.</div>
                   </>
                 );
               })()
