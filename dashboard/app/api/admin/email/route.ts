@@ -36,6 +36,7 @@ type ThreadHit = {
   cc: string;
   date: number;
   snippet: string;
+  bulk: boolean; // mass/marketing send (newsletter) — filtered out of client-thread results
 };
 
 // A thread is only useful here if we're actually corresponding with a CLIENT/PROSPECT — not one of
@@ -44,13 +45,19 @@ type ThreadHit = {
 // subject, (2) no EXTERNAL party at all (a snagged↔snagged notification has no non-snagged address).
 const OURS = /@snagged\.(com|co)$/i;
 const EMAIL_RE = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/gi;
-const NOISE_FROM = /(^|[@.])(namejet|dropcatch|namebright|godaddy|afternic|sedo|dan\.com|dynadot|namesilo|namecheap|domainscout)\.|reports@snagged\.com|deals@snagged\.com|no-?reply|do-?not-?reply|notifications?@|mailer-daemon|postmaster@/i;
+// Bots / notification senders / our vendors (support desks) — never a client thread.
+const NOISE_FROM = /(^|[@.])(namejet|dropcatch|namebright|godaddy|afternic|sedo|dan\.com|dynadot|namesilo|namecheap|domainscout|superhuman|zendesk|intercom|calendly)\.|calendar-notification@google\.com|@resource\.calendar\.google\.com|reports@snagged\.com|deals@snagged\.com|no-?reply|do-?not-?reply|notifications?@|mailer-daemon|postmaster@/i;
+// System/report subjects + calendar-invite prefixes (Invitation:/Accepted:/Declined:/…) — not a real thread.
 const NOISE_SUBJECT = /new buy-side deal|deal assigned|client domain overlap|domain overlap|new matches|namejet alert|domain (alert|backorder)|name ?check|worth a look|snap (opportunities|picks)|has been updated\.?\s*$/i;
+const CALENDAR_SUBJECT = /^(re:\s*|fwd:\s*)?(invitation|updated invitation|accepted|declined|tentative|cancell?ed|canceled event|new event):/i;
 function hasExternalParty(from: string, to: string, cc: string): boolean {
   return (`${from} ${to} ${cc}`.match(EMAIL_RE) || []).some((e) => !OURS.test(e));
 }
+// A real client/prospect thread: not a mass/bulk send (newsletters — flagged via List-Unsubscribe/
+// Precedence), not a calendar invite, not a bot/notification/vendor, and has an external human party.
 function isClientThread(t: ThreadHit): boolean {
-  if (NOISE_FROM.test(t.from) || NOISE_SUBJECT.test(t.subject)) return false;
+  if (t.bulk) return false; // newsletters / marketing blasts (List-Unsubscribe / bulk Precedence)
+  if (NOISE_FROM.test(t.from) || NOISE_SUBJECT.test(t.subject) || CALENDAR_SUBJECT.test(t.subject)) return false;
   return hasExternalParty(t.from, t.to, t.cc); // drop snagged↔snagged notifications/reports
 }
 
@@ -88,6 +95,7 @@ async function searchThreads(q: string, limit = 25): Promise<ThreadHit[]> {
           cc: msg.cc,
           date: msg.date,
           snippet: msg.snippet || msg.body.slice(0, 200),
+          bulk: msg.bulk,
         });
       }
       if (byThread.size >= limit * 2) break;
