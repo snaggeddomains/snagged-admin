@@ -4,11 +4,11 @@
 // directory (a few KB at the tail), locate the .mbox entry, then stream ONLY that entry's
 // compressed bytes and inflate them on the fly.
 //
-// ZIP64: Takeout writes the archive in ZIP64 when the mbox's UNCOMPRESSED size exceeds 4 GB, which
-// forces the central-directory entry's size/offset fields to the 0xFFFFFFFF sentinel with the real
-// 64-bit values in the entry's ZIP64 extra field (id 0x0001) — we parse that. We still assume the
-// central-directory OFFSET itself is < 4 GB (true for an archive up to ~4 GB compressed, which a
-// Takeout .zip is). Only stored (0) and deflate (8) methods are supported (what Takeout uses).
+// ZIP64: Takeout writes the archive in ZIP64 when sizes/offsets exceed 4 GB. We parse both places it
+// shows up: (1) the per-entry ZIP64 extra field (id 0x0001) for an entry's size/local-offset, and
+// (2) the ZIP64 End-Of-Central-Directory record (via its locator before the regular EOCD) for the
+// central-directory offset/size themselves — needed once the archive is bigger than ~4 GB (e.g. a
+// 10 GB mailbox export). Only stored (0) and deflate (8) methods are supported (what Takeout uses).
 
 import { Readable } from "node:stream";
 import { createInflateRaw } from "node:zlib";
@@ -17,10 +17,12 @@ export type RangeReader = (start: number, endInclusive: number) => Promise<Buffe
 export type RangeStreamer = (start: number, endInclusive: number) => Promise<Readable>;
 export type ZipEntry = { name: string; method: number; compSize: number; localOffset: number };
 
-const EOCD_SIG = 0x06054b50; // PK\x05\x06
-const CEN_SIG = 0x02014b50;  // PK\x01\x02
-const LOC_SIG = 0x04034b50;  // PK\x03\x04
-const Z64_ID = 0x0001;       // ZIP64 extended-information extra field
+const EOCD_SIG = 0x06054b50;      // PK\x05\x06  end of central directory
+const CEN_SIG = 0x02014b50;       // PK\x01\x02  central-directory file header
+const LOC_SIG = 0x04034b50;       // PK\x03\x04  local file header
+const Z64_LOC_SIG = 0x07064b50;   // PK\x06\x07  ZIP64 EOCD locator
+const Z64_EOCD_SIG = 0x06064b50;  // PK\x06\x06  ZIP64 EOCD record
+const Z64_ID = 0x0001;            // ZIP64 extended-information extra field
 const U32_MAX = 0xffffffff;
 const U16_MAX = 0xffff;
 
@@ -52,9 +54,20 @@ export async function listZipEntries(size: number, readRange: RangeReader): Prom
   let eocd = -1;
   for (let i = tail.length - 22; i >= 0; i--) { if (tail.readUInt32LE(i) === EOCD_SIG) { eocd = i; break; } }
   if (eocd < 0) throw new Error("ZIP: End-Of-Central-Directory not found (not a zip, or truncated)");
-  const cdSize = tail.readUInt32LE(eocd + 12);
-  const cdOffset = tail.readUInt32LE(eocd + 16);
-  if (cdOffset === 0xffffffff || cdSize === 0xffffffff) throw new Error("ZIP: ZIP64 central directory not supported");
+  let cdSize = tail.readUInt32LE(eocd + 12);
+  let cdOffset = tail.readUInt32LE(eocd + 16);
+  // ZIP64: for an archive > 4 GB the CD offset/size (or entry count) overflow their 32-bit EOCD
+  // fields and read as the 0xFFFFFFFF/0xFFFF sentinel; the real 64-bit values live in the ZIP64 EOCD
+  // record, found via the ZIP64 EOCD LOCATOR sitting 20 bytes before the regular EOCD.
+  if (cdOffset === U32_MAX || cdSize === U32_MAX || tail.readUInt16LE(eocd + 10) === U16_MAX) {
+    const locAt = eocd - 20;
+    if (locAt < 0 || tail.readUInt32LE(locAt) !== Z64_LOC_SIG) throw new Error("ZIP: ZIP64 EOCD locator not found");
+    const z64Off = Number(tail.readBigUInt64LE(locAt + 8)); // absolute offset of the ZIP64 EOCD record
+    const rec = await readRange(z64Off, z64Off + 55);
+    if (rec.readUInt32LE(0) !== Z64_EOCD_SIG) throw new Error("ZIP: ZIP64 EOCD record signature mismatch");
+    cdSize = Number(rec.readBigUInt64LE(40));
+    cdOffset = Number(rec.readBigUInt64LE(48));
+  }
 
   const cd = await readRange(cdOffset, cdOffset + cdSize - 1);
   const entries: ZipEntry[] = [];
