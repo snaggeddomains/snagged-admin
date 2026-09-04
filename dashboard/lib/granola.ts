@@ -176,37 +176,62 @@ async function gget(path: string): Promise<Obj | null> {
   }
 }
 
-// Recent meeting notes, newest first. Follows the cursor across several pages and unions them, so a
-// recent meeting isn't missed just because the first page's default order/size didn't include it.
-// (Granola only returns notes that HAVE a generated AI summary + transcript, so a meeting recorded
-// in the last little while may still be absent until Granola finishes processing it — nothing we can
-// fetch changes that.) `createdAfter` (epoch ms) filters server-side when supported.
+// Pull the notes array out of an envelope (shape-tolerant: {notes} | {data} | {results} | {items}).
+function extractNotes(body: Obj | null): Obj[] {
+  if (!body) return [];
+  for (const k of ["notes", "data", "results", "items"]) {
+    const v = (body as Obj)[k];
+    if (Array.isArray(v)) return v as Obj[];
+  }
+  return [];
+}
+// The pagination cursor + has_more can live under several key names, top-level or nested under
+// meta/pagination. Read across the likely aliases so paging doesn't silently stop after page 1.
+function pageMeta(body: Obj): { cursor: string; hasMore: boolean | undefined } {
+  const nest = ((body.meta as Obj) || (body.pagination as Obj) || (body.page_info as Obj) || {}) as Obj;
+  const cursor = String(
+    body.cursor || body.next_cursor || body.nextCursor || body.next || body.next_page_token || body.page_token ||
+    nest.cursor || nest.next_cursor || nest.nextCursor || nest.next || nest.next_page_token || "",
+  );
+  const hm = body.has_more ?? body.hasMore ?? nest.has_more ?? nest.hasMore;
+  return { cursor, hasMore: typeof hm === "boolean" ? hm : undefined };
+}
+
+// Recent meeting notes, newest first. Follows the cursor across pages and unions them so a recent
+// meeting isn't missed. Robust to the exact pagination scheme: uses the cursor when present, else
+// falls back to `offset` while pages keep coming back full. We deliberately DON'T send `created_after`
+// (an unsupported/mis-parsed filter was over-limiting the result to a handful of notes) — newest-first
+// paging + maxPages gives the recent set. (Granola only returns notes that HAVE a generated AI summary,
+// so a just-recorded meeting may be absent until Granola finishes processing it — nothing we fetch
+// changes that.)
 export async function listNotes(opts: { limit?: number; createdAfter?: number; maxPages?: number } = {}): Promise<GranolaNote[]> {
   const perPage = Math.min(Math.max(opts.limit || 100, 1), 100);
-  const maxPages = Math.min(Math.max(opts.maxPages || 6, 1), 20);
+  const maxPages = Math.min(Math.max(opts.maxPages || 12, 1), 40);
   const byId = new Map<string, GranolaNote>();
   let cursor = "";
+  let fetched = 0;
   for (let page = 0; page < maxPages; page++) {
     const qs = new URLSearchParams({ limit: String(perPage) });
-    if (opts.createdAfter) qs.set("created_after", new Date(opts.createdAfter).toISOString());
     if (cursor) qs.set("cursor", cursor);
+    else if (page > 0) qs.set("offset", String(fetched)); // offset fallback when the API has no cursor
     const body = await gget(`/notes?${qs.toString()}`);
     if (!body) break;
-    const arr: Obj[] = (Array.isArray(body.notes)
-      ? body.notes
-      : Array.isArray((body as Obj).data)
-        ? ((body as Obj).data as unknown[])
-        : []) as Obj[];
+    const arr = extractNotes(body);
+    if (!arr.length) break;
     for (const o of arr) {
       const n = normalizeNote(o);
       if (n.id) byId.set(n.id, n);
     }
-    // next cursor lives under a few possible keys; stop when the API says there's no more, when there's
-    // no cursor, or the page was empty.
-    const meta = (body.meta as Obj) || {};
-    const hasMore = body.has_more ?? body.hasMore ?? meta.has_more ?? meta.hasMore;
-    cursor = String(body.cursor || body.next_cursor || meta.cursor || meta.next_cursor || "");
-    if (hasMore === false || !cursor || !arr.length) break;
+    fetched += arr.length;
+    const { cursor: next, hasMore } = pageMeta(body);
+    if (hasMore === false) break; // API says explicitly no more
+    if (next && next !== cursor) {
+      cursor = next; // cursor pagination
+    } else if (arr.length >= perPage) {
+      cursor = ""; // no usable cursor but the page was full → try the next offset window
+    } else {
+      break; // short page and no cursor → end
+    }
   }
   return [...byId.values()].sort((a, b) => b.createdAt - a.createdAt);
 }
@@ -261,27 +286,53 @@ export async function hydrateNotes(notes: GranolaNote[], limit = 60): Promise<Gr
   return [...hydrated, ...notes.slice(limit)];
 }
 
-// Debug helper (admin-gated caller only): the RAW first-page shape, so we can verify the real
-// public-API field names on a live run without guessing. Returns the envelope keys, the first note's
-// keys, and small samples of the fields we read (id/title/created/attendees) — NO bodies/transcripts.
+// Debug helper (admin-gated caller only): the RAW shape + how pagination actually behaves on a live
+// run, so we can see WHY the list is short (page size honored? cursor present? does paging advance?).
+// Fetches page 1 at limit=100 and follows up to 5 pages, reporting per-page counts + the cursor/hasMore
+// it saw — NO bodies/transcripts.
 export async function rawNotesShape(): Promise<Obj | null> {
-  const body = await gget(`/notes?limit=3`);
-  if (!body) return null;
-  const arr = (Array.isArray(body.notes) ? body.notes : Array.isArray((body as Obj).data) ? (body as Obj).data : []) as Obj[];
-  const first = (arr[0] || {}) as Obj;
-  const att = (first.attendees || first.participants || first.people) as unknown;
-  const attSample = Array.isArray(att) ? att.slice(0, 2) : att;
+  const p1 = await gget(`/notes?limit=100`);
+  if (!p1) return null;
+  const arr1 = extractNotes(p1);
+  const first = (arr1[0] || {}) as Obj;
+  // non-note top-level keys with a compact preview, so an unexpected pagination field is visible.
+  const nonNote: Obj = {};
+  for (const [k, v] of Object.entries(p1)) {
+    if (k === "notes" || k === "data" || k === "results" || k === "items") continue;
+    nonNote[k] = Array.isArray(v) ? `array[${v.length}]` : v && typeof v === "object" ? JSON.stringify(v).slice(0, 200) : (v as unknown as string);
+  }
+  // walk pagination
+  const pages: Obj[] = [];
+  let cursor = pageMeta(p1).cursor;
+  let hasMore = pageMeta(p1).hasMore;
+  let fetched = arr1.length;
+  pages.push({ page: 1, count: arr1.length, cursor_seen: cursor.slice(0, 48), hasMore });
+  for (let i = 0; i < 5 && (cursor || hasMore !== false); i++) {
+    const qs = new URLSearchParams({ limit: "100" });
+    if (cursor) qs.set("cursor", cursor);
+    else qs.set("offset", String(fetched));
+    const pn = await gget(`/notes?${qs.toString()}`);
+    const arrn = extractNotes(pn);
+    const m = pageMeta(pn || {});
+    pages.push({ page: i + 2, count: arrn.length, cursor_seen: m.cursor.slice(0, 48), hasMore: m.hasMore, mode: cursor ? "cursor" : "offset" });
+    fetched += arrn.length;
+    if (!arrn.length) break;
+    if (m.cursor && m.cursor !== cursor) cursor = m.cursor;
+    else if (arrn.length >= 100) cursor = "";
+    else break;
+    hasMore = m.hasMore;
+  }
+  const dates = arr1.map((o) => normalizeNote(o).createdAt).filter(Boolean).sort((a, b) => a - b);
   return {
-    envelope_keys: Object.keys(body),
-    note_count: arr.length,
+    envelope_keys: Object.keys(p1),
+    non_note_keys: nonNote,
+    page1_count: arr1.length,
     first_note_keys: Object.keys(first),
-    sample: {
-      id: first.id ?? first.note_id ?? first.document_id ?? null,
-      title: first.title ?? first.name ?? null,
-      created_raw: first.created_at ?? first.createdAt ?? first.started_at ?? first.created ?? null,
-      normalized_createdAt: normalizeNote(first).createdAt,
-      attendees: attSample,
-    },
+    pages,
+    total_distinct_via_listNotes: (await listNotes({ limit: 100, maxPages: 12 })).length,
+    page1_created_range: dates.length
+      ? { oldest: new Date(dates[0]).toISOString().slice(0, 10), newest: new Date(dates[dates.length - 1]).toISOString().slice(0, 10) }
+      : null,
   };
 }
 

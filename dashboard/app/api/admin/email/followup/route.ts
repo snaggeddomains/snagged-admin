@@ -91,15 +91,14 @@ export async function GET(req: NextRequest) {
       .map((s) => s.trim().toLowerCase())
       .filter((s) => s.includes("@")),
   );
-  // Bound to a RECENT window (default 180 days) so the fetched pages are the relevant recent set
-  // regardless of the API's default page order — otherwise paging from all-time history could return
-  // only OLD meetings and never reach today's. The client sorts newest-first over what we return.
-  const windowDays = Math.min(Math.max(Number(url.searchParams.get("days")) || 180, 7), 730);
+  // Page the recent notes newest-first (up to ~pages×100). We no longer send a created_after window —
+  // it was over-limiting the result to a handful of notes; newest-first paging returns the recent set.
+  const pages = Math.min(Math.max(Number(url.searchParams.get("pages")) || 12, 1), 40);
+  const listed = await listNotes({ limit: 100, maxPages: pages });
   // The LIST payload has only id/title/created (no attendees, no summary — verified live), so we
   // hydrate the most-recent notes with their detail (attendees + AI summary). That makes (a) the
   // attendee auto-match work and (b) search match meeting CONTENT, not just the participant-based
   // title — a meeting is findable by a client/topic even when the title is "Rob / Judy".
-  const listed = await listNotes({ limit: 100, maxPages: 12, createdAfter: Date.now() - windowDays * 864e5 });
   const notes = await hydrateNotes(listed, 60);
   const shaped = notes.map((n) => {
     const matched = match.size > 0 && n.attendees.some((a) => a.email && match.has(a.email));
