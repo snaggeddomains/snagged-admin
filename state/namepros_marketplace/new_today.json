@@ -2,9 +2,9 @@
   "capped": false,
   "count": 1,
   "domains": [
-    "incorporates.net"
+    "my.now"
   ],
-  "generated_at": "2026-09-04T10:06:25.100505+00:00",
+  "generated_at": "2026-09-04T17:06:48.318723+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
