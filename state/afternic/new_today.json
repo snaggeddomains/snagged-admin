@@ -1,11 +1,14 @@
 {
   "capped": false,
-  "count": 2,
+  "count": 5,
   "domains": [
-    "binoculars.co",
-    "underside.org"
+    "shoddy.co",
+    "friendlies.co",
+    "urged.ai",
+    "elects.co",
+    "wrestler.ai"
   ],
-  "generated_at": "2026-09-03T08:49:34.784399+00:00",
+  "generated_at": "2026-09-04T08:14:53.508366+00:00",
   "mub": [],
   "source": "afternic"
 }
