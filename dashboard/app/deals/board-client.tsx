@@ -206,7 +206,7 @@ export default function BoardClient() {
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
         <div>
           <h1 style={{ fontSize: "1.35rem", margin: 0 }}>Deal board</h1>
-          {data?.stats && <p className="muted" style={{ margin: "4px 0 0", fontSize: 13 }}>{data.stats.open} open · {usd(data.stats.pipelineValue)} in pipeline</p>}
+          {data?.stats && <p className="muted" style={{ margin: "4px 0 0", fontSize: 13 }}>{data.stats.open} open</p>}
           {data && "emailSync" in data && (
             <p className="muted" style={{ margin: "2px 0 0", fontSize: 11.5 }} title={data.emailSync?.last_run_at ? new Date(data.emailSync.last_run_at).toLocaleString() : "The hourly email-sync cron has not run yet"}>
               📥 Email auto-sync: {data.emailSync ? ago(data.emailSync.last_run_at) : "not run yet"}
