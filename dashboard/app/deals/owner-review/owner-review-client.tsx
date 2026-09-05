@@ -123,10 +123,12 @@ export default function OwnerReviewClient() {
     try {
       for (;;) {
         const ctrl = new AbortController();
-        const timer = setTimeout(() => ctrl.abort(), 120000);
+        const timer = setTimeout(() => ctrl.abort(), 170000);
         let j: { ok?: boolean; error?: string; note?: string; updated?: number; found?: number; scanned?: number; remaining?: number };
         try {
-          const res = await fetch("/api/admin/deals/owner-review/remine-bulk", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode, drain: false, limit: 40, resweep: rounds === 0 }), signal: ctrl.signal });
+          // Smaller batches: the escalating miner (up to 3 rounds on an unconfident card) makes a big
+          // batch slow enough to trip the fetch timeout. 12/round returns quickly with a live counter.
+          const res = await fetch("/api/admin/deals/owner-review/remine-bulk", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode, drain: false, limit: 12, resweep: rounds === 0 }), signal: ctrl.signal });
           j = await res.json();
           if (!res.ok || j.ok === false) throw new Error(j.error || `HTTP ${res.status}`);
         } finally { clearTimeout(timer); }
