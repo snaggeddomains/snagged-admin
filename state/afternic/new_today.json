@@ -1,14 +1,10 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 1,
   "domains": [
-    "shoddy.co",
-    "friendlies.co",
-    "urged.ai",
-    "elects.co",
-    "wrestler.ai"
+    "dissection.co"
   ],
-  "generated_at": "2026-09-04T08:14:53.508366+00:00",
+  "generated_at": "2026-09-05T08:17:47.330434+00:00",
   "mub": [],
   "source": "afternic"
 }
