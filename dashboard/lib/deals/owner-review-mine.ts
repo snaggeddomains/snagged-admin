@@ -357,12 +357,14 @@ export type RemineSummary = { scanned: number; updated: number; found: number; r
 // drain then, but a bounded one-shot still runs).
 const WRONG_FILTER = "confidence.in.(broker,none),candidate_name.is.null";
 async function selectWrongCards(limit: number, mode: "wrong" | "all" = "wrong"): Promise<{ rows: { id: string; domain: string }[]; columnMissing: boolean }> {
-  // Fetch a POOL WITH remined_at and filter the unmined ones in JS — a PostgREST `.is("remined_at",null)`
-  // server-filter on this freshly-added column was silently letting already-remined cards through, so the
-  // drain re-mined the same 12 forever. Selecting the value + filtering in JS is bulletproof.
+  // Fetch a POOL ordered by remined_at NULLS-FIRST (the unmined cards) and JS-filter to unmined. Ordering
+  // nulls-first is essential: an earlier version ordered by txn_date and capped the pool, so once the
+  // newest-dated pending cards were all re-mined, the still-unmined ones (older dates) fell OUTSIDE the
+  // pool window and the drain found nothing to do (reported "0 re-mined" while the live count showed ~196
+  // left). Nulls-first guarantees the unmined cards are at the top of the pool. JS-filter kept as a belt.
   let q = getDb().from(CARDS).select("id,domain,remined_at").eq("status", "pending");
   if (mode === "wrong") q = q.or(WRONG_FILTER);
-  const { data, error } = await q.order("txn_date", { ascending: false, nullsFirst: false }).limit(Math.max(limit * 10, 120));
+  const { data, error } = await q.order("remined_at", { ascending: true, nullsFirst: true }).limit(Math.max(limit * 10, 120));
   if (error) {
     if (/remined_at/.test(error.message || "")) {
       let q2 = getDb().from(CARDS).select("id,domain").eq("status", "pending");
