@@ -1,12 +1,10 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 1,
   "domains": [
-    "competitors.org",
-    "essentials.com",
-    "l.com"
+    "eight.com"
   ],
-  "generated_at": "2026-09-05T17:07:40.513730+00:00",
+  "generated_at": "2026-09-05T23:07:46.241083+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
