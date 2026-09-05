@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "domain": "suave.org",
+    "end_time_utc": "2026-09-06T01:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namejet.com/domain/suave.org.action",
+    "platform": "NameJet",
+    "price": 69.0
+  }
+]

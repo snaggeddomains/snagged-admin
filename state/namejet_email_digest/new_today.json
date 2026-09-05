@@ -1,8 +1,10 @@
 {
   "capped": false,
-  "count": 0,
-  "domains": [],
-  "generated_at": "2026-09-05T15:10:07.227461+00:00",
+  "count": 1,
+  "domains": [
+    "suave.org"
+  ],
+  "generated_at": "2026-09-05T15:11:22.339296+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
