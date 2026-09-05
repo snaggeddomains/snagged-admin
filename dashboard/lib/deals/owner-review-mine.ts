@@ -22,8 +22,8 @@ const CARDS = "owner_review_cards";
 // mailer-daemons, no-reply notifications. Dropped from the transcript so they can't crowd out (or
 // mislead) the seller read. (DomainScout emails show as rob→rob "…has been updated. The EPP Status
 // Codes have been changed…", so a sender-only filter needs the subject/body cues too.)
-const NOISE_FROM = /@domainscout\.|domainscout\.io|mailer-daemon|postmaster@|(^|[._-])no-?reply|do-?not-?reply|notifications?@/i;
-const NOISE_SUBJECT = /epp status code|status codes? (have )?been changed|has been updated\b/i;
+const NOISE_FROM = /@domainscout\.|domainscout\.io|@domainiq\.|domainiq\.com|mailer-daemon|postmaster@|(^|[._-])no-?reply|do-?not-?reply|notifications?@/i;
+const NOISE_SUBJECT = /epp status code|status codes? (have )?been changed|has been updated\b|new monitoring alert|monitoring alerts? for\b|domainiq:/i;
 function isNoiseMsg(m: GmailMessage): boolean {
   return NOISE_FROM.test(m.from || "") || NOISE_SUBJECT.test(m.subject || "");
 }
@@ -140,21 +140,33 @@ function transcript(domain: string, msgs: GmailMessage[]): string {
 async function gatherMessages(domain: string, opts: { maxThreads?: number; perThread?: number } = {}): Promise<GmailMessage[]> {
   const maxThreads = opts.maxThreads ?? 6;
   const perThread = opts.perThread ?? 8;
-  // 1. Distinct threads mentioning the domain, across the deal mailboxes.
+  // 1. Distinct threads mentioning the domain, across the deal mailboxes. SUBJECT match FIRST: the real
+  //    acquisition threads name the domain in the subject ("Cerebro.ai inquiry", "Purchase of X",
+  //    "Wire complete … X"), whereas recurring monitoring-alert emails (DomainIQ/DomainScout) mention
+  //    the domain only in their BODY — so a body-only search, ordered newest-first, gets swamped by
+  //    years of alerts and never reaches the 2024 acquisition thread. We take subject hits first, then
+  //    BODY-fill the remaining slots.
   const threads: { mb: string; threadId: string }[] = [];
   const seenThread = new Set<string>();
-  for (const mb of minerMailboxes()) {
-    if (threads.length >= maxThreads) break;
-    let stubs: { id: string; threadId: string }[] = [];
-    try { stubs = await searchMessages(mb, `"${domain}"`, 20); } catch { continue; }
-    for (const s of stubs) {
+  const collect = async (query: string) => {
+    for (const mb of minerMailboxes()) {
       if (threads.length >= maxThreads) break;
-      const key = `${mb}:${s.threadId}`;
-      if (seenThread.has(key)) continue;
-      seenThread.add(key);
-      threads.push({ mb, threadId: s.threadId });
+      let stubs: { id: string; threadId: string }[] = [];
+      try { stubs = await searchMessages(mb, query, 40); } catch { continue; }
+      for (const s of stubs) {
+        if (threads.length >= maxThreads) break;
+        const key = `${mb}:${s.threadId}`;
+        if (seenThread.has(key)) continue;
+        seenThread.add(key);
+        threads.push({ mb, threadId: s.threadId });
+      }
     }
-  }
+  };
+  await collect(`subject:"${domain}"`);           // acquisition threads name the domain in the subject
+  // Body-fill any remaining slots, EXCLUDING recurring monitoring-alert digests (DomainIQ/DomainScout)
+  // that mention the domain only in their body — otherwise a newest-first body search is swamped by
+  // years of alerts and never reaches the acquisition thread (cerebro.ai had 311/405 body hits = alerts).
+  if (threads.length < maxThreads) await collect(`"${domain}" -from:domainiq -from:domainscout -subject:"monitoring alert" -subject:"domainIQ:"`);
   // 2. Pull each whole thread; keep its oldest `perThread` non-bulk messages (identity/price is
   //    usually stated early). Dedupe by Message-ID.
   const seenMid = new Set<string>();
@@ -379,7 +391,7 @@ export async function remineWrongCards(opts: { limit?: number; dry?: boolean; as
   // Mine in parallel pools. Gmail is NO LONGER the constraint — the miner reads the strictly-local
   // mirror now (zero Gmail), so the only limiter is the per-card Anthropic call. Default concurrency 4
   // (env OWNER_REVIEW_REMINE_CONCURRENCY, max 8) drains faster; lower it only if Anthropic 429s.
-  const CONC = Math.max(1, Math.min(Number(process.env.OWNER_REVIEW_REMINE_CONCURRENCY) || 4, 8));
+  const CONC = Math.max(1, Math.min(Number(process.env.OWNER_REVIEW_REMINE_CONCURRENCY) || 6, 8));
   for (let i = 0; i < rows.length; i += CONC) {
     const slice = rows.slice(i, i + CONC);
     const mined = await Promise.all(slice.map((c) => mineOwnerForDomain(c.domain).then((m) => ({ c, m })).catch(() => ({ c, m: null as MinedOwner | null }))));

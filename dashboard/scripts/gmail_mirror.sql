@@ -34,6 +34,10 @@ create index if not exists idx_gmail_msgs_thread   on gmail_messages (mailbox, t
 create index if not exists idx_gmail_msgs_ts        on gmail_messages (mailbox, ts desc);
 create index if not exists idx_gmail_msgs_mid       on gmail_messages (mid);
 create index if not exists idx_gmail_msgs_search_trgm on gmail_messages using gin (search_text gin_trgm_ops);
+-- Subject trgm index: the owner-review miner searches subject:"<domain>" FIRST (acquisition threads
+-- name the domain in the subject; recurring monitoring-alert digests mention it only in the body and
+-- swamp a newest-first body search), so subject ILIKE '%domain%' must be indexed too.
+create index if not exists idx_gmail_msgs_subject_trgm on gmail_messages using gin (subject gin_trgm_ops);
 
 alter table gmail_messages enable row level security;  -- service key bypasses; no anon policy
 

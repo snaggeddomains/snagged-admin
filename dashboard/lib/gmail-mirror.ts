@@ -6,9 +6,10 @@
 // message/thread isn't in the mirror yet) — so it's always correct, just cheaper when it can be.
 //
 // The Gmail search query is translated to SQL by a bounded parser that understands ONLY the operators
-// our readers actually use: a quoted/bare phrase, from:, to:, subject:, after:, before:, newer_than:Nd,
-// and in:/-in: label filters (applied in JS post-fetch). Anything it doesn't recognize is treated as a
-// free-text term against search_text. Unsupported-but-harmless is the safe direction (broader match).
+// our readers actually use: a quoted/bare phrase, from:, to:, subject:, -from:, -to:, -subject:
+// (negated → SQL NOT ILIKE), after:, before:, newer_than:Nd, and in:/-in: label filters (applied in JS
+// post-fetch). Anything it doesn't recognize is treated as a free-text term against search_text.
+// Unsupported-but-harmless is the safe direction (broader match).
 
 import { getDb, isDbConfigured } from "./supabase";
 import * as live from "./gmail";
@@ -137,6 +138,7 @@ function toMessage(r: DbRow): GmailMessage {
 type Leaf = { field: "from" | "to" | "subject" | "text"; value: string };
 type Parsed = {
   and: Leaf[];
+  not: Leaf[]; // negated field terms: -from:X, -subject:X (applied as SQL NOT ILIKE)
   or: Leaf[] | null; // set when the query is a single top-level `A OR B` of leaf terms
   includeLabels: string[]; // in:X  (lowercased gmail tokens)
   excludeLabels: string[]; // -in:X
@@ -181,6 +183,7 @@ function parseGmailDate(v: string): number | null {
 function parseQuery(q: string): Parsed {
   const parsed: Parsed = {
     and: [],
+    not: [],
     or: null,
     includeLabels: [],
     excludeLabels: [],
@@ -205,6 +208,9 @@ function parseQuery(q: string): Parsed {
     const lc = tok.toLowerCase();
     if (lc === "or") continue; // stray OR in an AND context — ignore
     if (lc.startsWith("-in:")) { parsed.excludeLabels.push(lc.slice(4)); continue; }
+    if (lc.startsWith("-from:")) { const v = unquote(tok.slice(6)); if (v) parsed.not.push({ field: "from", value: v }); continue; }
+    if (lc.startsWith("-subject:")) { const v = unquote(tok.slice(9)); if (v) parsed.not.push({ field: "subject", value: v }); continue; }
+    if (lc.startsWith("-to:")) { const v = unquote(tok.slice(4)); if (v) parsed.not.push({ field: "to", value: v }); continue; }
     if (lc.startsWith("in:")) { parsed.includeLabels.push(lc.slice(3)); continue; }
     if (lc.startsWith("newer_than:")) { parsed.newerThanDays = parseNewerThan(lc.slice(11)); continue; }
     if (lc.startsWith("after:")) { parsed.after = parseGmailDate(tok.slice(6)); continue; }
@@ -244,6 +250,7 @@ function buildQuery(mailbox: string, p: Parsed, cols: string, limit: number) {
   } else {
     for (const l of p.and) qb = qb.ilike(colFor(l.field), `%${escLike(l.value.toLowerCase())}%`);
   }
+  for (const l of p.not) qb = qb.not(colFor(l.field), "ilike", `%${escLike(l.value.toLowerCase())}%`);
   return qb.order("ts", { ascending: false }).limit(limit);
 }
 
