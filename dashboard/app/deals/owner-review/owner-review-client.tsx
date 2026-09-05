@@ -117,32 +117,46 @@ export default function OwnerReviewClient() {
     // long-running request), and we keep calling until `remaining` hits 0. This drains the WHOLE backlog
     // in one click reliably — independent of serverless per-request timeouts / cold starts / a stale
     // bundle. Each card is stamped remined_at server-side, so batches never overlap and the loop ends.
-    let totUpdated = 0, totFound = 0, totScanned = 0, remaining = 0, rounds = 0;
+    let totUpdated = 0, totFound = 0, totScanned = 0, remaining = -1, rounds = 0, firstCall = true, sawSuccess = false;
+    let drops = 0, stale = 0, prevRemaining = -2;
     const started = Date.now();
-    const MAX_ROUNDS = 80, MAX_MS = 20 * 60 * 1000; // safety guards (80 batches ≈ 3200 cards, or 20 min)
+    const MAX_ROUNDS = 140, MAX_MS = 25 * 60 * 1000; // safety guards
     try {
       for (;;) {
         const ctrl = new AbortController();
         const timer = setTimeout(() => ctrl.abort(), 170000);
-        let j: { ok?: boolean; error?: string; note?: string; updated?: number; found?: number; scanned?: number; remaining?: number };
+        let j: { ok?: boolean; error?: string; note?: string; updated?: number; found?: number; scanned?: number; remaining?: number } | null = null;
         try {
-          // Smaller batches: the escalating miner (up to 3 rounds on an unconfident card) makes a big
-          // batch slow enough to trip the fetch timeout. 12/round returns quickly with a live counter.
-          const res = await fetch("/api/admin/deals/owner-review/remine-bulk", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode, drain: false, limit: 12, resweep: rounds === 0 }), signal: ctrl.signal });
+          // Small batches (8): the escalating miner can make a batch slow. If a batch's fetch DROPS
+          // (client abort / network blip), the server still finishes + stamps it — so we DON'T give up;
+          // we reload, re-read `remaining`, and keep going. Only stop after several consecutive drops
+          // with no progress. resweep only on the very first call.
+          const res = await fetch("/api/admin/deals/owner-review/remine-bulk", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode, drain: false, limit: 8, resweep: firstCall }), signal: ctrl.signal });
           j = await res.json();
-          if (!res.ok || j.ok === false) throw new Error(j.error || `HTTP ${res.status}`);
+          if (!res.ok || (j && j.ok === false)) throw new Error((j && j.error) || `HTTP ${res.status}`);
+        } catch (e) {
+          if (!isNetworkDrop(e)) throw e;   // a real server error → surface it
+          drops++;
         } finally { clearTimeout(timer); }
-        if (j.note) { setMineMsg(`⚠️ ${j.note}`); break; }
-        totUpdated += j.updated || 0; totFound += j.found || 0; totScanned += j.scanned || 0; remaining = j.remaining || 0;
+        firstCall = false;
         rounds++;
-        setMineMsg(`Re-mining ${label}s (local — no Gmail)… ${totUpdated} re-mined · ${remaining} left`);
+        if (j && j.note) { setMineMsg(`⚠️ ${j.note}`); break; }
+        if (j) { sawSuccess = true; totUpdated += j.updated || 0; totFound += j.found || 0; totScanned += j.scanned || 0; remaining = j.remaining ?? remaining; }
+        // On a dropped batch the server still finished + stamped it; keep the prior `remaining` (stale)
+        // and let the NEXT successful batch report the accurate count — no extra probe.
+        const rem = remaining < 0 ? "…" : remaining;
+        setMineMsg(`Re-mining ${label}s (local — no Gmail)… ${totUpdated} re-mined · ${rem} left${drops ? ` · ${drops} slow batch${drops === 1 ? "" : "es"} (server still finishing them)` : ""}`);
         await load().catch(() => {});
-        if (!drain || remaining === 0 || (j.scanned || 0) === 0 || rounds >= MAX_ROUNDS || Date.now() - started > MAX_MS) break;
+        stale = remaining === prevRemaining ? stale + 1 : 0;
+        prevRemaining = remaining;
+        // Stop when: not draining · confirmed 0 left · limits · too many drops · no progress for a while.
+        if (!drain || (sawSuccess && remaining === 0) || rounds >= MAX_ROUNDS || Date.now() - started > MAX_MS || drops >= 6 || stale >= 8) break;
       }
-      if (totScanned > 0) setMineMsg(`✓ Re-mined ${totUpdated} → assigned Judy · found a real seller on ${totFound}/${totScanned} · ${remaining} ${label}${remaining === 1 ? "" : "s"} left${remaining ? " (the cron drains any remainder every 5 min, all local)" : ""}`);
+      if (sawSuccess && remaining === 0) setMineMsg(`✓ Re-mined ${totUpdated} · found a real seller on ${totFound}/${totScanned} · all caught up`);
+      else if (drops) setMineMsg(`Re-mined ${totUpdated} so far · slow batches are still finishing server-side and the cron keeps draining every 5 min — refresh in a minute.`);
+      else setMineMsg(`✓ Re-mined ${totUpdated} · found a real seller on ${totFound}/${totScanned} · ${remaining < 0 ? "" : remaining + " "}${label}${remaining === 1 ? "" : "s"} left${remaining ? " (the cron drains any remainder every 5 min, all local)" : ""}`);
     } catch (e) {
-      const msg = isNetworkDrop(e) ? `Re-mined ${totUpdated} so far — a batch dropped; the cron keeps draining every 5 min. Refresh to see updates.` : String((e as Error)?.message || e);
-      setMineMsg(`⚠️ ${msg}`);
+      setMineMsg(`⚠️ ${String((e as Error)?.message || e)}`);
       await load().catch(() => {});
     } finally { setRemining(false); }
   };

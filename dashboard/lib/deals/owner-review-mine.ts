@@ -149,7 +149,7 @@ async function gatherMessages(domain: string, opts: { maxThreads?: number; perTh
   //    years of alerts. Subject hits first, then a noise-excluded BODY-fill. We over-collect a POOL
   //    (candCap) so all-noise threads (Google-Drive shares, escrow bots) can be dropped without wasting
   //    a real slot — the seller-side negotiation is often an OLDER thread behind the closing/buyer ones.
-  const candCap = Math.max(maxThreads * 3, 30);
+  const candCap = Math.min(Math.max(maxThreads * 2, 24), 50);
   const cand: { mb: string; threadId: string }[] = [];
   const seenThread = new Set<string>();
   const collect = async (query: string) => {
@@ -236,10 +236,12 @@ export async function mineOwnerForDomain(domain: string, env: NodeJS.ProcessEnv 
   const empty: MinedOwner = { seller_found: false, first_name: "", last_name: "", email: "", phone: "", channel: "", confidence: "none", buyer_context: "", evidence: "" };
   const key = env.ANTHROPIC_API_KEY;
   if (!key) return empty;
+  // Two escalation rounds keeps worst-case latency bounded (a 3rd 40-thread round made batches slow
+  // enough to trip the client's fetch timeout). Round 2's 24-thread net still reaches an older seller
+  // thread behind the escrow/closing ones.
   const ROUNDS: { maxThreads: number; cap: number }[] = [
     { maxThreads: 10, cap: 18000 },
-    { maxThreads: 22, cap: 34000 },
-    { maxThreads: 40, cap: 50000 },
+    { maxThreads: 24, cap: 36000 },
   ];
   let best: MinedOwner | null = null;
   let sawMessages = false;
