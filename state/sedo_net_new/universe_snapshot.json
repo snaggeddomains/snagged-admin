@@ -1,10 +1,30 @@
 [
   {
-    "domain": "temper.net",
-    "price": 9888.0
+    "domain": "vinegars.com",
+    "price": 12321.0
   },
   {
-    "domain": "nads.net",
-    "price": 2499.0
+    "domain": "mitman.com",
+    "price": 12695.0
+  },
+  {
+    "domain": "soothing.ai",
+    "price": 250000.0
+  },
+  {
+    "domain": "sumo.ai",
+    "price": null
+  },
+  {
+    "domain": "neuralgia.net",
+    "price": 199.0
+  },
+  {
+    "domain": "psychotics.net",
+    "price": 199.0
+  },
+  {
+    "domain": "predicament.net",
+    "price": 199.0
   }
 ]

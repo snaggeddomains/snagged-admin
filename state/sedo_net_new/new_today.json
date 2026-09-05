@@ -2,9 +2,9 @@
   "capped": false,
   "count": 1,
   "domains": [
-    "yps.com"
+    "sumo.ai"
   ],
-  "generated_at": "2026-09-04T23:04:06.648948+00:00",
+  "generated_at": "2026-09-05T10:01:16.542907+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
