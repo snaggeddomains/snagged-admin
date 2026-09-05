@@ -1,14 +1,12 @@
 {
   "capped": false,
-  "count": 5,
+  "count": 3,
   "domains": [
-    "stadium.app",
-    "stadium.co",
-    "stadium.now",
-    "stadium.to",
-    "stadium.xyz"
+    "competitors.org",
+    "essentials.com",
+    "l.com"
   ],
-  "generated_at": "2026-09-05T10:06:09.620745+00:00",
+  "generated_at": "2026-09-05T17:07:40.513730+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
