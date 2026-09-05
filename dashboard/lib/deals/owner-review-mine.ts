@@ -420,6 +420,12 @@ export async function returnAutoAssignedToPool(email: string): Promise<void> {
   } catch { /* ignore */ }
 }
 
+// Mark a card as attempted (remined_at=now) WITHOUT changing its candidate data — used when a mine
+// threw, so the card drops out of the unmined set and the drain keeps progressing. No-op pre-migration.
+async function stampReminedAt(id: string): Promise<void> {
+  try { await getDb().from(CARDS).update({ remined_at: new Date().toISOString() }).eq("id", id); } catch { /* column missing → ignore */ }
+}
+
 async function applyRemine(id: string, mined: MinedOwner, assignTo: string | null): Promise<void> {
   const base: Record<string, unknown> = {
     candidate_first_name: mined.first_name || null,
@@ -461,11 +467,16 @@ export async function remineWrongCards(opts: { limit?: number; dry?: boolean; as
     const mined = await Promise.all(slice.map((c) => mineOwnerForDomain(c.domain).then((m) => ({ c, m })).catch(() => ({ c, m: null as MinedOwner | null }))));
     for (const { c, m } of mined) {
       out.scanned++;
-      if (!m) continue;
-      const name = [m.first_name, m.last_name].filter(Boolean).join(" ");
+      if (dry) { if (m) { if (m.seller_found) out.found++; out.results.push({ domain: c.domain, found: m.seller_found, confidence: m.confidence, name: [m.first_name, m.last_name].filter(Boolean).join(" ") }); } continue; }
+      if (!m) {
+        // The mine threw (transient). STAMP remined_at anyway so this card drops out of the unmined
+        // set — guarantees the drain strictly progresses and always completes "run ALL" (a persistent
+        // failure can't re-loop forever). Its existing candidate data is untouched; re-mine it by hand.
+        await stampReminedAt(c.id).catch(() => {});
+        continue;
+      }
       if (m.seller_found) out.found++;
-      out.results.push({ domain: c.domain, found: m.seller_found, confidence: m.confidence, name });
-      if (dry) continue;
+      out.results.push({ domain: c.domain, found: m.seller_found, confidence: m.confidence, name: [m.first_name, m.last_name].filter(Boolean).join(" ") });
       await applyRemine(c.id, m, assignTo);
       out.updated++;
     }
