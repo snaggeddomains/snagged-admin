@@ -32,6 +32,12 @@ export type GmailFeature =
 // Interactive features get the higher ceiling + are never hard-stopped by the BACKGROUND cap
 // (a person waiting on a click should not be blocked by a cron's spending).
 const INTERACTIVE = new Set<GmailFeature>(["email-module"]);
+// The Gmail-mirror delta-sync is its OWN tier: it runs once/night off-peak (23:50 UTC, right before the
+// budget resets), alone, and only ever reads the ONE mailbox it's syncing — so it can't push a DIFFERENT
+// mailbox toward the shared throttle, and halting it via the cross-mailbox breaker is self-defeating (it
+// would leave the mirror permanently behind). So it skips the global breaker and uses its own generous
+// self-cap (below), which still bounds a runaway (a history-reset full catch-up).
+const SYNC = new Set<GmailFeature>(["mirror-sync"]);
 
 type FeatureCtx = { feature: GmailFeature; interactive: boolean };
 const als = new AsyncLocalStorage<FeatureCtx>();
@@ -58,6 +64,11 @@ const BG_READS = Number(process.env.GMAIL_BG_READS_PER_DAY) || 300;
 const BG_BYTES = Number(process.env.GMAIL_BG_BYTES_PER_DAY) || 200 * 1024 * 1024; // 200 MB
 const IX_READS = Number(process.env.GMAIL_IX_READS_PER_DAY) || 1500;
 const IX_BYTES = Number(process.env.GMAIL_IX_BYTES_PER_DAY) || 1024 * 1024 * 1024; // 1 GB
+// Mirror delta-sync self-cap: sized for a day of a busy mailbox (rob@ ~300-600 msgs/night) plus a
+// history-reset full catch-up (MAX_PER_MAILBOX 1500) with headroom. Bounds a runaway; not a throttle
+// guard (it runs alone, off-peak). Per mailbox, per day.
+const SYNC_READS = Number(process.env.GMAIL_SYNC_READS_PER_DAY) || 2500;
+const SYNC_BYTES = Number(process.env.GMAIL_SYNC_BYTES_PER_DAY) || 500 * 1024 * 1024; // 500 MB
 
 // Safety margin: background reads STOP at this fraction of the cap — we never want to actually
 // REACH the daily cap (that risks the shared per-user quota Superhuman draws on). Default 70%.
@@ -209,8 +220,17 @@ export async function assertReadBudget(mailbox: string): Promise<void> {
   // Manual permanent block (env, default empty) — enforced even pre-migration, background only.
   if (!interactive && isBackgroundSkipped(mailbox)) throw new GmailBudgetError(mailbox, feature);
   if (disabled) return;
+  const sync = SYNC.has(feature);
   try {
-    // The GLOBAL circuit-breaker now applies to EVERYTHING, interactive included: if ANY watched
+    // The mirror delta-sync is exempt from the cross-mailbox breaker (see SYNC above): it only reads
+    // the box it's syncing, off-peak/alone, and halting it would leave the mirror permanently behind.
+    // It's still bounded by its own generous self-cap so a history-reset catch-up can't run away.
+    if (sync) {
+      const u = await currentUsage(mailbox);
+      if (u.reads >= SYNC_READS || u.bytes >= SYNC_BYTES) throw new GmailBudgetError(mailbox, feature);
+      return;
+    }
+    // The GLOBAL circuit-breaker now applies to EVERYTHING ELSE, interactive included: if ANY watched
     // mailbox is approaching its cap, all reads pause — so even the Email tool can't push a mailbox
     // toward the shared throttle during a danger window.
     const halt = await backgroundHalt();
@@ -279,4 +299,4 @@ export async function budgetStatus(mailboxes: string[]): Promise<
   return out;
 }
 
-export const CAPS = { BG_READS, BG_BYTES, IX_READS, IX_BYTES, SAFETY, APPROACH };
+export const CAPS = { BG_READS, BG_BYTES, IX_READS, IX_BYTES, SYNC_READS, SYNC_BYTES, SAFETY, APPROACH };

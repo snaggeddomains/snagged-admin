@@ -86,7 +86,21 @@ it's not a workaround; Takeout/Workspace export is), then kept fresh by cheap **
   in `lib/gmail.ts`) under the **`mirror-sync`** feature. **Cron** `app/api/cron/gmail-mirror-sync`
   (`vercel.json` **`50 23 * * *`** = end of the UTC day, right before the read-budget resets, off-peak,
   CRON_SECRET; `?mailbox=` for one box). Heartbeat `gmail-mirror-sync`. A per-mailbox budget stop just
-  skips that box (retries next run). **Once proven, set `GMAIL_MIRROR_ALLOW_LIVE=1`** so the mirror readers
+  skips that box (retries next run).
+  - **⚠️ mirror-sync is its OWN governor tier — must be, or it can't stay current (Rob, 2026-09-05).** A
+    busy mailbox lands ~300-600 new msgs/night (rob@ median ~295, p90 ~409), one `messages.get` each — which
+    EXCEEDS the background caps (`BG_READS` 300, per-mailbox stop 210, global breaker 180), so as a background
+    feature the nightly sync would trip its OWN safety limit partway and the mirror would drift further behind
+    each night. Fix in `lib/gmail-budget.ts`: `SYNC = {"mirror-sync"}` is a dedicated tier — **exempt from the
+    cross-mailbox global breaker** (it only ever reads the ONE box it's syncing, off-peak/alone at 23:50 UTC,
+    so it can't push a DIFFERENT mailbox toward the throttle, and halting it is self-defeating) with its own
+    generous self-cap `SYNC_READS` (2500) / `SYNC_BYTES` (500 MB) per mailbox/day — sized for a day of a busy
+    box plus a history-reset full catch-up (`MAX_PER_MAILBOX` 1500), just to bound a runaway. Kill switch +
+    `GMAIL_BG_SKIP_MAILBOXES` still apply. NB its ~300 reads land at 23:50, 10 min before the UTC reset, so the
+    inflated ledger clears almost immediately and doesn't crowd other readers (the interactive Email tool could
+    briefly pause if used in that 10-min window — rare, self-clears at midnight). Env-tunable
+    `GMAIL_SYNC_READS_PER_DAY`/`GMAIL_SYNC_BYTES_PER_DAY`.
+  - **Once proven, set `GMAIL_MIRROR_ALLOW_LIVE=1`** so the mirror readers
   resolve a rare fresh miss live too (the daily sync means misses are ≤1 day of mail).
 - **Setup (pending):** (1) run `scripts/gmail_mirror.sql` on the **`domain-owner-research`** PRODUCTION
   project; (2) one-time Takeout per mailbox (rob@/brian@ .com+.co) → drop each **.zip** in the "Snagged
