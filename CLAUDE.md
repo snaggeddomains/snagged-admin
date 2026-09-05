@@ -1012,8 +1012,18 @@ miner over all 477 txns is also Increment 2).
     it reprocesses EVERY pending card with the improved miner, not just never-mined ones. The unattended
     cron stays marker-bounded (can't loop). Also: `ReviewCard` Edit form now re-seeds from the card on
     content change (a re-mine no longer makes Edit look like it "wiped" the card), and the bulk button
-    drains the whole backlog CLIENT-side (loop of bounded batches until remaining=0), robust to serverless
-    timeouts.
+    drains the whole backlog CLIENT-side (loop of bounded batches — 12/round, ~170s timeout — until
+    remaining=0), robust to serverless timeouts.
+  - **⚠️ Re-mine is ASSIGNMENT-NEUTRAL; only "Wrong-only → Judy" reassigns (Rob, 2026-09-05).** The bulk
+    re-mine had been reassigning EVERY pending card to `judy@snagged.com` (`OWNER_REVIEW_REMINE_ASSIGNEE`),
+    so after "Re-mine ALL pending" the cards vanished from the clicker's **"Assigned to me"** view on refresh
+    (the seller data persisted fine via `applyRemine` — the cards had just moved owners). Fix: "Re-mine ALL
+    pending" (mode "all") + the `owner-review-remine` cron now pass `assignTo=null` (applyRemine only sets
+    `assigned_to` when truthy → leaves it untouched); only **"Wrong-only → Judy"** (mode "wrong") assigns to
+    Judy. AND the full "Re-mine ALL pending" resweep calls `returnAutoAssignedToPool(REMINE_ASSIGNEE)` →
+    nulls `assigned_to` for pending cards currently on Judy so they return to the UNASSIGNED pool (unassigned
+    shows in every reviewer's "Assigned to me" via `include_unassigned`), undoing the earlier blanket
+    reassignment. Only touches that one assignee's pending cards; hand-assignments to others are left alone.
   - **Per-card "↻ Re-mine from email" (2026-09-02).** Existing cards were mined with the OLD (first-10) logic
     and `mineAllTxns` skips domains that already have a card, so they don't self-correct. Added action **`remine`**
     on `[id]` (maxDuration 60): re-runs `mineOwnerForDomain(card.domain)` with the new whole-thread logic and
