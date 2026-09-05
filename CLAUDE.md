@@ -992,6 +992,28 @@ miner over all 477 txns is also Increment 2).
     body search. Also: default remine concurrency 4→6 (local mirror = Anthropic is the only limiter), and
     **"Re-mine ALL pending" now DRAINS the whole backlog per click** (server loop-drain ≤250s, batch 40 —
     `remine-bulk` route `drain:true`) instead of 12 at a time.
+  - **⚠️ Seller-side CONTACT (broker/rep OK) + ESCALATING thread window + RE-SWEEP (Rob, 2026-09-05).** Two
+    more cards (dreaming.com, trmnl.com) had the seller negotiation in an OLDER thread behind the escrow/
+    closing/buyer threads, so the newest-first window missed it; and the old prompt refused a broker/rep
+    ("seller_found=false") when the ultimate owner stayed hidden. Rob: the point is WHO TO CONTACT to buy
+    the name — a broker/rep's contact IS the wanted answer — and just widen until confident. Fixes in
+    `lib/deals/owner-review-mine.ts`: (1) SYSTEM prompt retargeted to the **seller-side point of contact**
+    (owner if they corresponded, else their named broker/rep — Kara relaying via caymanbusinessweb@gmail.com,
+    Nick nnelson@trmnl.com); `seller_found=false` ONLY when there's no human counterparty (auction/registration/
+    marketplace bot); the BUYER (ryan@usetrmnl.com) + Escrow.com/marketplace PLATFORM bots + our own staff
+    stay excluded. (2) `gatherMessages` over-collects a candidate POOL (`candCap = maxThreads*3`) and SKIPS
+    all-noise threads (Google-Drive shares, DomainScout) so they don't waste a thread slot, honoring a
+    `maxThreads` param. (3) `mineOwnerForDomain` ESCALATES the window across rounds (10→22→40 threads,
+    18k→50k char ctx) until `isConfident` (seller_found + email-or-full-name + confidence≠none), then stops;
+    keeps the best-scored result if never fully confident. Local mirror = zero Gmail; the only cost is the
+    per-round Anthropic call, which fires only when the prior round wasn't confident. (4) Manual
+    **"Re-mine ALL / Wrong-only" now RE-SWEEPS** — `clearRemineMarkers(mode)` nulls `remined_at` for the
+    target pending set ONCE at sweep start (client passes `resweep:true` on the first drain batch only), so
+    it reprocesses EVERY pending card with the improved miner, not just never-mined ones. The unattended
+    cron stays marker-bounded (can't loop). Also: `ReviewCard` Edit form now re-seeds from the card on
+    content change (a re-mine no longer makes Edit look like it "wiped" the card), and the bulk button
+    drains the whole backlog CLIENT-side (loop of bounded batches until remaining=0), robust to serverless
+    timeouts.
   - **Per-card "↻ Re-mine from email" (2026-09-02).** Existing cards were mined with the OLD (first-10) logic
     and `mineAllTxns` skips domains that already have a card, so they don't self-correct. Added action **`remine`**
     on `[id]` (maxDuration 60): re-runs `mineOwnerForDomain(card.domain)` with the new whole-thread logic and
