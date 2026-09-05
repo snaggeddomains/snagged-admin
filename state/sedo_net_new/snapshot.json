@@ -7,5 +7,14 @@
     "price": 44995.0,
     "tld": "ai",
     "url": "https://sedo.com/search/details/?domain=enhances.ai"
+  },
+  {
+    "currency": "USD",
+    "domain": "vocals.co",
+    "end_time_utc": "2026-09-05T21:51:45+00:00",
+    "is_mub": false,
+    "price": 500.0,
+    "tld": "co",
+    "url": "https://sedo.com/search/details/?domain=vocals.co"
   }
 ]
