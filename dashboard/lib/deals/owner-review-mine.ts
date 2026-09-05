@@ -93,25 +93,27 @@ export type MinedOwner = {
   evidence: string;
 };
 
-const SYSTEM = `You analyze the email threads around a domain that Snagged (a domain brokerage) ACQUIRED. Your ONE job: identify the OWNER we BOUGHT THE DOMAIN FROM — the SELLER — as of that acquisition.
+const SYSTEM = `You analyze the email threads around a domain that Snagged (a domain brokerage) ACQUIRED. Your ONE job: identify the SELLER-SIDE POINT OF CONTACT for that acquisition — the person we (Snagged: rob@/brian@ snagged.com/.co) negotiated with to BUY the domain, so we know WHO TO CONTACT about this name.
 
-CRITICAL — direction:
-- The SELLER is the party who owned the domain and sold it TO Snagged (rob@/brian@ snagged.com/.co).
-- Do NOT return the BUYER we later resold it to, an inbound inquirer, or a colleague at the buyer's company.
-- Do NOT return a broker/escrow/marketplace intermediary as the owner (GoDaddy/Afternic broker, Escrow.com agent, a marketplace) — if the real owner is hidden behind one of those, seller_found=false and set channel accordingly.
-- If the domain was caught at a DROP AUCTION (DropCatch/NameJet/etc.) or REGISTERED (not bought from an owner), seller_found=false, channel="DropCatch auction" / "registration".
+WHAT TO RETURN (in order of preference, but ANY of these is a valid answer — don't hold out for the "real" owner):
+- The OWNER themselves if they corresponded directly (quotes their own price, reveals a personal stake, replies from a real personal/company address).
+- OTHERWISE the SELLER'S BROKER / AGENT / REP — a named human who negotiated the sale ON THE SELLER'S BEHALF (e.g. "Kara <caymanbusinessweb@gmail.com>" relaying for the owner, "Nick <nnelson@trmnl.com>" at the selling company). Recording the broker/rep's contact IS the right outcome — the point is who to reach out to, not who ultimately held title. Set channel to note they're a broker/rep (e.g. "via broker Kara").
+- Capture their real name + email + phone from the display name / signature / thread.
 
-IMPORTANT — look across ALL the threads below, not just the first:
-- A single acquisition usually has BOTH an escrow/broker thread (transaction mechanics) AND a DIRECT thread with the actual owner (who names a price or reveals ownership). The escrow/broker thread often comes first or is noisiest — do NOT stop there.
-- PREFER the direct HUMAN seller who speaks as the owner — quotes their own price ("50k is the price", "my price is…"), reveals a personal stake ("otherwise it's going to power my app", "I built it", "I've owned it since…"), or replies from a real personal/company address (alex@ennube.solutions) — over the escrow/broker intermediary.
-- A privacy-relay address (…@digitalprivacy.co, whoisguard, etc.) that a REAL person replies from/through is still the owner — capture the real name+address they reply as, not the relay.
-- Only return seller_found=false (broker/none) when NO direct human seller appears in ANY of the threads.
+Do NOT return:
+- The BUYER we later resold to, an inbound inquirer, or the buyer's colleagues (e.g. ryan@usetrmnl.com when usetrmnl is the buyer).
+- Our OWN people (snagged.com/.co).
+- A pure transaction-processor with NO negotiating role: an Escrow.com/Escrow-Domains agent handling only paperwork, or a marketplace PLATFORM notification bot. (A named human broker who actually negotiated is NOT this — record them.)
 
-Full name: take the seller's real first + last name from their email display name ("Marc Hadfield <marc@vital.ai>") or signature. A generic role mailbox (privacy@, admin@, domainnetcontact@) has no personal name — leave names blank but keep the email.
+seller_found=false ONLY when there is genuinely NO human counterparty to contact: a DROP AUCTION (DropCatch/NameJet), a plain REGISTRATION, or a marketplace purchase where no person ever corresponded — set channel="DropCatch auction"/"registration"/"marketplace" accordingly.
+
+Look across ALL the threads below, not just the first — the seller-side negotiation is often in a SEPARATE, OLDER thread than the escrow/closing/buyer threads. Do not stop at the escrow thread.
+A privacy-relay address (…@digitalprivacy.co, whoisguard) a real person replies through is still that person — capture the real name+address they reply as.
+Full name: take first + last from the display name ("Nick Nelson <nnelson@trmnl.com>") or signature; a generic role mailbox (privacy@, admin@) has no personal name — leave names blank, keep the email.
 
 Return STRICT JSON only, no prose:
 {"seller_found":bool,"first_name":"","last_name":"","email":"","phone":"","channel":"","confidence":"high|medium|low|broker|none","buyer_context":"","evidence":"one short sentence"}
-confidence: high = a clearly-identified direct seller; medium = probable; low = a guess worth verifying; broker = bought via a broker/marketplace (no real owner surfaced); none = auction/registration/only-the-buyer-in-email.`;
+confidence: high = a clearly-identified seller-side contact (owner OR their named broker/rep); medium = probable; low = a guess worth verifying; broker = a broker/rep IS the recorded contact but the ultimate owner stayed hidden (still seller_found=true with their contact); none = no human counterparty at all (auction/registration/only-the-buyer-in-email).`;
 
 // Group the transcript BY THREAD (each thread's own oldest-first run), so the model sees the escrow
 // thread AND the direct-owner thread as distinct conversations rather than one date-merged blur.
@@ -138,43 +140,48 @@ function transcript(domain: string, msgs: GmailMessage[]): string {
 // from crowding out the owner thread; getThreadCapped is quota-safe (skips a giant chain). Deduped by
 // RFC Message-ID across threads/mailboxes.
 async function gatherMessages(domain: string, opts: { maxThreads?: number; perThread?: number } = {}): Promise<GmailMessage[]> {
-  const maxThreads = opts.maxThreads ?? 6;
+  const maxThreads = opts.maxThreads ?? 10;
   const perThread = opts.perThread ?? 8;
-  // 1. Distinct threads mentioning the domain, across the deal mailboxes. SUBJECT match FIRST: the real
+  // 1. CANDIDATE threads mentioning the domain, across the deal mailboxes. SUBJECT match FIRST: the real
   //    acquisition threads name the domain in the subject ("Cerebro.ai inquiry", "Purchase of X",
   //    "Wire complete … X"), whereas recurring monitoring-alert emails (DomainIQ/DomainScout) mention
   //    the domain only in their BODY — so a body-only search, ordered newest-first, gets swamped by
-  //    years of alerts and never reaches the 2024 acquisition thread. We take subject hits first, then
-  //    BODY-fill the remaining slots.
-  const threads: { mb: string; threadId: string }[] = [];
+  //    years of alerts. Subject hits first, then a noise-excluded BODY-fill. We over-collect a POOL
+  //    (candCap) so all-noise threads (Google-Drive shares, escrow bots) can be dropped without wasting
+  //    a real slot — the seller-side negotiation is often an OLDER thread behind the closing/buyer ones.
+  const candCap = Math.max(maxThreads * 3, 30);
+  const cand: { mb: string; threadId: string }[] = [];
   const seenThread = new Set<string>();
   const collect = async (query: string) => {
     for (const mb of minerMailboxes()) {
-      if (threads.length >= maxThreads) break;
+      if (cand.length >= candCap) break;
       let stubs: { id: string; threadId: string }[] = [];
-      try { stubs = await searchMessages(mb, query, 40); } catch { continue; }
+      try { stubs = await searchMessages(mb, query, Math.max(candCap, 60)); } catch { continue; }
       for (const s of stubs) {
-        if (threads.length >= maxThreads) break;
+        if (cand.length >= candCap) break;
         const key = `${mb}:${s.threadId}`;
         if (seenThread.has(key)) continue;
         seenThread.add(key);
-        threads.push({ mb, threadId: s.threadId });
+        cand.push({ mb, threadId: s.threadId });
       }
     }
   };
   await collect(`subject:"${domain}"`);           // acquisition threads name the domain in the subject
-  // Body-fill any remaining slots, EXCLUDING recurring monitoring-alert digests (DomainIQ/DomainScout)
-  // that mention the domain only in their body — otherwise a newest-first body search is swamped by
-  // years of alerts and never reaches the acquisition thread (cerebro.ai had 311/405 body hits = alerts).
-  if (threads.length < maxThreads) await collect(`"${domain}" -from:domainiq -from:domainscout -subject:"monitoring alert" -subject:"domainIQ:"`);
-  // 2. Pull each whole thread; keep its oldest `perThread` non-bulk messages (identity/price is
-  //    usually stated early). Dedupe by Message-ID.
+  if (cand.length < candCap) await collect(`"${domain}" -from:domainiq -from:domainscout -subject:"monitoring alert" -subject:"domainIQ:"`);
+  // 2. Pull candidate threads (newest-first) until we have `maxThreads` NON-EMPTY ones; a thread whose
+  //    every message is noise/bulk (monitoring alert, Google-Drive share, mailer-daemon) contributes 0
+  //    and does NOT consume a slot. Keep each thread's oldest `perThread` real messages (identity/price
+  //    is usually stated early). Dedupe by Message-ID.
   const seenMid = new Set<string>();
   const out: GmailMessage[] = [];
-  for (const { mb, threadId } of threads) {
+  let keptThreads = 0;
+  for (const { mb, threadId } of cand) {
+    if (keptThreads >= maxThreads) break;
     let msgs: GmailMessage[] = [];
     try { msgs = await getThreadCapped(mb, threadId); } catch { continue; }
     const kept = msgs.filter((m) => !m.bulk && !isNoiseMsg(m)).sort((a, b) => a.date - b.date).slice(0, perThread);
+    if (!kept.length) continue;   // all-noise thread → don't spend a slot on it
+    keptThreads++;
     for (const m of kept) {
       const k = m.mid || m.id;
       if (seenMid.has(k)) continue;
@@ -185,23 +192,18 @@ async function gatherMessages(domain: string, opts: { maxThreads?: number; perTh
   return out;
 }
 
-// LLM: determine the seller we bought `domain` from. Fail-open to a null-ish "none" result.
-export async function mineOwnerForDomain(domain: string, env: NodeJS.ProcessEnv = process.env): Promise<MinedOwner> {
-  const empty: MinedOwner = { seller_found: false, first_name: "", last_name: "", email: "", phone: "", channel: "", confidence: "none", buyer_context: "", evidence: "" };
-  const key = env.ANTHROPIC_API_KEY;
-  if (!key) return empty;
-  const msgs = await gatherMessages(domain);
-  if (!msgs.length) return { ...empty, evidence: "No acquisition thread found in the deal mailboxes." };
+// One LLM pass over a gathered message set → a MinedOwner (or null on any error).
+async function mineOnce(domain: string, msgs: GmailMessage[], cap: number, key: string): Promise<MinedOwner | null> {
   try {
     const res = await fetch(ANTHROPIC_URL, {
       method: "POST",
       headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-      body: JSON.stringify({ model: MODEL, max_tokens: 600, system: SYSTEM, messages: [{ role: "user", content: transcript(domain, msgs).slice(0, 16000) }] }),
+      body: JSON.stringify({ model: MODEL, max_tokens: 600, system: SYSTEM, messages: [{ role: "user", content: transcript(domain, msgs).slice(0, cap) }] }),
     });
     const data = (await res.json()) as { content?: { type: string; text?: string }[] };
     const text = (data.content || []).filter((b) => b.type === "text").map((b) => b.text || "").join("");
     const j = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1)) as Partial<MinedOwner>;
-    const out: MinedOwner = {
+    return {
       seller_found: !!j.seller_found,
       first_name: clean(String(j.first_name || "")),
       last_name: clean(String(j.last_name || "")),
@@ -212,15 +214,51 @@ export async function mineOwnerForDomain(domain: string, env: NodeJS.ProcessEnv 
       buyer_context: clean(String(j.buyer_context || "")),
       evidence: clean(String(j.evidence || "")),
     };
-    // Deterministic backstop: if we have the seller's email but the LLM didn't give a last name,
-    // pull the full name straight from the thread headers (the same path as the "⤓ Pull full name"
-    // button) — so every auto-created card carries first+last without anyone clicking.
-    if (out.email && !out.last_name) {
-      const hit = await resolveNameFromThread(domain, out.email).catch(() => null);
-      if (hit && hit.last) { out.first_name = out.first_name || hit.first; out.last_name = hit.last; }
-    }
-    return out;
-  } catch { return empty; }
+  } catch { return null; }
+}
+
+// A result is "good enough" to stop escalating: a seller-side contact WITH a way to reach them.
+function isConfident(m: MinedOwner | null): boolean {
+  return !!m && m.seller_found && (!!m.email || (!!m.first_name && !!m.last_name)) && m.confidence !== "none";
+}
+// Rank a result for "keep the best across rounds" when none is confident yet.
+function contactScore(m: MinedOwner | null): number {
+  if (!m) return -1;
+  return (m.seller_found ? 4 : 0) + (m.email ? 3 : 0) + (m.phone ? 1 : 0) + (m.first_name && m.last_name ? 2 : m.first_name ? 1 : 0);
+}
+
+// LLM: determine the seller-side point of contact we bought `domain` from. ESCALATES the thread window
+// across rounds — a small window resolves most cards fast, but a deal whose seller negotiation is an
+// OLDER thread behind the escrow/closing/buyer ones needs a wider net, so we widen until we get a
+// confident contact (then stop). Reads the strictly-local mirror (zero Gmail); the only cost is the
+// per-round Anthropic call, so escalation only fires when the previous round wasn't confident.
+export async function mineOwnerForDomain(domain: string, env: NodeJS.ProcessEnv = process.env): Promise<MinedOwner> {
+  const empty: MinedOwner = { seller_found: false, first_name: "", last_name: "", email: "", phone: "", channel: "", confidence: "none", buyer_context: "", evidence: "" };
+  const key = env.ANTHROPIC_API_KEY;
+  if (!key) return empty;
+  const ROUNDS: { maxThreads: number; cap: number }[] = [
+    { maxThreads: 10, cap: 18000 },
+    { maxThreads: 22, cap: 34000 },
+    { maxThreads: 40, cap: 50000 },
+  ];
+  let best: MinedOwner | null = null;
+  let sawMessages = false;
+  for (const r of ROUNDS) {
+    const msgs = await gatherMessages(domain, { maxThreads: r.maxThreads });
+    if (!msgs.length) break;             // nothing to read at this (or any wider) window
+    sawMessages = true;
+    const out = await mineOnce(domain, msgs, r.cap, key);
+    if (out && contactScore(out) > contactScore(best)) best = out;
+    if (isConfident(out)) break;         // confident seller-side contact → stop widening
+  }
+  if (!sawMessages) return { ...empty, evidence: "No acquisition thread found in the deal mailboxes." };
+  if (!best) return empty;
+  // Deterministic backstop: have an email but no last name → pull the full name from the thread headers.
+  if (best.email && !best.last_name) {
+    const hit = await resolveNameFromThread(domain, best.email).catch(() => null);
+    if (hit && hit.last) { best.first_name = best.first_name || hit.first; best.last_name = hit.last; }
+  }
+  return best;
 }
 
 // Read the Master Txns List → [{domain, date, price}] (newest last in the sheet). Column auto-detect:
@@ -354,6 +392,18 @@ async function countWrongCards(mode: "wrong" | "all" = "wrong"): Promise<number>
       return count || 0;
     } catch { return 0; }
   }
+}
+
+// Clear the remined_at marker for the target pending set so a MANUAL re-sweep reprocesses every card
+// with the current miner (the marker only exists to bound the unattended cron, not the manual button).
+// Called ONCE at the start of a manual sweep (not per batch), so the drain still terminates. Fail-open
+// (missing column → no-op; the drain then just processes the never-mined ones).
+export async function clearRemineMarkers(mode: "wrong" | "all" = "all"): Promise<void> {
+  try {
+    let q = getDb().from(CARDS).update({ remined_at: null }).eq("status", "pending");
+    if (mode === "wrong") q = q.or(WRONG_FILTER);
+    await q.not("remined_at", "is", null);
+  } catch { /* column missing / not migrated → nothing to clear */ }
 }
 
 async function applyRemine(id: string, mined: MinedOwner, assignTo: string | null): Promise<void> {

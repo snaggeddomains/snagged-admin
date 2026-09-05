@@ -126,7 +126,7 @@ export default function OwnerReviewClient() {
         const timer = setTimeout(() => ctrl.abort(), 120000);
         let j: { ok?: boolean; error?: string; note?: string; updated?: number; found?: number; scanned?: number; remaining?: number };
         try {
-          const res = await fetch("/api/admin/deals/owner-review/remine-bulk", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode, drain: false, limit: 40 }), signal: ctrl.signal });
+          const res = await fetch("/api/admin/deals/owner-review/remine-bulk", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode, drain: false, limit: 40, resweep: rounds === 0 }), signal: ctrl.signal });
           j = await res.json();
           if (!res.ok || j.ok === false) throw new Error(j.error || `HTTP ${res.status}`);
         } finally { clearTimeout(timer); }

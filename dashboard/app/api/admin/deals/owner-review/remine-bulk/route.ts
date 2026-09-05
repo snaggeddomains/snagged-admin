@@ -5,7 +5,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { userCanAction } from "@/lib/permissions";
-import { remineWrongCards } from "@/lib/deals/owner-review-mine";
+import { remineWrongCards, clearRemineMarkers } from "@/lib/deals/owner-review-mine";
 import { withGmailFeature, isGmailBudgetError, GMAIL_BUDGET_MESSAGE } from "@/lib/gmail-budget";
 
 export const runtime = "nodejs";
@@ -18,9 +18,13 @@ export async function POST(req: NextRequest) {
   const me = await getCurrentUser();
   if (!me) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   if (!me.is_admin && !userCanAction(me, "deals.all")) return NextResponse.json({ error: "No access" }, { status: 403 });
-  const body = (await req.json().catch(() => ({}))) as { limit?: number; dry?: boolean; mode?: "wrong" | "all"; drain?: boolean };
+  const body = (await req.json().catch(() => ({}))) as { limit?: number; dry?: boolean; mode?: "wrong" | "all"; drain?: boolean; resweep?: boolean };
   const batch = Math.min(Math.max(Number(body.limit) || 40, 1), 60);
   const mode = body.mode === "all" ? "all" : "wrong";
+  // resweep (manual button, first batch only): clear remined_at for the target pending set so the sweep
+  // reprocesses EVERY card with the current miner — not just the never-mined ones. Done once, before
+  // mining, so the drain still terminates (each card is re-stamped as it's mined).
+  if (body.resweep && !body.dry) await clearRemineMarkers(mode);
   // Local-mirror reads = zero Gmail, so there's no throttle reason to cap at one small batch. When
   // `drain` is set (the "Re-mine ALL pending" button), loop-drain the WHOLE backlog in one request up
   // to a ~250s time budget (under maxDuration 300); each card is bounded to one re-mine by remined_at,
