@@ -972,6 +972,26 @@ miner over all 477 txns is also Increment 2).
     a "look across ALL threads; PREFER the direct human seller who quotes their own price / reveals a personal
     stake / replies from a real address (incl. a person replying THROUGH a privacy relay) over the escrow/broker
     intermediary; only broker/none if NO direct seller in ANY thread" rule. Input cap 12k→16k.
+  - **⚠️ SUBJECT-FIRST thread search — body search is poisoned by recurring mail (2026-09-05).** Even the
+    whole-thread gather missed cerebro.ai's real seller: it searched the LOCAL MIRROR by **body**
+    (`search_text ilike '%<domain>%'`) newest-first, and a domain with recurring automated mail buries the
+    acquisition thread — cerebro.ai had **405 body matches, 311 of them DomainIQ monitoring digests** (each
+    digest lists every monitored domain in its body) PLUS daily `admin@cerebro.ai` "Feedback Request" emails,
+    ALL newer than the Jan-2024 buy → the newest-N stubs were 100% noise → LLM saw only noise ("no direct
+    seller found"), or all-noise-filtered → "No acquisition thread found." Fix in `gatherMessages`
+    (`lib/deals/owner-review-mine.ts`): search **`subject:"<domain>"` FIRST** — the acquisition threads name
+    the domain in the SUBJECT ("Cerebro.ai inquiry", "Purchase of Cerebro.AI", "Wire complete … Cerebro.ai")
+    while none of the recurring noise does — then BODY-FILL remaining slots with monitoring senders/subjects
+    excluded (`"<domain>" -from:domainiq -from:domainscout -subject:"monitoring alert" -subject:"domainIQ:"`).
+    `NOISE_FROM`/`NOISE_SUBJECT` widened to DomainIQ + generic "monitoring alert". **`lib/gmail-mirror.ts`
+    parseQuery/buildQuery gained `-from:`/`-to:`/`-subject:` negation** (SQL `NOT ILIKE`) for the noise-excluded
+    body-fill. **⚠️ REQUIRES a trgm index on `subject`** — `idx_gmail_msgs_subject_trgm` in
+    `scripts/gmail_mirror.sql` (run on the **`domain-owner-research`** PRODUCTION project — NOT
+    snagged-naming-universe — https://github.com/snaggeddomains/snagged-admin/blob/main/dashboard/scripts/gmail_mirror.sql );
+    without it `subject ILIKE '%domain%'` seq-scans/times out and the mirror falls back to the (poisoned)
+    body search. Also: default remine concurrency 4→6 (local mirror = Anthropic is the only limiter), and
+    **"Re-mine ALL pending" now DRAINS the whole backlog per click** (server loop-drain ≤250s, batch 40 —
+    `remine-bulk` route `drain:true`) instead of 12 at a time.
   - **Per-card "↻ Re-mine from email" (2026-09-02).** Existing cards were mined with the OLD (first-10) logic
     and `mineAllTxns` skips domains that already have a card, so they don't self-correct. Added action **`remine`**
     on `[id]` (maxDuration 60): re-runs `mineOwnerForDomain(card.domain)` with the new whole-thread logic and
