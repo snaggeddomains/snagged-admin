@@ -386,7 +386,8 @@ function ReviewCard({ card, reviewers, onDone, onRefresh, onSkip }: { card: Card
           <span className="muted" style={{ fontSize: 12, fontWeight: 600 }}>Quick classify:</span>
           <button style={btnTag} disabled={!!busy} onClick={() => act("quicktag", { preset: "namecheap" })} title="File under the shared 'NameCheap Inc' owner (the .ai portfolio Namecheap sells). All cards tagged this link to ONE owner record — edit its name/contact once and it cascades to the whole portfolio.">🏷 Namecheap portfolio</button>
           <button style={btnTag} disabled={!!busy} onClick={() => act("quicktag", { preset: "godaddy_jason" })} title="File under the shared 'Jason Villalobos' (GoDaddy broker) owner — all GoDaddy/Jason-brokered cards link to one record; edit contact once, cascades to all.">🏷 Jason / GoDaddy</button>
-          <button style={btnTag} disabled={!!busy} onClick={() => act("quicktag", { preset: "drop" })} title="Caught from a drop (DropCatch/NameJet auction) — no prior owner to record. Marks the card dismissed with the channel noted.">🪂 Caught from drop</button>
+          <button style={btnTag} disabled={!!busy} onClick={() => act("quicktag", { preset: "drop" })} title="Caught from a drop (DropCatch/NameJet drop-catch) — no prior owner to record. Marks the card dismissed with the channel noted.">🪂 Caught from drop</button>
+          <button style={btnTag} disabled={!!busy} onClick={() => act("quicktag", { preset: "auction" })} title="Bought at auction (GoDaddy Auctions / NameJet / Sedo / expired auction) — no prior owner to record. Marks the card dismissed with the channel noted.">🔨 Bought from auction</button>
           <button style={btnTag} disabled={!!busy} onClick={() => act("quicktag", { preset: "platform" })} title="Bought directly from a marketplace platform (Afternic/Sedo/Atom/GoDaddy) — no individual seller. Marks the card dismissed with the channel noted.">🛒 Direct from platform</button>
         </div>
       )}

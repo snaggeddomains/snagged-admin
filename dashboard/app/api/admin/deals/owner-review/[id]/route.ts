@@ -25,6 +25,7 @@ const QUICK_PRESETS: Record<string, { type: "owner" | "dismiss"; ownerName?: str
   namecheap:     { type: "owner", ownerName: "NameCheap Inc", company: "Namecheap", channel: "Namecheap Market / portfolio", confidence: "high" },
   godaddy_jason: { type: "owner", ownerName: "Jason Villalobos", first: "Jason", last: "Villalobos", email: "jxvillalobos@godaddy.com", company: "GoDaddy", channel: "GoDaddy broker (Jason)", confidence: "high" },
   drop:          { type: "dismiss", channel: "DropCatch auction", note: "Caught from a drop — no prior owner to record." },
+  auction:       { type: "dismiss", channel: "Auction", note: "Bought at auction (GoDaddy/NameJet/Sedo/etc.) — no prior owner to record." },
   platform:      { type: "dismiss", channel: "Marketplace platform", note: "Purchased directly from a marketplace platform — no individual seller." },
 };
 
