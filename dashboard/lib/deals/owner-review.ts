@@ -7,7 +7,7 @@
 // (migration not run) returns [] / 0 rather than erroring, so Admin/Deals stay usable pre-migration.
 
 import { getDb, isDbConfigured } from "../supabase";
-import { findOwner, createOwner, updateOwner, type OwnerInput } from "./owners";
+import { findOwner, getOwner, createOwner, updateOwner, type OwnerInput } from "./owners";
 
 const CARDS = "owner_review_cards";
 const DEALS = "deals";
@@ -180,7 +180,7 @@ export async function reassignCard(id: string, assignedTo: string | null): Promi
 //   2. link EVERY deal for this domain to that owner (a domain → its owner),
 //   3. mark the card confirmed + stamp deal_owner_id.
 // Idempotent — re-confirming just re-upserts + re-links.
-export async function confirmCard(id: string, patch: Record<string, unknown>, by: string | null): Promise<{ card: OwnerReviewCard; owner_id: string; linked: number }> {
+export async function confirmCard(id: string, patch: Record<string, unknown>, by: string | null, linkOwnerId?: string | null): Promise<{ card: OwnerReviewCard; owner_id: string; linked: number }> {
   const card = await getCard(id);
   if (!card) throw new Error("card not found");
   // Apply any inline edits first so the confirmed values persist on the card + flow to the owner.
@@ -197,7 +197,9 @@ export async function confirmCard(id: string, patch: Record<string, unknown>, by
   const provenance = `Confirmed as the owner we bought ${merged.domain} from${merged.txn_date ? ` (${merged.txn_date}${merged.txn_price ? `, ${merged.txn_price}` : ""})` : ""}${merged.channel ? ` via ${merged.channel}` : ""}${company ? ` — entity: ${company}` : ""}.`;
 
   // 1. Upsert the owner. `company` = the owning entity (e.g. Blue Nova) when the contact is its rep.
-  let owner = await findOwner({ name: name || undefined, emails });
+  // linkOwnerId (the "🔗 Link to an existing owner" typeahead) forces linking to THAT owner record so
+  // the card GROUPS with it — merging this card's contact into it — instead of a fuzzy name/email match.
+  let owner = linkOwnerId ? await getOwner(linkOwnerId) : await findOwner({ name: name || undefined, emails });
   if (owner) {
     owner = await updateOwner(owner.id, {
       ...(name ? { name } : {}),

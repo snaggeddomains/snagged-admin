@@ -296,6 +296,47 @@ function ReviewCard({ card, reviewers, onDone, onRefresh, onSkip }: { card: Card
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [card.id, card.candidate_first_name, card.candidate_last_name, card.candidate_name, card.candidate_email, card.candidate_phone, card.candidate_company, card.channel, card.confidence, card.evidence, card.buyer_context, card.notes, editing]);
 
+  // Typeahead against the EXISTING owners directory, so a card can be GROUPED with someone already in
+  // the DB (e.g. edit howie.com → "Blue Nova"). Picking an owner fills the contact fields from that
+  // record; on Confirm, findOwner matches by name/email → the card links to that SAME owner record.
+  const [ownerQ, setOwnerQ] = useState("");
+  const [ownerHits, setOwnerHits] = useState<{ id: string; name: string; email: string | null; company: string | null }[]>([]);
+  const [ownerOpen, setOwnerOpen] = useState(false);
+  const [linkedOwner, setLinkedOwner] = useState<{ id: string; name: string } | null>(null);
+  const [platformPick, setPlatformPick] = useState(false);
+  useEffect(() => { setLinkedOwner(null); setOwnerQ(""); setOwnerHits([]); setOwnerOpen(false); setPlatformPick(false); }, [card.id]);
+  useEffect(() => {
+    const term = ownerQ.trim();
+    if (!ownerOpen || term.length < 2) { setOwnerHits([]); return; }
+    let cancel = false;
+    const t = setTimeout(async () => {
+      try {
+        const r = await fetch(`/api/admin/deals/owners?typeahead=${encodeURIComponent(term)}`);
+        const j = await r.json();
+        if (!cancel) setOwnerHits((j.owners || []) as typeof ownerHits);
+      } catch { if (!cancel) setOwnerHits([]); }
+    }, 200);
+    return () => { cancel = true; clearTimeout(t); };
+  }, [ownerQ, ownerOpen]);
+  const pickOwner = (o: { id: string; name: string; email: string | null; company: string | null }) => {
+    // Group with this existing owner on Confirm (link_owner_id). Also prefill the company + fill a blank
+    // contact from the owner (but KEEP the card's own person contact if it already has one — you may be
+    // attaching, e.g., Leandra under the Blue Nova entity).
+    setLinkedOwner({ id: o.id, name: o.name });
+    setF((s) => {
+      const hasContact = !!(s.candidate_first_name || s.candidate_last_name || s.candidate_email);
+      const toks = (o.name || "").trim().split(/\s+/).filter(Boolean);
+      return {
+        ...s,
+        candidate_company: o.company || s.candidate_company || o.name,
+        candidate_first_name: hasContact ? s.candidate_first_name : (toks[0] || ""),
+        candidate_last_name: hasContact ? s.candidate_last_name : toks.slice(1).join(" "),
+        candidate_email: s.candidate_email || o.email || "",
+      };
+    });
+    setOwnerOpen(false); setOwnerHits([]); setOwnerQ("");
+  };
+
   const act = async (action: string, extra: Record<string, unknown> = {}) => {
     setBusy(action); setMsg(null);
     try {
@@ -352,6 +393,21 @@ function ReviewCard({ card, reviewers, onDone, onRefresh, onSkip }: { card: Card
         </div>
       ) : (
         <div style={{ marginTop: 6, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 14px" }}>
+          <div style={{ gridColumn: "1 / -1", position: "relative", marginBottom: 6 }}>
+            <label style={L}>🔗 Link to an existing owner <span style={{ fontWeight: 400, color: "var(--muted,#8a94a0)" }}>(group this card with someone already in the directory)</span></label>
+            <input style={input} value={ownerQ} placeholder="Search owners by name / company / email — e.g. Blue Nova" onChange={(e) => { setOwnerQ(e.target.value); setOwnerOpen(true); }} onFocus={() => setOwnerOpen(true)} />
+            {ownerOpen && ownerHits.length > 0 && (
+              <div style={{ position: "absolute", zIndex: 10, left: 0, right: 0, top: "100%", marginTop: 2, background: "var(--paper,#fff)", border: "1px solid var(--line,#e3ddcf)", borderRadius: 9, boxShadow: "0 6px 20px rgba(20,25,30,.14)", maxHeight: 230, overflowY: "auto" }}>
+                {ownerHits.map((o) => (
+                  <div key={o.id} onClick={() => pickOwner(o)} style={{ padding: "8px 11px", cursor: "pointer", fontSize: 13.5, borderBottom: "1px solid var(--line,#f0eadc)" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "var(--paper-2,#f7f5ef)")} onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
+                    <strong style={{ color: "var(--navy,#254254)" }}>{o.name}</strong>{o.company ? ` · ${o.company}` : ""}{o.email ? <span style={{ color: "var(--muted,#8a94a0)" }}> · {o.email}</span> : ""}
+                  </div>
+                ))}
+              </div>
+            )}
+            {linkedOwner && <div style={{ marginTop: 6, fontSize: 12.5, color: "#2f7d4f", fontWeight: 600 }}>→ will link to <strong>{linkedOwner.name}</strong> on confirm <button onClick={() => setLinkedOwner(null)} style={{ border: "none", background: "none", cursor: "pointer", color: "var(--muted,#8a94a0)", fontSize: 12.5 }}>✕ unlink</button></div>}
+          </div>
           <div><label style={L}>First name</label><input style={input} value={f.candidate_first_name} onChange={(e) => set("candidate_first_name", e.target.value)} placeholder="e.g. Marc" /></div>
           <div><label style={L}>Last name</label><input style={input} value={f.candidate_last_name} onChange={(e) => set("candidate_last_name", e.target.value)} placeholder="e.g. Hadfield" /></div>
           <div><label style={L}>Email</label><input style={input} value={f.candidate_email} onChange={(e) => set("candidate_email", e.target.value)} /></div>
@@ -368,8 +424,8 @@ function ReviewCard({ card, reviewers, onDone, onRefresh, onSkip }: { card: Card
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 18, alignItems: "center" }}>
         {/* No-owner card (broker/marketplace/auction): Dismiss is the right call → make it primary. */}
         {card.status === "pending" && !editing && noOwner && <button style={btnDismiss} disabled={!!busy} onClick={() => act("dismiss")} title="No actual owner to log — bought via a broker / marketplace / auction. We only record real sellers.">⊘ Dismiss — no owner</button>}
-        {card.status === "pending" && !editing && <button style={noOwner ? btn : btnGood} disabled={!!busy} onClick={() => act("confirm")}>{busy === "confirm" ? "…" : "✓ Confirm owner"}</button>}
-        {editing && <button style={btnPrimary} disabled={!!busy} onClick={() => act("confirm")}>{busy === "confirm" ? "…" : "✓ Save & confirm"}</button>}
+        {card.status === "pending" && !editing && <button style={noOwner ? btn : btnGood} disabled={!!busy} onClick={() => act("confirm", linkedOwner ? { link_owner_id: linkedOwner.id } : {})}>{busy === "confirm" ? "…" : "✓ Confirm owner"}</button>}
+        {editing && <button style={btnPrimary} disabled={!!busy} onClick={() => act("confirm", linkedOwner ? { link_owner_id: linkedOwner.id } : {})}>{busy === "confirm" ? "…" : "✓ Save & confirm"}</button>}
         <button style={btn} disabled={!!busy} onClick={() => { if (editing) act("edit"); else setEditing(true); }}>{editing ? (busy === "edit" ? "…" : "Save edits") : "✎ Edit"}</button>
         {editing && <button style={btn} onClick={() => setEditing(false)}>Cancel</button>}
         {card.status === "pending" && !editing && <button style={btn} disabled={!!busy} onClick={() => act("reject")} title="The surfaced candidate is wrong / mis-identified (e.g. it named the buyer as the seller)">✕ Reject</button>}
@@ -388,7 +444,15 @@ function ReviewCard({ card, reviewers, onDone, onRefresh, onSkip }: { card: Card
           <button style={btnTag} disabled={!!busy} onClick={() => act("quicktag", { preset: "godaddy_jason" })} title="File under the shared 'Jason Villalobos' (GoDaddy broker) owner — all GoDaddy/Jason-brokered cards link to one record; edit contact once, cascades to all.">🏷 Jason / GoDaddy</button>
           <button style={btnTag} disabled={!!busy} onClick={() => act("quicktag", { preset: "drop" })} title="Caught from a drop (DropCatch/NameJet drop-catch) — no prior owner to record. Marks the card dismissed with the channel noted.">🪂 Caught from drop</button>
           <button style={btnTag} disabled={!!busy} onClick={() => act("quicktag", { preset: "auction" })} title="Bought at auction (GoDaddy Auctions / NameJet / Sedo / expired auction) — no prior owner to record. Marks the card dismissed with the channel noted.">🔨 Bought from auction</button>
-          <button style={btnTag} disabled={!!busy} onClick={() => act("quicktag", { preset: "platform" })} title="Bought directly from a marketplace platform (Afternic/Sedo/Atom/GoDaddy) — no individual seller. Marks the card dismissed with the channel noted.">🛒 Direct from platform</button>
+          <button style={btnTag} disabled={!!busy} onClick={() => setPlatformPick((v) => !v)} title="Bought directly from a marketplace platform — pick which one; marks the card dismissed with that platform as the channel.">🛒 Direct from platform{platformPick ? " ▾" : " ▸"}</button>
+        </div>
+      )}
+      {card.status === "pending" && !editing && platformPick && (
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8, alignItems: "center", paddingLeft: 4 }}>
+          <span className="muted" style={{ fontSize: 12 }}>Which platform?</span>
+          {["Afternic", "Sedo", "Atom", "Spaceship", "GoDaddy", "Dan.com", "Namecheap Market", "DropCatch", "Dynadot", "Squadhelp"].map((pf) => (
+            <button key={pf} style={{ ...btnTag, fontSize: 12 }} disabled={!!busy} onClick={() => act("quicktag", { preset: "platform", platform: pf })} title={`Purchased directly from ${pf} — no individual seller.`}>{pf}</button>
+          ))}
         </div>
       )}
 

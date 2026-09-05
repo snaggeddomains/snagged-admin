@@ -46,7 +46,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   try {
     switch (action) {
       case "confirm": {
-        const res = await confirmCard(id, patch, me!.email);
+        // link_owner_id (from the "Link to an existing owner" typeahead) groups the card with that owner.
+        const linkOwnerId = body.link_owner_id ? String(body.link_owner_id) : null;
+        const res = await confirmCard(id, patch, me!.email, linkOwnerId);
         return NextResponse.json({ ok: true, ...res });
       }
       case "edit":
@@ -74,8 +76,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           }, me!.email);
           return NextResponse.json({ ok: true, ...res });
         }
-        // dismiss preset: record the channel/reason, then mark dismissed (no owner to log).
-        await updateCard(id, { channel: p.channel, confidence: "none", notes: p.note || "" }, me!.email);
+        // dismiss preset: record the channel/reason, then mark dismissed (no owner to log). A specific
+        // platform (Atom/Spaceship/Afternic/…) can be passed to name the exact channel.
+        const platform = body.platform ? String(body.platform).trim() : "";
+        const channel = platform || p.channel;
+        const note = platform ? `Purchased directly from ${platform} — no individual seller.` : (p.note || "");
+        await updateCard(id, { channel, confidence: "none", notes: note }, me!.email);
         return NextResponse.json({ ok: true, card: await setCardStatus(id, "dismissed", me!.email) });
       }
       case "remine": {
