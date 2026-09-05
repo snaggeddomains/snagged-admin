@@ -15,6 +15,15 @@ type Reviewer = { email: string; name: string };
 type Mirror = { localOnly: boolean; lastSyncedAt: string | null; dataThrough: string | null; mailboxes: { mailbox: string; lastSyncedAt: string | null; messages: number }[] };
 type Resp = { ok: boolean; configured?: boolean; cards: Card[]; myPending: number; reviewers: Reviewer[]; canMine?: boolean; me?: string; mirror?: Mirror | null; error?: string };
 
+// A dropped/interrupted fetch (mobile Safari "Load failed", "Failed to fetch", network errors, or our
+// own AbortController) — distinct from a real server error. The long-running mine/remine POST keeps
+// going server-side when the browser drops the connection, so we surface a "still running" hint.
+function isNetworkDrop(e: unknown): boolean {
+  const err = e as Error;
+  if (err?.name === "AbortError" || err?.name === "TypeError") return true;
+  return /load failed|failed to fetch|network|connection/i.test(String(err?.message || ""));
+}
+
 // Relative-time for the mirror badge.
 function relTime(iso: string | null): string {
   if (!iso) return "";
@@ -113,7 +122,7 @@ export default function OwnerReviewClient() {
       else setMineMsg(`✓ Re-mined ${j.updated} → assigned Judy · found a real seller on ${j.found}/${j.scanned} · ${j.remaining} wrong card${j.remaining === 1 ? "" : "s"} left (the cron drains these automatically — 12 every 2 min)`);
       await load();
     } catch (e) {
-      const msg = (e as Error)?.name === "AbortError" ? "Still re-mining server-side — refresh in a minute to see the updated cards." : String((e as Error)?.message || e);
+      const msg = isNetworkDrop(e) ? "Still re-mining server-side — refresh in a minute to see the updated cards." : String((e as Error)?.message || e);
       setMineMsg(`⚠️ ${msg}`);
       await load().catch(() => {});
     } finally { clearTimeout(timer); setRemining(false); }
@@ -133,7 +142,9 @@ export default function OwnerReviewClient() {
       else setMineMsg(`✓ Created ${j.created} card${j.created === 1 ? "" : "s"} · ${j.remaining ?? 0} still to mine${j.remaining ? " — click again to continue" : " · backlog complete 🎉"}`);
       await load();
     } catch (e) {
-      const msg = (e as Error)?.name === "AbortError"
+      // A dropped/aborted fetch (mobile Safari says "Load failed"; also "Failed to fetch" / network
+      // errors / our 150s abort) does NOT mean mining failed — the batch keeps running server-side.
+      const msg = isNetworkDrop(e)
         ? "Still mining server-side — the batch is running; refresh in a minute to see new cards, then click again to continue."
         : String((e as Error)?.message || e);
       setMineMsg(`⚠️ ${msg}`);
