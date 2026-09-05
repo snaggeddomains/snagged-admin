@@ -1038,6 +1038,20 @@ miner over all 477 txns is also Increment 2).
     nulls `assigned_to` for pending cards currently on Judy so they return to the UNASSIGNED pool (unassigned
     shows in every reviewer's "Assigned to me" via `include_unassigned`), undoing the earlier blanket
     reassignment. Only touches that one assignee's pending cards; hand-assignments to others are left alone.
+  - **Company/entity field + one-click classify presets (Rob, 2026-09-05).** (1) A **Company** field on
+    the card (`owner_review_cards.candidate_company`, migration in `owner_review.sql`; strip-retry everywhere
+    pre-migration) — for names held by a COMPANY where the contact is its rep (howie.com: contact Jonathan
+    Francis, entity Blue Nova). The miner extracts it (`MinedOwner.company` + a SYSTEM-prompt rule + parse +
+    `applyRemine`), the edit form has a Company input, the read view shows 🏢, and `confirmCard` flows it to
+    the owner record's `company` (kind→company). EDITABLE + the per-card `remine` action carry it.
+    (2) **Quick-classify buttons** on a pending card (`quicktag` action + `QUICK_PRESETS` in `[id]/route.ts`):
+    **🏷 Namecheap portfolio** + **🏷 Jason / GoDaddy** = `owner` presets → `confirmCard` to a SHARED canonical
+    owner ("NameCheap Inc" / "Jason Villalobos" jxvillalobos@godaddy.com) so every card tagged the same links
+    to ONE `deal_owners` record — edit that owner's name/contact ONCE (Deals → Owners) and it cascades to the
+    whole portfolio (findOwner matches by name/email). **🪂 Caught from drop** + **🛒 Direct from platform** =
+    `dismiss` presets → record the channel + mark dismissed (no owner). Client buttons in `owner-review-client.tsx`
+    (`btnTag` row, gated to pending/non-editing). **Setup:** re-run `owner_review.sql` on the
+    **`domain-owner-research`** project (adds `candidate_company`; idempotent).
   - **Per-card "↻ Re-mine from email" (2026-09-02).** Existing cards were mined with the OLD (first-10) logic
     and `mineAllTxns` skips domains that already have a card, so they don't self-correct. Added action **`remine`**
     on `[id]` (maxDuration 60): re-runs `mineOwnerForDomain(card.domain)` with the new whole-thread logic and

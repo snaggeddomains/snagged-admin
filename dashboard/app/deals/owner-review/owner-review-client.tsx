@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "r
 type Card = {
   id: string; domain: string; txn_date: string | null; txn_price: string | null;
   candidate_name: string | null; candidate_first_name: string | null; candidate_last_name: string | null;
-  candidate_email: string | null; candidate_phone: string | null;
+  candidate_email: string | null; candidate_phone: string | null; candidate_company: string | null;
   channel: string | null; buyer_context: string | null; confidence: string | null;
   evidence: string | null; notes: string | null; status: string;
   assigned_to: string | null; reviewed_by: string | null; reviewed_at: string | null;
@@ -40,6 +40,7 @@ function relTime(iso: string | null): string {
 const btn: CSSProperties = { padding: "8px 15px", borderRadius: 9, border: "1px solid var(--line,#e3ddcf)", background: "transparent", fontSize: 13.5, fontWeight: 600, cursor: "pointer", color: "var(--navy,#254254)" };
 const btnPrimary: CSSProperties = { ...btn, background: "var(--coral,#e2674a)", color: "#fff", borderColor: "var(--coral,#e2674a)" };
 const btnGood: CSSProperties = { ...btn, background: "#2f7d4f", color: "#fff", borderColor: "#2f7d4f", padding: "9px 20px", fontSize: 14 };
+const btnTag: CSSProperties = { ...btn, padding: "5px 11px", fontSize: 12.5, background: "var(--paper-2,#f4f1ea)", color: "var(--navy-2,#4a5b66)" };
 const chipBtn: CSSProperties = { padding: "5px 11px", borderRadius: 8, border: "1px solid var(--line,#e3ddcf)", background: "transparent", fontSize: 12.5, fontWeight: 600, cursor: "pointer", color: "var(--navy,#254254)" };
 const input: CSSProperties = { padding: "8px 10px", borderRadius: 7, border: "1px solid var(--line,#e3ddcf)", fontSize: 14, boxSizing: "border-box", width: "100%" };
 const L: CSSProperties = { display: "block", fontSize: 10.5, fontWeight: 700, letterSpacing: 0.3, textTransform: "uppercase", color: "var(--muted,#8a94a0)", margin: "10px 0 3px" };
@@ -272,6 +273,7 @@ function ReviewCard({ card, reviewers, onDone, onRefresh, onSkip }: { card: Card
     candidate_first_name: (card.candidate_first_name || seedToks[0] || ""),
     candidate_last_name: (card.candidate_last_name || (card.candidate_first_name ? "" : seedToks.slice(1).join(" ")) || ""),
     candidate_email: card.candidate_email || "", candidate_phone: card.candidate_phone || "",
+    candidate_company: card.candidate_company || "",
     channel: card.channel || "", buyer_context: card.buyer_context || "",
     confidence: card.confidence || "", evidence: card.evidence || "", notes: card.notes || "",
   });
@@ -287,11 +289,12 @@ function ReviewCard({ card, reviewers, onDone, onRefresh, onSkip }: { card: Card
       candidate_first_name: card.candidate_first_name || toks[0] || "",
       candidate_last_name: card.candidate_last_name || (card.candidate_first_name ? "" : toks.slice(1).join(" ")) || "",
       candidate_email: card.candidate_email || "", candidate_phone: card.candidate_phone || "",
+      candidate_company: card.candidate_company || "",
       channel: card.channel || "", buyer_context: card.buyer_context || "",
       confidence: card.confidence || "", evidence: card.evidence || "", notes: card.notes || "",
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [card.id, card.candidate_first_name, card.candidate_last_name, card.candidate_name, card.candidate_email, card.candidate_phone, card.channel, card.confidence, card.evidence, card.buyer_context, card.notes, editing]);
+  }, [card.id, card.candidate_first_name, card.candidate_last_name, card.candidate_name, card.candidate_email, card.candidate_phone, card.candidate_company, card.channel, card.confidence, card.evidence, card.buyer_context, card.notes, editing]);
 
   const act = async (action: string, extra: Record<string, unknown> = {}) => {
     setBusy(action); setMsg(null);
@@ -332,6 +335,7 @@ function ReviewCard({ card, reviewers, onDone, onRefresh, onSkip }: { card: Card
           {fullName(card) ? (
             <div style={{ fontWeight: 700, color: "var(--navy,#254254)", fontSize: 17 }}>{fullName(card)}</div>
           ) : <div className="muted" style={{ fontStyle: "italic" }}>No candidate seller named</div>}
+          {card.candidate_company && <div style={{ color: "var(--navy-2,#4a5b66)", marginTop: 4 }}>🏢 {card.candidate_company}</div>}
           {card.candidate_email && <div style={{ color: "var(--navy-2,#4a5b66)", marginTop: 4 }}>✉ {card.candidate_email}</div>}
           {card.status !== "confirmed" && !editing && card.candidate_email && !(card.candidate_last_name || "").trim() && (
             <button style={{ ...btn, marginTop: 8, fontSize: 12.5, padding: "5px 11px" }} disabled={!!busy} onClick={() => act("resolve_name")} title="Read the seller's full name from the deal-mailbox thread headers">{busy === "resolve_name" ? "…" : "⤓ Pull full name from email"}</button>
@@ -352,6 +356,7 @@ function ReviewCard({ card, reviewers, onDone, onRefresh, onSkip }: { card: Card
           <div><label style={L}>Last name</label><input style={input} value={f.candidate_last_name} onChange={(e) => set("candidate_last_name", e.target.value)} placeholder="e.g. Hadfield" /></div>
           <div><label style={L}>Email</label><input style={input} value={f.candidate_email} onChange={(e) => set("candidate_email", e.target.value)} /></div>
           <div><label style={L}>Phone</label><input style={input} value={f.candidate_phone} onChange={(e) => set("candidate_phone", e.target.value)} /></div>
+          <div style={{ gridColumn: "1 / -1" }}><label style={L}>Company / entity <span style={{ fontWeight: 400, color: "var(--muted,#8a94a0)" }}>(if held by a company — the contact is its rep)</span></label><input style={input} value={f.candidate_company} onChange={(e) => set("candidate_company", e.target.value)} placeholder="e.g. Blue Nova" /></div>
           <div><label style={L}>Channel</label><input style={input} value={f.channel} onChange={(e) => set("channel", e.target.value)} placeholder="Escrow.com / Direct / GoDaddy …" /></div>
           <div><label style={L}>Confidence</label><input style={input} value={f.confidence} onChange={(e) => set("confidence", e.target.value)} placeholder="high / medium / low" /></div>
           <div style={{ gridColumn: "1 / -1" }}><label style={L}>Evidence / note</label><textarea style={{ ...input, minHeight: 52, resize: "vertical" }} value={f.evidence} onChange={(e) => set("evidence", e.target.value)} /></div>
@@ -373,6 +378,18 @@ function ReviewCard({ card, reviewers, onDone, onRefresh, onSkip }: { card: Card
         {card.status === "pending" && !editing && !noOwner && <button style={{ ...btn, color: "var(--muted,#8a94a0)" }} disabled={!!busy} onClick={() => act("dismiss")} title="No actual owner to log — set aside (reopenable). We only record real sellers.">⊘ Dismiss</button>}
         {card.status !== "pending" && <button style={btn} disabled={!!busy} onClick={() => act("reopen")}>↩ Reopen</button>}
       </div>
+
+      {/* One-click classify shortcuts for the common no-individual-owner cases. The two portfolio ones
+          file the card under a SHARED owner (edit that owner's contact once → cascades to all in the set). */}
+      {card.status === "pending" && !editing && (
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10, alignItems: "center" }}>
+          <span className="muted" style={{ fontSize: 12, fontWeight: 600 }}>Quick classify:</span>
+          <button style={btnTag} disabled={!!busy} onClick={() => act("quicktag", { preset: "namecheap" })} title="File under the shared 'NameCheap Inc' owner (the .ai portfolio Namecheap sells). All cards tagged this link to ONE owner record — edit its name/contact once and it cascades to the whole portfolio.">🏷 Namecheap portfolio</button>
+          <button style={btnTag} disabled={!!busy} onClick={() => act("quicktag", { preset: "godaddy_jason" })} title="File under the shared 'Jason Villalobos' (GoDaddy broker) owner — all GoDaddy/Jason-brokered cards link to one record; edit contact once, cascades to all.">🏷 Jason / GoDaddy</button>
+          <button style={btnTag} disabled={!!busy} onClick={() => act("quicktag", { preset: "drop" })} title="Caught from a drop (DropCatch/NameJet auction) — no prior owner to record. Marks the card dismissed with the channel noted.">🪂 Caught from drop</button>
+          <button style={btnTag} disabled={!!busy} onClick={() => act("quicktag", { preset: "platform" })} title="Bought directly from a marketplace platform (Afternic/Sedo/Atom/GoDaddy) — no individual seller. Marks the card dismissed with the channel noted.">🛒 Direct from platform</button>
+        </div>
+      )}
 
       <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid var(--line,#eee6d6)", display: "flex", alignItems: "center", gap: 8, fontSize: 12.5 }}>
         <span className="muted">Assigned to:</span>

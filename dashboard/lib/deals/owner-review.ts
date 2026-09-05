@@ -24,6 +24,7 @@ export type OwnerReviewCard = {
   candidate_last_name: string | null;
   candidate_email: string | null;
   candidate_phone: string | null;
+  candidate_company: string | null;      // owning entity (e.g. "Blue Nova") when the contact is its rep
   channel: string | null;
   buyer_context: string | null;
   confidence: string | null;
@@ -113,7 +114,7 @@ export async function getCard(id: string): Promise<OwnerReviewCard | null> {
 }
 
 // Patch the editable candidate fields (used before confirming — reviewer corrects name/email/etc).
-const EDITABLE = new Set(["candidate_name", "candidate_first_name", "candidate_last_name", "candidate_email", "candidate_phone", "channel", "buyer_context", "confidence", "evidence", "notes", "assigned_to"]);
+const EDITABLE = new Set(["candidate_name", "candidate_first_name", "candidate_last_name", "candidate_email", "candidate_phone", "candidate_company", "channel", "buyer_context", "confidence", "evidence", "notes", "assigned_to"]);
 
 // Resolve first/last for a card — prefer the explicit first/last fields, else split the full
 // candidate_name (first token = first, remainder = last). Returns clean pieces + the joined name.
@@ -140,7 +141,11 @@ export async function updateCard(id: string, patch: Record<string, unknown>, by:
     const { full } = nameParts({ candidate_first_name: merged.candidate_first_name, candidate_last_name: merged.candidate_last_name, candidate_name: null });
     if (full) update.candidate_name = full;
   }
-  const { data, error } = await getDb().from(CARDS).update(update).eq("id", id).select("*").single();
+  let { data, error } = await getDb().from(CARDS).update(update).eq("id", id).select("*").single();
+  if (error && /candidate_company/.test(error.message || "")) {   // pre-migration → drop the new column + retry
+    delete (update as Record<string, unknown>).candidate_company;
+    ({ data, error } = await getDb().from(CARDS).update(update).eq("id", id).select("*").single());
+  }
   if (error) throw new Error(`updateCard: ${error.message}`);
   void by;
   return data as OwnerReviewCard;
@@ -188,20 +193,23 @@ export async function confirmCard(id: string, patch: Record<string, unknown>, by
 
   const emails = email ? [email] : [];
   const phones = clean(merged.candidate_phone) ? [String(merged.candidate_phone).trim()] : [];
-  const provenance = `Confirmed as the owner we bought ${merged.domain} from${merged.txn_date ? ` (${merged.txn_date}${merged.txn_price ? `, ${merged.txn_price}` : ""})` : ""}${merged.channel ? ` via ${merged.channel}` : ""}.`;
+  const company = clean(merged.candidate_company);
+  const provenance = `Confirmed as the owner we bought ${merged.domain} from${merged.txn_date ? ` (${merged.txn_date}${merged.txn_price ? `, ${merged.txn_price}` : ""})` : ""}${merged.channel ? ` via ${merged.channel}` : ""}${company ? ` — entity: ${company}` : ""}.`;
 
-  // 1. Upsert the owner.
+  // 1. Upsert the owner. `company` = the owning entity (e.g. Blue Nova) when the contact is its rep.
   let owner = await findOwner({ name: name || undefined, emails });
   if (owner) {
     owner = await updateOwner(owner.id, {
       ...(name ? { name } : {}),
+      ...(company ? { company } : {}),   // only set/overwrite when we actually mined one
       emails_add: emails, phones_add: phones,
       negotiation_append: provenance,
     }, by);
   } else {
     const input: OwnerInput = {
       name: name || email || merged.domain,
-      kind: "person",
+      kind: company ? "company" : "person",
+      company: company || null,
       emails, phones,
       negotiation_notes: provenance,
     };
@@ -226,6 +234,7 @@ export async function confirmCard(id: string, patch: Record<string, unknown>, by
     candidate_last_name: last || null,
     candidate_email: email,
     candidate_phone: clean(merged.candidate_phone),
+    candidate_company: company,
     channel: clean(merged.channel),
     buyer_context: clean(merged.buyer_context),
     confidence: clean(merged.confidence),
@@ -237,7 +246,11 @@ export async function confirmCard(id: string, patch: Record<string, unknown>, by
     deal_owner_id: owner.id,
     updated_at: new Date().toISOString(),
   };
-  const { data, error } = await getDb().from(CARDS).update(update).eq("id", id).select("*").single();
+  let { data, error } = await getDb().from(CARDS).update(update).eq("id", id).select("*").single();
+  if (error && /candidate_company/.test(error.message || "")) {   // pre-migration → drop the new column + retry
+    delete (update as Record<string, unknown>).candidate_company;
+    ({ data, error } = await getDb().from(CARDS).update(update).eq("id", id).select("*").single());
+  }
   if (error) throw new Error(`confirmCard: ${error.message}`);
   return { card: data as OwnerReviewCard, owner_id: owner.id, linked };
 }

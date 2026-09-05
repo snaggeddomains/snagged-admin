@@ -87,6 +87,7 @@ export async function resolveNameFromThread(domain: string, email: string): Prom
 export type MinedOwner = {
   seller_found: boolean;
   first_name: string; last_name: string; email: string; phone: string;
+  company: string;                 // owning ENTITY (e.g. "Blue Nova") when the name is held by a company + the contact is its rep; "" for an individual
   channel: string;                 // Escrow.com / GoDaddy / Afternic / Direct / DropCatch auction / registration / inbound sale …
   confidence: "high" | "medium" | "low" | "broker" | "none";
   buyer_context: string;           // who we SOLD to / who inquired (never the owner)
@@ -110,9 +111,10 @@ seller_found=false ONLY when there is genuinely NO human counterparty to contact
 Look across ALL the threads below, not just the first — the seller-side negotiation is often in a SEPARATE, OLDER thread than the escrow/closing/buyer threads. Do not stop at the escrow thread.
 A privacy-relay address (…@digitalprivacy.co, whoisguard) a real person replies through is still that person — capture the real name+address they reply as.
 Full name: take first + last from the display name ("Nick Nelson <nnelson@trmnl.com>") or signature; a generic role mailbox (privacy@, admin@) has no personal name — leave names blank, keep the email.
+COMPANY: if the domain is held by a COMPANY/entity and the contact is its rep (e.g. escrow closing statement lists "Seller Blue Nova Inc" while Jonathan F. negotiated for them), return that entity in "company" (e.g. "Blue Nova") — the person stays in first/last, the entity in company. Leave "company" empty for a plain individual seller.
 
 Return STRICT JSON only, no prose:
-{"seller_found":bool,"first_name":"","last_name":"","email":"","phone":"","channel":"","confidence":"high|medium|low|broker|none","buyer_context":"","evidence":"one short sentence"}
+{"seller_found":bool,"first_name":"","last_name":"","email":"","phone":"","company":"","channel":"","confidence":"high|medium|low|broker|none","buyer_context":"","evidence":"one short sentence"}
 confidence: high = a clearly-identified seller-side contact (owner OR their named broker/rep); medium = probable; low = a guess worth verifying; broker = a broker/rep IS the recorded contact but the ultimate owner stayed hidden (still seller_found=true with their contact); none = no human counterparty at all (auction/registration/only-the-buyer-in-email).`;
 
 // Group the transcript BY THREAD (each thread's own oldest-first run), so the model sees the escrow
@@ -209,6 +211,7 @@ async function mineOnce(domain: string, msgs: GmailMessage[], cap: number, key: 
       last_name: clean(String(j.last_name || "")),
       email: clean(String(j.email || "")).toLowerCase(),
       phone: clean(String(j.phone || "")),
+      company: clean(String(j.company || "")),
       channel: clean(String(j.channel || "")),
       confidence: (["high", "medium", "low", "broker", "none"].includes(String(j.confidence)) ? j.confidence : "none") as MinedOwner["confidence"],
       buyer_context: clean(String(j.buyer_context || "")),
@@ -233,7 +236,7 @@ function contactScore(m: MinedOwner | null): number {
 // confident contact (then stop). Reads the strictly-local mirror (zero Gmail); the only cost is the
 // per-round Anthropic call, so escalation only fires when the previous round wasn't confident.
 export async function mineOwnerForDomain(domain: string, env: NodeJS.ProcessEnv = process.env): Promise<MinedOwner> {
-  const empty: MinedOwner = { seller_found: false, first_name: "", last_name: "", email: "", phone: "", channel: "", confidence: "none", buyer_context: "", evidence: "" };
+  const empty: MinedOwner = { seller_found: false, first_name: "", last_name: "", email: "", phone: "", company: "", channel: "", confidence: "none", buyer_context: "", evidence: "" };
   const key = env.ANTHROPIC_API_KEY;
   if (!key) return empty;
   // Two escalation rounds keeps worst-case latency bounded (a 3rd 40-thread round made batches slow
@@ -433,6 +436,7 @@ async function applyRemine(id: string, mined: MinedOwner, assignTo: string | nul
     candidate_name: [mined.first_name, mined.last_name].filter(Boolean).join(" ") || null,
     candidate_email: mined.email || null,
     candidate_phone: mined.phone || null,
+    candidate_company: mined.company || null,
     channel: mined.channel || null,
     buyer_context: mined.buyer_context || null,
     confidence: mined.confidence,
@@ -440,7 +444,12 @@ async function applyRemine(id: string, mined: MinedOwner, assignTo: string | nul
     updated_at: new Date().toISOString(),
   };
   if (assignTo) base.assigned_to = assignTo.toLowerCase();
-  const { error } = await getDb().from(CARDS).update({ ...base, remined_at: new Date().toISOString() }).eq("id", id);
+  // Write with remined_at; strip-and-retry any not-yet-migrated column (remined_at / candidate_company).
+  let { error } = await getDb().from(CARDS).update({ ...base, remined_at: new Date().toISOString() }).eq("id", id);
+  if (error && /candidate_company/.test(error.message || "")) {
+    delete (base as Record<string, unknown>).candidate_company;
+    ({ error } = await getDb().from(CARDS).update({ ...base, remined_at: new Date().toISOString() }).eq("id", id));
+  }
   if (error && /remined_at/.test(error.message || "")) await getDb().from(CARDS).update(base).eq("id", id);
 }
 

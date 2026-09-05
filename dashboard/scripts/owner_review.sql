@@ -32,6 +32,10 @@ alter table owner_review_cards add column if not exists candidate_last_name text
 -- Stamp set when a card has been RE-MINED with the whole-thread miner, so the background re-mine
 -- drain processes each wrong card exactly once (and terminates). Added after ship — safe to re-run.
 alter table owner_review_cards add column if not exists remined_at timestamptz;
+-- Owning ENTITY/company (e.g. "Blue Nova") — distinct from the contact person (candidate_name). For
+-- deals where the name is held by a company and the seller-side contact is its rep. Flows to the
+-- confirmed owner record's `company`. Added after ship — safe to re-run.
+alter table owner_review_cards add column if not exists candidate_company text;
 create unique index if not exists idx_owner_review_domain on owner_review_cards (lower(domain));
 create index if not exists idx_owner_review_queue on owner_review_cards (status, assigned_to);
 alter table owner_review_cards enable row level security;
