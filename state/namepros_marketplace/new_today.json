@@ -1,12 +1,14 @@
 {
   "capped": false,
-  "count": 3,
+  "count": 5,
   "domains": [
-    "caboose.co",
-    "cobblestones.org",
-    "squadrons.org"
+    "stadium.app",
+    "stadium.co",
+    "stadium.now",
+    "stadium.to",
+    "stadium.xyz"
   ],
-  "generated_at": "2026-09-04T23:10:10.645034+00:00",
+  "generated_at": "2026-09-05T10:06:09.620745+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }

@@ -1,5 +1,5 @@
 {
-  "count": 1000,
+  "count": 1005,
   "domains": [
     "02.to",
     "048.org",
@@ -863,6 +863,11 @@
     "squires.ai",
     "srinivas.xyz",
     "stable.co",
+    "stadium.app",
+    "stadium.co",
+    "stadium.now",
+    "stadium.to",
+    "stadium.xyz",
     "starc.net",
     "static.co",
     "std.net",
@@ -1003,5 +1008,5 @@
     "zqu.com"
   ],
   "source": "namepros_marketplace",
-  "updated_at": "2026-09-04T23:10:10.939104+00:00"
+  "updated_at": "2026-09-05T10:06:09.850256+00:00"
 }
