@@ -18,11 +18,12 @@ export async function POST(req: NextRequest) {
   const me = await getCurrentUser();
   if (!me) return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   if (!me.is_admin && !userCanAction(me, "deals.all")) return NextResponse.json({ error: "No access" }, { status: 403 });
-  const body = (await req.json().catch(() => ({}))) as { limit?: number; dry?: boolean };
+  const body = (await req.json().catch(() => ({}))) as { limit?: number; dry?: boolean; mode?: "wrong" | "all" };
   const limit = Math.min(Math.max(Number(body.limit) || 10, 1), 40);
+  const mode = body.mode === "all" ? "all" : "wrong";
   try {
-    // Governed background read — halts at the Gmail safety line to protect the shared quota.
-    const summary = await withGmailFeature("owner-review-remine", () => remineWrongCards({ limit, dry: !!body.dry, assignTo: REMINE_ASSIGNEE }));
+    // Reads the LOCAL mirror only (zero Gmail) — mode "all" re-mines every pending card, "wrong" only the broker/no-seller ones.
+    const summary = await withGmailFeature("owner-review-remine", () => remineWrongCards({ limit, dry: !!body.dry, assignTo: REMINE_ASSIGNEE, mode }));
     return NextResponse.json({ ok: true, ...summary });
   } catch (e) {
     if (isGmailBudgetError(e)) return NextResponse.json({ ok: false, budgetPaused: true, error: GMAIL_BUDGET_MESSAGE }, { status: 429 });

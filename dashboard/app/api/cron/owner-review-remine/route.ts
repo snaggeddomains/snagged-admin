@@ -24,6 +24,9 @@ export async function GET(req: NextRequest) {
   const batch = Math.min(Number(url.searchParams.get("limit")) || 12, 40);
   const dry = url.searchParams.get("dry") === "1";
   const once = dry || url.searchParams.get("once") === "1";
+  // Local-only miner now → re-mine the WHOLE pending queue (mode "all"), not just wrong-looking cards.
+  // `?mode=wrong` or OWNER_REVIEW_REMINE_MODE=wrong narrows it back. remined_at bounds each card to once.
+  const mode: "wrong" | "all" = (url.searchParams.get("mode") || process.env.OWNER_REVIEW_REMINE_MODE || "all") === "wrong" ? "wrong" : "all";
   const chain = Number(url.searchParams.get("chain")) || 0;
   const MAX_CHAIN = 60;   // hard cap so a self-chain can never run away (60 × batch ≫ backlog)
   const deadline = Date.now() + 220000; // stay under maxDuration 300
@@ -31,7 +34,7 @@ export async function GET(req: NextRequest) {
   try {
     await withGmailFeature("owner-review-remine", async () => {
       do {
-        const s = await remineWrongCards({ limit: batch, dry, assignTo: REMINE_ASSIGNEE, requireMarker: !dry });
+        const s = await remineWrongCards({ limit: batch, dry, assignTo: REMINE_ASSIGNEE, requireMarker: !dry, mode });
         scanned += s.scanned; updated += s.updated; found += s.found; remaining = s.remaining; note = s.note;
         if (once || s.note || s.scanned === 0 || s.remaining === 0) break;   // note = migration missing → stop (don't loop)
       } while (Date.now() < deadline);

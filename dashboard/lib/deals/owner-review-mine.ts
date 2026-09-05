@@ -298,18 +298,24 @@ export type RemineSummary = { scanned: number; updated: number; found: number; r
 // "Wrong-looking" = pending, not yet re-mined, AND (confidence broker/none OR no candidate name).
 // Returns { columnMissing:true } when `remined_at` isn't migrated yet — the caller then refuses the
 // unattended drain (it can't mark progress → would loop forever), but a bounded one-shot still runs.
-async function selectWrongCards(limit: number): Promise<{ rows: { id: string; domain: string }[]; columnMissing: boolean }> {
-  const wrong = "confidence.in.(broker,none),candidate_name.is.null";
-  // Fetch a POOL of wrong cards WITH remined_at and filter the unmined ones in JS — a PostgREST
-  // `.is("remined_at", null)` server-filter on this freshly-added column was silently mis-behaving
-  // and letting already-remined cards through, so the drain re-mined the same 12 forever. Selecting
-  // the value + filtering in JS is bulletproof. Order newest-txn first.
-  const { data, error } = await getDb().from(CARDS).select("id,domain,remined_at")
-    .eq("status", "pending").or(wrong).order("txn_date", { ascending: false, nullsFirst: false }).limit(Math.max(limit * 10, 120));
+// mode "wrong" = pending + not-yet-remined + (confidence broker/none OR no candidate name); mode "all"
+// = every pending + not-yet-remined card (used to re-mine the WHOLE queue with the improved whole-thread
+// miner now that it's local + free). `remined_at` still bounds each card to ONE re-mine so any drain
+// terminates. Returns { columnMissing } when `remined_at` isn't migrated (caller refuses the unattended
+// drain then, but a bounded one-shot still runs).
+const WRONG_FILTER = "confidence.in.(broker,none),candidate_name.is.null";
+async function selectWrongCards(limit: number, mode: "wrong" | "all" = "wrong"): Promise<{ rows: { id: string; domain: string }[]; columnMissing: boolean }> {
+  // Fetch a POOL WITH remined_at and filter the unmined ones in JS — a PostgREST `.is("remined_at",null)`
+  // server-filter on this freshly-added column was silently letting already-remined cards through, so the
+  // drain re-mined the same 12 forever. Selecting the value + filtering in JS is bulletproof.
+  let q = getDb().from(CARDS).select("id,domain,remined_at").eq("status", "pending");
+  if (mode === "wrong") q = q.or(WRONG_FILTER);
+  const { data, error } = await q.order("txn_date", { ascending: false, nullsFirst: false }).limit(Math.max(limit * 10, 120));
   if (error) {
     if (/remined_at/.test(error.message || "")) {
-      // Column genuinely absent (migration not run) → can't guarantee termination.
-      const { data: d2 } = await getDb().from(CARDS).select("id,domain").eq("status", "pending").or(wrong).order("txn_date", { ascending: false }).limit(limit);
+      let q2 = getDb().from(CARDS).select("id,domain").eq("status", "pending");
+      if (mode === "wrong") q2 = q2.or(WRONG_FILTER);
+      const { data: d2 } = await q2.order("txn_date", { ascending: false }).limit(limit);
       return { rows: (d2 as { id: string; domain: string }[]) || [], columnMissing: true };
     }
     return { rows: [], columnMissing: false };
@@ -321,16 +327,18 @@ async function selectWrongCards(limit: number): Promise<{ rows: { id: string; do
   return { rows, columnMissing: false };
 }
 
-async function countWrongCards(): Promise<number> {
-  const wrong = "confidence.in.(broker,none),candidate_name.is.null";
+async function countWrongCards(mode: "wrong" | "all" = "wrong"): Promise<number> {
   try {
-    const { count, error } = await getDb().from(CARDS).select("id", { count: "exact", head: true })
-      .eq("status", "pending").is("remined_at", null).or(wrong);
+    let q = getDb().from(CARDS).select("id", { count: "exact", head: true }).eq("status", "pending").is("remined_at", null);
+    if (mode === "wrong") q = q.or(WRONG_FILTER);
+    const { count, error } = await q;
     if (error) throw error;
     return count || 0;
   } catch {
     try {
-      const { count } = await getDb().from(CARDS).select("id", { count: "exact", head: true }).eq("status", "pending").or(wrong);
+      let q = getDb().from(CARDS).select("id", { count: "exact", head: true }).eq("status", "pending");
+      if (mode === "wrong") q = q.or(WRONG_FILTER);
+      const { count } = await q;
       return count || 0;
     } catch { return 0; }
   }
@@ -356,22 +364,22 @@ async function applyRemine(id: string, mined: MinedOwner, assignTo: string | nul
 
 // Re-mine a batch of wrong cards. `requireMarker` (the unattended cron) refuses when `remined_at`
 // isn't migrated (can't guarantee termination); a bounded manual test passes requireMarker=false.
-export async function remineWrongCards(opts: { limit?: number; dry?: boolean; assignTo?: string | null; requireMarker?: boolean } = {}): Promise<RemineSummary> {
+export async function remineWrongCards(opts: { limit?: number; dry?: boolean; assignTo?: string | null; requireMarker?: boolean; mode?: "wrong" | "all" } = {}): Promise<RemineSummary> {
   const limit = opts.limit ?? 15;
   const dry = !!opts.dry;
   const assignTo = opts.assignTo ?? null;
+  const mode = opts.mode ?? "wrong";
   const out: RemineSummary = { scanned: 0, updated: 0, found: 0, remaining: 0, dry, results: [] };
   if (!isDbConfigured()) return { ...out, note: "DB not configured" };
   if (!process.env.ANTHROPIC_API_KEY) return { ...out, note: "ANTHROPIC_API_KEY not set on the admin project — the miner needs it. Set it, then run again." };
-  const { rows, columnMissing } = await selectWrongCards(limit);
+  const { rows, columnMissing } = await selectWrongCards(limit, mode);
   if (columnMissing && opts.requireMarker) {
     return { ...out, remaining: rows.length, note: "Run the owner_review.sql migration to add `remined_at` before the background drain (needed so it doesn't re-process the same cards). A manual test batch still works." };
   }
-  // Mine in parallel pools. NB the shared per-user Gmail quota (brian@ etc.) is the real constraint —
-  // this reads whole threads across ALL deal mailboxes per card, so keep concurrency LOW (default 2)
-  // to avoid spiking a mailbox that Superhuman/the user is also using. gget backs off on 429. Set
-  // OWNER_REVIEW_REMINE_CONCURRENCY=1 (or disable the cron) if a mailbox is being throttled.
-  const CONC = Math.max(1, Math.min(Number(process.env.OWNER_REVIEW_REMINE_CONCURRENCY) || 2, 6));
+  // Mine in parallel pools. Gmail is NO LONGER the constraint — the miner reads the strictly-local
+  // mirror now (zero Gmail), so the only limiter is the per-card Anthropic call. Default concurrency 4
+  // (env OWNER_REVIEW_REMINE_CONCURRENCY, max 8) drains faster; lower it only if Anthropic 429s.
+  const CONC = Math.max(1, Math.min(Number(process.env.OWNER_REVIEW_REMINE_CONCURRENCY) || 4, 8));
   for (let i = 0; i < rows.length; i += CONC) {
     const slice = rows.slice(i, i + CONC);
     const mined = await Promise.all(slice.map((c) => mineOwnerForDomain(c.domain).then((m) => ({ c, m })).catch(() => ({ c, m: null as MinedOwner | null }))));
@@ -386,6 +394,6 @@ export async function remineWrongCards(opts: { limit?: number; dry?: boolean; as
       out.updated++;
     }
   }
-  out.remaining = await countWrongCards();
+  out.remaining = await countWrongCards(mode);
   return out;
 }

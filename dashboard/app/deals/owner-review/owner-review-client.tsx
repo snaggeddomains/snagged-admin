@@ -110,16 +110,17 @@ export default function OwnerReviewClient() {
   // whole-thread miner, assigning each to Judy. The cron drains the rest unattended; this button is
   // the manual test run to eyeball the new logic.
   const [remining, setRemining] = useState(false);
-  const remineBulk = async (limit: number) => {
-    setRemining(true); setMineMsg(`Re-mining ${limit} wrong card${limit === 1 ? "" : "s"} with the whole-thread miner…`);
+  const remineBulk = async (limit: number, mode: "wrong" | "all" = "wrong") => {
+    const label = mode === "all" ? "pending card" : "wrong card";
+    setRemining(true); setMineMsg(`Re-mining ${limit} ${label}${limit === 1 ? "" : "s"} with the whole-thread miner (local — no Gmail)…`);
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 150000);
     try {
-      const res = await fetch("/api/admin/deals/owner-review/remine-bulk", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ limit }), signal: ctrl.signal });
+      const res = await fetch("/api/admin/deals/owner-review/remine-bulk", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ limit, mode }), signal: ctrl.signal });
       const j = await res.json();
       if (!res.ok || j.ok === false) throw new Error(j.error || `HTTP ${res.status}`);
       if (j.note) setMineMsg(`⚠️ ${j.note}`);
-      else setMineMsg(`✓ Re-mined ${j.updated} → assigned Judy · found a real seller on ${j.found}/${j.scanned} · ${j.remaining} wrong card${j.remaining === 1 ? "" : "s"} left (the cron drains these automatically — 12 every 2 min)`);
+      else setMineMsg(`✓ Re-mined ${j.updated} → assigned Judy · found a real seller on ${j.found}/${j.scanned} · ${j.remaining} ${label}${j.remaining === 1 ? "" : "s"} left (the cron drains the rest automatically — every 5 min, all local)`);
       await load();
     } catch (e) {
       const msg = isNetworkDrop(e) ? "Still re-mining server-side — refresh in a minute to see the updated cards." : String((e as Error)?.message || e);
@@ -172,7 +173,8 @@ export default function OwnerReviewClient() {
         {data?.canMine && (
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             <button style={{ ...btnGood, whiteSpace: "nowrap" }} disabled={mining || remining} onClick={mine} title="Mine the acquisition thread for every Master Txn without a card yet — pulls the seller + full name automatically. Runs in batches; click again to continue.">{mining ? "Mining…" : "⛏ Mine backlog"}</button>
-            <button style={{ ...btn, whiteSpace: "nowrap" }} disabled={mining || remining} onClick={() => remineBulk(10)} title="Test run: re-mine 10 of the wrong-looking cards (broker / no seller named) with the improved whole-thread miner and assign them to Judy. The cron drains the rest automatically.">{remining ? "Re-mining…" : "🔁 Re-mine wrong → Judy (10)"}</button>
+            <button style={{ ...btn, whiteSpace: "nowrap" }} disabled={mining || remining} onClick={() => remineBulk(12, "all")} title="Re-mine EVERY pending card with the improved whole-thread miner (reads the local mirror only — zero Gmail). Runs a batch now; the cron drains the rest every 5 min. Each card is re-mined once.">{remining ? "Re-mining…" : "🔁 Re-mine ALL pending"}</button>
+            <button style={{ ...btn, whiteSpace: "nowrap" }} disabled={mining || remining} onClick={() => remineBulk(10, "wrong")} title="Re-mine only the wrong-looking cards (broker / no seller named) and assign them to Judy.">{remining ? "Re-mining…" : "🔁 Wrong-only → Judy"}</button>
           </div>
         )}
       </div>
