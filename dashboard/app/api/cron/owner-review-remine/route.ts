@@ -30,11 +30,13 @@ export async function GET(req: NextRequest) {
   const chain = Number(url.searchParams.get("chain")) || 0;
   const MAX_CHAIN = 60;   // hard cap so a self-chain can never run away (60 × batch ≫ backlog)
   const deadline = Date.now() + 220000; // stay under maxDuration 300
+  // Assignment-neutral for mode "all" (leave assigned_to untouched); Judy only for the wrong-only sweep.
+  const assignTo = mode === "wrong" ? REMINE_ASSIGNEE : null;
   let scanned = 0, updated = 0, found = 0, remaining = 0, note: string | undefined;
   try {
     await withGmailFeature("owner-review-remine", async () => {
       do {
-        const s = await remineWrongCards({ limit: batch, dry, assignTo: REMINE_ASSIGNEE, requireMarker: !dry, mode });
+        const s = await remineWrongCards({ limit: batch, dry, assignTo, requireMarker: !dry, mode });
         scanned += s.scanned; updated += s.updated; found += s.found; remaining = s.remaining; note = s.note;
         if (once || s.note || s.scanned === 0 || s.remaining === 0) break;   // note = migration missing → stop (don't loop)
       } while (Date.now() < deadline);

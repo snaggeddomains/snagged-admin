@@ -406,6 +406,16 @@ export async function clearRemineMarkers(mode: "wrong" | "all" = "all"): Promise
   } catch { /* column missing / not migrated → nothing to clear */ }
 }
 
+// Return pending cards currently auto-assigned to `email` (Judy) back to the UNASSIGNED pool, so they
+// reappear in every reviewer's "Assigned to me" (which includes unassigned). Called by the manual
+// "Re-mine ALL pending" resweep to undo an earlier blanket auto-assignment. Only touches that one
+// assignee's pending cards — hand-assignments to other people are left alone. Fail-open.
+export async function returnAutoAssignedToPool(email: string): Promise<void> {
+  try {
+    await getDb().from(CARDS).update({ assigned_to: null }).eq("status", "pending").eq("assigned_to", email.toLowerCase());
+  } catch { /* ignore */ }
+}
+
 async function applyRemine(id: string, mined: MinedOwner, assignTo: string | null): Promise<void> {
   const base: Record<string, unknown> = {
     candidate_first_name: mined.first_name || null,

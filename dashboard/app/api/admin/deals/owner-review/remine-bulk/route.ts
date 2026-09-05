@@ -5,7 +5,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/session";
 import { userCanAction } from "@/lib/permissions";
-import { remineWrongCards, clearRemineMarkers } from "@/lib/deals/owner-review-mine";
+import { remineWrongCards, clearRemineMarkers, returnAutoAssignedToPool } from "@/lib/deals/owner-review-mine";
 import { withGmailFeature, isGmailBudgetError, GMAIL_BUDGET_MESSAGE } from "@/lib/gmail-budget";
 
 export const runtime = "nodejs";
@@ -24,18 +24,27 @@ export async function POST(req: NextRequest) {
   // resweep (manual button, first batch only): clear remined_at for the target pending set so the sweep
   // reprocesses EVERY card with the current miner — not just the never-mined ones. Done once, before
   // mining, so the drain still terminates (each card is re-stamped as it's mined).
-  if (body.resweep && !body.dry) await clearRemineMarkers(mode);
+  if (body.resweep && !body.dry) {
+    await clearRemineMarkers(mode);
+    // Undo an earlier blanket auto-assignment: a full "Re-mine ALL pending" returns the pending pool
+    // (cards previously auto-flung to Judy) to unassigned, so they show again in everyone's queue.
+    if (mode === "all") await returnAutoAssignedToPool(REMINE_ASSIGNEE);
+  }
   // Local-mirror reads = zero Gmail, so there's no throttle reason to cap at one small batch. When
   // `drain` is set (the "Re-mine ALL pending" button), loop-drain the WHOLE backlog in one request up
   // to a ~250s time budget (under maxDuration 300); each card is bounded to one re-mine by remined_at,
   // so the loop terminates. A single-batch call (drain:false) stays for the wrong-only test button.
   const drain = body.drain !== false && !body.dry;
   const deadline = Date.now() + 250000;
+  // Assignment: ONLY "Wrong-only → Judy" (mode "wrong") reassigns, to Judy. "Re-mine ALL pending"
+  // (mode "all") is assignment-NEUTRAL — assignTo=null so applyRemine leaves assigned_to untouched;
+  // otherwise re-mining your queue flings every card to Judy and they vanish from "Assigned to me".
+  const assignTo = mode === "wrong" ? REMINE_ASSIGNEE : null;
   try {
     const total = { scanned: 0, updated: 0, found: 0, remaining: 0 } as { scanned: number; updated: number; found: number; remaining: number; note?: string };
     await withGmailFeature("owner-review-remine", async () => {
       do {
-        const s = await remineWrongCards({ limit: batch, dry: !!body.dry, assignTo: REMINE_ASSIGNEE, mode });
+        const s = await remineWrongCards({ limit: batch, dry: !!body.dry, assignTo, mode });
         total.scanned += s.scanned; total.updated += s.updated; total.found += s.found; total.remaining = s.remaining; total.note = s.note;
         if (!drain || s.note || s.scanned === 0 || s.remaining === 0) break;
       } while (Date.now() < deadline);
