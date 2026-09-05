@@ -198,12 +198,17 @@ from the miner last session (`minerMailboxes()`), the load didn't drop — it **
   `rob@snagged.com`, group by application → our SA `marketplace-pipeline` (client id
   `104413441059090976334`) is the top authorizer. SA READS themselves show in **Cloud Console → the
   SA project → Gmail API → Metrics** (audit log-events don't capture API reads).
-- **RESTORE when the quota recovers** — re-add these to `vercel.json` `crons` (ideally re-pointed to
-  spread reads across mailboxes, or at lower frequency, so they don't pile on one box again):
-  - `{ "path": "/api/cron/deal-emails", "schedule": "15 */4 * * *" }`
-  - `{ "path": "/api/cron/client-corpus", "schedule": "0 11 * * *" }`
-  - `{ "path": "/api/cron/owner-review-mine", "schedule": "0 15 * * *" }`
-  - `{ "path": "/api/cron/owner-review-remine", "schedule": "*/5 * * * *" }`
+- **✅ RE-ENABLED 3 of them — now local-only (2026-09-04).** Once the historical readers were repointed
+  to the strictly-local Gmail mirror (see the Gmail MIRROR section — zero Gmail, the live fallback is
+  unreachable), the miner + corpus crons no longer touch Gmail, so they're back in `vercel.json`:
+  - `{ "path": "/api/cron/owner-review-mine", "schedule": "0 15 * * *" }` — mirror local-only ✓
+  - `{ "path": "/api/cron/owner-review-remine", "schedule": "*/5 * * * *" }` — mirror local-only ✓
+  - `{ "path": "/api/cron/client-corpus", "schedule": "0 11 * * *" }` — mirror local-only ✓
+  brian@ is also back in `minerMailboxes()` (local reads only). These drain the backlog with ZERO
+  Gmail load. **`deal-emails` STAYS PAUSED** — `lib/deals/emails.ts` still imports the LIVE client
+  (deal timelines need the freshest mail), so re-enabling it would resume real Gmail reads; repoint it
+  to the mirror (once the delta sync is proven current) before restoring `{ "/api/cron/deal-emails",
+  "15 */4 * * *" }`.
 - `client-overlap`, `email-health`, `newsletter-sync` were LEFT running — they don't read the Gmail
   deal mailboxes (client-overlap consumes the already-harvested `client_domains`).
 - **⚠️ pitch-scan RETIRED (Rob, 2026-09-03) — do NOT restore.** The weekly pitch-scan is no longer
