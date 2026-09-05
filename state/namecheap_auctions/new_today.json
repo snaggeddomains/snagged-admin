@@ -1,22 +1,32 @@
 {
   "capped": false,
-  "count": 13,
+  "count": 21,
   "domains": [
-    "rslit.org",
-    "gallbladder.ai",
-    "nationally.io",
-    "cavb.org",
-    "motherwell.co",
-    "pakw.com",
-    "paintings.io",
-    "riots.io",
-    "introduces.org",
-    "socioeconomic.org",
-    "checkist.com",
-    "fibi.ai",
-    "terrorist.ai"
+    "hcapital.org",
+    "mikhail.ai",
+    "stints.org",
+    "viennese.org",
+    "bachelors.ai",
+    "ahmadinejad.com",
+    "xpo.ai",
+    "beautifully.io",
+    "tablespoons.org",
+    "pliers.ai",
+    "reduces.org",
+    "bahia.ai",
+    "somme.ai",
+    "bvyd.com",
+    "evolutionary.io",
+    "heros.co",
+    "mess.io",
+    "belgian.io",
+    "wheaton.ai",
+    "pleistocene.ai",
+    "carboniferous.ai"
   ],
-  "generated_at": "2026-09-04T09:57:10.479164+00:00",
-  "mub": [],
+  "generated_at": "2026-09-05T09:53:48.228114+00:00",
+  "mub": [
+    "bahia.ai"
+  ],
   "source": "namecheap_auctions"
 }

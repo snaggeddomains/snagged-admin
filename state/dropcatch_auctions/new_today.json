@@ -1,15 +1,13 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 4,
   "domains": [
-    "macha.com",
-    "ead.org",
-    "interpos.com",
-    "suiv.com",
-    "plaited.com",
-    "yrub.com"
+    "acoms.com",
+    "heartt.com",
+    "yrub.com",
+    "ewut.com"
   ],
-  "generated_at": "2026-09-04T09:58:04.995313+00:00",
+  "generated_at": "2026-09-05T09:54:38.683892+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }

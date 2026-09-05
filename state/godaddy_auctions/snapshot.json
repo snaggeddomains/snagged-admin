@@ -1,56 +1,38 @@
 [
   {
-    "bid_count": 3,
-    "domain": "gave.io",
-    "end_time_utc": "2026-09-04T16:19:00+00:00",
+    "bid_count": 19,
+    "domain": "yeets.com",
+    "end_time_utc": "2026-09-05T18:14:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/gave-io-722954673?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/yeets-com-721683966?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 11.0
+    "price": 338.0
   },
   {
-    "bid_count": 0,
-    "domain": "parasitic.co",
-    "end_time_utc": "2026-09-04T17:57:00+00:00",
+    "bid_count": 15,
+    "domain": "tshares.com",
+    "end_time_utc": "2026-09-05T19:19:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/parasitic-co-722954093?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/tshares-com-723090267?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 1.0
+    "price": 88.0
   },
   {
-    "bid_count": 32,
-    "domain": "biof.com",
-    "end_time_utc": "2026-09-04T18:52:00+00:00",
+    "bid_count": 27,
+    "domain": "passc.net",
+    "end_time_utc": "2026-09-05T20:03:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/biof-com-722987232?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/passc-net-723170162?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 918.0
+    "price": 710.0
   },
   {
-    "bid_count": 0,
-    "domain": "ligands.org",
-    "end_time_utc": "2026-09-04T19:08:00+00:00",
+    "bid_count": 9,
+    "domain": "xplained.com",
+    "end_time_utc": "2026-09-05T21:28:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/ligands-org-722559758?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/xplained-com-723113226?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 1.0
-  },
-  {
-    "bid_count": 7,
-    "domain": "urgz.com",
-    "end_time_utc": "2026-09-04T19:48:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/urgz-com-722980201?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 140.0
-  },
-  {
-    "bid_count": 0,
-    "domain": "discusses.org",
-    "end_time_utc": "2026-09-04T21:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/discusses-org-722599436?isc=json_ending_tomorrow",
-    "platform": "GoDaddy",
-    "price": 1.0
+    "price": 65.0
   }
 ]

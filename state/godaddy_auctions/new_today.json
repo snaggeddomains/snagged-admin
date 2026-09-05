@@ -1,15 +1,13 @@
 {
   "capped": false,
-  "count": 6,
+  "count": 4,
   "domains": [
-    "gave.io",
-    "parasitic.co",
-    "biof.com",
-    "ligands.org",
-    "urgz.com",
-    "discusses.org"
+    "yeets.com",
+    "tshares.com",
+    "passc.net",
+    "xplained.com"
   ],
-  "generated_at": "2026-09-04T09:58:45.294709+00:00",
+  "generated_at": "2026-09-05T09:55:18.874470+00:00",
   "mub": [],
   "source": "godaddy_auctions"
 }

@@ -1,20 +1,20 @@
 [
   {
-    "bid_count": 0,
-    "domain": "kicking.co",
-    "end_time_utc": "2026-09-04T15:00:00+00:00",
+    "bid_count": 7,
+    "domain": "ahmadinejad.com",
+    "end_time_utc": "2026-09-05T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/kicking.co",
+    "link": "https://www.namesilo.com/auctions/ahmadinejad.com",
     "platform": "NameSilo",
-    "price": 1.0
+    "price": 26.0
   },
   {
-    "bid_count": 15,
-    "domain": "sosw.net",
-    "end_time_utc": "2026-09-04T15:00:00+00:00",
+    "bid_count": 48,
+    "domain": "burgrr.com",
+    "end_time_utc": "2026-09-06T15:00:00+00:00",
     "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/sosw.net",
+    "link": "https://www.namesilo.com/auctions/burgrr.com",
     "platform": "NameSilo",
-    "price": 126.0
+    "price": 92.0
   }
 ]

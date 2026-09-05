@@ -1,56 +1,38 @@
 [
   {
-    "bid_count": 182,
-    "domain": "macha.com",
-    "end_time_utc": "2026-09-04T18:59:03.928460+00:00",
+    "bid_count": 27,
+    "domain": "acoms.com",
+    "end_time_utc": "2026-09-07T18:59:37.767349+00:00",
     "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Macha.com",
+    "link": "https://www.dropcatch.com/domain/Acoms.com",
     "platform": "DropCatch",
-    "price": 11501.0
+    "price": 80.0
   },
   {
-    "bid_count": 64,
-    "domain": "ead.org",
-    "end_time_utc": "2026-09-04T18:59:03.928460+00:00",
+    "bid_count": 10,
+    "domain": "heartt.com",
+    "end_time_utc": "2026-09-07T18:59:37.767349+00:00",
     "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Ead.org",
+    "link": "https://www.dropcatch.com/domain/HeartT.com",
     "platform": "DropCatch",
-    "price": 439.0
+    "price": 69.0
   },
   {
-    "bid_count": 46,
-    "domain": "interpos.com",
-    "end_time_utc": "2026-09-04T18:59:03.928460+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/InterPos.com",
-    "platform": "DropCatch",
-    "price": 380.0
-  },
-  {
-    "bid_count": 22,
-    "domain": "suiv.com",
-    "end_time_utc": "2026-09-04T18:59:03.928460+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/SUIV.COM",
-    "platform": "DropCatch",
-    "price": 320.0
-  },
-  {
-    "bid_count": 15,
-    "domain": "plaited.com",
-    "end_time_utc": "2026-09-04T18:59:03.928460+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/Plaited.com",
-    "platform": "DropCatch",
-    "price": 209.0
-  },
-  {
-    "bid_count": 19,
+    "bid_count": 20,
     "domain": "yrub.com",
-    "end_time_utc": "2026-09-08T18:59:03.928460+00:00",
+    "end_time_utc": "2026-09-08T18:59:37.767349+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Yrub.com",
     "platform": "DropCatch",
-    "price": 195.0
+    "price": 205.0
+  },
+  {
+    "bid_count": 31,
+    "domain": "ewut.com",
+    "end_time_utc": "2026-09-08T18:59:37.767349+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Ewut.com",
+    "platform": "DropCatch",
+    "price": 69.0
   }
 ]
