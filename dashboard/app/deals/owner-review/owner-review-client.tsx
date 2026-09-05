@@ -112,21 +112,37 @@ export default function OwnerReviewClient() {
   const [remining, setRemining] = useState(false);
   const remineBulk = async (mode: "wrong" | "all", drain: boolean) => {
     const label = mode === "all" ? "pending card" : "wrong card";
-    setRemining(true); setMineMsg(drain ? `Re-mining ALL ${label}s with the whole-thread miner (local — no Gmail)…` : `Re-mining a batch of ${label}s (local — no Gmail)…`);
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 280000);   // server loop-drains up to ~250s
+    setRemining(true);
+    // Client-side drain loop: each POST re-mines ONE bounded batch server-side (drain:false → fast, no
+    // long-running request), and we keep calling until `remaining` hits 0. This drains the WHOLE backlog
+    // in one click reliably — independent of serverless per-request timeouts / cold starts / a stale
+    // bundle. Each card is stamped remined_at server-side, so batches never overlap and the loop ends.
+    let totUpdated = 0, totFound = 0, totScanned = 0, remaining = 0, rounds = 0;
+    const started = Date.now();
+    const MAX_ROUNDS = 80, MAX_MS = 20 * 60 * 1000; // safety guards (80 batches ≈ 3200 cards, or 20 min)
     try {
-      const res = await fetch("/api/admin/deals/owner-review/remine-bulk", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode, drain }), signal: ctrl.signal });
-      const j = await res.json();
-      if (!res.ok || j.ok === false) throw new Error(j.error || `HTTP ${res.status}`);
-      if (j.note) setMineMsg(`⚠️ ${j.note}`);
-      else setMineMsg(`✓ Re-mined ${j.updated} → assigned Judy · found a real seller on ${j.found}/${j.scanned} · ${j.remaining} ${label}${j.remaining === 1 ? "" : "s"} left${j.remaining ? " (the cron drains any remainder every 5 min, all local)" : ""}`);
-      await load();
+      for (;;) {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 120000);
+        let j: { ok?: boolean; error?: string; note?: string; updated?: number; found?: number; scanned?: number; remaining?: number };
+        try {
+          const res = await fetch("/api/admin/deals/owner-review/remine-bulk", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode, drain: false, limit: 40 }), signal: ctrl.signal });
+          j = await res.json();
+          if (!res.ok || j.ok === false) throw new Error(j.error || `HTTP ${res.status}`);
+        } finally { clearTimeout(timer); }
+        if (j.note) { setMineMsg(`⚠️ ${j.note}`); break; }
+        totUpdated += j.updated || 0; totFound += j.found || 0; totScanned += j.scanned || 0; remaining = j.remaining || 0;
+        rounds++;
+        setMineMsg(`Re-mining ${label}s (local — no Gmail)… ${totUpdated} re-mined · ${remaining} left`);
+        await load().catch(() => {});
+        if (!drain || remaining === 0 || (j.scanned || 0) === 0 || rounds >= MAX_ROUNDS || Date.now() - started > MAX_MS) break;
+      }
+      if (totScanned > 0) setMineMsg(`✓ Re-mined ${totUpdated} → assigned Judy · found a real seller on ${totFound}/${totScanned} · ${remaining} ${label}${remaining === 1 ? "" : "s"} left${remaining ? " (the cron drains any remainder every 5 min, all local)" : ""}`);
     } catch (e) {
-      const msg = isNetworkDrop(e) ? "Still re-mining server-side — refresh in a minute to see the updated cards (the cron also keeps draining)." : String((e as Error)?.message || e);
+      const msg = isNetworkDrop(e) ? `Re-mined ${totUpdated} so far — a batch dropped; the cron keeps draining every 5 min. Refresh to see updates.` : String((e as Error)?.message || e);
       setMineMsg(`⚠️ ${msg}`);
       await load().catch(() => {});
-    } finally { clearTimeout(timer); setRemining(false); }
+    } finally { setRemining(false); }
   };
 
   // Backfill the whole Master Txn list — mine each thread for the seller (one LLM batch per click,
@@ -237,6 +253,22 @@ function ReviewCard({ card, reviewers, onDone, onRefresh, onSkip }: { card: Card
     confidence: card.confidence || "", evidence: card.evidence || "", notes: card.notes || "",
   });
   const set = (k: string, v: string) => setF((s) => ({ ...s, [k]: v }));
+  // Re-seed the edit form when the card's content changes (e.g. after a re-mine refreshes it in place).
+  // useState only seeds on first mount, so without this the form kept the STALE original values and
+  // clicking Edit looked like it "wiped" a freshly re-mined card. Guarded so it never clobbers an
+  // edit already in progress (a refresh only happens on an explicit action, not while typing).
+  useEffect(() => {
+    if (editing) return;
+    const toks = (card.candidate_name || "").trim().split(/\s+/).filter(Boolean);
+    setF({
+      candidate_first_name: card.candidate_first_name || toks[0] || "",
+      candidate_last_name: card.candidate_last_name || (card.candidate_first_name ? "" : toks.slice(1).join(" ")) || "",
+      candidate_email: card.candidate_email || "", candidate_phone: card.candidate_phone || "",
+      channel: card.channel || "", buyer_context: card.buyer_context || "",
+      confidence: card.confidence || "", evidence: card.evidence || "", notes: card.notes || "",
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [card.id, card.candidate_first_name, card.candidate_last_name, card.candidate_name, card.candidate_email, card.candidate_phone, card.channel, card.confidence, card.evidence, card.buyer_context, card.notes, editing]);
 
   const act = async (action: string, extra: Record<string, unknown> = {}) => {
     setBusy(action); setMsg(null);
