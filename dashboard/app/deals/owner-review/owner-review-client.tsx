@@ -110,17 +110,19 @@ export default function OwnerReviewClient() {
   // whole-thread miner, assigning each to Judy. The cron drains the rest unattended; this button is
   // the manual test run to eyeball the new logic.
   const [remining, setRemining] = useState(false);
-  const remineBulk = async (mode: "wrong" | "all", drain: boolean) => {
+  // `resweep`: false (default) = RESUME — drain only the cards not yet re-mined, so the count only ever
+  // goes DOWN (what you want to finish the backlog). true = redo the WHOLE pending set (clears markers).
+  const remineBulk = async (mode: "wrong" | "all", resweep = false) => {
     const label = mode === "all" ? "pending card" : "wrong card";
     setRemining(true);
     // Client-side drain loop: each POST re-mines ONE bounded batch server-side (drain:false → fast, no
-    // long-running request), and we keep calling until `remaining` hits 0. This drains the WHOLE backlog
-    // in one click reliably — independent of serverless per-request timeouts / cold starts / a stale
-    // bundle. Each card is stamped remined_at server-side, so batches never overlap and the loop ends.
+    // long-running request), and we keep calling until `remaining` hits 0. Reliable regardless of
+    // serverless per-request timeouts / cold starts. Each card is stamped remined_at server-side, so
+    // batches never overlap and the loop ends.
     let totUpdated = 0, totFound = 0, totScanned = 0, remaining = -1, rounds = 0, firstCall = true, sawSuccess = false;
     let drops = 0, stale = 0, prevRemaining = -2;
     const started = Date.now();
-    const MAX_ROUNDS = 140, MAX_MS = 25 * 60 * 1000; // safety guards
+    const MAX_ROUNDS = 300, MAX_MS = 30 * 60 * 1000; // safety guards
     try {
       for (;;) {
         const ctrl = new AbortController();
@@ -129,9 +131,8 @@ export default function OwnerReviewClient() {
         try {
           // Small batches (8): the escalating miner can make a batch slow. If a batch's fetch DROPS
           // (client abort / network blip), the server still finishes + stamps it — so we DON'T give up;
-          // we reload, re-read `remaining`, and keep going. Only stop after several consecutive drops
-          // with no progress. resweep only on the very first call.
-          const res = await fetch("/api/admin/deals/owner-review/remine-bulk", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode, drain: false, limit: 8, resweep: firstCall }), signal: ctrl.signal });
+          // we keep going. resweep (redo all) only on the very first call, when requested.
+          const res = await fetch("/api/admin/deals/owner-review/remine-bulk", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode, drain: false, limit: 8, resweep: resweep && firstCall }), signal: ctrl.signal });
           j = await res.json();
           if (!res.ok || (j && j.ok === false)) throw new Error((j && j.error) || `HTTP ${res.status}`);
         } catch (e) {
@@ -142,19 +143,17 @@ export default function OwnerReviewClient() {
         rounds++;
         if (j && j.note) { setMineMsg(`⚠️ ${j.note}`); break; }
         if (j) { sawSuccess = true; totUpdated += j.updated || 0; totFound += j.found || 0; totScanned += j.scanned || 0; remaining = j.remaining ?? remaining; }
-        // On a dropped batch the server still finished + stamped it; keep the prior `remaining` (stale)
-        // and let the NEXT successful batch report the accurate count — no extra probe.
         const rem = remaining < 0 ? "…" : remaining;
-        setMineMsg(`Re-mining ${label}s (local — no Gmail)… ${totUpdated} re-mined · ${rem} left${drops ? ` · ${drops} slow batch${drops === 1 ? "" : "es"} (server still finishing them)` : ""}`);
+        setMineMsg(`Re-mining ${label}s (local — no Gmail)… ${totUpdated} re-mined · ${rem} left${drops ? ` · ${drops} slow (server still finishing)` : ""}`);
         await load().catch(() => {});
         stale = remaining === prevRemaining ? stale + 1 : 0;
         prevRemaining = remaining;
-        // Stop when: not draining · confirmed 0 left · limits · too many drops · no progress for a while.
-        if (!drain || (sawSuccess && remaining === 0) || rounds >= MAX_ROUNDS || Date.now() - started > MAX_MS || drops >= 6 || stale >= 8) break;
+        // Stop when: confirmed 0 left · limits · far too many drops · no progress for a long stretch.
+        if ((sawSuccess && remaining === 0) || rounds >= MAX_ROUNDS || Date.now() - started > MAX_MS || drops >= 20 || stale >= 15) break;
       }
       if (sawSuccess && remaining === 0) setMineMsg(`✓ Re-mined ${totUpdated} · found a real seller on ${totFound}/${totScanned} · all caught up`);
-      else if (drops) setMineMsg(`Re-mined ${totUpdated} so far · slow batches are still finishing server-side and the cron keeps draining every 5 min — refresh in a minute.`);
-      else setMineMsg(`✓ Re-mined ${totUpdated} · found a real seller on ${totFound}/${totScanned} · ${remaining < 0 ? "" : remaining + " "}${label}${remaining === 1 ? "" : "s"} left${remaining ? " (the cron drains any remainder every 5 min, all local)" : ""}`);
+      else if (drops) setMineMsg(`Re-mined ${totUpdated} so far · some slow batches are still finishing server-side — refresh in a minute (${remaining < 0 ? "" : remaining + " left"}).`);
+      else setMineMsg(`✓ Re-mined ${totUpdated} · found a real seller on ${totFound}/${totScanned} · ${remaining < 0 ? "" : remaining + " "}${label}${remaining === 1 ? "" : "s"} left`);
     } catch (e) {
       setMineMsg(`⚠️ ${String((e as Error)?.message || e)}`);
       await load().catch(() => {});
@@ -212,8 +211,9 @@ export default function OwnerReviewClient() {
         {data?.canMine && (
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             <button style={{ ...btnGood, whiteSpace: "nowrap" }} disabled={mining || remining} onClick={mine} title="Mine the acquisition thread for every Master Txn without a card yet — pulls the seller + full name automatically. Runs in batches; click again to continue.">{mining ? "Mining…" : "⛏ Mine backlog"}</button>
-            <button style={{ ...btn, whiteSpace: "nowrap" }} disabled={mining || remining} onClick={() => remineBulk("all", true)} title="Re-mine EVERY pending card with the improved whole-thread miner (reads the local mirror only — zero Gmail). Drains the whole backlog in one run (the cron mops up any remainder). Each card is re-mined once.">{remining ? "Re-mining…" : "🔁 Re-mine ALL pending"}</button>
-            <button style={{ ...btn, whiteSpace: "nowrap" }} disabled={mining || remining} onClick={() => remineBulk("wrong", true)} title="Re-mine only the wrong-looking cards (broker / no seller named) and assign them to Judy — drains all of them (local only, zero Gmail).">{remining ? "Re-mining…" : "🔁 Wrong-only → Judy"}</button>
+            <button style={{ ...btn, whiteSpace: "nowrap" }} disabled={mining || remining} onClick={() => remineBulk("all", false)} title="Re-mine the pending cards not yet done — RESUMES the backlog (the count only goes down) and finishes it in one run, local only (zero Gmail). Click 'Redo all' if you want to reprocess even the already-mined cards.">{remining ? "Re-mining…" : "🔁 Re-mine pending"}</button>
+            <button style={{ ...btn, whiteSpace: "nowrap" }} disabled={mining || remining} onClick={() => { if (confirm("Reprocess EVERY pending card from scratch (including ones already re-mined)? The count will jump back up while it redoes them.")) remineBulk("all", true); }} title="Reprocess the WHOLE pending set from scratch with the current miner — clears the once-only markers, so already-mined cards get re-done too. Use after a miner improvement; otherwise use 'Re-mine pending'.">{remining ? "Re-mining…" : "🔁 Redo all"}</button>
+            <button style={{ ...btn, whiteSpace: "nowrap" }} disabled={mining || remining} onClick={() => remineBulk("wrong", false)} title="Re-mine only the wrong-looking pending cards (broker / no seller named) and assign them to Judy — local only, zero Gmail.">{remining ? "Re-mining…" : "🔁 Wrong-only → Judy"}</button>
           </div>
         )}
       </div>
