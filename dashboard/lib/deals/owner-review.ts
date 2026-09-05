@@ -85,6 +85,26 @@ export async function countPending(email: string): Promise<number> {
   } catch { return 0; }
 }
 
+// Live count of pending cards NOT yet re-mined this sweep (remined_at null) — the true "left to
+// re-mine" for the auto-drain badge, vs the cron's stale self-reported number. Strip-and-retry the
+// remined_at predicate so it degrades to "all pending" pre-migration.
+export async function countUnmined(): Promise<number> {
+  if (!isDbConfigured()) return 0;
+  try {
+    const { count, error } = await getDb().from(CARDS).select("id", { count: "exact", head: true })
+      .eq("status", "pending").is("remined_at", null);
+    if (error) {
+      if (missingTable(error)) return 0;
+      if (/remined_at/.test(error.message || "")) {
+        const { count: c2 } = await getDb().from(CARDS).select("id", { count: "exact", head: true }).eq("status", "pending");
+        return c2 || 0;
+      }
+      throw error;
+    }
+    return count || 0;
+  } catch { return 0; }
+}
+
 export async function getCard(id: string): Promise<OwnerReviewCard | null> {
   if (!isDbConfigured()) return null;
   const { data, error } = await getDb().from(CARDS).select("*").eq("id", id).maybeSingle();
