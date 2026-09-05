@@ -13,7 +13,7 @@ type Card = {
 };
 type Reviewer = { email: string; name: string };
 type Mirror = { localOnly: boolean; lastSyncedAt: string | null; dataThrough: string | null; mailboxes: { mailbox: string; lastSyncedAt: string | null; messages: number }[] };
-type Resp = { ok: boolean; configured?: boolean; cards: Card[]; myPending: number; reviewers: Reviewer[]; canMine?: boolean; me?: string; mirror?: Mirror | null; error?: string };
+type Resp = { ok: boolean; configured?: boolean; cards: Card[]; myPending: number; reviewers: Reviewer[]; canMine?: boolean; me?: string; mirror?: Mirror | null; remine?: { lastRunAt: string | null; remaining: number } | null; error?: string };
 
 // A dropped/interrupted fetch (mobile Safari "Load failed", "Failed to fetch", network errors, or our
 // own AbortController) — distinct from a real server error. The long-running mine/remine POST keeps
@@ -199,6 +199,13 @@ export default function OwnerReviewClient() {
                 · data through {data.mirror.dataThrough ? relTime(data.mirror.dataThrough) : "—"}
                 {" · last Gmail sync "}{data.mirror.lastSyncedAt ? relTime(data.mirror.lastSyncedAt) : "Takeout import"}
               </span>
+            </div>
+          )}
+          {data?.remine?.lastRunAt && (
+            <div title="The background drain (cron, every ~5 min) re-mines any remaining pending cards with the whole-thread miner. This shows its last run — the tell that the cron actually picked up the backlog." style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 8, marginLeft: 8, padding: "4px 10px", borderRadius: 999, background: "#eef2f7", border: "1px solid #d3ddea", fontSize: 12, color: "#3a4b5c", fontWeight: 600, maxWidth: "100%", flexWrap: "wrap" }}>
+              <span aria-hidden>🔄</span>
+              Auto-drain: last ran {relTime(data.remine.lastRunAt)}
+              {Number.isFinite(data.remine.remaining) && <span style={{ color: "#6b7a8a", fontWeight: 400 }}>· ~{data.remine.remaining} left to re-mine</span>}
             </div>
           )}
         </div>
