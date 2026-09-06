@@ -1,10 +1,8 @@
 {
   "capped": false,
-  "count": 1,
-  "domains": [
-    "kicking.co"
-  ],
-  "generated_at": "2026-09-06T10:01:21.974722+00:00",
+  "count": 0,
+  "domains": [],
+  "generated_at": "2026-09-06T17:01:12.119066+00:00",
   "mub": [],
   "source": "sedo_net_new"
 }
