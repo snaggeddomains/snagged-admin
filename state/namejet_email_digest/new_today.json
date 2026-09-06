@@ -1,10 +1,12 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 3,
   "domains": [
-    "suave.org"
+    "lacrosse.org",
+    "deathly.org",
+    "reflected.org"
   ],
-  "generated_at": "2026-09-05T15:11:22.339296+00:00",
+  "generated_at": "2026-09-06T15:04:41.054808+00:00",
   "mub": [],
   "source": "namejet_email_digest"
 }
