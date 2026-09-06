@@ -1,10 +1,11 @@
 {
   "capped": false,
-  "count": 1,
+  "count": 2,
   "domains": [
-    "eight.com"
+    "ladle.xyz",
+    "screwed.xyz"
   ],
-  "generated_at": "2026-09-05T23:07:46.241083+00:00",
+  "generated_at": "2026-09-06T10:06:32.874437+00:00",
   "mub": [],
   "source": "namepros_marketplace"
 }
