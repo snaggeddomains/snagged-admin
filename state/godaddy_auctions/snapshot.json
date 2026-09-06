@@ -1,38 +1,92 @@
 [
   {
-    "bid_count": 19,
-    "domain": "yeets.com",
-    "end_time_utc": "2026-09-05T18:14:00+00:00",
+    "bid_count": 6,
+    "domain": "yarns.org",
+    "end_time_utc": "2026-09-06T16:14:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/yeets-com-721683966?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/yarns-org-723110640?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 338.0
+    "price": 21.0
   },
   {
-    "bid_count": 15,
-    "domain": "tshares.com",
-    "end_time_utc": "2026-09-05T19:19:00+00:00",
-    "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/tshares-com-723090267?isc=json_ending_tomorrow",
+    "bid_count": 31,
+    "domain": "petito.com",
+    "end_time_utc": "2026-09-06T16:31:00+00:00",
+    "is_mub": true,
+    "link": "https://www.godaddy.com/domain-auctions/petito-com-722589524?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 88.0
+    "price": 1526.0
   },
   {
-    "bid_count": 27,
-    "domain": "passc.net",
-    "end_time_utc": "2026-09-05T20:03:00+00:00",
+    "bid_count": 10,
+    "domain": "remers.com",
+    "end_time_utc": "2026-09-06T16:33:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/passc-net-723170162?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/remers-com-723253562?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
-    "price": 710.0
+    "price": 117.0
   },
   {
-    "bid_count": 9,
-    "domain": "xplained.com",
-    "end_time_utc": "2026-09-05T21:28:00+00:00",
+    "bid_count": 22,
+    "domain": "goldfish.co",
+    "end_time_utc": "2026-09-06T17:57:00+00:00",
     "is_mub": false,
-    "link": "https://www.godaddy.com/domain-auctions/xplained-com-723113226?isc=json_ending_tomorrow",
+    "link": "https://www.godaddy.com/domain-auctions/goldfish-co-723257573?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 237.0
+  },
+  {
+    "bid_count": 13,
+    "domain": "cguo.com",
+    "end_time_utc": "2026-09-06T18:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/cguo-com-723247432?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 171.0
+  },
+  {
+    "bid_count": 62,
+    "domain": "inee.com",
+    "end_time_utc": "2026-09-06T18:11:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/inee-com-723251307?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 1525.0
+  },
+  {
+    "bid_count": 16,
+    "domain": "karenina.com",
+    "end_time_utc": "2026-09-06T18:50:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/karenina-com-723244847?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 238.0
+  },
+  {
+    "bid_count": 14,
+    "domain": "backword.com",
+    "end_time_utc": "2026-09-06T19:06:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/backword-com-723225455?isc=json_ending_tomorrow",
     "platform": "GoDaddy",
     "price": 65.0
+  },
+  {
+    "bid_count": 10,
+    "domain": "onus.net",
+    "end_time_utc": "2026-09-06T19:22:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/onus-net-723244598?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 82.0
+  },
+  {
+    "bid_count": 14,
+    "domain": "npcy.com",
+    "end_time_utc": "2026-09-06T20:39:00+00:00",
+    "is_mub": false,
+    "link": "https://www.godaddy.com/domain-auctions/npcy-com-723253312?isc=json_ending_tomorrow",
+    "platform": "GoDaddy",
+    "price": 227.0
   }
 ]

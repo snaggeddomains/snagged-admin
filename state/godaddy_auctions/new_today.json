@@ -1,13 +1,21 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 10,
   "domains": [
-    "yeets.com",
-    "tshares.com",
-    "passc.net",
-    "xplained.com"
+    "yarns.org",
+    "petito.com",
+    "remers.com",
+    "goldfish.co",
+    "cguo.com",
+    "inee.com",
+    "karenina.com",
+    "backword.com",
+    "onus.net",
+    "npcy.com"
   ],
-  "generated_at": "2026-09-05T09:55:18.874470+00:00",
-  "mub": [],
+  "generated_at": "2026-09-06T09:55:00.055017+00:00",
+  "mub": [
+    "petito.com"
+  ],
   "source": "godaddy_auctions"
 }

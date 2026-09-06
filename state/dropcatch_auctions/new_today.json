@@ -1,13 +1,14 @@
 {
   "capped": false,
-  "count": 4,
+  "count": 5,
   "domains": [
+    "qippy.com",
     "acoms.com",
-    "heartt.com",
     "yrub.com",
-    "ewut.com"
+    "ewut.com",
+    "eltes.com"
   ],
-  "generated_at": "2026-09-05T09:54:38.683892+00:00",
+  "generated_at": "2026-09-06T09:54:29.117450+00:00",
   "mub": [],
   "source": "dropcatch_auctions"
 }

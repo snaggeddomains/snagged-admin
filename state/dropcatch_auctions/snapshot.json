@@ -1,38 +1,47 @@
 [
   {
-    "bid_count": 27,
+    "bid_count": 17,
+    "domain": "qippy.com",
+    "end_time_utc": "2026-09-07T18:59:28.102129+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Qippy.com",
+    "platform": "DropCatch",
+    "price": 154.0
+  },
+  {
+    "bid_count": 29,
     "domain": "acoms.com",
-    "end_time_utc": "2026-09-07T18:59:37.767349+00:00",
+    "end_time_utc": "2026-09-07T18:59:28.102129+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Acoms.com",
     "platform": "DropCatch",
-    "price": 80.0
+    "price": 90.0
   },
   {
-    "bid_count": 10,
-    "domain": "heartt.com",
-    "end_time_utc": "2026-09-07T18:59:37.767349+00:00",
-    "is_mub": false,
-    "link": "https://www.dropcatch.com/domain/HeartT.com",
-    "platform": "DropCatch",
-    "price": 69.0
-  },
-  {
-    "bid_count": 20,
+    "bid_count": 21,
     "domain": "yrub.com",
-    "end_time_utc": "2026-09-08T18:59:37.767349+00:00",
+    "end_time_utc": "2026-09-08T18:59:28.102129+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Yrub.com",
     "platform": "DropCatch",
-    "price": 205.0
+    "price": 225.0
   },
   {
-    "bid_count": 31,
+    "bid_count": 35,
     "domain": "ewut.com",
-    "end_time_utc": "2026-09-08T18:59:37.767349+00:00",
+    "end_time_utc": "2026-09-08T18:59:28.102129+00:00",
     "is_mub": false,
     "link": "https://www.dropcatch.com/domain/Ewut.com",
     "platform": "DropCatch",
-    "price": 69.0
+    "price": 121.0
+  },
+  {
+    "bid_count": 28,
+    "domain": "eltes.com",
+    "end_time_utc": "2026-09-09T18:59:28.102129+00:00",
+    "is_mub": false,
+    "link": "https://www.dropcatch.com/domain/Eltes.com",
+    "platform": "DropCatch",
+    "price": 97.0
   }
 ]

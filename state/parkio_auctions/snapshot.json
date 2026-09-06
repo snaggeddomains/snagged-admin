@@ -1,30 +1,21 @@
 [
   {
-    "bid_count": 50,
-    "domain": "collect.net",
-    "end_time_utc": "2026-09-05T20:00:00+00:00",
-    "is_mub": false,
-    "link": null,
-    "platform": "Park.io",
-    "price": 4650.0
-  },
-  {
-    "bid_count": 54,
+    "bid_count": 57,
     "domain": "xnames.com",
     "end_time_utc": "2026-09-07T15:00:00+00:00",
     "is_mub": false,
     "link": null,
     "platform": "Park.io",
-    "price": 2024.0
+    "price": 2125.0
   },
   {
-    "bid_count": 65,
+    "bid_count": 69,
     "domain": "eonis.com",
     "end_time_utc": "2026-09-07T20:00:00+00:00",
     "is_mub": false,
     "link": null,
     "platform": "Park.io",
-    "price": 1500.0
+    "price": 2005.0
   },
   {
     "bid_count": 11,

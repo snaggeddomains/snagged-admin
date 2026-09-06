@@ -1,14 +1,5 @@
 [
   {
-    "bid_count": 7,
-    "domain": "ahmadinejad.com",
-    "end_time_utc": "2026-09-05T15:00:00+00:00",
-    "is_mub": false,
-    "link": "https://www.namesilo.com/auctions/ahmadinejad.com",
-    "platform": "NameSilo",
-    "price": 26.0
-  },
-  {
     "bid_count": 48,
     "domain": "burgrr.com",
     "end_time_utc": "2026-09-06T15:00:00+00:00",
@@ -16,5 +7,32 @@
     "link": "https://www.namesilo.com/auctions/burgrr.com",
     "platform": "NameSilo",
     "price": 92.0
+  },
+  {
+    "bid_count": 8,
+    "domain": "yarfs.com",
+    "end_time_utc": "2026-09-06T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namesilo.com/auctions/yarfs.com",
+    "platform": "NameSilo",
+    "price": 10.0
+  },
+  {
+    "bid_count": 7,
+    "domain": "reolt.com",
+    "end_time_utc": "2026-09-06T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namesilo.com/auctions/reolt.com",
+    "platform": "NameSilo",
+    "price": 6.0
+  },
+  {
+    "bid_count": 57,
+    "domain": "xnames.com",
+    "end_time_utc": "2026-09-07T15:00:00+00:00",
+    "is_mub": false,
+    "link": "https://www.namesilo.com/auctions/xnames.com",
+    "platform": "NameSilo",
+    "price": 2125.0
   }
 ]
