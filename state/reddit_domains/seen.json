@@ -1,5 +1,5 @@
 {
-  "count": 54,
+  "count": 55,
   "domains": [
     "039.org",
     "0801.org",
@@ -13,6 +13,7 @@
     "beautiful.ai",
     "beverley.co",
     "bur.ai",
+    "configure.me",
     "dada.com",
     "deployment.sh",
     "derived.me",
@@ -57,5 +58,5 @@
     "wordpress.com"
   ],
   "source": "reddit_domains",
-  "updated_at": "2026-09-05T23:01:33.120009+00:00"
+  "updated_at": "2026-09-06T10:01:02.100923+00:00"
 }
